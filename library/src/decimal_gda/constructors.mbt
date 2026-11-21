@@ -331,35 +331,35 @@ pub fn Decimal::with_precision(
 ///|
 /// The binary value nearest to `self` in `mode` (IEEE 754-2019 4.3.1, the rounding
 /// attributes of the radix of the result), with `precision` bits. The precision
-/// is required and counts bits, from 1 to `@bin_float.binary_precision_max`;
+/// is required and counts bits, from 1 to `@binary.binary_precision_max`;
 /// outside that range the call aborts.
-pub fn Decimal::to_bin_float(
+pub fn Decimal::to_binary(
   self : Decimal,
   precision~ : Int32,
-  mode~ : @bin_float.BinaryRoundingMode = @bin_float.BinaryRoundingMode::RoundTiesToEven,
-) -> @bin_float.BinFloat {
-  guard precision >= 1 && precision <= @bin_float.binary_precision_max else {
+  mode~ : @binary.BinaryRoundingMode = @binary.BinaryRoundingMode::RoundTiesToEven,
+) -> @binary.Binary {
+  guard precision >= 1 && precision <= @binary.binary_precision_max else {
     abort(
-      "Decimal::to_bin_float: precision must be within 1.." +
-      @bin_float.binary_precision_max.to_string() +
+      "Decimal::to_binary: precision must be within 1.." +
+      @binary.binary_precision_max.to_string() +
       " bits, got " +
       precision.to_string(),
     )
   }
-  self.to_bin_float_raw(precision~, mode~)
+  self.to_binary_raw(precision~, mode~)
 }
 
 ///|
 /// The decimal value of a binary one, rounded to `precision` decimal digits in
 /// `mode`. The precision is required and counts digits.
-pub fn Decimal::from_bin_float(
-  x : @bin_float.BinFloat,
+pub fn Decimal::from_binary(
+  x : @binary.Binary,
   precision~ : Int32,
   mode~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
 ) -> Decimal {
-  Decimal::from_bin_float_raw(
+  Decimal::from_binary_raw(
     x,
-    precision=decimal_checked_precision(precision, "Decimal::from_bin_float"),
+    precision=decimal_checked_precision(precision, "Decimal::from_binary"),
     mode=decimal_rounding(mode),
   )
 }
@@ -494,11 +494,11 @@ fn Decimal::from_double_raw(x : Double, precision~ : Int32 = 34) -> Decimal {
       Decimal::zero_raw(precision~)
     }
   }
-  let bin = @bin_float.BinFloat::from_double(x, precision=53)
+  let bin = @binary.Binary::from_double(x, precision=53)
   match bin.classify() {
     FpClass::NaN => Decimal::nan_raw(precision~)
     FpClass::Infinity => Decimal::inf_with_sign(bin.sign(), precision~)
-    FpClass::Finite => Decimal::from_bin_float_raw(bin, precision~)
+    FpClass::Finite => Decimal::from_binary_raw(bin, precision~)
   }
 }
 
@@ -514,21 +514,21 @@ fn Decimal::from_float_raw(x : Float, precision~ : Int32 = 34) -> Decimal {
 /// `2^(e_min - precision - 4)` it underflows, each as the rounding direction
 /// says. `None` for every other value. `10^a >= 2^(3.32 a)` and
 /// `10^(a + 1) <= 2^(3.33 (a + 1))`, so the cut-offs below keep a margin.
-fn decimal_to_bin_float_out_of_range(
+fn decimal_to_binary_out_of_range(
   value : Decimal,
   precision : Int32,
-  mode : @bin_float.BinaryRoundingMode,
-) -> @bin_float.BinFloat? {
+  mode : @binary.BinaryRoundingMode,
+) -> @binary.Binary? {
   let adjusted = adjusted_exponent64(value)
-  let e_max = @bin_float.binary_implementation_e_max.to_int64()
-  let e_min = @bin_float.binary_implementation_e_min.to_int64()
+  let e_max = @binary.binary_implementation_e_max.to_int64()
+  let e_min = @binary.binary_implementation_e_min.to_int64()
   let above = (e_max + 2L) * 30103L / 100000L + 2L
   let below = (e_min - precision.to_int64() - 4L) * 30103L / 100000L - 3L
   let negative = value.negative
   if adjusted > above {
     Some(
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::one(),
+      @binary.Binary::make(
+        @binary.BinCoeff::one(),
         e_max.to_int() + 4,
         precision,
         negative~,
@@ -537,8 +537,8 @@ fn decimal_to_bin_float_out_of_range(
     )
   } else if adjusted + 1L < below {
     Some(
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::one(),
+      @binary.Binary::make(
+        @binary.BinCoeff::one(),
         e_min.to_int() - precision - 8,
         precision,
         negative~,
@@ -551,22 +551,22 @@ fn decimal_to_bin_float_out_of_range(
 }
 
 ///|
-/// The exponent magnitude from which `to_bin_float` converts through the exact
-/// decimal parser of `bin_float` instead of forming `5^e` or `10^scale` (#468).
+/// The exponent magnitude from which `to_binary` converts through the exact
+/// decimal parser of `binary` instead of forming `5^e` or `10^scale` (#468).
 let decimal_parser_conversion_exponent : Int32 = 4096
 
 ///|
-/// `to_bin_float` of a finite non-zero `value` through `BinFloat::from_string_ctx`,
-/// the exact decimal conversion of `bin_float` (correctly rounded for any precision
+/// `to_binary` of a finite non-zero `value` through `Binary::from_string_ctx`,
+/// the exact decimal conversion of `binary` (correctly rounded for any precision
 /// and exponent, checked against MPFR), whose cost does not grow with the decimal
 /// exponent. `None` when the precision is outside the binary range (the caller
 /// then takes the expansion, which reports it as before).
-fn decimal_to_bin_float_through_parser(
+fn decimal_to_binary_through_parser(
   value : Decimal,
   precision : Int32,
-  mode : @bin_float.BinaryRoundingMode,
-) -> @bin_float.BinFloat? {
-  guard precision > 0 && precision <= @bin_float.binary_precision_max else {
+  mode : @binary.BinaryRoundingMode,
+) -> @binary.Binary? {
+  guard precision > 0 && precision <= @binary.binary_precision_max else {
     return None
   }
   let text = (if value.negative { "-" } else { "" }) +
@@ -574,9 +574,9 @@ fn decimal_to_bin_float_through_parser(
     "E" +
     value.exponent10.to_string()
   match
-    @bin_float.BinFloat::from_string_ctx(
+    @binary.Binary::from_string_ctx(
       text,
-      @bin_float.BinaryContext::new(precision~, rounding=mode),
+      @binary.BinaryContext::new(precision~, rounding=mode),
     ) {
     Ok((result, _)) => Some(result)
     Err(_) => None
@@ -619,34 +619,34 @@ fn decimal_coeff_pow5_divisibility(coeff : DecCoeff, k : Int32) -> Int32 {
 }
 
 ///|
-fn Decimal::to_bin_float_raw(
+fn Decimal::to_binary_raw(
   self : Decimal,
   precision~ : Int32 = self.precision_,
-  mode~ : @bin_float.BinaryRoundingMode = @bin_float.BinaryRoundingMode::RoundTiesToEven,
-) -> @bin_float.BinFloat {
+  mode~ : @binary.BinaryRoundingMode = @binary.BinaryRoundingMode::RoundTiesToEven,
+) -> @binary.Binary {
   match self.class {
-    FpClass::NaN => @bin_float.BinFloat::nan(precision~)
+    FpClass::NaN => @binary.Binary::nan(precision~)
     FpClass::Infinity =>
-      @bin_float.BinFloat::inf(negative=self.is_signed(), precision~)
+      @binary.Binary::inf(negative=self.is_signed(), precision~)
     FpClass::Finite => {
       if self.coefficient.is_zero() {
-        return @bin_float.BinFloat::zero(precision~)
+        return @binary.Binary::zero(precision~)
       }
-      match decimal_to_bin_float_out_of_range(self, precision, mode) {
+      match decimal_to_binary_out_of_range(self, precision, mode) {
         Some(result) => return result
         None => ()
       }
       if self.exponent10 >= decimal_parser_conversion_exponent ||
         self.exponent10 <= -decimal_parser_conversion_exponent {
-        match decimal_to_bin_float_through_parser(self, precision, mode) {
+        match decimal_to_binary_through_parser(self, precision, mode) {
           Some(result) => return result
           None => ()
         }
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
-        return @bin_float.BinFloat::make(
-          @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
+        return @binary.Binary::make(
+          @binary.BinCoeff::from_bytes_be(magnitude.to_octets()),
           self.exponent10,
           precision,
           negative=self.negative,
@@ -657,7 +657,7 @@ fn Decimal::to_bin_float_raw(
       // 10^scale < 2^(4 * scale), so the quotient keeps at least precision + 3
       // bits. Truncating it and setting its last bit when the division is
       // inexact (round to odd) leaves two bits below the target position and a
-      // sticky bit, so BinFloat::make rounds the exact value once, in every
+      // sticky bit, so Binary::make rounds the exact value once, in every
       // mode; rounding the quotient in the target mode first would round a
       // value just above a binary midpoint onto it, and ties-to-even would
       // then go the wrong way.
@@ -682,8 +682,8 @@ fn Decimal::to_bin_float_raw(
         _ => truncated * divisor == numerator
       }
       let q = if exact { truncated } else { truncated | bigint_one() }
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
+      @binary.Binary::make(
+        @binary.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
         precision,
         negative=self.sign() == Sign::Negative,
@@ -696,21 +696,21 @@ fn Decimal::to_bin_float_raw(
 ///|
 /// The sign, coefficient and exponent of the surrogate of a finite non-zero `x`
 /// at a precision of `precision` digits: the first `precision + 1` correctly
-/// rounded (truncated) digits of `|x|` from `BinFloat::to_decimal_string_ctx`,
+/// rounded (truncated) digits of `|x|` from `Binary::to_decimal_string_ctx`,
 /// with a sticky digit `1` appended when digits were dropped; for an exact value
 /// the trailing zeros are dropped and the member of the cohort closest to
 /// exponent 0 is kept. A private copy of `decimal_surrogate_parts` of `decimal`
 /// (the two packages share no code outside the internal kernel).
 fn decimal_surrogate_parts(
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   precision : Int32,
 ) -> (Bool, DecCoeff, Int32) {
   let digits = precision + 1
   let (text, flags) = x.to_decimal_string_ctx(
     digits,
-    @bin_float.BinaryContext::new(
+    @binary.BinaryContext::new(
       precision=53,
-      rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
+      rounding=@binary.BinaryRoundingMode::RoundTowardZero,
     ),
   )
   let sticky = flags.inexact()
@@ -754,16 +754,16 @@ fn decimal_surrogate_parts(
 }
 
 ///|
-/// The plain `from_bin_float` of a finite non-zero `x` without the exact
+/// The plain `from_binary` of a finite non-zero `x` without the exact
 /// expansion `c * 5^k` or `c << e2` (the shape that #423 removed from
-/// `from_bin_float_ctx`): the digits of the surrogate of
+/// `from_binary_ctx`): the digits of the surrogate of
 /// `decimal_surrogate_parts` rounded once to `precision` digits, half-even, by
 /// the rounding of the plain form. The surrogate keeps the first `precision + 1`
 /// digits of `|x|` with a sticky digit and, for an exact value, the member of the
 /// cohort closest to exponent 0, so the result is the one of the exact expansion
 /// (coefficient, exponent and sign).
-fn decimal_from_bin_float_surrogate(
-  x : @bin_float.BinFloat,
+fn decimal_from_binary_surrogate(
+  x : @binary.Binary,
   precision : Int32,
   mode : DecimalRoundingMode,
 ) -> Decimal {
@@ -787,8 +787,8 @@ fn decimal_from_bin_float_surrogate(
 /// exponent, quadratically for a negative one) is worth avoiding: the exponent
 /// is large and the requested precision is small against it (a precision of
 /// about the size of the value needs the whole expansion anyway).
-fn decimal_from_bin_float_is_bounded(
-  x : @bin_float.BinFloat,
+fn decimal_from_binary_is_bounded(
+  x : @binary.Binary,
   precision : Int32,
 ) -> Bool {
   let e2 = x.exponent2().to_int64()
@@ -797,8 +797,8 @@ fn decimal_from_bin_float_is_bounded(
 }
 
 ///|
-fn Decimal::from_bin_float_raw(
-  x : @bin_float.BinFloat,
+fn Decimal::from_binary_raw(
+  x : @binary.Binary,
   precision~ : Int32 = x.precision(),
   mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
@@ -808,8 +808,8 @@ fn Decimal::from_bin_float_raw(
     FpClass::Finite =>
       if x.is_zero() {
         Decimal::zero_raw(precision~)
-      } else if decimal_from_bin_float_is_bounded(x, precision) {
-        decimal_from_bin_float_surrogate(x, precision, mode)
+      } else if decimal_from_binary_is_bounded(x, precision) {
+        decimal_from_binary_surrogate(x, precision, mode)
       } else {
         // the exact value `c * 2^e2` as a decimal coefficient and exponent,
         // in the decimal kernel: no big integer and no second conversion
@@ -826,7 +826,7 @@ fn Decimal::from_bin_float_raw(
         } else {
           // c * 2^-k = c * 5^k * 10^-k; an exact result takes the exponent
           // closest to 0, so trailing zeros go but never past exponent 0. A
-          // `BinFloat` coefficient is odd, so `c * 5^k` is odd and ends in a 5:
+          // `Binary` coefficient is odd, so `c * 5^k` is odd and ends in a 5:
           // the trim is a one-limb test that never fires today, kept so that
           // the rule holds if the binary normalisation ever changes.
           let k = -e2

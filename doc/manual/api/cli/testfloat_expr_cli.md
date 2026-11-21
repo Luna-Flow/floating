@@ -5,7 +5,7 @@
 `cli/testfloat_expr_cli` is the command-line runner for Berkeley TestFloat
 vector files. It builds a `TestFloatSpec` from its options, parses one vector
 file with [`frontend/testfloat_expr`](../frontend/testfloat_expr.md),
-executes it against `bin_float` and prints a summary. It is normally reached as
+executes it against `binary` and prints a summary. It is normally reached as
 `floating-conformance --backend testfloat …`. See the
 [tutorial](../../tutorial/cli/testfloat_expr_cli.md) and the
 [design page](../../design/cli/testfloat_expr_cli.md).

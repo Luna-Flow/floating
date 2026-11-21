@@ -1,7 +1,7 @@
 # `bench/external`
 
 Maremark benchmarks of `floating` against MPFR (binary) and libmpdec
-(`decimal_gda`) on the same operands. The package times `bin_float` and
+(`decimal_gda`) on the same operands. The package times `binary` and
 `decimal_gda` on the cases of an operand file written by
 `tools/external_baseline.py`, checks every result against the MPFR or libmpdec
 result for the same operands, and streams versioned `mmka_1` JSONL. The C side

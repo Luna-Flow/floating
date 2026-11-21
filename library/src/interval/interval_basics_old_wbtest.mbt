@@ -2,17 +2,17 @@
 
 ///|
 fn old_division_bounds(
-  numerator : @bin_float.BinFloat,
-  denominator : @bin_float.BinFloat,
+  numerator : @binary.Binary,
+  denominator : @binary.Binary,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let downward = @bin_float.BinaryContext::new(
+) -> (@binary.Binary, @binary.Binary) {
+  let downward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   (
     numerator.div_ctx(denominator, downward).0,
@@ -22,17 +22,17 @@ fn old_division_bounds(
 
 ///|
 fn old_extended_division_bounds(
-  numerator : @bin_float.BinFloat,
-  denominator : @bin_float.BinFloat,
+  numerator : @binary.Binary,
+  denominator : @binary.Binary,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+) -> (@binary.Binary, @binary.Binary) {
   if numerator.is_zero() || denominator.classify() == FpClass::Infinity {
-    let zero = @bin_float.BinFloat::zero(precision~)
+    let zero = @binary.Binary::zero(precision~)
     return (zero, zero)
   }
   if numerator.classify() == FpClass::Infinity {
     let negative = numerator.sign() != denominator.sign()
-    let infinity = @bin_float.BinFloat::inf(negative~, precision~)
+    let infinity = @binary.Binary::inf(negative~, precision~)
     return (infinity, infinity)
   }
   old_division_bounds(numerator, denominator, precision)
@@ -93,7 +93,7 @@ fn old_multiplication_bounds(
   a : Interval,
   b : Interval,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+) -> (@binary.Binary, @binary.Binary) {
   if a.is_common_interval() && b.is_common_interval() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
     let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
@@ -215,13 +215,13 @@ fn old_pown_positive(
     value.lo_,
     exponent,
     precision,
-    @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    @binary.BinaryRoundingMode::RoundTowardNegative,
   )
   let hi_power = pown_endpoint(
     value.hi_,
     exponent,
     precision,
-    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    @binary.BinaryRoundingMode::RoundTowardPositive,
   )
   if pown_exponent_is_odd(exponent) {
     return store_interval(lo_power, hi_power, precision)
@@ -231,10 +231,10 @@ fn old_pown_positive(
       value.lo_,
       exponent,
       precision,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      @binary.BinaryRoundingMode::RoundTowardPositive,
     )
     return store_interval(
-      @bin_float.BinFloat::zero(precision~),
+      @binary.Binary::zero(precision~),
       bin_max(lo_power_upper, hi_power),
       precision,
     )
@@ -245,13 +245,13 @@ fn old_pown_positive(
         value.hi_,
         exponent,
         precision,
-        @bin_float.BinaryRoundingMode::RoundTowardNegative,
+        @binary.BinaryRoundingMode::RoundTowardNegative,
       ),
       pown_endpoint(
         value.lo_,
         exponent,
         precision,
-        @bin_float.BinaryRoundingMode::RoundTowardPositive,
+        @binary.BinaryRoundingMode::RoundTowardPositive,
       ),
       precision,
     )

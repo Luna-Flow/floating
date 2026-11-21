@@ -4,13 +4,13 @@
 // text against its bound as exact fractions). The table is interval_text_table_wbtest.mbt.
 
 ///|
-fn oracle_bound(text : String, precision : Int32) -> @bin_float.BinFloat {
+fn oracle_bound(text : String, precision : Int32) -> @binary.Binary {
   if text == "inf" {
-    @bin_float.BinFloat::inf(precision~)
+    @binary.Binary::inf(precision~)
   } else if text == "-inf" {
-    @bin_float.BinFloat::inf(negative=true, precision~)
+    @binary.Binary::inf(negative=true, precision~)
   } else {
-    @bin_float.BinFloat::from_hex(text, precision).unwrap()
+    @binary.Binary::from_hex(text, precision).unwrap()
   }
 }
 

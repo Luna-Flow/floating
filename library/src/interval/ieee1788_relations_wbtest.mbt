@@ -1,8 +1,8 @@
 ///|
 fn relation_interval(lo : Int32, hi : Int32) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_int(lo, precision=32),
-    @bin_float.BinFloat::from_int(hi, precision=32),
+    @binary.Binary::from_int(lo, precision=32),
+    @binary.Binary::from_int(hi, precision=32),
     precision=32,
   )
 }
@@ -27,10 +27,10 @@ test "IEEE 1788 set relations follow endpoint definitions" {
 ///|
 test "IEEE 1788 interior permits shared infinite endpoints" {
   let precision = 32
-  let negative_infinity = @bin_float.BinFloat::inf(negative=true, precision~)
-  let positive_infinity = @bin_float.BinFloat::inf(precision~)
-  let zero = @bin_float.BinFloat::zero(precision~)
-  let one = @bin_float.BinFloat::one(precision~)
+  let negative_infinity = @binary.Binary::inf(negative=true, precision~)
+  let positive_infinity = @binary.Binary::inf(precision~)
+  let zero = @binary.Binary::zero(precision~)
+  let one = @binary.Binary::one(precision~)
   let left_half = Interval::from_bounds(negative_infinity, zero, precision~)
   let wider_left_half = Interval::from_bounds(
     negative_infinity,
@@ -39,7 +39,7 @@ test "IEEE 1788 interior permits shared infinite endpoints" {
   )
   let right_half = Interval::from_bounds(zero, positive_infinity, precision~)
   let wider_right_half = Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-1, precision~),
+    @binary.Binary::from_int(-1, precision~),
     positive_infinity,
     precision~,
   )

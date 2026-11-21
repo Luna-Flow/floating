@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rows for `library/src/bin_float/decimal_format_range_issue677_wbtest.mbt`.
+"""Rows for `library/src/binary/decimal_format_range_issue677_wbtest.mbt`.
 
 Each row is (coefficient, binary exponent, digits, expected text): the value
 `coefficient * 2^exponent` rounded once to `digits` significant decimal digits,
@@ -22,7 +22,7 @@ from decimal import Decimal, localcontext
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TARGET = ROOT / "library/src/bin_float/decimal_format_range_issue677_wbtest.mbt"
+TARGET = ROOT / "library/src/binary/decimal_format_range_issue677_wbtest.mbt"
 BEGIN = "// BEGIN ROWS"
 END = "// END ROWS"
 

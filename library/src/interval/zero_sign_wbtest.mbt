@@ -11,7 +11,7 @@
 // 0; the rule applies to it and not to the value that was rounded.
 
 ///|
-fn zs(x : @bin_float.BinFloat) -> String {
+fn zs(x : @binary.Binary) -> String {
   if x.is_zero() {
     if x.is_negative() {
       "-0"
@@ -24,7 +24,7 @@ fn zs(x : @bin_float.BinFloat) -> String {
 }
 
 ///|
-fn zero_case(lo : @bin_float.BinFloat, hi : @bin_float.BinFloat) -> Interval {
+fn zero_case(lo : @binary.Binary, hi : @binary.Binary) -> Interval {
   Interval::from_bounds(lo, hi, precision=53)
 }
 
@@ -43,9 +43,9 @@ fn zero_report(x : Interval) -> String {
 
 ///|
 test "12.12.8: the sign of a zero from inf, sup, mid, rad, wid, mag and mig" {
-  let zero = @bin_float.BinFloat::zero(precision=53)
-  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
-  let one = @bin_float.BinFloat::from_int(1, precision=53)
+  let zero = @binary.Binary::zero(precision=53)
+  let negative_zero = @binary.Binary::negative_zero(precision=53)
+  let one = @binary.Binary::from_int(1, precision=53)
   let minus_one = one.neg()
   inspect(
     zero_report(zero_case(zero, one)),

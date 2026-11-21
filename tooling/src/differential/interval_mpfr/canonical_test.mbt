@@ -1,10 +1,10 @@
 ///|
-/// The canonical text of a `BinFloat` bound, the form `tools/mpfr_ours.h`
+/// The canonical text of a `Binary` bound, the form `tools/mpfr_ours.h`
 /// prints: `nan`, `inf`, `-inf`, `0`, `-0`, or `[-]0b<odd integer in binary>p<exponent>`.
 /// Written from the accessors of the value (class, sign, coefficient, exponent)
 /// and not through `to_hex`, so that the writer of the library is not in the
 /// comparison either.
-fn canonical_bound(x : @binary.BinFloat) -> String {
+fn canonical_bound(x : @binary.Binary) -> String {
   let negative = x.is_negative()
   match x.classify() {
     NaN => "nan"
@@ -45,26 +45,26 @@ fn canonical_bound(x : @binary.BinFloat) -> String {
 test "canonical_bound: the texts tools/mpfr_ours.h prints" {
   let p = 8
   assert_eq(
-    canonical_bound(@binary.BinFloat::from_double(1.5, precision=p)),
+    canonical_bound(@binary.Binary::from_double(1.5, precision=p)),
     "0b11p-1",
   )
   assert_eq(
-    canonical_bound(@binary.BinFloat::from_double(-0.375, precision=p)),
+    canonical_bound(@binary.Binary::from_double(-0.375, precision=p)),
     "-0b11p-3",
   )
   assert_eq(
-    canonical_bound(@binary.BinFloat::from_double(8.0, precision=p)),
+    canonical_bound(@binary.Binary::from_double(8.0, precision=p)),
     "0b1p3",
   )
-  assert_eq(canonical_bound(@binary.BinFloat::zero(precision=p)), "0")
+  assert_eq(canonical_bound(@binary.Binary::zero(precision=p)), "0")
   assert_eq(
-    canonical_bound(@binary.BinFloat::from_hex("-0x0p0", p).unwrap()),
+    canonical_bound(@binary.Binary::from_hex("-0x0p0", p).unwrap()),
     "-0",
   )
-  assert_eq(canonical_bound(@binary.BinFloat::inf(precision=p)), "inf")
+  assert_eq(canonical_bound(@binary.Binary::inf(precision=p)), "inf")
   assert_eq(
-    canonical_bound(@binary.BinFloat::inf(negative=true, precision=p)),
+    canonical_bound(@binary.Binary::inf(negative=true, precision=p)),
     "-inf",
   )
-  assert_eq(canonical_bound(@binary.BinFloat::nan(precision=p)), "nan")
+  assert_eq(canonical_bound(@binary.Binary::nan(precision=p)), "nan")
 }

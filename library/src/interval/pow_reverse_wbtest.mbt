@@ -1,15 +1,15 @@
 ///|
-fn pw_num(x : Double, precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::from_double(x, precision~).with_precision(
+fn pw_num(x : Double, precision : Int32) -> @binary.Binary {
+  @binary.Binary::from_double(x, precision~).with_precision(
     precision,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @binary.BinaryRoundingMode::RoundTiesToEven,
   )
 }
 
 ///|
 fn pw_box(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
   precision : Int32,
 ) -> Interval {
   Interval::from_bounds(lo, hi, precision~)
@@ -26,14 +26,14 @@ let pw_inf : Double = 1.0 / 0.0
 ///|
 fn pw_same(a : Interval, lo : Double, hi : Double) -> Bool {
   !a.is_empty() &&
-  a.lo_.compare(@bin_float.BinFloat::from_double(lo)) == 0 &&
-  a.hi_.compare(@bin_float.BinFloat::from_double(hi)) == 0
+  a.lo_.compare(@binary.Binary::from_double(lo)) == 0 &&
+  a.hi_.compare(@binary.Binary::from_double(hi)) == 0
 }
 
 ///|
 fn pw_class_is_dyadic(cls : PowClass, value : Double) -> Bool {
   match cls {
-    Dyadic(v) => v.compare(@bin_float.BinFloat::from_double(value)) == 0
+    Dyadic(v) => v.compare(@binary.Binary::from_double(value)) == 0
     _ => false
   }
 }
@@ -65,14 +65,10 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
   assert_true(pow_end_class(n(2.0), n(2.0), p) is Irrational)
   assert_true(pow_end_class(n(10.0), n(3.0), p) is Irrational)
   assert_true(pow_end_class(n(2.0), n(3.0), p) is Irrational)
-  let big_beta = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    70,
-    p,
-  )
+  let big_beta = @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), 70, p)
   assert_true(pow_end_class(n(5.0), big_beta, p) is Irrational)
   // an odd part that is huge: over the budget of the integer test
-  let wide = @bin_float.BinFloat::make(
+  let wide = @binary.Binary::make(
     coeff_add(coeff_shift_left(coeff_one(), pow_int_budget + 10), coeff_one()),
     0,
     pow_int_budget + 20,
@@ -80,7 +76,7 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
   assert_true(pow_end_class(wide, n(2.0), p) is Unknown)
   // a 2000-bit perfect square: the root is exact
   let root = coeff_add(coeff_shift_left(coeff_one(), 1000), coeff_one())
-  let square = @bin_float.BinFloat::make(coeff_mul(root, root), 0, 2100)
+  let square = @binary.Binary::make(coeff_mul(root, root), 0, 2100)
   match pow_end_class(square, n(2.0), p) {
     Dyadic(v) => assert_true(v.coefficient().compare(root) == 0)
     _ => fail("the square root of a 2000-bit square is exact")
@@ -90,7 +86,7 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
 ///|
 test "rational class: comparison and directed rounding of 2^E / D" {
   // 1/3 at 8 bits: 0.0101010101..b, RD = 1.0101010 * 2^-2, RU = 1.0101011 * 2^-2
-  let three = @bin_float.BinCoeff::from_uint64(3UL)
+  let three = @binary.BinCoeff::from_uint64(3UL)
   let third = pw_num(1.0 / 3.0, 53)
   assert_eq(pow_rational_compare(three, 0, pw_num(0.25, 53)), 1)
   assert_eq(pow_rational_compare(three, 0, pw_num(0.5, 53)), -1)
@@ -100,14 +96,14 @@ test "rational class: comparison and directed rounding of 2^E / D" {
     pow_rational_compare(
       three,
       0,
-      third.next_up_ctx(@bin_float.BinaryContext::new(precision=53)).0,
+      third.next_up_ctx(@binary.BinaryContext::new(precision=53)).0,
     ),
     -1,
   )
   let down = pow_rational_round(three, 0, false, 8)
   let up = pow_rational_round(three, 0, true, 8)
-  assert_true(down.compare(@bin_float.BinFloat::from_double(0.33203125)) == 0)
-  assert_true(up.compare(@bin_float.BinFloat::from_double(0.333984375)) == 0)
+  assert_true(down.compare(@binary.Binary::from_double(0.33203125)) == 0)
+  assert_true(up.compare(@binary.Binary::from_double(0.333984375)) == 0)
   // 1/3 * 2^10 and a negative or zero float
   assert_eq(pow_rational_compare(three, 10, pw_num(341.0, 53)), 1)
   assert_eq(pow_rational_compare(three, 10, pw_num(342.0, 53)), -1)
@@ -169,15 +165,13 @@ test "pow_rev1: the open ends at 0 and at 1 against a prior that touches them" {
   for p in [24, 53, 113] {
     let zero = pw_num(0.0, p)
     let one = pw_num(1.0, p)
-    let tiny = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(1UL),
+    let tiny = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(1UL),
       -1000,
       p,
     )
-    let below_one = one.next_down_ctx(
-        @bin_float.BinaryContext::new(precision=p),
-      ).0
-    let above_one = one.next_up_ctx(@bin_float.BinaryContext::new(precision=p)).0
+    let below_one = one.next_down_ctx(@binary.BinaryContext::new(precision=p)).0
+    let above_one = one.next_up_ctx(@binary.BinaryContext::new(precision=p)).0
     // (a) 0 in L and 0 in b: S = (0, +inf), 0 is not attained and not in the zero part
     let b = pw_ival(-1.0, 1.0, p)
     let c = pw_ival(0.5, 2.0, p)
@@ -228,9 +222,9 @@ test "pow_rev1: the open ends at 0 and at 1 against a prior that touches them" {
 /// argument and without refinement.
 test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 return at once" {
   let p = 53
-  let ctx = @bin_float.BinaryContext::new(precision=p)
-  let near_huge = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let ctx = @binary.BinaryContext::new(precision=p)
+  let near_huge = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     1000000000,
     p,
   )
@@ -242,11 +236,7 @@ test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 re
   ]
   for e in [31, 35, 40] {
     for sign in [1, -1] {
-      let beta = @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64(1UL),
-        -e,
-        p,
-      )
+      let beta = @binary.Binary::make(@binary.BinCoeff::from_uint64(1UL), -e, p)
       let beta = if sign < 0 { beta.neg() } else { beta }
       let b = pw_box(beta, beta, p)
       for pair in cs {
@@ -290,32 +280,28 @@ test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 re
 
 ///|
 /// The smallest positive stored value at `p` bits, `2^(e_min - p + 1)`.
-fn pw_smallest(p : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
-    @bin_float.binary_implementation_e_min - p + 1,
+fn pw_smallest(p : Int32) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
+    @binary.binary_implementation_e_min - p + 1,
     p,
   )
 }
 
 ///|
 /// The largest finite float at `p` bits, `(2^p - 1) 2^(e_max - p + 1)`.
-fn pw_largest(p : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
+fn pw_largest(p : Int32) -> @binary.Binary {
+  @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), p), coeff_one()),
-    @bin_float.binary_implementation_e_max - p + 1,
+    @binary.binary_implementation_e_max - p + 1,
     p,
   )
 }
 
 ///|
 /// `2^e` as a float at `p` bits, negated for `negative`.
-fn pw_pow2(
-  e : Int32,
-  p : Int32,
-  negative~ : Bool = false,
-) -> @bin_float.BinFloat {
-  let v = @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(1UL), e, p)
+fn pw_pow2(e : Int32, p : Int32, negative~ : Bool = false) -> @binary.Binary {
+  let v = @binary.Binary::make(@binary.BinCoeff::from_uint64(1UL), e, p)
   if negative {
     v.neg()
   } else {
@@ -325,8 +311,8 @@ fn pw_pow2(
 
 ///|
 /// `2 - 2^-40` at `p >= 41` bits.
-fn pw_two_less(p : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
+fn pw_two_less(p : Int32) -> @binary.Binary {
+  @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), 41), coeff_one()),
     -40,
     p,
@@ -336,8 +322,8 @@ fn pw_two_less(p : Int32) -> @bin_float.BinFloat {
 ///|
 test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
   for p in [53, 113] {
-    let ctx = @bin_float.BinaryContext::new(precision=p)
-    let e_max = @bin_float.binary_implementation_e_max.to_int64()
+    let ctx = @binary.BinaryContext::new(precision=p)
+    let e_max = @binary.binary_implementation_e_max.to_int64()
     let two = pw_num(2.0, p)
     let c_two = pw_box(two, two, p)
     let c_less = pw_box(pw_two_less(p), pw_two_less(p), p)
@@ -431,7 +417,7 @@ test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
 /// (`2^(e_min)/3`) is not a float: two adjacent stored values around it.
 test "pow_rev1: an exact end in the subnormal range returns at once" {
   for p in [53, 113] {
-    let ctx = @bin_float.BinaryContext::new(precision=p)
+    let ctx = @binary.BinaryContext::new(precision=p)
     let v = pw_pow2(-1073741824, p)
     let b = pw_box(
       pw_pow2(-30, p, negative=true),
@@ -461,9 +447,9 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
       b.pow_rev1(c, x=pw_box(zero, v.next_down_ctx(ctx).0, p)).is_empty(),
     )
     // the Rational class: 1 / (3 * 2^(e_min + 0)) = 2^e_min / 3, beta = -1, below the normal range
-    let three_two = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(3UL),
-      -@bin_float.binary_implementation_e_min,
+    let three_two = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(3UL),
+      -@binary.binary_implementation_e_min,
       p,
     )
     let r = pw_box(pw_num(-1.0, p), pw_num(-1.0, p), p).pow_rev1(
@@ -472,11 +458,11 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
     assert_true(!r.is_empty())
     assert_true(r.lo_.compare(zero) > 0)
     assert_true(r.lo_.next_up_ctx(ctx).0.compare(r.hi_) == 0)
-    let threefold = fn(x : @bin_float.BinFloat) {
+    let threefold = fn(x : @binary.Binary) {
       (Interval::exact(x, precision=p + 8) *
       Interval::exact(pw_num(3.0, p + 8), precision=p + 8)).lo_
     }
-    let e_min_value = pw_pow2(@bin_float.binary_implementation_e_min, p)
+    let e_min_value = pw_pow2(@binary.binary_implementation_e_min, p)
     assert_true(threefold(r.lo_).compare(e_min_value) < 0)
     assert_true(threefold(r.hi_).compare(e_min_value) > 0)
   }
@@ -491,25 +477,25 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
 /// 40 s.
 test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
   for p in [53, 113] {
-    let ctx = @bin_float.BinaryContext::new(precision=p)
-    let e_min = @bin_float.binary_implementation_e_min
+    let ctx = @binary.BinaryContext::new(precision=p)
+    let e_min = @binary.binary_implementation_e_min
     let one = pw_num(1.0, p)
     let zero = pw_num(0.0, p)
     // case 1: b = 1, c = v = 3 * 2^(e_min - 5), bitlen 2, top = e_min - 4: needs 6 bits
-    let v1 = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(3UL),
+    let v1 = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(3UL),
       e_min - 5,
       p,
     )
     // case 2: b = 1/2, c = 3 * 2^k with k = -536870914: the end is 9 * 2^(e_min - 6),
     // bitlen 4, top = e_min - 3: needs 7 bits
-    let c2 = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(3UL),
+    let c2 = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(3UL),
       -536870914,
       p,
     )
-    let v2 = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(9UL),
+    let v2 = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(9UL),
       e_min - 6,
       p,
     )
@@ -543,13 +529,13 @@ test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
     // an exact end finer than the grid of the result precision: c = 3 * 2^-536870950, b = 1/2:
     // the end is 9 * 2^(e_min - 78), exact at 79 bits; at p = 53 it is below half a quantum
     // (RD = 0, RU = the smallest positive stored value), at p = 113 it is a stored value
-    let c3 = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(3UL),
+    let c3 = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(3UL),
       -536870950,
       p,
     )
-    let v3 = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(9UL),
+    let v3 = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(9UL),
       e_min - 78,
       p,
     )
@@ -569,13 +555,13 @@ test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
 ///|
 test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let p = 53
-  let huge = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let huge = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     1000000000,
     p,
   )
-  let tiny = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let tiny = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     -1000000000,
     p,
   )
@@ -587,7 +573,7 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let r = b_huge.pow_rev1(c)
   assert_true(r.lo_.compare(one) == 0)
   assert_true(
-    r.hi_.compare(one.next_up_ctx(@bin_float.BinaryContext::new(precision=p)).0) ==
+    r.hi_.compare(one.next_up_ctx(@binary.BinaryContext::new(precision=p)).0) ==
     0,
   )
   // beta = -2^1e9: x = 2^(-1/2^1e9), strictly below 1: [1 - ulp/2, 1]
@@ -611,15 +597,15 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   assert_true(b2.pow_rev1(c4, x=pw_box(tiny, tiny, p)).is_empty())
   // a 2000-bit c and a beta with 500 fractional bits
   let root = coeff_add(coeff_shift_left(coeff_one(), 1000), coeff_one())
-  let square = @bin_float.BinFloat::make(coeff_mul(root, root), 0, 2100)
+  let square = @binary.Binary::make(coeff_mul(root, root), 0, 2100)
   let c_wide = Interval::from_bounds(square, square, precision=2100)
   let r5 = pw_ival(2.0, 2.0, p).pow_rev1(c_wide)
   // the result has the precision of the operands (2100 bits), and the root 2^1000 + 1
   // is exact in the class of dyadic values: [2^1000 + 1, 2^1000 + 1]
-  let exact_root = @bin_float.BinFloat::make(root, 0, 1001)
+  let exact_root = @binary.Binary::make(root, 0, 1001)
   assert_true(r5.lo_.compare(exact_root) == 0)
   assert_true(r5.hi_.compare(exact_root) == 0)
-  let beta500 = @bin_float.BinFloat::make(
+  let beta500 = @binary.Binary::make(
     coeff_add(coeff_shift_left(coeff_one(), 500), coeff_one()),
     -500,
     501,
@@ -628,7 +614,7 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let r6 = b_frac.pow_rev1(pw_ival(2.0, 2.0, p))
   // 2^(1/(1 + 2^-500)) = 2 (1 - 2^-500 ln 2 + ...) is just below 2; the result has the
   // 501 bits of beta, so the enclosure lies between 2 - 2^-495 and 2
-  let floor_2 = @bin_float.BinFloat::make(
+  let floor_2 = @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), 500), coeff_one()),
     -499,
     501,

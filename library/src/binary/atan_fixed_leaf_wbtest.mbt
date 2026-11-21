@@ -1,0 +1,179 @@
+///|
+/// Test-only copy of the floating-point Taylor leaf of `atan` before #378 (four
+/// `Binary` operations per term): the fixed-point leaf must contain it
+/// evaluated at 128 more bits.
+
+///|
+/// Series enclosure of `atan` on a nonnegative pair: the lower track runs on
+/// `lo` (rounded down) and the upper track on `hi` (rounded up), so the result
+/// `(l, u)` satisfies `l <= atan(x) <= u` for every `x` in `[lo, hi]`.
+/// Requires `0 <= lo <= hi <= 1/2` after rounding to `work_precision`.
+fn old_atan_small_leaf(
+  lo : Binary,
+  hi : Binary,
+  work_precision : Int32,
+) -> (Binary, Binary)? {
+  let downward = BinaryContext::new(
+    precision=work_precision,
+    rounding=RoundTowardNegative,
+  )
+  let upward = BinaryContext::new(
+    precision=work_precision,
+    rounding=RoundTowardPositive,
+  )
+  let lower_value = if lo.is_zero() {
+    Binary::zero(precision=work_precision)
+  } else {
+    lo.with_precision(work_precision, BinaryRoundingMode::RoundTowardNegative)
+  }
+  let upper_value = hi.with_precision(
+    work_precision,
+    BinaryRoundingMode::RoundTowardPositive,
+  )
+  let half = Binary::make(BinCoeff::one(), -1, work_precision)
+  guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
+    upper_value.compare(half) <= 0 else {
+    return None
+  }
+  if upper_value.is_zero() {
+    return Some((lower_value, upper_value))
+  }
+  let square_lower = lower_value.mul_ctx(lower_value, downward).0
+  let square_upper = upper_value.mul_ctx(upper_value, upward).0
+  let mut power_lower = lower_value
+  let mut power_upper = upper_value
+  let mut sum_lower = lower_value
+  let mut sum_upper = upper_value
+  let mut bracket_lower = Binary::zero(precision=work_precision)
+  let mut bracket_upper = upper_value
+  let threshold = Binary::make(
+    BinCoeff::one(),
+    -(work_precision + 12),
+    work_precision,
+  )
+  let mut index = 1
+  while index < 20000 {
+    power_lower = power_lower.mul_ctx(square_lower, downward).0
+    power_upper = power_upper.mul_ctx(square_upper, upward).0
+    let denominator = Binary::from_int(2 * index + 1, precision=work_precision)
+    let piece_lower = power_lower.div_ctx(denominator, downward).0
+    let piece_upper = power_upper.div_ctx(denominator, upward).0
+    if index % 2 == 1 {
+      sum_lower = sum_lower.sub_ctx(piece_upper, downward).0
+      sum_upper = sum_upper.sub_ctx(piece_lower, upward).0
+      bracket_lower = sum_lower
+    } else {
+      sum_lower = sum_lower.add_ctx(piece_lower, downward).0
+      sum_upper = sum_upper.add_ctx(piece_upper, upward).0
+      bracket_upper = sum_upper
+    }
+    if index % 2 == 1 && piece_upper.compare(threshold) < 0 {
+      return Some((bracket_lower, bracket_upper))
+    }
+    index += 1
+  }
+  None
+}
+
+///|
+fn atan_leaf_check(
+  lo : Binary,
+  hi : Binary,
+  w : Int32,
+  label : String,
+) -> Unit raise {
+  let fresh = binary_atan_small_positive_pair_bounds(lo, hi, w).unwrap()
+  // The true range of atan over [lo, hi] is enclosed by the high-precision
+  // point enclosures at the two ends (atan is increasing).
+  let low_reference = old_atan_small_leaf(lo, lo, w + 128).unwrap()
+  let high_reference = old_atan_small_leaf(hi, hi, w + 128).unwrap()
+  assert_true(
+    fresh.0.compare(low_reference.0) <= 0,
+    msg="leaf lower \{label} w=\{w}",
+  )
+  assert_true(
+    fresh.1.compare(high_reference.1) >= 0,
+    msg="leaf upper \{label} w=\{w}",
+  )
+  // Not much wider than the old enclosure at the same precision.
+  let previous = old_atan_small_leaf(lo, hi, w).unwrap()
+  let wide = fresh.1.sub_ctx(
+      fresh.0,
+      BinaryContext::new(precision=4000, rounding=RoundTowardPositive),
+    ).0
+  let old_wide = previous.1.sub_ctx(
+      previous.0,
+      BinaryContext::new(precision=4000, rounding=RoundTowardPositive),
+    ).0
+  let slack = Binary::make(BinCoeff::one(), previous.1.exponent2() + 6, 2)
+  let limit = old_wide.mul_ctx(
+      Binary::from_int(2, precision=2),
+      BinaryContext::new(precision=4000),
+    ).0.add_ctx(slack, BinaryContext::new(precision=4000)).0
+  assert_true(wide.compare(limit) <= 0, msg="leaf width \{label} w=\{w}")
+}
+
+///|
+test "fixed-point atan leaf contains the floating-point leaf at higher precision" {
+  let values = [
+    0.5, 0.4142135623730951, 0.3, 0.2, 0.1, 0.01, 0.001, 1.0e-6, 1.0e-9, 1.0e-12,
+    1.0e-15, 1.0e-30, 1.0e-100, 1.0e-300,
+  ]
+  for w in [53, 64, 128, 300] {
+    for d in values {
+      let x = Binary::from_double(d, precision=w)
+      atan_leaf_check(x, x, w, "point \{d}")
+      // A pair of neighbours and a wide pair.
+      let up = x.add_ctx(
+          Binary::make(BinCoeff::one(), x.exponent2() + 3, 2),
+          BinaryContext::new(precision=w, rounding=RoundTowardPositive),
+        ).0
+      if up.compare(Binary::make(BinCoeff::one(), -1, 2)) <= 0 {
+        atan_leaf_check(x, up, w, "pair \{d}")
+      }
+      atan_leaf_check(Binary::zero(precision=w), x, w, "zero pair \{d}")
+    }
+  }
+}
+
+///|
+test "fixed-point atan leaf at the tiny-argument threshold, both sides" {
+  // The shortcut applies from q = w/2 + 8 with q = -top(hi): test the values
+  // 2^-(q) * (1 +- tiny) on both sides of every threshold.
+  for w in [24, 53, 64, 129, 300] {
+    let q0 = w / 2 + 8
+    for q in [q0 - 2, q0 - 1, q0, q0 + 1, q0 + 2, w, 2 * w] {
+      for mant in [1UL, 3UL, 0x1fffffffffffffUL] {
+        let c = BinCoeff::from_uint64(mant)
+        let x = Binary::make(
+          c,
+          -q - (c.bit_length() - 1),
+          Int32::max(w, c.bit_length()),
+        )
+        let xw = x.with_precision(w, BinaryRoundingMode::RoundTiesToEven)
+        if xw.compare(Binary::make(BinCoeff::one(), -1, 2)) <= 0 {
+          atan_leaf_check(xw, xw, w, "threshold q=\{q} m=\{mant}")
+        }
+      }
+    }
+  }
+}
+
+///|
+test "pi series enclosure of the fixed-point leaf contains pi" {
+  // binary_pi_series_compute is 4 atan(1): the digest rows of const_pi change
+  // with the leaf; the enclosure must still contain pi (cached constant at 200
+  // more bits) and stay within a few units in the last place of its width.
+  for w in 8..<70 {
+    let fresh = binary_pi_series_compute(w).unwrap()
+    let reference = binary_pi_bounds(w + 200).unwrap()
+    assert_true(fresh.0.compare(reference.0) <= 0, msg="pi lower w=\{w}")
+    assert_true(fresh.1.compare(reference.1) >= 0, msg="pi upper w=\{w}")
+    let width = fresh.1.sub_ctx(
+        fresh.0,
+        BinaryContext::new(precision=400, rounding=RoundTowardPositive),
+      ).0
+    let limit = Binary::make(BinCoeff::one(), fresh.1.exponent2() + 6, 2)
+    assert_true(width.compare(limit) <= 0, msg="pi width w=\{w}")
+  }
+}

@@ -1,6 +1,6 @@
 import {
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/interval",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/def",
 }

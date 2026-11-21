@@ -3,9 +3,9 @@ fn endpoint_rounding_value(
   coefficient : UInt64,
   exponent : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(coefficient),
+) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(coefficient),
     exponent,
     precision,
   )
@@ -16,7 +16,7 @@ fn endpoint_rounding_value(
 /// re-quantizing at 53 bits must not change the set.
 fn endpoint_rounding_unit_interval() -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::one(precision=53),
+    @binary.Binary::one(precision=53),
     endpoint_rounding_value((1UL << 52) + 1UL, -52, 53),
     precision=53,
   )
@@ -40,7 +40,7 @@ test "with_precision rounds each endpoint outward" {
   let x = endpoint_rounding_unit_interval()
   // At 8 bits, 1 stays and 1 + 2^-52 rounds up to 1 + 2^-7.
   let y = x.with_precision(8)
-  assert_eq(y.lower_bound().compare(@bin_float.BinFloat::one()), 0)
+  assert_eq(y.lower_bound().compare(@binary.Binary::one()), 0)
   assert_eq(y.upper_bound().compare(endpoint_rounding_value(129UL, -7, 8)), 0)
   assert_eq(y.precision(), 8)
 }

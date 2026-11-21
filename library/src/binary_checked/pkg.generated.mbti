@@ -1,0 +1,135 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/binary_checked"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/binary",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct BinaryChecked {
+  // private fields
+}
+pub fn BinaryChecked::abs(Self) -> Self
+pub fn BinaryChecked::acos(Self) -> Self
+pub fn BinaryChecked::acos_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::acosh(Self) -> Self
+pub fn BinaryChecked::acosh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::acospi(Self) -> Self
+pub fn BinaryChecked::acospi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::add(Self, Self) -> Self
+pub fn BinaryChecked::add_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::asin(Self) -> Self
+pub fn BinaryChecked::asin_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::asinh(Self) -> Self
+pub fn BinaryChecked::asinh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::asinpi(Self) -> Self
+pub fn BinaryChecked::asinpi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::atan(Self) -> Self
+pub fn BinaryChecked::atan2(Self, Self) -> Self
+pub fn BinaryChecked::atan2_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::atan2pi(Self, Self) -> Self
+pub fn BinaryChecked::atan2pi_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::atan_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::atanh(Self) -> Self
+pub fn BinaryChecked::atanh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::atanpi(Self) -> Self
+pub fn BinaryChecked::atanpi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::bind(Self, (@binary.Binary) -> Self) -> Self
+pub fn BinaryChecked::clamp(Self, min~ : Self, max~ : Self) -> Self
+pub fn BinaryChecked::compound(Self, Int32) -> Self
+pub fn BinaryChecked::compound_ctx(Self, Int32, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::cos(Self) -> Self
+pub fn BinaryChecked::cos_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::cosh(Self) -> Self
+pub fn BinaryChecked::cosh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::cospi(Self) -> Self
+pub fn BinaryChecked::cospi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::div(Self, Self) -> Self
+pub fn BinaryChecked::div_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::err(@arithmetic.ArithmeticError) -> Self
+pub fn BinaryChecked::error(Self) -> @arithmetic.ArithmeticError?
+pub fn BinaryChecked::exp(Self) -> Self
+pub fn BinaryChecked::exp10(Self) -> Self
+pub fn BinaryChecked::exp10_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::exp10m1(Self) -> Self
+pub fn BinaryChecked::exp10m1_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::exp2(Self) -> Self
+pub fn BinaryChecked::exp2_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::exp2m1(Self) -> Self
+pub fn BinaryChecked::exp2m1_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::exp_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::expm1(Self) -> Self
+pub fn BinaryChecked::expm1_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn BinaryChecked::from_double(Double, precision? : Int32) -> Self
+pub fn BinaryChecked::from_float(Float, precision? : Int32) -> Self
+pub fn BinaryChecked::from_int(Int32, precision? : Int32) -> Self
+pub fn BinaryChecked::from_result(Result[@binary.Binary, @arithmetic.ArithmeticError]) -> Self
+pub fn BinaryChecked::hypot(Self, Self) -> Self
+pub fn BinaryChecked::hypot_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::is_err(Self) -> Bool
+pub fn BinaryChecked::is_ok(Self) -> Bool
+pub fn BinaryChecked::ln(Self) -> Self
+pub fn BinaryChecked::ln_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::log10(Self) -> Self
+pub fn BinaryChecked::log10_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::log10p1(Self) -> Self
+pub fn BinaryChecked::log10p1_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::log1p(Self) -> Self
+pub fn BinaryChecked::log1p_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::log2(Self) -> Self
+pub fn BinaryChecked::log2_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::log2p1(Self) -> Self
+pub fn BinaryChecked::log2p1_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::map(Self, (@binary.Binary) -> @binary.Binary) -> Self
+pub fn BinaryChecked::max(Self, Self) -> Self
+pub fn BinaryChecked::min(Self, Self) -> Self
+pub fn BinaryChecked::mul(Self, Self) -> Self
+pub fn BinaryChecked::mul_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::neg(Self) -> Self
+pub fn BinaryChecked::normalized(Self) -> Self
+pub fn BinaryChecked::ok(@binary.Binary) -> Self
+pub fn BinaryChecked::pow(Self, Self) -> Self
+pub fn BinaryChecked::pow_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::pow_nat(Self, UInt32) -> Self
+pub fn BinaryChecked::pown(Self, Int32) -> Self
+pub fn BinaryChecked::pown_ctx(Self, Int32, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::powr(Self, Self) -> Self
+pub fn BinaryChecked::powr_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::result(Self) -> Result[@binary.Binary, @arithmetic.ArithmeticError]
+pub fn BinaryChecked::rootn(Self, Int32) -> Self
+pub fn BinaryChecked::rootn_ctx(Self, Int32, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::rsqrt(Self) -> Self
+pub fn BinaryChecked::rsqrt_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::sin(Self) -> Self
+pub fn BinaryChecked::sin_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::sinh(Self) -> Self
+pub fn BinaryChecked::sinh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::sinpi(Self) -> Self
+pub fn BinaryChecked::sinpi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::sqrt(Self) -> Self
+pub fn BinaryChecked::sqrt_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::sub(Self, Self) -> Self
+pub fn BinaryChecked::sub_ctx(Self, Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::tan(Self) -> Self
+pub fn BinaryChecked::tan_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::tanh(Self) -> Self
+pub fn BinaryChecked::tanh_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::tanpi(Self) -> Self
+pub fn BinaryChecked::tanpi_ctx(Self, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::ulp(Self) -> Self
+pub fn BinaryChecked::with_precision(Self, Int32, @binary.BinaryRoundingMode) -> Self
+pub impl Add for BinaryChecked
+pub impl Div for BinaryChecked
+pub impl Mul for BinaryChecked
+pub impl Neg for BinaryChecked
+pub impl Sub for BinaryChecked
+
+// Type aliases
+
+// Traits

@@ -149,9 +149,7 @@ pub fn SemanticError::from_arithmetic(err : ArithmeticError) -> SemanticError {
 }
 
 ///|
-pub fn SemanticScalar::from_bin_float(
-  x : @bin_float.BinFloat,
-) -> SemanticScalar {
+pub fn SemanticScalar::from_binary(x : @binary.Binary) -> SemanticScalar {
   match x.classify() {
     @lf_arith.FpClass::Finite => {
       let magnitude = BigInt::from_octets(x.coefficient().to_bytes_be())
@@ -180,8 +178,8 @@ pub fn SemanticInterval::from_interval(
   x : @interval.Interval,
 ) -> SemanticInterval {
   {
-    lower: SemanticScalar::from_bin_float(x.lower_bound()),
-    upper: SemanticScalar::from_bin_float(x.upper_bound()),
+    lower: SemanticScalar::from_binary(x.lower_bound()),
+    upper: SemanticScalar::from_binary(x.upper_bound()),
   }
 }
 

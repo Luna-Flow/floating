@@ -48,16 +48,16 @@ pub fn IntervalFlags::underflow(self : IntervalFlags) -> Bool {
 ///|
 /// A binary format of IEEE 754-2019 3.3 for the endpoints of an interval:
 /// `precision` bits and the exponent range `[1 - e_max, e_max]`. The legality
-/// of the pair is decided by `@bin_float.BinaryContext`, so the two packages
+/// of the pair is decided by `@binary.BinaryContext`, so the two packages
 /// have one definition of a format. `e_max` absent is the implementation limit
-/// `@bin_float.binary_implementation_e_max`.
+/// `@binary.binary_implementation_e_max`.
 pub fn IntervalContext::try_new(
   precision~ : Int32 = 53,
   e_max? : Int32,
 ) -> Result[IntervalContext, @def.ArithmeticError] {
   let format = match e_max {
-    Some(value) => @bin_float.BinaryContext::try_new(precision~, e_max=value)
-    None => @bin_float.BinaryContext::try_new(precision~)
+    Some(value) => @binary.BinaryContext::try_new(precision~, e_max=value)
+    None => @binary.BinaryContext::try_new(precision~)
   }
   format.map(fn(format) {
     {
@@ -117,33 +117,33 @@ pub fn IntervalContext::with_e_max(
 
 ///|
 fn interval_context_from_format(
-  format : @bin_float.BinaryContext,
+  format : @binary.BinaryContext,
 ) -> IntervalContext {
   IntervalContext::new(precision=format.precision(), e_max=format.e_max())
 }
 
 ///|
 pub fn IntervalContext::binary16() -> IntervalContext {
-  interval_context_from_format(@bin_float.BinaryContext::binary16())
+  interval_context_from_format(@binary.BinaryContext::binary16())
 }
 
 ///|
 pub fn IntervalContext::binary32() -> IntervalContext {
-  interval_context_from_format(@bin_float.BinaryContext::binary32())
+  interval_context_from_format(@binary.BinaryContext::binary32())
 }
 
 ///|
 pub fn IntervalContext::binary64() -> IntervalContext {
-  interval_context_from_format(@bin_float.BinaryContext::binary64())
+  interval_context_from_format(@binary.BinaryContext::binary64())
 }
 
 ///|
 pub fn IntervalContext::binary128() -> IntervalContext {
-  interval_context_from_format(@bin_float.BinaryContext::binary128())
+  interval_context_from_format(@binary.BinaryContext::binary128())
 }
 
 ///|
-fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int32 {
+fn finite_adjusted_exponent(value : @binary.Binary) -> Int32 {
   match value.ilogb() {
     Some(top) => top
     None => value.exponent2() - 1
@@ -151,12 +151,12 @@ fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int32 {
 }
 
 ///|
-fn context_max_finite(ctx : IntervalContext) -> @bin_float.BinFloat {
+fn context_max_finite(ctx : IntervalContext) -> @binary.Binary {
   let coefficient = coeff_sub(
     coeff_shift_left(coeff_one(), ctx.precision),
     coeff_one(),
   )
-  @bin_float.BinFloat::make(
+  @binary.Binary::make(
     coefficient,
     ctx.e_max - ctx.precision + 1,
     ctx.precision,
@@ -165,11 +165,11 @@ fn context_max_finite(ctx : IntervalContext) -> @bin_float.BinFloat {
 
 ///|
 fn interval_round_shift(
-  magnitude : @bin_float.BinCoeff,
+  magnitude : @binary.BinCoeff,
   shift : Int32,
   negative : Bool,
   mode : BinaryRoundingMode,
-) -> @bin_float.BinCoeff {
+) -> @binary.BinCoeff {
   if shift <= 0 {
     return magnitude
   }
@@ -203,10 +203,10 @@ fn interval_round_shift(
 
 ///|
 fn context_round_subnormal(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : IntervalContext,
   mode : BinaryRoundingMode,
-) -> (@bin_float.BinFloat, Bool, Bool) {
+) -> (@binary.Binary, Bool, Bool) {
   let e_tiny = ctx.e_min - ctx.precision + 1
   if value.exponent2() >= e_tiny {
     return (value, false, false)
@@ -219,7 +219,7 @@ fn context_round_subnormal(
     negative,
     mode,
   )
-  let rounded = @bin_float.BinFloat::make(
+  let rounded = @binary.Binary::make(
     rounded_magnitude,
     e_tiny,
     ctx.precision,
@@ -233,10 +233,7 @@ fn context_round_subnormal(
 /// IEEE 754 tininess after rounding: `rounded` is the value rounded to the
 /// context precision with an unbounded exponent range. Underflow is raised
 /// when the result is tiny and inexact, whichever rounding step lost the bits.
-fn context_is_tiny(
-  rounded : @bin_float.BinFloat,
-  ctx : IntervalContext,
-) -> Bool {
+fn context_is_tiny(rounded : @binary.Binary, ctx : IntervalContext) -> Bool {
   rounded.classify() == FpClass::Finite &&
   !rounded.is_zero() &&
   finite_adjusted_exponent(rounded) < ctx.e_min
@@ -244,15 +241,15 @@ fn context_is_tiny(
 
 ///|
 fn context_round_lower(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : IntervalContext,
-) -> (@bin_float.BinFloat, Bool, Bool, Bool) {
+) -> (@binary.Binary, Bool, Bool, Bool) {
   if value.classify() != FpClass::Finite || value.is_zero() {
     return (value, false, false, false)
   }
   let rounded = value.with_precision(
     ctx.precision,
-    @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    @binary.BinaryRoundingMode::RoundTowardNegative,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
     let overflowed = if rounded.sign() == Sign::Negative {
@@ -273,15 +270,15 @@ fn context_round_lower(
 
 ///|
 fn context_round_upper(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : IntervalContext,
-) -> (@bin_float.BinFloat, Bool, Bool, Bool) {
+) -> (@binary.Binary, Bool, Bool, Bool) {
   if value.classify() != FpClass::Finite || value.is_zero() {
     return (value, false, false, false)
   }
   let rounded = value.with_precision(
     ctx.precision,
-    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    @binary.BinaryRoundingMode::RoundTowardPositive,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
     let overflowed = if rounded.sign() == Sign::Positive {
@@ -334,22 +331,16 @@ pub fn Interval::apply_ctx(
 pub fn Interval::midpoint_ctx(
   self : Interval,
   ctx : IntervalContext,
-) -> (@bin_float.BinFloat, IntervalFlags) {
+) -> (@binary.Binary, IntervalFlags) {
   // IEEE 1788-2015 12.12.8: mid is NaN for Empty, 0 for Entire, the finite
   // number of largest magnitude of the result format (the context) for a
   // half-bounded interval, and the exact midpoint rounded to nearest
   // otherwise. A Level 1 value of 0 is returned as +0.
   if self.is_empty() {
-    return (
-      @bin_float.BinFloat::nan(precision=ctx.precision),
-      IntervalFlags::new(),
-    )
+    return (@binary.Binary::nan(precision=ctx.precision), IntervalFlags::new())
   }
   if self.is_entire() {
-    return (
-      @bin_float.BinFloat::zero(precision=ctx.precision),
-      IntervalFlags::new(),
-    )
+    return (@binary.Binary::zero(precision=ctx.precision), IntervalFlags::new())
   }
   if !self.is_common_interval() {
     let max = context_max_finite(ctx)
@@ -366,24 +357,21 @@ pub fn Interval::midpoint_ctx(
   // bounds keeps every bit down to it (and to the precision of the interval)
   let exact = interval_center(self, Int32::max(ctx.precision, self.precision_))
   if exact.is_zero() {
-    return (
-      @bin_float.BinFloat::zero(precision=ctx.precision),
-      IntervalFlags::new(),
-    )
+    return (@binary.Binary::zero(precision=ctx.precision), IntervalFlags::new())
   }
   // Round once, straight to the grid the result lives on. Rounding a tiny
   // center to the context precision first and then to the subnormal grid
   // rounds twice to nearest and can pick the wrong grid point.
   let normal_rounding = exact.with_precision(
     ctx.precision,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @binary.BinaryRoundingMode::RoundTiesToEven,
   )
   let rounded = if finite_adjusted_exponent(exact) < ctx.e_min {
     // A tiny center has fewer than `precision` bits above the grid, so the
     // final `with_precision` only sets the precision tag.
     context_round_subnormal(exact, ctx, BinaryRoundingMode::RoundTiesToEven).0.with_precision(
       ctx.precision,
-      @bin_float.BinaryRoundingMode::RoundTiesToEven,
+      @binary.BinaryRoundingMode::RoundTiesToEven,
     )
   } else {
     normal_rounding
@@ -392,10 +380,7 @@ pub fn Interval::midpoint_ctx(
   if !rounded.is_zero() && finite_adjusted_exponent(rounded) > ctx.e_max {
     // Round to nearest overflows to an infinity of the center's sign.
     return (
-      @bin_float.BinFloat::inf(
-        negative=exact.is_negative(),
-        precision=ctx.precision,
-      ),
+      @binary.Binary::inf(negative=exact.is_negative(), precision=ctx.precision),
       { inexact: true, overflow: true, underflow: false, },
     )
   }

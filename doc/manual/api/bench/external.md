@@ -21,7 +21,7 @@ runtime:
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/binary" @binary,
   "Luna-Flow/floating/decimal_gda" @gda,
   "Luna-Flow/mare_mark/env_detect",
   "Luna-Flow/mare_mark/event",
@@ -38,7 +38,7 @@ import {
 
 | Case | Scale | Implementation | Oracle |
 | --- | --- | --- | --- |
-| `external/binary/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin` | 53, 128, 512, 2048, 8192 bits | `floating` (`BinFloat` methods at the scale as precision, round to nearest even) | the MPFR result for each operand, bit for bit |
+| `external/binary/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin` | 53, 128, 512, 2048, 8192 bits | `floating` (`Binary` methods at the scale as precision, round to nearest even) | the MPFR result for each operand, bit for bit |
 | `external/decimal_gda/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln` | 16, 34, 100, 1000 digits | `floating` (`decimal_gda` functions in a context of the scale as precision, `HalfEven`, exponent range ±999999) | the libmpdec result for each operand, value for value |
 
 Every case has a second implementation, `null`, next to `floating`: the same

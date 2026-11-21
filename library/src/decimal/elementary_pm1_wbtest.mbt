@@ -513,7 +513,7 @@ test "pm1 zero results keep the sign of the operand in every mode" {
 
 ///|
 /// The top binary exponent of a nonzero finite value: |v| in [2^top, 2^(top+1)).
-fn pm1_top(value : @bin_float.BinFloat) -> Int64 {
+fn pm1_top(value : @binary.Binary) -> Int64 {
   value.exponent2().to_int64() +
   (value.coefficient().bit_length() - 1).to_int64()
 }
@@ -524,9 +524,9 @@ test "pm1 enclosures stay relatively tight down to 10^-1999997" {
   // enclosure of f(x) keeps a relative width of a few ulps of the working
   // precision for every legal operand (no cancellation near zero, design note
   // of #236): at w = 200 bits the endpoints agree to at least 190 bits.
-  let up = @bin_float.BinaryContext::new(
+  let up = @binary.BinaryContext::new(
     precision=64,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let ops : Array[DecimalPm1] = [Exp2m1, Exp10m1, Log2p1, Log10p1]
   // The binary conversion of 10^-1999997 is the expensive step: once per x.

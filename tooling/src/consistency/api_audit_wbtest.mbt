@@ -6,8 +6,8 @@ let audit_ctx : @lf_arith.ArithmeticContext = @lf_arith.ArithmeticContext::new(
 
 ///|
 test "def predicates classify finite and nan consistently" {
-  let finite = @bin_float.BinFloat::from_int(3, precision=8)
-  let nan = @bin_float.BinFloat::nan(precision=8)
+  let finite = @binary.Binary::from_int(3, precision=8)
+  let nan = @binary.Binary::nan(precision=8)
   let inf = @decimal.Decimal::inf(precision=8)
   assert_true(@def.is_finite(finite))
   assert_true(@def.is_nan(nan))
@@ -578,9 +578,9 @@ test "decimal interchange facade canonical predicate covers finite raw bits acro
 }
 
 ///|
-test "bin_float checked compare rejects nan" {
-  let result = @bin_float.BinFloat::nan(precision=8).compare_checked(
-    @bin_float.BinFloat::zero(precision=8),
+test "binary checked compare rejects nan" {
+  let result = @binary.Binary::nan(precision=8).compare_checked(
+    @binary.Binary::zero(precision=8),
   )
   match result {
     Ok(_) => fail("expected unordered compare")
@@ -589,15 +589,12 @@ test "bin_float checked compare rejects nan" {
 }
 
 ///|
-test "bin_float low precision rounding and ulp stay explicit" {
+test "binary low precision rounding and ulp stay explicit" {
   let x = binary_test_make(13N, -3, 8)
-  let rounded = x.with_precision(
-    2,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
-  )
+  let rounded = x.with_precision(2, @binary.BinaryRoundingMode::RoundTiesToEven)
   assert_eq(rounded.to_string(), "3p-1")
   assert_eq(rounded.ulp().to_string(), "1p-1")
-  assert_eq(@bin_float.BinFloat::zero(precision=4).ulp().to_string(), "1p-3")
+  assert_eq(@binary.Binary::zero(precision=4).ulp().to_string(), "1p-3")
 }
 
 ///|
@@ -625,7 +622,7 @@ test "semantic scalar interpretation unifies binary and decimal rationals" {
   let expected = @semantic.SemanticScalar::Rational(
     @semantic.ExactRational::new(3N, 2N),
   )
-  let binary = @semantic.SemanticScalar::from_bin_float(
+  let binary = @semantic.SemanticScalar::from_binary(
     binary_test_make(3N, -1, 16),
   )
   let decimal = @semantic.SemanticScalar::from_decimal(
@@ -638,12 +635,12 @@ test "semantic scalar interpretation unifies binary and decimal rationals" {
 ///|
 test "semantic result interpretation totalizes checked failures" {
   let checked = @lf_arith.DivChecked::div_checked(
-    @bin_float.BinFloat::from_int(1, precision=16),
-    @bin_float.BinFloat::zero(precision=16),
+    @binary.Binary::from_int(1, precision=16),
+    @binary.Binary::zero(precision=16),
     @lf_arith.ArithmeticContext::new(16),
   )
   let semantic = @semantic.semantic_scalar_result(checked, value => {
-    @semantic.SemanticScalar::from_bin_float(value)
+    @semantic.SemanticScalar::from_binary(value)
   })
   assert_true(
     semantic ==

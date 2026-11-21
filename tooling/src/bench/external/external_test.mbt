@@ -102,16 +102,16 @@ fn all_equal(count : Int32, same : (Int32) -> Bool) -> Bool {
 struct BinaryCase {
   size : Int32
   count : Int32
-  a : Array[@binary.BinFloat]
-  b : Array[@binary.BinFloat]
+  a : Array[@binary.Binary]
+  b : Array[@binary.Binary]
   expected : Array[String]
-  expected_values : Array[@binary.BinFloat]
-  out : Array[@binary.BinFloat]
+  expected_values : Array[@binary.Binary]
+  out : Array[@binary.Binary]
 }
 
 ///|
-fn binary_value(text : String, size : Int32) -> @binary.BinFloat {
-  match @binary.BinFloat::from_hex(text, size) {
+fn binary_value(text : String, size : Int32) -> @binary.Binary {
+  match @binary.Binary::from_hex(text, size) {
     Ok(value) => value
     Err(_) => abort("cannot read binary operand " + text)
   }
@@ -149,7 +149,7 @@ fn binary_case(
 ///|
 fn binary_function(
   op : String,
-) -> ((@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat)? {
+) -> ((@binary.Binary, @binary.Binary) -> @binary.Binary)? {
   match op {
     "add" => Some((x, y) => x.add(y))
     "mul" => Some((x, y) => x.mul(y))
@@ -168,7 +168,7 @@ fn binary_function(
 /// sits in a `Ref` so that the compiler cannot see its body: a top-level
 /// function with a known body is called directly (and may be inlined), while the
 /// operation of a case is a closure chosen at run time by the operation name.
-let binary_null : Ref[(@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat] = {
+let binary_null : Ref[(@binary.Binary, @binary.Binary) -> @binary.Binary] = {
   val: (x, _) => x,
 }
 
@@ -179,7 +179,7 @@ let binary_null : Ref[(@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat] 
 /// reference and the verdict.
 fn binary_matches(
   expected : Array[String],
-  actual : Array[@binary.BinFloat],
+  actual : Array[@binary.Binary],
 ) -> Bool {
   expected.length() == actual.length() &&
   all_equal(expected.length(), i => {
@@ -188,7 +188,7 @@ fn binary_matches(
 }
 
 ///|
-fn binary_text(values : Array[@binary.BinFloat]) -> String {
+fn binary_text(values : Array[@binary.Binary]) -> String {
   values.map(value => value.to_hex()).join(",")
 }
 
@@ -203,10 +203,10 @@ fn binary_spec(
   BinaryCase,
   BinaryCase,
   Array[String],
-  Array[@binary.BinFloat],
+  Array[@binary.Binary],
   Unit,
-  Array[@binary.BinFloat]?,
-  Array[@binary.BinFloat]?,
+  Array[@binary.Binary]?,
+  Array[@binary.Binary]?,
 ]? {
   let function = binary_function(op)
   guard function is Some(f) else { return None }
@@ -479,7 +479,7 @@ test "external binary and decimal_gda plans compile" {
 ///|
 test "external operand parsing is exact" {
   let value = binary_value("0xa5p-3", 8)
-  let expected = @binary.BinFloat::from_double(165.0 / 8.0, precision=8)
+  let expected = @binary.Binary::from_double(165.0 / 8.0, precision=8)
   assert_eq(value.compare(expected), 0)
   let context = decimal_context(4)
   assert_eq(decimal_value("1234E-3", context).to_string(), "1.234")
@@ -489,12 +489,12 @@ test "external operand parsing is exact" {
 // Oracle: level A (expected texts written out by hand, not produced by the
 // library).
 test "external validation compares text: the sign of zero, the cohort and a wrong value fail" {
-  let one_and_a_half = @binary.BinFloat::from_double(1.5, precision=8)
+  let one_and_a_half = @binary.Binary::from_double(1.5, precision=8)
   assert_true(binary_matches(["0b11p-1"], [one_and_a_half]))
   assert_false(binary_matches(["0b11p-2"], [one_and_a_half]))
   assert_false(binary_matches(["-0b11p-1"], [one_and_a_half]))
   assert_false(binary_matches([], [one_and_a_half]))
-  let zero = @binary.BinFloat::zero(precision=8)
+  let zero = @binary.Binary::zero(precision=8)
   assert_true(binary_matches(["0"], [zero]))
   assert_false(binary_matches(["-0"], [zero]))
   assert_true(binary_matches(["-0"], [zero.neg()]))

@@ -18,12 +18,12 @@ fn text_bound(
   exponent : Int32,
   precision : Int32,
   negative : Bool,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if coefficient == 0UL {
-    @bin_float.BinFloat::zero(precision~)
+    @binary.Binary::zero(precision~)
   } else {
-    @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(coefficient),
+    @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(coefficient),
       exponent,
       precision,
       negative~,
@@ -33,8 +33,8 @@ fn text_bound(
 
 ///|
 fn text_interval(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
 ) -> Interval {
   if a.compare(b) <= 0 {
@@ -48,21 +48,15 @@ fn text_interval(
 test "Show: the portable literal of the standard's cases" {
   inspect(Interval::empty().to_string(), content="[empty]")
   inspect(Interval::entire().to_string(), content="[entire]")
+  inspect(Interval::exact(@binary.Binary::one()).to_string(), content="[1, 1]")
   inspect(
-    Interval::exact(@bin_float.BinFloat::one()).to_string(),
-    content="[1, 1]",
-  )
-  inspect(
-    Interval::from_bounds(
-      @bin_float.BinFloat::zero(),
-      @bin_float.BinFloat::inf(),
-    ).to_string(),
+    Interval::from_bounds(@binary.Binary::zero(), @binary.Binary::inf()).to_string(),
     content="[0, inf]",
   )
   inspect(
     Interval::from_bounds(
-      @bin_float.BinFloat::inf(negative=true),
-      @bin_float.BinFloat::one(),
+      @binary.Binary::inf(negative=true),
+      @binary.Binary::one(),
     ).to_string(),
     content="[-inf, 1]",
   )
@@ -104,7 +98,7 @@ test "Show reads back, at its precision, to an interval that contains it with th
     let back = Interval::from_string(text, precision=p).unwrap()
     assert_true(x.subset(back), msg=text)
     // no more than one unit in the last place beyond each bound
-    let context = @bin_float.BinaryContext::new(precision=p)
+    let context = @binary.BinaryContext::new(precision=p)
     assert_true(
       back.lower_bound().next_up_ctx(context).0.compare(x.lower_bound()) >= 0,
       msg=text,
@@ -127,7 +121,7 @@ test "Show reads back, at its precision, to an interval that contains it with th
 
 ///|
 test "Show: a bound far down the exponent range is written in hexadecimal, not expanded" {
-  let e_max = @bin_float.binary_implementation_e_max
+  let e_max = @binary.binary_implementation_e_max
   let x = Interval::from_bounds(
     text_bound(3UL, e_max - 10, 53, false),
     text_bound(5UL, e_max - 5, 53, false),
@@ -171,10 +165,7 @@ test "to_exact_string and from_exact_string recover the datum" {
     x in [
       Interval::empty(),
       Interval::entire(),
-      Interval::from_bounds(
-        @bin_float.BinFloat::zero(),
-        @bin_float.BinFloat::inf(),
-      ),
+      Interval::from_bounds(@binary.Binary::zero(), @binary.Binary::inf()),
     ] {
     let back = Interval::from_exact_string(x.to_exact_string()).unwrap()
     assert_true(x.identical(back), msg=x.to_exact_string())
@@ -239,24 +230,24 @@ test "to_midpoint_radius_string keeps the midpoint-radius view and is not a lite
 
 ///|
 /// The exact text is written from the stored coefficient and exponent, which is sound because
-/// the stored coefficient of a nonzero finite `BinFloat` is odd (level A: written-out
+/// the stored coefficient of a nonzero finite `Binary` is odd (level A: written-out
 /// expectations). `make` and `from_hex` of an even coefficient, reading at a precision,
 /// `with_precision`, an integer, a double and the results of operations all give the odd form,
 /// so one value has one text whatever the way it was made.
 test "the stored coefficient is odd, so the exact text is the value's" {
-  let ctx = @bin_float.BinaryContext::new(precision=53)
-  let values : Array[(@bin_float.BinFloat, String)] = [
-    (@bin_float.BinFloat::from_int(2, precision=53), "0x1p1"),
-    (@bin_float.BinFloat::from_int(1024, precision=64), "0x1p10"),
-    (@bin_float.BinFloat::from_double(6.0), "0x3p1"),
-    (@bin_float.BinFloat::from_double(0.5), "0x1p-1"),
-    (@bin_float.BinFloat::from_hex("0x8000p3", 53).unwrap(), "0x1p18"),
-    (@bin_float.BinFloat::from_hex_ctx("0x1.8p0", ctx).unwrap().0, "0x3p-1"),
-    (@bin_float.BinFloat::from_string_ctx("0.5", ctx).unwrap().0, "0x1p-1"),
-    (@bin_float.BinFloat::from_string_ctx("1024", ctx).unwrap().0, "0x1p10"),
+  let ctx = @binary.BinaryContext::new(precision=53)
+  let values : Array[(@binary.Binary, String)] = [
+    (@binary.Binary::from_int(2, precision=53), "0x1p1"),
+    (@binary.Binary::from_int(1024, precision=64), "0x1p10"),
+    (@binary.Binary::from_double(6.0), "0x3p1"),
+    (@binary.Binary::from_double(0.5), "0x1p-1"),
+    (@binary.Binary::from_hex("0x8000p3", 53).unwrap(), "0x1p18"),
+    (@binary.Binary::from_hex_ctx("0x1.8p0", ctx).unwrap().0, "0x3p-1"),
+    (@binary.Binary::from_string_ctx("0.5", ctx).unwrap().0, "0x1p-1"),
+    (@binary.Binary::from_string_ctx("1024", ctx).unwrap().0, "0x1p10"),
     (
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64(0x13000000000000UL),
+      @binary.Binary::make(
+        @binary.BinCoeff::from_uint64(0x13000000000000UL),
         -53,
         53,
         negative=true,
@@ -264,22 +255,22 @@ test "the stored coefficient is odd, so the exact text is the value's" {
       "-0x13p-5",
     ),
     (
-      @bin_float.BinFloat::from_int(3, precision=53).mul_ctx(
-        @bin_float.BinFloat::from_int(8, precision=53),
+      @binary.Binary::from_int(3, precision=53).mul_ctx(
+        @binary.Binary::from_int(8, precision=53),
         ctx,
       ).0,
       "0x3p3",
     ),
     (
-      @bin_float.BinFloat::from_int(1, precision=53).with_precision(
+      @binary.Binary::from_int(1, precision=53).with_precision(
         113,
-        @bin_float.BinaryRoundingMode::RoundTiesToEven,
+        @binary.BinaryRoundingMode::RoundTiesToEven,
       ),
       "0x1p0",
     ),
     (
-      @bin_float.BinFloat::from_int(5, precision=53).sub_ctx(
-        @bin_float.BinFloat::from_int(1, precision=53),
+      @binary.Binary::from_int(5, precision=53).sub_ctx(
+        @binary.Binary::from_int(1, precision=53),
         ctx,
       ).0,
       "0x1p2",
@@ -291,7 +282,7 @@ test "the stored coefficient is odd, so the exact text is the value's" {
       value.coefficient().to_radix_string(2).has_suffix("1"),
       msg=expected,
     )
-    let x = Interval::from_bounds(value, @bin_float.BinFloat::inf(precision=64))
+    let x = Interval::from_bounds(value, @binary.Binary::inf(precision=64))
     assert_eq(x.to_exact_string(), "[" + expected + ", inf]", msg=expected)
   }
 }
@@ -359,8 +350,8 @@ test "from_exact_string: read exactly at the bit count of the text, never widene
 /// point `1 + 2^-56` in 53 bits is `[1, 1 + 2^-52]`); the identical round trip uses the reader
 /// that the oracle table checks.
 test "the exact text of an interval made from a wide value reads back identical" {
-  let wide = @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 60).unwrap()
-  let zero = @bin_float.BinFloat::zero(precision=53)
+  let wide = @binary.Binary::from_hex("0x1.00000000000001p0", 60).unwrap()
+  let zero = @binary.Binary::zero(precision=53)
   let x = Interval::from_midpoint_radius(wide, zero, precision=53)
   assert_eq(x.precision(), 53)
   inspect(x.to_exact_string(), content="[0x1p0, 0x10000000000001p-52]")
@@ -368,17 +359,17 @@ test "the exact text of an interval made from a wide value reads back identical"
   assert_true(x.identical(back))
   // a cancellation: [1, 2] cancel_minus [2^-60, 2^-59] is [1 - 2^-60, 2 - 2^-59] and both ends are
   // numbers of 60 bits (the precision of the result is the larger one), so nothing is rounded
-  let u = @bin_float.BinFloat::from_hex("0x1p-60", 60).unwrap()
+  let u = @binary.Binary::from_hex("0x1p-60", 60).unwrap()
   let big = Interval::from_bounds(
-    @bin_float.BinFloat::from_hex("0x1p0", 53).unwrap(),
-    @bin_float.BinFloat::from_hex("0x2p0", 53).unwrap(),
+    @binary.Binary::from_hex("0x1p0", 53).unwrap(),
+    @binary.Binary::from_hex("0x2p0", 53).unwrap(),
     precision=53,
   )
   let small = Interval::from_bounds(
     u,
     u.mul_ctx(
-      @bin_float.BinFloat::from_int(2, precision=53),
-      @bin_float.BinaryContext::new(precision=60),
+      @binary.Binary::from_int(2, precision=53),
+      @binary.BinaryContext::new(precision=60),
     ).0,
     precision=60,
   )
@@ -408,8 +399,8 @@ test "the exact text of an interval made from a wide value reads back identical"
 /// (written-out texts; the generated rows are in the oracle table above).
 test "Show of an interval made from a wide end contains it" {
   let x = Interval::from_bounds(
-    @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 57).unwrap(),
-    @bin_float.BinFloat::from_hex("0x2p0", 53).unwrap(),
+    @binary.Binary::from_hex("0x1.00000000000001p0", 57).unwrap(),
+    @binary.Binary::from_hex("0x2p0", 53).unwrap(),
     precision=53,
   )
   // the lower end 1 + 2^-56 is rounded outward to 1 and the upper end 2 is exact
@@ -417,8 +408,8 @@ test "Show of an interval made from a wide end contains it" {
   let back = Interval::from_string(x.to_string(), precision=53).unwrap()
   assert_true(x.subset(back))
   let mirror = Interval::from_bounds(
-    @bin_float.BinFloat::from_hex("-0x2p0", 53).unwrap(),
-    @bin_float.BinFloat::from_hex("-0x1.00000000000001p0", 57).unwrap(),
+    @binary.Binary::from_hex("-0x2p0", 53).unwrap(),
+    @binary.Binary::from_hex("-0x1.00000000000001p0", 57).unwrap(),
     precision=53,
   )
   let mirror_back = Interval::from_string(mirror.to_string(), precision=53).unwrap()
@@ -430,9 +421,9 @@ test "Show of an interval made from a wide end contains it" {
 /// has on input and whatever sign the observers give it after 12.12.8 (`lower_bound` of a zero
 /// is -0): the literal of [0, 0] does not carry signs (13.3 does not ask for them).
 test "a zero bound has no sign in the texts" {
-  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
-  let zero = @bin_float.BinFloat::zero(precision=53)
-  let one = @bin_float.BinFloat::one(precision=53)
+  let negative_zero = @binary.Binary::negative_zero(precision=53)
+  let zero = @binary.Binary::zero(precision=53)
+  let one = @binary.Binary::one(precision=53)
   for pair in [(zero, one), (negative_zero, one)] {
     let x = Interval::from_bounds(pair.0, pair.1)
     inspect(x.to_string(), content="[0, 1]")
@@ -465,17 +456,17 @@ test "a center wider than the precision: exact text identical, Show contains (co
     let m = (coefficient >> (64 - bits).max(0)) | 1UL
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let exponent = (state >> 40).to_int() % 200 - 100
-    let center = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(m),
+    let center = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(m),
       exponent,
       bits,
       negative=i % 3 == 0,
     )
     let radius = if i % 4 == 0 {
-      @bin_float.BinFloat::zero(precision=p)
+      @binary.Binary::zero(precision=p)
     } else {
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64(1UL),
+      @binary.Binary::make(
+        @binary.BinCoeff::from_uint64(1UL),
         exponent - bits / 2,
         p,
       )

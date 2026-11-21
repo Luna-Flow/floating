@@ -12,13 +12,13 @@
   "confidencePct": 95.0,
   "benchmark": {
     "fixture": "tools/fixtures/elementary_performance_bench_wbtest.mbt",
-    "destination": "library/src/bin_float/elementary_performance_bench_wbtest.mbt",
+    "destination": "library/src/binary/elementary_performance_bench_wbtest.mbt",
     "checksum": "elementary-baseline-v1",
     "command": [
       "sh",
       "tools/run_moon_clean_exec.sh",
       "test",
-      "library/src/bin_float/elementary_performance_bench_wbtest.mbt",
+      "library/src/binary/elementary_performance_bench_wbtest.mbt",
       "--release",
       "--include-skipped",
       "--no-parallelize",

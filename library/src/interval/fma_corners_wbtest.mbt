@@ -7,8 +7,8 @@
 ///|
 fn fc_range(lo : Int32, hi : Int32) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_int(lo, precision=53),
-    @bin_float.BinFloat::from_int(hi, precision=53),
+    @binary.Binary::from_int(lo, precision=53),
+    @binary.Binary::from_int(hi, precision=53),
     precision=53,
   )
 }
@@ -16,8 +16,8 @@ fn fc_range(lo : Int32, hi : Int32) -> Interval {
 ///|
 fn fc_is(x : Interval, lo : Int32, hi : Int32) -> Bool {
   !x.is_empty() &&
-  x.lower_bound().compare(@bin_float.BinFloat::from_int(lo, precision=53)) == 0 &&
-  x.upper_bound().compare(@bin_float.BinFloat::from_int(hi, precision=53)) == 0
+  x.lower_bound().compare(@binary.Binary::from_int(lo, precision=53)) == 0 &&
+  x.upper_bound().compare(@binary.Binary::from_int(hi, precision=53)) == 0
 }
 
 ///|
@@ -50,8 +50,8 @@ test "fma: the nine sign cases of the factors, corners worked out by hand" {
 ///|
 test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded and empty operands" {
   let zero_pair = Interval::from_bounds(
-    @bin_float.BinFloat::negative_zero(precision=53),
-    @bin_float.BinFloat::zero(precision=53),
+    @binary.Binary::negative_zero(precision=53),
+    @binary.Binary::zero(precision=53),
     precision=53,
   )
   let entire = Interval::entire(precision=53)
@@ -61,40 +61,40 @@ test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded a
   assert_true(fc_is(fc_range(0, 0).fma(entire, fc_range(1, 2)), 1, 2))
   // [0, 5] * [0, +inf) + [1, 1]: the products fill [0, +inf)
   let non_negative = Interval::from_bounds(
-    @bin_float.BinFloat::zero(precision=53),
-    @bin_float.BinFloat::inf(precision=53),
+    @binary.Binary::zero(precision=53),
+    @binary.Binary::inf(precision=53),
     precision=53,
   )
   let r = fc_range(0, 5).fma(non_negative, fc_range(1, 1))
   assert_true(
-    r.lower_bound().compare(@bin_float.BinFloat::from_int(1, precision=53)) == 0,
+    r.lower_bound().compare(@binary.Binary::from_int(1, precision=53)) == 0,
   )
   assert_true(r.upper_bound().classify() == FpClass::Infinity)
   // [-inf, -1] * [-3, -2] + [0, 0] = [2, +inf)
   let negative = Interval::from_bounds(
-    @bin_float.BinFloat::inf(negative=true, precision=53),
-    @bin_float.BinFloat::from_int(-1, precision=53),
+    @binary.Binary::inf(negative=true, precision=53),
+    @binary.Binary::from_int(-1, precision=53),
     precision=53,
   )
   let r = negative.fma(fc_range(-3, -2), fc_range(0, 0))
   assert_true(
-    r.lower_bound().compare(@bin_float.BinFloat::from_int(2, precision=53)) == 0,
+    r.lower_bound().compare(@binary.Binary::from_int(2, precision=53)) == 0,
   )
   assert_true(r.upper_bound().classify() == FpClass::Infinity)
   // an infinite addend: [1, 2] * [1, 2] + [-inf, 3] = [-inf, 7]; + [3, +inf) = [4, +inf)
   let below = Interval::from_bounds(
-    @bin_float.BinFloat::inf(negative=true, precision=53),
-    @bin_float.BinFloat::from_int(3, precision=53),
+    @binary.Binary::inf(negative=true, precision=53),
+    @binary.Binary::from_int(3, precision=53),
     precision=53,
   )
   let r = fc_range(1, 2).fma(fc_range(1, 2), below)
   assert_true(r.lower_bound().classify() == FpClass::Infinity)
   assert_true(
-    r.upper_bound().compare(@bin_float.BinFloat::from_int(7, precision=53)) == 0,
+    r.upper_bound().compare(@binary.Binary::from_int(7, precision=53)) == 0,
   )
   let r = fc_range(1, 2).fma(fc_range(1, 2), non_negative.add(fc_range(3, 3)))
   assert_true(
-    r.lower_bound().compare(@bin_float.BinFloat::from_int(4, precision=53)) == 0,
+    r.lower_bound().compare(@binary.Binary::from_int(4, precision=53)) == 0,
   )
   assert_true(r.upper_bound().classify() == FpClass::Infinity)
   // entire addend and unbounded factors
@@ -108,14 +108,9 @@ test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded a
 }
 
 ///|
-fn fc_hex(
-  text : String,
-  exponent : Int32,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  match @bin_float.BinCoeff::parse(text, radix=16) {
-    Ok(coefficient) =>
-      @bin_float.BinFloat::make(coefficient, exponent, precision)
+fn fc_hex(text : String, exponent : Int32, precision : Int32) -> @binary.Binary {
+  match @binary.BinCoeff::parse(text, radix=16) {
+    Ok(coefficient) => @binary.Binary::make(coefficient, exponent, precision)
     Err(error) => abort(error)
   }
 }
@@ -128,13 +123,13 @@ test "fma: a product beyond the range brought back by the addend (#657)" {
     // number; c = -3 * 2^(e_max - 1); the exact sum is 3 * 2^(e_max - 1), a number of
     // 2 bits inside the range: the point [3 * 2^(e_max - 1), 3 * 2^(e_max - 1)]
     let a = Interval::from_bounds(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e_max, precision),
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e_max, precision),
+      @binary.Binary::make(@binary.BinCoeff::one(), e_max, precision),
+      @binary.Binary::make(@binary.BinCoeff::one(), e_max, precision),
       precision~,
     )
     let b = Interval::from_int(3, precision~)
-    let c_value = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(3UL),
+    let c_value = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(3UL),
       e_max - 1,
       precision,
     )
@@ -154,15 +149,15 @@ test "fma: a product beyond the range brought back by the addend (#657)" {
     assert_true(r.upper_bound().compare(c_value.neg()) == 0)
     // an interval: the same with b = [3, 3] and c = [-3 * 2^(e_max - 1) - 2^(e_max - 3),
     // -3 * 2^(e_max - 1)]: the sum is [3 * 2^(e_max - 1) - ..., 3 * 2^(e_max - 1)]
-    let extra = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::one(),
+    let extra = @binary.Binary::make(
+      @binary.BinCoeff::one(),
       e_max - 3,
       precision,
     )
     let c_wide = Interval::from_bounds(
       c_value
       .neg()
-      .sub_ctx(extra, @bin_float.BinaryContext::new(precision=precision + 8)).0,
+      .sub_ctx(extra, @binary.BinaryContext::new(precision=precision + 8)).0,
       c_value.neg(),
       precision~,
     )
@@ -203,14 +198,14 @@ fn fc_next(state : Ref[UInt64]) -> UInt64 {
 }
 
 ///|
-fn fc_value(state : Ref[UInt64], precision : Int32) -> @bin_float.BinFloat {
+fn fc_value(state : Ref[UInt64], precision : Int32) -> @binary.Binary {
   let magnitude = fc_next(state) % 4096UL
   let exponent = (fc_next(state) % 81UL).to_int() - 40
   if fc_next(state) % 11UL == 0UL {
-    return @bin_float.BinFloat::zero(precision~)
+    return @binary.Binary::zero(precision~)
   }
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(magnitude + 1UL),
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(magnitude + 1UL),
     exponent,
     precision,
     negative=fc_next(state) % 2UL == 0UL,
@@ -236,15 +231,15 @@ fn fc_interval(state : Ref[UInt64], precision : Int32) -> Interval {
 /// upper one. Shared primitives: `make`, `mul_ctx`, `add_ctx`, `with_precision`.
 fn fc_sweep(divisor : Int32) -> Unit raise {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let wide = @bin_float.BinaryContext::new(precision=600)
+  let wide = @binary.BinaryContext::new(precision=600)
   for _ in 0..<(6000 / divisor) {
     let precision = [24, 53, 113][(fc_next(state) % 3UL).to_int()]
     let a = fc_interval(state, precision)
     let b = fc_interval(state, precision)
     let c = fc_interval(state, precision)
     let r = a.fma(b, c)
-    let mut lo : @bin_float.BinFloat? = None
-    let mut hi : @bin_float.BinFloat? = None
+    let mut lo : @binary.Binary? = None
+    let mut hi : @binary.Binary? = None
     for x in [a.lower_bound(), a.upper_bound()] {
       for y in [b.lower_bound(), b.upper_bound()] {
         let product = x.mul_ctx(y, wide).0

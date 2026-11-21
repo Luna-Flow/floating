@@ -27,7 +27,7 @@ test "TestFloat format conversions read the operand in the source format and the
   assert_eq(
     spec.operation(),
     @testfloat_expr.TestFloatOperation::ConvertFormat(
-      @bin_float.BinaryInterchangeFormat::Binary32,
+      @binary.BinaryInterchangeFormat::Binary32,
     ),
   )
   let source =

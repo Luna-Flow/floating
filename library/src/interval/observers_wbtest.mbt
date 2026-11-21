@@ -1,15 +1,15 @@
 ///|
 fn observer_exact_diff(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-) -> @bin_float.BinFloat {
+  a : @binary.Binary,
+  b : @binary.Binary,
+) -> @binary.Binary {
   // a - b exactly: both operands have a few hundred bits at most in these tests
-  a.sub_ctx(b, @bin_float.BinaryContext::new(precision=2000)).0
+  a.sub_ctx(b, @binary.BinaryContext::new(precision=2000)).0
 }
 
 ///|
-fn observer_pow2(e : Int32, p : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e, p)
+fn observer_pow2(e : Int32, p : Int32) -> @binary.Binary {
+  @binary.Binary::make(@binary.BinCoeff::one(), e, p)
 }
 
 ///|
@@ -19,12 +19,10 @@ fn observer_pow2(e : Int32, p : Int32) -> @bin_float.BinFloat {
 /// `midpoint` rounds it to 1 + 2^-51 and the radius 3 * 2^-53 left the lower
 /// bound outside [mid - rad, mid + rad].
 test "radius covers the interval around the midpoint (issue 477)" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  let hi = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    -52,
-    53,
-  ).add(one)
+  let one = @binary.Binary::one(precision=53)
+  let hi = @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), -52, 53).add(
+    one,
+  )
   let x = Interval::from_bounds(one, hi, precision=53)
   let m = x.midpoint()
   let r = x.radius()
@@ -39,18 +37,18 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
   for p in [2, 3, 8, 24, 53, 113] {
     for shift in [0, 1, 2, 5, 17, 60] {
       for width in [1, 2, 3, 5, 7, 12345] {
-        let lo = @bin_float.BinFloat::make(
-          @bin_float.BinCoeff::from_uint64(1UL),
+        let lo = @binary.Binary::make(
+          @binary.BinCoeff::from_uint64(1UL),
           -shift,
           p,
         )
         let hi = lo.add_ctx(
-            @bin_float.BinFloat::make(
-              @bin_float.BinCoeff::from_uint64(width.to_uint64()),
+            @binary.Binary::make(
+              @binary.BinCoeff::from_uint64(width.to_uint64()),
               -shift - p,
               64,
             ),
-            @bin_float.BinaryContext::new(precision=500),
+            @binary.BinaryContext::new(precision=500),
           ).0
         let x = Interval::from_bounds(lo, hi, precision=p)
         let m = x.midpoint()
@@ -64,7 +62,7 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
           r.compare(
             far.with_precision(
               p,
-              @bin_float.BinaryRoundingMode::RoundTowardPositive,
+              @binary.BinaryRoundingMode::RoundTowardPositive,
             ),
           ),
           0,
@@ -76,8 +74,8 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
 
 ///|
 test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(precision=53)
+  let one = @binary.Binary::one(precision=53)
+  let inf = @binary.Binary::inf(precision=53)
   let empty = Interval::empty(precision=53)
   for
     v in [
@@ -108,9 +106,9 @@ test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded i
 
 ///|
 test "try_new reports an invalid center or radius" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(precision=53)
-  let nan = @bin_float.BinFloat::nan(precision=53)
+  let one = @binary.Binary::one(precision=53)
+  let inf = @binary.Binary::inf(precision=53)
+  let nan = @binary.Binary::nan(precision=53)
   assert_true(
     Interval::try_from_midpoint_radius(one, one, precision=53)
     .unwrap()

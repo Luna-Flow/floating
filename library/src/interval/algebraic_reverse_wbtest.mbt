@@ -1,8 +1,8 @@
 ///|
 fn ar_box(lo : Double, hi : Double) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_double(lo),
-    @bin_float.BinFloat::from_double(hi),
+    @binary.Binary::from_double(lo),
+    @binary.Binary::from_double(hi),
   )
 }
 
@@ -41,10 +41,8 @@ test "sqr_rev rounds the root outward" {
   let c = Interval::from_int(2, precision=8)
   let r = c.sqr_rev()
   let hi = r.upper_bound()
-  assert_true(
-    hi.compare(@bin_float.BinFloat::from_double(1.4142135623730951)) >= 0,
-  )
-  assert_true(hi.mul(hi).compare(@bin_float.BinFloat::from_int(2)) >= 0)
+  assert_true(hi.compare(@binary.Binary::from_double(1.4142135623730951)) >= 0)
+  assert_true(hi.mul(hi).compare(@binary.Binary::from_int(2)) >= 0)
   assert_true(r.lower_bound().neg().compare(hi) == 0)
 }
 
@@ -64,15 +62,11 @@ test "abs_rev and cosh_rev" {
   let r = ar_box(1.0, 2.0).cosh_rev()
   // acosh(2) = 1.3169578969248166
   assert_true(
-    r
-    .upper_bound()
-    .compare(@bin_float.BinFloat::from_double(1.3169578969248166)) >=
+    r.upper_bound().compare(@binary.Binary::from_double(1.3169578969248166)) >=
     0,
   )
   assert_true(
-    r
-    .upper_bound()
-    .compare(@bin_float.BinFloat::from_double(1.3169578969248169)) <=
+    r.upper_bound().compare(@binary.Binary::from_double(1.3169578969248169)) <=
     0,
   )
   assert_true(r.lower_bound().neg().compare(r.upper_bound()) == 0)

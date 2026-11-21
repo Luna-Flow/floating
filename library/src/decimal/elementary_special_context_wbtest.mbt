@@ -266,7 +266,7 @@ test "an ordinary operand in a restricted context is still not computed (#478)" 
 
 ///|
 // oracle: S
-// source: pins an explicit refusal of the implementation, not a value of the standard. `decimal_certified_work_refusal` (certified_math.mbt) refuses a first working precision above `binary_precision_max` = 268,435,456 bits (bin_float/context.mbt:43). The working precision is `max(64, digits * 3,321,929 / 1,000,000 + 31)` bits: 80,807,093 digits give 268,435,456 bits (accepted), 80,807,094 digits give 268,435,457 bits (refused). Computed by hand with Python integers on 2026-11-21.
+// source: pins an explicit refusal of the implementation, not a value of the standard. `decimal_certified_work_refusal` (certified_math.mbt) refuses a first working precision above `binary_precision_max` = 268,435,456 bits (binary/context.mbt:43). The working precision is `max(64, digits * 3,321,929 / 1,000,000 + 31)` bits: 80,807,093 digits give 268,435,456 bits (accepted), 80,807,094 digits give 268,435,457 bits (refused). Computed by hand with Python integers on 2026-11-21.
 // shares: nothing
 test "a multiple of pi beyond the binary precision limit is refused at once (#478)" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }

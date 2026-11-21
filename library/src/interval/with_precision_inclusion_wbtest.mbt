@@ -1,9 +1,6 @@
 ///|
-fn with_precision_power(
-  exponent : Int32,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, precision)
+fn with_precision_power(exponent : Int32, precision : Int32) -> @binary.Binary {
+  @binary.Binary::make(@binary.BinCoeff::one(), exponent, precision)
 }
 
 ///|
@@ -15,7 +12,7 @@ fn with_precision_power(
 /// original lower endpoint and the result lost it.
 test "Interval::with_precision keeps a far lower endpoint" {
   let lo = with_precision_power(-200000, 53)
-  let hi = @bin_float.BinFloat::one(precision=53)
+  let hi = @binary.Binary::one(precision=53)
   let x = Interval::from_bounds(lo, hi, precision=53)
   assert_true(x.is_member(lo))
   let y = x.with_precision(70000)
@@ -28,7 +25,7 @@ test "Interval::with_precision keeps a far lower endpoint" {
 /// The margin is 65536 bits, so only a target precision wide enough to store
 /// the surrogate exposed the bug; cover both sides of it.
 test "Interval::with_precision encloses across the far addend margin" {
-  let hi = @bin_float.BinFloat::one(precision=53)
+  let hi = @binary.Binary::one(precision=53)
   for gap in [65535, 65540, 70003, 200000, 1000000] {
     let lo = with_precision_power(-gap, 53)
     for pair in [(lo, hi), (lo.neg(), hi), (hi.neg(), lo), (hi.neg(), lo.neg())] {
@@ -49,7 +46,7 @@ test "Interval::with_precision encloses across the far addend margin" {
 /// result has to be the same set, not a center-and-radius reconstruction.
 test "Interval::with_precision widening keeps a wide interval exact" {
   let lo = with_precision_power(-200000, 53)
-  let hi = @bin_float.BinFloat::one(precision=53)
+  let hi = @binary.Binary::one(precision=53)
   let x = Interval::from_bounds(lo, hi, precision=53)
   for precision in [65539, 70000, 200001] {
     let y = x.with_precision(precision)
@@ -65,9 +62,9 @@ test "Interval::with_precision does not widen ordinary intervals" {
   let candidates = [
     (with_precision_power(0, 53), with_precision_power(1, 53)),
     (
-      @bin_float.BinFloat::one(precision=53),
-      @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),
+      @binary.Binary::one(precision=53),
+      @binary.Binary::make(
+        @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
         -52,
         53,
       ),
@@ -89,13 +86,13 @@ test "Interval::with_precision does not widen ordinary intervals" {
         .lower_bound()
         .with_precision(
           precision,
-          @bin_float.BinaryRoundingMode::RoundTowardNegative,
+          @binary.BinaryRoundingMode::RoundTowardNegative,
         ),
         x
         .upper_bound()
         .with_precision(
           precision,
-          @bin_float.BinaryRoundingMode::RoundTowardPositive,
+          @binary.BinaryRoundingMode::RoundTowardPositive,
         ),
         precision~,
       )

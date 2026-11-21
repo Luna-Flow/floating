@@ -1,10 +1,10 @@
-// Seeded random differential oracle for BinFloat against GNU MPFR.
+// Seeded random differential oracle for Binary against GNU MPFR.
 //
 //   generate_mpfr_random_oracle <family> <seed> <start> <count>
 //   generate_mpfr_random_oracle eval            (rows on stdin, expected "?")
 //   generate_mpfr_random_oracle families
 //
-// Writes `mpfr-random-v1` rows (see testdata/bin_float/README.md). Case I of
+// Writes `mpfr-random-v1` rows (see testdata/binary/README.md). Case I of
 // family F under seed S is a pure function of (S, F, I): the generator seeds a
 // SplitMix64 stream from the triple, so `family seed I 1` reproduces one row
 // of a million-row run. Every row carries the id `S.F.I`.

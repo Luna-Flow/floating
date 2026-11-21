@@ -6,11 +6,11 @@ fn composed_singleton(value : Double) -> Interval {
 ///|
 test "rootn and hypot preserve exact identities" {
   let eight = composed_singleton(8.0).rootn(3)
-  assert_true(eight.is_member(@bin_float.BinFloat::from_double(2.0)))
+  assert_true(eight.is_member(@binary.Binary::from_double(2.0)))
   let negative_eight = composed_singleton(-8.0).rootn(3)
-  assert_true(negative_eight.is_member(@bin_float.BinFloat::from_double(-2.0)))
+  assert_true(negative_eight.is_member(@binary.Binary::from_double(-2.0)))
   let hypot = composed_singleton(3.0).hypot(composed_singleton(4.0))
-  assert_true(hypot.is_member(@bin_float.BinFloat::from_double(5.0)))
+  assert_true(hypot.is_member(@binary.Binary::from_double(5.0)))
   assert_true(
     composed_singleton(3.0).try_hypot(composed_singleton(4.0)) is Ok(_),
   )
@@ -19,24 +19,20 @@ test "rootn and hypot preserve exact identities" {
 
 ///|
 test "pi-scaled extensions contain exact axis values" {
-  assert_true(
-    composed_singleton(0.0).sinpi().is_member(@bin_float.BinFloat::zero()),
-  )
-  assert_true(
-    composed_singleton(0.0).cospi().is_member(@bin_float.BinFloat::one()),
-  )
+  assert_true(composed_singleton(0.0).sinpi().is_member(@binary.Binary::zero()))
+  assert_true(composed_singleton(0.0).cospi().is_member(@binary.Binary::one()))
   let huge_integer = Interval::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 40, 53),
+    @binary.Binary::make(@binary.BinCoeff::one(), 40, 53),
   )
   assert_true(huge_integer.sinpi().contains_zero())
-  assert_true(huge_integer.cospi().is_member(@bin_float.BinFloat::one()))
+  assert_true(huge_integer.cospi().is_member(@binary.Binary::one()))
 }
 
 ///|
 test "pi-scaled intervals classify endpoint and interior poles exactly" {
   let upper_pole = Interval::from_bounds(
-      @bin_float.BinFloat::zero(precision=53),
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53),
+      @binary.Binary::zero(precision=53),
+      @binary.Binary::make(@binary.BinCoeff::one(), -1, 53),
       precision=53,
     )
     .try_tanpi()
@@ -44,8 +40,8 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
   assert_true(upper_pole.lower_bound().is_zero())
   assert_true(upper_pole.upper_bound().classify() == @def.FpClass::Infinity)
   let lower_pole = Interval::from_bounds(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53),
-      @bin_float.BinFloat::one(precision=53),
+      @binary.Binary::make(@binary.BinCoeff::one(), -1, 53),
+      @binary.Binary::one(precision=53),
       precision=53,
     )
     .try_tanpi()
@@ -55,8 +51,8 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
   assert_true(lower_pole.upper_bound().is_zero())
   assert_true(
     Interval::from_bounds(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53),
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), -2, 53),
+      @binary.Binary::make(@binary.BinCoeff::one(), -2, 53),
+      @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), -2, 53),
       precision=53,
     )
     .try_tanpi()
@@ -68,11 +64,7 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
 
 ///|
 test "stable expm1 and log1p intervals retain tiny singleton inputs" {
-  let tiny_value = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -200,
-    53,
-  )
+  let tiny_value = @binary.Binary::make(@binary.BinCoeff::one(), -200, 53)
   let tiny = Interval::exact(tiny_value)
   let expm1 = tiny.expm1()
   let log1p = tiny.log1p()
@@ -85,10 +77,10 @@ test "stable expm1 and log1p intervals retain tiny singleton inputs" {
 ///|
 test "hyperbolic family preserves zero and domain hulls" {
   let zero = composed_singleton(0.0)
-  assert_true(zero.sinh().is_member(@bin_float.BinFloat::zero()))
-  assert_true(zero.tanh().is_member(@bin_float.BinFloat::zero()))
-  assert_true(zero.cosh().is_member(@bin_float.BinFloat::one()))
-  assert_true(zero.asinh().is_member(@bin_float.BinFloat::zero()))
+  assert_true(zero.sinh().is_member(@binary.Binary::zero()))
+  assert_true(zero.tanh().is_member(@binary.Binary::zero()))
+  assert_true(zero.cosh().is_member(@binary.Binary::one()))
+  assert_true(zero.asinh().is_member(@binary.Binary::zero()))
   assert_true(composed_singleton(0.5).acosh().is_empty())
 }
 

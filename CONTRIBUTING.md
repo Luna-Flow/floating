@@ -47,7 +47,7 @@ The repository is a `moon.work` workspace of two modules, each in its own direct
 
 | Module | Directory | Contents | Dependencies |
 | --- | --- | --- | --- |
-| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `interval`, the `*_checked` tiers | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
+| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `binary`, `decimal`, `decimal_gda`, `interval`, the `*_checked` tiers | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
 | `Luna-Flow/floating-tools` (same version as the library) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `consistency` (the cross-package tests), `semantic` (the exact projection used by them), `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
 
 A library package must never import the tools module or one of the tooling
@@ -63,7 +63,7 @@ one `_build` directory at the root: `moon check --target all --deny-warn`,
 
 ```bash
 moon test -p Luna-Flow/floating/decimal_gda --target native   # one library package
-moon test library/src/bin_float --target native                       # a package path works too
+moon test library/src/binary --target native                       # a package path works too
 moon test -p Luna-Flow/floating-tools/frontend/gda_expr       # one tools package
 moon check --target native --deny-warn tooling/src/bench      # one directory
 ```
@@ -90,7 +90,7 @@ relative links out of the package.
 ### 2.2 Functions
 
 - Use **lowercase letters with underscores** for package-level helper functions.
-- Keep public method names aligned across `bin_float`, `decimal`, and `interval` when the semantics are intended to match.
+- Keep public method names aligned across `binary`, `decimal`, and `interval` when the semantics are intended to match.
 
 ### 2.3 Structs and Traits
 

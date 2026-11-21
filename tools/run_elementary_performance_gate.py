@@ -177,7 +177,7 @@ def snapshot_path(root: Path, relative: str) -> str:
 
 def inject_fixture(root: Path, manifest: dict[str, Any]) -> None:
     benchmark = manifest["benchmark"]
-    package = root / snapshot_path(root, "src/bin_float")
+    package = root / snapshot_path(root, "src/binary")
     for pattern in ("*_test.mbt", "*_wbtest.mbt", "*.mbt.md"):
         for path in package.glob(pattern):
             path.unlink()

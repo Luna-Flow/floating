@@ -174,15 +174,12 @@ fn decimal_pm1_tiny_scaled(
   // working precision (a larger bound is still a bound).
   let t = 33L * (adjusted + 1L) / 10L
   let k = Int64::max(t + 2L, -(work.to_int64() + 8L)).to_int()
-  let exact = @bin_float.BinaryContext::new(
+  let exact = @binary.BinaryContext::new(
     precision=-k + 4,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let one = @bin_float.BinFloat::from_int(1, precision=2)
-  let bound = one.scaleb_ctx(
-      @bin_float.BinFloat::from_int(k, precision=32),
-      exact,
-    ).0
+  let one = @binary.Binary::from_int(1, precision=2)
+  let bound = one.scaleb_ctx(@binary.Binary::from_int(k, precision=32), exact).0
   let factor = @interval.Interval::from_bounds(
     one.sub_ctx(bound, exact).0,
     one.add_ctx(bound, exact).0,
@@ -202,7 +199,7 @@ fn decimal_pm1_tiny_scaled(
     .mul(slope)
     .mul(factor)
   guard !scaled.is_empty() &&
-    !scaled.is_member(@bin_float.BinFloat::zero(precision=scaled.precision())) else {
+    !scaled.is_member(@binary.Binary::zero(precision=scaled.precision())) else {
     return None
   }
   // The scaled endpoints are moderate: convert them in the widest math

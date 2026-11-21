@@ -85,7 +85,7 @@ DEFAULT_RATE = ku.DEFAULT_RATE
 # The packages that carry the time of the stage (measured, `.tmp/plan-0.12/x-incr-ci-package-times.md`):
 # 99 % of the 128 s of per-package time. Each is its own unit.
 HEAVY = tuple(
-    f"{LIBRARY}/{name}" for name in ("interval", "decimal_gda", "decimal", "internal/bin_kernel", "bin_float", "internal/decimal_kernel")
+    f"{LIBRARY}/{name}" for name in ("interval", "decimal_gda", "decimal", "internal/bin_kernel", "binary", "internal/decimal_kernel")
 )
 # Imports a keyed package may have besides the packages of the two modules: they read no file,
 # no environment variable and no clock.

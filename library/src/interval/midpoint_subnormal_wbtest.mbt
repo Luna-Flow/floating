@@ -19,9 +19,9 @@ fn mid_value(
   coefficient : UInt64,
   exponent : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(coefficient),
+) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(coefficient),
     exponent,
     precision,
   )
@@ -33,22 +33,22 @@ fn mid_value(
 /// `precision` bits by `with_precision` (nearest, ties to even, onto the grid of
 /// the stored range).
 fn mid_oracle(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  let wide = @bin_float.BinaryContext::new(precision=600)
+) -> @binary.Binary {
+  let wide = @binary.BinaryContext::new(precision=600)
   let sum = lo.add_ctx(hi, wide).0
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 1)
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 1)
   sum.mul_ctx(half, wide).0.with_precision(
     precision,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @binary.BinaryRoundingMode::RoundTiesToEven,
   )
 }
 
 ///|
 test "the midpoint of intervals at the bottom of the range is not zero" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let mut cases = 0
   for shift in [60, 45, 40, 30, 10, 3] {
     for pair in [(1, 3), (1, 5), (3, 5), (5, 7), (1, 7), (7, 9), (9, 15)] {
@@ -91,7 +91,7 @@ test "the midpoint of intervals at the bottom of the range is not zero" {
   let (m, flags) = interval.midpoint_ctx(
     IntervalContext::new(
       precision=113,
-      e_max=@bin_float.binary_implementation_e_max,
+      e_max=@binary.binary_implementation_e_max,
     ),
   )
   inspect(m.to_string(), content="1p-1073741881")
@@ -107,7 +107,7 @@ test "the midpoint of intervals at the bottom of the range is not zero" {
 ///|
 test "the midpoint of a seeded class near the bottom of the range is the correctly rounded midpoint" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let precisions = [24, 53, 113, 128]
   let mut checked = 0
   for _ in 0..<3000 {
@@ -134,7 +134,7 @@ test "the midpoint of a seeded class near the bottom of the range is the correct
 ///|
 // oracle: B
 // source: the sum of the bounds in a context of 600 bits (exact for these operands) times 1/2 (exact)
-// shares: `BinFloat::add_ctx` and `mul_ctx` at precision 600 (level A in the binary gate)
+// shares: `Binary::add_ctx` and `mul_ctx` at precision 600 (level A in the binary gate)
 // primitives: add_ctx, mul_ctx
 test "far from the edges the center is the exact center" {
   // the value of the exact center equals the sum in 600 bits (exact) times 1/2
@@ -146,8 +146,8 @@ test "far from the edges the center is the exact center" {
     let b = mid_value(y, (mid_next(state) % 400UL).to_int() - 200, 53)
     let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
     let interval = Interval::from_bounds(lo, hi, precision=53)
-    let wide = @bin_float.BinaryContext::new(precision=600)
-    let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 1)
+    let wide = @binary.BinaryContext::new(precision=600)
+    let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 1)
     let exact = interval.lower_bound().add_ctx(interval.upper_bound(), wide).0.mul_ctx(
         half, wide,
       ).0
@@ -161,8 +161,8 @@ test "far from the edges the center is the exact center" {
 
 ///|
 test "a zero endpoint with the smallest stored value" {
-  let e_min = @bin_float.binary_implementation_e_min
-  let zero = @bin_float.BinFloat::zero(precision=53)
+  let e_min = @binary.binary_implementation_e_min
+  let zero = @binary.Binary::zero(precision=53)
   // the smallest stored value of 53 bits is 2^(e_min - 52); half of it lies
   // between 0 and it, a tie: the even neighbour is 0
   let smallest = mid_value(1UL, e_min - 52, 53)
@@ -189,9 +189,9 @@ test "a zero endpoint with the smallest stored value" {
 /// in a context of 600 bits (exact).
 test "the exact center datum equals lo + hi and its half" {
   let state = Ref(0x5851f42d4c957f2dUL)
-  let e_min = @bin_float.binary_implementation_e_min
-  let wide = @bin_float.BinaryContext::new(precision=600)
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 1)
+  let e_min = @binary.binary_implementation_e_min
+  let wide = @binary.BinaryContext::new(precision=600)
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 1)
   let mut multi_bit = 0
   for _ in 0..<3000 {
     let bits_x = 1 + (mid_next(state) % 40UL).to_int()
@@ -220,8 +220,8 @@ test "the exact center datum equals lo + hi and its half" {
 /// rounded to nearest at `max` bits, which is the rounding `midpoint` makes at
 /// the same precision.
 test "the center at the precision limit is rounded once at the limit" {
-  let e_min = @bin_float.binary_implementation_e_min
-  let max = @bin_float.binary_precision_max
+  let e_min = @binary.binary_implementation_e_min
+  let max = @binary.binary_precision_max
   let lowest = e_min - max + 1
   let lo = mid_value(1UL, lowest, max)
   let hi = mid_value(1UL, lowest + 1, max)
@@ -240,7 +240,7 @@ test "the center at the precision limit is rounded once at the limit" {
 /// necessary: #579) and the midpoint is a member of the interval but not always `c`.
 test "the midpoint of an interval made from a center is a member" {
   let state = Ref(0x2545f4914f6cdd1dUL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   for _ in 0..<500 {
     let bits = 1 + (mid_next(state) % 60UL).to_int()
     let x = (mid_next(state) % (1UL << bits)) | 1UL
@@ -256,7 +256,7 @@ test "the midpoint of an interval made from a center is a member" {
       interval
       .midpoint()
       .compare(
-        c.with_precision(53, @bin_float.BinaryRoundingMode::RoundTiesToEven),
+        c.with_precision(53, @binary.BinaryRoundingMode::RoundTiesToEven),
       ),
       0,
     )

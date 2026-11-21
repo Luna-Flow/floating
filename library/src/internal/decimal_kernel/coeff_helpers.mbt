@@ -433,7 +433,7 @@ pub fn decimal_floor_div_scaled_repr(
 
 ///|
 /// floor(value^(1 / degree)) for degree >= 2 and a nonzero `value`, as
-/// `bin_float`'s `binary_floor_nth_root` computes it in binary. Small roots
+/// `binary`'s `binary_floor_nth_root` computes it in binary. Small roots
 /// are found by bisection; larger ones by integer Newton steps from an
 /// overestimate taken from the root of the leading digits, which needs a few
 /// full-size products and divisions instead of one power per root digit.

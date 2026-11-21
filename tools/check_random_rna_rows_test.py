@@ -56,7 +56,7 @@ class RoundAwayTests(unittest.TestCase):
         self.assertEqual(rna.check_text("t.x div na 11 -14 15 a 0x1p0 0x0p0 - 0 inf z").checked, 0)
 
     def test_the_committed_rows_are_right(self) -> None:
-        for name in ("testdata/bin_float/mpfr-4.2.2-random.txt", "testdata/bin_float/random-regressions.txt"):
+        for name in ("testdata/binary/mpfr-4.2.2-random.txt", "testdata/binary/random-regressions.txt"):
             report = rna.check_text((REPO / name).read_text(encoding="utf-8"))
             self.assertEqual(report.failures, [], name)
             self.assertGreater(report.checked, 0, name)

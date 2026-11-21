@@ -5,7 +5,7 @@ of `floating` at once: you inspect values through the `Floating` trait, test
 their class with the generic predicates, read IEEE comparison results as
 `PartialOrder`, and reuse the arithmetic context and error types that `def`
 re-exports. `def` itself does no arithmetic; the concrete packages
-([`bin_float`](bin_float.md), [`decimal`](decimal.md),
+([`binary`](binary.md), [`decimal`](decimal.md),
 [`decimal_gda`](decimal_gda.md)) do. Intervals ([`interval`](interval.md)) are not `Floating`. The laws
 behind the trait are in the [design page](../design/def.md).
 
@@ -29,7 +29,7 @@ moon add Luna-Flow/floating@0.11.0
 ```moonbit nocheck
 import {
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
 }
 ```
 
@@ -38,7 +38,7 @@ The smallest useful program asks a value what it is:
 ```moonbit
 ///|
 test "quick start: observe a value" {
-  let x = @bin_float.BinFloat::from_double(-2.5)
+  let x = @binary.Binary::from_double(-2.5)
   inspect(@def.is_finite(x), content="true")
   inspect(@def.Floating::sign(x) == @def.Sign::Negative, content="true")
   inspect(@def.Floating::precision(x), content="53")
@@ -72,7 +72,7 @@ fn[F : @def.Floating] summary(x : F) -> String {
 ///|
 test "one summary for four representations" {
   inspect(
-    summary(@bin_float.BinFloat::from_int(7)),
+    summary(@binary.Binary::from_int(7)),
     content="finite positive at precision 53",
   )
   inspect(
@@ -103,7 +103,7 @@ fn[F : @def.Floating] three_digits(x : F) -> F {
 test "round to three significant digits of the radix" {
   let d = three_digits(@decimal.Decimal::from_string("3.14159").unwrap())
   inspect(d.to_string(), content="3.14")
-  let b = three_digits(@bin_float.BinFloat::from_int(11))
+  let b = three_digits(@binary.Binary::from_int(11))
   inspect(b.to_string(), content="3p2")
 }
 ```
@@ -118,7 +118,7 @@ Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value
 
 ```moonbit
 ///|
-fn relation(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> String {
+fn relation(a : @binary.Binary, b : @binary.Binary) -> String {
   match a.compare_quiet(b).0 {
     Less => "less"
     Equal => "equal"
@@ -129,12 +129,12 @@ fn relation(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> String {
 
 ///|
 test "four-way comparison" {
-  let one = @bin_float.BinFloat::from_int(1)
-  let two = @bin_float.BinFloat::from_int(2)
+  let one = @binary.Binary::from_int(1)
+  let two = @binary.Binary::from_int(2)
   inspect(relation(one, two), content="less")
-  inspect(relation(@bin_float.BinFloat::nan(), @bin_float.BinFloat::nan()), content="unordered")
+  inspect(relation(@binary.Binary::nan(), @binary.Binary::nan()), content="unordered")
   inspect(
-    relation(@bin_float.BinFloat::from_double(-0.0), @bin_float.BinFloat::zero()),
+    relation(@binary.Binary::from_double(-0.0), @binary.Binary::zero()),
     content="equal",
   )
 }
@@ -183,8 +183,8 @@ fn describe_error(e : @def.ArithmeticError) -> String {
 ///|
 test "handle a checked result through def" {
   let result = @lf_arith.DivChecked::div_checked(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::zero(),
+    @binary.Binary::from_int(1),
+    @binary.Binary::zero(),
     @lf_arith.ArithmeticContext::new(53),
   )
   match result {
@@ -200,13 +200,13 @@ test "handle a checked result through def" {
   by the scalar types. Test `@def.is_nan` first. `Interval` is not
   `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`.
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
-  (`BinFloat::is_negative_zero`, `Decimal::is_negative`) when the sign bit
+  (`Binary::is_negative_zero`, `Decimal::is_negative`) when the sign bit
   matters.
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages
-  (`BinFloat::total_order_compare`, `Decimal::total_order_compare`) for sorting.
+  (`Binary::total_order_compare`, `Decimal::total_order_compare`) for sorting.
 - `with_precision` reports no flags and ignores context exponent limits (a
-  `BinFloat` still overflows at its implementation range of about
+  `Binary` still overflows at its implementation range of about
   $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
   of the concrete package.
 - `with_precision(x, 0)` is not an error: the precision is clamped to 1.

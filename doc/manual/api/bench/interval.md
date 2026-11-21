@@ -19,7 +19,7 @@ import {
   "Luna-Flow/floating/interval" @ivl,
   "Luna-Flow/floating/interval_checked" @checked,
   "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/binary" @binary,
   "Luna-Flow/mare_mark/event",
   "Luna-Flow/mare_mark/model",
   "Luna-Flow/mare_mark/runner",
@@ -31,7 +31,7 @@ import {
 
 | Case | Datasets | Implementations | Protocol |
 | --- | --- | --- | --- |
-| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/bin-float` (`BinFloat`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
+| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
 
 Every specification has a plan test that runs in normal test runs and checks
 that it compiles (`interval benchmark plans compile`), and a performance test marked

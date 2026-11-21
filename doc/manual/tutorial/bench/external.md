@@ -175,7 +175,7 @@ net times of the new summary), the ratio of the old summary, the net ratio of th
 new one with its 95% interval, the verdict against the bounds recorded in the new
 summary, the quotient new over old (below 1 is faster) and the quotient of the raw
 ratios, new raw over old raw. The rows are sorted by
-package (`bin_float`, then `decimal_gda`), precision and operation. Without
+package (`binary`, then `decimal_gda`), precision and operation. Without
 `--markdown` the Markdown goes to standard output; the CSV has the same rows for
 all configurations in one file, with a `configuration` column and plain numbers
 (nanoseconds and ratios), meant for a chart.

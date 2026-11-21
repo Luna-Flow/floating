@@ -25,7 +25,7 @@ to work on it. Release history is in [library/CHANGELOG.md](./library/CHANGELOG.
 
 The repository uses [`just`](https://github.com/casey/just) as its task runner.
 Every `moon` command run at the root acts on both modules; `-p <package>` or a
-path such as `library/src/bin_float` narrows it.
+path such as `library/src/binary` narrows it.
 
 ```bash
 just pr 8                    # pull-request gate
@@ -48,7 +48,7 @@ just conformance run interval --phase trigonometric --strict-supported
 ```
 
 Corpus provenance and options are described in
-[`testdata/bin_float`](./testdata/bin_float/README.md),
+[`testdata/binary`](./testdata/binary/README.md),
 [`testdata/decimal`](./testdata/decimal/README.md) (IEEE 754),
 [`testdata/decimal_gda`](./testdata/decimal_gda/README.md) (GDA) and
 [`testdata/interval`](./testdata/interval/README.md).

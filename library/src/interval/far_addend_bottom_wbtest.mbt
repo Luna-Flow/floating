@@ -2,9 +2,9 @@
 // 1788-2015 12.10: tightest).
 //
 // ORACLE (level A): every expected value is written out in this file as a
-// hexadecimal coefficient and an exponent; no `bin_float` operation produces one.
-// The code under test is compared with them by `BinFloat::compare` and
-// `BinFloat::make` only.
+// hexadecimal coefficient and an exponent; no `binary` operation produces one.
+// The code under test is compared with them by `Binary::compare` and
+// `Binary::make` only.
 //   c + 2^-1073741902 = (253 * 2^120 + 1) * 2^-1073741902
 //                     = 0xFD, 29 hex zeros, 0x1, times 2^-1073741902 (128 bits)
 //   the largest finite number of 200 bits = (2^200 - 1) * 2^(e_max + 1 - 200)
@@ -22,13 +22,13 @@ fn fab_value(
   coefficient : UInt64,
   exponent : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let bits = Int32::max(
     precision,
-    @bin_float.binary_implementation_e_min - exponent + 1,
+    @binary.binary_implementation_e_min - exponent + 1,
   )
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(coefficient),
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(coefficient),
     exponent,
     bits,
   )
@@ -39,10 +39,9 @@ fn fab_hex(
   text : String,
   exponent : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  match @bin_float.BinCoeff::parse(text, radix=16) {
-    Ok(coefficient) =>
-      @bin_float.BinFloat::make(coefficient, exponent, precision)
+) -> @binary.Binary {
+  match @binary.BinCoeff::parse(text, radix=16) {
+    Ok(coefficient) => @binary.Binary::make(coefficient, exponent, precision)
     Err(error) => abort(error)
   }
 }
@@ -58,13 +57,13 @@ fn fab_zeros(n : Int32) -> String {
 
 ///|
 /// c + 2^-1073741902 at 128 bits, written out.
-fn fab_expected_sum() -> @bin_float.BinFloat {
+fn fab_expected_sum() -> @binary.Binary {
   fab_hex("FD" + fab_zeros(29) + "1", -1073741902, 128)
 }
 
 ///|
 /// The largest finite number of 200 bits, written out.
-fn fab_expected_max_200() -> @bin_float.BinFloat {
+fn fab_expected_max_200() -> @binary.Binary {
   let mut text = ""
   for _ in 0..<50 {
     text = text + "F"
@@ -103,17 +102,17 @@ test "fma of a product above the range has the largest finite number of the prec
   // 3 * 2^(e_max - 1) times 3 is above the range: its lower bound was the largest
   // finite number of the 4 bits of the exact product, not of the precision
   let precision = 200
-  let e_max = @bin_float.binary_implementation_e_max
-  let a = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
+  let e_max = @binary.binary_implementation_e_max
+  let a = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(3UL),
     e_max - 1,
     precision,
   )
   let x = Interval::from_bounds(a, a, precision~)
   let three = Interval::from_int(3, precision~)
   let zero = Interval::from_bounds(
-    @bin_float.BinFloat::zero(precision~),
-    @bin_float.BinFloat::zero(precision~),
+    @binary.Binary::zero(precision~),
+    @binary.Binary::zero(precision~),
     precision~,
   )
   let r = x.fma(three, zero)
@@ -128,13 +127,13 @@ test "fma of a product above the range has the largest finite number of the prec
 ///|
 test "add, sub and cancel with endpoints of an inflated precision stay cheap and tight" {
   let precision = 128
-  let big = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(7UL),
+  let big = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(7UL),
     1000000,
     268435456,
   )
-  let small = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(5UL),
+  let small = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(5UL),
     -1000000,
     268435456,
   )

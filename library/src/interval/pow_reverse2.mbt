@@ -29,9 +29,9 @@
 
 ///|
 priv enum QuotClass {
-  QDyadic(@bin_float.BinFloat)
+  QDyadic(@binary.Binary)
   // value = (-1)^neg * num / den, den not a power of two, gcd(num, den) = 1
-  QRational(Bool, @bin_float.BinCoeff, @bin_float.BinCoeff)
+  QRational(Bool, @binary.BinCoeff, @binary.BinCoeff)
   QIrrational
   QUnknown
 }
@@ -49,8 +49,8 @@ fn quot_gcd(a : Int64, b : Int64) -> Int64 {
 }
 
 ///|
-fn quot_coeff(n : Int64) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff::from_uint64(
+fn quot_coeff(n : Int64) -> @binary.BinCoeff {
+  @binary.BinCoeff::from_uint64(
     (if n < 0L { -n } else { n }).reinterpret_as_uint64(),
   )
 }
@@ -60,8 +60,8 @@ fn quot_coeff(n : Int64) -> @bin_float.BinCoeff {
 /// `den` is a power of two.
 fn quot_rational_class(
   negative : Bool,
-  num : @bin_float.BinCoeff,
-  den : @bin_float.BinCoeff,
+  num : @binary.BinCoeff,
+  den : @binary.BinCoeff,
 ) -> QuotClass {
   let zeros = pow_trailing_zeros(den)
   if den.bit_length() == zeros + 1 {
@@ -75,13 +75,10 @@ fn quot_rational_class(
 
 ///|
 /// The class of `ln(c) / ln(a)`, `c > 0` finite and `a > 0` finite, `a != 1`.
-fn quot_end_class(
-  c : @bin_float.BinFloat,
-  a : @bin_float.BinFloat,
-) -> QuotClass {
-  let one = @bin_float.BinFloat::one()
+fn quot_end_class(c : @binary.Binary, a : @binary.Binary) -> QuotClass {
+  let one = @binary.Binary::one()
   if c.compare(one) == 0 {
-    return QDyadic(@bin_float.BinFloat::zero())
+    return QDyadic(@binary.Binary::zero())
   }
   if a.compare(one) == 0 {
     return QUnknown
@@ -158,11 +155,7 @@ fn quot_end_class(
 
 ///|
 /// An enclosure of `ln(c) / ln(a)` at `w` bits.
-fn quot_enclosure(
-  c : @bin_float.BinFloat,
-  a : @bin_float.BinFloat,
-  w : Int32,
-) -> PowEnc {
+fn quot_enclosure(c : @binary.Binary, a : @binary.Binary, w : Int32) -> PowEnc {
   let t = Interval::exact(c, precision=Int32::max(w, c.precision())).ln() /
     Interval::exact(a, precision=Int32::max(w, a.precision())).ln()
   { lo: t.lo_, lo_open: false, hi: t.hi_, hi_open: false, clamped: false, }
@@ -174,8 +167,8 @@ fn quot_enclosure(
 /// `2^-w` (also for an argument next to 1), so the bits of the integer part of `t` are
 /// added to the precision.
 fn quot_start_work(
-  c : @bin_float.BinFloat,
-  a : @bin_float.BinFloat,
+  c : @binary.Binary,
+  a : @binary.Binary,
   precision : Int32,
 ) -> Int32 {
   let coarse = Interval::exact(c, precision=Int32::max(64, c.precision())).ln() /
@@ -187,9 +180,9 @@ fn quot_start_work(
 ///|
 /// Compares `num / den` (`num`, `den` positive) with the finite positive `d`.
 fn quot_magnitude_compare(
-  num : @bin_float.BinCoeff,
-  den : @bin_float.BinCoeff,
-  d : @bin_float.BinFloat,
+  num : @binary.BinCoeff,
+  den : @binary.BinCoeff,
+  d : @binary.Binary,
 ) -> Int32 {
   let (dc, de) = (d.coefficient(), d.exponent2())
   // log2(num/den) is in (bl(num) - bl(den) - 1, bl(num) - bl(den) + 1); log2(d) in
@@ -216,9 +209,9 @@ fn quot_magnitude_compare(
 /// The sign-aware comparison of `(-1)^neg num / den` with the finite float `d`.
 fn quot_rational_compare(
   negative : Bool,
-  num : @bin_float.BinCoeff,
-  den : @bin_float.BinCoeff,
-  d : @bin_float.BinFloat,
+  num : @binary.BinCoeff,
+  den : @binary.BinCoeff,
+  d : @binary.Binary,
 ) -> Int32 {
   if d.is_zero() {
     return if negative { -1 } else { 1 }
@@ -242,11 +235,11 @@ fn quot_rational_compare(
 /// `RD` or `RU` to `precision` bits of `(-1)^neg num / den`.
 fn quot_rational_round(
   negative : Bool,
-  num : @bin_float.BinCoeff,
-  den : @bin_float.BinCoeff,
+  num : @binary.BinCoeff,
+  den : @binary.BinCoeff,
   upper : Bool,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   // the magnitude is rounded in the other direction for a negative value
   let magnitude_up = upper != negative
   let scale = Int32::max(0, precision + 3 + den.bit_length() - num.bit_length())
@@ -277,10 +270,10 @@ fn quot_rational_round(
 
 ///|
 fn quot_end_compare(
-  c : @bin_float.BinFloat,
-  a : @bin_float.BinFloat,
+  c : @binary.Binary,
+  a : @binary.Binary,
   cls : QuotClass,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
   precision : Int32,
   cap : Int32,
 ) -> RevOrder {
@@ -310,13 +303,13 @@ fn quot_end_compare(
 
 ///|
 fn quot_end_rounded(
-  c : @bin_float.BinFloat,
-  a : @bin_float.BinFloat,
+  c : @binary.Binary,
+  a : @binary.Binary,
   cls : QuotClass,
   upper : Bool,
   precision : Int32,
   cap : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   match cls {
     QDyadic(value) =>
       value.with_precision(
@@ -352,13 +345,13 @@ fn pow2_pieces(
   precision : Int32,
 ) -> Array[PowPiece] {
   let pieces : Array[PowPiece] = []
-  let zero = @bin_float.BinFloat::zero(precision~)
-  let one = @bin_float.BinFloat::one(precision~)
+  let zero = @binary.Binary::zero(precision~)
+  let one = @binary.Binary::one(precision~)
   let c1 = c.lo_
   let c2 = c.hi_
   let a1 = a.lo_
   let a2 = a.hi_
-  let quot = fn(ce : @bin_float.BinFloat, ae : @bin_float.BinFloat) {
+  let quot = fn(ce : @binary.Binary, ae : @binary.Binary) {
     PQuot(ce, ae, quot_end_class(ce, ae))
   }
   if c2.compare(zero) > 0 && a2.compare(zero) > 0 {

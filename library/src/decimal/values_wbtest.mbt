@@ -50,24 +50,21 @@ test "the limits of a payload are the p - 1 trailing digits" {
 
 ///|
 test "a conversion to a narrower format keeps the low digits of a payload" {
-  let wide = @bin_float.BinFloat::quiet_nan(
-    payload=@bin_float.BinCoeff::from_uint64(123456789012345678UL),
+  let wide = @binary.Binary::quiet_nan(
+    payload=@binary.BinCoeff::from_uint64(123456789012345678UL),
     precision=64,
   )
-  let (value, _) = Decimal::from_bin_float_ctx(
-    wide,
-    DecimalContext::decimal32(),
-  )
+  let (value, _) = Decimal::from_binary_ctx(wide, DecimalContext::decimal32())
   assert_true(value.is_nan())
   // the payload 123456789012345678 modulo 10^6 (the 6 digits decimal32 holds):
   // IEEE 754-2019 3.5.2 / 6.2.3, the low-order digits are kept (value written out)
   assert_eq(value.nan_payload(), 345678N)
   // a payload that fits is kept whole
-  let fits = @bin_float.BinFloat::quiet_nan(
-    payload=@bin_float.BinCoeff::from_uint64(999999UL),
+  let fits = @binary.Binary::quiet_nan(
+    payload=@binary.BinCoeff::from_uint64(999999UL),
     precision=64,
   )
-  let (kept, _) = Decimal::from_bin_float_ctx(fits, DecimalContext::decimal32())
+  let (kept, _) = Decimal::from_binary_ctx(fits, DecimalContext::decimal32())
   assert_eq(kept.nan_payload(), 999999N)
 }
 

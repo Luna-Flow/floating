@@ -1,15 +1,15 @@
 ///|
 test "ITF1788 minimal decorated set operations" {
-  let one = @bin_float.BinFloat::from_int(1, precision=32)
-  let three = @bin_float.BinFloat::from_int(3, precision=32)
+  let one = @binary.Binary::from_int(1, precision=32)
+  let three = @binary.Binary::from_int(3, precision=32)
   let left = DecoratedInterval::new(
     Interval::from_bounds(one, three),
     decoration=Com,
   )
   let right = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_double(2.1, precision=64),
-      @bin_float.BinFloat::from_int(4, precision=32),
+      @binary.Binary::from_double(2.1, precision=64),
+      @binary.Binary::from_int(4, precision=32),
     ),
     decoration=Com,
   )
@@ -20,7 +20,7 @@ test "ITF1788 minimal decorated set operations" {
   assert_eq(hull.decoration(), Trv)
   assert_true(hull.interval().is_member(one))
   assert_true(
-    hull.interval().is_member(@bin_float.BinFloat::from_int(4, precision=32)),
+    hull.interval().is_member(@binary.Binary::from_int(4, precision=32)),
   )
 }
 
@@ -54,8 +54,8 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
     .interval()
     .equal(
       Interval::from_bounds(
-        @bin_float.BinFloat::from_int(-1, precision=53),
-        @bin_float.BinFloat::one(precision=53),
+        @binary.Binary::from_int(-1, precision=53),
+        @binary.Binary::one(precision=53),
         precision=53,
       ),
     ),
@@ -63,8 +63,8 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
   assert_eq(entire.tan().decoration(), Trv)
   let negative = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_int(-2, precision=53),
-      @bin_float.BinFloat::from_int(-1, precision=53),
+      @binary.Binary::from_int(-2, precision=53),
+      @binary.Binary::from_int(-1, precision=53),
       precision=53,
     ),
   )
@@ -78,15 +78,15 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
 test "decorated arithmetic applies operand and operation grades" {
   let left = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_int(1, precision=53),
-      @bin_float.BinFloat::from_int(2, precision=53),
+      @binary.Binary::from_int(1, precision=53),
+      @binary.Binary::from_int(2, precision=53),
     ),
     decoration=Dac,
   )
   let right = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_int(3, precision=53),
-      @bin_float.BinFloat::from_int(4, precision=53),
+      @binary.Binary::from_int(3, precision=53),
+      @binary.Binary::from_int(4, precision=53),
     ),
     decoration=Com,
   )
@@ -107,8 +107,8 @@ test "decorated arithmetic applies operand and operation grades" {
 test "decorated unary domains downgrade without losing enclosures" {
   let crossing = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_int(-1, precision=53),
-      @bin_float.BinFloat::from_int(1, precision=53),
+      @binary.Binary::from_int(-1, precision=53),
+      @binary.Binary::from_int(1, precision=53),
     ),
   )
   assert_eq(crossing.recip().decoration(), Trv)
@@ -119,8 +119,8 @@ test "decorated unary domains downgrade without losing enclosures" {
   assert_eq(crossing.pown(-2).decoration(), Trv)
   let positive = DecoratedInterval::new(
     Interval::from_bounds(
-      @bin_float.BinFloat::from_int(1, precision=53),
-      @bin_float.BinFloat::from_int(2, precision=53),
+      @binary.Binary::from_int(1, precision=53),
+      @binary.Binary::from_int(2, precision=53),
     ),
     decoration=Def,
   )
@@ -152,9 +152,7 @@ test "decorated NaI propagates through unary binary and ternary operations" {
 test "decorated context rounding preserves grade and accumulates flags" {
   let context = IntervalContext::binary64()
   let overflow_source = DecoratedInterval::new(
-    Interval::exact(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 2000, 53),
-    ),
+    Interval::exact(@binary.Binary::make(@binary.BinCoeff::one(), 2000, 53)),
     decoration=Def,
   )
   let (overflowed, overflow_flags) = overflow_source.apply_ctx(context)
@@ -162,9 +160,7 @@ test "decorated context rounding preserves grade and accumulates flags" {
   assert_true(overflow_flags.overflow())
   assert_true(overflow_flags.inexact())
   let underflow_source = DecoratedInterval::new(
-    Interval::exact(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2000, 53),
-    ),
+    Interval::exact(@binary.Binary::make(@binary.BinCoeff::one(), -2000, 53)),
     decoration=Dac,
   )
   let (underflowed, underflow_flags) = underflow_source.apply_ctx(context)
@@ -182,8 +178,8 @@ test "decorated context rounding preserves grade and accumulates flags" {
 
 ///|
 fn decorated_test_interval(
-  lower : @bin_float.BinFloat,
-  upper : @bin_float.BinFloat,
+  lower : @binary.Binary,
+  upper : @binary.Binary,
 ) -> DecoratedInterval {
   DecoratedInterval::new(Interval::from_bounds(lower, upper, precision=53))
 }
@@ -192,19 +188,19 @@ fn decorated_test_interval(
 /// rootn(x, n) with n < 0 is x^(-1/n), which is undefined at 0, so an argument
 /// containing 0 is not inside the domain and the decoration is trv.
 test "decorated rootn with a negative degree over 0 is trv" {
-  let zero = @bin_float.BinFloat::zero(precision=53)
-  let one = @bin_float.BinFloat::one(precision=53)
+  let zero = @binary.Binary::zero(precision=53)
+  let one = @binary.Binary::one(precision=53)
   let x = decorated_test_interval(zero, one)
   for degree in [-1, -2, -3] {
     assert_eq(x.rootn(degree).decoration(), Trv)
   }
   assert_eq(decorated_test_interval(one.neg(), one).rootn(-3).decoration(), Trv)
   // Away from 0 the negative degrees stay common.
-  let positive = decorated_test_interval(one, @bin_float.BinFloat::from_int(4))
+  let positive = decorated_test_interval(one, @binary.Binary::from_int(4))
   assert_eq(positive.rootn(-2).decoration(), Com)
   assert_eq(positive.rootn(-1).decoration(), Com)
   assert_eq(
-    decorated_test_interval(@bin_float.BinFloat::from_int(-8), one.neg())
+    decorated_test_interval(@binary.Binary::from_int(-8), one.neg())
     .rootn(-3)
     .decoration(),
     Com,
@@ -218,9 +214,9 @@ test "decorated rootn with a negative degree over 0 is trv" {
 /// A pole of tanpi at an endpoint gives a half-unbounded image; the argument
 /// is not inside the domain, so the decoration is trv, not dac.
 test "decorated tanpi with a pole at an endpoint is trv" {
-  let zero = @bin_float.BinFloat::zero(precision=53)
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
-  let one = @bin_float.BinFloat::one(precision=53)
+  let zero = @binary.Binary::zero(precision=53)
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 53)
+  let one = @binary.Binary::one(precision=53)
   let lower_pole = decorated_test_interval(half, one).tanpi()
   assert_true(
     lower_pole.interval().lower_bound().classify() == FpClass::Infinity,
@@ -234,7 +230,7 @@ test "decorated tanpi with a pole at an endpoint is trv" {
   let interior_pole = decorated_test_interval(zero, one).tanpi()
   assert_eq(interior_pole.decoration(), Trv)
   // Without a pole the result is bounded and common.
-  let quarter = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)
+  let quarter = @binary.Binary::make(@binary.BinCoeff::one(), -2, 53)
   assert_eq(
     decorated_test_interval(quarter.neg(), quarter).tanpi().decoration(),
     Com,

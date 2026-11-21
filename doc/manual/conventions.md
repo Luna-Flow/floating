@@ -26,7 +26,7 @@ Every package has one page per chapter, named after its package path:
    invariants and the decisions taken, lists the alternatives rejected, and
    ends with `## Boundaries`.
 
-The four numerical cores, `bin_float`, `decimal`, `decimal_gda` and
+The four numerical cores, `binary`, `decimal`, `decimal_gda` and
 `interval`, have two more chapters, as the standard allows:
 
 4. **Conformance (`conformance/<package>.md`)** states a pinned, finite
@@ -70,7 +70,7 @@ and this page. Do not add or rename guides without updating that list.
 ## Naming
 
 An operation is named after the standard of its package, in snake_case:
-IEEE 754-2019 for `bin_float` and `decimal` and their checked tiers, and the
+IEEE 754-2019 for `binary` and `decimal` and their checked tiers, and the
 General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and
 its checked tier. A package has one spelling per operation: it carries no alias
 and never the name of the other standard for the same thing. For example,
@@ -85,7 +85,7 @@ the GDA `remainder-near` as `remainder_near`.
 - **Suffixes.** `_ctx` marks a method that takes a context and returns the value
   with its flags. `try_` marks the form that returns a `Result` for a
   certification failure. `_checked` and `_contextual` are the forms of the
-  `Luna-Flow/arithmetic` traits. The checked tiers (`bin_float_checked`,
+  `Luna-Flow/arithmetic` traits. The checked tiers (`binary_checked`,
   `decimal_checked`, `decimal_gda_checked`) keep the bare names.
 - **No standard name.** Where the standard has no name for something, such as an
   accessor (`coefficient`), a constructor (`from_bigint`) or an encoding helper,
@@ -163,8 +163,8 @@ changes the interface.
   every other `moonbit` block of the manual.
 - Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for
   `Luna-Flow/arithmetic`; floating packages use their default aliases
-  (`@bin_float`, `@decimal`, …).
-- Call only what the `.mbti` lists. For example, `BinFloat` has no
+  (`@binary`, `@decimal`, …).
+- Call only what the `.mbti` lists. For example, `Binary` has no
   `to_double` or `is_finite` method; use `to_shortest_string` and
   `@def.is_finite(x)`.
 

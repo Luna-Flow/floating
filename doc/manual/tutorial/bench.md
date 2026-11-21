@@ -47,15 +47,15 @@ The `floating` suites themselves run from a checkout of the repository. Run
 one suite from the repository root:
 
 ```bash
-just bench bin-float
+just bench binary
 ```
 
-The command runs the skipped performance tests of `tooling/src/bench/bin_float` in
+The command runs the skipped performance tests of `tooling/src/bench/binary` in
 release mode on the native target, then writes
 
 ```text
-Maremark artifact: .tmp/bench/bin-float.jsonl
-Maremark analysis: .tmp/bench/bin-float.analysis.txt
+Maremark artifact: .tmp/bench/binary.jsonl
+Maremark analysis: .tmp/bench/binary.analysis.txt
 ```
 
 The `.jsonl` file holds one versioned (`mmka_1`) event per line: every
@@ -63,11 +63,11 @@ observation, the environment and the run summary. The `.analysis.txt` file
 holds the reduced results, one line per comparison, for example
 
 ```text
-MAREMARK_HOTSPOT=bin-float/mul/2 core_pct=… full_pct=…
+MAREMARK_HOTSPOT=binary/mul/2 core_pct=… full_pct=…
 ```
 
-meaning: for dataset 2 of `bin-float/mul`, the median paired difference
-between the `core/bin-float` path and the coefficient kernel is `core_pct`
+meaning: for dataset 2 of `binary/mul`, the median paired difference
+between the `core/binary` path and the coefficient kernel is `core_pct`
 percent of the kernel's median per-call time (negative when the core is
 faster), and `full_pct` is the same for the checked path against the core.
 
@@ -77,7 +77,7 @@ faster), and `full_pct` is the same for the checked path against the core.
 
 | Suite | Runs |
 | --- | --- |
-| `just bench bin-float` | all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions) |
+| `just bench binary` | all tests of `tooling/src/bench/binary` (arithmetic, elementary functions) |
 | `just bench elementary` | only the binary elementary-function benchmark |
 | `just bench decimal` | `tooling/src/bench/decimal` |
 | `just bench decimal-gda` | `tooling/src/bench/decimal_gda` |
@@ -202,5 +202,5 @@ collects its output.
 
 - [bench API](../api/bench.md)
 - [bench design](../design/bench.md)
-- Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md),
+- Per-core suites: [binary](bench/binary.md), [decimal](bench/decimal.md),
   [decimal_gda](bench/decimal_gda.md), [interval](bench/interval.md).

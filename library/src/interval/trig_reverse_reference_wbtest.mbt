@@ -26,7 +26,7 @@ fn RefRng::below(self : RefRng, n : Int32) -> Int32 {
 let ref_w : Int32 = 200
 
 ///|
-fn ref_cmp(e : Interval, d : @bin_float.BinFloat) -> Int32 {
+fn ref_cmp(e : Interval, d : @binary.Binary) -> Int32 {
   if e.lo_.compare(d) > 0 {
     1
   } else if e.hi_.compare(d) < 0 {
@@ -46,15 +46,15 @@ fn ref_pieces(
   kmax : Int32,
 ) -> Array[(Interval, Interval)] {
   let pi = certified_pi_interval(ref_w)
-  let two_pi = pi * Interval::exact(@bin_float.BinFloat::from_int(2))
-  let at = fn(s : @bin_float.BinFloat) { Interval::exact(s, precision=ref_w) }
+  let two_pi = pi * Interval::exact(@binary.Binary::from_int(2))
+  let at = fn(s : @binary.Binary) { Interval::exact(s, precision=ref_w) }
   let out : Array[(Interval, Interval)] = []
   for k in kmin..<=kmax {
-    let kf = Interval::exact(@bin_float.BinFloat::from_int(k))
+    let kf = Interval::exact(@binary.Binary::from_int(k))
     if kind == 2 {
       // (atan lo + pi k, atan hi + pi k), poles open and not floats
       let shift = kf * pi
-      let half_pi = pi * Interval::exact(@bin_float.BinFloat::from_double(0.5))
+      let half_pi = pi * Interval::exact(@binary.Binary::from_double(0.5))
       let lo = if c.lo_.classify() == FpClass::Infinity {
         shift - half_pi
       } else {
@@ -67,8 +67,8 @@ fn ref_pieces(
       }
       out.push((lo, hi))
     } else {
-      let one = @bin_float.BinFloat::from_int(1)
-      let minus_one = @bin_float.BinFloat::from_int(-1)
+      let one = @binary.Binary::from_int(1)
+      let minus_one = @binary.Binary::from_int(-1)
       let s_lo = if c.lo_.compare(minus_one) < 0 { minus_one } else { c.lo_ }
       let s_hi = if c.hi_.compare(one) > 0 { one } else { c.hi_ }
       let shift = kf * two_pi
@@ -102,8 +102,8 @@ fn ref_hull(
   // sin and cos reach only [-1, 1]
   if kind != 2 &&
     (
-      c.hi_.compare(@bin_float.BinFloat::from_int(-1)) < 0 ||
-      c.lo_.compare(@bin_float.BinFloat::from_int(1)) > 0
+      c.hi_.compare(@binary.Binary::from_int(-1)) < 0 ||
+      c.lo_.compare(@binary.Binary::from_int(1)) > 0
     ) {
     return empty_interval(precision)
   }
@@ -111,10 +111,10 @@ fn ref_hull(
   let period = if kind == 2 { 3.141592653589793 } else { 6.283185307179586 }
   let kmin = (prior_lo / period).floor().to_int() - 3
   let kmax = (prior_hi / period).floor().to_int() + 3
-  let down = @bin_float.BinaryRoundingMode::RoundTowardNegative
-  let up = @bin_float.BinaryRoundingMode::RoundTowardPositive
-  let mut lower : @bin_float.BinFloat? = None
-  let mut upper : @bin_float.BinFloat? = None
+  let down = @binary.BinaryRoundingMode::RoundTowardNegative
+  let up = @binary.BinaryRoundingMode::RoundTowardPositive
+  let mut lower : @binary.Binary? = None
+  let mut upper : @binary.Binary? = None
   for piece in ref_pieces(kind, c, kmin, kmax) {
     let (lo, hi) = piece
     // the piece meets the prior iff hi >= xl and lo <= xh
@@ -158,7 +158,7 @@ fn ref_float(
   lo : Double,
   hi : Double,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   tr_num(ref_double(rng, lo, hi), precision)
 }
 
@@ -222,8 +222,8 @@ fn ref_check(
       let pieces = ref_pieces(kind, c, k0, k0 + 1)
       let (lo, hi) = pieces[rng.below(pieces.length())]
       let e = if rng.below(2) == 0 { lo } else { hi }
-      let down = @bin_float.BinaryRoundingMode::RoundTowardNegative
-      let up = @bin_float.BinaryRoundingMode::RoundTowardPositive
+      let down = @binary.BinaryRoundingMode::RoundTowardNegative
+      let up = @binary.BinaryRoundingMode::RoundTowardPositive
       let near = match rng.below(4) {
         0 => e.lo_.with_precision(precision, down)
         1 => e.hi_.with_precision(precision, up)

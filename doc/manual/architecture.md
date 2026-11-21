@@ -12,9 +12,9 @@ invariants every layer keeps.
 | Layer | Packages | Responsibility |
 | --- | --- | --- |
 | Shared vocabulary | `def` | `Sign`, `PartialOrder`, the `Floating` trait, predicates, re-exported `arithmetic` types |
-| Scalar domains | `bin_float`, `decimal`, `decimal_gda` | binary, IEEE decimal and GDA decimal values with their contexts and status |
+| Scalar domains | `binary`, `decimal`, `decimal_gda` | binary, IEEE decimal and GDA decimal values with their contexts and status |
 | Interval domain | `interval` | bare and decorated outward-rounded real enclosures |
-| Checked composition | `bin_float_checked`, `decimal_checked`, `decimal_gda_checked`, `interval_checked` | pipelines that keep each domain's error, flag or trap state |
+| Checked composition | `binary_checked`, `decimal_checked`, `decimal_gda_checked`, `interval_checked` | pipelines that keep each domain's error, flag or trap state |
 | Semantic projection | `semantic` | exact, representation-independent observations |
 | Syntax | `numeric_expr` | source spans, literals, primitive calls, callback evaluation |
 | Format frontends | `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` | parse one external corpus grammar and execute typed cases |
@@ -24,7 +24,7 @@ invariants every layer keeps.
 Package boundaries come from `moon.pkg`; files inside a package organize the
 implementation but do not create namespaces. Dependencies point downward: every
 numeric package depends on `def` and `internal`, `interval` builds on
-`bin_float`, `decimal` and `decimal_gda` use `bin_float` and `interval` for
+`binary`, `decimal` and `decimal_gda` use `binary` and `interval` for
 their certified elementary functions, the checked packages wrap their domain,
 and nothing numerical depends on a frontend, a CLI or a benchmark.
 
@@ -49,7 +49,7 @@ state:
 
 | Domain | Normative model | Operation result |
 | --- | --- | --- |
-| `bin_float` | IEEE 754-2019 binary arithmetic at any precision, binary16/32/64/128 interchange | value + `BinaryFlags` |
+| `binary` | IEEE 754-2019 binary arithmetic at any precision, binary16/32/64/128 interchange | value + `BinaryFlags` |
 | `decimal` | IEEE 754-2019 decimal arithmetic, decimal32/64/128 DPD and BID interchange | value + `DecimalFlags` |
 | `decimal_gda` | General Decimal Arithmetic Specification 1.70, scalar operations | `GdaOutcome` with raised flags, sticky next context, optional trap |
 | `interval` | IEEE 1788-2015 bare and decorated intervals, for the declared operation set | enclosure, decoration or NaI, optional `IntervalFlags` |
@@ -72,11 +72,11 @@ immutable operand value(s) + explicit context
   -> public value + explicit status
 ```
 
-`BinFloat` stores a class, a sign, a non-negative binary coefficient with no
+`Binary` stores a class, a sign, a non-negative binary coefficient with no
 trailing zero bits, an exponent, a precision, and NaN state (signaling bit and
 payload). `Decimal` and the GDA `Decimal` each store a sign, a package-owned
 base-$10^9$ coefficient, an exponent that is the quantum, a precision and the
-special state. `Interval` stores two `BinFloat` endpoints, a precision and an
+special state. `Interval` stores two `Binary` endpoints, a precision and an
 Empty marker; `DecoratedInterval` adds a decoration without changing the bare
 representation.
 
@@ -168,7 +168,7 @@ hardest known cases of $\exp$ and $\ln$ need a little more than $2p$ bits,
 far below that, but no such bound is known for every precision, so a failure
 remains possible in principle and is reported rather than hidden.
 
-`bin_float` owns the scalar dyadic certificates. `interval` lifts them over
+`binary` owns the scalar dyadic certificates. `interval` lifts them over
 endpoints, critical points, poles and domain boundaries. `decimal` and
 `decimal_gda` convert exact decimal inputs to directed dyadic bounds, run the
 binary certificate, and convert the certified endpoints back through exact
@@ -185,7 +185,7 @@ approximation.
 
 ## Decimal text conversion
 
-`BinFloat::from_string_ctx` and `to_decimal_string_ctx` are correctly rounded
+`Binary::from_string_ctx` and `to_decimal_string_ctx` are correctly rounded
 for every precision and exponent without expanding $10^{k}$ when $k$ is huge.
 Parsing first decides certain overflow or underflow from a logarithmic
 estimate; for small exponents it rounds the exact rational $D \cdot 10^{k}$;
@@ -211,12 +211,12 @@ No numerical package relies on an ambient rounding mode.
   then selects at most one trap by fixed precedence.
 - `IntervalContext` fixes the endpoint precision and exponent bounds and returns
   `IntervalFlags`.
-- `BinFloat`, `Decimal` and GDA `Decimal` implement the contextual traits of
+- `Binary`, `Decimal` and GDA `Decimal` implement the contextual traits of
   `Luna-Flow/arithmetic` (`AddContextual`, …, `ExpContextual`), so generic code
   can run all three under one `ArithmeticContext`;
   `BinaryContext::from_arithmetic_context` and the decimal equivalents carry
   its precision, rounding, exponent bounds and clamp.
-- `BinFloatResult` and `IntervalResult` keep the first `ArithmeticError`.
+- `BinaryChecked` and `IntervalResult` keep the first `ArithmeticError`.
 - `DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps
   certification errors separately.
 - `GdaDecimalChecked` threads one outcome, stops on `Trapped`, and resumes only
@@ -229,8 +229,8 @@ and never merge incompatible status channels.
 
 The generated `pkg.generated.mbti` of each package is the authority for what
 is public. With MoonBit 0.10, methods of a trait implementation are no longer
-promoted to the type automatically: a method such as `BinFloat::to_string`,
-`Decimal::add_contextual` or `BinFloat::sqrt_checked` is callable with dot
+promoted to the type automatically: a method such as `Binary::to_string`,
+`Decimal::add_contextual` or `Binary::sqrt_checked` is callable with dot
 syntax only because the package declares it with `pub extend`, and the
 `.mbti` then lists it as `pub fn Type::name`. A trait method that is not listed
 that way is still reachable through the trait (for example

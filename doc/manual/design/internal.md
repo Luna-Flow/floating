@@ -12,7 +12,7 @@ helpers together without a public compatibility promise.
 
 On the current branch the sharing is partial. The decimal cores use the
 string splitter, `round_positive_div`, the power caches and `digits10`; every
-core uses the refinement budget and `certified_failure`. The hot paths of `bin_float` and the two decimal packages round with their
+core uses the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their
 own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage
 `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which
 implement the same rounding table as `round_positive_div` but are not built

@@ -21,46 +21,32 @@ fn ne_next(state : Ref[UInt64]) -> UInt64 {
 }
 
 ///|
-fn ne_value(
-  c : UInt64,
-  exponent : Int32,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(c),
-    exponent,
-    precision,
-  )
+fn ne_value(c : UInt64, exponent : Int32, precision : Int32) -> @binary.Binary {
+  @binary.Binary::make(@binary.BinCoeff::from_uint64(c), exponent, precision)
 }
 
 ///|
 /// The oracle: the exact `c - r` and `c + r` (600 bits, checked exact), each rounded once
 /// to `p` bits in its direction.
 fn ne_expected(
-  c : @bin_float.BinFloat,
-  r : @bin_float.BinFloat,
+  c : @binary.Binary,
+  r : @binary.Binary,
   p : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) raise {
-  let wide = @bin_float.BinaryContext::new(precision=600)
+) -> (@binary.Binary, @binary.Binary) raise {
+  let wide = @binary.BinaryContext::new(precision=600)
   let (exact_lo, flags_lo) = c.sub_ctx(r, wide)
   let (exact_hi, flags_hi) = c.add_ctx(r, wide)
   assert_true(!flags_lo.inexact() && !flags_hi.inexact())
   (
-    exact_lo.with_precision(
-      p,
-      @bin_float.BinaryRoundingMode::RoundTowardNegative,
-    ),
-    exact_hi.with_precision(
-      p,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
-    ),
+    exact_lo.with_precision(p, @binary.BinaryRoundingMode::RoundTowardNegative),
+    exact_hi.with_precision(p, @binary.BinaryRoundingMode::RoundTowardPositive),
   )
 }
 
 ///|
 test "the endpoints of Interval::from_midpoint_radius are the hull of the exact center minus and plus the radius, rounded outward" {
   let state = Ref(0x2545f4914f6cdd1dUL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   for _ in 0..<4000 {
     let bits = 1 + (ne_next(state) % 60UL).to_int()
     let c = ne_value(

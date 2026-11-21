@@ -282,43 +282,43 @@ Signed zeros and infinities are preserved; every NaN
 becomes a quiet NaN with payload 0 and the input's sign. `from_float` widens
 to `Double` first, which is exact.
 
-### `Decimal::from_bin_float`, `to_bin_float`
+### `Decimal::from_binary`, `to_binary`
 
 These functions convert between `Decimal` and the binary
-[`BinFloat`](bin_float.md).
+[`Binary`](binary.md).
 
 ```mbti
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int, mode? : DecimalRoundingMode) -> Self
-pub fn Decimal::to_bin_float(Self, precision~ : Int, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int, mode? : DecimalRoundingMode) -> Self
+pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 ```
 
-`from_bin_float(x, precision~, mode~)` is exact whenever the decimal expansion of
+`from_binary(x, precision~, mode~)` is exact whenever the decimal expansion of
 `x` fits in `precision` decimal digits, with the exponent closest to 0 as for
 `from_double`, and is otherwise rounded once to exactly `precision` digits in
 `mode` (default `RoundTiesToEven`, the rounding type of the radix of the result).
 The precision is required and counts digits; it was the number of bits of `x`
 by default, a count of the wrong kind. A binary zero keeps its sign ($-0$
 becomes $-0$, as IEEE 754-2019 §5.4.2 and §6.3 require), and a NaN becomes a
-quiet NaN with payload 0. `to_bin_float(precision~, mode~)` rounds the exact
-decimal value once to a `BinFloat` of `precision` bits with `mode`, one of the
+quiet NaN with payload 0. `to_binary(precision~, mode~)` rounds the exact
+decimal value once to a `Binary` of `precision` bits with `mode`, one of the
 five rounding-direction attributes of IEEE 754-2019 4.3.1 (default
 `RoundTiesToEven`). The precision is required and counts bits, from 1 to
-`@bin_float.binary_precision_max`; outside that range the call aborts (it was the
+`@binary.binary_precision_max`; outside that range the call aborts (it was the
 number of digits of the decimal by default). Most decimal fractions are not
 dyadic, so this direction is usually inexact; converting with `RoundTowardNegative`
 and `RoundTowardPositive` gives a binary enclosure of the decimal value. Zeros
 keep their sign and NaN payloads are not kept. The same conversions are in
 `decimal_gda`, with `GdaRoundingMode` for the decimal result.
 
-### `Decimal::convert_format`, `from_bin_float_ctx`, `to_bin_float_ctx`
+### `Decimal::convert_format`, `from_binary_ctx`, `to_binary_ctx`
 
 These functions are IEEE 754-2019 convertFormat (§5.4.2) with the flags, for
 the conversions between decimal formats and between the radices.
 
 ```mbti
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
-pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
+pub fn Decimal::from_binary_ctx(@binary.Binary, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_binary_ctx(Self, @binary.BinaryContext) -> (@binary.Binary, @binary.BinaryFlags)
 ```
 
 `convert_format(format)` converts to decimal32, decimal64 or decimal128: the
@@ -328,7 +328,7 @@ quantum of the source ("For conversions between decimal formats, the preferred
 exponent is Q(source)"): a conversion to a wider format is exact and keeps the
 cohort member, a narrower one rounds, can overflow or underflow, and folds a
 large exponent down.
-`from_bin_float_ctx(x, ctx)` rounds the exact value of a binary float once
+`from_binary_ctx(x, ctx)` rounds the exact value of a binary float once
 under the decimal context (precision, exponent range, direction) with the flags
 of the rounding: an exact conversion has the preferred exponent 0 (the
 exponent closest to 0 that holds the digits: `0.5` is `5E-1`, `96` is `96`), an
@@ -337,15 +337,15 @@ possible"). A value beyond the exponent range, or far below it, overflows or
 underflows without its digits being formed. An in-range value is converted at
 any binary exponent, correctly rounded, at a cost that does not grow with the
 exponent; a binary exponent beyond $2^{22}$ is refused with NaN and
-`invalid_operation`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
+`invalid_operation`. `to_binary_ctx(ctx)` rounds the exact decimal value once
 under a `BinaryContext` (binary16 to binary128, or any precision and range)
 and returns the `BinaryFlags` (inexact, overflow, underflow); it is the
-conversion of `BinFloat::from_string_ctx`, correctly rounded for any exponent.
+conversion of `Binary::from_string_ctx`, correctly rounded for any exponent.
 A zero keeps its sign in every direction. A signaling NaN gives a quiet NaN
 and the invalid operation exception; the sign of a NaN is kept, and so is its
 payload when the destination holds it (§6.2.3): `p - 1` digits for the decimal
 formats and `p - 2` bits for a binary format, otherwise the low digits or bits.
-`from_bin_float` and `to_bin_float` are unchanged.
+`from_binary` and `to_binary` are unchanged.
 
 ### The `FromNat` and `FromInteger` implementations
 
@@ -1161,7 +1161,7 @@ pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, De
 pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
 ```
 
-They have the shape of the `BinFloat` functions of the same names. The value
+They have the shape of the `Binary` functions of the same names. The value
 is rounded to an integer with the `rounding` of the context: ties to even,
 toward zero, toward positive, toward negative and ties to away are the five
 directions of §5.8. A NaN (quiet or signaling), an infinity and a value
@@ -1189,7 +1189,7 @@ $n$ must be a finite integer with exponent 0 and
 $|n| \le 2(e_{\max}+p)$, otherwise the result is NaN with
 `invalid_operation` (IEEE 754-2019 5.3.3 defines scaleB for integral counts only
 and leaves a non-integral second operand, an infinity included, to the language;
-the bound on $|n|$ is the GDA `scaleb` rule, where `BinFloat::scaleb_ctx` clamps a
+the bound on $|n|$ is the GDA `scaleb` rule, where `Binary::scaleb_ctx` clamps a
 larger count instead). The scaled value is then rounded once like every other
 context result: a coefficient longer than $p$ digits is rounded to $p$ digits
 (`12345678901234567890` scaled by 0 in decimal64 is
@@ -1308,13 +1308,13 @@ pub fn Decimal::compare_signaling(Self, Self) -> (@def.PartialOrder, DecimalFlag
 The relation is `Less`, `Equal`, `Greater` or `Unordered` (some operand is a
 NaN), with $-0 = +0$ and all members of a cohort equal. The quiet form raises
 `invalid_operation` only for a signaling NaN; the signaling form raises it for
-every unordered comparison. These are the functions of `BinFloat`; they replace
+every unordered comparison. These are the functions of `Binary`; they replace
 `compare_ctx` and `compare_signal_ctx`, which returned the `Decimal` $-1$, 0, 1
 or a NaN, a General Decimal Arithmetic result and not an IEEE one.
 
 ### `Decimal::compare_quiet_equal` and the other comparison predicates
 
-The predicates of IEEE 754-2019 Tables 5.1 and 5.2 that `BinFloat` has.
+The predicates of IEEE 754-2019 Tables 5.1 and 5.2 that `Binary` has.
 
 ```mbti
 pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
@@ -1545,7 +1545,7 @@ precision of the context; at a precision of 1,000,000 digits that takes about
 100 seconds each, and from 80,807,094 digits on the result is `not_computed` at once:
 `decimal_certified_work_refusal` refuses a first working precision (3.321929
 bits per digit plus 31 guard bits) above `binary_precision_max`, 268,435,456
-bits (`bin_float/context.mbt:43`); 80,807,093 digits is the largest precision
+bits (`binary/context.mbt:43`); 80,807,093 digits is the largest precision
 served. Integral powers in `decimal` support counts through
 999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
 these are adopted decNumber implementation limits, not limits imposed by GDA
@@ -2371,7 +2371,7 @@ package "Luna-Flow/floating/decimal"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/def",
   "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
@@ -2468,8 +2468,8 @@ pub fn Decimal::expm1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, mode? : DecimalRoundingMode) -> Self
-pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int32, mode? : DecimalRoundingMode) -> Self
+pub fn Decimal::from_binary_ctx(@binary.Binary, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -2563,8 +2563,8 @@ pub fn Decimal::sub_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_bin_float(Self, precision~ : Int32, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
-pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
+pub fn Decimal::to_binary(Self, precision~ : Int32, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
+pub fn Decimal::to_binary_ctx(Self, @binary.BinaryContext) -> (@binary.Binary, @binary.BinaryFlags)
 pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)

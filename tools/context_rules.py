@@ -3,7 +3,7 @@
 Pure functions and three frozen dataclasses, no I/O.  A context is legal when
 the standard of its package can have it:
 
-* `bin_float` (IEEE 754-2019 3.3, 3.7, 4.3, 7.5): a precision `p` and an exponent
+* `binary` (IEEE 754-2019 3.3, 3.7, 4.3, 7.5): a precision `p` and an exponent
   `e_max >= 1` with `e_min = 1 - e_max`, or a precision alone (the extendable
   format, whose range is the implementation range); one of the five rounding
   directions; tininess before or after rounding.
@@ -65,7 +65,7 @@ GDA_ROUNDINGS = ("half_even", "half_up", "half_down", "down", "ceiling", "floor"
 def check_binary_context(
     precision: int, e_max: int | None = None, e_min: int | None = None, rounding: str = "n", tininess: str = "a"
 ) -> None:
-    """Reject a `bin_float` context that no format has.
+    """Reject a `binary` context that no format has.
 
     `e_max` absent means the precision alone (the extendable format of 3.7): a
     one-sided range, an `e_min` without an `e_max`, is rejected. An `e_min` that
@@ -133,7 +133,7 @@ def check_gda_context(precision: int, e_min: int, e_max: int, rounding: str = "h
 
 @dataclass(frozen=True)
 class BinaryFormat:
-    """A `bin_float` context: `precision` and `e_max` (absent: the precision alone), `e_min = 1 - e_max`."""
+    """A `binary` context: `precision` and `e_max` (absent: the precision alone), `e_min = 1 - e_max`."""
 
     precision: int
     e_max: int | None = None

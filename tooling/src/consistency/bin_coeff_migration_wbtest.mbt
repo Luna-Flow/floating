@@ -1,7 +1,7 @@
 ///|
-fn binary_test_coefficient(value : BigInt) -> @bin_float.BinCoeff {
+fn binary_test_coefficient(value : BigInt) -> @binary.BinCoeff {
   let magnitude = if value < 0N { -value } else { value }
-  @bin_float.BinCoeff::parse(magnitude.to_string()).unwrap()
+  @binary.BinCoeff::parse(magnitude.to_string()).unwrap()
 }
 
 ///|
@@ -9,8 +9,8 @@ fn binary_test_make(
   value : BigInt,
   exponent2 : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
+) -> @binary.Binary {
+  @binary.Binary::make(
     binary_test_coefficient(value),
     exponent2,
     precision,
@@ -19,7 +19,7 @@ fn binary_test_make(
 }
 
 ///|
-fn binary_test_signed_bigint(value : @bin_float.BinFloat) -> BigInt {
+fn binary_test_signed_bigint(value : @binary.Binary) -> BigInt {
   let magnitude = bigint_from_text(value.coefficient().to_string())
   if value.is_negative() {
     -magnitude

@@ -27,7 +27,7 @@ conversion.
 ### One file per invocation
 
 A process handles one chunk. The Python driver
-(`tools/run_binfloat_interpreter.py`) writes the generator stream into chunk
+(`tools/run_binary_interpreter.py`) writes the generator stream into chunk
 files, runs the runner on each, and adds the chunk offset to the reported
 `FUNCTION:LINE` ids. Bounded chunks keep memory constant for the largest
 `mulAdd` tasks.

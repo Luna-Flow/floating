@@ -24,26 +24,24 @@ let decimal_pi_cache : Map[Int32, @interval.Interval] = Map([])
 ///|
 /// The tightest `precision`-bit enclosure `[RD(pi), RU(pi)]`, taken from the
 /// cached binary-splitting constant: `atan(+inf) = pi/2` is served from that
-/// cache by `bin_float`, and the scaling by 2 is exact (unbounded exponent
+/// cache by `binary`, and the scaling by 2 is exact (unbounded exponent
 /// range), so `[2 RD(pi/2), 2 RU(pi/2)] = [RD(pi), RU(pi)]`. This is the same
 /// interval, bit for bit, as `4 [RD(atan 1), RU(atan 1)]` (scaling by powers of
 /// two commutes with directed rounding).
-fn decimal_pi_enclosure(
-  precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let infinity = @bin_float.BinFloat::inf(precision~)
-  let exact = @bin_float.BinaryContext::new(precision~)
-  let two = @bin_float.BinFloat::from_int(2, precision=2)
+fn decimal_pi_enclosure(precision : Int32) -> (@binary.Binary, @binary.Binary) {
+  let infinity = @binary.Binary::inf(precision~)
+  let exact = @binary.BinaryContext::new(precision~)
+  let two = @binary.Binary::from_int(2, precision=2)
   let bound = fn(rounding) {
-    let context = @bin_float.BinaryContext::new(precision~, rounding~)
+    let context = @binary.BinaryContext::new(precision~, rounding~)
     match infinity.try_atan_ctx(context) {
       Ok(result) => result.0.mul_ctx(two, exact).0
       Err(error) => abort(error.message)
     }
   }
   (
-    bound(@bin_float.BinaryRoundingMode::RoundTowardNegative),
-    bound(@bin_float.BinaryRoundingMode::RoundTowardPositive),
+    bound(@binary.BinaryRoundingMode::RoundTowardNegative),
+    bound(@binary.BinaryRoundingMode::RoundTowardPositive),
   )
 }
 
@@ -125,9 +123,9 @@ fn decimal_pi_tiny_factor(
   // Any k up to 3.32 t is sound; more than the working precision only makes
   // the subtraction below align operands millions of bits apart.
   let k = Int64::min(t * 3321928L / 1000000L, (precision + 64).to_int64()).to_int()
-  let bound = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -k, 32)
+  let bound = @binary.Binary::make(@binary.BinCoeff::one(), -k, 32)
   let epsilon = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::zero(precision=32),
+    @binary.Binary::zero(precision=32),
     bound,
     precision~,
   )

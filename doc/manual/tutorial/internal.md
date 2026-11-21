@@ -164,10 +164,10 @@ test "certified floor of 1/3" {
 
 ## Going further
 
-- `bin_float`, `decimal`, `decimal_gda` and `interval` create their
+- `binary`, `decimal`, `decimal_gda` and `interval` create their
   refinement budgets at the target precision plus a guard margin and report
   `certified_failure` when the budget runs out; see the
-  [bin_float design](../design/bin_float.md) for the certified elementary
+  [binary design](../design/binary.md) for the certified elementary
   functions.
 - The white-box tests of this package check these helpers against `BigInt` oracles.
 - Run the package tests from a workspace containing the module:

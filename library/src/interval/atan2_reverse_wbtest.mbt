@@ -1,17 +1,17 @@
 ///|
 /// A float next to a multiple of pi/2: `RD` of `k pi / 2` at `p` bits, `up` for the next float.
-fn a2_near(k : Int32, p : Int32, up~ : Bool = false) -> @bin_float.BinFloat {
+fn a2_near(k : Int32, p : Int32, up~ : Bool = false) -> @binary.Binary {
   let pi = certified_pi_interval(p + 64)
   let magnitude = if k == 1 || k == -1 {
-    (pi * Interval::exact(@bin_float.BinFloat::from_double(0.5))).lo_
+    (pi * Interval::exact(@binary.Binary::from_double(0.5))).lo_
   } else {
     pi.lo_
   }
   let down = magnitude.with_precision(
     p,
-    @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    @binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let ctx = @bin_float.BinaryContext::new(precision=p)
+  let ctx = @binary.BinaryContext::new(precision=p)
   let value = if up { down.next_up_ctx(ctx).0 } else { down }
   if k < 0 {
     value.neg()
@@ -52,7 +52,7 @@ test "atan2 zones: the position of an angle against the multiples of pi/2, exact
 /// The inputs that make the set empty, each named: c without a point in (-pi, pi], an empty
 /// operand, the abscissa 0 with an angle that misses both axis directions, and the origin.
 test "atan2_rev1: the empty set" {
-  let ctx = @bin_float.BinaryContext::new(precision=53)
+  let ctx = @binary.BinaryContext::new(precision=53)
   let entire = Interval::entire(precision=53)
   // c above pi, and c below -pi, up to the float just below -pi
   assert_true(entire.atan2_rev1(a2_iv(4.0, 5.0)).is_empty())
@@ -196,7 +196,7 @@ test "atan2: the branch cut and the half-open range" {
 /// floats, of the order `2^p` times the factor.
 test "atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result" {
   for p in [53, 113] {
-    let ctx = @bin_float.BinaryContext::new(precision=p)
+    let ctx = @binary.BinaryContext::new(precision=p)
     let one = pw_box(pw_num(1.0, p), pw_num(1.0, p), p)
     // Rev1 next to pi/2: y = 1 * tan(c) is positive and about 2^p
     let c1 = a2_near(1, p)

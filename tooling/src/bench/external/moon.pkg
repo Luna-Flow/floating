@@ -1,6 +1,6 @@
 import {
   "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal_gda" @gda,
   "Luna-Flow/mare_mark/env_detect",
   "Luna-Flow/mare_mark/event",

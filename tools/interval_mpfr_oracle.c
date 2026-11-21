@@ -7,7 +7,7 @@
  * directly: every bound is one MPFR operation with a directed rounding on the
  * bounds of the operands (the extremum of a monotone or multi-affine function is
  * attained at a bound), in the exponent range and with the gradual underflow of
- * `bin_float` (tools/mpfr_ours.h). Nothing of it is shared with `bin_float` or
+ * `binary` (tools/mpfr_ours.h). Nothing of it is shared with `binary` or
  * `interval`; it shares MPFR with MPFI.
  *
  *   interval_mpfr_oracle INPUT OUTPUT
@@ -133,7 +133,7 @@ static void compute_sqr(const ival *a, long p, ival *out) {
 /*
  * mpfr_sqrt of MPFR 4.2.2 (the Homebrew build) returns for some operands a value
  * on the wrong side of the root or a wrong ternary value (see
- * testdata/bin_float/README.md, "Known oracle defect"). The row is checked with an
+ * testdata/binary/README.md, "Known oracle defect"). The row is checked with an
  * exact product: `r` is the rounded-down root of `a` when r*r <= a < next(r)^2, the
  * rounded-up one when prev(r)^2 < a <= r*r. A row that fails is undecided.
  */

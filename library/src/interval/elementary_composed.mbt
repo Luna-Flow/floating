@@ -1,21 +1,21 @@
 ///|
 /// `[RD(pi), RU(pi)]` at `precision` bits from the cached binary-splitting
-/// constant of `bin_float`: `atan(+inf)` is `pi/2` served from that cache, and
+/// constant of `binary`: `atan(+inf)` is `pi/2` served from that cache, and
 /// scaling by 2 is exact (unbounded exponent range).
 fn certified_pi_interval(precision : Int32) -> Interval {
-  let infinity = @bin_float.BinFloat::inf(precision~)
-  let exact = @bin_float.BinaryContext::new(precision~)
-  let two = @bin_float.BinFloat::from_int(2, precision=2)
+  let infinity = @binary.Binary::inf(precision~)
+  let exact = @binary.BinaryContext::new(precision~)
+  let two = @binary.Binary::from_int(2, precision=2)
   let bound = fn(rounding) {
-    let context = @bin_float.BinaryContext::new(precision~, rounding~)
+    let context = @binary.BinaryContext::new(precision~, rounding~)
     match infinity.try_atan_ctx(context) {
       Ok(result) => result.0.mul_ctx(two, exact).0
       Err(error) => abort(error.message)
     }
   }
   store_interval(
-    bound(@bin_float.BinaryRoundingMode::RoundTowardNegative),
-    bound(@bin_float.BinaryRoundingMode::RoundTowardPositive),
+    bound(@binary.BinaryRoundingMode::RoundTowardNegative),
+    bound(@binary.BinaryRoundingMode::RoundTowardPositive),
     precision,
   )
 }
@@ -28,7 +28,7 @@ fn pi_scaled_index_range(value : Interval) -> (SignedBinCoeff, SignedBinCoeff) {
 }
 
 ///|
-fn pi_scaled_endpoint_index(value : @bin_float.BinFloat) -> SignedBinCoeff? {
+fn pi_scaled_endpoint_index(value : @binary.Binary) -> SignedBinCoeff? {
   let scaled = rat_mul_int(rat_from_finite_bin(value), 2)
   if coeff_compare(scaled.den, coeff_one()) == 0 {
     Some(scaled.num)
@@ -62,7 +62,7 @@ pub fn Interval::rootn(self : Interval, degree : Int32) -> Interval {
         Interval::empty(precision=self.precision_)
       } else if degree % 2 == 0 {
         store_interval(
-          @bin_float.BinFloat::zero(precision=self.precision_),
+          @binary.Binary::zero(precision=self.precision_),
           pos_inf(self.precision_),
           self.precision_,
         )
@@ -129,7 +129,7 @@ pub fn Interval::try_log2(
   if self.is_empty() {
     return Ok(self)
   }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
+  let zero = @binary.Binary::zero(precision=self.precision_)
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
   }
@@ -148,7 +148,7 @@ pub fn Interval::try_log10(
   if self.is_empty() {
     return Ok(self)
   }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
+  let zero = @binary.Binary::zero(precision=self.precision_)
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
   }
@@ -173,11 +173,8 @@ pub fn Interval::try_rootn(
   if self.is_empty() {
     return Ok(self)
   }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
-  let evaluate = fn(
-    value : @bin_float.BinFloat,
-    context : @bin_float.BinaryContext,
-  ) {
+  let zero = @binary.Binary::zero(precision=self.precision_)
+  let evaluate = fn(value : @binary.Binary, context : @binary.BinaryContext) {
     value.try_rootn_ctx(degree, context)
   }
   if degree > 0 {
@@ -218,13 +215,13 @@ pub fn Interval::try_hypot(
   }
   let left = self.abs()
   let right = other.abs()
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   left.lo_
   .try_hypot_ctx(right.lo_, downward)
@@ -237,18 +234,18 @@ pub fn Interval::try_hypot(
 
 ///|
 fn try_pow_point_bounds(
-  base : @bin_float.BinFloat,
-  exponent : @bin_float.BinFloat,
+  base : @binary.Binary,
+  exponent : @binary.Binary,
   precision : Int32,
-) -> Result[(@bin_float.BinFloat, @bin_float.BinFloat), @def.ArithmeticError] {
+) -> Result[(@binary.Binary, @binary.Binary), @def.ArithmeticError] {
   let base = canonical_interval_endpoint(base, precision)
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   base
   .try_pow_ctx(exponent, downward)
@@ -266,8 +263,8 @@ pub fn Interval::try_pow(
   if self.is_empty() || exponent.is_empty() {
     return Ok(empty_interval(precision))
   }
-  let zero = @bin_float.BinFloat::zero(precision~)
-  let one = @bin_float.BinFloat::one(precision~)
+  let zero = @binary.Binary::zero(precision~)
+  let one = @binary.Binary::one(precision~)
   let nonnegative = self.intersection(
     store_interval(zero, pos_inf(precision), precision),
   )
@@ -368,13 +365,13 @@ pub fn Interval::try_tanpi(
   let indices = pi_scaled_index_range(self)
   let first_pole = first_odd_index_at_or_above(indices.0)
   let has_pole = signed_coeff_compare(first_pole, indices.1) <= 0
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   if !has_pole {
     return self.lo_
@@ -434,7 +431,7 @@ pub fn Interval::cosh(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::one(precision=self.precision_),
+        @binary.Binary::one(precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -469,7 +466,7 @@ pub fn Interval::acosh(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::zero(precision=self.precision_),
+        @binary.Binary::zero(precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -493,7 +490,7 @@ fn half_pi_range(precision : Int32) -> Interval {
   let pi = pi_range(precision)
   let bound = pi.hi_.with_precision(
     precision,
-    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    @binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let half = Interval::exact(bound, precision~).div(
     Interval::from_int(2, precision~),
@@ -506,10 +503,10 @@ fn half_pi_range(precision : Int32) -> Interval {
 fn pi_range(precision : Int32) -> Interval {
   let pi = certified_pi_interval(Int32::min(precision, 64))
   store_interval(
-    @bin_float.BinFloat::zero(precision~),
+    @binary.Binary::zero(precision~),
     pi.hi_.with_precision(
       precision,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      @binary.BinaryRoundingMode::RoundTowardPositive,
     ),
     precision,
   )

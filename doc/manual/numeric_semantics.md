@@ -25,8 +25,8 @@ The triple $(s, c, e)$ is the **representation**; the real number $x$ is the
 $6 \cdot 2^{-2}$ are both $1.5$. The two radices treat this redundancy
 differently.
 
-- `BinFloat` removes trailing factors of two from the coefficient whenever it
-  builds a finite value, so a finite non-zero `BinFloat` has an odd
+- `Binary` removes trailing factors of two from the coefficient whenever it
+  builds a finite value, so a finite non-zero `Binary` has an odd
   coefficient. Its printed form `c p e` shows that canonical pair.
 - `Decimal` (in `decimal` and `decimal_gda`) keeps the exponent it was given.
   The exponent is $q$ (the quantum, IEEE 754-2019 2.1, is the value $10^q$ of a
@@ -42,8 +42,8 @@ claim that every stored digit is significant, and it never changes the radix.
 ///|
 test "representation versus value" {
   // 6 * 2^-2 is stored as the canonical 3 * 2^-1.
-  let three_halves = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(6UL),
+  let three_halves = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(6UL),
     -2,
     53,
   )
@@ -77,7 +77,7 @@ $$
 
 where $\operatorname{rnd}$ is the rounding function of the context. An
 operation is **correctly rounded** when its result is exactly this: the exact
-value rounded once. In `bin_float` and `decimal` every arithmetic
+value rounded once. In `binary` and `decimal` every arithmetic
 operation, square root, fused multiply-add, remainder, conversion and parse is
 correctly rounded, and so are the elementary functions, by certified
 refinement (see [architecture](./architecture.md)); where the library cannot
@@ -104,10 +104,10 @@ difference:
 ```moonbit
 ///|
 test "one rounding versus two" {
-  let ctx = @bin_float.BinaryContext::binary64()
-  let tenth = @bin_float.BinFloat::from_double(0.1)
-  let ten = @bin_float.BinFloat::from_int(10)
-  let minus_one = @bin_float.BinFloat::from_int(-1)
+  let ctx = @binary.BinaryContext::binary64()
+  let tenth = @binary.Binary::from_double(0.1)
+  let ten = @binary.Binary::from_int(10)
+  let minus_one = @binary.Binary::from_int(-1)
   let (fused, _) = tenth.fma_ctx(ten, minus_one, ctx)
   inspect(fused, content="1p-54")
   let (product, _) = tenth.mul_ctx(ten, ctx)
@@ -167,16 +167,16 @@ non-zero bits, so nearest rounding goes up:
 ```moonbit
 ///|
 test "rounding 0.1 to five bits" {
-  let tenth = @bin_float.BinFloat::from_double(0.1)
-  inspect(tenth.with_precision(5, @bin_float.BinaryRoundingMode::RoundTiesToEven), content="13p-7")
-  inspect(tenth.with_precision(5, @bin_float.BinaryRoundingMode::RoundTowardZero), content="25p-8")
+  let tenth = @binary.Binary::from_double(0.1)
+  inspect(tenth.with_precision(5, @binary.BinaryRoundingMode::RoundTiesToEven), content="13p-7")
+  inspect(tenth.with_precision(5, @binary.BinaryRoundingMode::RoundTowardZero), content="25p-8")
 }
 ```
 
 ### Rounding to an integer
 
 Rounding to an integral value is the same construction with
-$\mathbb{F} = \mathbb{Z}$. `BinFloat` offers the fixed-direction forms `floor`
+$\mathbb{F} = \mathbb{Z}$. `Binary` offers the fixed-direction forms `floor`
 ($\operatorname{RD}$), `ceil` ($\operatorname{RU}$), `trunc`
 ($\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even`
 (nearest, ties to even); `to_integral_value_ctx` uses the context's direction
@@ -189,13 +189,13 @@ sign of zero: $\lceil -0.3 \rceil = -0$.
 ```moonbit
 ///|
 test "rounding to integers" {
-  let x = @bin_float.BinFloat::from_double(2.5)
+  let x = @binary.Binary::from_double(2.5)
   inspect(x.round(), content="3p0")
   inspect(x.round_ties_even(), content="1p1")
   inspect(x.floor(), content="1p1")
-  inspect(@bin_float.BinFloat::from_double(-0.3).ceil(), content="-0")
+  inspect(@binary.Binary::from_double(-0.3).ceil(), content="-0")
   let (n, flags) = x.to_int_ctx(
-    @bin_float.BinaryContext::binary64(),
+    @binary.BinaryContext::binary64(),
     exact=true,
   )
   inspect(n == Some(2), content="true")
@@ -213,7 +213,7 @@ $$
 \operatorname{ulp}(x) = \beta^{\,e - p + 1}.
 $$
 
-`BinFloat::ulp` computes it for $\beta = 2$ at the value's own precision with an
+`Binary::ulp` computes it for $\beta = 2$ at the value's own precision with an
 unbounded exponent range; for zero it returns $2^{1-p}$, the ulp of $1$. In a
 bounded context the spacing stops shrinking at the subnormal threshold
 (next section), so there the ulp of a tiny value is $\beta^{\,e_{\min} - p + 1}$.
@@ -260,13 +260,13 @@ $u = \tfrac{1}{2}\cdot 10^{-15}$.
 ```moonbit
 ///|
 test "ulp of one tenth" {
-  let ctx = @bin_float.BinaryContext::binary64()
-  let (tenth, _) = @bin_float.BinFloat::from_string_ctx("0.1", ctx).unwrap()
+  let ctx = @binary.BinaryContext::binary64()
+  let (tenth, _) = @binary.Binary::from_string_ctx("0.1", ctx).unwrap()
   inspect(tenth, content="3602879701896397p-55")
   // 0.1 lies in [2^-4, 2^-3), so ulp = 2^(-4 - 53 + 1).
   inspect(tenth.ulp(), content="1p-56")
-  let (third, flags) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(3),
+  let (third, flags) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(3),
     ctx,
   )
   inspect(third.to_shortest_string(), content="0.3333333333333333")
@@ -330,7 +330,7 @@ The five IEEE exceptions[^ieee-exceptions] are reported as booleans on
   $0 \cdot \infty$, $\sqrt{-1}$, any operation on a signaling NaN); the result is
   a quiet NaN.
 - *division by zero*: an exact infinite result from finite operands
-  ($1/{-0} = -\infty$, $\log 0 = -\infty$). `bin_float` and `decimal` raise
+  ($1/{-0} = -\infty$, $\log 0 = -\infty$). `binary` and `decimal` raise
   it for every logarithm of zero and for $\operatorname{log1p}(-1)$,
   $\operatorname{log2p1}(-1)$ and $\operatorname{log10p1}(-1)$ (and for
   $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n < 0)$ and
@@ -358,21 +358,21 @@ To accumulate them over several steps, `combine` them yourself or use
 ```moonbit
 ///|
 test "flags report conditions beside a defined value" {
-  let ctx = @bin_float.BinaryContext::binary64()
-  let one = @bin_float.BinFloat::from_int(1)
+  let ctx = @binary.BinaryContext::binary64()
+  let one = @binary.Binary::from_int(1)
   let (pole, pole_flags) = one.div_ctx(
-    @bin_float.BinFloat::negative_zero(),
+    @binary.Binary::negative_zero(),
     ctx,
   )
   inspect(pole, content="-inf")
   inspect(pole_flags.division_by_zero(), content="true")
-  let (huge, huge_flags) = @bin_float.BinFloat::from_double(1.0e308).mul_ctx(
-    @bin_float.BinFloat::from_int(10),
+  let (huge, huge_flags) = @binary.Binary::from_double(1.0e308).mul_ctx(
+    @binary.Binary::from_int(10),
     ctx,
   )
   inspect(huge, content="inf")
   inspect(huge_flags.overflow() && huge_flags.inexact(), content="true")
-  let inf = @bin_float.BinFloat::inf()
+  let inf = @binary.Binary::inf()
   let (undefined, invalid) = inf.sub_ctx(inf, ctx)
   inspect(@def.is_nan(undefined), content="true")
   inspect(invalid.invalid_operation(), content="true")
@@ -417,7 +417,7 @@ An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`,
 `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`,
 `UnorderedComparison` or `CertificationFailure`. It is used where the checked
 contract has no value to return: `div_checked` by zero, `sqrt` of a negative
-number, `compare_checked` with a NaN, a malformed literal. `BinFloatResult` and
+number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and
 `IntervalResult` keep the first error and skip the remaining steps.
 
 The elementary functions have both forms. A `try_*_ctx` function returns
@@ -461,16 +461,16 @@ test "an enclosure contains every exact result" {
   let one = @interval.Interval::from_int(1, precision=53)
   let three = @interval.Interval::from_int(3, precision=53)
   let third = one.div(three)
-  inspect(third.is_member(@bin_float.BinFloat::from_double(1.0 / 3.0)), content="true")
+  inspect(third.is_member(@binary.Binary::from_double(1.0 / 3.0)), content="true")
   let around_zero = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
+    @binary.Binary::from_int(-1),
+    @binary.Binary::from_int(1),
   )
   inspect(one.div(around_zero).is_entire(), content="true")
   let partly_defined = @interval.DecoratedInterval::new(
     @interval.Interval::from_bounds(
-      @bin_float.BinFloat::from_int(-1),
-      @bin_float.BinFloat::from_int(4),
+      @binary.Binary::from_int(-1),
+      @binary.Binary::from_int(4),
     ),
   )
   inspect(partly_defined.decoration(), content="com")
@@ -554,7 +554,7 @@ direction of an underflow. The rules follow IEEE 754-2019 clause 6.3:
 A **quiet NaN** propagates through arithmetic silently; a **signaling NaN**
 raises *invalid operation* when an operation consumes it and is quieted in
 the result. A NaN carries a sign and an integer payload (`nan_payload`). In
-`bin_float` and `decimal` an operation with NaN operands returns a quiet NaN
+`binary` and `decimal` an operation with NaN operands returns a quiet NaN
 with the sign and payload of the first NaN operand, signaling or not, which
 IEEE 754 allows.[^nan-payload] `decimal_gda` follows the General Decimal
 Arithmetic rule instead: a signaling NaN operand takes precedence over a quiet
@@ -567,13 +567,13 @@ one, so `add(NaN3, sNaN7)` is `NaN7` there and `NaN3` in `decimal`.
 ```moonbit
 ///|
 test "zero and NaN rules" {
-  let ctx = @bin_float.BinaryContext::binary64()
-  let down = @bin_float.BinaryContext::binary64(rounding=RoundTowardNegative)
-  let one = @bin_float.BinFloat::from_int(1)
+  let ctx = @binary.BinaryContext::binary64()
+  let down = @binary.BinaryContext::binary64(rounding=RoundTowardNegative)
+  let one = @binary.Binary::from_int(1)
   inspect(one.sub_ctx(one, ctx).0.is_negative_zero(), content="false")
   inspect(one.sub_ctx(one, down).0.is_negative_zero(), content="true")
-  inspect(@bin_float.BinFloat::negative_zero().sqrt_ctx(ctx).0, content="-0")
-  let (quieted, flags) = @bin_float.BinFloat::signaling_nan().add_ctx(one, ctx)
+  inspect(@binary.Binary::negative_zero().sqrt_ctx(ctx).0, content="-0")
+  let (quieted, flags) = @binary.Binary::signaling_nan().add_ctx(one, ctx)
   inspect(quieted.is_quiet_nan(), content="true")
   inspect(flags.invalid_operation(), content="true")
   let quiet3 = @decimal.Decimal::from_string("NaN3").unwrap()
@@ -599,11 +599,11 @@ choosing the right one matters:
 
 | API | Order | NaN | $-0$ vs $+0$ |
 | --- | --- | --- | --- |
-| `compare_quiet`, `compare_quiet_less`, `compare_quiet_equal`, … (`bin_float`) | IEEE partial order, `@def.PartialOrder` | `Unordered`; *invalid* only for a signaling NaN | equal |
-| `compare_signaling`, `compare_signaling_less`, … (`bin_float`) | IEEE partial order | `Unordered`; *invalid* for any NaN | equal |
+| `compare_quiet`, `compare_quiet_less`, `compare_quiet_equal`, … (`binary`) | IEEE partial order, `@def.PartialOrder` | `Unordered`; *invalid* only for a signaling NaN | equal |
+| `compare_signaling`, `compare_signaling_less`, … (`binary`) | IEEE partial order | `Unordered`; *invalid* for any NaN | equal |
 | `compare_checked` | numeric order | `Err` with `UnorderedComparison` | equal |
 | `compare`, `<`, `<=`, sorting (`Compare`) | total preorder | every NaN equals every NaN and is above every number | equal |
-| `total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `total_order_compare` (decimal) | IEEE `totalOrder` on representations | ordered by sign, kind and payload | $-0 < +0$ |
+| `total_order`, `total_order_compare`, `total_order_mag` (`binary`), `total_order_compare` (decimal) | IEEE `totalOrder` on representations | ordered by sign, kind and payload | $-0 < +0$ |
 
 `compare` orders NaN above every number so that `Compare` is a total preorder
 and sorting never fails; it never aborts. Use the quiet predicates or
@@ -611,25 +611,25 @@ and sorting never fails; it never aborts. Use the quiet predicates or
 
 `==` agrees with `compare` in the three number types: `a == b` exactly when `a.compare(b) == 0`.
 `Decimal`'s `==` is numeric for finite values (`-0 == 0.00`) and treats two NaNs as
-equal; `BinFloat`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and
+equal; `Binary`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and
 treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality:
 use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical`
-(`BinFloat`) for the structural question (the sign of a zero, the precision, the NaN
+(`Binary`) for the structural question (the sign of a zero, the precision, the NaN
 kind). `Interval`'s `==` compares the endpoints by value.
 
 ```moonbit
 ///|
 test "choosing a comparison" {
-  let nan = @bin_float.BinFloat::nan()
-  let one = @bin_float.BinFloat::from_int(1)
+  let nan = @binary.Binary::nan()
+  let one = @binary.Binary::from_int(1)
   inspect(nan.compare(one), content="1")
-  inspect(nan > @bin_float.BinFloat::inf(), content="true")
+  inspect(nan > @binary.Binary::inf(), content="true")
   inspect(nan.compare_checked(one) is Err(_), content="true")
   let (order, flags) = nan.compare_quiet(one)
   inspect(order == @def.Unordered, content="true")
   inspect(flags.invalid_operation(), content="false")
-  let neg_zero = @bin_float.BinFloat::negative_zero()
-  let pos_zero = @bin_float.BinFloat::zero()
+  let neg_zero = @binary.Binary::negative_zero()
+  let pos_zero = @binary.Binary::zero()
   inspect(neg_zero.compare(pos_zero), content="0")
   inspect(neg_zero.total_order_compare(pos_zero), content="-1")
   inspect(neg_zero == pos_zero, content="true")
@@ -644,7 +644,7 @@ Every binary fraction has a finite decimal expansion, because
 $2^{-k} = 5^{k} \cdot 10^{-k}$; most decimal fractions have no finite binary
 expansion, because $10^{-k} = 2^{-k}5^{-k}$ and $5^{-k}$ is not dyadic. So
 decimal-to-binary conversion is usually inexact and binary-to-decimal
-conversion is exact but may need many digits. `BinFloat::from_string_ctx`
+conversion is exact but may need many digits. `Binary::from_string_ctx`
 (IEEE convertFromDecimalCharacter) and `to_decimal_string_ctx`
 (convertToDecimalCharacter) are both correctly rounded for every precision and
 exponent; `to_shortest_string` prints the fewest digits that read back to the
@@ -660,22 +660,22 @@ signed zero, payloads, decorations and flags.
 ```moonbit
 ///|
 test "decimal 0.1 is not binary 0.1" {
-  let sum = @bin_float.BinFloat::from_double(0.1).add(
-    @bin_float.BinFloat::from_double(0.2),
+  let sum = @binary.Binary::from_double(0.1).add(
+    @binary.Binary::from_double(0.2),
   )
   inspect(sum.to_shortest_string(), content="0.30000000000000004")
   let decimal_tenth = @semantic.SemanticScalar::from_decimal(
     @decimal.Decimal::from_string("0.1").unwrap(),
   )
-  let binary_tenth = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::from_double(0.1),
+  let binary_tenth = @semantic.SemanticScalar::from_binary(
+    @binary.Binary::from_double(0.1),
   )
   inspect(decimal_tenth == binary_tenth, content="false")
   let decimal_half = @semantic.SemanticScalar::from_decimal(
     @decimal.Decimal::from_string("0.500").unwrap(),
   )
-  let binary_half = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::from_double(0.5),
+  let binary_half = @semantic.SemanticScalar::from_binary(
+    @binary.Binary::from_double(0.5),
   )
   inspect(decimal_half == binary_half, content="true")
 }

@@ -1,10 +1,10 @@
 # `internal/bin_kernel`
 
-Exact integer arithmetic on the coefficients of `BinFloat`: one non-negative integer type, `Coeff`, with its multiplication, division, square root, GCD and radix-conversion algorithms and their per-target thresholds.
+Exact integer arithmetic on the coefficients of `Binary`: one non-negative integer type, `Coeff`, with its multiplication, division, square root, GCD and radix-conversion algorithms and their per-target thresholds.
 
 ## Contract
 
-It computes exact integer results: it raises no condition, knows no rounding mode, context or flag, and imports no other package of this module (`tools/check_imports.py` checks this). Rounding, exponents, classes and flags stay in `bin_float`. The package is internal: only code inside `Luna-Flow/floating` can import it, and the public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` whose public methods (construction, conversion, comparison, queries) forward to it; the arithmetic is available only here.
+It computes exact integer results: it raises no condition, knows no rounding mode, context or flag, and imports no other package of this module (`tools/check_imports.py` checks this). Rounding, exponents, classes and flags stay in `binary`. The package is internal: only code inside `Luna-Flow/floating` can import it, and the public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose public methods (construction, conversion, comparison, queries) forward to it; the arithmetic is available only here.
 
 ## Maintainer Quick Start
 

@@ -313,7 +313,7 @@ class RunCiTests(unittest.TestCase):
     def test_elementary_gate_pairs_correctness_and_performance(self) -> None:
         stages = run_ci.stages_for("elementary", 2)
         self.assertEqual(len(stages), 4)
-        self.assertIn("Luna-Flow/floating-tools/bench/bin_float", stages[1].command)
+        self.assertIn("Luna-Flow/floating-tools/bench/binary", stages[1].command)
         self.assertNotIn("--include-skipped", stages[1].command)
         self.assertEqual(
             stages[2].command[-1], "tools/run_elementary_performance_gate.py"

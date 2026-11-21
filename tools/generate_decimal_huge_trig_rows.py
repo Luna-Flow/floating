@@ -142,7 +142,7 @@ def tiny_cospi_rows() -> list[table.TableRow]:
     return rows
 
 
-BINARY_OUTPUT = ROOT / "library/src/bin_float/huge_argument_trig_wbtest.mbt"
+BINARY_OUTPUT = ROOT / "library/src/binary/huge_argument_trig_wbtest.mbt"
 # (operation, k, precision): sin, cos, tan of 2^k, rounded to nearest even.
 BINARY_CASES = [
     (op, k, p)
@@ -202,7 +202,7 @@ def render_binary(rows: list[tuple[str, int, int, str]]) -> str:
         "  ]",
         "  for row in rows {",
         "    let (op, k, p, expected) = row",
-        "    let x = BinFloat::make(BinCoeff::one(), k, 2)",
+        "    let x = Binary::make(BinCoeff::one(), k, 2)",
         "    let ctx = BinaryContext::new(precision=p)",
         "    let value = match op {",
         '      "sin" => x.try_sin_ctx(ctx).unwrap().0',

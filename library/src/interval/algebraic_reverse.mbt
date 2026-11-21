@@ -7,7 +7,7 @@
 /// the inverse function at the ends of `c`; the pieces are then met with `x`.
 
 ///|
-fn rev_neg_bound(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
+fn rev_neg_bound(x : @binary.Binary) -> @binary.Binary {
   if x.is_zero() {
     x.abs()
   } else {
@@ -21,33 +21,29 @@ fn rev_neg_bound(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
 /// `value`, the pole at zero for a negative degree, otherwise the directed
 /// `rootn` of the exact point.
 fn rev_root_bound(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   degree : Int32,
   precision : Int32,
   upper~ : Bool,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if degree == 1 {
     return value
   }
   if value.classify() == FpClass::Infinity {
-    return if degree < 0 {
-      @bin_float.BinFloat::zero(precision~)
-    } else {
-      value
-    }
+    return if degree < 0 { @binary.Binary::zero(precision~) } else { value }
   }
   if value.is_zero() {
     return if degree < 0 {
       pos_inf(precision)
     } else {
-      @bin_float.BinFloat::zero(precision~)
+      @binary.Binary::zero(precision~)
     }
   }
   let point = Interval::exact(value, precision=value.precision())
   let root = if degree == 2 { point.sqrt() } else { point.rootn(degree) }
   let bound = if upper { root.hi_ } else { root.lo_ }
   if bound.is_zero() {
-    @bin_float.BinFloat::zero(precision~)
+    @binary.Binary::zero(precision~)
   } else {
     bound
   }
@@ -59,8 +55,8 @@ fn rev_root_bound(
 /// side is `root`; none when `c` lies below `floor`.
 fn rev_symmetric_pieces(
   c : Interval,
-  floor : @bin_float.BinFloat,
-  root : (@bin_float.BinFloat, Bool) -> @bin_float.BinFloat,
+  floor : @binary.Binary,
+  root : (@binary.Binary, Bool) -> @binary.Binary,
 ) -> Array[RevPiece] {
   let pieces : Array[RevPiece] = []
   if c.is_empty() || c.hi_.compare(floor) < 0 {
@@ -87,11 +83,12 @@ fn rev_prior_precision(c : Interval, x : Interval?) -> (Int32, Interval) {
 /// the default prior it is `[-2, 2]`; with the prior `[0, 1.2]` it is `[1, 1.2]`.
 pub fn Interval::sqr_rev(self : Interval, x? : Interval) -> Interval {
   let (precision, prior) = rev_prior_precision(self, x)
-  let pieces = rev_symmetric_pieces(
-    self,
-    @bin_float.BinFloat::zero(precision~),
-    fn(value, upper) { rev_root_bound(value, 2, precision, upper~) },
-  )
+  let pieces = rev_symmetric_pieces(self, @binary.Binary::zero(precision~), fn(
+    value,
+    upper,
+  ) {
+    rev_root_bound(value, 2, precision, upper~)
+  })
   rev_hull_in_prior(pieces, prior, precision)
 }
 
@@ -99,11 +96,12 @@ pub fn Interval::sqr_rev(self : Interval, x? : Interval) -> Interval {
 /// `absRev(c, x)`: the hull of `{ x in x | |x| in c }`.
 pub fn Interval::abs_rev(self : Interval, x? : Interval) -> Interval {
   let (precision, prior) = rev_prior_precision(self, x)
-  let pieces = rev_symmetric_pieces(
-    self,
-    @bin_float.BinFloat::zero(precision~),
-    fn(value, _upper) { value },
-  )
+  let pieces = rev_symmetric_pieces(self, @binary.Binary::zero(precision~), fn(
+    value,
+    _upper,
+  ) {
+    value
+  })
   rev_hull_in_prior(pieces, prior, precision)
 }
 
@@ -112,7 +110,7 @@ pub fn Interval::abs_rev(self : Interval, x? : Interval) -> Interval {
 /// 1, so the part of `c` below 1 contributes nothing.
 pub fn Interval::cosh_rev(self : Interval, x? : Interval) -> Interval {
   let (precision, prior) = rev_prior_precision(self, x)
-  let one = @bin_float.BinFloat::from_int(1, precision~)
+  let one = @binary.Binary::from_int(1, precision~)
   let pieces = rev_symmetric_pieces(self, one, fn(value, upper) {
     if value.classify() == FpClass::Infinity {
       return value
@@ -120,7 +118,7 @@ pub fn Interval::cosh_rev(self : Interval, x? : Interval) -> Interval {
     let r = Interval::exact(value, precision=value.precision()).acosh()
     let bound = if upper { r.hi_ } else { r.lo_ }
     if bound.is_zero() {
-      @bin_float.BinFloat::zero(precision~)
+      @binary.Binary::zero(precision~)
     } else {
       bound
     }
@@ -138,7 +136,7 @@ pub fn Interval::pown_rev(
   x? : Interval,
 ) -> Interval {
   let (precision, prior) = rev_prior_precision(self, x)
-  let zero = @bin_float.BinFloat::zero(precision~)
+  let zero = @binary.Binary::zero(precision~)
   let neg_inf_bound = neg_inf(precision)
   let pos_inf_bound = pos_inf(precision)
   let pieces : Array[RevPiece] = []
@@ -148,7 +146,7 @@ pub fn Interval::pown_rev(
   let even = p % 2 == 0
   if p == 0 {
     // x^0 = 1 for every real x
-    let one = @bin_float.BinFloat::from_int(1, precision~)
+    let one = @binary.Binary::from_int(1, precision~)
     if self.lo_.compare(one) <= 0 && self.hi_.compare(one) >= 0 {
       pieces.push(rev_piece(neg_inf_bound, false, pos_inf_bound, false))
     }
@@ -214,7 +212,7 @@ pub fn Interval::pown_rev(
 }
 
 ///|
-fn rev_neg_bound_if_zero(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
+fn rev_neg_bound_if_zero(x : @binary.Binary) -> @binary.Binary {
   if x.is_zero() {
     x.abs()
   } else {

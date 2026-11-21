@@ -49,11 +49,11 @@ enclosure property of $G$ for the second.[^moore]
 `Interval` values and $E$ the set of `ArithmeticError` values, with
 $\eta = $ `ok` and $\mathbin{>\!\!>\!\!=} = $ `bind`. The laws (left and right
 identity, associativity) and the functor laws of `map` are proved in the
-[`bin_float_checked` design](bin_float_checked.md#the-monad-laws); the proof is
+[`binary_checked` design](binary_checked.md#the-monad-laws); the proof is
 a case analysis on $\mathrm{Ok}/\mathrm{Err}$ that does not use any property of
 $V$. The operators are lifted by the same left-biased scheme
 (`interval_result_lift2`), so the
-[first-error theorem](bin_float_checked.md#the-first-error-theorem) applies
+[first-error theorem](binary_checked.md#the-first-error-theorem) applies
 unchanged: an expression reports the error of the first originating node in
 post-order.
 

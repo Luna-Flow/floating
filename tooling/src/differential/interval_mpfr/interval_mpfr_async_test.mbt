@@ -34,7 +34,7 @@ fn parse_int_or_abort(text : String) -> Int32 {
 /// An operand token `lo:hi`: the two bounds as the library writes them. A bound
 /// carries at least as many bits as its digits hold, so the precision of the
 /// reading is the larger of the case precision and four bits per hexadecimal digit.
-fn read_bound(text : String, size : Int32) -> @binary.BinFloat {
+fn read_bound(text : String, size : Int32) -> @binary.Binary {
   let mut digits = 0
   let mut in_digits = false
   for c in text {
@@ -47,7 +47,7 @@ fn read_bound(text : String, size : Int32) -> @binary.BinFloat {
     }
   }
   let bits = Int32::max(size, digits * 4)
-  match @binary.BinFloat::from_hex(text, bits) {
+  match @binary.Binary::from_hex(text, bits) {
     Ok(value) => value
     Err(_) => abort("cannot read the bound " + text)
   }
@@ -135,8 +135,8 @@ let accurate_ulps : Int32 = 1024
 /// Too wide: it is outside it by more than `accurate_ulps` units of the last place
 /// of the oracle bound (an infinite or zero oracle bound must be met exactly).
 fn bound_verdict(
-  expected : @binary.BinFloat,
-  got : @binary.BinFloat,
+  expected : @binary.Binary,
+  got : @binary.Binary,
   lower : Bool,
 ) -> (Bool, Bool) {
   let order = got.compare(expected)
@@ -155,7 +155,7 @@ fn bound_verdict(
   let slack = expected
     .ulp()
     .mul(
-      @binary.BinFloat::from_int(accurate_ulps, precision=expected.precision()),
+      @binary.Binary::from_int(accurate_ulps, precision=expected.precision()),
     )
   let limit = if lower { expected.sub(slack) } else { expected.add(slack) }
   let too_wide = if lower {
@@ -292,17 +292,17 @@ async test "interval against the MPFR oracle: tightest results, directed roundin
 // the oracle bound 1.5 at 8 bits are 2^-7).
 test "bound_verdict: enclosing, equal, a little wider, too wide, zero and infinite bounds" {
   let p = 8
-  let one_and_a_half = @binary.BinFloat::from_double(1.5, precision=p)
+  let one_and_a_half = @binary.Binary::from_double(1.5, precision=p)
   let unit = one_and_a_half.ulp()
   // equal
   assert_eq(bound_verdict(one_and_a_half, one_and_a_half, true), (true, false))
   assert_eq(bound_verdict(one_and_a_half, one_and_a_half, false), (true, false))
   // a lower bound 3 units below encloses and is accurate; 5000 units below is too wide
   let few = one_and_a_half.sub(
-    unit.mul(@binary.BinFloat::from_int(3, precision=p)),
+    unit.mul(@binary.Binary::from_int(3, precision=p)),
   )
   let many = one_and_a_half.sub(
-    unit.mul(@binary.BinFloat::from_int(5000, precision=p)),
+    unit.mul(@binary.Binary::from_int(5000, precision=p)),
   )
   assert_eq(bound_verdict(one_and_a_half, few, true), (true, false))
   assert_eq(bound_verdict(one_and_a_half, many, true), (true, true))
@@ -319,11 +319,11 @@ test "bound_verdict: enclosing, equal, a little wider, too wide, zero and infini
     false,
   )
   // a zero oracle bound is met exactly: a negative lower bound is too wide
-  let zero = @binary.BinFloat::zero(precision=p)
+  let zero = @binary.Binary::zero(precision=p)
   assert_eq(bound_verdict(zero, zero, true), (true, false))
   assert_eq(bound_verdict(zero, one_and_a_half.neg(), true), (true, true))
   // an infinite oracle upper bound is met by infinity only
-  let inf = @binary.BinFloat::inf(precision=p)
+  let inf = @binary.Binary::inf(precision=p)
   assert_eq(bound_verdict(inf, inf, false), (true, false))
   assert_eq(bound_verdict(inf, one_and_a_half, false).0, false)
 }

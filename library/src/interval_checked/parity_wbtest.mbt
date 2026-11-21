@@ -1,8 +1,8 @@
 ///|
 fn parity_interval(lo : Int32, hi : Int32) -> @interval.Interval {
   @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(lo, precision=53),
-    @bin_float.BinFloat::from_int(hi, precision=53),
+    @binary.Binary::from_int(lo, precision=53),
+    @binary.Binary::from_int(hi, precision=53),
     precision=53,
   )
 }
@@ -59,8 +59,8 @@ test "the new checked operations keep the first error" {
 ///|
 test "the integer functions of Table 9.1 exist on the checked tier and agree with the plain tier" {
   let x = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_double(-1.5),
-    @bin_float.BinFloat::from_double(2.5),
+    @binary.Binary::from_double(-1.5),
+    @binary.Binary::from_double(2.5),
   )
   let r = IntervalResult::ok(x)
   assert_true(parity_value(r.sign()) == x.sign())

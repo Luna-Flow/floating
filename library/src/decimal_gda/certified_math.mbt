@@ -95,13 +95,13 @@ fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
 ) -> @interval.Interval {
-  let lower = value.to_bin_float_raw(
+  let lower = value.to_binary_raw(
     precision~,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    mode=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upper = value.to_bin_float_raw(
+  let upper = value.to_binary_raw(
     precision~,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    mode=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   @interval.Interval::from_bounds(lower, upper, precision~)
 }
@@ -132,7 +132,7 @@ let decimal_log2_10_upper_ppm : Int64 = 3322000L
 /// is under half the smallest subnormal, so such endpoints are replaced by a
 /// representative of the same sign that rounds to the same result and flags.
 fn decimal_out_of_range_endpoint(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
 ) -> Decimal? {
   if value.is_zero() {
@@ -168,7 +168,7 @@ fn decimal_out_of_range_endpoint(
 
 ///|
 fn decimal_exact_dyadic_endpoint(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
 ) -> Decimal? {
   // Rounding is monotone, so an infinite endpoint can stand for any value
@@ -279,9 +279,9 @@ fn decimal_coeff_from_be_bytes(bytes : Bytes) -> DecCoeff {
 /// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
 /// against another is compared in the total order, which tells -0 from +0: a zero bound is the
 /// zero of the result, whatever the sign the accessor gives it.
-fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
+fn certified_bound(value : @binary.Binary) -> @binary.Binary {
   if value.is_zero() {
-    @bin_float.BinFloat::zero(precision=value.precision())
+    @binary.Binary::zero(precision=value.precision())
   } else {
     value
   }
@@ -317,8 +317,8 @@ fn decimal_certified_target(
 priv struct DecimalPower10Entry {
   precision : Int32
   exponent10 : Int32
-  lower : @bin_float.BinFloat
-  upper : @bin_float.BinFloat
+  lower : @binary.Binary
+  upper : @binary.Binary
 }
 
 ///|
@@ -332,26 +332,26 @@ let decimal_power10_cache : @ref.Ref[Array[DecimalPower10Entry]] = @ref.Ref([])
 fn decimal_power10_bounds(
   precision : Int32,
   exponent10 : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+) -> (@binary.Binary, @binary.Binary) {
   let entries = decimal_power10_cache.val
   for entry in entries {
     if entry.precision == precision && entry.exponent10 == exponent10 {
       return (entry.lower, entry.upper)
     }
   }
-  let ten = @bin_float.BinFloat::from_int(10, precision~)
+  let ten = @binary.Binary::from_int(10, precision~)
   let lower = ten.pown_ctx(
       exponent10,
-      @bin_float.BinaryContext::new(
+      @binary.BinaryContext::new(
         precision~,
-        rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+        rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
       ),
     ).0
   let upper = ten.pown_ctx(
       exponent10,
-      @bin_float.BinaryContext::new(
+      @binary.BinaryContext::new(
         precision~,
-        rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+        rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
       ),
     ).0
   if entries.length() >= 4 {
@@ -367,11 +367,11 @@ fn decimal_power10_bounds(
 /// one by repeated division of its limbs by 2^32, which yields the 32-bit words
 /// from the least significant one (the quadratic mirror of
 /// `decimal_coeff_from_be_bytes`).
-fn decimal_coeff_to_bin_coeff(coeff : DecCoeff) -> @bin_float.BinCoeff {
+fn decimal_coeff_to_bin_coeff(coeff : DecCoeff) -> @binary.BinCoeff {
   match coeff {
-    Small(value) => @bin_float.BinCoeff::from_uint64(value)
+    Small(value) => @binary.BinCoeff::from_uint64(value)
     Limbs(_, _) =>
-      @bin_float.BinCoeff::from_bytes_be(decimal_coeff_to_be_bytes(coeff))
+      @binary.BinCoeff::from_bytes_be(decimal_coeff_to_be_bytes(coeff))
   }
 }
 
@@ -434,25 +434,23 @@ fn decimal_coeff_to_be_bytes(coeff : DecCoeff) -> Bytes {
 fn decimal_bounded_binary_interval(
   value : Decimal,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
+) -> (@binary.Binary, @binary.Binary)? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
-    let zero = @bin_float.BinFloat::zero(precision~)
+    let zero = @binary.Binary::zero(precision~)
     return Some((zero, zero))
   }
   let coefficient = decimal_coeff_to_bin_coeff(value.coefficient)
   let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=binary_precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=binary_precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
-  let coefficient_value = @bin_float.BinFloat::make(
-    coefficient, 0, binary_precision,
-  )
+  let coefficient_value = @binary.Binary::make(coefficient, 0, binary_precision)
   let (power_lower, power_upper) = decimal_power10_bounds(
     binary_precision,
     value.exponent10,
@@ -565,7 +563,7 @@ fn decimal_ball_candidate(
   interval : @interval.Interval,
   ctx : DecimalContext,
 ) -> Decimal {
-  Decimal::from_bin_float_raw(
+  Decimal::from_binary_raw(
     interval.midpoint(),
     precision=decimal_math_target_precision(ctx) + 8,
   )
@@ -609,7 +607,7 @@ fn decimal_exp_ball_candidate(
   if value.coefficient.digits10() + value.exponent10 > 3 {
     return decimal_exp_series_candidate(value, wanted)
   }
-  let candidate = Decimal::from_bin_float_raw(
+  let candidate = Decimal::from_binary_raw(
     interval.midpoint(),
     precision=wanted,
   )

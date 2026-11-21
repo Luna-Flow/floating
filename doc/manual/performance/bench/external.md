@@ -4,7 +4,7 @@
 
 This page records how much slower or faster `floating` is than the established
 C libraries on the same machine, with the same operands and the same
-measurement protocol: `bin_float` against MPFR for binary arithmetic and
+measurement protocol: `binary` against MPFR for binary arithmetic and
 `decimal_gda` against libmpdec for GDA decimal arithmetic. It makes no API promise,
 and the numbers are evidence about one machine, one toolchain and one operand
 distribution, not a speed claim for every environment. Where `floating` is
@@ -64,7 +64,7 @@ iterations and by eight.
 
 - **Binary.** Operands and results have the case precision in bits. MPFR:
   `mpfr_add`, `mpfr_mul`, `mpfr_div`, `mpfr_sqrt`, `mpfr_exp`, `mpfr_log`,
-  `mpfr_sin` with `MPFR_RNDN`. `floating`: the `BinFloat` methods `add`, `mul`,
+  `mpfr_sin` with `MPFR_RNDN`. `floating`: the `Binary` methods `add`, `mul`,
   `div`, `sqrt`, `exp`, `ln`, `sin` on operands of that precision (round to
   nearest even, unbounded exponent range).
 - **`decimal_gda`.** Operands and results have the case digit count, rounding half
@@ -206,7 +206,7 @@ the floating loop. They are kept as the record of that release
 by the sections above as the new measurements are published. The tables are the
 output of `just bench external publish` for that run, copied without editing.
 
-### Binary: floating `bin_float` against MPFR
+### Binary: floating `binary` against MPFR
 
 Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Writes library/src/bin_float/exponent_field_rows_wbtest.mbt from `exponent_field_rows.py`
+"""Writes library/src/binary/exponent_field_rows_wbtest.mbt from `exponent_field_rows.py`
 (exponent fields of 2^63 - 1 .. 40 digits for `from_string_ctx` and `from_hex_ctx`).
 
     python3 tools/generate_exponent_field_rows.py [--check] && moon fmt
@@ -14,7 +14,7 @@ from pathlib import Path
 import exponent_field_rows
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "library/src/bin_float/exponent_field_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/binary/exponent_field_rows_wbtest.mbt"
 
 
 def render(rows) -> str:

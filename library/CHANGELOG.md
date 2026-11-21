@@ -1112,6 +1112,20 @@ notes live in this file.
   | (none) | `x.quantum_ctx(ctx)` in `decimal` | the number $10^q$, IEEE 754-2019 5.3.2 |
   | (none) | `p.quantum()` on `DecimalChecked` | wrapper of `quantum_ctx` |
 
+- `bin_float` is renamed `binary`, with the names built on it ([#438](https://github.com/Luna-Flow/floating/issues/438)): the package is named for its radix, as `decimal` is, and the type is `Binary`. No behaviour changes and no alias is kept. The entries of this section and of the released sections that name `BinFloat` or `bin_float` use the names they were written with; the table maps them. The first `just verify binary` after this change runs every unit once (the keys of the incremental ledger contain the names).
+
+  | before | after | note |
+  | --- | --- | --- |
+  | package `bin_float` (`library/src/bin_float`), import `Luna-Flow/floating/bin_float` | package `binary` (`library/src/binary`), import `Luna-Flow/floating/binary` | the files named `bin_float*` are `binary*` |
+  | package `bin_float_checked` | package `binary_checked` | |
+  | `BinFloat` | `Binary` | every method, trait implementation and function of the type keeps its name |
+  | `BinFloatResult` | `BinaryChecked` | one suffix for the four checked types (`DecimalChecked`, `GdaDecimalChecked`, ...), as the package `binary_checked` |
+  | `Decimal::from_bin_float(x, precision=p)`, `from_bin_float_ctx`, `to_bin_float`, `to_bin_float_ctx` (`decimal` and `decimal_gda`) | `from_binary`, `from_binary_ctx`, `to_binary`, `to_binary_ctx` | the methods named after the type; the other `*_bin_float*` names (internal helpers) follow |
+  | `BinaryInterchange::from_bin_float(x, format)`, `to_bin_float()` | `from_binary`, `to_binary` | |
+  | `@bin_float.BinFloat::from_int(3, precision=53)` | `@binary.Binary::from_int(3, precision=53)` | the alias in a `moon.pkg` is the caller's choice; a package that is itself named `binary` cannot give the library the alias `@binary` (the toolchain refuses it: use another, as `tooling/src/bench/binary` does with `@bin`) |
+  | `internal/bin_kernel` | `internal/binary_kernel` | not public; for contributors |
+  | `BinCoeff`, `BinRepr`, `BinaryContext`, `BinaryFlags`, `BinaryInterchange`, `BinaryRoundingMode`, `bin_coeff_*` | unchanged | |
+
 ### Added
 
 - `decimal`: `Decimal::total_order` and `total_order_mag`, the boolean totalOrder and totalOrderMag predicates of IEEE 754-2019 §5.10 (see Breaking for the renamed three-way `total_order_compare`). The §5.10 corpus (all matrix cells of the four formats) runs against both the boolean and the three-way form.

@@ -18,7 +18,7 @@ code uses:
 | Package | Helpers it uses |
 | --- | --- |
 | `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `decimal_exponent_limit`, `CertifiedRefinementBudget`, `certified_failure` |
-| `bin_float`, `interval` | `CertifiedRefinementBudget`, `certified_failure` |
+| `binary`, `interval` | `CertifiedRefinementBudget`, `certified_failure` |
 
 The binary and decimal cores round their own coefficients with their own
 kernels. The remaining helpers (`round_shift`, `remove_factor10`,

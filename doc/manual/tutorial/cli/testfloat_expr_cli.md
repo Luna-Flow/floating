@@ -22,7 +22,7 @@ The executable is built from a checkout of the repository with
 Generate vectors with TestFloat's `testfloat_gen` and run them.
 `just conformance fetch binary` downloads the pinned SoftFloat and TestFloat
 sources; `just conformance run binary` builds `testfloat_gen` from them into
-`.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/`.
+`.tmp/binary-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/`.
 
 ```bash
 testfloat_gen -level 1 -rnear_even -tininessafter f64_mul > f64_mul.tv
@@ -51,7 +51,7 @@ with the same arguments:
 test "run the TestFloat runner from MoonBit code" {
   let status = @testfloat_expr_cli.run([
     "testfloat", "--function", "f16_add", "--rounding", "rnear_even", "--tininess",
-    "after", "../testdata/bin_float/smoke/f16_add_rnear_even_after.testfloat",
+    "after", "../testdata/binary/smoke/f16_add_rnear_even_after.testfloat",
   ])
   inspect(status, content="0")
 }

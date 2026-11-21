@@ -4,10 +4,10 @@ import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 
-import fetch_binfloat_corpora
+import fetch_binary_corpora
 import fetch_decimal_corpora
 import fetch_interval_corpora
-import run_binfloat_interpreter
+import run_binary_interpreter
 import run_dectest_interpreter
 import run_ieee_decimal
 import run_itl_interpreter
@@ -38,8 +38,8 @@ BACKENDS = {
     ),
     BackendName.BINARY: Backend(
         build_targets=("testfloat", "mpfr"),
-        runner=run_binfloat_interpreter.main,
-        fetcher=fetch_binfloat_corpora.main,
+        runner=run_binary_interpreter.main,
+        fetcher=fetch_binary_corpora.main,
     ),
     BackendName.INTERVAL: Backend(
         build_targets=("itl",),

@@ -85,7 +85,7 @@ The canonical denominators also explain which decimals have a binary
 representation. A reduced binary value has denominator $2^{j}$; a reduced
 decimal value $a/10^{j}$ reduces to a denominator $2^{u} 5^{v}$. By uniqueness
 of the reduced form, a decimal value equals some finite binary float (of
-sufficient precision, and inside the `BinFloat` exponent range of about
+sufficient precision, and inside the `Binary` exponent range of about
 $2^{\pm 2^{30}}$) if and only if its reduced denominator has no factor $5$. One tenth reduces to $1/(2 \cdot 5)$, so no binary float equals it, and the
 projection of binary64 `0.1` is $3602879701896397/2^{55}$, a different
 number.[^goldberg]
@@ -107,7 +107,7 @@ test "a decimal has a binary equal iff its denominator has no factor 5" {
     @semantic.SemanticScalar::from_decimal(@decimal.Decimal::from_string(text).unwrap())
   }
   let b = fn(x : Double) {
-    @semantic.SemanticScalar::from_bin_float(@bin_float.BinFloat::from_double(x))
+    @semantic.SemanticScalar::from_binary(@binary.Binary::from_double(x))
   }
   inspect(denominator(d("0.375")), content="8")
   inspect(d("0.375") == b(0.375), content="true")
@@ -122,7 +122,7 @@ A non-empty `Interval` denotes $X = \{\, t \in \mathbb{R} : \ell \le t \le u
 \,\}$ for endpoints $\ell \le u$ in $\mathbb{Z}[1/2] \cup \{-\infty,
 +\infty\}$, with an infinite endpoint meaning an unbounded side, as in IEEE
 1788-2015 set-based intervals.[^ieee1788] `SemanticInterval::from_interval`
-projects $\ell$ and $u$ independently with `from_bin_float`, so the pair
+projects $\ell$ and $u$ independently with `from_binary`, so the pair
 determines $X$ exactly. The empty interval is stored by `interval` with
 $\ell = +\infty$ and $u = -\infty$, and the projection keeps that reversed pair;
 in the extended order, *lower > upper* holds exactly for the empty set. A
@@ -234,9 +234,9 @@ projection for every pipeline.
 - Representation details (precision, quantum, signed zero, NaN payload and
   signalling, flags, context) are deliberately not preserved, and decorated
   intervals are not accepted.
-- Only `BinFloat`, `@decimal.Decimal` and `Interval` have projections.
+- Only `Binary`, `@decimal.Decimal` and `Interval` have projections.
 - Projections of values with very large exponents are exact and therefore
-  large; the package does not guard against that cost. A `BinFloat` exponent
+  large; the package does not guard against that cost. A `Binary` exponent
   near its implementation limit $\pm(2^{30} - 1)$ gives a `BigInt` of about
   $2^{30}$ bits, and a decimal exponent near $10^{9}$ one of about
   $3.3 \cdot 10^{9}$ bits.

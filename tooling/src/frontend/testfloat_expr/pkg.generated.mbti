@@ -2,7 +2,7 @@
 package "Luna-Flow/floating-tools/frontend/testfloat_expr"
 
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "moonbitlang/core/debug",
 }
 
@@ -78,7 +78,7 @@ pub(all) enum TestFloatOperation {
   ToInt64
   ToUInt32
   ToUInt64
-  ConvertFormat(@bin_float.BinaryInterchangeFormat)
+  ConvertFormat(@binary.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less
@@ -96,13 +96,13 @@ pub struct TestFloatSpec {
 }
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
 pub fn TestFloatSpec::exact(Self) -> Bool
-pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
+pub fn TestFloatSpec::format(Self) -> @binary.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
 pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
 pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -> Result[Self, String]
-pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
-pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
+pub fn TestFloatSpec::rounding(Self) -> @binary.BinaryRoundingMode
+pub fn TestFloatSpec::tininess(Self) -> @binary.TininessDetection
 pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr
 
 // Type aliases

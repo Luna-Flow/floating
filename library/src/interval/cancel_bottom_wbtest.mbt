@@ -13,13 +13,9 @@ fn cn_next(state : Ref[UInt64]) -> UInt64 {
 }
 
 ///|
-fn cn_value(
-  c : UInt64,
-  exponent : Int32,
-  negative : Bool,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(c),
+fn cn_value(c : UInt64, exponent : Int32, negative : Bool) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(c),
     exponent,
     200,
     negative~,
@@ -50,7 +46,7 @@ fn cn_interval(
 
 ///|
 test "cancel_plus and cancel_minus at the bottom of the range: the cases of the issue" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let u = e_min - 60
   // lo = x.lo + y.hi = 4u > hi = x.hi + y.lo = 3u: width(x) = u < width(y) = 2u
   let x = cn_interval(1L, 2L, u, 113)
@@ -64,7 +60,7 @@ test "cancel_plus and cancel_minus at the bottom of the range: the cases of the 
 
 ///|
 test "equal widths give a point, with a canonical zero" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let u = e_min - 60
   // cancel_minus([1u, 3u], [0, 2u]) = [1u, 1u]
   let z = cn_interval(1L, 3L, u, 113).cancel_minus(cn_interval(0L, 2L, u, 113))
@@ -88,7 +84,7 @@ test "equal widths give a point, with a canonical zero" {
 ///|
 /// The oracle: the exact end values by `add_ctx` in 600 bits.
 fn cn_check(x : Interval, y : Interval, plus : Bool) -> Unit {
-  let wide = @bin_float.BinaryContext::new(precision=600)
+  let wide = @binary.BinaryContext::new(precision=600)
   let (lo, hi) = if plus {
     (
       x.lower_bound().add_ctx(y.upper_bound(), wide).0,
@@ -111,11 +107,11 @@ fn cn_check(x : Interval, y : Interval, plus : Bool) -> Unit {
     let p = Int32::max(x.precision(), y.precision())
     let down = lo.with_precision(
       p,
-      @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      @binary.BinaryRoundingMode::RoundTowardNegative,
     )
     let up = hi.with_precision(
       p,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      @binary.BinaryRoundingMode::RoundTowardPositive,
     )
     if z.is_entire() ||
       z.lower_bound().compare(down) != 0 ||
@@ -130,7 +126,7 @@ fn cn_check(x : Interval, y : Interval, plus : Bool) -> Unit {
 ///|
 test "cancel_plus and cancel_minus decide on the exact values near the bottom of the range" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let precisions = [53, 113, 128]
   let mut entire = 0
   let mut points = 0
@@ -190,7 +186,7 @@ test "cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5"
   let unbounded = Interval::entire(precision=53)
   let half_bounded = Interval::from_bounds(
     cn_value(1UL, 0, false),
-    @bin_float.BinFloat::inf(precision=53),
+    @binary.Binary::inf(precision=53),
     precision=53,
   )
   for plus in [false, true] {

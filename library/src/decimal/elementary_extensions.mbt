@@ -350,8 +350,8 @@ fn decimal_certified_quarter_pi_multiple(
     let precision = input.precision()
     // pi/4 = [RD(pi), RU(pi)] / 4, exact scaling of the cached enclosure.
     let pi = decimal_pi_enclosure(precision)
-    let scale = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 2)
-    let exact = @bin_float.BinaryContext::new(precision~)
+    let scale = @binary.Binary::make(@binary.BinCoeff::one(), -2, 2)
+    let exact = @binary.BinaryContext::new(precision~)
     let quarter = @interval.Interval::from_bounds(
       pi.0.mul_ctx(scale, exact).0,
       pi.1.mul_ctx(scale, exact).0,
@@ -609,16 +609,16 @@ fn Decimal::try_unary_elementary_ctx(
     3_321_929L /
     1_000_000L +
     16L).to_int()
-    let (lower, upper) = self.to_bin_float_bounds(bits)
+    let (lower, upper) = self.to_binary_bounds(bits)
     if lower.compare(upper) == 0 {
       Some(fn(precision : Int32) {
-        let downward = @bin_float.BinaryContext::new(
+        let downward = @binary.BinaryContext::new(
           precision~,
-          rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+          rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
         )
-        let upward = @bin_float.BinaryContext::new(
+        let upward = @binary.BinaryContext::new(
           precision~,
-          rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+          rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
         )
         let low = match operation {
           Sin => lower.try_sin_ctx(downward)

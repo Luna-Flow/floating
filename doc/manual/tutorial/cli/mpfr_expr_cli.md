@@ -1,6 +1,6 @@
 # cli/mpfr_expr_cli tutorial
 
-This tutorial shows how to check `bin_float` against an MPFR data file from
+This tutorial shows how to check `binary` against an MPFR data file from
 the command line. The runner is reached as
 `floating-conformance --backend mpfr`; below, `mpfr` abbreviates that command.
 
@@ -19,7 +19,7 @@ The executable is built from a checkout of the repository:
 ```bash
 just conformance build binary
 _build/conformance/mpfr/native/release/build/mpfr-conformance.exe \
-  --backend mpfr testdata/bin_float/mpfr-4.2.2-elementary.txt
+  --backend mpfr testdata/binary/mpfr-4.2.2-elementary.txt
 ```
 
 ```text
@@ -38,7 +38,7 @@ The runner is also a library. The package belongs to the tools module `Luna-Flow
 ///|
 test "run the MPFR runner from MoonBit code" {
   let status = @mpfr_expr_cli.run([
-    "mpfr", "--json", "../testdata/bin_float/smoke/mpfr-hex-sqrt.txt",
+    "mpfr", "--json", "../testdata/binary/smoke/mpfr-hex-sqrt.txt",
   ])
   inspect(status, content="0")
 }
@@ -53,7 +53,7 @@ test "run the MPFR runner from MoonBit code" {
 The runner reads exactly one file and picks the format from its content:
 
 ```bash
-mpfr testdata/bin_float/mpfr-4.2.2-elementary.txt   # contains "mpfr-elementary-v1"
+mpfr testdata/binary/mpfr-4.2.2-elementary.txt   # contains "mpfr-elementary-v1"
 mpfr pow_si.txt                                     # header contains "input_coefficient_hex"
 mpfr path/to/mpfr/tests/data/sqrt                   # anything else: sqrt data_check
 ```
@@ -61,7 +61,7 @@ mpfr path/to/mpfr/tests/data/sqrt                   # anything else: sqrt data_c
 ### JSON for scripts
 
 ```bash
-mpfr --json testdata/bin_float/mpfr-4.2.2-elementary.txt
+mpfr --json testdata/binary/mpfr-4.2.2-elementary.txt
 ```
 
 prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases`

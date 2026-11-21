@@ -1,28 +1,28 @@
 ///|
 fn tr_box(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
   precision : Int32,
 ) -> Interval {
   Interval::from_bounds(lo, hi, precision~)
 }
 
 ///|
-fn tr_num(x : Double, precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::from_double(x, precision~).with_precision(
+fn tr_num(x : Double, precision : Int32) -> @binary.Binary {
+  @binary.Binary::from_double(x, precision~).with_precision(
     precision,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @binary.BinaryRoundingMode::RoundTiesToEven,
   )
 }
 
 ///|
-fn tr_up(x : @bin_float.BinFloat, precision : Int32) -> @bin_float.BinFloat {
-  x.next_up_ctx(@bin_float.BinaryContext::new(precision~)).0
+fn tr_up(x : @binary.Binary, precision : Int32) -> @binary.Binary {
+  x.next_up_ctx(@binary.BinaryContext::new(precision~)).0
 }
 
 ///|
-fn tr_down(x : @bin_float.BinFloat, precision : Int32) -> @bin_float.BinFloat {
-  x.next_down_ctx(@bin_float.BinaryContext::new(precision~)).0
+fn tr_down(x : @binary.Binary, precision : Int32) -> @binary.Binary {
+  x.next_down_ctx(@binary.BinaryContext::new(precision~)).0
 }
 
 ///|
@@ -30,15 +30,15 @@ fn tr_down(x : @bin_float.BinFloat, precision : Int32) -> @bin_float.BinFloat {
 fn tr_round(
   e : Interval,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+) -> (@binary.Binary, @binary.Binary) {
   (
     e.lo_.with_precision(
       precision,
-      @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      @binary.BinaryRoundingMode::RoundTowardNegative,
     ),
     e.hi_.with_precision(
       precision,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      @binary.BinaryRoundingMode::RoundTowardPositive,
     ),
   )
 }
@@ -48,27 +48,23 @@ fn tr_round(
 fn tr_pi_multiple(
   m2 : Int32,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+) -> (@binary.Binary, @binary.Binary) {
   let pi = certified_pi_interval(400)
-  let e = Interval::exact(@bin_float.BinFloat::from_int(m2)) *
-    (pi * Interval::exact(@bin_float.BinFloat::from_double(0.5)))
+  let e = Interval::exact(@binary.Binary::from_int(m2)) *
+    (pi * Interval::exact(@binary.Binary::from_double(0.5)))
   tr_round(e, precision)
 }
 
 ///|
-fn tr_same(
-  a : Interval,
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
-) -> Bool {
+fn tr_same(a : Interval, lo : @binary.Binary, hi : @binary.Binary) -> Bool {
   !a.is_empty() && a.lo_.compare(lo) == 0 && a.hi_.compare(hi) == 0
 }
 
 ///|
 /// A float just above 0 in the unbounded exponent range: 2^-1000000000.
-fn tr_tiny(precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+fn tr_tiny(precision : Int32) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     -1000000000,
     precision,
   )
@@ -425,13 +421,13 @@ test "regression: a prior end of 2^-1000000000 returns at once" {
 /// before any work, the end is kept, and the call returns at once.
 test "regression: a prior end of 2^1000000000 returns at once" {
   let p = 53
-  let huge = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let huge = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     1000000000,
     p,
   )
-  let huge_three_halves = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
+  let huge_three_halves = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(3UL),
     999999999,
     p,
   )

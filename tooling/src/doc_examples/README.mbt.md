@@ -6,16 +6,12 @@ numeric workflows shown in the localized tutorials.
 ```moonbit check
 ///|
 test "binary context and interchange" {
-  let value = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    -1,
-    53,
-  )
-  let context = @bin_float.BinaryContext::binary64()
+  let value = @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), -1, 53)
+  let context = @binary.BinaryContext::binary64()
   let (rounded, flags) = value.add_ctx(value, context)
   inspect(rounded.to_hex(), content="0x3p0")
   inspect(flags.inexact(), content="false")
-  let (encoded, _) = rounded.to_interchange(@bin_float.Binary64)
+  let (encoded, _) = rounded.to_interchange(@binary.Binary64)
   inspect(encoded.to_hex(), content="4008000000000000")
 }
 ```
@@ -60,10 +56,10 @@ test "decimal context preserves explicit status" {
 ///|
 test "interval and decorated semantics" {
   let interval = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::from_int(2),
+    @binary.Binary::from_int(1),
+    @binary.Binary::from_int(2),
   )
-  inspect(interval.is_member(@bin_float.BinFloat::from_int(1)), content="true")
+  inspect(interval.is_member(@binary.Binary::from_int(1)), content="true")
   let decorated = @interval.DecoratedInterval::new(interval)
   inspect(decorated.is_nai(), content="false")
 }
@@ -72,7 +68,7 @@ test "interval and decorated semantics" {
 ```moonbit check
 ///|
 test "checked pipelines preserve their domain state" {
-  let binary = @bin_float_checked.BinFloatResult::from_int(9).sqrt()
+  let binary = @binary_checked.BinaryChecked::from_int(9).sqrt()
   inspect(binary.result().unwrap().to_string(), content="3p0")
   let decimal = @decimal_checked.DecimalChecked::parse(
     "9",
@@ -94,10 +90,10 @@ test "checked pipelines preserve their domain state" {
 ```moonbit check
 ///|
 test "semantic projection compares mathematical values" {
-  let binary = @bin_float.BinFloat::from_int(3, precision=32)
+  let binary = @binary.Binary::from_int(3, precision=32)
   let decimal = @decimal.Decimal::from_int(3, precision=32)
   inspect(
-    @semantic.SemanticScalar::from_bin_float(binary) ==
+    @semantic.SemanticScalar::from_binary(binary) ==
     @semantic.SemanticScalar::from_decimal(decimal),
     content="true",
   )

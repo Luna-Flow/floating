@@ -20,8 +20,8 @@ test "elementary immutable baseline workload" {
   let bencher = @bench.Bench()
   for precision in [53, 128, 512] {
     let label = precision.to_string() + "bit"
-    let left = BinFloat::from_double(1.25, precision~)
-    let right = BinFloat::from_double(0.5, precision~)
+    let left = Binary::from_double(1.25, precision~)
+    let right = Binary::from_double(0.5, precision~)
     elementary_baseline_run(bencher, "add/" + label, 4096, fn() {
       left.add(right)
     })

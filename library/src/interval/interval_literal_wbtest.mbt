@@ -29,15 +29,15 @@ fn lt_category(category : String) -> String {
 }
 
 ///|
-fn lt_float(text : String, p : Int32) -> @bin_float.BinFloat {
+fn lt_float(text : String, p : Int32) -> @binary.Binary {
   if text == "inf" {
     pos_inf(p)
   } else if text == "-inf" {
     neg_inf(p)
   } else if text == "0" {
-    @bin_float.BinFloat::zero(precision=p)
+    @binary.Binary::zero(precision=p)
   } else {
-    match @bin_float.BinFloat::from_hex(text, p) {
+    match @binary.Binary::from_hex(text, p) {
       Ok(value) => value
       Err(error) => abort("bad table value " + text + ": " + error.message)
     }
@@ -55,7 +55,7 @@ fn lt_decoration(text : String) -> Decoration {
 }
 
 ///|
-fn lt_same(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+fn lt_same(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0
 }
 
@@ -167,8 +167,8 @@ test "interval literals: the table of the independent oracle" {
 }
 
 ///|
-fn lt_f(x : Double) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::from_double(x)
+fn lt_f(x : Double) -> @binary.Binary {
+  @binary.Binary::from_double(x)
 }
 
 ///|
@@ -184,7 +184,7 @@ test "interval literals: the vectors of Tables 9.4 and 12.1" {
   )
   // 3.56?1 is [3.55, 3.57] exactly; the bounds are the two floats around each
   let u = Interval::from_string("3.56?1").unwrap()
-  let ctx = @bin_float.BinaryContext::new(precision=53)
+  let ctx = @binary.BinaryContext::new(precision=53)
   assert_true(u.lo_.compare(lt_f(3.55)) <= 0)
   assert_true(u.lo_.next_up_ctx(ctx).0.compare(lt_f(3.55)) >= 0)
   assert_true(u.hi_.compare(lt_f(3.57)) >= 0)
@@ -318,7 +318,7 @@ test "interval literals: the length limit gives Entire" {
 /// Exponents beyond the range are decided without forming the value, and the bounds of
 /// the result stay outward.
 test "interval literals: huge exponents" {
-  let ctx = @bin_float.BinaryContext::new(precision=53)
+  let ctx = @binary.BinaryContext::new(precision=53)
   let largest = pw_largest(53)
   let smallest = pw_smallest(53)
   ignore(ctx)
@@ -353,8 +353,8 @@ test "interval literals: the order of two bounds of different radices that is un
   // Expected bounds written out by `tools/interval_literal_oracle.py` (level A): both numbers
   // are equal to 53 bits, so the result is the hull of the two outward roundings, which are
   // the same interval; the single bounds are rows of the oracle table too.
-  let lo = @bin_float.BinFloat::from_hex("0x1266242e06c1b9p217657", 53).unwrap()
-  let hi = @bin_float.BinFloat::from_hex("0x1266242e06c1bap217657", 53).unwrap()
+  let lo = @binary.Binary::from_hex("0x1266242e06c1b9p217657", 53).unwrap()
+  let hi = @binary.Binary::from_hex("0x1266242e06c1bap217657", 53).unwrap()
   assert_eq(both.lo_.compare(lo), 0)
   assert_eq(both.hi_.compare(hi), 0)
   assert_eq(

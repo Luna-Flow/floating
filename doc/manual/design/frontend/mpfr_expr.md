@@ -4,10 +4,10 @@
 
 GNU MPFR computes correctly rounded results of elementary functions at any
 precision and in every rounding direction.[^mpfr] This package turns MPFR
-output into executable checks for `bin_float`: a passing row shows that
-`bin_float` returns the correctly rounded result (and the right exception
+output into executable checks for `binary`: a passing row shows that
+`binary` returns the correctly rounded result (and the right exception
 flags) for that input, precision and rounding mode. It is a pure library; the
-data files and their provenance live in `testdata/bin_float/` and the
+data files and their provenance live in `testdata/binary/` and the
 generators in `tools/`.
 
 [^mpfr]: L. Fousse, G. Hanrot, V. Lefèvre, P. Pélissier, P. Zimmermann,
@@ -42,16 +42,16 @@ zero.[^ieee]
 
 Each format fixes $f$, the input $x$, the target precision $p$ and direction
 $\rho$, and records MPFR's $y$ (and flags). The executor evaluates the
-corresponding `bin_float` method in `BinaryContext::new(precision=p, rounding=ρ)`
+corresponding `binary` method in `BinaryContext::new(precision=p, rounding=ρ)`
 and checks:
 
 | Format | Value check | Flag check |
 | --- | --- | --- |
-| square root | $\hat y = y$ as `BinFloat` values (`==`) | none |
+| square root | $\hat y = y$ as `Binary` values (`==`) | none |
 | integer power $x^n$ | $\hat y = y$ (`==`) | inexact equal; no underflow, overflow, division by zero, invalid |
 | elementary | $\hat y \simeq y$ (`compare == 0`, zeros with their sign) | inexact, invalid, division by zero equal; no underflow, overflow |
 
-`==` on `BinFloat` compares the stored representation, which is canonical for
+`==` on `Binary` compares the stored representation, which is canonical for
 a given value and precision, so it distinguishes $+0$ from $-0$ and NaN
 payloads. `compare == 0` is numeric equality extended so that every NaN
 compares equal to every NaN and $+0 = -0$.
@@ -90,7 +90,7 @@ result must in addition have the expected sign.
 
 ### Certification failures are failures
 
-`bin_float` evaluates elementary functions with certified error bounds and a
+`binary` evaluates elementary functions with certified error bounds and a
 bounded refinement loop; when it cannot certify the rounding it returns an
 error instead of a possibly wrong value. The executor counts such an error as
 a failed row with its own message, so a corpus run also proves that
@@ -100,7 +100,7 @@ certification succeeded on every row.
 
 Rows have no names in these formats, so ids are `op:LINE` (or `sqrt:LINE`,
 `pow:LINE`). They are stable as long as the pinned file is unchanged, which
-the SHA-256 pins in `testdata/bin_float/corpora.json` guarantee.
+the SHA-256 pins in `testdata/binary/corpora.json` guarantee.
 
 ## Correctness and invariants
 

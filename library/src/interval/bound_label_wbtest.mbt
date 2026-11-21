@@ -15,13 +15,13 @@
 // a number of the format.
 
 ///|
-fn bl_fits(x : @bin_float.BinFloat, p : Int32) -> Bool {
+fn bl_fits(x : @binary.Binary, p : Int32) -> Bool {
   if x.classify() == FpClass::Infinity || x.is_zero() {
     return true
   }
   // written here: the rule under test is not called by its test
   x.coefficient().bit_length() <= p &&
-  x.exponent2() >= @bin_float.binary_implementation_e_min - p + 1
+  x.exponent2() >= @binary.binary_implementation_e_min - p + 1
 }
 
 ///|
@@ -128,13 +128,9 @@ test "labels of the bounds: every operation, long" {
 test "labels of the bounds: written-out cases" {
   // (1) the ends of Interval::from_midpoint_radius(sqrt 3, 1024 ulp, 53): numbers of 53 bits
   // whose coefficient has a trailing zero bit were labelled 52
-  let three = @bin_float.BinFloat::from_int(3, precision=53)
+  let three = @binary.Binary::from_int(3, precision=53)
   let root = three.sqrt()
-  let ulp = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1024UL),
-    -51,
-    53,
-  )
+  let ulp = @binary.Binary::make(@binary.BinCoeff::from_uint64(1024UL), -51, 53)
   let interval = Interval::from_midpoint_radius(root, ulp, precision=53)
   assert_true(interval.lower_bound().precision() == 53)
   assert_true(interval.upper_bound().precision() == 53)
@@ -152,29 +148,21 @@ test "labels of the bounds: written-out cases" {
   // (2) from_midpoint_radius(1, 2^-100, p = 24) has the exact hull [1 - 2^-100, 1 + 2^-100];
   // rounded outward to 24 bits it is [1 - 2^-24, 1 + 2^-23] (the numbers of 24 bits next
   // to 1 are 1 - 2^-24 below and 1 + 2^-23 above)
-  let one = @bin_float.BinFloat::one(precision=53)
-  let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -100, 24)
+  let one = @binary.Binary::one(precision=53)
+  let tiny = @binary.Binary::make(@binary.BinCoeff::one(), -100, 24)
   let w = Interval::from_midpoint_radius(one, tiny, precision=24)
   assert_true(w.lower_bound().precision() == 24)
   assert_true(w.upper_bound().precision() == 24)
   inspect(w.to_exact_string(), content="[0xffffffp-24, 0x800001p-23]")
   // `from_bounds` rounds wide ends outward: labelled 24
-  let narrow = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
-    0,
-    200,
-  )
+  let narrow = @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), 0, 200)
   let rounded = Interval::from_bounds(w.lower_bound(), narrow, precision=24)
   assert_true(rounded.lower_bound().precision() == 24)
   assert_true(rounded.upper_bound().precision() == 24)
   // (3) a number finer than the grid of 24 bits below the range floor (2^(e_min - 30)) is
   // rounded outward to the grid (2^(e_min - 23) is the smallest positive number of 24 bits)
-  let e_min = @bin_float.binary_implementation_e_min
-  let fine = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    e_min - 30,
-    31,
-  )
+  let e_min = @binary.binary_implementation_e_min
+  let fine = @binary.Binary::make(@binary.BinCoeff::one(), e_min - 30, 31)
   let floor = Interval::from_bounds(fine, fine, precision=24)
   assert_true(floor.lower_bound().is_zero())
   assert_true(floor.lower_bound().precision() == 24)
@@ -182,13 +170,11 @@ test "labels of the bounds: written-out cases" {
   assert_true(
     floor
     .upper_bound()
-    .identical(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e_min - 23, 24),
-    ),
+    .identical(@binary.Binary::make(@binary.BinCoeff::one(), e_min - 23, 24)),
   )
   // (4) zeros and infinities carry p, the empty interval too
   let z = Interval::from_bounds(
-    @bin_float.BinFloat::zero(precision=7),
+    @binary.Binary::zero(precision=7),
     narrow,
     precision=24,
   )
@@ -205,8 +191,8 @@ test "labels of the bounds: written-out cases" {
   // (5) `==` and `identical` of Interval do not read a label
   let a = Interval::from_bounds(narrow, narrow, precision=24)
   let b = Interval::from_bounds(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), 0, 24),
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), 0, 53),
+    @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), 0, 24),
+    @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), 0, 53),
     precision=24,
   )
   assert_true(a == b)

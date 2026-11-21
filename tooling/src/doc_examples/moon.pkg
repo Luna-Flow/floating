@@ -1,8 +1,8 @@
 import {
   "Luna-Flow/floating/interval",
   "Luna-Flow/floating/interval_checked",
-  "Luna-Flow/floating/bin_float",
-  "Luna-Flow/floating/bin_float_checked",
+  "Luna-Flow/floating/binary",
+  "Luna-Flow/floating/binary_checked",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/decimal_gda",
   "Luna-Flow/floating/decimal_gda_checked",

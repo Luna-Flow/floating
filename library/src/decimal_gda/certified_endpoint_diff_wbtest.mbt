@@ -96,7 +96,7 @@ test "decimal limbs of big-endian bytes equal the big integer conversion" {
 /// The previous `decimal_exact_dyadic_endpoint`: the binary coefficient through
 /// `BigInt`, `<< e2` or `* 5^k`, and the conversion of the product.
 fn decimal_exact_dyadic_endpoint_reference(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
 ) -> Decimal? {
   if value.classify() == FpClass::Infinity {
@@ -141,10 +141,7 @@ fn decimal_exact_dyadic_endpoint_reference(
 }
 
 ///|
-fn endpoint_check(
-  value : @bin_float.BinFloat,
-  ctx : DecimalContext,
-) -> Unit raise {
+fn endpoint_check(value : @binary.Binary, ctx : DecimalContext) -> Unit raise {
   let actual = decimal_exact_dyadic_endpoint(value, ctx)
   let expected = decimal_exact_dyadic_endpoint_reference(value, ctx)
   let same = match (actual, expected) {
@@ -171,7 +168,7 @@ test "exact dyadic endpoints equal the big integer route" {
     let bytes_len = 1 +
       (endpoint_next(state) % 24UL).to_int() +
       (if iteration % 40 == 0 { 400 } else { 0 })
-    let coefficient = @bin_float.BinCoeff::from_bytes_be(
+    let coefficient = @binary.BinCoeff::from_bytes_be(
       endpoint_random_bytes(state, bytes_len)[:],
     )
     if coefficient.is_zero() {
@@ -195,7 +192,7 @@ test "exact dyadic endpoints equal the big integer route" {
         -(endpoint_next(state) % 1500UL).to_int(),
         (endpoint_next(state) % 1500UL).to_int(),
       ] {
-      let value = @bin_float.BinFloat::make(
+      let value = @binary.Binary::make(
         coefficient,
         exponent2,
         precision,
@@ -208,7 +205,7 @@ test "exact dyadic endpoints equal the big integer route" {
   }
   assert_true(taken > 3000)
   // zero, infinity, and the out-of-range representatives
-  endpoint_check(@bin_float.BinFloat::zero(precision=53), wide)
-  endpoint_check(@bin_float.BinFloat::inf(precision=53), wide)
-  endpoint_check(@bin_float.BinFloat::inf(negative=true, precision=53), narrow)
+  endpoint_check(@binary.Binary::zero(precision=53), wide)
+  endpoint_check(@binary.Binary::inf(precision=53), wide)
+  endpoint_check(@binary.Binary::inf(negative=true, precision=53), narrow)
 }

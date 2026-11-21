@@ -821,7 +821,7 @@ class TableTests(unittest.TestCase):
         self.assertEqual(len(rows), 8)
         self.assertEqual(tuple(rows[0]), eb.TABLE_COLUMNS)
         mul = next(r for r in rows if r["configuration"] == "wasm" and r["case"] == "binary/mul/256")
-        self.assertEqual((mul["package"], mul["size"], mul["op"], mul["old_basis"], mul["new_basis"], mul["verdict"]), ("bin_float", "256", "mul", "raw", "net", "met"))
+        self.assertEqual((mul["package"], mul["size"], mul["op"], mul["old_basis"], mul["new_basis"], mul["verdict"]), ("binary", "256", "mul", "raw", "net", "met"))
         self.assertEqual((float(mul["old_ratio"]), float(mul["new_ratio"]), float(mul["quotient"])), (4.0, 3.0, 0.75))
         sqrt = next(r for r in rows if r["case"] == "binary/sqrt/53")
         self.assertEqual((sqrt["old_ratio"], sqrt["old_basis"], sqrt["quotient"]), ("", "", ""))

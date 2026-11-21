@@ -4,8 +4,8 @@
 // ORACLE (level B): the exact sum or product of the two operands formed by integer arithmetic
 // (`exact_sum_rounded`, `exact_product_rounded`: aligned `BinCoeff` sums and products, no rounding,
 // no surrogate for a far addend) and then rounded once to the precision in the direction by
-// `BinFloat::make`. The shared primitives are
-// `BinCoeff` arithmetic and `BinFloat::make`, which have level A oracles in
+// `Binary::make`. The shared primitives are
+// `BinCoeff` arithmetic and `Binary::make`, which have level A oracles in
 // the binary gate (TestFloat, MPFR rows); the code under test is `add_ctx`, `sub_ctx` and `mul_ctx`
 // reached through `directed_*`. The new value must EQUAL the reference (a zero of either sign
 // counts as the same value).
@@ -30,7 +30,7 @@ fn db_below(state : Ref[UInt64], n : Int32) -> Int32 {
 }
 
 ///|
-fn db_coefficient(state : Ref[UInt64]) -> @bin_float.BinCoeff {
+fn db_coefficient(state : Ref[UInt64]) -> @binary.BinCoeff {
   let lengths = [1, 1, 2, 3, 7, 8, 9, 14, 16, 17, 40]
   let n = lengths[db_below(state, lengths.length())]
   let bytes : Array[Byte] = []
@@ -38,7 +38,7 @@ fn db_coefficient(state : Ref[UInt64]) -> @bin_float.BinCoeff {
     bytes.push((db_next(state) % 256UL).to_int().to_byte())
   }
   bytes[n - 1] = bytes[n - 1] | b'\x01'
-  @bin_float.BinCoeff::from_bytes_be(Bytes::from_array(bytes)[:])
+  @binary.BinCoeff::from_bytes_be(Bytes::from_array(bytes)[:])
 }
 
 ///|
@@ -47,10 +47,10 @@ let db_precisions : Array[Int32] = [24, 53, 64, 113, 128, 200]
 ///|
 /// A finite value of a random shape: length, sign, precision and exponent (near
 /// 1, near the two ends of the stored range, or very far from 1).
-fn db_operand(state : Ref[UInt64]) -> @bin_float.BinFloat {
+fn db_operand(state : Ref[UInt64]) -> @binary.Binary {
   let precision = db_precisions[db_below(state, db_precisions.length())]
-  let e_min = @bin_float.binary_implementation_e_min
-  let e_max = @bin_float.binary_implementation_e_max
+  let e_min = @binary.binary_implementation_e_min
+  let e_max = @binary.binary_implementation_e_max
   let exponent = match db_below(state, 6) {
     0 => db_below(state, 600) - 300
     1 => e_min - 60 + db_below(state, 120)
@@ -66,12 +66,12 @@ fn db_operand(state : Ref[UInt64]) -> @bin_float.BinFloat {
   }
   if db_below(state, 25) == 0 {
     return if db_below(state, 2) == 0 {
-      @bin_float.BinFloat::zero(precision~)
+      @binary.Binary::zero(precision~)
     } else {
-      @bin_float.BinFloat::negative_zero(precision~)
+      @binary.Binary::negative_zero(precision~)
     }
   }
-  let value = @bin_float.BinFloat::make(
+  let value = @binary.Binary::make(
     db_coefficient(state),
     exponent,
     precision,
@@ -80,12 +80,12 @@ fn db_operand(state : Ref[UInt64]) -> @bin_float.BinFloat {
   if value.classify() == FpClass::Finite {
     value
   } else {
-    @bin_float.BinFloat::one(precision~)
+    @binary.Binary::one(precision~)
   }
 }
 
 ///|
-fn db_same(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+fn db_same(a : @binary.Binary, b : @binary.Binary) -> Bool {
   // the sign of a zero is not part of the value (an exact cancellation is -0 toward negative)
   a.identical(b) ||
   (a.is_zero() && b.is_zero() && a.precision() == b.precision())
@@ -95,8 +95,8 @@ fn db_same(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
 /// The new value must equal the reference exactly.
 fn db_check(
   label : () -> String,
-  new : @bin_float.BinFloat,
-  reference : @bin_float.BinFloat,
+  new : @binary.Binary,
+  reference : @binary.Binary,
 ) -> Unit {
   if !db_same(new, reference) {
     abort("\{label()}: new \{new} differs from the reference \{reference}")
@@ -114,7 +114,7 @@ fn db_modes() -> Array[BinaryRoundingMode] {
 ///|
 /// Whether the reference can align the two values: a zero or an infinity, or an exponent gap of
 /// less than 1,000,000 places.
-fn db_near(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+fn db_near(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.is_zero() ||
   b.is_zero() ||
   a.classify() != FpClass::Finite ||
@@ -126,8 +126,8 @@ fn db_near(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
 /// One sum, one difference and one product of `a` and `b` in `precision` bits, both directions,
 /// against the exact reference rounded once.
 fn db_endpoint_case(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
 ) -> Unit {
   // the reference aligns the two operands over their exponent gap: gaps of more than 1,000,000
@@ -149,7 +149,7 @@ fn db_endpoint_case(
     // `extended_mul` returns +0 for a zero operand and the product otherwise
     let new = extended_mul(a, b, precision, mode)
     let reference = if a.is_zero() || b.is_zero() {
-      @bin_float.BinFloat::zero(precision~)
+      @binary.Binary::zero(precision~)
     } else {
       exact_product_rounded(a, b, precision, mode)
     }
@@ -182,11 +182,11 @@ test "directed endpoint sums, differences and products equal the exact reference
       0 => a.neg()
       1 =>
         a.scaleb_ctx(
-          @bin_float.BinFloat::from_int(db_below(state, 7) - 3),
-          @bin_float.BinaryContext::new(precision=300),
+          @binary.Binary::from_int(db_below(state, 7) - 3),
+          @binary.BinaryContext::new(precision=300),
         ).0
       2 =>
-        @bin_float.BinFloat::make(
+        @binary.Binary::make(
           db_coefficient(state),
           a.exponent2() - 100000 - db_below(state, 100000),
           53,
@@ -206,8 +206,8 @@ test "directed endpoint sums, differences and products equal the exact reference
 /// Exact results of 1 to 3 bits at leading-bit exponents `e_min - 1`, `e_min`,
 /// `e_max` and one above (overflow), in 24, 53 and 113 bits.
 test "directed bounds at the two ends of the exponent range" {
-  let e_min = @bin_float.binary_implementation_e_min
-  let e_max = @bin_float.binary_implementation_e_max
+  let e_min = @binary.binary_implementation_e_min
+  let e_max = @binary.binary_implementation_e_max
   let mut cases = 0
   for
     top in [e_min - 3, e_min - 2, e_min - 1, e_min, e_min + 1, e_max - 1, e_max] {
@@ -222,15 +222,15 @@ test "directed bounds at the two ends of the exponent range" {
       for precision in [24, 53, 113] {
         for negative in [false, true] {
           // `coefficient * 2^(top - bits + 1)` has its leading bit at `top`
-          let half = @bin_float.BinFloat::make(
-            @bin_float.BinCoeff::from_uint64(coefficient.to_uint64()),
+          let half = @binary.Binary::make(
+            @binary.BinCoeff::from_uint64(coefficient.to_uint64()),
             top - bits + 1,
             precision,
             negative~,
           )
           // half + half doubles it (leading bit top + 1), half + half/2 ...
-          let neighbour = @bin_float.BinFloat::make(
-            @bin_float.BinCoeff::from_uint64(coefficient.to_uint64()),
+          let neighbour = @binary.Binary::make(
+            @binary.BinCoeff::from_uint64(coefficient.to_uint64()),
             top - bits,
             precision,
             negative~,
@@ -243,14 +243,14 @@ test "directed bounds at the two ends of the exponent range" {
             }
           }
           // products of two powers of two that land at `top`
-          let a = @bin_float.BinFloat::make(
-            @bin_float.BinCoeff::from_uint64(coefficient.to_uint64()),
+          let a = @binary.Binary::make(
+            @binary.BinCoeff::from_uint64(coefficient.to_uint64()),
             (top - bits + 1) / 2,
             precision,
             negative~,
           )
-          let b = @bin_float.BinFloat::make(
-            @bin_float.BinCoeff::one(),
+          let b = @binary.Binary::make(
+            @binary.BinCoeff::one(),
             top - bits + 1 - (top - bits + 1) / 2,
             precision,
           )
@@ -269,19 +269,11 @@ test "directed bounds at the two ends of the exponent range" {
 /// The two corner cases named by value (level A, worked out by hand): an exact result of fewer
 /// bits than the working precision.
 test "gradual underflow of a short exact result keeps the correctly rounded bound" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   // 2^(e_min - 3) + 2^(e_min - 3) = 2^(e_min - 2): one bit, below the normal
   // range of every precision, representable exactly at 53 bits: both directions give it
-  let part = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    e_min - 3,
-    53,
-  )
-  let expected = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    e_min - 2,
-    53,
-  )
+  let part = @binary.Binary::make(@binary.BinCoeff::one(), e_min - 3, 53)
+  let expected = @binary.Binary::make(@binary.BinCoeff::one(), e_min - 2, 53)
   for mode in db_modes() {
     let sum = directed_add(part, part, 53, mode)
     assert_eq(sum.ilogb(), Some(e_min - 2))
@@ -291,9 +283,9 @@ test "gradual underflow of a short exact result keeps the correctly rounded boun
 
 ///|
 test "overflow of a short exact result keeps the correctly rounded bound" {
-  let e_max = @bin_float.binary_implementation_e_max
+  let e_max = @binary.binary_implementation_e_max
   // 2^e_max + 2^e_max = 2^(e_max + 1): one bit, above the largest finite value
-  let part = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e_max, 53)
+  let part = @binary.Binary::make(@binary.BinCoeff::one(), e_max, 53)
   let sum_down = directed_add(
     part,
     part,
@@ -309,8 +301,8 @@ test "overflow of a short exact result keeps the correctly rounded bound" {
   // the upper bound of a positive overflow is infinity
   inspect(sum_up.classify() == FpClass::Infinity, content="true")
   // the lower bound is the largest finite value of 53 bits, (2^53 - 1) * 2^(e_max - 52)
-  let largest = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64((1UL << 53) - 1UL),
+  let largest = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 53) - 1UL),
     e_max - 52,
     53,
   )
@@ -337,11 +329,11 @@ fn db_interval(state : Ref[UInt64]) -> Interval {
 /// The endpoint sum of the reference: an infinite addend is the result, otherwise the exact sum
 /// rounded once.
 fn db_ref_sum(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
   mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if a.classify() == FpClass::Infinity {
     return a
   }
@@ -373,7 +365,7 @@ fn db_ref_sub(a : Interval, b : Interval) -> Interval {
 }
 
 ///|
-fn db_ref_width(x : Interval) -> @bin_float.BinFloat {
+fn db_ref_width(x : Interval) -> @binary.Binary {
   exact_sum_rounded(
     x.hi_,
     x.lo_.neg(),
@@ -383,7 +375,7 @@ fn db_ref_width(x : Interval) -> @bin_float.BinFloat {
 }
 
 ///|
-fn db_ref_radius(x : Interval) -> @bin_float.BinFloat {
+fn db_ref_radius(x : Interval) -> @binary.Binary {
   let m = x.midpoint()
   let up = BinaryRoundingMode::RoundTowardPositive
   bin_max(

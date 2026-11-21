@@ -44,7 +44,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
   `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to
   it),
   and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and
-  `bin_float` on native with the row primitives portable
+  `binary` on native with the row primitives portable
   (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and
   in the default state; `tools/check_limbs_tier.py` fails the job when the runner
   is not arm64, a state reports another tier than expected, or the switch
@@ -113,7 +113,7 @@ uses ITF1788.
 the deterministic task list. `fetch` verifies pinned provenance before
 installing ignored data below `.tmp/`. `run` executes the chosen suite.
 Backend-specific filters, phases, targets, strict mode, sharding and JSON output
-are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (IEEE `decimal`),
+are documented in `testdata/binary/README.md`, `testdata/decimal/README.md` (IEEE `decimal`),
 `testdata/decimal_gda/README.md` and `testdata/interval/README.md`.
 
 ## Published claims
@@ -160,14 +160,14 @@ The committed smoke fixtures that `just pr` runs are subsets of these: the
 binary smoke, for example, has 8,514 rows (288 TestFloat vectors, 3
 square-root witnesses, 96 integer-power witnesses, 1,740 elementary witnesses,
 3,699 `strtofr` witnesses and 2,688 decimal output witnesses). These counts
-are read from the manifests (`testdata/bin_float/corpora.json` and
-`testdata/bin_float/smoke/manifest.json`) by `tools/check_manual_counts.py`,
+are read from the manifests (`testdata/binary/corpora.json` and
+`testdata/binary/smoke/manifest.json`) by `tools/check_manual_counts.py`,
 which runs with the unit tests of `just pr` and fails when a page and a
 manifest disagree.
 
 These are finite claims. They do not imply every IEEE 754 or IEEE 1788
 operation, arbitrary resource sizes, every NaN payload policy, or future
-corpus revisions. The per-package [binary](./conformance/bin_float.md),
+corpus revisions. The per-package [binary](./conformance/binary.md),
 [IEEE decimal](./conformance/decimal.md), [GDA](./conformance/decimal_gda.md)
 and [interval](./conformance/interval.md) conformance pages state the exact
 matrix and its exclusions.
@@ -186,7 +186,7 @@ It is evidence about speed, not a conformance gate, and is not part of `just pr`
 A seeded generator writes rows of operand intervals for `add`, `sub`, `mul`,
 `div`, `sqr`, `sqrt`, `fma`, `exp` and `ln`; `tools/interval_mpfr_oracle.c` computes the tightest
 result of every row with MPFR directly (one directed rounding per bound, in the
-exponent range and with the gradual underflow of `bin_float`, defined once in
+exponent range and with the gradual underflow of `binary`, defined once in
 `tools/mpfr_ours.h`); the test of `tooling/src/differential/interval_mpfr` runs the
 rows on `Interval` and compares both bounds as canonical text. IEEE 1788-2015
 12.10.2 makes the first seven operations tightest, so the bounds must be equal;
@@ -216,7 +216,7 @@ The fixed corpora above check rows someone chose. The randomized campaign
 (`just random-diff`, [tutorial](./tutorial/differential.md),
 [design](./design/differential.md)) generates seeded cases and compares the
 library with two independent implementations: GNU MPFR 4.2.2 (GMP 6.3.0) for
-`bin_float` and libmpdec 4.0.0 (Python 3.13 `decimal`) for `decimal_gda`
+`binary` and libmpdec 4.0.0 (Python 3.13 `decimal`) for `decimal_gda`
 (the IEEE `decimal` package is checked against MPFR, below). Both are oracles, not
 specifications: every disagreement was read against IEEE 754-2019 or the
 General Decimal Arithmetic 1.70 text before it was called a bug.
@@ -434,7 +434,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no
   flags where the result 2^−1073741824 is an exact subnormal (13 cases,
   [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and
-  its rows are regression rows of `testdata/bin_float/random-regressions.txt`.
+  its rows are regression rows of `testdata/binary/random-regressions.txt`.
   After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000
   native `elem` cases each. The random sample reaches the range limits rarely,
   so `tools/range_boundary_rows.py` generates the thresholds directly: for
@@ -464,7 +464,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   contexts, both tininess rules; the thresholds of $1/\sqrt{x}$,
   $(1 + x)^n$ for $n \in \{\pm 3, \pm 7, \pm 100\}$ and $x^y$ with $y$ placed on
   $\log_2$ of each threshold). The comparison needed two corrections of the
-  oracle, both documented in `testdata/bin_float/README.md`: `mpfr_compound_si`
+  oracle, both documented in `testdata/binary/README.md`: `mpfr_compound_si`
   is wrong for a negative `n` in the directed modes and near the range limits
   (proved with exact rational arithmetic on all 2,017 boundary rows; the rows
   use the exact rational instead), and `mpfr_rec_sqrt(-0)` is +inf where the
@@ -482,7 +482,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   and arguments next to $\pm 1$. 11,661 `atan2pi` rows with operands more than
   100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2
   slows down with the exponent difference (5 s at 2^(2*10^7)), so they are
-  skipped and covered by `library/src/bin_float/pi_inverse_wbtest.mbt` against an
+  skipped and covered by `library/src/binary/pi_inverse_wbtest.mbt` against an
   independent model and against `atanpi` of an exact power of two. The library
   had no disagreement.
 - *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
@@ -507,7 +507,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
 numbers above exclude, and the test-data READMEs document, these cases:
 MPFR has no subnormals (emulated with `mpfr_subnormalize`; nearest-away rows
 that would be subnormal are drawn in nearest-even) and its range is one binade
-narrower than BinFloat's at the extreme limits (the rows set MPFR's range to the
+narrower than that of `Binary` at the extreme limits (the rows set MPFR's range to the
 row's own range, so those limits are compared); NaN payloads are not compared;
 the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin|
 reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts as a deliberate implementation limit, which decTest requires and GDA 1.70's Invalid context condition permits, but which the operation text does not state; opt-in
@@ -584,7 +584,7 @@ attribute to a definition goes into a residue that is part of every key. When in
 - A unit is recorded only when it passed. The process says which frontend ran, and a mismatch with
   the unit is a defect.
 - The system has its own mutation test (`python3 tools/verify_mutation.py`): edits to the kernel, to
-  `bin_float` arithmetic and elementary functions, to `interval`, to both decimal packages, to the
+  `binary` arithmetic and elementary functions, to `interval`, to both decimal packages, to the
   TestFloat frontend and to an initialiser. For every edit that a vector or corpus can see, the whole
   selection is also run on the mutated build, and a unit that fails there must not have been reused
   (the check that shares no code with the keys); comment-only and formatting-only edits must change no
@@ -698,7 +698,7 @@ organization's credentials are supplied by the workflow.
 ## Conformance checklist
 
 One line per row of the clause traceability tables of the conformance pages
-([binary](./conformance/bin_float.md#clause-traceability),
+([binary](./conformance/binary.md#clause-traceability),
 [IEEE decimal](./conformance/decimal.md#clause-traceability),
 [GDA](./conformance/decimal_gda.md#clause-traceability),
 [interval](./conformance/interval.md#clause-traceability)). A checked box is
@@ -712,12 +712,12 @@ optional ones. The block is generated by
 <!-- conformance-checklist-start -->
 | Standard | Rows | Conforming | Partial | Not implemented | Not applicable | Required gaps | Recommended or optional gaps |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| IEEE 754-2019: bin_float | 28 | 22 | 1 | 5 | 0 | 0 | 6 |
+| IEEE 754-2019: binary | 28 | 22 | 1 | 5 | 0 | 0 | 6 |
 | IEEE 754-2019: decimal | 32 | 28 | 0 | 3 | 1 | 0 | 3 |
 | General Decimal Arithmetic 1.70: decimal_gda | 20 | 20 | 0 | 0 | 0 | 0 | 0 |
 | IEEE 1788-2015: interval | 18 | 14 | 1 | 3 | 0 | 1 | 3 |
 
-**IEEE 754-2019: bin_float**
+**IEEE 754-2019: binary**
 
 - [x] §3.3–§3.6 binary16/32/64/128 interchange formats [required]
 - [x] §3.7 extendable precisions [recommended]
@@ -833,7 +833,7 @@ optional ones. The block is generated by
 IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and
 IEEE 754 asks for them to be documented. Each entry names the clause that
 leaves it open and the choice made. The clause tables of the
-[binary](./conformance/bin_float.md#clause-traceability),
+[binary](./conformance/binary.md#clause-traceability),
 [IEEE decimal](./conformance/decimal.md#clause-traceability),
 [GDA](./conformance/decimal_gda.md#clause-traceability) and
 [interval](./conformance/interval.md#clause-traceability) conformance pages
@@ -842,19 +842,19 @@ cite them.
 | Clause | Choice left open | Choice made |
 | --- | --- | --- |
 | IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option. |
-| IEEE 754 §6.2 | Which NaN payload a NaN result carries | `bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
-| IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload. |
-| IEEE 754 §3.7 | Exponent range and precision of an extendable format | `bin_float`: leading-bit exponents in `[2 - 2^30, 2^30 - 1]` (`e_min = 1 - e_max`), precision at most `2^28` bits. `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
-| IEEE 754 §4.3 | Rounding directions beyond the five required | none in `bin_float` and `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`). |
+| IEEE 754 §6.2 | Which NaN payload a NaN result carries | `binary`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
+| IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `binary` has no setPayload. |
+| IEEE 754 §3.7 | Exponent range and precision of an extendable format | `binary`: leading-bit exponents in `[2 - 2^30, 2^30 - 1]` (`e_min = 1 - e_max`), precision at most `2^28` bits. `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
+| IEEE 754 §4.3 | Rounding directions beyond the five required | none in `binary` and `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`). |
 | IEEE 754 §4.1, §9.3 | How attributes are specified | Static: a context value passed to each operation; there are no dynamic modes and no global state. |
 | IEEE 754 §7 | How flags are exposed | Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages. |
 | IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`. |
 | IEEE 754 §9.2.2 | Preferred exponent when undefined (infinite or NaN `y` in `pow`) | `decimal`: `pow(+1, y)` is the plain `1`. |
-| IEEE 754 §5.12 | Character sequences accepted and produced (`bin_float`) | Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`. |
+| IEEE 754 §5.12 | Character sequences accepted and produced (`binary`) | Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`. |
 | IEEE 754 §6.3 | Sign of a zero `remainder` result (`decimal`) | The sign of the dividend, kept in extended contexts. |
 | IEEE 1788 §7, §4.2 | Flavor | Set-based. |
 | IEEE 1788 §12.10 | Accuracy of the elementary functions | Documented per operation in the [interval accuracy table](./conformance/interval.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire. |
-| IEEE 1788 §12.5 | Interval types | Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type. |
+| IEEE 1788 §12.5 | Interval types | Inf-sup intervals with `Binary` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type. |
 | General Decimal Arithmetic | Exponent limit | ±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`. |
 
 ## Known gaps and deviations
@@ -868,10 +868,10 @@ or the page that documents the decision.
 | IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
-| IEEE 754-2019 §9.4, §9.6 | No reduction operations; `bin_float` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
-| IEEE 754-2019 §9.5 | No augmented arithmetic for `bin_float` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
+| IEEE 754-2019 §9.4, §9.6 | No reduction operations; `binary` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
+| IEEE 754-2019 §9.5 | No augmented arithmetic for `binary` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
 | IEEE 754-2019 §5.3.2 | decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format) | [#234](https://github.com/Luna-Flow/floating/issues/234) |
-| IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/bin_float/README.md` |
+| IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/binary/README.md` |
 | IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | [#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text) |
 | IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | [#231](https://github.com/Luna-Flow/floating/issues/231), [#242](https://github.com/Luna-Flow/floating/issues/242) |
 | Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245) |

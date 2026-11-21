@@ -1,8 +1,8 @@
 ///|
 fn int_fn_box(lo : Double, hi : Double) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_double(lo),
-    @bin_float.BinFloat::from_double(hi),
+    @binary.Binary::from_double(lo),
+    @binary.Binary::from_double(hi),
   )
 }
 
@@ -140,10 +140,10 @@ test "integer functions: the input decoration caps the result (min-rule), NaI an
 
 ///|
 test "integer functions: unbounded boxes" {
-  let inf = @bin_float.BinFloat::inf(precision=53)
-  let ninf = @bin_float.BinFloat::inf(negative=true, precision=53)
-  let one = @bin_float.BinFloat::from_int(1)
-  let minus_one = @bin_float.BinFloat::from_int(-1)
+  let inf = @binary.Binary::inf(precision=53)
+  let ninf = @binary.Binary::inf(negative=true, precision=53)
+  let one = @binary.Binary::from_int(1)
+  let minus_one = @binary.Binary::from_int(-1)
   let up = Interval::from_bounds(one, inf)
   let down = Interval::from_bounds(ninf, minus_one)
   // sign is constant on a half line not containing 0, but the box is unbounded
@@ -165,8 +165,8 @@ test "integer functions: unbounded boxes" {
 ///|
 test "integer functions: results are exact at a large precision and zero bounds are +0" {
   let x = Interval::from_bounds(
-    @bin_float.BinFloat::from_double(-0.5, precision=200),
-    @bin_float.BinFloat::from_double(-0.25, precision=200),
+    @binary.Binary::from_double(-0.5, precision=200),
+    @binary.Binary::from_double(-0.25, precision=200),
     precision=200,
   )
   let r = x.ceil()

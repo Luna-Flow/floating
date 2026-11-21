@@ -3,26 +3,21 @@
 ///|
 fn Interval::try_pi_scaled_endpoint_bounds(
   self : Interval,
-  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+  evaluate : (@binary.Binary, @binary.BinaryContext) -> Result[
+    (@binary.Binary, @binary.BinaryFlags),
     @def.ArithmeticError,
   ],
 ) -> Result[
-  (
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-    @bin_float.BinFloat,
-  ),
+  (@binary.Binary, @binary.Binary, @binary.Binary, @binary.Binary),
   @def.ArithmeticError,
 ] {
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   evaluate(self.lo_, downward).bind(fn(lower_down) {
     evaluate(self.lo_, upward).bind(fn(lower_up) {
@@ -52,12 +47,12 @@ fn Interval::old_try_sinpi_interval(
   .map(fn(bounds) {
     let indices = pi_scaled_index_range(self)
     let lower = if index_range_contains_residue(indices.0, indices.1, 3) {
-      @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+      @binary.Binary::from_int(-1, precision=self.precision_)
     } else {
       bin_min(bounds.0, bounds.2)
     }
     let upper = if index_range_contains_residue(indices.0, indices.1, 1) {
-      @bin_float.BinFloat::one(precision=self.precision_)
+      @binary.Binary::one(precision=self.precision_)
     } else {
       bin_max(bounds.1, bounds.3)
     }
@@ -82,12 +77,12 @@ fn Interval::old_try_cospi_interval(
   .map(fn(bounds) {
     let indices = pi_scaled_index_range(self)
     let lower = if index_range_contains_residue(indices.0, indices.1, 2) {
-      @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+      @binary.Binary::from_int(-1, precision=self.precision_)
     } else {
       bin_min(bounds.0, bounds.2)
     }
     let upper = if index_range_contains_residue(indices.0, indices.1, 0) {
-      @bin_float.BinFloat::one(precision=self.precision_)
+      @binary.Binary::one(precision=self.precision_)
     } else {
       bin_max(bounds.1, bounds.3)
     }
@@ -120,7 +115,7 @@ fn Interval::old_try_atan2_interval(
     abscissa.contains_zero() {
     return Ok(empty_interval(precision))
   }
-  let zero = @bin_float.BinFloat::zero(precision~)
+  let zero = @binary.Binary::zero(precision~)
   if abscissa.lo_.compare(zero) < 0 &&
     ordinate.lo_.compare(zero) < 0 &&
     ordinate.hi_.compare(zero) >= 0 {

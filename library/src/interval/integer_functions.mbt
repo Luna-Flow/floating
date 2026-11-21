@@ -17,12 +17,12 @@ priv enum IntegerFunction {
 
 ///|
 fn integer_zero_positive(
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   // an interval endpoint 0 is stored as +0, whatever the sign the rounding gave
   if x.is_zero() {
-    @bin_float.BinFloat::zero(precision~)
+    @binary.Binary::zero(precision~)
   } else {
     x
   }
@@ -31,17 +31,17 @@ fn integer_zero_positive(
 ///|
 fn integer_apply(
   kind : IntegerFunction,
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let value = match kind {
     Sign =>
       if x.is_zero() {
-        @bin_float.BinFloat::zero(precision~)
+        @binary.Binary::zero(precision~)
       } else if x.sign() == Sign::Negative {
-        @bin_float.BinFloat::from_int(-1, precision~)
+        @binary.Binary::from_int(-1, precision~)
       } else {
-        @bin_float.BinFloat::from_int(1, precision~)
+        @binary.Binary::from_int(1, precision~)
       }
     Ceil => x.ceil()
     Floor => x.floor()
@@ -105,7 +105,7 @@ pub fn Interval::round_ties_to_away(self : Interval) -> Interval {
 }
 
 ///|
-fn integer_equal(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+fn integer_equal(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0
 }
 
@@ -137,7 +137,7 @@ fn integer_local_decoration(
   let k = y.lo_
   let a = x.lo_
   let b = x.hi_
-  let half = @bin_float.BinFloat::from_double(0.5, precision=x.precision_)
+  let half = @binary.Binary::from_double(0.5, precision=x.precision_)
   let jump_inside = match kind {
     Sign => k.is_zero()
     Ceil => integer_equal(b, k)

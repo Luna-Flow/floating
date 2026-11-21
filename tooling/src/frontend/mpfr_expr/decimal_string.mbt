@@ -7,9 +7,9 @@
 priv struct MpfrStrtofrCase {
   id : String
   input : String
-  expected : @bin_float.BinFloat
+  expected : @binary.Binary
   output_precision : Int32
-  rounding : @bin_float.BinaryRoundingMode
+  rounding : @binary.BinaryRoundingMode
   inexact : Bool
   overflow : Bool
   underflow : Bool
@@ -26,17 +26,13 @@ priv enum MpfrDecimalOutputCase {
   Fixed(
     id~ : String,
     digits~ : Int32,
-    value~ : @bin_float.BinFloat,
-    rounding~ : @bin_float.BinaryRoundingMode,
+    value~ : @binary.Binary,
+    rounding~ : @binary.BinaryRoundingMode,
     expected_digits~ : String,
     expected_exponent10~ : Int32,
     inexact~ : Bool,
   )
-  Shortest(
-    id~ : String,
-    value~ : @bin_float.BinFloat,
-    expected_digit_count~ : Int32,
-  )
+  Shortest(id~ : String, value~ : @binary.Binary, expected_digit_count~ : Int32)
 }
 
 ///|
@@ -91,7 +87,7 @@ pub fn parse_strtofr_data(
         Some(overflow),
         Some(underflow),
       ) =>
-        match @bin_float.BinFloat::from_hex(tokens[3], output_precision) {
+        match @binary.Binary::from_hex(tokens[3], output_precision) {
           Ok(expected) =>
             cases.push({
               id: "strtofr:" + line_number.to_string(),
@@ -147,12 +143,12 @@ fn summary_of(results : Array[CaseResult]) -> RunSummary {
 pub fn execute_strtofr_data(document : MpfrStrtofrDocument) -> RunSummary {
   let results : Array[CaseResult] = []
   for case in document.cases {
-    let context = @bin_float.BinaryContext::new(
+    let context = @binary.BinaryContext::new(
       precision=case.output_precision,
       rounding=case.rounding,
     )
     let (passed, message) = match
-      @bin_float.BinFloat::from_string_ctx(case.input, context) {
+      @binary.Binary::from_string_ctx(case.input, context) {
       Err(_) => (false, "strtofr rejected " + case.input)
       Ok((actual, flags)) => {
         // `compare` treats -0 and +0 as equal; MPFR results carry the sign.
@@ -229,7 +225,7 @@ pub fn parse_decimal_output_data(
           Some(exponent10),
           Some(inexact),
         ) =>
-          match @bin_float.BinFloat::from_hex(tokens[4], precision) {
+          match @binary.Binary::from_hex(tokens[4], precision) {
             Ok(value) =>
               cases.push(
                 Fixed(
@@ -259,7 +255,7 @@ pub fn parse_decimal_output_data(
     } else if tokens[0] == "shortest" && tokens.length() == 4 {
       match (parse_int(tokens[1]), parse_int(tokens[3])) {
         (Some(precision), Some(count)) =>
-          match @bin_float.BinFloat::from_hex(tokens[2], precision) {
+          match @binary.Binary::from_hex(tokens[2], precision) {
             Ok(value) =>
               cases.push(
                 Shortest(
@@ -389,7 +385,7 @@ pub fn execute_decimal_output_data(
         expected_exponent10~,
         inexact~,
       ) => {
-        let context = @bin_float.BinaryContext::new(
+        let context = @binary.BinaryContext::new(
           precision=value.precision(),
           rounding~,
         )
@@ -434,7 +430,7 @@ pub fn execute_decimal_output_data(
         // The text must read back as exactly this value at its own precision
         // and have the fewest digits MPFR finds for it.
         let reads_back = match
-          @bin_float.BinFloat::from_string(text, precision=value.precision()) {
+          @binary.Binary::from_string(text, precision=value.precision()) {
           Ok(parsed) =>
             parsed.compare(value) == 0 &&
             parsed.is_negative() == value.is_negative()

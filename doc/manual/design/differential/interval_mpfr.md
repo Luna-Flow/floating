@@ -2,11 +2,11 @@
 
 ## Design goal
 
-Give `interval` an oracle from outside the repository at the ends of the exponent range, where its tests had only `BinFloat` in a wide context to compare with, and make the stage independent of the code it checks, so that a defect in `interval`, in `bin_float` or in a reader of the library cannot cancel against itself.
+Give `interval` an oracle from outside the repository at the ends of the exponent range, where its tests had only `Binary` in a wide context to compare with, and make the stage independent of the code it checks, so that a defect in `interval`, in `binary` or in a reader of the library cannot cancel against itself.
 
 ## Mathematical background
 
-For an operation $f$ that is monotone or multi-affine in each argument, the tightest interval is the hull of the values at the corners of the operand box. With $\mathrm{rnd}_\downarrow$ and $\mathrm{rnd}_\uparrow$ the directed roundings to $p$ bits in the format of `bin_float` (exponent range $[e_{\min}, e_{\max}]$ with gradual underflow),
+For an operation $f$ that is monotone or multi-affine in each argument, the tightest interval is the hull of the values at the corners of the operand box. With $\mathrm{rnd}_\downarrow$ and $\mathrm{rnd}_\uparrow$ the directed roundings to $p$ bits in the format of `binary` (exponent range $[e_{\min}, e_{\max}]$ with gradual underflow),
 
 $$
 \text{lower} = \min_{c}\ \mathrm{rnd}_\downarrow\bigl(f(c)\bigr),
@@ -20,7 +20,7 @@ over the corners $c$ (four for `mul` and `div`, eight for `fma`, the two ends fo
 
 ### Two oracles that share nothing with the library
 
-`tools/interval_mpfr_oracle.c` evaluates the corners with MPFR (`mpfr_add`, `mpfr_mul`, `mpfr_fma`, ... with `MPFR_RNDD` and `MPFR_RNDU`). The exponent range of `bin_float` is set in MPFR as `tools/generate_mpfr_random_oracle.c` does for the binary gate: MPFR writes a value as $0.1xxx \times 2^e$, one binade above `bin_float`'s leading-bit exponent at both ends, so the range is $[e_{\min} - p + 2,\ e_{\max} + 1]$, and a result whose MPFR exponent is at most $e_{\min}$ goes through `mpfr_subnormalize` with the ternary value of the first rounding (exact for the directed modes). The oracle in `tools/interval_diff.py` computes the same corners with Python integers and a directed rounding written from the definition; it needs nothing but CPython, decides every arithmetic row (a far addend, more than 4,000 bits below the other, only decides the side of the rounding, so the exact sum is the larger addend plus a remainder smaller than one unit of it scaled to $p + 2$ bits; a quotient or a root keeps its remainder as a sticky bit) and is the required oracle of the gate stage. MPFR is the second oracle, run when its headers are found, and the two must agree on every arithmetic row. The report names the oracles that ran and the rows only MPFR decides (`exp`, `ln`) as not checked when it did not. `mpfr_sqrt` of MPFR 4.2.2 has a known defect, so a root is checked with an exact product and the row is undecided if the check fails.
+`tools/interval_mpfr_oracle.c` evaluates the corners with MPFR (`mpfr_add`, `mpfr_mul`, `mpfr_fma`, ... with `MPFR_RNDD` and `MPFR_RNDU`). The exponent range of `binary` is set in MPFR as `tools/generate_mpfr_random_oracle.c` does for the binary gate: MPFR writes a value as $0.1xxx \times 2^e$, one binade above `binary`'s leading-bit exponent at both ends, so the range is $[e_{\min} - p + 2,\ e_{\max} + 1]$, and a result whose MPFR exponent is at most $e_{\min}$ goes through `mpfr_subnormalize` with the ternary value of the first rounding (exact for the directed modes). The oracle in `tools/interval_diff.py` computes the same corners with Python integers and a directed rounding written from the definition; it needs nothing but CPython, decides every arithmetic row (a far addend, more than 4,000 bits below the other, only decides the side of the rounding, so the exact sum is the larger addend plus a remainder smaller than one unit of it scaled to $p + 2$ bits; a quotient or a root keeps its remainder as a sticky bit) and is the required oracle of the gate stage. MPFR is the second oracle, run when its headers are found, and the two must agree on every arithmetic row. The report names the oracles that ran and the rows only MPFR decides (`exp`, `ln`) as not checked when it did not. `mpfr_sqrt` of MPFR 4.2.2 has a known defect, so a root is checked with an exact product and the row is undecided if the check fails.
 
 ### Canonical text, no library reader or writer
 
@@ -43,7 +43,7 @@ Rows that aim at a band (overflow threshold, subnormal band) are built from inte
 
 ## Alternatives rejected
 
-- **`BinFloat` in a wide context as the oracle.** It is the code the interval is built on, and its own tests at the range ends are equivalence tests.
+- **`Binary` in a wide context as the oracle.** It is the code the interval is built on, and its own tests at the range ends are equivalence tests.
 - **MPFI as the oracle of this stage.** MPFI has no subnormal numbers and no range narrower than MPFR's; the MPFI columns belong to the timed cells, where they compare like with like.
 - **Random operands only.** The defects of the range ends need operands aimed at them; the classes are built from the targets.
 

@@ -1,5 +1,5 @@
 // Interval enclosure of exp2 at the smallest representable powers of two (#271).
-// `try_exp2` rounds both endpoints through `BinFloat::exp2_ctx`; when
+// `try_exp2` rounds both endpoints through `Binary::exp2_ctx`; when
 // that returned +0 for the exact subnormal 2^-2^30 the enclosure was {0}, which
 // does not contain the true value.
 //
@@ -17,7 +17,7 @@
 // shares: nothing
 test "exp2 enclosures contain the exact subnormal powers of two" {
   for n in [-1073741823, -1073741824, -1073741825] {
-    let exact = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), n, 53)
+    let exact = @binary.Binary::make(@binary.BinCoeff::one(), n, 53)
     let point = Interval::from_int(n, precision=53)
     for enclosure in [point.exp2(), point.try_exp2().unwrap()] {
       assert_true(enclosure.is_member(exact))
@@ -26,11 +26,7 @@ test "exp2 enclosures contain the exact subnormal powers of two" {
     }
   }
   let n = -1073741900
-  let smallest = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -1073741874,
-    53,
-  )
+  let smallest = @binary.Binary::make(@binary.BinCoeff::one(), -1073741874, 53)
   let point = Interval::from_int(n, precision=53)
   for enclosure in [point.exp2(), point.try_exp2().unwrap()] {
     assert_true(enclosure.lo_.is_zero())

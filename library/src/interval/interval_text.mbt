@@ -19,9 +19,9 @@ let interval_text_decimal_exponent_limit : Int32 = 4096
 ///|
 fn text_ctx(
   precision : Int32,
-  rounding : @bin_float.BinaryRoundingMode,
-) -> @bin_float.BinaryContext {
-  @bin_float.BinaryContext::new(precision~, rounding~)
+  rounding : @binary.BinaryRoundingMode,
+) -> @binary.BinaryContext {
+  @binary.BinaryContext::new(precision~, rounding~)
 }
 
 ///|
@@ -54,19 +54,19 @@ fn tidy_scientific(text : String) -> String {
 /// Whether the `digits`-digit decimal rounded in the outward direction, read back at
 /// `precision` in the same direction, is at most one unit in the last place from `x`.
 fn endpoint_close_enough(
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   digits : Int32,
   upward : Bool,
   precision : Int32,
 ) -> (String, Bool) {
   let direction = if upward {
-    @bin_float.BinaryRoundingMode::RoundTowardPositive
+    @binary.BinaryRoundingMode::RoundTowardPositive
   } else {
-    @bin_float.BinaryRoundingMode::RoundTowardNegative
+    @binary.BinaryRoundingMode::RoundTowardNegative
   }
   let context = text_ctx(precision, direction)
   let (text, _) = x.to_decimal_string_ctx(digits, context)
-  match @bin_float.BinFloat::from_string_ctx(text, context) {
+  match @binary.Binary::from_string_ctx(text, context) {
     Ok((r, _)) => {
       let near = if upward {
         r.compare(x) == 0 || r.next_down_ctx(context).0.compare(x) <= 0
@@ -85,7 +85,7 @@ fn endpoint_close_enough(
 /// text within one unit in the last place of the bound are used (found by bisection: the
 /// distance does not grow with the digit count).
 fn endpoint_text(
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   upward : Bool,
   precision : Int32,
 ) -> String {
@@ -140,7 +140,7 @@ fn interval_portable_text(x : Interval) -> String {
 }
 
 ///|
-fn exact_bound_text(x : @bin_float.BinFloat) -> String {
+fn exact_bound_text(x : @binary.Binary) -> String {
   if x.is_infinite() {
     return if x.is_negative() { "-inf" } else { "inf" }
   }
@@ -149,9 +149,9 @@ fn exact_bound_text(x : @bin_float.BinFloat) -> String {
   if x.is_zero() {
     return "0x0p0"
   }
-  // The stored coefficient of a nonzero finite `BinFloat` is odd, so the text is the value's
+  // The stored coefficient of a nonzero finite `Binary` is odd, so the text is the value's
   // and does not depend on how it was made: every constructor and operation builds the value
-  // through `normalize_finite` (bin_float.mbt), which strips the trailing zero bits into the
+  // through `normalize_finite` (binary.mbt), which strips the trailing zero bits into the
   // exponent (`normalize_finite_odd`, the `final_shift` step). The test "the stored coefficient
   // is odd" in interval_text_wbtest.mbt guards the invariant.
   (if x.is_negative() { "-" } else { "" }) +
@@ -179,7 +179,7 @@ pub fn Interval::to_exact_string(self : Interval) -> String {
 /// The midpoint-radius view `m +/- r` (an interval with an infinite bound is shown as
 /// `[l, u]` of binary numbers, an empty one as `[empty]`). It is for reading, not a literal
 /// of the standard: use `to_string` or `to_exact_string` for text that can be parsed back.
-/// Both numbers are written as `BinFloat::to_string` writes them, so the cost does not depend
+/// Both numbers are written as `Binary::to_string` writes them, so the cost does not depend
 /// on the exponent range (an interval whose bounds have exponents a billion apart is written
 /// in a few characters).
 pub fn Interval::to_midpoint_radius_string(self : Interval) -> String {
@@ -259,7 +259,7 @@ fn hex_mantissa_digits(text : String) -> Int32 {
 
 ///|
 /// One bound of an exact text, read exactly: the converter of IEEE 754-2019 5.12.3
-/// (`BinFloat::from_hex_ctx`) in a context wide enough for the digits of the text and for the
+/// (`Binary::from_hex_ctx`) in a context wide enough for the digits of the text and for the
 /// precision of the interval, so that it rounds only when the bound cannot be represented
 /// at all, and then reports `inexact` (the test of the reader, not a count of digits). The
 /// bound must be a number of the format of the interval (every stored bound is one): a bound
@@ -269,20 +269,20 @@ fn hex_mantissa_digits(text : String) -> Int32 {
 fn exact_bound(
   text : String,
   precision : Int32,
-) -> Result[@bin_float.BinFloat, @def.ArithmeticError] {
+) -> Result[@binary.Binary, @def.ArithmeticError] {
   let wide = Int64::max(
     precision.to_int64(),
     4L * hex_mantissa_digits(text).to_int64(),
   )
-  if wide > @bin_float.binary_precision_max.to_int64() {
+  if wide > @binary.binary_precision_max.to_int64() {
     return Err(
       lit_error("the bound `" + text + "` has more bits than the library holds"),
     )
   }
   match
-    @bin_float.BinFloat::from_hex_ctx(
+    @binary.Binary::from_hex_ctx(
       text,
-      @bin_float.BinaryContext::new(precision=wide.to_int()),
+      @binary.BinaryContext::new(precision=wide.to_int()),
     ) {
     Err(error) => Err(error)
     Ok((value, flags)) =>
@@ -305,7 +305,7 @@ fn exact_bound(
           ),
         )
       } else if value.exponent2() <
-        @bin_float.binary_implementation_e_min - precision + 1 {
+        @binary.binary_implementation_e_min - precision + 1 {
         Err(
           lit_error(
             "the bound `" +

@@ -3,17 +3,17 @@
 ## Purpose
 
 `internal/bin_kernel` holds the integer arithmetic on the coefficients of
-`BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison,
+`Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison,
 addition, subtraction, shifts and bit operations, the multiplication
 algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division
 (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD,
 and the conversions to and from bytes and text in any radix, with the per-target
 thresholds that choose between the algorithms. Every function is an exact
 function of its arguments. The package raises no condition and has no notion of
-a rounding mode, a context or a flag; those belong to `bin_float`.
-`internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `BinFloat` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `bin_float`, section "Representation of a value".
+a rounding mode, a context or a flag; those belong to `binary`.
+`internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section "Representation of a value".
 It is an internal package: code outside `Luna-Flow/floating` cannot import it.
-The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff`
+The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff`
 whose methods (construction, conversion, comparison and queries) forward to
 this package; the arithmetic exists only here. The name `Coeff` appears in the
 interface of `BinCoeff`, but a user outside the module cannot import this
@@ -55,7 +55,7 @@ The storage on the targets that are not JavaScript: `Inline64(low)` and
 `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and
 `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of
 which the top one is nonzero. The constructors are readable because the
-word-sized fast paths of `bin_float` pattern-match on them; build values with
+word-sized fast paths of `binary` pattern-match on them; build values with
 the functions below.
 
 ## Function families

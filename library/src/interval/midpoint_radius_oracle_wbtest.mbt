@@ -8,7 +8,7 @@
 
 // oracle: A
 // source: expected mid and rad computed with Python integers (tools/interval_mid_oracle.py), the exact enclosure checked again in the test by integer arithmetic
-// shares: nothing for the expected values; BinFloat::from_hex reads the bounds
+// shares: nothing for the expected values; Binary::from_hex reads the bounds
 
 ///|
 test "midpoint, radius and their text agree with the independent oracle on every row of the table" {
@@ -24,8 +24,8 @@ test "midpoint, radius and their text agree with the independent oracle on every
       for c in fields[2] {
         precision = precision * 10 + (c.to_int() - '0'.to_int())
       }
-      let lower = @bin_float.BinFloat::from_hex(fields[0], precision).unwrap()
-      let upper = @bin_float.BinFloat::from_hex(fields[1], precision).unwrap()
+      let lower = @binary.Binary::from_hex(fields[0], precision).unwrap()
+      let upper = @binary.Binary::from_hex(fields[1], precision).unwrap()
       let x = Interval::from_bounds(lower, upper, precision~)
       let m = x.midpoint()
       let r = x.radius()
@@ -59,16 +59,13 @@ test "midpoint, radius and their text agree with the independent oracle on every
 test "to_midpoint_radius_string of an empty, entire and unbounded interval and of a decorated one" {
   inspect(Interval::empty().to_midpoint_radius_string(), content="[empty]")
   inspect(Interval::entire().to_midpoint_radius_string(), content="[-inf, inf]")
-  let one = @bin_float.BinFloat::one(precision=53)
-  let half_line = Interval::from_bounds(
-    one,
-    @bin_float.BinFloat::inf(precision=53),
-  )
+  let one = @binary.Binary::one(precision=53)
+  let half_line = Interval::from_bounds(one, @binary.Binary::inf(precision=53))
   inspect(half_line.to_midpoint_radius_string(), content="[1p0, inf]")
   // [-1, 2] at 53 bits: mid 1/2 is exact, rad 3/2 covers -1 and 2
   let x = Interval::from_bounds(
     one.neg(),
-    @bin_float.BinFloat::from_int(2, precision=53),
+    @binary.Binary::from_int(2, precision=53),
   )
   inspect(x.to_midpoint_radius_string(), content="1p-1 +/- 3p-1")
   inspect(

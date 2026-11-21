@@ -6,11 +6,11 @@ Writes `library/src/decimal/convert_format_rows_wbtest.mbt`, the tables executed
 by `convert_format_wbtest.mbt`:
 
 * `mpfr_strtofr_rows` and `mpfr_getstr_rows`: rows taken from the committed MPFR
-  4.2.2 corpora `testdata/bin_float/mpfr-4.2.2-strtofr.txt` (decimal text to a
+  4.2.2 corpora `testdata/binary/mpfr-4.2.2-strtofr.txt` (decimal text to a
   binary value, `mpfr_strtofr`) and `mpfr-4.2.2-decimal-output.txt` (a binary
   value to n digits, `mpfr_get_str`), every `STRIDE`-th row of each cell, so the
   expected values and the inexact flags are MPFR's. They run through
-  `Decimal::to_bin_float_ctx` and `Decimal::from_bin_float_ctx`.
+  `Decimal::to_binary_ctx` and `Decimal::from_binary_ctx`.
 * `decimal_to_binary_rows` and `binary_to_decimal_rows`: every pair among
   decimal32/64/128 and binary16/32/64/128, every IEEE rounding direction, with
   value, flags (inexact, overflow, underflow) and, for binary to decimal, the
@@ -34,8 +34,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/decimal/convert_format_rows_wbtest.mbt"
-STRTOFR = ROOT / "testdata/bin_float/mpfr-4.2.2-strtofr.txt"
-GETSTR = ROOT / "testdata/bin_float/mpfr-4.2.2-decimal-output.txt"
+STRTOFR = ROOT / "testdata/binary/mpfr-4.2.2-strtofr.txt"
+GETSTR = ROOT / "testdata/binary/mpfr-4.2.2-decimal-output.txt"
 STRIDE = 4
 sys.set_int_max_str_digits(0)
 

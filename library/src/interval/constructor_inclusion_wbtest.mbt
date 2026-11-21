@@ -5,7 +5,7 @@
 /// excluded the input whenever it needed more bits than the precision.
 test "Interval::from_int contains integers wider than the precision" {
   for n in [100001, 65537, 123456789, 2147483647, -100001, -2147483647] {
-    let exact = @bin_float.BinFloat::from_int(n, precision=32)
+    let exact = @binary.Binary::from_int(n, precision=32)
     for precision in [16, 8, 24, 53] {
       let interval = Interval::from_int(n, precision~)
       assert_true(interval.is_member(exact))
@@ -15,9 +15,9 @@ test "Interval::from_int contains integers wider than the precision" {
 
 ///|
 test "Interval::from_coefficient contains coefficients wider than the precision" {
-  let coefficient = @bin_float.BinCoeff::from_uint64(100001UL)
+  let coefficient = @binary.BinCoeff::from_uint64(100001UL)
   for negative in [false, true] {
-    let exact = @bin_float.BinFloat::from_coefficient(
+    let exact = @binary.Binary::from_coefficient(
       coefficient,
       precision=Int32::max(1, coefficient.bit_length()),
       negative~,

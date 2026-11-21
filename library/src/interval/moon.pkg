@@ -2,6 +2,6 @@ import {
   "moonbitlang/core/debug",
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/internal/bin_kernel",
 }

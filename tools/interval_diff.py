@@ -3,7 +3,7 @@
 
 One seeded generator writes rows of operand intervals, `tools/interval_mpfr_oracle.c`
 computes the tightest result of every row with MPFR directly (directed
-roundings in the exponent range and with the gradual underflow of `bin_float`,
+roundings in the exponent range and with the gradual underflow of `binary`,
 `tools/mpfr_ours.h`), and the test of `tooling/src/differential/interval_mpfr` runs the
 rows on `Interval` and compares both bounds as canonical text. The oracle shares
 no code with the library; the generator is only a source of operands (what it
@@ -44,7 +44,7 @@ ROWS_PER_CELL = 12
 # precisions added to a class: the rows of issue 569 (exp at the overflow threshold) failed from 146 bits up
 CLASS_PRECISIONS: dict[str, tuple[int, ...]] = {"XOV": (117, 146, 175, 292)}
 
-EMAX = (1 << 30) - 1  # the largest leading-bit exponent of a finite value of bin_float
+EMAX = (1 << 30) - 1  # the largest leading-bit exponent of a finite value of binary
 EMIN = 1 - EMAX  # the smallest normal number is 2**EMIN
 
 OPS: tuple[str, ...] = ("add", "sub", "mul", "div", "sqr", "sqrt", "fma", "exp", "ln")
@@ -627,7 +627,7 @@ def render_coverage(table: dict[tuple[str, str, int], dict[str, int]]) -> str:
 #
 # Every bound is computed from the exact corner values with integer arithmetic and
 # one directed rounding (to p bits, with the exponent range and the gradual
-# underflow of `bin_float`). It shares nothing with MPFR, with the C oracle or with
+# underflow of `binary`). It shares nothing with MPFR, with the C oracle or with
 # the library. It reads the operands from the rows; the rows whose exponents differ
 # by more than `MAX_GAP` bits are skipped (an exact sum would need a huge integer).
 
@@ -644,7 +644,7 @@ class Skipped(Exception):
 
 
 def round_directed(num: int, exp: int, sticky: bool, negative: bool, up: bool, p: int, ranged: bool = True) -> Value:
-    """(-1)^negative * (num + sticky*epsilon) * 2^exp rounded to p bits toward +inf (up) or -inf, in the range of bin_float.
+    """(-1)^negative * (num + sticky*epsilon) * 2^exp rounded to p bits toward +inf (up) or -inf, in the range of binary.
 
     `sticky` says that the exact value is a little above `num * 2^exp` (in magnitude): a quotient or root with a remainder.
     """

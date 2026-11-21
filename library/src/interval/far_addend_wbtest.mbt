@@ -1,8 +1,6 @@
 ///|
 fn far_addend_power(exponent : Int32) -> Interval {
-  Interval::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, 53),
-  )
+  Interval::exact(@binary.Binary::make(@binary.BinCoeff::one(), exponent, 53))
 }
 
 ///|
@@ -30,8 +28,8 @@ test "near addends stay exact" {
   assert_identical(sum.lower_bound(), one.lower_bound())
   assert_identical(
     sum.upper_bound(),
-    @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),
+    @binary.Binary::make(
+      @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
       -52,
       53,
     ),

@@ -9,14 +9,14 @@ import check_manual_counts as check
 
 REPO = check.REPO
 FILES = (
-    "testdata/bin_float/corpora.json",
-    "testdata/bin_float/smoke/manifest.json",
-    "testdata/bin_float/mpfr-4.2.2-elementary.txt",
-    "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
-    "testdata/bin_float/mpfr-4.2.2-decimal-output.txt",
+    "testdata/binary/corpora.json",
+    "testdata/binary/smoke/manifest.json",
+    "testdata/binary/mpfr-4.2.2-elementary.txt",
+    "testdata/binary/mpfr-4.2.2-strtofr.txt",
+    "testdata/binary/mpfr-4.2.2-decimal-output.txt",
     "doc/manual/verification.md",
-    "doc/manual/conformance/bin_float.md",
-    "testdata/bin_float/README.md",
+    "doc/manual/conformance/binary.md",
+    "testdata/binary/README.md",
 )
 
 
@@ -44,7 +44,7 @@ class ManualCountsTest(unittest.TestCase):
 
     def test_a_page_that_changed_shape_is_reported(self) -> None:
         root = self.copy_repository()
-        page = root / "testdata/bin_float/README.md"
+        page = root / "testdata/binary/README.md"
         page.write_text(page.read_text().replace("MPFR-generated integer-power witnesses", "witnesses"))
         problems = check.check(root)
         self.assertEqual(len(problems), 1)
@@ -52,7 +52,7 @@ class ManualCountsTest(unittest.TestCase):
 
     def test_a_manifest_that_disagrees_with_its_file_is_reported(self) -> None:
         root = self.copy_repository()
-        manifest = root / "testdata/bin_float/corpora.json"
+        manifest = root / "testdata/binary/corpora.json"
         manifest.write_text(manifest.read_text().replace('"expectedCases": 1740', '"expectedCases": 1741'))
         with self.assertRaises(ValueError):
             check.manifest_counts(root)

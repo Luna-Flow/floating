@@ -82,8 +82,8 @@ DEFAULT_COUNT = 100_000
 DEFAULT_SHARD = 100_000
 DEFAULT_BATCH = 1000
 FIXTURES = {
-    "binary": REPO_ROOT / "testdata/bin_float/mpfr-4.2.2-random.txt",
-    "binary-regression": REPO_ROOT / "testdata/bin_float/random-regressions.txt",
+    "binary": REPO_ROOT / "testdata/binary/mpfr-4.2.2-random.txt",
+    "binary-regression": REPO_ROOT / "testdata/binary/random-regressions.txt",
     "decimal_gda": REPO_ROOT / "testdata/decimal_gda/random/libmpdec-random.decTest",
     "decimal_gda-regression": REPO_ROOT / "testdata/decimal_gda/random/random-regressions.decTest",
     "decimal": REPO_ROOT / "testdata/decimal/random/mpfr-decimal-random.txt",

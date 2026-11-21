@@ -44,7 +44,7 @@ priv enum ProdKind {
 priv enum FactorEnd {
   FZero
   FInf(Int32)
-  FFin(@bin_float.BinFloat)
+  FFin(@binary.Binary)
 }
 
 ///|
@@ -53,7 +53,7 @@ priv enum FactorEnd {
 priv enum TrigEnd {
   TInf(Int32)
   TZero(Bool)
-  TVal(@bin_float.BinFloat, Int32)
+  TVal(@binary.Binary, Int32)
 }
 
 ///|
@@ -69,7 +69,7 @@ fn trig_end_sign(end : TrigEnd) -> Int32 {
 /// The position of an angle `e` against `-pi, -pi/2, 0, pi/2, pi`, exactly: 0 for
 /// `e < -pi`, 1 for `-pi < e < -pi/2`, 2 for `-pi/2 < e < 0`, 3 for `e = 0`, 4 for
 /// `0 < e < pi/2`, 5 for `pi/2 < e < pi`, 6 for `e > pi` (infinities included).
-fn atan2_zone(e : @bin_float.BinFloat) -> Int32 {
+fn atan2_zone(e : @binary.Binary) -> Int32 {
   if is_neg_inf(e) {
     return 0
   }
@@ -81,7 +81,7 @@ fn atan2_zone(e : @bin_float.BinFloat) -> Int32 {
   }
   let negative = e.sign() == Sign::Negative
   let magnitude = if negative { e.neg() } else { e }
-  let half = Interval::exact(@bin_float.BinFloat::from_double(0.5))
+  let half = Interval::exact(@binary.Binary::from_double(0.5))
   let mut w = Int32::max(64, e.precision() + 16)
   let mut position = -1
   while position < 0 {
@@ -107,14 +107,14 @@ fn atan2_zone(e : @bin_float.BinFloat) -> Int32 {
 
 ///|
 fn factor_positive(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
 ) -> (FactorEnd, FactorEnd)? {
   // the part of [lo, hi] in (0, +inf)
-  if hi.compare(@bin_float.BinFloat::zero()) <= 0 {
+  if hi.compare(@binary.Binary::zero()) <= 0 {
     return None
   }
-  let low = if lo.compare(@bin_float.BinFloat::zero()) > 0 {
+  let low = if lo.compare(@binary.Binary::zero()) > 0 {
     FFin(lo)
   } else {
     FZero
@@ -125,15 +125,15 @@ fn factor_positive(
 
 ///|
 fn factor_negative(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
 ) -> (FactorEnd, FactorEnd)? {
   // the part of [lo, hi] in (-inf, 0)
-  if lo.compare(@bin_float.BinFloat::zero()) >= 0 {
+  if lo.compare(@binary.Binary::zero()) >= 0 {
     return None
   }
   let low = if is_neg_inf(lo) { FInf(-1) } else { FFin(lo) }
-  let high = if hi.compare(@bin_float.BinFloat::zero()) < 0 {
+  let high = if hi.compare(@binary.Binary::zero()) < 0 {
     FFin(hi)
   } else {
     FZero
@@ -234,8 +234,8 @@ fn atan2_rev1_pieces(b : Interval, c : Interval) -> Array[PowPiece] {
   }
   let plus = factor_positive(b.lo_, b.hi_)
   let minus = factor_negative(b.lo_, b.hi_)
-  let zero_in_b = b.lo_.compare(@bin_float.BinFloat::zero()) <= 0 &&
-    b.hi_.compare(@bin_float.BinFloat::zero()) >= 0
+  let zero_in_b = b.lo_.compare(@binary.Binary::zero()) <= 0 &&
+    b.hi_.compare(@binary.Binary::zero()) >= 0
   // right: angles in (-pi/2, pi/2): z1 <= 4 and z2 >= 2
   if z1 <= 4 && z2 >= 2 {
     if plus is Some((xl, xh)) {
@@ -299,8 +299,8 @@ fn atan2_rev2_pieces(a : Interval, c : Interval) -> Array[PowPiece] {
   }
   let plus = factor_positive(a.lo_, a.hi_)
   let minus = factor_negative(a.lo_, a.hi_)
-  let zero_in_a = a.lo_.compare(@bin_float.BinFloat::zero()) <= 0 &&
-    a.hi_.compare(@bin_float.BinFloat::zero()) >= 0
+  let zero_in_a = a.lo_.compare(@binary.Binary::zero()) <= 0 &&
+    a.hi_.compare(@binary.Binary::zero()) >= 0
   // the value cot t decreases with t: the lower end of the interval is the cot of the
   // upper angle. Upper half-plane: angles in (0, pi): z2 >= 4 and z1 <= 5
   if z2 >= 4 && z1 <= 5 {
@@ -357,8 +357,8 @@ fn atan2_rev2_pieces(a : Interval, c : Interval) -> Array[PowPiece] {
 ///|
 /// An enclosure of `factor * tan(angle)` (or `factor / tan(angle)`) at `w` bits.
 fn prod_enclosure(
-  factor : @bin_float.BinFloat,
-  angle : @bin_float.BinFloat,
+  factor : @binary.Binary,
+  angle : @binary.Binary,
   kind : ProdKind,
   w : Int32,
 ) -> PowEnc {
@@ -387,8 +387,8 @@ fn prod_enclosure(
 /// start it; the loop doubles the precision when that is not enough, and the measured
 /// maximum on the generated corpus is in the tests.
 fn prod_start_work(
-  _factor : @bin_float.BinFloat,
-  _angle : @bin_float.BinFloat,
+  _factor : @binary.Binary,
+  _angle : @binary.Binary,
   _kind : ProdKind,
   precision : Int32,
 ) -> Int32 {
@@ -397,10 +397,10 @@ fn prod_start_work(
 
 ///|
 fn prod_end_compare(
-  factor : @bin_float.BinFloat,
-  angle : @bin_float.BinFloat,
+  factor : @binary.Binary,
+  angle : @binary.Binary,
   kind : ProdKind,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
   precision : Int32,
   cap : Int32,
 ) -> RevOrder {
@@ -414,13 +414,13 @@ fn prod_end_compare(
 
 ///|
 fn prod_end_rounded(
-  factor : @bin_float.BinFloat,
-  angle : @bin_float.BinFloat,
+  factor : @binary.Binary,
+  angle : @binary.Binary,
   kind : ProdKind,
   upper : Bool,
   precision : Int32,
   cap : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   pow_loop_round(
     prod_start_work(factor, angle, kind, precision),
     fn(w) { prod_enclosure(factor, angle, kind, w) },

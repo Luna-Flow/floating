@@ -95,21 +95,20 @@ fn normalize_decimal_parts_gda(
 fn bin_mode(
   mode : @def.RoundingMode,
   negative : Bool,
-) -> @bin_float.BinaryRoundingMode {
+) -> @binary.BinaryRoundingMode {
   match mode {
     @def.RoundingMode::ToNearestEven =>
-      @bin_float.BinaryRoundingMode::RoundTiesToEven
-    @def.RoundingMode::TowardZero =>
-      @bin_float.BinaryRoundingMode::RoundTowardZero
+      @binary.BinaryRoundingMode::RoundTiesToEven
+    @def.RoundingMode::TowardZero => @binary.BinaryRoundingMode::RoundTowardZero
     @def.RoundingMode::TowardPositive =>
-      @bin_float.BinaryRoundingMode::RoundTowardPositive
+      @binary.BinaryRoundingMode::RoundTowardPositive
     @def.RoundingMode::TowardNegative =>
-      @bin_float.BinaryRoundingMode::RoundTowardNegative
+      @binary.BinaryRoundingMode::RoundTowardNegative
     @def.RoundingMode::AwayFromZero =>
       if negative {
-        @bin_float.BinaryRoundingMode::RoundTowardNegative
+        @binary.BinaryRoundingMode::RoundTowardNegative
       } else {
-        @bin_float.BinaryRoundingMode::RoundTowardPositive
+        @binary.BinaryRoundingMode::RoundTowardPositive
       }
   }
 }

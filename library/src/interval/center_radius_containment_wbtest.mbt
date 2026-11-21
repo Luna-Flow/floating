@@ -16,8 +16,8 @@ fn ccr_next(state : Ref[UInt64]) -> UInt64 {
 
 ///|
 fn ccr_interval(
-  center : @bin_float.BinFloat,
-  radius : @bin_float.BinFloat,
+  center : @binary.Binary,
+  radius : @binary.Binary,
   precision : Int32,
 ) -> Interval {
   Interval::from_midpoint_radius(center, radius, precision~)
@@ -33,8 +33,8 @@ test "the interval of a center near the bottom of the range contains the center"
   // [68750174925690727289499824359962541140425537727,
   //  68750174925690727289499824359962541140425606977] * 2^-1073741882, while the
   // center is 68750174925690727289499824359962541140307485296 * 2^-1073741882.
-  let center = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_bytes_be(
+  let center = @binary.Binary::make(
+    @binary.BinCoeff::from_bytes_be(
       Bytes::from_array([
         0xc0, 0xad, 0xd4, 0xd9, 0xba, 0x4d, 0x3f, 0x29, 0x93, 0x2e, 0xe8, 0x0f, 0xef,
         0xf6, 0x9d, 0x80, 0x8f, 0x62, 0x27,
@@ -43,8 +43,8 @@ test "the interval of a center near the bottom of the range contains the center"
     -1073741878,
     200,
   )
-  let radius = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(34625UL),
+  let radius = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(34625UL),
     -1073741882,
     200,
   )
@@ -64,7 +64,7 @@ test "the interval of a center near the bottom of the range contains the center"
 /// intervals of 24 to 128 bits (a seeded generator, 4,000 cases).
 test "intervals built near the bottom of the range contain their centers" {
   let state = Ref(0x5851f42d4c957f2dUL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let precisions = [24, 53, 64, 113, 128]
   let mut escaped = 0
   for _ in 0..<4000 {
@@ -80,14 +80,14 @@ test "intervals built near the bottom of the range contain their centers" {
       radius_bytes.push((ccr_next(state) % 256UL).to_int().to_byte())
     }
     radius_bytes[m - 1] = radius_bytes[m - 1] | b'\x01'
-    let center = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_bytes_be(Bytes::from_array(center_bytes)[:]),
+    let center = @binary.Binary::make(
+      @binary.BinCoeff::from_bytes_be(Bytes::from_array(center_bytes)[:]),
       e_min - 60 + (ccr_next(state) % 120UL).to_int(),
       200,
       negative=ccr_next(state) % 2UL == 0UL,
     )
-    let radius = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_bytes_be(Bytes::from_array(radius_bytes)[:]),
+    let radius = @binary.Binary::make(
+      @binary.BinCoeff::from_bytes_be(Bytes::from_array(radius_bytes)[:]),
       e_min - 60 + (ccr_next(state) % 120UL).to_int(),
       200,
     )

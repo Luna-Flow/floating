@@ -22,8 +22,8 @@ white-box tests only:
 import {
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/luna-generic" @lf_alg,
-  "Luna-Flow/floating/bin_float",
-  "Luna-Flow/floating/bin_float_checked",
+  "Luna-Flow/floating/binary",
+  "Luna-Flow/floating/binary_checked",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/decimal_checked",
   "Luna-Flow/floating/decimal_gda",
@@ -40,9 +40,9 @@ import {
 
 | File | Content |
 | --- | --- |
-| `api_audit_wbtest.mbt` | audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `bin_float`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values |
-| `core_wbtest.mbt` | cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors |
-| `bin_coeff_migration_wbtest.mbt` | helpers that build `BinFloat` values from `BigInt` for the tests above |
+| `api_audit_wbtest.mbt` | audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `binary`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values |
+| `core_wbtest.mbt` | cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `binary` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors |
+| `bin_coeff_migration_wbtest.mbt` | helpers that build `Binary` values from `BigInt` for the tests above |
 
 All tests are white-box (`*_wbtest.mbt`) and import every core package for
 `wbtest` only, so the package adds nothing to any build of the library.

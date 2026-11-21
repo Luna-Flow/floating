@@ -1,6 +1,6 @@
 import {
   "Luna-Flow/floating/interval",
-  "Luna-Flow/floating/bin_float" @binary,
+  "Luna-Flow/floating/binary",
   "moonbitlang/async",
   "moonbitlang/core/env",
   "moonbitlang/core/string",

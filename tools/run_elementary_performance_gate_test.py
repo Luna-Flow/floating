@@ -51,7 +51,7 @@ class ElementaryPerformanceGateTests(unittest.TestCase):
             (baseline / "src").mkdir(parents=True)
             (candidate / "library").mkdir(parents=True)
             (candidate / "library" / "moon.mod").write_text("", encoding="utf-8")
-            word = "src/bin_float/elementary_performance_bench_wbtest.mbt"
+            word = "src/binary/elementary_performance_bench_wbtest.mbt"
             self.assertEqual(gate.snapshot_path(baseline, word), word)
             self.assertEqual(gate.snapshot_path(candidate, word), "library/" + word)
             self.assertEqual(gate.snapshot_path(candidate, "--release"), "--release")

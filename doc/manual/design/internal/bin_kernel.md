@@ -2,7 +2,7 @@
 
 ## Design goal
 
-`BinFloat` is a rounding layer on top of one arithmetic: non-negative integers
+`Binary` is a rounding layer on top of one arithmetic: non-negative integers
 of up to $2^{28}$ bits. The integer part should be one package with one
 contract, so that an algorithm can be measured, replaced and tested without the
 floating-point layer, and so that the rounding layer cannot reach into it. The
@@ -26,20 +26,20 @@ The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT,
 Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD
 and the in-place radix conversion), their cutoffs and the argument that they
 all compute the same integers are in the section
-[The coefficient kernel](../bin_float.md#the-coefficient-kernel) of the
-`bin_float` design page. Because every path computes the same integers, the
+[The coefficient kernel](../binary.md#the-coefficient-kernel) of the
+`binary` design page. Because every path computes the same integers, the
 choice of algorithm cannot change a rounded result, a flag or an encoding.
 
 ## Package boundary
 
 | Decision | Choice | Reason |
 | --- | --- | --- |
-| Where the type lives | `Coeff` is defined here; `BinCoeff` in `bin_float` is a newtype `struct BinCoeff(@bin_kernel.Coeff)` | A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased. |
-| Unwrapping | `struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic | The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `bin_float`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise. |
+| Where the type lives | `Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@bin_kernel.Coeff)` | A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased. |
+| Unwrapping | `struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic | The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise. |
 | Why not a record wrapper | A newtype, never `struct BinCoeff { kernel : Coeff }` | A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable. |
-| Representation | `Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly | One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427)). |
+| Representation | `Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `Binary` stores it directly | One allocation per coefficient instead of two (10 to 15% fewer instructions per `Binary` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427)). |
 | JavaScript | `Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms | The host's arbitrary-precision integers are the kernel there. |
-| Machine words | `binary_fast_*` live here | The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`. |
+| Machine words | `binary_fast_*` live here | The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `binary`. |
 
 ## Limb rows and the native C stub
 
@@ -84,7 +84,7 @@ and the aliasing the callers use.
   the chain B carry, the loop). AArch64 has one carry flag and no
   multiply-accumulate with carry, so the two chains cannot be interleaved.
   Anywhere else the assembly entry points are the C rows.
-- `bin_limbs_product` (public, for the limb-array loops of `bin_float`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure).
+- `bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure).
 - Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and
   `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is
   assembly where the tier exists, else C. The differential test compares all
@@ -97,7 +97,7 @@ The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per
 target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the
 dispatch tests cross every one of them and compare with the schoolbook result.
 The cutoffs of the elementary functions are not kernel policy and stay in
-`bin_float`.
+`binary`.
 
 ## Invariants
 

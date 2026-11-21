@@ -11,17 +11,17 @@
 /// limit 0 of a quotient by an unbounded `b`, which is never attained; this
 /// matters only when the prior `x` touches the component at that point.
 priv struct RevPiece {
-  lo : @bin_float.BinFloat
+  lo : @binary.Binary
   lo_open : Bool
-  hi : @bin_float.BinFloat
+  hi : @binary.Binary
   hi_open : Bool
 }
 
 ///|
 fn rev_piece(
-  lo : @bin_float.BinFloat,
+  lo : @binary.Binary,
   lo_open : Bool,
-  hi : @bin_float.BinFloat,
+  hi : @binary.Binary,
   hi_open : Bool,
 ) -> RevPiece {
   { lo, lo_open, hi, hi_open, }
@@ -31,27 +31,27 @@ fn rev_piece(
 /// Lower or upper bound of the quotient `num / den` of finite `num` by a
 /// nonzero `den` that may be infinite (then the quotient is 0).
 fn rev_quotient_bound(
-  num : @bin_float.BinFloat,
-  den : @bin_float.BinFloat,
+  num : @binary.Binary,
+  den : @binary.Binary,
   precision : Int32,
   upper~ : Bool,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if den.classify() == FpClass::Infinity {
-    return @bin_float.BinFloat::zero(precision~)
+    return @binary.Binary::zero(precision~)
   }
   let q = Interval::exact(num, precision=num.precision()) /
     Interval::exact(den, precision=den.precision())
   let bound = if upper { q.hi_ } else { q.lo_ }
   // a zero bound is stored as +0
   if bound.is_zero() {
-    @bin_float.BinFloat::zero(precision~)
+    @binary.Binary::zero(precision~)
   } else {
     bound
   }
 }
 
 ///|
-fn rev_is_zero_bound(x : @bin_float.BinFloat) -> Bool {
+fn rev_is_zero_bound(x : @binary.Binary) -> Bool {
   x.is_zero()
 }
 
@@ -248,8 +248,8 @@ fn rev_hull_in_prior(
   if prior.is_empty() {
     return empty_interval(precision)
   }
-  let mut lo : @bin_float.BinFloat? = None
-  let mut hi : @bin_float.BinFloat? = None
+  let mut lo : @binary.Binary? = None
+  let mut hi : @binary.Binary? = None
   for piece in pieces {
     // intersection of the piece with the closed prior interval
     let cmp_lo = piece.lo.compare(prior.lo_)

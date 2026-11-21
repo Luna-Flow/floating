@@ -1,8 +1,8 @@
 ///|
 fn rev_box(lo : Double, hi : Double) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_double(lo),
-    @bin_float.BinFloat::from_double(hi),
+    @binary.Binary::from_double(lo),
+    @binary.Binary::from_double(hi),
   )
 }
 
@@ -148,16 +148,16 @@ test "decorated mul_rev_to_pair follows 12.12.3 and mul_rev is trivially decorat
 test "mul_rev: results enclose c /set b at a small precision" {
   // 1 / 3 is not representable: the lower bound rounds down
   let b = Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-3, precision=8),
-    @bin_float.BinFloat::from_int(3, precision=8),
+    @binary.Binary::from_int(-3, precision=8),
+    @binary.Binary::from_int(3, precision=8),
     precision=8,
   )
   let c = Interval::from_int(1, precision=8)
   let (u, v) = b.mul_rev_to_pair(c)
-  let third = @bin_float.BinFloat::from_int(1, precision=64) /
-    @bin_float.BinFloat::from_int(3, precision=64)
+  let third = @binary.Binary::from_int(1, precision=64) /
+    @binary.Binary::from_int(3, precision=64)
   assert_true(v.lower_bound().compare(third) <= 0)
   assert_true(u.upper_bound().compare(third.neg()) >= 0)
-  assert_true(v.lower_bound().compare(@bin_float.BinFloat::zero()) > 0)
+  assert_true(v.lower_bound().compare(@binary.Binary::zero()) > 0)
   assert_eq(v.precision(), 8)
 }

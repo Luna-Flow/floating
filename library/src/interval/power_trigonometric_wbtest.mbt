@@ -1,15 +1,15 @@
 ///|
 fn elementary_test_interval(lower : Double, upper : Double) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_double(lower, precision=53),
-    @bin_float.BinFloat::from_double(upper, precision=53),
+    @binary.Binary::from_double(lower, precision=53),
+    @binary.Binary::from_double(upper, precision=53),
     precision=53,
   )
 }
 
 ///|
-fn expected_binary64(source : String) -> @bin_float.BinFloat {
-  match @bin_float.BinFloat::from_hex(source, 53) {
+fn expected_binary64(source : String) -> @binary.Binary {
+  match @binary.Binary::from_hex(source, 53) {
     Ok(value) => value
     Err(_) => abort("invalid expected binary64 literal")
   }
@@ -47,10 +47,10 @@ test "IEEE 1788 general power follows the nonnegative real domain" {
 
 ///|
 test "general power treats negative zero as the real interval endpoint zero" {
-  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
+  let negative_zero = @binary.Binary::negative_zero(precision=53)
   let base = Interval::from_bounds(
     negative_zero,
-    @bin_float.BinFloat::from_double(0.5, precision=53),
+    @binary.Binary::from_double(0.5, precision=53),
     precision=53,
   )
   let exponent = elementary_test_interval(-1.0, 0.1)
@@ -111,7 +111,7 @@ test "trigonometric unbounded and extreme arguments degrade conservatively" {
     .equal(elementary_test_interval(-1.0, 1.0)),
   )
   let extreme = Interval::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8_100_000, 53),
+    @binary.Binary::make(@binary.BinCoeff::one(), 8_100_000, 53),
     precision=53,
   )
   assert_true(extreme.cos().equal(elementary_test_interval(-1.0, 1.0)))

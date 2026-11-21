@@ -35,8 +35,8 @@ test "integer and binary constructors return the preferred cohort (#150)" {
   inspect(s(Decimal::from_float(100.0)), content="100")
   inspect(
     s(
-      Decimal::from_bin_float(
-        @bin_float.BinFloat::from_double(6.0, precision=53),
+      Decimal::from_binary(
+        @binary.Binary::from_double(6.0, precision=53),
         precision=53,
       ),
     ),
