@@ -156,6 +156,16 @@ def run_worker(
     return payload
 
 
+def sum_verdict_kinds(kinds) -> dict:
+    """Add the kinds of verdict of passing rows (text, hex, format-prefixed,
+    value-not-checked) over shards and phases."""
+    total: dict[str, int] = {}
+    for kind in kinds:
+        for name, count in kind.items():
+            total[name] = total.get(name, 0) + count
+    return total
+
+
 def aggregate_phase(name: str, files: list[Path], shards: list[dict]) -> dict:
     executions = [payload["execution"] for payload in shards]
     failed_ids = []
@@ -175,6 +185,7 @@ def aggregate_phase(name: str, files: list[Path], shards: list[dict]) -> dict:
         "legacyConditionCases": sum(payload.get("legacyConditionCases", 0) for payload in shards),
         "unsupportedCases": sum(payload.get("unsupportedCases", 0) for payload in shards),
         "failedIds": failed_ids,
+        "verdictKinds": sum_verdict_kinds(execution.get("verdictKinds", {}) for execution in executions),
         "elapsedSeconds": round(max((payload["worker"]["elapsedSeconds"] for payload in shards), default=0), 3),
     }
 
@@ -210,6 +221,7 @@ def aggregate_run(
             "legacyConditionCases": sum(phase["legacyConditionCases"] for phase in phases),
             "unsupportedCases": sum(phase["unsupportedCases"] for phase in phases),
             "failedIds": failed_ids,
+            "verdictKinds": sum_verdict_kinds(phase["verdictKinds"] for phase in phases),
             "elapsedSeconds": round(elapsed, 3),
         },
     }
@@ -239,6 +251,14 @@ def print_text(report: dict) -> None:
         + (summary["unsupportedCases"] + summary["legacyConditionCases"] if strict else 0),
         summary["elapsedSeconds"],
         summary["failedIds"],
+    )
+    # how the value of each passing row was judged (the stage's report of the kinds)
+    kinds = summary.get("verdictKinds", {})
+    print(
+        "verdicts: "
+        + ", ".join(f"{name} {count}" for name, count in kinds.items())
+        + " (text = to-scientific-string against the result token; hex = encoding against"
+        " hexadecimal text; format-prefixed = read by the library; value-not-checked = '?' rows)"
     )
 
 

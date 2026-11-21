@@ -18,7 +18,13 @@ formats, so every context detects it before rounding (as GDA always does). NaN p
 
 The checked-in runner validates all 1,024 DPD declets and the fixed-width BID
 and DPD cases directly from the IEEE formulas, then executes the same public
-MoonBit API tests on every supported target.
+MoonBit API tests on every supported target. It also runs the bit patterns
+against the library: every `cases` entry of the six fixtures is decoded from its
+hexadecimal text and compared as class, sign, coefficient, exponent and payload
+with the runner's own decoder, re-encoded and compared as text with the canonical
+pattern; all 1,024 declets are decoded from the low bits of a decimal32 DPD
+pattern and all 1,000 digit triples are encoded back (`render_moon_interchange_tests`
+in `tools/run_ieee_decimal.py`; no expected value comes from the library).
 
 The runner also executes a 42-row excerpt from the pinned `dd*` and `dq*`
 concrete-format files in `dectest.zip`. Those rows are useful boundary and

@@ -513,7 +513,108 @@ def render_moon_fixture_test() -> str:
                     "",
                 ]
             )
+    source.extend(render_moon_interchange_tests())
     return "\n".join(source)
+
+
+def render_moon_interchange_tests() -> list[str]:
+    """Run the bit-pattern cases and the 1,024 DPD declets against the library.
+
+    The expected values come from this runner's own decoder and encoder
+    (`_decode_interchange_case`, `dpd_decode`, `dpd_encode`: no library code): a
+    pattern is decoded by the library and compared as class, sign, coefficient,
+    exponent and payload, and re-encoded to its canonical hexadecimal text, compared
+    as text. The declets are placed in the low coefficient bits of a decimal32 DPD
+    pattern, decoded, and every digit triple is encoded back.
+    """
+    kinds = {"decimal32": "Decimal32", "decimal64": "Decimal64", "decimal128": "Decimal128"}
+    out: list[str] = []
+    for entry in load_json(MANIFEST_PATH)["fixtures"]:
+        fixture = load_json(FIXTURE_ROOT / entry["path"])
+        fmt, encoding = entry["format"], entry["encoding"]
+        rows: list[str] = []
+        for case in fixture["cases"]:
+            value, canonical = _decode_interchange_case(case, fmt, encoding)
+            bits = case["bits"].removeprefix("#").upper()
+            kind = value["class"]
+            payload = value.get("payload", value.get("coefficient", "0"))
+            exponent = value.get("exponent", 0)
+            rows.append(
+                "    ("
+                f"{_moon_string(case['id'])}, {_moon_string(bits)}, {_moon_string(kind)}, "
+                f"{'true' if value['negative'] else 'false'}, {_moon_string(str(payload))}, "
+                f"{exponent}, {_moon_string(canonical)}),"
+            )
+        out.extend(
+            [
+                f"test {_moon_string('IEEE interchange bit patterns ' + entry['path'])} {{",
+                "  let rows : Array[(String, String, String, Bool, String, Int, String)] = [",
+                *rows,
+                "  ]",
+                "  for row in rows {",
+                "    let (id, bits, kind, negative, payload, exponent, canonical) = row",
+                f"    let value = Decimal::from_interchange_hex_with_encoding(bits, DecimalInterchangeFormat::{kinds[fmt]}, DecimalInterchangeEncoding::{encoding}).unwrap()",
+                "    assert_eq(value.is_negative() || value.is_negative_zero(), negative, msg=id + \" sign\")",
+                "    match kind {",
+                "      \"infinity\" => assert_true(value.is_infinite(), msg=id)",
+                "      \"qnan\" | \"snan\" => {",
+                "        assert_true(value.is_nan(), msg=id)",
+                "        assert_eq(value.is_signaling_nan(), kind == \"snan\", msg=id + \" kind\")",
+                "        assert_eq(value.nan_payload().to_string(), payload, msg=id + \" payload\")",
+                "      }",
+                "      _ => {",
+                "        assert_true(value.is_finite(), msg=id)",
+                "        assert_eq(value.coefficient().to_string(), payload, msg=id + \" coefficient\")",
+                "        assert_eq(value.exponent10(), exponent, msg=id + \" exponent\")",
+                "      }",
+                "    }",
+                f"    let encoded = value.to_interchange_hex_with_encoding(DecimalInterchangeFormat::{kinds[fmt]}, DecimalInterchangeEncoding::{encoding}).0",
+                "    assert_eq(encoded.to_upper().replace_all(old=\"#\", new=\"\"), canonical, msg=id + \" canonical\")",
+                "  }",
+                "}",
+                "",
+            ]
+        )
+    # all 1,024 declets: decoded from the low 10 bits of a decimal32 DPD pattern
+    # (coefficient 0, exponent 0 in the other fields), and every digit triple encoded
+    decode_rows: list[str] = []
+    for code in range(1024):
+        pattern = _encode_dpd_case({"class": "finite", "coefficient": "0", "exponent": 0}, "decimal32") | code
+        digits = "%d%d%d" % dpd_decode(code)
+        decode_rows.append(f"    ({_moon_string(_format_bits(pattern, 'decimal32'))}, {int(digits)}),")
+    encode_rows: list[str] = []
+    for value in range(1000):
+        triple = "%03d" % value
+        pattern = _encode_dpd_case({"class": "finite", "coefficient": triple, "exponent": 0}, "decimal32")
+        encode_rows.append(f"    ({value}, {_moon_string(_format_bits(pattern, 'decimal32'))}),")
+    out.extend(
+        [
+            f"test {_moon_string('IEEE DPD declets: all 1024 codes decoded')} {{",
+            "  let rows : Array[(String, Int)] = [",
+            *decode_rows,
+            "  ]",
+            "  for row in rows {",
+            "    let (bits, expected) = row",
+            "    let value = Decimal::from_interchange_hex_with_encoding(bits, DecimalInterchangeFormat::Decimal32, DecimalInterchangeEncoding::DPD).unwrap()",
+            "    assert_eq(value.coefficient().to_string(), expected.to_string(), msg=bits)",
+            "  }",
+            "}",
+            "",
+            f"test {_moon_string('IEEE DPD declets: all 1000 digit triples encoded')} {{",
+            "  let rows : Array[(Int, String)] = [",
+            *encode_rows,
+            "  ]",
+            "  for row in rows {",
+            "    let (coefficient, expected) = row",
+            "    let value = Decimal::from_int(coefficient, precision=7)",
+            "    let encoded = value.to_interchange_hex_with_encoding(DecimalInterchangeFormat::Decimal32, DecimalInterchangeEncoding::DPD).0",
+            "    assert_eq(encoded.to_upper().replace_all(old=\"#\", new=\"\"), expected, msg=coefficient.to_string())",
+            "  }",
+            "}",
+            "",
+        ]
+    )
+    return out
 
 
 def check_total_order() -> int:
