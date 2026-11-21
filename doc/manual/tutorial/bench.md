@@ -121,10 +121,10 @@ fn square_spec() -> @runner.BenchSpec[Int, BigInt, BigInt, BigInt, BigInt, Unit,
     context => (1N << context.dataset_key.scale) - 1N,
     value => value.bit_length().to_string(),
     [
-      @runner.Implementation::stateless("mul-self", "0.11.0", x => {
+      @runner.Implementation::stateless("mul-self", "0.12.0-pre", x => {
         @model.OperationResult::completed(x * x, ())
       }),
-      @runner.Implementation::stateless("pow", "0.11.0", x => {
+      @runner.Implementation::stateless("pow", "0.12.0-pre", x => {
         @model.OperationResult::completed(x.pow(2N), ())
       }),
     ],
