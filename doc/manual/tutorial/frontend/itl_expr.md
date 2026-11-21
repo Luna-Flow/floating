@@ -93,7 +93,7 @@ test "decorations" {
   inspect(passed.join(" "), content="true false true")
   inspect(
     @itl_expr.execute_case(cases[1]).message(),
-    content="expected 5p0 +/- 1p0_def, got 5p0 +/- 1p0_com",
+    content="expected [4, 6]_def, got [4, 6]_com",
   )
 }
 ```

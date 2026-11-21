@@ -1289,30 +1289,42 @@ msgid "`BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`; `BallFloatDe
 msgstr "`BallFloat` 实现了 `Add`、`Sub`、`Mul`、`Div` 和 `Neg`；`BallFloatDecorated` 实现了 `Add`、`Sub`、`Mul` 和 `Div`。这些运算符调用同名方法。"
 
 #: manual/api/ball_float.md:2062
-msgid "`Show` writes an interval in an exact text form."
-msgstr "`Show` 以精确的文本形式输出区间。"
+msgid "`Show` writes an interval as the portable inf-sup literal of IEEE 1788-2015 13.3 (`intervalToText`): the text `from_string` reads."
+msgstr ""
 
-#: manual/api/ball_float.md:2076
-msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case: endpoints more than about $2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the smaller one); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
-msgstr "有界的 `BallFloat` 输出为 `center +/- radius`，两个数都使用精确的 `BinFloat` 记法（`3p-1` 表示 $3 \\cdot 2^{-1}$），因此文本恰好表示所存储的集合（远端点情形除外：端点在二进制数量级上相差超过约 $2^{16}$ 时，较小的端点以一个粘滞替身输出）；无界的输出为 `[lo, hi]`，Empty 输出为 `[empty]`。装饰区间会附加 `_` 及装饰；NaI 输出为 `[nai]`。"
+#: manual/api/ball_float.md:2077
+msgid "A nonempty bounded or half-bounded interval prints as `[l, u]`, Empty as `[empty]`, Entire as `[entire]`; a decorated interval appends `_` and the decoration, and NaI prints as `[nai]`. Each bound is a decimal number rounded outward (the lower bound down, the upper bound up), so the text is a literal of an interval that contains the value (13.3). The digits are the fewest that keep the bound within one unit in the last place of the stored bound at the precision of the interval, so `from_string(text, precision=x.precision())` contains `x` and is wider by at most one unit in the last place at each end. A bound with a binary exponent beyond 4096 in magnitude is written in hexadecimal (`0x3p1073741000`) because its decimal expansion needs a power of ten of that size; a hexadecimal bound is exact and is a valid literal. A zero bound is written `0`, without a sign, whatever sign it has: the literal of $[0, 0]$ does not carry the signs that `lower_bound` and `upper_bound` return ($-0$ and $+0$, 12.12.8), and 13.3 does not ask for them."
+msgstr ""
 
-#: manual/api/ball_float.md:2095
+#: manual/api/ball_float.md:2100
+msgid "IEEE 1788-2015 13.4 `intervalToExact` and `exactToInterval`: a text that names the interval itself."
+msgstr ""
+
+#: manual/api/ball_float.md:2110
+msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds are the stored bounds, so `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4). `from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()` is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `new` or of `cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and `[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision 53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent range of the library (or finer than the grid of the larger of its own bit count and `precision` below the range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and upper case are read."
+msgstr ""
+
+#: manual/api/ball_float.md:2141
+msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration."
+msgstr ""
+
+#: manual/api/ball_float.md:2156
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr "这些是各结构体派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/ball_float.md:2109
+#: manual/api/ball_float.md:2170
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr "这些是各枚举派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/ball_float.md:2120
+#: manual/api/ball_float.md:2181
 msgid "The `Eq` implementations of `BallFloat` and `BallFloatDecorated` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr "`BallFloat` 和 `BallFloatDecorated` 的 `Eq` 实现是 IEEE 1788-2015（12.12.9）的 `equal` 关系，而不是表示的相等：`==` 比较集合，忽略精度标记；在带装饰的区间上，只要有一个操作数是 NaI 它就为假，所以 NaI 不等于它自己（NaN 同理），并且装饰被忽略。`identical` 是数据本身的相等。`to_repr` 给出结构化的 `Debug` 形式。`Decoration` 和 `OverlapState` 的 `Eq` 是各变体的相等。"
 
-#: manual/api/ball_float.md:2130
+#: manual/api/ball_float.md:2191
 msgid "`BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr "`BallFloat` 实现了 `Luna-Flow/arithmetic` 的包络关系 trait。"
 
-#: manual/api/ball_float.md:2140
+#: manual/api/ball_float.md:2201
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
@@ -1320,15 +1332,15 @@ msgstr ""
 "`Contains::contains(x, y)` 即 `y.subset(x)`（集合的包含，而不是接受点的那个方法）。`Overlaps::overlaps(x, y)` 为 $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$，即 $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$，`MaybeEq::maybe_eq` 是同一关系，读作“两个未知的点可能相等”。`DefinitelyLt::definitely_lt(x, y)` 为 $\\overline{x} < \\underline{y}$，`DefinitelyLe::definitely_le(x, y)` 为 $\\overline{x} \\le \\underline{y}$：它们在对每一对点该序都成立时成立。四者在某个操作数为 Empty 时都为假。这与 `disjoint`、`precedes` 和 `strict_precedes` 不同，后三者在操作数为 Empty 时为真（IEEE 1788-2015 表 10.4）：`overlaps` 为假之处 `disjoint` 为真，`definitely_lt` 为假之处 `strict_precedes` 为真，因此这些 trait 返回 `true` 时总有至少一对点作为依据。它们是 `Luna-Flow/arithmetic` 的通用接口；区间包用 `disjoint`、`precedes` 和 `strict_precedes` 来拼写标准关系。"
 
-#: manual/api/ball_float.md:2158
+#: manual/api/ball_float.md:2219
 msgid "`BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr "`BallFloat` 实现了 `DivChecked`、`PowNatChecked` 和 `PowIntChecked`；它们的方法被提升为该类型的方法。"
 
-#: manual/api/ball_float.md:2170
+#: manual/api/ball_float.md:2231
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍入到该精度，再应用运算，然后将结果向外重新舍入（参见 [`BallFloat::with_precision`](#ballfloatwith_precision)）。在操作数自身的精度下，结果与普通运算相同；在更低的精度下结果可能更宽。它们总是返回 `Ok`。`div_checked` 遵循上述除法规则（除数包含 0 时给出无界结果，而不是错误）。`pow_int_checked` 使用 `pown`。`pow_nat_checked` 通过重复的区间乘法进行二进制求幂，这会把各因子视为相互独立：对于包含 0 的参数，其结果比 `pown` 更宽。与 `pown` 一样，Empty 底数对任何指数（包括 0）都给出 Empty。"
 
-#: manual/api/ball_float.md:2194
+#: manual/api/ball_float.md:2255
 #: manual/api/ball_float_checked.md:528
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
@@ -1368,7 +1380,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 msgid "Complete public interface"
 msgstr "完整公共接口"
 
-#: manual/api/ball_float.md:2196
+#: manual/api/ball_float.md:2257
 #: manual/api/decimal.md:2276
 #: manual/api/decimal_gda.md:1654
 #: manual/api/frontend/gda_expr.md:517
@@ -1397,7 +1409,9 @@ msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
 msgstr "在你的 `moon.pkg` 中添加该包装及端点包："
 
 #: manual/api/ball_float_checked.md:28
-msgid "The examples refer to the packages as `@ball_float_checked.`, `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_string` of a bounded ball is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
+#, fuzzy
+#| msgid "The examples refer to the packages as `@ball_float_checked.`, `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_string` of a bounded ball is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
+msgid "The examples refer to the packages as `@ball_float_checked.`, `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_ball_string` of a bounded ball is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
 msgstr "示例中将这些包称为 `@ball_float_checked.`、`@ball_float.`、`@bin_float.`、`@def.`（用于无穷的 `Sign`）和 `@lf_arith.`（对应 `Luna-Flow/arithmetic`）。示例使用以下辅助函数输出结果（有界球的 `to_string` 为精确二进制记法下的 `center +/- radius`，`mpe` 表示 $m \\cdot 2^{e}$）："
 
 #: manual/api/ball_float_checked.md:44
@@ -5040,6 +5054,7 @@ msgstr "精确情形"
 #: manual/api/decimal_gda.md:490
 #: manual/conformance/ball_float.md:14
 #: manual/conformance/ball_float.md:23
+#: manual/conformance/ball_float.md:41
 #: manual/conformance/bin_float.md:94
 #: manual/conformance/bin_float.md:96
 #: manual/conformance/bin_float.md:97
@@ -6250,7 +6265,7 @@ msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(
 
 #: manual/api/decimal_gda_checked.md:193
 #: manual/api/frontend/itl_expr.md:115
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Operations"
 msgstr "运算"
 
@@ -8608,7 +8623,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 
 #: manual/architecture.md:22
 #: manual/conformance/ball_float.md:11
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:43
 #: manual/conformance/decimal_gda.md:15
@@ -8957,7 +8972,7 @@ msgstr "`ball_float` 的 IEEE Std 1788-2015（基于集合的 flavor）。 当�
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:43
 #: manual/design/bin_float_checked.md:176
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Clause"
 msgstr "条款"
 
@@ -9006,6 +9021,8 @@ msgstr "§4.2 基于集合的区间算术 flavor"
 #: manual/conformance/ball_float.md:26
 #: manual/conformance/ball_float.md:27
 #: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:29
+#: manual/conformance/ball_float.md:30
 #: manual/conformance/bin_float.md:73
 #: manual/conformance/bin_float.md:75
 #: manual/conformance/bin_float.md:76
@@ -9113,6 +9130,7 @@ msgstr "ITF1788 multiplicative-reverse 阶段（`mulRevToPair`，裸与装饰）
 #: manual/conformance/ball_float.md:19
 #: manual/conformance/ball_float.md:21
 #: manual/conformance/ball_float.md:22
+#: manual/conformance/ball_float.md:28
 #: manual/conformance/bin_float.md:73
 #: manual/conformance/bin_float.md:74
 #: manual/conformance/bin_float.md:76
@@ -9281,226 +9299,310 @@ msgid "conforming for input; the output (13.3) and the exact text (13.4) are not
 msgstr "输入符合；输出（13.3）与精确文本（13.4）尚未实现（issue [#21](https://github.com/Luna-Flow/floating/issues/21)）"
 
 #: manual/conformance/ball_float.md:27
+msgid "§13.3 interval text output (`intervalToText`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "`Show` (`to_string`, `output`) for `BallFloat` and `BallFloatDecorated`; `to_ball_string` is the midpoint-radius view"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "`library/src/ball_float/interval_text_oracle_wbtest.mbt`: 2,570 intervals (precisions 2 to 1,024, both ends of the exponent range, zero bounds of either sign) whose expected `Show` text and exact text are written by the independent oracle `tools/interval_text_oracle.py` (exact fractions, containment checked there); `interval_text_wbtest.mbt`: written-out texts and 1,500 random intervals read back by `from_string` (consistency only)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "conforming for the inf-sup representation; see [Text output](#text-output-and-the-cs-table) for the representations (`cs`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "§13.4 exact text (`intervalToExact`, `exactToInterval`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "`to_exact_string`, `from_exact_string` for `BallFloat` and `BallFloatDecorated`; the text is read exactly at the bit count of its bounds and never widened (an interval with an end wider than its precision, such as an end of `new` or `cancel_minus`, comes back identical)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "`interval_text_oracle_wbtest.mbt`: the exact text of the 2,570 rows, 400 intervals with ends of 1 to 8 bits more than the precision, and 1,620 exact texts (fractional mantissas, leading and trailing zeros, upper case, `0x.8p1`, bounds wider than the precision, both ends of the exponent range and one step beyond, reversed and decimal bounds) read by `from_exact_string` with the verdict and the result written by the oracle (1,406 accepted, 214 refused); `interval_text_wbtest.mbt`: written-out cases"
+msgstr ""
+
+#: manual/conformance/ball_float.md:29
 msgid "§12.10 accuracy of operations"
 msgstr "§12.10 运算的精度"
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "every interval operation"
 msgstr "所有区间运算"
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "[Accuracy of operations](#accuracy-of-operations): tightness and range per operation; the ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result"
 msgstr "[运算精度](#accuracy-of-operations)：逐个运算给出紧性和适用范围；ITF1788 strict 门禁将两个端点与语料给出的 binary64 最紧结果逐一比较"
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "conforming for the provided operations"
 msgstr "对已提供的运算符合"
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "§12.6 754-conformance of the interval types"
 msgstr "§12.6 区间类型的 754 符合性"
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "endpoints are `BinFloat`"
 msgstr "端点是 `BinFloat`"
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "see the `bin_float` clause table"
 msgstr "见 `bin_float` 条款表"
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "not implemented (not claimed in 0.12; additive, see [issue 232](https://github.com/Luna-Flow/floating/issues/232): the format of an interval will be an optional `e_max?` with the implementation range as default, and it is not part of `==` or `compare` (only `identical` may look at it))"
 msgstr "未实现（0.12 不声明兼容；可增量加入，见 [issue 232](https://github.com/Luna-Flow/floating/issues/232)：区间的格式将是可选的 `e_max?`，默认为实现范围，且它不属于 `==` 或 `compare`（只有 `identical` 可以查看它））"
 
-#: manual/conformance/ball_float.md:30
+#: manual/conformance/ball_float.md:32
+msgid "Text output and the cs table"
+msgstr ""
+
+#: manual/conformance/ball_float.md:34
+msgid "Clause 13.3 gives `intervalToText` a representation parameter `cs`. What `ball_float` offers for each:"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "representation"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "function"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "status"
+msgstr ""
+
+#: manual/conformance/ball_float.md:39
+msgid "inf-sup `[l, u]`, bounds as decimal numbers rounded outward"
+msgstr ""
+
+#: manual/conformance/ball_float.md:39
+msgid "implemented; `[empty]` and `[entire]` for the special values, a decoration after `_`"
+msgstr ""
+
+#: manual/conformance/ball_float.md:40
+msgid "exact text, bounds as hexadecimal numbers (13.4)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:40
+msgid "implemented; `from_exact_string` recovers the datum"
+msgstr ""
+
+#: manual/conformance/ball_float.md:41
+msgid "uncertain form `m?r` (midpoint and radius in units of the last digit)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:41
+msgid "not planned: the inf-sup form carries the same interval and `from_string` reads both"
+msgstr ""
+
+#: manual/conformance/ball_float.md:42
+msgid "midpoint-radius view `m +/- r`"
+msgstr ""
+
+#: manual/conformance/ball_float.md:42
+msgid "not a literal of the standard: the binary midpoint and half-width, for reading"
+msgstr ""
+
+#: manual/conformance/ball_float.md:44
+msgid "A bound whose binary exponent is beyond 4096 in magnitude is written in hexadecimal by `to_string`: a decimal expansion would need a power of ten of that size. The hexadecimal bound is exact and is a valid literal, so the text still contains the value."
+msgstr ""
+
+#: manual/conformance/ball_float.md:49
 msgid "Accuracy of operations"
 msgstr "运算精度"
 
-#: manual/conformance/ball_float.md:32
+#: manual/conformance/ball_float.md:51
 msgid "This is the tightness documentation that §12.10.3 requires, for the inf-sup type with `p`-bit `BinFloat` endpoints and the binary64 exponent range (`BallContext::new(precision=p, e_max=1023)`; `p = 53` is the binary64 inf-sup type of the ITF1788 corpus). *Tightest* means the result is the hull of the exact range in that type (§12.10.1, (27)); *valid* means it contains the exact range ((26)). No operation claims the intermediate *accurate* mode. Every operation returns Empty for an Empty input. The ITF1788 phases cited below compare both endpoints for equality with the corpus's tightest binary64 result, so a passing phase is tightness evidence for every case it runs, not only containment."
 msgstr "这是 §12.10.3 要求的紧性说明，针对端点为 `p` 位 `BinFloat`、指数范围为 binary64 的 inf-sup 类型（`BallContext::new(precision=p, e_max=1023)`；`p = 53` 即 ITF1788 语料所用的 binary64 inf-sup 类型）。*最紧*（tightest）指结果等于该类型下精确值域的 hull（§12.10.1，式 (27)）；*有效*（valid）指结果包含精确值域（式 (26)）。没有运算声称达到中间的 *accurate* 模式。对 Empty 输入，所有运算都返回 Empty。下文引用的 ITF1788 阶段会把两个端点与语料给出的 binary64 最紧结果做相等比较，因此一个通过的阶段对其运行的每个用例都是紧性证据，而不只是包含关系的证据。"
 
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Tightness"
 msgstr "紧性"
 
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Range"
 msgstr "范围"
 
-#: manual/conformance/ball_float.md:44
-#: manual/conformance/ball_float.md:45
-#: manual/conformance/ball_float.md:46
-#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:63
+#: manual/conformance/ball_float.md:64
+#: manual/conformance/ball_float.md:65
+#: manual/conformance/ball_float.md:66
 msgid "tightest"
 msgstr "最紧"
 
-#: manual/conformance/ball_float.md:44
-#: manual/conformance/ball_float.md:45
-#: manual/conformance/ball_float.md:47
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:63
+#: manual/conformance/ball_float.md:64
+#: manual/conformance/ball_float.md:66
+#: manual/conformance/ball_float.md:67
 msgid "all inputs"
 msgstr "所有输入"
 
-#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:63
 msgid "outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567)"
 msgstr "精确 hull 的向外舍入（[设计](../design/ball_float.md#correctness-and-invariants)）；ITF1788 add/sub/mul/div（539）、elementary core（107）、FMA（567）"
 
-#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:64
 msgid "design; ITF1788 elementary core and extrema"
 msgstr "设计；ITF1788 elementary core 和 extrema"
 
-#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:65
 msgid "all inputs except a degree below −4096 with 0 inside the input, which gives Entire (valid)"
 msgstr "除指数低于 −4096 且输入包含 0 的情形外的所有输入；该情形返回 Entire（有效）"
 
-#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:65
 msgid "design; ITF1788 integer power (174)"
 msgstr "设计；ITF1788 integer power（174）"
 
-#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:66
 msgid "ITF1788 sets"
 msgstr "ITF1788 sets"
 
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:67
 msgid "as §12.12.5 requires"
 msgstr "按 §12.12.5 的要求"
 
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:67
 msgid "ITF1788 cancellation (242)"
 msgstr "ITF1788 cancellation（242）"
 
-#: manual/conformance/ball_float.md:49
-#: manual/conformance/ball_float.md:50
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:68
+#: manual/conformance/ball_float.md:69
+#: manual/conformance/ball_float.md:70
 msgid "tightest when the endpoint evaluation is certified; valid otherwise"
 msgstr "端点求值通过认证时为最紧；否则为有效"
 
-#: manual/conformance/ball_float.md:49
+#: manual/conformance/ball_float.md:68
 msgid "certified unless an endpoint magnitude reaches 2^(max(65536, 4p)+1) (trigonometric reduction) or the refinement budget of 12 work precisions runs out; then `sin`/`cos` give [−1, 1], `tan` Entire, `atan` [−π/2, π/2], `atan2` [−π, π], `pow` [0, +∞), and the `try_*` forms report the failure"
 msgstr "除非端点绝对值达到 2^(max(65536, 4p)+1)（三角约化）或 12 个工作精度的精化预算用尽，否则都能认证；此时 `sin`/`cos` 返回 [−1, 1]，`tan` 返回 Entire，`atan` 返回 [−π/2, π/2]，`atan2` 返回 [−π, π]，`pow` 返回 [0, +∞)，而 `try_*` 形式会报告失败"
 
-#: manual/conformance/ball_float.md:49
+#: manual/conformance/ball_float.md:68
 msgid "design; ITF1788 trigonometric (176), `atan2` (375), general power (1,428), inverse trigonometric (61)"
 msgstr "设计；ITF1788 trigonometric（176）、`atan2`（375）、general power（1,428）、inverse trigonometric（61）"
 
-#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:69
 msgid "certified unless the work budget of the `bin_float` kernel runs out; then `exp`, `exp2`, `exp10` give [0, +∞), the logarithms Entire, `asin` [−π/2, π/2], `acos` [0, π], and the `try_*` forms report the failure"
 msgstr "除非 `bin_float` 内核的工作预算用尽，否则都能认证；此时 `exp`、`exp2`、`exp10` 返回 [0, +∞)，对数函数返回 Entire，`asin` 返回 [−π/2, π/2]，`acos` 返回 [0, π]，而 `try_*` 形式会报告失败"
 
-#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:69
 msgid "design; ITF1788 exponential/logarithmic (131), inverse trigonometric (61)"
 msgstr "设计；ITF1788 exponential/logarithmic（131）、inverse trigonometric（61）"
 
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:70
 msgid "certified unless the work budget of the `bin_float` kernel runs out; then `sinh`, `asinh`, `atanh` give Entire, `tanh` [−1, 1], `cosh` [1, +∞), `acosh` [0, +∞), and the `try_*` forms report the failure"
 msgstr "除非 `bin_float` 内核的工作预算用尽，否则都能认证；此时 `sinh`、`asinh`、`atanh` 返回 Entire，`tanh` 返回 [−1, 1]，`cosh` 返回 [1, +∞)，`acosh` 返回 [0, +∞)，而 `try_*` 形式会报告失败"
 
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:70
 msgid "design; ITF1788 hyperbolic (107)"
 msgstr "设计；ITF1788 hyperbolic（107）"
 
-#: manual/conformance/ball_float.md:52
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:71
+#: manual/conformance/ball_float.md:72
 msgid "tightest when certified; valid otherwise"
 msgstr "通过认证时为最紧；否则为有效"
 
-#: manual/conformance/ball_float.md:52
+#: manual/conformance/ball_float.md:71
 msgid "as for the certified functions above; `expm1` falls back to [−1, +∞), `log1p` to Entire"
 msgstr "与上面的认证函数相同；`expm1` 回退为 [−1, +∞)，`log1p` 回退为 Entire"
 
-#: manual/conformance/ball_float.md:52
+#: manual/conformance/ball_float.md:71
 msgid "design; package tests only, no ITF1788 cases"
 msgstr "设计；仅有包内测试，没有 ITF1788 用例"
 
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:72
 msgid "as for the certified functions above; the fallback is [0, +∞) for an even degree and Entire for an odd one"
 msgstr "与上面的认证函数相同；回退对偶次为 [0, +∞)，对奇次为 Entire"
 
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:72
 msgid "design; package tests only"
 msgstr "设计；仅有包内测试"
 
-#: manual/conformance/ball_float.md:55
+#: manual/conformance/ball_float.md:74
 msgid "Corpus values wider than the exact result"
 msgstr "比精确结果更宽的语料值"
 
-#: manual/conformance/ball_float.md:57
+#: manual/conformance/ball_float.md:76
 msgid "IEEE 1788-2015 12.12.4 asks the reverse-mode operations for an enclosure of the Level 1 value, not for the tightest one (the tightest-or-accurate requirement of 12.10 is stated for the forward operations). Six statements of `libieeep1788_tests_rev.itl`, and their six decorated copies in the `_dec_` test cases, expect a value that is valid but one or two units wider than the exact hull in binary64. `ball_float` returns the exact hull, so the gate does not hold those cases to the corpus value: `testdata/interval/interpreter_refinements.json` records, for each, the corpus value and the exact value, and the gate requires the result to equal the exact value, which must lie inside the corpus value. The gate summary reports these cases on a line of their own. Every other case keeps exact equality with the corpus. The exact values are computed by `tools/itl_trig_reverse_oracle.py`, which evaluates `asin`, `acos`, `atan` and $\\pi$ with Python's `decimal` and shares no code with `ball_float`; it also confirms that the other 124 trigonometric reverse statements equal the exact hull."
 msgstr "IEEE 1788-2015 12.12.4 只要求反向模式运算给出 Level 1 值的一个包含，而不要求最紧的包含（12.10 的最紧或精确要求针对的是前向运算）。`libieeep1788_tests_rev.itl` 中有六条语句，以及 `_dec_` 测试用例中它们的六个带装饰副本，其期望值虽然有效，但比 binary64 下的精确区间包宽一到两个单位。`ball_float` 返回精确区间包，因此门禁不以语料值作为这些用例的标准：`testdata/interval/interpreter_refinements.json` 为每条记录语料值与精确值，门禁要求结果等于该精确值，而该精确值必须位于语料值之内。门禁摘要把这些用例单独列在一行。其余所有用例仍与语料保持精确相等。精确值由 `tools/itl_trig_reverse_oracle.py` 计算，它用 Python 的 `decimal` 计算 `asin`、`acos`、`atan` 与 $\\pi$，与 `ball_float` 没有共用代码；它还确认其余 124 条三角反向语句等于精确区间包。"
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Statement"
 msgstr "语句"
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Corpus value"
 msgstr "语料值"
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Exact hull"
 msgstr "精确区间包"
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Corpus excess"
 msgstr "语料超出部分"
 
-#: manual/conformance/ball_float.md:72
-#: manual/conformance/ball_float.md:73
-#: manual/conformance/ball_float.md:74
+#: manual/conformance/ball_float.md:91
+#: manual/conformance/ball_float.md:92
+#: manual/conformance/ball_float.md:93
 msgid "upper end, 1 unit"
 msgstr "上端，1 个单位"
 
-#: manual/conformance/ball_float.md:73
+#: manual/conformance/ball_float.md:92
 msgid "`cosRevBin [-1, -1] [3.14, 3.15]` (the point $\\pi$)"
 msgstr "`cosRevBin [-1, -1] [3.14, 3.15]`（点 $\\pi$）"
 
-#: manual/conformance/ball_float.md:75
-#: manual/conformance/ball_float.md:77
+#: manual/conformance/ball_float.md:94
+#: manual/conformance/ball_float.md:96
 msgid "lower end, 1 unit"
 msgstr "下端，1 个单位"
 
-#: manual/conformance/ball_float.md:76
+#: manual/conformance/ball_float.md:95
 msgid "lower end, 2 units"
 msgstr "下端，2 个单位"
 
-#: manual/conformance/ball_float.md:79
+#: manual/conformance/ball_float.md:98
 msgid "Whether to report the six values to the corpus's authors is left to the maintainer."
 msgstr "是否向语料作者报告这六个值，由维护者决定。"
 
-#: manual/conformance/ball_float.md:81
+#: manual/conformance/ball_float.md:100
 msgid "Semantic oracle"
 msgstr "语义预言机"
 
-#: manual/conformance/ball_float.md:83
+#: manual/conformance/ball_float.md:102
 msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
 msgstr "预期结果按集合意义比较：端点包含、集合关系、布尔关系、overlap state、数值观察和 decoration 分别使用操作专用比较器。合同允许放宽时，更宽区间可以正确；排除精确结果的包络永远错误。"
 
-#: manual/conformance/ball_float.md:85
+#: manual/conformance/ball_float.md:104
 msgid "Supported phases"
 msgstr "支持的阶段"
 
-#: manual/conformance/ball_float.md:87
+#: manual/conformance/ball_float.md:106
 msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, the integer functions, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`), the trigonometric reverse functions (`sinRev`, `cosRev`, `tanRev`), `powRev1` and `powRev2` (the generated `atan2Rev1` and `atan2Rev2` cases are a phase of their own and are not part of the ITF1788 count). Phase operation sets are disjoint so a row is never counted twice."
 msgstr "strict 矩阵涵盖集合、关系、观察、抵消、加/减/乘/除、初等函数核心、指数/对数函数、一般幂、三角函数、`atan2`、双曲函数、反三角函数、FMA、整数幂、极值、整数函数、反向乘法（`mulRev`、`mulRevTen`、`mulRevToPair`）、代数反向函数（`sqrRev`、`absRev`、`pownRev`、`coshRev`）、三角反向函数（`sinRev`、`cosRev`、`tanRev`）以及 `powRev1` 与 `powRev2`（生成的 `atan2Rev1` 与 `atan2Rev2` 用例是单独的阶段，不计入 ITF1788 总数）。各阶段的运算集合互不相交，因此同一行不会被重复计数。"
 
-#: manual/conformance/ball_float.md:89
+#: manual/conformance/ball_float.md:108
 msgid "Decorations and fallbacks"
 msgstr "装饰与回退"
 
-#: manual/conformance/ball_float.md:91
+#: manual/conformance/ball_float.md:110
 msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
 msgstr "Empty、Entire 和装饰后的 NaI 是彼此独立的状态。初等函数内核使用定向二进有理数证书。当范围约简无法认证时，`sin`/`cos` 返回 `[-1,1]`，`tan` 返回 Entire；这保持了包含性，但不保证紧致性。门禁通过并不覆盖语料之外的输入：[已知局限](../design/ball_float.md#known-limitations)中列出的其余缺陷（负次数 `rootn` 的装饰）未被所选用例覆盖。"
 
-#: manual/conformance/ball_float.md:93
+#: manual/conformance/ball_float.md:112
 msgid "Exclusions"
 msgstr "排除范围"
 
-#: manual/conformance/ball_float.md:95
+#: manual/conformance/ball_float.md:114
 msgid "Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev`, `tanRev`, `powRev1`, `powRev2`, `atan2Rev1` and `atan2Rev2`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
 msgstr "`mulRev`、`mulRevToPair`、`sqrRev`、`absRev`、`pownRev`、`coshRev`、`sinRev`、`cosRev`、`tanRev`、`powRev1`、`powRev2`、`atan2Rev1`、`atan2Rev2` 以外的 reverse interval operation、选定 phase 以外的全部 decoration 规则、任意 endpoint format 和未固定的上游 revision 均不在声明内。"
 
-#: manual/conformance/ball_float.md:97
+#: manual/conformance/ball_float.md:116
 #: manual/conformance/decimal.md:93
 #: manual/conformance/decimal_gda.md:121
 #: manual/performance/ball_float.md:26
@@ -9509,7 +9611,7 @@ msgstr "`mulRev`、`mulRevToPair`、`sqrRev`、`absRev`、`pownRev`、`coshRev`�
 msgid "Reproduction"
 msgstr "复现"
 
-#: manual/conformance/ball_float.md:105
+#: manual/conformance/ball_float.md:124
 msgid "See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage."
 msgstr "语料来源、phase 计数、strict 模式和失败排查见[区间数据指南](../../../testdata/interval/README.md)。"
 
@@ -11026,9 +11128,11 @@ msgid "*Claim:* $[c - r, c + r] \\subseteq [\\tilde c - R, \\tilde c + R]$. For 
 msgstr "*断言：* $[c - r, c + r] \\subseteq [\\tilde c - R, \\tilde c + R]$。对于 $|\\xi - c| \\le r$，"
 
 #: manual/design/ball_float.md:261
+#, fuzzy
+#| msgid "The endpoints $\\tilde c \\pm R$ are then formed exactly (they may have more than $p$ bits). The construction is sound but not idempotent: whenever $\\tilde c \\ne c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `Show` prints this pair. The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
 msgid ""
 "The endpoints $\\tilde c \\pm R$ are then formed exactly (they may have more than $p$ bits). The construction is sound but not idempotent: whenever $\\tilde c \\n"
-"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `Show` prints this pair. The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
+"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
 msgstr ""
 "随后精确地构成端点 $\\tilde c \\pm R$（它们可能多于 $p$ 位）。该构造是可靠的，但不是幂等的：只要 $\\tilde c \\n"
 "e c$，位移 $|c - \\tilde c|$ 就会被加到两侧，因此重建一个中心需要多于 $p$ 位的区间会使其变宽（参见[紧致性](#correctness-and-invariants)）。`normalized` 接受这一点；`with_precision` 则完全不使用该构造。它直接把端点向外取整，这在任何精度下都包含输入，并且是可表示的最紧包络，因此它没有舍入模式参数。包内的反向视图是精确的：中心为 $(\\underline{x} + \\overline{x})/2$，半宽为 $(\\overline{x} - \\underline{x})/2$，它们都是二进有理数，无需舍入（半宽仅在低于指数范围下溢时才向上舍入），因此 $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ 恰好就是所存储的区间。`Show` 打印的正是这一对值。公开的观测量并不是这一对：IEEE 1788-2015 12.12.8 把 `mid` 定义为舍入到该格式的中心，把 `rad` 定义为满足区间位于 $[m - r, m + r]$（$m$ 为该舍入后的值）的该格式下最小的数。当中心不可表示时，精确中心处的半宽过小（0.12 之前它被作为 `radius` 返回，[issue 477](https://github.com/Luna-Flow/floating/issues/477)），所以 `radius` 从 `midpoint` 量起：它是 $m - \\underline{x}$ 与 $\\overline{x} - m$ 中较大者，向上舍入。"
@@ -23049,7 +23153,7 @@ msgid "`BallContext` describes a binary format (precision and exponent range). `
 msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`apply_ctx` 把区间向外舍入到该格式，并在 `BallFlags` 中报告发生了什么；要舍入一次运算的结果，把上下文应用到它上面即可。"
 
 #: manual/tutorial/ball_float.md:287
-#: manual/tutorial/ball_float_checked.md:168
+#: manual/tutorial/ball_float_checked.md:169
 #: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:48
 #: manual/tutorial/bench/bin_float.md:50
@@ -23123,7 +23227,7 @@ msgid "Each interval carries a working `precision` in bits; results of binary op
 msgstr "每个区间带有一个以位计的工作 `precision`；二元运算的结果使用两个操作数中较大的精度。算术运算在该精度下只需几次端点运算。初等函数在区间的精度下对经过认证的 `bin_float` 内核求值（带有各自的保护位，对困难输入最多尝试 12 个工作精度），所以它们的代价是一次乘法的数倍。提高精度会缩小宽度中的舍入部分，但不会缩小来自输入宽度的那一部分。"
 
 #: manual/tutorial/ball_float.md:379
-#: manual/tutorial/ball_float_checked.md:233
+#: manual/tutorial/ball_float_checked.md:234
 #: manual/tutorial/bench.md:185
 #: manual/tutorial/bench/ball_float.md:56
 #: manual/tutorial/bench/bin_float.md:58
@@ -23193,7 +23297,7 @@ msgid "**Inputs from `Double`.** `from_double(x)` encloses the binary value of `
 msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的二进制值；它无从知道 `x` 近似的是哪个十进制数。请按[包络十进制常数](#enclose-a-decimal-constant)中的方法包络十进制数据。"
 
 #: manual/tutorial/ball_float.md:435
-#: manual/tutorial/ball_float_checked.md:249
+#: manual/tutorial/ball_float_checked.md:250
 #: manual/tutorial/bench.md:201
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:64
@@ -23315,106 +23419,108 @@ msgid "The upper bound printed in lowest terms is $6243314768165360 \\cdot 2^{-5
 msgstr "以最简形式打印的上界是 $6243314768165360 \\cdot 2^{-53}$，因此两个界是相邻的 53 位数，$\\ln 2$ 位于它们之间。"
 
 #: manual/tutorial/ball_float_checked.md:62
-msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation:"
+#, fuzzy
+#| msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation:"
+msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation (`to_ball_string`; `to_string` is the portable literal `[l, u]`):"
 msgstr "其余示例用下面这个辅助函数打印结果；有界区间以精确二进制记法打印为 `centre +/- radius`："
 
-#: manual/tutorial/ball_float_checked.md:75
+#: manual/tutorial/ball_float_checked.md:76
 msgid "Validate measurements at the boundary"
 msgstr "在边界处验证测量值"
 
-#: manual/tutorial/ball_float_checked.md:77
+#: manual/tutorial/ball_float_checked.md:78
 msgid "Input data enters through `from_bounds`, `from_double` or `exact`. Reversed bounds and non-finite sources become errors before any computation runs:"
 msgstr "输入数据通过 `from_bounds`、`from_double` 或 `exact` 进入。上下界颠倒和非有限的来源会在任何计算运行之前就成为错误："
 
-#: manual/tutorial/ball_float_checked.md:100
+#: manual/tutorial/ball_float_checked.md:101
 msgid "Propagate uncertainty through a formula"
 msgstr "让不确定性在公式中传播"
 
-#: manual/tutorial/ball_float_checked.md:102
+#: manual/tutorial/ball_float_checked.md:103
 msgid "Operators work on wrappers. The result encloses every value the formula can take for inputs in the intervals:"
 msgstr "运算符作用于包装器。结果包络了输入落在各区间内时该公式可能取到的每个值："
 
-#: manual/tutorial/ball_float_checked.md:121
+#: manual/tutorial/ball_float_checked.md:122
 msgid "The area lies in $[2, 7.5]$, the product of the two ranges."
 msgstr "面积位于 $[2, 7.5]$，即两个范围之积。"
 
-#: manual/tutorial/ball_float_checked.md:123
+#: manual/tutorial/ball_float_checked.md:124
 msgid "Know that \"no information\" is not an error"
 msgstr "“没有信息”并不是错误"
 
-#: manual/tutorial/ball_float_checked.md:125
+#: manual/tutorial/ball_float_checked.md:126
 msgid "Interval operations follow set semantics: points outside a function's domain are dropped, and an operation that can say nothing returns the whole line. These are successes, because they are correct enclosures:"
 msgstr "区间运算遵循集合语义：函数定义域之外的点被舍弃，而无法给出任何信息的运算返回整条实轴。这些都算成功，因为它们是正确的包络："
 
-#: manual/tutorial/ball_float_checked.md:140
+#: manual/tutorial/ball_float_checked.md:141
 msgid "When an empty or unbounded result means failure in *your* application, say so with `bind`."
 msgstr "如果在*你的*应用中空结果或无界结果意味着失败，就用 `bind` 明确表达。"
 
-#: manual/tutorial/ball_float_checked.md:143
+#: manual/tutorial/ball_float_checked.md:144
 msgid "Turn an application rule into an error"
 msgstr "把应用规则变成错误"
 
-#: manual/tutorial/ball_float_checked.md:170
+#: manual/tutorial/ball_float_checked.md:171
 msgid "Certification failures"
 msgstr "认证失败"
 
-#: manual/tutorial/ball_float_checked.md:172
+#: manual/tutorial/ball_float_checked.md:173
 msgid "Elementary functions are evaluated with certified error bounds. When the library cannot certify an enclosure within its budget it reports a `CertificationFailure` with a detail record instead of returning a wrong or needlessly wide interval:"
 msgstr "初等函数以经过认证的误差界求值。当库无法在预算内认证一个包络时，它会报告带有详情记录的 `CertificationFailure`，而不是返回错误的或不必要地宽的区间："
 
-#: manual/tutorial/ball_float_checked.md:193
+#: manual/tutorial/ball_float_checked.md:194
 msgid "Powers through the arithmetic traits"
 msgstr "通过 arithmetic trait 求幂"
 
-#: manual/tutorial/ball_float_checked.md:195
+#: manual/tutorial/ball_float_checked.md:196
 msgid "`pown` goes through the `PowIntChecked` trait of Luna-Flow/arithmetic. It computes the power of one point of the interval (`BallFloat::pown`); for an interval containing zero this is tighter than repeated multiplication, which treats the two factors as independent:"
 msgstr "`pown` 经由 Luna-Flow/arithmetic 的 `PowIntChecked` trait 实现。它对区间中的同一个点求幂（`BallFloat::pown`）；对于包含零的区间，这比重复相乘更紧，因为重复相乘把两个因子视为相互独立："
 
-#: manual/tutorial/ball_float_checked.md:214
+#: manual/tutorial/ball_float_checked.md:215
 msgid "Generic code with the enclosure relations"
 msgstr "使用包络关系的泛型代码"
 
-#: manual/tutorial/ball_float_checked.md:216
+#: manual/tutorial/ball_float_checked.md:217
 msgid "`BallFloat` implements the enclosure relations of Luna-Flow/arithmetic (`Contains`, `DefinitelyLt`, …). Extract the interval at the end of a pipeline and test it:"
 msgstr "`BallFloat` 实现了 Luna-Flow/arithmetic 的包络关系（`Contains`、`DefinitelyLt`……）。在流水线末尾取出区间并对其进行检验："
 
-#: manual/tutorial/ball_float_checked.md:235
+#: manual/tutorial/ball_float_checked.md:236
 msgid "**Default precision.** `from_int` and `from_coefficient` default to 53 bits. A coefficient that needs more bits is still enclosed, but by a two-point interval rather than a point; pass a larger precision for such values."
 msgstr "**默认精度。** `from_int` 和 `from_coefficient` 默认使用 53 位。需要更多位的系数仍会被包络，但得到的是两点区间而不是一个点；对这类值请传入更大的精度。"
 
-#: manual/tutorial/ball_float_checked.md:238
+#: manual/tutorial/ball_float_checked.md:239
 msgid "**A product is not a power.** Use `pown` for even powers of an interval that contains 0; `x * x` treats the two factors as independent."
 msgstr "**乘积不是幂。** 对包含 0 的区间求偶次幂时，请使用 `pown`；`x * x` 把两个因子视为相互独立。"
 
-#: manual/tutorial/ball_float_checked.md:240
+#: manual/tutorial/ball_float_checked.md:241
 msgid "**Empty and whole are successes.** Test `is_empty` / `is_entire` on the final interval, or add a `bind` check."
 msgstr "**空集和整条实轴都算成功。** 请对最终区间检验 `is_empty` / `is_entire`，或加入一个 `bind` 检查。"
 
-#: manual/tutorial/ball_float_checked.md:242
+#: manual/tutorial/ball_float_checked.md:243
 msgid "**No decorations or flags.** The wrapper keeps neither IEEE 1788 decorations nor `BallFlags`; use the decorated and contextual APIs of `ball_float` when you need them."
 msgstr "**没有装饰或标志。** 该包装器既不保留 IEEE 1788 装饰，也不保留 `BallFlags`；需要它们时请使用 `ball_float` 的装饰 API 和 contextual API。"
 
-#: manual/tutorial/ball_float_checked.md:245
+#: manual/tutorial/ball_float_checked.md:246
 msgid "**Only the first error survives**, as in every checked wrapper."
 msgstr "**只有第一个错误会保留下来**，所有 checked 包装器都是如此。"
 
-#: manual/tutorial/ball_float_checked.md:246
+#: manual/tutorial/ball_float_checked.md:247
 msgid "**`[+inf, +inf]` is rejected.** IEEE 1788 intervals are subsets of the real line; use `entire()` or a half-infinite interval instead."
 msgstr "**`[+inf, +inf]` 会被拒绝。** IEEE 1788 区间是实轴的子集；请改用 `entire()` 或半无穷区间。"
 
-#: manual/tutorial/ball_float_checked.md:251
+#: manual/tutorial/ball_float_checked.md:252
 msgid "[`ball_float_checked` design](../design/ball_float_checked.md): errors versus enclosures, and the composition laws."
 msgstr "[`ball_float_checked` 设计](../design/ball_float_checked.md)：错误与包络的区别，以及组合律。"
 
-#: manual/tutorial/ball_float_checked.md:253
+#: manual/tutorial/ball_float_checked.md:254
 msgid "[`ball_float_checked` API](../api/ball_float_checked.md): every method."
 msgstr "[`ball_float_checked` API](../api/ball_float_checked.md)：所有方法。"
 
-#: manual/tutorial/ball_float_checked.md:254
+#: manual/tutorial/ball_float_checked.md:255
 msgid "[`ball_float` tutorial](ball_float.md): decorations, contexts and the interval operations themselves."
 msgstr "[`ball_float` 教程](ball_float.md)：装饰、上下文以及区间运算本身。"
 
-#: manual/tutorial/ball_float_checked.md:256
+#: manual/tutorial/ball_float_checked.md:257
 msgid "[`semantic` tutorial](semantic.md): check an enclosure against an exact reference value."
 msgstr "[`semantic` 教程](semantic.md)：用精确参考值检查包络。"
 
@@ -28274,7 +28380,7 @@ msgid "One line per row of the clause traceability tables of the conformance pag
 msgstr "条款追溯表（见各一致性页面）的每一行对应一行。已勾选的框表示状态为 `conforming` 的行；未勾选的框写明其状态（`partial`、`not implemented`、`not applicable`），并在方括号中标注条款级别：`required`（标准用 “shall”）、`recommended`（“should”）或 `optional`。计数把必须条款的缺口与推荐或可选条款的缺口分开。该块由 `tools/conformance_checklist.py` 生成，过期时 `just docs` 会失败。 ([binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability), [interval](./conformance/ball_float.md#clause-traceability))"
 
 #: manual/verification.md:596
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Standard"
 msgstr "标准"
 
@@ -28656,328 +28762,342 @@ msgid "§9.7, §12.11, §12.12.7, §13.2 interval and number literals, text inpu
 msgstr "§9.7、§12.11、§12.12.7、§13.2 区间与数字面量、文本输入 [必须]（部分实现）"
 
 #: manual/verification.md:706
+msgid "§13.3 interval text output (`intervalToText`) [required]"
+msgstr ""
+
+#: manual/verification.md:707
+msgid "§13.4 exact text (`intervalToExact`, `exactToInterval`) [required]"
+msgstr ""
+
+#: manual/verification.md:708
 msgid "§12.10 accuracy of operations [required]"
 msgstr "§12.10 运算精度 [必须]"
 
-#: manual/verification.md:707
+#: manual/verification.md:709
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
 msgstr "§12.6 区间类型的 754 符合性 [必须] （未实现）"
 
-#: manual/verification.md:710
+#: manual/verification.md:712
 msgid "Implementation-defined choices"
 msgstr "由实现定义的选择"
 
-#: manual/verification.md:712
+#: manual/verification.md:714
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr "IEEE 754-2019 与 IEEE 1788-2015 把这些事项留给实现决定，IEEE 754 要求把它们写成文档。每一项都写明留下选择余地的条款和所作的选择。 [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability)、[interval](./conformance/ball_float.md#clause-traceability) 一致性页面中的条款表引用了这些项。"
 
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Choice left open"
 msgstr "留待实现决定的事项"
 
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Choice made"
 msgstr "所作选择"
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "IEEE 754 §7.5"
 msgstr "IEEE 754 §7.5"
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "Tininess detection for binary formats"
 msgstr "二进制格式的微小性检测"
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr "`BinaryContext` 默认舍入后检测；也可选择舍入前，TestFloat 门禁两种都运行。对十进制，标准要求舍入前检测，`DecimalContext` 默认如此；舍入后检测是显式的非标准选项。"
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "IEEE 754 §6.2"
 msgstr "IEEE 754 §6.2"
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "Which NaN payload a NaN result carries"
 msgstr "NaN 结果携带哪个 NaN 载荷"
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr "`bin_float`：保留所选 NaN 操作数的载荷和符号，signaling NaN 被转为 quiet。`decimal`：取第一个 NaN 操作数的符号和载荷，截取其低 `p` 位（`clamp` 时为 `p - 1` 位，即交换格式载荷字段的宽度）。"
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "IEEE 754 §9.7"
 msgstr "IEEE 754 §9.7"
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "Admissible payloads of `setPayload`"
 msgstr "`setPayload` 允许的载荷"
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr "`decimal`：不超过接收者 `precision - 1` 位的非负整数；其他情况得到 `+0`。`bin_float` 没有 setPayload。"
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "IEEE 754 §3.7"
 msgstr "IEEE 754 §3.7"
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "Exponent range and precision of an extendable format"
 msgstr "可扩展格式的指数范围与精度"
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "`bin_float`: leading-bit exponents in `[2 - 2^30, 2^30 - 1]` (`e_min = 1 - e_max`), precision at most `2^28` bits. `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr "`bin_float`：首位指数在 `[2 - 2^30, 2^30 - 1]` 内（`e_min = 1 - e_max`），精度至多 `2^28` 位。`decimal`：`e_min` 与 `e_max` 在 ±999,999,999 内，精度在 `1..999,999,999` 内。"
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "IEEE 754 §4.3"
 msgstr "IEEE 754 §4.3"
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "Rounding directions beyond the five required"
 msgstr "必需的五种之外的舍入方向"
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "none in `bin_float` and `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`)."
 msgstr "`bin_float` 和 `decimal` 中没有（GDA 模式 `HalfDown`、`Up`、`ZeroFiveUp` 在 `decimal_gda` 中）。"
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "IEEE 754 §4.1, §9.3"
 msgstr "IEEE 754 §4.1, §9.3"
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "How attributes are specified"
 msgstr "属性如何指定"
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr "静态：把上下文值传给每个运算；没有动态模式，也没有全局状态。"
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "IEEE 754 §7"
 msgstr "IEEE 754 §7"
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "How flags are exposed"
 msgstr "标志如何暴露"
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr "每个运算返回一份（`BinaryFlags`、`DecimalFlags`），由调用者合并；IEEE 包中没有环境粘滞标志。"
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "IEEE 754 §9.2"
 msgstr "IEEE 754 §9.2"
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "Accuracy of recommended functions"
 msgstr "推荐函数的精度"
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr "在每种舍入方向下都正确舍入（认证的包络不断细化，直到舍入结果唯一）。细化预算耗尽时，`try_*_ctx` 返回 `Err`，普通形式返回 NaN；精度或指数界的绝对值超过 999,999 的十进制上下文返回 `invalid_context`。"
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "IEEE 754 §9.2.2"
 msgstr "IEEE 754 §9.2.2"
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr "首选指数未定义时（`pow` 的 `y` 为无穷或 NaN）"
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr "`decimal`：`pow(+1, y)` 是普通的 `1`。"
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "IEEE 754 §5.12"
 msgstr "IEEE 754 §5.12"
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr "接受和产生的字符序列（`bin_float`）"
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr "十进制：`[+-]digits[.digits][e[+-]digits]`、`inf`、`infinity`、`nan`、`snan`（不区分大小写）；输出 `d.ddde±x`，最短形式的格式与 ECMAScript `Number#toString` 相同，并保留 `-0`。十六进制：`0x<hex>p<exp>`。"
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "IEEE 754 §6.3"
 msgstr "IEEE 754 §6.3"
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr "`remainder` 结果为零时的符号（`decimal`）"
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr "被除数的符号，在扩展上下文中保留。"
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "IEEE 1788 §7, §4.2"
 msgstr "IEEE 1788 §7, §4.2"
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "Flavor"
 msgstr "Flavor"
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "Set-based."
 msgstr "基于集合。"
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "IEEE 1788 §12.10"
 msgstr "IEEE 1788 §12.10"
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "Accuracy of the elementary functions"
 msgstr "初等函数的精度"
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr "已在[区间精度表](./conformance/ball_float.md#accuracy-of-operations)中逐个运算说明：基本算术、`abs`、`minimum`、`maximum` 和 `pown` 为最紧；通过认证的三角、反正切和幂函数端点为最紧；其余初等函数为有效，且在每个 ITF1788 用例上均为最紧。当区间约化无法认证时，`sin` 和 `cos` 返回 `[-1, 1]`，`tan` 返回 Entire。"
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "IEEE 1788 §12.5"
 msgstr "IEEE 1788 §12.5"
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "Interval types"
 msgstr "区间类型"
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr "端点为任意精度 `BinFloat` 的 inf-sup 区间（有 binary32 和 binary64 命名格式）；没有 mid-rad 类型。"
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "General Decimal Arithmetic"
 msgstr "General Decimal Arithmetic"
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "Exponent limit"
 msgstr "指数限制"
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr "±999,999,999，精度最高 999,999,999，即 decNumber 的限制；规范本身只要求限制大于 `5 × mlength`。"
 
-#: manual/verification.md:739
+#: manual/verification.md:741
 msgid "Known gaps and deviations"
 msgstr "已知缺口与偏离"
 
-#: manual/verification.md:741
+#: manual/verification.md:743
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr "当标准要求某项功能而本包没有提供或提供方式不同时，就列在这里。每一项都链接到跟踪它的 issue 或记录该决定的页面。"
 
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Gap"
 msgstr "缺口"
 
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Tracking"
 msgstr "跟踪"
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "IEEE 754-2019 §7.5"
 msgstr "IEEE 754-2019 §7.5"
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr "`decimal` 提供舍入后微小性检测，作为非标准选项（默认是舍入前检测，符合 §7.5 的要求）"
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr "无；由 issue [#217](https://github.com/Luna-Flow/floating/issues/217) 关闭"
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "IEEE 754-2019 §8"
 msgstr "IEEE 754-2019 §8"
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "No alternate exception handling"
 msgstr "没有替代异常处理"
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "by design (flags are values)"
 msgstr "按设计如此（标志是值）"
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "IEEE 754-2019 §9.3"
 msgstr "IEEE 754-2019 §9.3"
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr "核心包不提供动态模式运算（context 是显式值）"
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr "按设计如此；可选包装包：[#247](https://github.com/Luna-Flow/floating/issues/247)"
 
-#: manual/verification.md:750
+#: manual/verification.md:752
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr "IEEE 754-2019 §9.4, §9.6"
 
-#: manual/verification.md:750
+#: manual/verification.md:752
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr "没有归约运算；`bin_float` 没有 minimum/maximum 系列"
 
-#: manual/verification.md:751
+#: manual/verification.md:753
 msgid "IEEE 754-2019 §9.5"
 msgstr "IEEE 754-2019 §9.5"
 
-#: manual/verification.md:751
+#: manual/verification.md:753
 msgid "No augmented arithmetic for `bin_float`"
 msgstr "`bin_float` 没有增强算术"
 
-#: manual/verification.md:752
+#: manual/verification.md:754
 msgid "IEEE 754-2019 §5.3.2"
 msgstr "IEEE 754-2019 §5.3.2"
 
-#: manual/verification.md:752
+#: manual/verification.md:754
 msgid "decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format)"
 msgstr "decNumber 会把高于 `e_max - p + 1` 的零 `quantize` 结果下折；`decimal` 也是如此（每个结果都是该格式的成员）"
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "IEEE 754-2019 §3.7"
 msgstr "IEEE 754-2019 §3.7"
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr "实现的指数范围两端都比 MPFR 高一个 binade"
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr "记录在 `testdata/bin_float/README.md`"
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr "没有反向模式运算，也没有区间字面量（文本输入输出）"
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（反向模式），[#21](https://github.com/Luna-Flow/floating/issues/21)（文本）"
 
-#: manual/verification.md:755
+#: manual/verification.md:757
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
 
-#: manual/verification.md:755
+#: manual/verification.md:757
 msgid "No two-output division, no slope functions"
 msgstr "没有双输出除法，也没有斜率函数"
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "Public API"
 msgstr "公开 API"
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`Show` writes an interval in an exact text form."
+#~ msgstr "`Show` 以精确的文本形式输出区间。"
+
+#~ msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case: endpoints more than about $2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the smaller one); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
+#~ msgstr "有界的 `BallFloat` 输出为 `center +/- radius`，两个数都使用精确的 `BinFloat` 记法（`3p-1` 表示 $3 \\cdot 2^{-1}$），因此文本恰好表示所存储的集合（远端点情形除外：端点在二进制数量级上相差超过约 $2^{16}$ 时，较小的端点以一个粘滞替身输出）；无界的输出为 `[lo, hi]`，Empty 输出为 `[empty]`。装饰区间会附加 `_` 及装饰；NaI 输出为 `[nai]`。"
 
 #~ msgid "The derived `Eq` is structural, not numerical. Two values are `==` when sign, class, coefficient, exponent, precision and NaN state all agree, so `one(precision=53) != one(precision=24)`, `-0 != +0`, and a NaN is `==` to an identical NaN. Use `compare`, `compare_quiet` or `total_order` for numerical questions."
 #~ msgstr "派生的 `Eq` 是结构相等，而不是数值相等。只有当符号、类别、系数、指数、精度和 NaN 状态全部一致时，两个值才 `==`，因此 `one(precision=53) != one(precision=24)`，`-0 != +0`，而一个 NaN 与完全相同的 NaN `==`。数值问题请使用 `compare`、`compare_quiet` 或 `total_order`。"

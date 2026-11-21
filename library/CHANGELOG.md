@@ -18,6 +18,17 @@ notes live in this file.
 
   Internal code reads the stored bounds, which this change does not touch, and no library code depends on the sign of a stored zero (the sign tests on `lo_` and `hi_` treat a zero as zero; the users of the public accessors inside the library were switched to the stored fields or to `compare`, and the certification of `decimal` and `decimal_gda` results reads a zero bound as +0, because it compares decimals in the total order, which tells -0 from +0: `acos(1)` in `decimal` failed to certify with a -0 lower bound). Three tests that asserted the opposite on purpose changed with their reasons in the comments (`ieee1788_arithmetic_wbtest.mbt`, `cancel_bottom_wbtest.mbt`, `atan2_tiny_quotient_wbtest.mbt`), and the doc examples that print a zero lower bound now print `-0`.
 
+- `ball_float`: `Show` writes the portable inf-sup literal of IEEE 1788-2015 13.3 ([#21](https://github.com/Luna-Flow/floating/issues/21), [#438](https://github.com/Luna-Flow/floating/issues/438)). `to_string` of a `BallFloat` was the midpoint-radius view `3p-1 +/- 1p-1`, which no literal reads; it is now `[l, u]` with decimal bounds rounded outward, `[empty]` or `[entire]`, and `BallFloatDecorated` appends `_` and the decoration as before.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `iv(1, 2).to_string()` is `3p-1 +/- 1p-1` | `[1, 2]` | `from_string(text, precision=x.precision())` contains the interval; at most one unit in the last place wider at each end |
+  | `BallFloat::entire().to_string()` is `[-inf, inf]` | `[entire]` | |
+  | `x.to_string()` for the midpoint-radius view | `x.to_ball_string()` | not a literal; also on `BallFloatDecorated` |
+  | (new) | `to_exact_string`, `from_exact_string` | hexadecimal bounds read exactly at their own bit count (never widened, refused only beyond the library), `identical` round trip for every interval of the type (13.4), on `BallFloat` and `BallFloatDecorated` |
+
+  A bound with a binary exponent beyond 4096 in magnitude is written in hexadecimal (`0x3p1073741000`): its decimal expansion would need a power of ten of that size. Outputs changed in the repository: two asserted outputs (`half_width_wbtest.mbt` in `ball_float`, kept as `to_ball_string`, and `consistency/core_wbtest.mbt` in the tooling tests, both texts asserted), the examples of `doc/manual/api/ball_float.md`, the `show` helper of the two `ball_float_checked` pages (now `to_ball_string`) and one failure message in `doc/manual/tutorial/frontend/itl_expr.md`.
+
 - `bin_float`: a context is a format of IEEE 754-2019 3.3 ([#438](https://github.com/Luna-Flow/floating/issues/438), items A3 and A4). It is built from the precision and `e_max`, with `e_min = 1 - e_max`; there is no one-sided or asymmetric range, `RoundAwayFromZero` (no clause 4.3 attribute) is removed, and a context given by its precision alone is the extendable precision format of 3.7 (`e_max` is `binary_implementation_e_max`). The implementation range of stored values is the same range: `binary_implementation_e_min` is `2 - 2^30` (it was `1 - 2^30`), so every stored value is a member of `BinaryContext::new(precision=p)` and a plain operation is the contextual operation in that context. A result whose leading bit is exactly `1 - 2^30` is now subnormal.
 
   | before | after | note |

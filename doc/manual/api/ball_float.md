@@ -2059,7 +2059,8 @@ pub impl Div for BallFloatDecorated
 
 ### `BallFloat::to_string`, `BallFloat::output`, `BallFloatDecorated::to_string`, `BallFloatDecorated::output`, `Decoration::to_string`, `Decoration::output`
 
-`Show` writes an interval in an exact text form.
+`Show` writes an interval as the portable inf-sup literal of IEEE 1788-2015
+13.3 (`intervalToText`): the text `from_string` reads.
 
 ```mbti
 pub impl Show for BallFloat
@@ -2073,21 +2074,81 @@ pub fn Decoration::to_string(Self) -> String
 pub fn Decoration::output(Self, &Logger) -> Unit
 ```
 
-A bounded `BallFloat` prints as `center +/- radius` with both numbers in the
-exact `BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$), so the text denotes
-exactly the stored set (up to the far-endpoint case: endpoints more than about
-$2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the
-smaller one); an unbounded one
-prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and
-the decoration; NaI prints as `[nai]`.
+A nonempty bounded or half-bounded interval prints as `[l, u]`, Empty as
+`[empty]`, Entire as `[entire]`; a decorated interval appends `_` and the
+decoration, and NaI prints as `[nai]`. Each bound is a decimal number rounded
+outward (the lower bound down, the upper bound up), so the text is a literal of
+an interval that contains the value (13.3). The digits are the fewest that keep
+the bound within one unit in the last place of the stored bound at the
+precision of the interval, so `from_string(text, precision=x.precision())`
+contains `x` and is wider by at most one unit in the last place at each end. A
+bound with a binary exponent beyond 4096 in magnitude is written in
+hexadecimal (`0x3p1073741000`) because its decimal expansion needs a power of
+ten of that size; a hexadecimal bound is exact and is a valid literal. A zero bound is written `0`, without a sign, whatever sign it has: the literal of $[0, 0]$ does not carry the signs that `lower_bound` and `upper_bound` return ($-0$ and $+0$, 12.12.8), and 13.3 does not ask for them.
 
 ```moonbit
 ///|
 test "show" {
-  inspect(iv(1, 2).to_string(), content="3p-1 +/- 1p-1")
-  inspect(@ball_float.BallFloat::entire().to_string(), content="[-inf, inf]")
-  inspect(@ball_float.BallFloatDecorated::new(iv(1, 2)).to_string(), content="3p-1 +/- 1p-1_com")
+  inspect(iv(1, 2).to_string(), content="[1, 2]")
+  inspect(@ball_float.BallFloat::entire().to_string(), content="[entire]")
+  inspect(@ball_float.BallFloatDecorated::new(iv(1, 2)).to_string(), content="[1, 2]_com")
 }
+```
+
+### `BallFloat::to_exact_string`, `BallFloat::from_exact_string`, `BallFloatDecorated::to_exact_string`, `BallFloatDecorated::from_exact_string`
+
+IEEE 1788-2015 13.4 `intervalToExact` and `exactToInterval`: a text that names
+the interval itself.
+
+```mbti
+pub fn BallFloat::to_exact_string(Self) -> String
+pub fn BallFloat::from_exact_string(String, precision~ : Int32 = ..) -> Result[BallFloat, @def.ArithmeticError]
+pub fn BallFloatDecorated::to_exact_string(Self) -> String
+pub fn BallFloatDecorated::from_exact_string(String, precision~ : Int32 = ..) -> Result[BallFloatDecorated, @def.ArithmeticError]
+```
+
+The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as
+hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and
+for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds
+are the stored bounds, so `from_exact_string(x.to_exact_string(),
+precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4).
+`from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never
+widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with
+more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()`
+is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `new` or of
+`cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and
+`[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision
+53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for
+what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent
+range of the library (or finer than the grid of the larger of its own bit count and `precision` below the
+range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the
+converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits
+of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and
+upper case are read.
+
+```moonbit
+///|
+test "exact text" {
+  let x = iv(1, 2)
+  inspect(x.to_exact_string(), content="[0x1p0, 0x1p1]")
+  let back = @ball_float.BallFloat::from_exact_string(x.to_exact_string()).unwrap()
+  assert_true(x.identical(back))
+}
+```
+
+### `BallFloat::to_ball_string`, `BallFloatDecorated::to_ball_string`
+
+The midpoint-radius view, `center +/- half-width`, with both numbers in the
+`BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$). It was the output of `Show`
+before 0.12; it is for reading, not a literal (`from_string` does not read it),
+and its cost does not depend on the exponent range: an interval whose bounds
+have exponents a billion apart is written in a few characters. An interval with
+an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`;
+a decorated interval appends `_` and the decoration.
+
+```mbti
+pub fn BallFloat::to_ball_string(Self) -> String
+pub fn BallFloatDecorated::to_ball_string(Self) -> String
 ```
 
 ### `BallFloat::equal`, `BallFloat::not_equal`, `BallFloat::to_repr`, `BallFloatDecorated::equal`, `BallFloatDecorated::not_equal`, `BallFlags::equal`, `BallFlags::not_equal`
@@ -2282,6 +2343,7 @@ pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
+pub fn BallFloat::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
 pub fn BallFloat::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2345,6 +2407,8 @@ pub fn BallFloat::tan(Self) -> Self
 pub fn BallFloat::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
+pub fn BallFloat::to_ball_string(Self) -> String
+pub fn BallFloat::to_exact_string(Self) -> String
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::trunc(Self) -> Self
@@ -2434,6 +2498,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
@@ -2489,6 +2554,8 @@ pub fn BallFloatDecorated::tan(Self) -> Self
 pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
+pub fn BallFloatDecorated::to_ball_string(Self) -> String
+pub fn BallFloatDecorated::to_exact_string(Self) -> String
 pub fn BallFloatDecorated::to_string(Self) -> String
 pub fn BallFloatDecorated::trunc(Self) -> Self
 pub impl Add for BallFloatDecorated
