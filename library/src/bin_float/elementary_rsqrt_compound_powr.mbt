@@ -22,13 +22,6 @@
 // qNaN."
 
 ///|
-fn binary_invalid_domain(
-  message : String,
-) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  Err(@def.ArithmeticError::domain_error(message))
-}
-
-///|
 /// 1 / sqrt(x). Positive finite `x` is `rootn(x, -2)`, whose exact case
 /// (a power of 4) and range handling it shares.
 pub fn BinFloat::try_rsqrt_ctx(
@@ -43,7 +36,7 @@ pub fn BinFloat::try_rsqrt_ctx(
     FpClass::NaN => abort("unreachable rsqrt NaN")
     FpClass::Infinity =>
       if self.is_negative() {
-        binary_invalid_domain("rsqrt requires x >= 0")
+        Ok(binary_invalid_value(context))
       } else {
         Ok(
           (BinFloat::zero_raw(precision=context.precision), BinaryFlags::new()),
@@ -51,8 +44,7 @@ pub fn BinFloat::try_rsqrt_ctx(
       }
     FpClass::Finite if self.is_zero() =>
       Ok(binary_pole_result(self.is_negative(), context))
-    FpClass::Finite if self.is_negative() =>
-      binary_invalid_domain("rsqrt requires x >= 0")
+    FpClass::Finite if self.is_negative() => Ok(binary_invalid_value(context))
     FpClass::Finite => self.try_rootn_ctx(-2, context)
   }
 }
@@ -179,7 +171,7 @@ pub fn BinFloat::try_compound_ctx(
       }
     FpClass::Infinity =>
       if self.is_negative() {
-        binary_invalid_domain("compound requires x >= -1")
+        Ok(binary_invalid_value(context))
       } else if degree == 0 {
         Ok((one, BinaryFlags::new()))
       } else if degree > 0 {
@@ -198,7 +190,7 @@ pub fn BinFloat::try_compound_ctx(
       let minus_one = BinFloat::one_raw(precision=self.precision()).neg()
       let comparison = self.compare(minus_one)
       if comparison < 0 {
-        return binary_invalid_domain("compound requires x >= -1")
+        return Ok(binary_invalid_value(context))
       }
       if degree == 0 || self.is_zero() {
         return Ok((one, BinaryFlags::new()))
@@ -254,7 +246,7 @@ pub fn BinFloat::try_powr_ctx(
     return Ok((binary_quiet_nan(self, context.precision), BinaryFlags::new()))
   }
   if self.is_negative() && !self.is_zero() {
-    return binary_invalid_domain("powr requires x >= 0")
+    return Ok(binary_invalid_value(context))
   }
   if exponent.class() == FpClass::NaN {
     return Ok(
@@ -267,7 +259,7 @@ pub fn BinFloat::try_powr_ctx(
   if self.classify() == FpClass::Finite && self.is_zero() {
     // powr(+-0, y)
     if y_zero {
-      return binary_invalid_domain("powr(0, 0) is invalid")
+      return Ok(binary_invalid_value(context))
     }
     if y_infinite && exponent.is_negative() {
       return Ok(
@@ -287,7 +279,7 @@ pub fn BinFloat::try_powr_ctx(
   if self.classify() == FpClass::Infinity {
     // powr(+inf, y)
     if y_zero {
-      return binary_invalid_domain("powr(inf, 0) is invalid")
+      return Ok(binary_invalid_value(context))
     }
     return Ok(
       if exponent.is_negative() {
@@ -303,7 +295,7 @@ pub fn BinFloat::try_powr_ctx(
   // x > 0 and finite
   if self.compare(BinFloat::one_raw(precision=self.precision())) == 0 {
     if y_infinite {
-      return binary_invalid_domain("powr(1, inf) is invalid")
+      return Ok(binary_invalid_value(context))
     }
     return Ok((one, BinaryFlags::new()))
   }

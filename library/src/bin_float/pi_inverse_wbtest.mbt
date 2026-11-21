@@ -53,12 +53,15 @@ fn pi_inf(negative : Bool) -> BinFloat {
 }
 
 ///|
-/// `value flags`, or `err` for a domain error.
+/// `value flags` (with `V` for invalid_operation and `N` for not_computed, so that a
+/// case that signals invalid is told apart from a quiet NaN that propagates), or
+/// `err` for an `Err`.
 fn pi_show(
   result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
 ) -> String {
   match result {
-    Ok((value, flags)) => "\{value} \{e2s_flags(flags)}"
+    Ok((value, flags)) =>
+      "\{value} \{e2s_flags(flags)}\{if flags.invalid_operation() { "V" } else { "" }}\{if flags.not_computed() { "N" } else { "" }}"
     Err(_) => "err"
   }
 }
@@ -157,8 +160,8 @@ test "asinpi, acospi and atanpi special values" {
         pi_inf(true),
       ] {
       // S4: a domain case is a value in the try_ form (the NaN with invalid_operation)
-      assert_eq(asinpi(bad), "nan ---")
-      assert_eq(acospi(bad), "nan ---")
+      assert_eq(asinpi(bad), "nan ---V")
+      assert_eq(acospi(bad), "nan ---V")
       let (value, flags) = bad.asinpi_ctx(ctx)
       assert_true(value.is_quiet_nan() && flags.invalid_operation())
       let (value, flags) = bad.acospi_ctx(ctx)

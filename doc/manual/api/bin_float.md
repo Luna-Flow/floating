@@ -1621,10 +1621,8 @@ precision. An argument outside the real domain of `ln`, `log2`, `log10`, `log1p`
 `log10p1`, `asin`, `acos`, `acosh`, `atanh`, `asinpi` and `acospi`, and an infinite
 argument of the trigonometric functions (`sin`, `cos`, `tan`, `sinpi`, `cospi`,
 `tanpi`), is a value of `try_f_ctx`, a NaN with `invalid_operation`, as it is for the
-plain form; `rootn`, `pow`, `powr`, `rsqrt` and `compound` still give a
-`domain_error` from `try_f_ctx` (S4 is making each family a value). The non-`try` forms turn a certification failure into a quiet NaN
-with `not_computed` and a domain error into a quiet NaN with
-`invalid_operation`. NaN operands propagate quietly (a signaling NaN
+plain form, and so is a domain case of `rootn`, `pow`, `powr`, `rsqrt` and
+`compound`: `try_f_ctx` returns `Err` only for a result that could not be computed. The non-`try` forms turn that `Err` into a quiet NaN with `not_computed`. NaN operands propagate quietly (a signaling NaN
 raises `invalid_operation`), and poles return a signed infinity with
 `division_by_zero` (for example $\ln 0 = -\infty$,
 $\operatorname{atanh}(1) = +\infty$). Exactly representable results that an

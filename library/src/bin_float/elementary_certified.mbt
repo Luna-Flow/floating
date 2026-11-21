@@ -30,26 +30,21 @@ fn binary_not_computed_error(operation : String) -> @def.ArithmeticError {
 
 ///|
 /// Total form of a `try_*_ctx` result used by the non-`try` elementary APIs.
-/// A certification failure or a limit of the implementation (`Err` of the
-/// certification-failure kind) becomes a quiet NaN with `not_computed`, and not
-/// with `invalid_operation`, which is raised only for a case IEEE 754-2019 defines
-/// as invalid; callers that need the reason use the `try_*` API. A domain
-/// `Err` (the `try_` forms of this package still return one until their domain
-/// cases become values) is the invalid case.
+/// `Err` of a `try_` form is only a result that could not be computed (a
+/// certification failure or a limit of the implementation): the plain form is a
+/// quiet NaN with `not_computed`, and not with `invalid_operation`, which is raised
+/// only for a case IEEE 754-2019 defines as invalid (a value in the `try_` forms
+/// too); callers that need the reason use the `try_*` API.
 fn binary_defined_or_nan(
   result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   match result {
     Ok(value) => value
-    Err(error) =>
+    Err(_) =>
       (
         BinFloat::nan_raw(precision=context.precision),
-        if error.is_certification_failure() {
-          binary_not_computed_flags()
-        } else {
-          binary_invalid_flags()
-        },
+        binary_not_computed_flags(),
       )
   }
 }
@@ -2767,11 +2762,7 @@ pub fn BinFloat::try_rootn_ctx(
   degree : Int32,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  guard degree != 0 else {
-    return Err(
-      @def.ArithmeticError::domain_error("rootn degree must not be zero"),
-    )
-  }
+  guard degree != 0 else { return Ok(binary_invalid_value(context)) }
   let degree64 = degree.to_int64()
   let magnitude_degree = if degree64 < 0L { -degree64 } else { degree64 }
   let odd = magnitude_degree % 2L != 0L
@@ -2788,11 +2779,7 @@ pub fn BinFloat::try_rootn_ctx(
         ),
       )
     FpClass::Infinity if self.negative() && !odd =>
-      Err(
-        @def.ArithmeticError::domain_error(
-          "rootn even degree requires a non-negative value",
-        ),
-      )
+      Ok(binary_invalid_value(context))
     FpClass::Infinity => {
       let negative = self.negative() && odd
       if degree < 0 {
@@ -2852,11 +2839,7 @@ pub fn BinFloat::try_rootn_ctx(
       }
     }
     FpClass::Finite if self.negative() && !odd =>
-      Err(
-        @def.ArithmeticError::domain_error(
-          "rootn even degree requires a non-negative value",
-        ),
-      )
+      Ok(binary_invalid_value(context))
     FpClass::Finite => {
       let positive = self.abs()
       if magnitude_degree == 1 {
@@ -3161,13 +3144,7 @@ pub fn BinFloat::try_pow_ctx(
     )
   }
   if self.is_negative() {
-    guard exponent_integer else {
-      return Err(
-        @def.ArithmeticError::domain_error(
-          "pow requires a non-negative base for non-integer exponents",
-        ),
-      )
-    }
+    guard exponent_integer else { return Ok(binary_invalid_value(context)) }
     // An integer exponent beyond the `pown` range: |x|^y, negated for an odd
     // y, which also mirrors the directed rounding modes.
     if !exponent_odd {
