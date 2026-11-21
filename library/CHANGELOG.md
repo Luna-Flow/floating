@@ -1145,6 +1145,24 @@ notes live in this file.
   | `internal/bin_kernel` | `internal/binary_kernel` | not public; for contributors |
   | `BinCoeff`, `BinRepr`, `BinaryContext`, `BinaryFlags`, `BinaryInterchange`, `BinaryRoundingMode`, `bin_coeff_*` | unchanged | |
 
+- Names of the review against the standards ([#438](https://github.com/Luna-Flow/floating/issues/438)): thirteen names change to the word of the standard or to the one the review decided. No behaviour changes and no alias is kept. Entries of this section and of the released sections keep the names they were written with; the table maps them.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `IntervalResult` | `IntervalChecked` | one suffix for the checked types (`BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`) |
+  | `GdaContext::status()`, `GdaContext::clear_status()` | `GdaContext::flags()`, `GdaContext::clear_flags()` | the accumulated flags, as in `decimal_checked`; `raised` and `reset` keep their names (IEEE 754-2019 2.1 status flag; GDA 1.70 page 15) |
+  | `GdaDecimalChecked::status()` | `GdaDecimalChecked::flags()` | |
+  | `Binary::is_negative()`, `Decimal::is_negative()` (`decimal`) | `is_sign_minus()` | isSignMinus of IEEE 754-2019 5.7.2; `decimal_gda` keeps `is_signed` |
+  | `Binary::round_ties_even()` | `Binary::round_ties_to_even()` | the spelling `Interval` already has |
+  | `BinaryInterchangeFormat::total_bits()` | `storage_width()` | the words of IEEE 754-2019 Table 3.5; `bias` stays |
+  | `BinaryInterchangeFormat::exponent_bits()` | `exponent_field_width()` | |
+  | `BinaryInterchangeFormat::fraction_bits()` | `trailing_significand_field_width()` | |
+  | `DecimalInterchange::copy_negate()`, `copy_abs()` | `neg()`, `abs()` | as `Decimal`; `canonical`, `copy`, `copy_sign` stay; `decimal_gda` keeps the GDA names |
+  | `Binary::min(y)`, `max(y)`, `BinaryChecked::min`, `max`, `Decimal::min`, `max` (`decimal`) | `min_num`, `max_num` | the minNum and maxNum of IEEE 754-2008 (replaced in 754-2019, 5.3.1 NOTE); `Interval::min`, `max` (1788 Table 9.1) and `decimal_gda` are not changed |
+  | `Binary::sign()`, `Decimal::sign()` (`decimal`, `decimal_gda`), `@def.Floating::sign` | `signum()` | the three-valued classification; `Sign` and `Interval::sign` keep their names |
+  | `binary_implementation_e_max`, `binary_implementation_e_min` | `binary_value_e_max`, `binary_value_e_min` | the stored range, as `decimal_value_e_max` |
+  | `decimal_implementation_e_max`, `decimal_implementation_e_min` | `decimal_context_e_max_limit`, `decimal_context_e_min_limit` | the bound of a context parameter |
+
 ### Added
 
 - `decimal`: `Decimal::total_order` and `total_order_mag`, the boolean totalOrder and totalOrderMag predicates of IEEE 754-2019 §5.10 (see Breaking for the renamed three-way `total_order_compare`). The §5.10 corpus (all matrix cells of the four formats) runs against both the boolean and the three-way form.
