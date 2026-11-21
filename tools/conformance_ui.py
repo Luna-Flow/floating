@@ -125,6 +125,7 @@ def print_summary(
     failed: int,
     elapsed: float,
     failed_ids: list[str] | None = None,
+    total_label: str = "TOTAL",
 ) -> None:
     console = Console(sys.stdout)
     console.heading(title, authority)
@@ -135,7 +136,7 @@ def print_summary(
         console.status(row.failed == 0, row.label, detail)
     console.status(
         failed == 0,
-        "TOTAL",
+        total_label,
         f"{passed:,}/{total:,} passed, {format_duration(elapsed)}",
     )
     if failed_ids:

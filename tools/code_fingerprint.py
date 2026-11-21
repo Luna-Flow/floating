@@ -716,12 +716,18 @@ class UnknownEntryError(KeyError):
 START_UP = ("moonbit_init", "main")
 
 
-def reachable(program: Program, entry: str | Iterable[str], cut: Collection[str] = ()) -> set[str]:
+def reachable(
+    program: Program,
+    entry: str | Iterable[str],
+    cut: Collection[str] = (),
+    exclude: Collection[str] = (),
+) -> set[str]:
     """The names reachable from the entries through references (the entries included).
 
     A name in `cut` that is reached is in the result but its references are not followed
-    (an entry itself is always followed). Raises UnknownEntryError for an entry that is not
-    a definition.
+    (an entry itself is always followed). A name in `exclude` is not visited at all (the
+    operation functions of a dispatcher, whose code belongs to the key of their own unit).
+    Raises UnknownEntryError for an entry that is not a definition.
     """
     roots = [entry] if isinstance(entry, str) else list(entry)
     for root in roots:
@@ -732,7 +738,7 @@ def reachable(program: Program, entry: str | Iterable[str], cut: Collection[str]
     followed = set(roots)
     while stack:
         name = stack.pop()
-        if name in seen:
+        if name in seen or (name in exclude and name not in followed):
             continue
         seen.add(name)
         if name in cut and name not in followed:
@@ -746,12 +752,13 @@ def fingerprint(
     entry: str | Iterable[str],
     *,
     cut: Collection[str] = (),
+    exclude: Collection[str] = (),
     startup: bool = True,
 ) -> str:
     """The fingerprint of the code a unit with these entries can run, residue and start-up included.
 
     The roots are the entries and, unless `startup=False`, `START_UP`. Names in `cut` (the
-    dispatchers that lead to other units) are covered by their own text only. The version of
+    dispatchers that lead to other units) are covered by their own text only; names in `exclude` are left out (the arms of a dispatcher). The version of
     the normalisations and the residue digest are part of the digest.
     """
     roots = [entry] if isinstance(entry, str) else list(entry)
@@ -760,7 +767,7 @@ def fingerprint(
     digest = hashlib.sha256()
     digest.update(program.version.encode())
     digest.update(program.residue_digest.encode())
-    for name in sorted(reachable(program, roots, cut)):
+    for name in sorted(reachable(program, roots, cut, exclude)):
         digest.update(name.encode())
         digest.update(program.definitions[name].digest.encode())
     return digest.hexdigest()

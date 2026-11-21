@@ -31,6 +31,7 @@ Run them from the repository root, normally through `just`.
 | `check_imports.py` | package independence, the library's dependencies, equal versions and identical `LICENSE` files |
 | `check_package_contents.py` | the shape of the zip of each module (`just publish`) |
 | `code_fingerprint.py` | fingerprints of the compiled code reachable from an entry, taken from the generated C of the native backend (`python3 tools/code_fingerprint.py <cli.c> [entry ...]` prints the line accounting, the residue, the layout-index and shared-local counts and the fingerprints; `--cut` names the dispatchers); the basis of incremental verification, not yet used by a gate |
+| `incremental.py` | incremental verification: unit keys (frame fingerprint, input, toolchain, recorded arms), the append-only ledger (`.tmp/verification-ledger/ledger.jsonl` of the main checkout, shared by worktrees), the 2 % sampled rerun and the report lines; used by `run_binfloat_interpreter.py --incremental` (TestFloat tasks and MPFR files); a differing sampled rerun exits with status 70; `conformance_cli.py` writes a build record next to each copied interpreter so that the C file the keys are taken from is bound to the executable that runs |
 | `doc_quality.py`, `check_doc_examples.py`, `conformance_checklist.py` | the manual: sections, links, versions, API snapshots, runnable examples, the generated checklist |
 | `native_test_timing.py` | which native test files are slowest |
 
