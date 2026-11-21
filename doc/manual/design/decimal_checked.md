@@ -119,17 +119,24 @@ history.
     clause 8 (alternate exception handling): status flags are raised and remain
     raised until explicitly lowered.
 
-### One context per pipeline, plain operands
+### One context per pipeline, pipeline operands
 
-**Problem.** A binary operation could take another pipeline as its operand.
+**Problem.** A binary operation took a plain `Decimal` as its right operand, so
+the flags and the error of the computation that produced that operand could not
+reach the result.
 
-**Choice.** Operands are plain `Decimal` values. Two pipelines carry two
-contexts and two flag histories; merging them would need a rule for which
-context wins, and the union of histories would hide which side raised a flag.
-With plain operands the pipeline is a single linear history under one context,
-and the context changes only through `with_context`, which records the flags of
-rounding the current value into the new context. For the same reason the type
-implements no operators.
+**Choice.** The right operand of a binary operation is a `DecimalChecked`, as
+for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag
+histories; the rule is that the context of the left pipeline wins, the
+conditions of the right pipeline join `raised` and `flags` of the result, an
+error of the left pipeline stays and an error of the right one is taken before
+the operation runs (the value of the left pipeline is kept). The context
+changes only through `with_context`, which records the flags of rounding the
+current value into the new context. `DecimalChecked::from_decimal(x, ctx)`
+lifts a plain value; it applies the context, so a signaling NaN lifted that way
+is quieted with `invalid_operation`. The constructor that took a value, a
+context and flags is not public: a caller could state flags that no operation
+raised. For the same reason the type implements no operators.
 
 ### Mapping a Luna-Flow/arithmetic context
 
@@ -196,9 +203,12 @@ coordinates kept by $\pi$; the pipeline keeps them as flags instead.
 ### Accumulated flags are the union of per-step flags
 
 **Theorem.** Let a pipeline be constructed with flags $r_0$ (from
-`from_outcome`, `from_decimal`, `parse` or a numeric constructor) and then
+`from_decimal`, `parse` or a numeric constructor) and then
 undergo successful steps $1, \dots, n$ with raised flags $r_1, \dots, r_n$
-(including `with_context` and `apply`), with no `clear_flags` in between. Then
+(including `with_context` and `apply`), with no `clear_flags` in between and
+with plain steps only (a step with a pipeline as its right operand also joins
+the flags of that pipeline, `raised` with its `raised` and `flags` with its
+`flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then
 
 $$
 F_n = r_0 \lor r_1 \lor \dots \lor r_n, \qquad r = r_n .
@@ -227,9 +237,9 @@ order of combination.
 test "accumulated flags are the union of the raised flags" {
   let ctx = @decimal.DecimalContext::decimal64()
   let s0 = @decimal_checked.DecimalChecked::from_int(1, ctx)
-  let s1 = s0.div(@decimal.Decimal::from_int(3))
-  let s2 = s1.add(@decimal.Decimal::from_int(10))
-  let s3 = s2.div(@decimal.Decimal::zero())
+  let s1 = s0.div(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(3), ctx))
+  let s2 = s1.add(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(10), ctx))
+  let s3 = s2.div(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::zero(), ctx))
   let forward = s0.raised().combine(s1.raised()).combine(s2.raised()).combine(s3.raised())
   let backward = s3.raised().combine(s2.raised()).combine(s1.raised()).combine(s0.raised())
   inspect(s3.flags() == forward, content="true")

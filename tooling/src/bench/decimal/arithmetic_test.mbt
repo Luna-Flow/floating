@@ -23,6 +23,7 @@ struct DecimalInput {
   right : @decimal_core.Decimal
   context : @decimal_core.DecimalContext
   left_checked : @checked.DecimalChecked
+  right_checked : @checked.DecimalChecked
 }
 
 ///|
@@ -64,6 +65,7 @@ fn decimal_input(operation : DecimalOperation, digits : Int32) -> DecimalInput {
     right,
     context,
     left_checked: @checked.DecimalChecked::from_decimal(left, context),
+    right_checked: @checked.DecimalChecked::from_decimal(right, context),
   }
 }
 
@@ -136,9 +138,9 @@ fn decimal_implementations(
     }),
     @runner.Implementation::stateless("full/checked", "0.8.0", input => {
       let output = match operation {
-        Add => input.left_checked.add(input.right)
-        Mul => input.left_checked.mul(input.right)
-        Div => input.left_checked.div(input.right)
+        Add => input.left_checked.add(input.right_checked)
+        Mul => input.left_checked.mul(input.right_checked)
+        Div => input.left_checked.div(input.right_checked)
       }
       @model.OperationResult::completed(DecimalOutput::Checked(output), ())
     }),

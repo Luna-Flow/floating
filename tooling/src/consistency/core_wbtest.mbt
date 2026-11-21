@@ -4849,13 +4849,21 @@ test "decimal_checked preserves IEEE values and accumulated flags" {
   let context = @decimal.DecimalContext::new(precision=20)
   let result = @decimal_checked.DecimalChecked::parse("9.0", context)
     .sqrt()
-    .div(@decimal.Decimal::from_int(3, precision=20))
+    .div(
+      @decimal_checked.DecimalChecked::from_decimal(
+        @decimal.Decimal::from_int(3, precision=20),
+        context,
+      ),
+    )
   assert_eq(result.value(), @decimal.Decimal::one(precision=20))
   let invalid = @decimal_checked.DecimalChecked::parse("bad", context)
   assert_true(invalid.value().is_nan())
   assert_true(invalid.flags().invalid_operation())
   let divided_by_zero = @decimal_checked.DecimalChecked::from_int(1, context).div(
-    @decimal.Decimal::zero(precision=20),
+    @decimal_checked.DecimalChecked::from_decimal(
+      @decimal.Decimal::zero(precision=20),
+      context,
+    ),
   )
   assert_true(divided_by_zero.value().is_infinite())
   assert_true(divided_by_zero.flags().division_by_zero())

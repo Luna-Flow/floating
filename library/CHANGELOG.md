@@ -547,6 +547,15 @@ notes live in this file.
   | `x.div_checked(y)` | `x.div_ctx(y, ctx)` and test the flags | a `DecimalContext` and the flags instead of a `Result` |
   | `x.div_checked(y)` | `x / y` | an infinity or a NaN instead of `Err`, as the plain operators |
 
+- `decimal_checked`: the right operand of a binary operation is a pipeline, one set of exits, `from_outcome` is internal ([#438](https://github.com/Luna-Flow/floating/issues/438), item S9, the pattern of `decimal_gda_checked`). The right operand was a plain `Decimal`, so the flags and the error of the computation that produced it could not reach the result. The result context is the one of the left pipeline; the conditions of the right pipeline join `raised` and `flags`; an error of the left pipeline stays and an error of the right one stops the operation (the value of the left pipeline is kept); `fma` takes the first error among its three operands. `from_outcome(value, context, flags)` accepted any triple of a value, a context and flags without applying the context; no caller outside the package needs it (`from_decimal`, `parse` and the numeric constructors are the entry points), so it is not public. `outcome()` is removed: `result()` and `error()` are the exits that carry the error, `value()` and `flags()` the components.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `p.add(x)` with `x : Decimal` (also `sub`, `mul`, `div`, `pow`, `powr`, `hypot`, `atan2`, `atan2pi`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_toward`) | `p.add(q)` with `q : DecimalChecked` | `DecimalChecked::from_decimal(x, ctx)` lifts a value; it applies `ctx`, so a signaling NaN is quieted and raises `invalid_operation` there |
+  | `p.fma(b, c)` with two `Decimal` | `p.fma(b, c)` with two pipelines | the first error among `p`, `b`, `c` is the error of the result |
+  | `DecimalChecked::from_outcome(v, ctx, flags)` | `DecimalChecked::from_decimal(v, ctx)` | rounds `v` into `ctx` and records the flags of that rounding; a flag set that no operation raised cannot be stated |
+  | `p.outcome()` | `p.value()` and `p.flags()`, or `p.result()` | `result()` is `Err(error)` or `Ok((value, flags))` |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

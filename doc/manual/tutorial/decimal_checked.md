@@ -46,7 +46,7 @@ Divide 10 by 4 in decimal64 and check that the result is exact:
 test "quick start: an exact division" {
   let ctx = @decimal.DecimalContext::decimal64()
   let r = @decimal_checked.DecimalChecked::from_int(10, ctx).div(
-    @decimal.Decimal::from_int(4),
+    @decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(4), ctx),
   )
   inspect(r.value().to_string(), content="2.5")
   inspect(r.flags().inexact(), content="false")
@@ -81,8 +81,8 @@ and `flags()` the whole pipeline:
 test "price with tax" {
   let ctx = @decimal.DecimalContext::decimal64()
   let gross = @decimal_checked.DecimalChecked::parse("19.99", ctx)
-    .mul(@decimal.Decimal::from_string("1.0825").unwrap())
-    .quantize(@decimal.Decimal::from_string("0.01").unwrap())
+    .mul(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_string("1.0825").unwrap(), ctx))
+    .quantize(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_string("0.01").unwrap(), ctx))
   inspect(gross.value().to_string(), content="21.64")
   inspect(flags(gross.raised()), content="inexact")
   inspect(flags(gross.flags()), content="inexact")
@@ -101,8 +101,8 @@ Flags of earlier steps stay in `flags()` even when later steps are exact:
 test "an early rounding is remembered" {
   let ctx = @decimal.DecimalContext::new(precision=5, e_max=100)
   let r = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
-    .add(@decimal.Decimal::from_int(1))
-    .mul(@decimal.Decimal::from_int(2))
+    .add(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(1), ctx))
+    .mul(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(2), ctx))
   inspect(r.value().to_string(), content="4.4692")
   inspect(flags(r.raised()), content="")
   inspect(flags(r.flags()), content="inexact")
@@ -120,8 +120,8 @@ the flag is kept:
 test "division by zero is a flagged value" {
   let ctx = @decimal.DecimalContext::decimal64()
   let r = @decimal_checked.DecimalChecked::from_int(1, ctx)
-    .div(@decimal.Decimal::zero())
-    .add(@decimal.Decimal::from_int(5))
+    .div(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::zero(), ctx))
+    .add(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(5), ctx))
   inspect(r.value().to_string(), content="inf")
   inspect(flags(r.flags()), content="division_by_zero")
   inspect(r.is_ok(), content="true")
@@ -142,11 +142,11 @@ touching the value:
 test "clear flags between phases" {
   let ctx = @decimal.DecimalContext::decimal64()
   let phase1 = @decimal_checked.DecimalChecked::from_int(2, ctx).div(
-    @decimal.Decimal::from_int(3),
+    @decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(3), ctx),
   )
   inspect(flags(phase1.flags()), content="inexact")
   let phase2 = phase1.clear_flags().mul(
-    @decimal.Decimal::from_string("1E+1").unwrap(),
+    @decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_string("1E+1").unwrap(), ctx),
   )
   inspect(phase2.value().to_string(), content="6.666666666666667")
   inspect(flags(phase2.flags()), content="")
@@ -225,7 +225,7 @@ fn diagnostics(f : @decimal.DecimalFlags) -> @lf_arith.ArithmeticDiagnostics {
 ///|
 test "accumulated flags become arithmetic diagnostics" {
   let ctx = @decimal.DecimalContext::decimal64()
-  match @decimal_checked.DecimalChecked::from_int(1, ctx).div(@decimal.Decimal::from_int(3)).result() {
+  match @decimal_checked.DecimalChecked::from_int(1, ctx).div(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(3), ctx)).result() {
     Ok((value, f)) => {
       let outcome = @lf_arith.ArithmeticOutcome::with_diagnostics(value, diagnostics(f))
       inspect(outcome.diagnostics.inexact, content="true")
@@ -254,8 +254,12 @@ combining the per-step diagnostics.
   instead.
 - **`remainder` is the IEEE remainder.** It rounds the quotient to the
   nearest integer, so `1` remainder `0.6` is `-0.2`, not `0.4`.
-- **Operands are plain `Decimal` values.** They are not rounded to the
-  context before the operation; the operation rounds the result.
+- **The right operand is a pipeline.** Lift a plain value with
+  `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first
+  (a signaling NaN is quieted and raises `invalid_operation`); the operation
+  then runs in the context of the left pipeline and rounds the result. The
+  conditions of the right pipeline join the result, and its error stops the
+  operation.
 - **`clear_flags` also works after an error,** but the error stays.
 
 ## Next steps

@@ -166,12 +166,11 @@ matches what your caller must observe:
 test "pipelines" {
   let failed = @bin_float_checked.BinFloatResult::from_int(-4).sqrt()
   inspect(failed.is_err(), content="true")
-  let total = @decimal_checked.DecimalChecked::parse(
-      "1",
-      @decimal.DecimalContext::decimal64(),
-    )
-    .div(@decimal.Decimal::from_int(3))
-    .mul(@decimal.Decimal::from_int(3))
+  let ctx = @decimal.DecimalContext::decimal64()
+  let three = @decimal_checked.DecimalChecked::from_int(3, ctx)
+  let total = @decimal_checked.DecimalChecked::parse("1", ctx)
+    .div(three)
+    .mul(three)
   inspect(total.value(), content="0.9999999999999999")
   // Accumulated over the pipeline versus raised by the last step.
   inspect(total.flags().inexact(), content="true")
