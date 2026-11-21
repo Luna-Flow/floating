@@ -210,7 +210,7 @@ def assign_lanes(stages: list[Stage]) -> list[Stage]:
     return sorted(placed, key=lambda stage: (order[stage.lane], position[stage.name]))
 
 
-def stages_for(scope: str, jobs: int) -> list[Stage]:
+def stages_for(scope: str, jobs: int, reuse: bool = True) -> list[Stage]:
     suites = {
         "decimal": Stage(
             "DECIMAL: IEEE 754",
@@ -423,19 +423,11 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "--skip-package-tests",
                 ),
             ),
+            # The native tests run as incremental units (`tools/native_units.py`: the same `moon test
+            # --target native --deny-warn --frozen`, minus the packages whose key is in the ledger).
             Stage(
                 "TEST: native",
-                (
-                    "sh",
-                    "tools/run_moon_clean_exec.sh",
-                    "test",
-                    "--target",
-                    "native",
-                    "--deny-warn",
-                    "--frozen",
-                    "--jobs",
-                    str(jobs),
-                ),
+                (sys.executable, "tools/native_units.py", "--jobs", str(jobs), *(() if reuse else ("--no-reuse",))),
             ),
             *[
                 Stage(
@@ -641,8 +633,8 @@ def run_parallel(stages: list[Stage], console: Console) -> int:
     return 0
 
 
-def run(scope: str, jobs: int, dry_run: bool = False) -> int:
-    stages = stages_for(scope, jobs)
+def run(scope: str, jobs: int, dry_run: bool = False, reuse: bool = True) -> int:
+    stages = stages_for(scope, jobs, reuse)
     console = Console()
     console.heading("LUNAFLOW CI", f"scope={scope}, workers={jobs}")
     if dry_run:
@@ -689,10 +681,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("jobs", nargs="?", type=int, default=DEFAULT_JOBS)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--no-reuse",
+        action="store_true",
+        help="run every incremental unit of the quick gate (the native test units); the results are still recorded",
+    )
     args = parser.parse_args(argv)
     if args.jobs <= 0:
         parser.error("jobs must be positive")
-    return run(args.scope, args.jobs, args.dry_run)
+    return run(args.scope, args.jobs, args.dry_run, not args.no_reuse)
 
 
 if __name__ == "__main__":
