@@ -70,6 +70,7 @@ pub fn DecimalChecked::pow(Self, Self) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, Self) -> Self
 pub fn DecimalChecked::quantize(Self, Self) -> Self
+pub fn DecimalChecked::quantum(Self) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::remainder(Self, Self) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]

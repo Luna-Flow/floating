@@ -264,19 +264,19 @@ pub fn Decimal::precision(Self) -> Int
 zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use
 `is_signed` to read the sign bit.
 
-### `Decimal::coefficient`, `Decimal::exponent10`, `Decimal::quantum`
+### `Decimal::coefficient`, `Decimal::exponent10`
 
 These expose the stored representation $(c, e)$.
 
 ```mbti
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::exponent10(Self) -> Int
-pub fn Decimal::quantum(Self) -> Int
 ```
 
 `coefficient` returns $c \ge 0$ (the payload for a NaN, 0
-for an infinity). `exponent10` and `quantum` both return $e$ (0 for special
-values).
+for an infinity). `exponent10` returns $e$ (0 for special values). GDA 1.70
+has no operation named `quantum`: its operations are `quantize` and
+`same-quantum`.
 
 ### `Decimal::is_finite`, `Decimal::is_infinite`, `Decimal::is_nan`, `Decimal::is_zero`, `Decimal::is_signed`, `Decimal::is_negative_zero`
 
@@ -1841,7 +1841,6 @@ pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[S
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::precision(Self) -> Int32
-pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::sign(Self) -> @def.Sign

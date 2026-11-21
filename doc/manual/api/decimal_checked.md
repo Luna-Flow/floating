@@ -234,7 +234,7 @@ test "raised versus accumulated flags" {
 
 ## Operations that cannot fail
 
-### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
+### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `quantum`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
 
 These methods apply the IEEE decimal operation of the same meaning to the
 current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there. To use the operand exactly, as IEEE 754-2019 5.1 does (operands exact, one rounding of the result), lift it in a context wide enough to hold it, for example `decimal128`; lifting it in the context of the left pipeline rounds it first and then the result, two roundings. At three digits, half-even, `1.00 + 0.24500001` is `1.25` with the operand lifted in a wide context, and `1.24` with the operand lifted at three digits (it becomes `0.245` with `inexact`, and `1.00 + 0.245` is a tie that rounds to even); each is right for what was asked.
@@ -248,6 +248,7 @@ pub fn DecimalChecked::div(Self, Self) -> Self
 pub fn DecimalChecked::fma(Self, Self, Self) -> Self
 pub fn DecimalChecked::sqrt(Self) -> Self
 pub fn DecimalChecked::quantize(Self, Self) -> Self
+pub fn DecimalChecked::quantum(Self) -> Self
 pub fn DecimalChecked::remainder(Self, Self) -> Self
 pub fn DecimalChecked::minimum_number(Self, Self) -> Self
 pub fn DecimalChecked::maximum_number(Self, Self) -> Self
@@ -263,6 +264,7 @@ pub fn DecimalChecked::next_toward(Self, Self) -> Self
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
 | `quantize(q)` | `quantize_ctx` | $v$ rounded to the exponent of `q` |
+| `quantum()` | `quantum_ctx` | the number $10^q$ for the exponent $q$ of $v$ (IEEE 754-2019 5.3.2) |
 | `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
 | `minimum_number`, `maximum_number` | `minimum_number_ctx`, `maximum_number_ctx` | IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`) |
 | `next_down`, `next_up`, `next_toward(t)` | `next_down_ctx`, `next_up_ctx`, `next_toward_ctx` | adjacent representable value |
@@ -462,6 +464,7 @@ pub fn DecimalChecked::pow(Self, Self) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, Self) -> Self
 pub fn DecimalChecked::quantize(Self, Self) -> Self
+pub fn DecimalChecked::quantum(Self) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
 pub fn DecimalChecked::remainder(Self, Self) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]

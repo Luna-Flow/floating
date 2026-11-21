@@ -43,5 +43,5 @@ test "IEEE NaN payload accessors preserve quiet and signaling state" {
   assert_eq(signaling.get_payload().to_string(), "34")
   assert_true(replaced.is_quiet_nan())
   assert_eq(replaced.nan_payload().to_string(), "56")
-  assert_eq(Decimal::from_string("1.2300").unwrap().quantum(), -4)
+  assert_eq(Decimal::from_string("1.2300").unwrap().exponent10(), -4)
 }

@@ -291,11 +291,6 @@ pub fn Decimal::set_payload_signaling(
 }
 
 ///|
-pub fn Decimal::quantum(self : Decimal) -> Int32 {
-  self.exponent10
-}
-
-///|
 /// Whether `self` and `other` are the same datum: the same class, sign,
 /// signaling bit, coefficient (the payload of a NaN), exponent and precision
 /// label. Equal values of different cohort members, a zero and its negative and

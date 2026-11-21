@@ -83,21 +83,21 @@ These observers return the stored representation of a value.
 pub fn Decimal::precision(Self) -> Int
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::exponent10(Self) -> Int
-pub fn Decimal::quantum(Self) -> Int
 ```
 
 `precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`.
 `coefficient` returns the non-negative coefficient $c$;
 for a NaN they return the payload and for an infinity `0`. The sign is never
-part of the coefficient: use `is_negative`. `exponent10` and `quantum` both
-return the stored exponent $q$; for special values it is `0`.
+part of the coefficient: use `is_negative`. `exponent10` returns the stored
+exponent $q$; for special values it is `0`. The IEEE 754-2019 operation
+`quantum` is `quantum_ctx` (below), not an accessor.
 
 ```moonbit
 ///|
 test "decimal representation observers" {
   let x = @decimal.Decimal::from_string("-12.300").unwrap()
   inspect(x.coefficient(), content="12300")
-  inspect(x.quantum(), content="-3")
+  inspect(x.exponent10(), content="-3")
   inspect(x.is_negative(), content="true")
   inspect(x.precision(), content="34")
 }
@@ -1053,6 +1053,25 @@ test "decimal remainders" {
 ```
 
 ## Quantum and exponent operations
+
+### `Decimal::quantum_ctx`
+
+`quantum_ctx` is the IEEE 754-2019 5.3.2 operation `quantum`.
+
+```mbti
+pub fn Decimal::quantum_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+```
+
+For a finite `x` the result is the number $(0, q, 1)$, that is $10^q$, with $q$
+the exponent of `x` (zeros included), so `quantum_ctx(1.2300)` is `0.0001`; the
+preferred exponent is $Q(x)$, which the exact result has. For an infinite `x`
+the result is $+\infty$ with no exception, whatever its sign. A quiet NaN is
+propagated with its payload and no flag; a signaling NaN signals
+`invalid_operation` and gives a quiet NaN with its payload (6.2). The
+operation can signal only for a signaling NaN, so it takes the context and
+returns the flags, like `logb_ctx` and `next_up_ctx` (`doc/manual/conventions.md`);
+there is no plain `quantum`. The stored exponent is `exponent10`. 5.3.2 says
+*should* for `quantum` and *shall* for `quantize`.
 
 ### `Decimal::quantize_ctx`
 
@@ -2520,7 +2539,7 @@ pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::quantum(Self) -> Int32
+pub fn Decimal::quantum_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)

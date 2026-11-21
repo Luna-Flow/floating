@@ -520,6 +520,11 @@ pub fn DecimalChecked::quantize(
 }
 
 ///|
+pub fn DecimalChecked::quantum(self : DecimalChecked) -> DecimalChecked {
+  self.record(self.value_.quantum_ctx(self.context_))
+}
+
+///|
 pub fn DecimalChecked::remainder(
   self : DecimalChecked,
   divisor : DecimalChecked,

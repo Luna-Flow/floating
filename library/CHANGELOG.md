@@ -1103,6 +1103,15 @@ notes live in this file.
   | `Interval::from_bounds(-2^70000, 1, precision=53).to_midpoint_radius_string()` is 39,506 characters, `-72184773184...8097957848664244225p4409 +/- ...`, a stand-in of about 65,000 bits for the center | `-1p69999 +/- 4503599627370497p69947` | the center `(1 - 2^70000) / 2` is not representable; `midpoint` is `-2^69999` and `radius` is the smallest 53-bit number covering both bounds |
   | an interval whose center and half-width are numbers of `precision` bits, for example `[1, 3]` | `1p1 +/- 1p0`, unchanged | |
 
+- `decimal` and `decimal_gda`: `Decimal::quantum` is removed from both packages, and in `decimal` the name becomes the operation of IEEE 754-2019 5.3.2 ([#719](https://github.com/Luna-Flow/floating/issues/719)). It returned the stored exponent as an `Int32`, which is not the quantum of 754 (the number $(0, q, 1)$, $10^q$); `exponent10` returns the same value and stays. `decimal` now has `Decimal::quantum_ctx(Self, DecimalContext) -> (Self, DecimalFlags)`: for a finite operand the number $(0, q, 1)$ with the exponent $q$ of the operand, for an infinite operand $+\infty$ with no exception, NaN operands by 6.2 (a signaling NaN signals invalid); it takes the context and returns the flags like `logb_ctx` and `next_up_ctx`, because it can signal for a signaling NaN. `decimal_checked` has `DecimalChecked::quantum()`. GDA 1.70 has no operation of that name (only `quantize` and `same-quantum`), so `decimal_gda` has none. The manual uses "quantum" only in the sense of 754 2.1 ($10^q$) and "exponent" for $q$.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `decimal`: `x.quantum()` (the exponent, `Int32`) | `x.exponent10()` | the same value |
+  | `decimal_gda`: `x.quantum()` | `x.exponent10()` | the same value |
+  | (none) | `x.quantum_ctx(ctx)` in `decimal` | the number $10^q$, IEEE 754-2019 5.3.2 |
+  | (none) | `p.quantum()` on `DecimalChecked` | wrapper of `quantum_ctx` |
+
 ### Added
 
 - `decimal`: `Decimal::total_order` and `total_order_mag`, the boolean totalOrder and totalOrderMag predicates of IEEE 754-2019 §5.10 (see Breaking for the renamed three-way `total_order_compare`). The §5.10 corpus (all matrix cells of the four formats) runs against both the boolean and the three-way form.

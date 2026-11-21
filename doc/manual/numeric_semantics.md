@@ -29,8 +29,9 @@ differently.
   builds a finite value, so a finite non-zero `BinFloat` has an odd
   coefficient. Its printed form `c p e` shows that canonical pair.
 - `Decimal` (in `decimal` and `decimal_gda`) keeps the exponent it was given.
-  The exponent $q$ is the **quantum**, and the set of representations of one
-  value is its **cohort**: `12.3400`, `12.340` and `12.34` are one value and
+  The exponent is $q$ (the quantum, IEEE 754-2019 2.1, is the value $10^q$ of a
+  unit in the last place), and the set of representations of one value is its
+  **cohort**: `12.3400`, `12.340` and `12.34` are one value and
   three cohort members.
 
 Every value also carries a **precision** $p$: the number of radix digits a
@@ -48,11 +49,11 @@ test "representation versus value" {
   )
   inspect(three_halves, content="3p-1")
   inspect(three_halves.to_shortest_string(), content="1.5")
-  // A decimal keeps its quantum until it is normalized explicitly.
+  // A decimal keeps its exponent until it is normalized explicitly.
   let price = @decimal.Decimal::from_string("12.3400").unwrap()
-  inspect(price.quantum(), content="-4")
+  inspect(price.exponent10(), content="-4")
   inspect(price.normalized(), content="12.34")
-  inspect(price.normalized().quantum(), content="-2")
+  inspect(price.normalized().exponent10(), content="-2")
   inspect(price.compare(price.normalized()), content="0")
   inspect(price.same_quantum(price.normalized()), content="false")
 }
@@ -498,8 +499,9 @@ quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$,
 but $0.25$ needs exponent $-2$, so that is the result. When the result must be
 rounded, the operation returns the member with $p$ digits, the smallest
 exponent that holds the rounded value (fewer digits only for a subnormal
-result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)`
-rounds $x$ to the quantum of $y$; `normalized()` (and, in `decimal_gda`,
+result). Parsing preserves the exponent of the literal. `quantize_ctx(x, y)`
+rounds $x$ to the quantum of $y$ (the exponent of $y$); `quantum_ctx(x, ctx)` is
+the number $10^q$ for the exponent $q$ of $x$ (IEEE 754-2019 5.3.2); `normalized()` (and, in `decimal_gda`,
 `reduce`) strips trailing zeros. Numeric comparison sees only the value;
 `same_quantum` and the total orders `total_order_compare` (IEEE) and
 `compare_total` (GDA) also see the cohort.
@@ -652,7 +654,7 @@ Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128)
 and the decimal32/64/128 DPD and BID encodings fix field widths, exponent
 bounds and special encodings. `semantic` projects values of every package to
 exact rationals, so it can tell that decimal $0.1$ and binary $\operatorname{fl}(0.1)$
-are different numbers; the projection deliberately drops precision, quantum,
+are different numbers; the projection deliberately drops precision, exponent,
 signed zero, payloads, decorations and flags.
 
 ```moonbit
@@ -684,7 +686,7 @@ test "decimal 0.1 is not binary 0.1" {
 Before choosing an API, answer:
 
 1. Is the result a scalar value, a representation, or a set of reals?
-2. Must the radix, precision, exponent range or quantum stay observable?
+2. Must the radix, precision, exponent range or exponent stay observable?
 3. Does the caller need per-operation flags, sticky GDA status and traps, or a
    short-circuiting checked error?
 4. Can NaN, an infinity, a signed zero, Empty, Entire or NaI occur?
