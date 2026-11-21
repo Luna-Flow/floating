@@ -53,7 +53,7 @@ class RegressionTableTests(unittest.TestCase):
         changed = dict(oracle.committed_regression())
         changed["mul"] ^= 1
         with mock.patch.object(oracle, "committed_regression", return_value=changed):
-            self.assertEqual(oracle.check(), 1)
+            self.assertFalse(oracle.check_regression())
 
 
 def limbs_of(number: int) -> list[int]:
@@ -149,6 +149,62 @@ class ResidueErrorClassTests(unittest.TestCase):
         expected = oracle.residues(a * b)
         product = [x * y % m for x, y, m in zip(oracle.residues(a), oracle.residues(b), oracle.MODULI)]
         self.assertEqual(product, expected)
+
+
+class RowSemanticsTests(unittest.TestCase):
+    """The definitions behind the rows of the short product, limb and window tables."""
+
+    def test_round_product_nearest_even_down_and_up(self) -> None:
+        # 0b101101 rounded to 3 bits: kept 0b101, discarded 0b101 (above half)
+        nearest, down, up = oracle.round_product(0b101101, 3)
+        self.assertEqual(nearest, (0b11, 3 + 1))  # 0b110 stripped: 0b11, exponent 3 + 1
+        self.assertEqual(down, (0b101, 3))
+        self.assertEqual(up, (0b11, 4))
+        # an exact tie, kept odd: rounds up; kept even: rounds down
+        self.assertEqual(oracle.round_product(0b101100, 3)[0], (0b11, 4))
+        self.assertEqual(oracle.round_product(0b100100, 3)[0], (0b1, 5))
+        # an exact product has all three roundings equal
+        self.assertEqual(len({tuple(x) for x in oracle.round_product(0b101000, 3)}), 1)
+
+    def test_window_view_follows_the_documented_limb_formula(self) -> None:
+        random = oracle.Random(5)
+        for length in (1, 2, 5):
+            for ws in (-3, -1, 0, 1, 4):
+                for bs in (0, 1, 33, 63):
+                    x = oracle.value(random, 64 * length, 0)
+                    limbs = oracle.limbs_of_test(x, length) if hasattr(oracle, "limbs_of_test") else [
+                        (x >> (64 * i)) & (2**64 - 1) for i in range(length)
+                    ]
+                    count = 7
+
+                    def get(index: int) -> int:
+                        return limbs[index] if 0 <= index < length else 0
+
+                    expected = 0
+                    for j in range(count):
+                        word = (get(j - ws) << bs) & (2**64 - 1)
+                        if bs:
+                            word |= get(j - ws - 1) >> (64 - bs)
+                        expected |= word << (64 * j)
+                    self.assertEqual(oracle.window_view(x, length, ws, bs, count), expected)
+
+    def test_the_submul_limb_is_the_carry_and_borrow_folded(self) -> None:
+        # r - a b = r_new - c 2^(64 n) with 0 <= c < 2^64, for the extreme operands
+        n = 3
+        r = 0
+        a = 2 ** (64 * n) - 1
+        b = 2**64 - 1
+        total = r - a * b
+        new = total % 2 ** (64 * n)
+        c = (new - total) // 2 ** (64 * n)
+        self.assertEqual(r - a * b, new - c * 2 ** (64 * n))
+        self.assertTrue(0 <= c < 2**64)
+
+    def test_every_table_is_registered_and_named(self) -> None:
+        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window"])
+        for table in oracle.TABLES:
+            names = table.names()
+            self.assertEqual(len(names), len(set(names)), table.name)
 
 
 if __name__ == "__main__":

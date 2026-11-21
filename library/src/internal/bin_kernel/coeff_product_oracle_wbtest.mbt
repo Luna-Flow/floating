@@ -70,7 +70,7 @@ fn product_oracle_rows_where(where_ : String) -> Array[Array[String]] {
 }
 
 ///|
-test "product routes equal the oracle: rows up to 600 limbs" {
+test "oracle: product routes equal the oracle, rows up to 600 limbs" {
   let rows = product_oracle_rows_where("pr")
   for row in rows {
     product_oracle_run(row)
@@ -80,7 +80,7 @@ test "product routes equal the oracle: rows up to 600 limbs" {
 
 ///|
 #skip("full list: the binary gate runs it with --include-skipped, in the three states")
-test "product routes equal the oracle: the NTT, Toom-3, squares and blocks at production sizes" {
+test "oracle: product routes equal the oracle, the NTT, Toom-3, squares and blocks at production sizes" {
   let rows = product_oracle_rows_where("gate")
   for row in rows {
     if row[1] != "overlap" {
@@ -92,7 +92,7 @@ test "product routes equal the oracle: the NTT, Toom-3, squares and blocks at pr
 
 ///|
 #skip("overlap-add: product of about 2^21 limbs; run by the binary gate in the three states")
-test "the overlap-add product equals the oracle (residues)" {
+test "oracle: the overlap-add product equals the oracle (residues)" {
   for row in product_oracle_rows_where("gate") {
     if row[1] == "overlap" {
       product_oracle_run(row)
