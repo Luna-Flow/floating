@@ -477,21 +477,6 @@ library/src/binary/fma_wbtest.mbt::fma exact zero sums use the IEEE sign rules	A
 library/src/binary/fma_wbtest.mbt::fma products beyond the exponent range	A
 library/src/binary/fma_wbtest.mbt::fma rounds the exact sum once	A
 library/src/binary/fma_wbtest.mbt::fma special values follow IEEE 754 and SoftFloat	A
-library/src/binary/hex_ctx_wbtest.mbt::from_hex_ctx agrees with from_hex where from_hex succeeds	C
-library/src/binary/hex_ctx_wbtest.mbt::from_hex_ctx rounds every sequence like exact arithmetic, with the flags	A
-library/src/binary/hex_ctx_wbtest.mbt::from_hex_ctx: an exponent outside the 32-bit range overflows or underflows	A
-library/src/binary/hex_ctx_wbtest.mbt::from_hex_ctx: exact inputs raise nothing, inexact ones raise inexact only	A
-library/src/binary/hex_ctx_wbtest.mbt::from_hex_ctx: overflow and underflow of the four interchange formats	A
-library/src/binary/hex_exponent_wbtest.mbt::from_hex_ctx: a zero significand is the zero of the sign for any exponent field	?
-library/src/binary/hex_exponent_wbtest.mbt::from_hex_ctx: an exponent beyond 10^12 overflows or underflows like the decimal reader	?
-library/src/binary/hex_exponent_wbtest.mbt::from_hex_ctx: exponent fields of 19 to 21 digits saturate, they do not wrap	?
-library/src/binary/hex_exponent_wbtest.mbt::from_hex_ctx: the result of a huge exponent in each rounding direction, with the flags	?
-library/src/binary/hex_exponent_wbtest.mbt::from_hex_ctx: what is still an error, and why	?
-library/src/binary/hex_grammar_wbtest.mbt::§5.12.1 infinities and NaNs in any case with an optional sign	C
-library/src/binary/hex_grammar_wbtest.mbt::§5.12.3 accepted hexSequence forms	A
-library/src/binary/hex_grammar_wbtest.mbt::§5.12.3 conversion is rounded once to the precision, ties to even	A
-library/src/binary/hex_grammar_wbtest.mbt::§5.12.3 rejected forms	A
-library/src/binary/hex_grammar_wbtest.mbt::§5.12.3 round trip: from_hex(to_hex(x)) recovers x	S
 library/src/binary/huge_argument_trig_wbtest.mbt::sin, cos and tan of 2^k against MPFR at the exact argument	A
 library/src/binary/hyperbolic_single_exp_wbtest.mbt::hyperbolic bounds contain the high-precision old enclosure	C
 library/src/binary/hypot_range_wbtest.mbt::hypot of operands beyond 2^29 in exponent is correctly rounded	C

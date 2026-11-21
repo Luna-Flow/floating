@@ -41,6 +41,9 @@ fn assert_same_value(
 }
 
 ///|
+// oracle: A
+// source: expected (coefficient, exponent) written out per production of 5.12.3 and built with Binary::make
+// shares: Binary::make, Binary::to_hex (construction and printing only)
 test "§5.12.3 accepted hexSequence forms" {
   // (source, coefficient, exponent, negative): the value is coefficient * 2^exponent
   let accepted : Array[(String, UInt64, Int32, Bool)] = [
@@ -99,6 +102,9 @@ test "§5.12.3 accepted hexSequence forms" {
 }
 
 ///|
+// oracle: A
+// source: ties and above-half cases written out by hand from 4.3 (two ties at 53 bits, above half at 24 bits)
+// shares: Binary::make, Binary::to_hex (construction and printing only)
 test "§5.12.3 conversion is rounded once to the precision, ties to even" {
   // 0x1.fffffffffffff8 has 54 significant bits and lies halfway: ties to even rounds up to 2
   let tie = Binary::from_hex("0x1.fffffffffffff8p0", 53).unwrap()
@@ -114,6 +120,9 @@ test "§5.12.3 conversion is rounded once to the precision, ties to even" {
 }
 
 ///|
+// oracle: A
+// source: class and sign written out per source from 5.12.1; no flag (the conversion is exact)
+// shares: Binary::classify, is_quiet_nan, is_signaling_nan (classification only)
 test "§5.12.1 infinities and NaNs in any case with an optional sign" {
   for source in ["inf", "INF", "+Inf", "infinity", "+INFINITY", "InFiNiTy"] {
     let x = Binary::from_hex(source, 53).unwrap()
@@ -137,20 +146,33 @@ test "§5.12.1 infinities and NaNs in any case with an optional sign" {
     let x = Binary::from_hex(source, 53).unwrap()
     assert_true(x.is_signaling_nan(), msg=source)
   }
-  // from_hex_ctx gives the same special values without a flag, as
-  // from_string_ctx does (5.12.1: the conversion is exact).
+  // from_hex_ctx gives the same special values without a flag (5.12.1: the conversion is
+  // exact); the expected class and sign are written out per source, not read from the decimal
+  // reader.
   let context = BinaryContext::binary64()
-  for source in ["inf", "-Infinity", "nan", "-nan", "snan", "-SNAN"] {
+  let special : Array[(String, String, Bool)] = [
+    ("inf", "inf", false),
+    ("-Infinity", "inf", true),
+    ("nan", "qnan", false),
+    ("-nan", "qnan", true),
+    ("snan", "snan", false),
+    ("-SNAN", "snan", true),
+  ]
+  for row in special {
+    let (source, kind, negative) = row
     let (x, flags) = Binary::from_hex_ctx(source, context).unwrap()
-    let (y, _) = Binary::from_string_ctx(source, context).unwrap()
-    assert_eq(x.classify() == y.classify(), true, msg=source)
-    assert_eq(x.is_sign_minus(), y.is_sign_minus(), msg=source)
-    assert_eq(x.is_signaling_nan(), y.is_signaling_nan(), msg=source)
+    assert_eq(x.is_sign_minus(), negative, msg=source)
+    assert_eq(x.classify() == FpClass::Infinity, kind == "inf", msg=source)
+    assert_eq(x.is_quiet_nan(), kind == "qnan", msg=source)
+    assert_eq(x.is_signaling_nan(), kind == "snan", msg=source)
     assert_eq(flags, BinaryFlags::new(), msg=source)
   }
 }
 
 ///|
+// oracle: A
+// source: a written list of malformed strings, each an error by the grammar of 5.12.3
+// shares: nothing
 test "§5.12.3 rejected forms" {
   let rejected = [
     "", "+", "-", // nothing to read
@@ -182,6 +204,9 @@ test "§5.12.3 rejected forms" {
 }
 
 ///|
+// oracle: S
+// source: the input value itself (round trip over a pseudo-random sample)
+// shares: Binary::to_hex, Binary::from_hex (both sides of the round trip)
 test "§5.12.3 round trip: from_hex(to_hex(x)) recovers x" {
   let precisions = [1, 8, 11, 24, 53, 64, 113, 237]
   let mut state = 0x9e3779b97f4a7c15UL
