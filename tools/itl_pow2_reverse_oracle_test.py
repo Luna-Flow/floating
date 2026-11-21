@@ -3,6 +3,7 @@ import unittest
 from fractions import Fraction
 
 import itl_pow2_reverse_oracle as oracle
+import itl_refinements as refs
 
 
 def end(c: float, a: float) -> oracle.Q:
@@ -73,6 +74,32 @@ class HullTest(unittest.TestCase):
             oracle.hull(a, one_four, (Fraction(-3), Fraction(0))),
             (Fraction(0), Fraction(0)),
         )
+
+
+class CorpusTest(unittest.TestCase):
+    """The corpus statements and the committed refinements against the exact hull.
+
+    Oracle: this program's exact hull (Python `decimal` and `fractions`, no code of the
+    library; level A). The two `powRev2` entries of `interpreter_refinements.json` were
+    added by hand; `main` recomputes them from the corpus and fails if they differ.
+    """
+
+    def corpus(self):
+        path = oracle.CORPUS / oracle.FILE
+        if not path.exists():
+            self.skipTest("the ITF1788 corpus is not installed")
+        return refs.parse_statements(path.read_text(encoding="utf-8"))
+
+    def test_every_powrev2_statement_contains_the_exact_hull(self) -> None:
+        counts = {"equal": 0, "refined": 0, "wrong": 0}
+        for statement in self.corpus():
+            if statement.operation == "powRev2":
+                counts[oracle.classify(statement)[0]] += 1
+        self.assertEqual(counts, {"equal": 373, "refined": 2, "wrong": 0})
+
+    def test_the_committed_refinements_are_recomputed(self) -> None:
+        self.corpus()
+        self.assertEqual(oracle.main([]), 0)
 
 
 if __name__ == "__main__":

@@ -77,6 +77,11 @@ class CorpusTest(unittest.TestCase):
                 counts[oracle.classify(statement)[0]] += 1
         self.assertEqual(counts, {"equal": 429, "refined": 0, "wrong": 0})
 
+    def test_the_oracle_check_passes_and_lists_no_refinement(self) -> None:
+        if not (oracle.CORPUS / oracle.FILE).exists():
+            self.skipTest("the ITF1788 corpus is not installed")
+        self.assertEqual(oracle.main([]), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
