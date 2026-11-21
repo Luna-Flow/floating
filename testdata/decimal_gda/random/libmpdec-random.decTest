@@ -3902,5 +3902,5 @@ rounding: up
 maxexponent: 999999
 minexponent: -999999
 clamp: 1
--- expected-difference power-of-ten #351: libmpdec gives 1.00000001E+52 Inexact Rounded
+-- expected-difference power-of-ten #351: exactly rounded value by exact arithmetic; libmpdec gives 1.00000001E+52 Inexact Rounded
 d20261118.power.49 power 1E-40 -1.3 -> 1.00000000E+52 Inexact Rounded
