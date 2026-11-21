@@ -256,7 +256,7 @@ msgstr "各候補について、当該ケースとデータセットの有効な
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2355
 #: manual/api/decimal_checked.md:388
-#: manual/api/decimal_gda.md:1931
+#: manual/api/decimal_gda.md:1935
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
 #: manual/api/differential.md:97
@@ -307,9 +307,9 @@ msgstr "ベンチマークケース"
 #: manual/api/bench/decimal_gda.md:31
 #: manual/api/bench/external.md:39
 #: manual/api/bench/interval.md:32
-#: manual/api/decimal_gda.md:1199
-#: manual/api/decimal_gda.md:1261
-#: manual/api/decimal_gda.md:1862
+#: manual/api/decimal_gda.md:1203
+#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1866
 #: manual/api/frontend/itl_expr.md:115
 #: manual/design/bench/binary.md:33
 #: manual/design/bench/decimal.md:33
@@ -584,15 +584,15 @@ msgid "Form"
 msgstr "形式"
 
 #: manual/api/binary.md:46
-#: manual/api/decimal_gda.md:1261
-#: manual/api/decimal_gda.md:1526
+#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1530
 msgid "Example"
 msgstr "例"
 
 #: manual/api/binary.md:46
 #: manual/api/binary.md:729
 #: manual/api/decimal.md:541
-#: manual/api/decimal_gda.md:586
+#: manual/api/decimal_gda.md:590
 msgid "Context"
 msgstr "コンテキスト"
 
@@ -606,17 +606,17 @@ msgstr "コンテキスト"
 #: manual/api/decimal_gda.md:260
 #: manual/api/decimal_gda.md:410
 #: manual/api/decimal_gda.md:478
-#: manual/api/decimal_gda.md:701
-#: manual/api/decimal_gda.md:1004
-#: manual/api/decimal_gda.md:1147
-#: manual/api/decimal_gda.md:1154
-#: manual/api/decimal_gda.md:1199
-#: manual/api/decimal_gda.md:1261
-#: manual/api/decimal_gda.md:1333
-#: manual/api/decimal_gda.md:1364
-#: manual/api/decimal_gda.md:1551
-#: manual/api/decimal_gda.md:1764
-#: manual/api/decimal_gda.md:1862
+#: manual/api/decimal_gda.md:705
+#: manual/api/decimal_gda.md:1008
+#: manual/api/decimal_gda.md:1151
+#: manual/api/decimal_gda.md:1158
+#: manual/api/decimal_gda.md:1203
+#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1337
+#: manual/api/decimal_gda.md:1368
+#: manual/api/decimal_gda.md:1555
+#: manual/api/decimal_gda.md:1768
+#: manual/api/decimal_gda.md:1866
 #: manual/api/interval.md:807
 #: manual/conformance/binary.md:107
 #: manual/design/binary_checked.md:176
@@ -1371,7 +1371,7 @@ msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `
 msgstr "構文は IEEE 754-2019 §5.12.3 の hexSequence です。省略可能な符号、`0x` または `0X`、小数点を高々 1 つ含む 16 進数字（`1.8`、`.8`、`1.`）、そして必須の `p` または `P` の指数（省略可能な符号と 10 進数字）からなります。値は 16 進の仮数に $2^{\\text{exponent}}$ を掛けたもので、`0x3p-1` と `0x1.8p0` はどちらも $1.5$ です。`from_hex(s, p)` は最近接偶数で精度 `p` に 1 回だけ丸め、フラグを報告しません。`p` が `1..=binary_precision_max` の範囲外なら `Err` です。`from_hex_ctx(s, context)` は §5.12.3 の変換です。`context` の丸め方向、精度、指数範囲、tininess 規則のもとで正確な値を 1 回だけ丸め、`from_string_ctx` と同様に `inexact`、`underflow`、`overflow` のフラグを返します。任意の長さの指数フィールドは有効なテキストです。10 進の読み取りと同様に $2^{60}$ で飽和して読むので、32 ビットの範囲を超える指数は、ここでは構文エラーではなくオーバーフローまたはアンダーフロー（コンテキストの結果とそのフラグ。すべての丸め方向で）になり、有効数字が 0 なら、どの指数でも符号付きの 0 です。厳密な値を格納する `from_hex` は、32 ビットの範囲を超える指数を構文エラーとして報告します（有効数字が 0 なら 0 のままです）。どちらも、大文字小文字を問わず省略可能な符号付きの `inf`、`infinity`、`nan`、`snan`（§5.12.1）を受け付け、`snan` はシグナリング NaN になります。前後の空白は取り除かれ、それ以外の文字列は `parse_error` です。`to_hex` は格納された係数を小文字で出力し、ゼロは `0x0p0` または `-0x0p0`、`nan`/`inf` は符号付きで出力します。"
 
 #: manual/api/binary.md:1451
-#: manual/api/decimal_gda.md:1597
+#: manual/api/decimal_gda.md:1601
 #: manual/design/decimal.md:752
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
@@ -1974,7 +1974,7 @@ msgstr "定義域は $|x| \\le 1$ です。その外（無限大を含む）で�
 #: manual/api/binary.md:2433
 #: manual/api/binary_checked.md:821
 #: manual/api/decimal.md:2157
-#: manual/api/decimal_gda.md:1716
+#: manual/api/decimal_gda.md:1720
 #: manual/api/def.md:414
 #: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
@@ -3150,7 +3150,7 @@ msgstr "`new` は精度と `e_max` から IEEE 754-2019 十進形式のコンテ
 
 #: manual/api/decimal.md:493
 #: manual/api/decimal_gda.md:518
-#: manual/api/decimal_gda.md:1514
+#: manual/api/decimal_gda.md:1518
 msgid "Parameter"
 msgstr "パラメータ"
 
@@ -3694,10 +3694,10 @@ msgid "Domain and special values of the functions in the seven groups above, fro
 msgstr "`exp2` から `atanh` までの上記 7 つのグループの関数の定義域と特殊値："
 
 #: manual/api/decimal.md:1911
-#: manual/api/decimal_gda.md:1033
-#: manual/api/decimal_gda.md:1147
-#: manual/api/decimal_gda.md:1154
-#: manual/api/decimal_gda.md:1333
+#: manual/api/decimal_gda.md:1037
+#: manual/api/decimal_gda.md:1151
+#: manual/api/decimal_gda.md:1158
+#: manual/api/decimal_gda.md:1337
 #: manual/api/interval.md:978
 #: manual/api/interval.md:1981
 #: manual/design/interval.md:548
@@ -3731,11 +3731,11 @@ msgstr "正確なケース"
 #: manual/api/decimal.md:1931
 #: manual/api/decimal.md:1932
 #: manual/api/decimal_gda.md:526
-#: manual/api/decimal_gda.md:589
-#: manual/api/decimal_gda.md:590
-#: manual/api/decimal_gda.md:591
-#: manual/api/decimal_gda.md:1519
-#: manual/api/decimal_gda.md:1520
+#: manual/api/decimal_gda.md:593
+#: manual/api/decimal_gda.md:594
+#: manual/api/decimal_gda.md:595
+#: manual/api/decimal_gda.md:1523
+#: manual/api/decimal_gda.md:1524
 #: manual/conformance/binary.md:94
 #: manual/conformance/binary.md:96
 #: manual/conformance/binary.md:97
@@ -3966,7 +3966,7 @@ msgid "`to_string` formats a value in scientific notation without a context. Fin
 msgstr "`to_string` はコンテキストなしで値を科学表記で書式化します。有限値には [`to_sci_string`](#decimalto_sci_string-to_eng_string) の科学表記文字列の規則が使われるため、末尾のゼロと指数が見えます：`1.20`、`1E+3`、`1.2E-7`。特殊値は小文字で書かれます：`inf`、`-inf`、`nan`、`snan`、`-nan12`。`output` は同じテキストをロガーに書き込みます。`to_repr` は `debug_inspect` と `assert_eq` が使う導出された構造的表現です。"
 
 #: manual/api/decimal.md:2357
-#: manual/api/decimal_gda.md:1933
+#: manual/api/decimal_gda.md:1937
 #: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
@@ -4091,8 +4091,8 @@ msgid "These methods apply the IEEE decimal operation of the same meaning to the
 msgstr "これらのメソッドは、左側のパイプラインが保持するコンテキストの下で、現在の値とパイプラインのオペランドに、同じ意味の IEEE 十進演算を適用します。右オペランドは `DecimalChecked` です。左側のパイプラインのエラーはそのまま残り、右側のエラーは演算が実行される前に採用され（左側のパイプラインの値は保たれ）、右側のパイプラインの条件は `raised` と `flags` に合流します。`DecimalChecked::from_decimal(x, ctx)` は普通の値を持ち上げます。これはコンテキストを適用するので、シグナリング NaN はそこで静かな NaN になり `invalid_operation` を上げます。IEEE 754-2019 §5.1 のようにオペランドを正確に使う（オペランドは正確で、結果の丸めは 1 回）には、それを保持できる十分に広いコンテキスト（例えば `decimal128`）で持ち上げます。左側のパイプラインのコンテキストで持ち上げると、まずオペランドを、次に結果を丸めるので、丸めが 2 回になります。3 桁、偶数への最近接丸めでは、`1.00 + 0.24500001` は広いコンテキストで持ち上げると `1.25`、3 桁で持ち上げると `1.24` です（オペランドは `inexact` 付きの `0.245` になり、`1.00 + 0.245` は偶数に丸められる同点です）。どちらも、求められたことに対して正しい結果です。"
 
 #: manual/api/decimal_checked.md:259
-#: manual/api/decimal_gda.md:673
-#: manual/api/decimal_gda.md:1822
+#: manual/api/decimal_gda.md:677
+#: manual/api/decimal_gda.md:1826
 msgid "Method"
 msgstr "メソッド"
 
@@ -4249,7 +4249,7 @@ msgstr "定数"
 #: manual/api/decimal_gda.md:127
 #: manual/api/decimal_gda.md:285
 #: manual/api/decimal_gda.md:325
-#: manual/api/decimal_gda.md:1514
+#: manual/api/decimal_gda.md:1518
 #: manual/performance/bench/external.md:42
 msgid "Value"
 msgstr "値"
@@ -4364,7 +4364,7 @@ msgid "A binary floating-point number $m \\cdot 2^{k}$ with $k < 0$ is first wri
 msgstr "$k < 0$ の二進浮動小数点数 $m \\cdot 2^{k}$ はまず厳密に $m 5^{-k} \\cdot 10^{k}$ と書かれるため、結果が `precision` 桁に収まるときは変換は厳密です。たとえば `from_double(0.1)` は、$0.1$ に最も近い binary64 の厳密な値を、偶数への丸め（half to even）で 34 桁に丸めたものです。"
 
 #: manual/api/decimal_gda.md:214
-#: manual/api/decimal_gda.md:1554
+#: manual/api/decimal_gda.md:1558
 #: manual/numeric_semantics.md:552
 #: manual/numeric_semantics.md:600
 msgid "NaN"
@@ -4578,8 +4578,8 @@ msgid "Every operation here changes only the sign bit of a value. None of them r
 msgstr "ここにあるすべての演算は値の符号ビットだけを変更します。signaling NaN に対しても、丸めたり例外を通知したりするものはありません。"
 
 #: manual/api/decimal_gda.md:410
-#: manual/api/decimal_gda.md:989
-#: manual/api/decimal_gda.md:1526
+#: manual/api/decimal_gda.md:993
+#: manual/api/decimal_gda.md:1530
 #: manual/api/interval.md:1842
 #: manual/conformance/decimal_gda.md:15
 #: manual/design/binary_checked.md:122
@@ -4653,12 +4653,12 @@ msgid "The precision of the value is part of the relation because [the plain ope
 msgstr "値の精度がこの関係に含まれるのは、[通常の演算子](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg)がオペランドのうち大きい方の精度に丸めるからです。精度 3 の `1` と精度 34 の `1` は等しく、`compare_total` は 0 ですが、`3` で割るとそれぞれ `0.333` と `0.3333333333333333333333333333333333` になります。identical な 2 つの値は、どの関数でも同じ結果を与えます。"
 
 #: manual/api/decimal_gda.md:478
-#: manual/api/decimal_gda.md:1004
-#: manual/api/decimal_gda.md:1364
-#: manual/api/decimal_gda.md:1456
-#: manual/api/decimal_gda.md:1551
+#: manual/api/decimal_gda.md:1008
+#: manual/api/decimal_gda.md:1368
+#: manual/api/decimal_gda.md:1460
+#: manual/api/decimal_gda.md:1555
 #: manual/api/frontend/testfloat_expr.md:58
-#: manual/conformance/decimal_gda.md:74
+#: manual/conformance/decimal_gda.md:81
 msgid "Operands"
 msgstr "オペランド"
 
@@ -4676,12 +4676,12 @@ msgstr "2 つの無限大"
 
 #: manual/api/decimal_gda.md:481
 #: manual/api/decimal_gda.md:482
-#: manual/api/decimal_gda.md:1460
+#: manual/api/decimal_gda.md:1464
 msgid "true"
 msgstr "真"
 
 #: manual/api/decimal_gda.md:482
-#: manual/api/decimal_gda.md:1460
+#: manual/api/decimal_gda.md:1464
 msgid "two NaNs"
 msgstr "2 つの NaN"
 
@@ -4754,42 +4754,42 @@ msgid "`quantize`, `rescale`, `scaleb`, `shift`, `rotate` and `next_toward` keep
 msgstr "`quantize`、`rescale`、`scaleb`、`shift`、`rotate`、`next_toward` は、ゼロの指数と正の指数を保持します。`rescale(12, 2)` は `0E+2`、`scaleb(12, 2)` は `1.2E+3` です。`scaleb`、`shift`、`rotate` は $-0$ の符号も保持します。`power` は、$-0$ の奇数の整数乗に対して $-0$ を返します。"
 
 #: manual/api/decimal_gda.md:563
-msgid "Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the two round-to-integral operations. For these the library gives the results of decNumber 3.68 ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name))."
-msgstr "付録 A は `reduce`、`rescale`、`scaleb`、`shift`、`rotate`、`remainder`、および 2 つの round-to-integral 演算を挙げていません。これらについて、ライブラリは decNumber 3.68 の結果を返します（[規格合致性](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)）。"
+msgid "Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the two round-to-integral operations. For `reduce`, `rescale`, `scaleb`, `shift` and `rotate` the library gives the results of decNumber 3.68 ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)). `remainder` and `remainder_near` keep a positive exponent: `remainder(1.4E+3, 5E+2)` is `4E+2`. `round_to_integral_value` and `round_to_integral_exact` give $+0$ with exponent 0 for a zero operand. `next_toward` from a zero returns the smallest subnormal number, as in an extended context."
+msgstr "付録 A は `reduce`、`rescale`、`scaleb`、`shift`、`rotate`、`remainder`、および 2 つの round-to-integral 演算を挙げていません。`reduce`、`rescale`、`scaleb`、`shift`、`rotate` について、ライブラリは decNumber 3.68 の結果を返します（[規格合致性](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)）。`remainder` と `remainder_near` は正の指数を保持します。`remainder(1.4E+3, 5E+2)` は `4E+2` です。`round_to_integral_value` と `round_to_integral_exact` は、オペランドがゼロのとき、指数 0 の $+0$ を返します。ゼロからの `next_toward` は、拡張コンテキストと同様に、最小の非正規化数を返します。"
 
-#: manual/api/decimal_gda.md:567
+#: manual/api/decimal_gda.md:571
 msgid "[!NOTE] `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with $p \\le 999\\,999$, $E_{\\max} \\le 999\\,999$ and $E_{\\min} \\ge -999\\,999$; with the default exponent range they return a NaN and raise `InvalidContext`, as [the implementation limit of these operations](#implementation-limit-of-exp-ln-log10-and-power) states."
 msgstr "[!NOTE] `exp`、`ln`、`log10`、および非整数の指数での `power` は、$p \\le 999\\,999$、$E_{\\max} \\le 999\\,999$、$E_{\\min} \\ge -999\\,999$ のコンテキストだけを受け付けます。既定の指数範囲では NaN を返して `InvalidContext` を発生させます。これは[これらの演算の処理系限界](#implementation-limit-of-exp-ln-log10-and-power)が述べるとおりです。"
 
-#: manual/api/decimal_gda.md:574
+#: manual/api/decimal_gda.md:578
 msgid "Default contexts"
 msgstr "デフォルトコンテキスト"
 
-#: manual/api/decimal_gda.md:576
+#: manual/api/decimal_gda.md:580
 msgid "Return the default contexts (GDA 1.70, page 16 (Default contexts)): `basic_default`, and the extended default contexts `decimal32`, `decimal64` and `decimal128`."
 msgstr "デフォルトコンテキスト（GDA 1.70、16 ページ（Default contexts））を返します。`basic_default` と、拡張デフォルトコンテキストの `decimal32`、`decimal64`、`decimal128` です。"
 
-#: manual/api/decimal_gda.md:586
-#: manual/api/decimal_gda.md:1517
+#: manual/api/decimal_gda.md:590
+#: manual/api/decimal_gda.md:1521
 msgid "rounding"
 msgstr "丸め"
 
-#: manual/api/decimal_gda.md:586
-#: manual/api/decimal_gda.md:1519
+#: manual/api/decimal_gda.md:590
+#: manual/api/decimal_gda.md:1523
 msgid "clamp"
 msgstr "clamp"
 
-#: manual/api/decimal_gda.md:586
-#: manual/api/decimal_gda.md:1518
+#: manual/api/decimal_gda.md:590
+#: manual/api/decimal_gda.md:1522
 msgid "extended"
 msgstr "拡張"
 
-#: manual/api/decimal_gda.md:586
-#: manual/api/decimal_gda.md:1520
+#: manual/api/decimal_gda.md:590
+#: manual/api/decimal_gda.md:1524
 msgid "traps"
 msgstr "トラップ"
 
-#: manual/api/decimal_gda.md:588
+#: manual/api/decimal_gda.md:592
 #: manual/design/decimal_gda.md:508
 #: manual/design/interval.md:574
 #: manual/design/interval.md:575
@@ -4798,1114 +4798,1114 @@ msgstr "トラップ"
 msgid "no"
 msgstr "いいえ"
 
-#: manual/api/decimal_gda.md:588
+#: manual/api/decimal_gda.md:592
 msgid "DivisionByZero, InvalidOperation, Overflow, Underflow, Clamped"
 msgstr "DivisionByZero, InvalidOperation, Overflow, Underflow, Clamped"
 
-#: manual/api/decimal_gda.md:589
-#: manual/api/decimal_gda.md:590
-#: manual/api/decimal_gda.md:591
+#: manual/api/decimal_gda.md:593
+#: manual/api/decimal_gda.md:594
+#: manual/api/decimal_gda.md:595
 #: manual/design/decimal_gda.md:508
 #: manual/design/interval.md:573
 msgid "yes"
 msgstr "あり"
 
-#: manual/api/decimal_gda.md:593
+#: manual/api/decimal_gda.md:597
 msgid "`basic_default` is the basic default context of the specification: precision 9, round-half-up, and every trap enabled except inexact, rounded and subnormal (GDA 1.70, page 16 (Default contexts)). The library also leaves the lost-digits trap off, because Appendix A says that the Lost digits condition should be set to 0 in default contexts (GDA 1.70, page 56 (Appendix A, The X3.274 subset)). It sets `extended=false` for this context (the X3.274 subset of Appendix A), which the definition of the basic default context in GDA 1.70 does not set."
 msgstr "`basic_default` は仕様の基本デフォルトコンテキストです。精度 9、round-half-up で、inexact、rounded、subnormal 以外のすべてのトラップが有効です（GDA 1.70、16 ページ（Default contexts））。付録 A はデフォルトコンテキストで Lost digits 条件を 0 に設定すべきだとしているので（GDA 1.70、56 ページ（Appendix A, The X3.274 subset））、ライブラリは lost-digits のトラップも無効のままにします。ライブラリはこのコンテキストに `extended=false`（付録 A の X3.274 サブセット）を設定しますが、GDA 1.70 の基本デフォルトコンテキストの定義はこれを設定していません。"
 
-#: manual/api/decimal_gda.md:599
+#: manual/api/decimal_gda.md:603
 msgid "`decimal32`, `decimal64` and `decimal128` are the extended default contexts for the IEEE 754 formats: round-half-even and no traps. `rounding` replaces the rounding algorithm when given."
 msgstr "`decimal32`、`decimal64`、`decimal128` は IEEE 754 形式の拡張デフォルトコンテキストで、round-half-even、トラップなしです。`rounding` を与えると、丸めアルゴリズムがそれに置き換わります。"
 
-#: manual/api/decimal_gda.md:602
+#: manual/api/decimal_gda.md:606
 msgid "`GdaContext::new()` is not `basic_default()`: it has precision 34, half-even and no traps. The values are created once and shared."
 msgstr "`GdaContext::new()` は `basic_default()` ではありません。精度 34、half-even、トラップなしです。これらの値は一度だけ作られ、共有されます。"
 
-#: manual/api/decimal_gda.md:607
+#: manual/api/decimal_gda.md:611
 msgid "Return a copy of the context with one setting changed."
 msgstr "設定を 1 つ変えたコンテキストのコピーを返します。"
 
-#: manual/api/decimal_gda.md:615
+#: manual/api/decimal_gda.md:619
 msgid "The result is checked like `new`: a precision or exponent range outside [the rules of `new`](#gdacontextnew-gdacontexttry_new) aborts. The flags, the traps, `clamp`, `extended` and the refinement limit are kept."
 msgstr "結果は `new` と同様に検査され、精度または指数範囲が[`new` の規則](#gdacontextnew-gdacontexttry_new)に反すると中止します。フラグ、トラップ、`clamp`、`extended`、精緻化の上限は保たれます。"
 
-#: manual/api/decimal_gda.md:619
+#: manual/api/decimal_gda.md:623
 msgid "Parameters of a context"
 msgstr "コンテキストのパラメーター"
 
-#: manual/api/decimal_gda.md:621
+#: manual/api/decimal_gda.md:625
 msgid "Read the arithmetic policy of a context."
 msgstr "コンテキストの演算ポリシーを読み取ります。"
 
-#: manual/api/decimal_gda.md:633
+#: manual/api/decimal_gda.md:637
 msgid "`radix` always returns 10."
 msgstr "`radix` は常に 10 を返します。"
 
-#: manual/api/decimal_gda.md:637
+#: manual/api/decimal_gda.md:641
 msgid "Read the flags of the context and the enabled traps."
 msgstr "コンテキストのフラグと有効なトラップを読み取ります。"
 
-#: manual/api/decimal_gda.md:646
+#: manual/api/decimal_gda.md:650
 msgid "Read and set the number of refinement steps of the certified elementary functions `exp`, `ln`, `log10` and `power`."
 msgstr "認証付きの初等関数 `exp`、`ln`、`log10`、`power` の精緻化ステップ数を読み取り、設定します。"
 
-#: manual/api/decimal_gda.md:654
+#: manual/api/decimal_gda.md:658
 msgid "`exp`, `ln`, `log10` and `power` refine an enclosure of the result at most `Some(12)` times by default. A rare argument close to a rounding boundary may need more: `with_refinement_limit(Some(24))` allows 24 steps, and `None` removes the count, so that the working precision stops at a resource bound. A limit below 1 is one step."
 msgstr "`exp`、`ln`、`log10`、`power` は、既定では結果の包含を最大 `Some(12)` 回精緻化します。丸めの境界のごく近くにあるまれな引数ではさらに必要になることがあり、`with_refinement_limit(Some(24))` で 24 ステップまで許し、`None` で回数の上限を外すので、作業精度は資源上の上限で止まります。1 未満の上限は 1 ステップとして扱われます。"
 
-#: manual/api/decimal_gda.md:659
+#: manual/api/decimal_gda.md:663
 msgid "When the limit is reached, the plain functions return a NaN with `invalid_operation`, and [`try_exp`, `try_ln`, `try_log10`, `try_power`](#try_exp-try_ln-try_log10-try_power) return `Err`."
 msgstr "上限に達すると、通常の関数は `invalid_operation` を伴う NaN を返し、[`try_exp`、`try_ln`、`try_log10`、`try_power`](#try_exp-try_ln-try_log10-try_power) は `Err` を返します。"
 
-#: manual/api/decimal_gda.md:664
+#: manual/api/decimal_gda.md:668
 msgid "Return a new context with changed traps or flags; the receiver is not modified."
 msgstr "トラップまたはフラグを変更した新しいコンテキストを返します。レシーバは変更されません。"
 
-#: manual/api/decimal_gda.md:673
+#: manual/api/decimal_gda.md:677
 msgid "Effect"
 msgstr "効果"
 
-#: manual/api/decimal_gda.md:675
+#: manual/api/decimal_gda.md:679
 msgid "enables one trap, or disables it with `enabled=false`"
 msgstr "トラップを 1 つ有効にします。`enabled=false` を与えると無効にします"
 
-#: manual/api/decimal_gda.md:676
+#: manual/api/decimal_gda.md:680
 msgid "replaces the whole set"
 msgstr "集合全体を置き換えます"
 
-#: manual/api/decimal_gda.md:677
+#: manual/api/decimal_gda.md:681
 msgid "empties the flags and keeps the traps"
 msgstr "フラグを空にし、トラップは保ちます"
 
-#: manual/api/decimal_gda.md:678
+#: manual/api/decimal_gda.md:682
 msgid "empties both"
 msgstr "両方を空にします"
 
-#: manual/api/decimal_gda.md:682
+#: manual/api/decimal_gda.md:686
 msgid "`GdaRoundingMode` is the type of the rounding of a context. Its eight values are the rounding algorithms (GDA 1.70, pages 13 and 14 (Abstract representation of context))."
 msgstr "`GdaRoundingMode` はコンテキストの丸めの型です。8 つの値は丸めアルゴリズムです（GDA 1.70、13 ページと 14 ページ（Abstract representation of context））。"
 
-#: manual/api/decimal_gda.md:698
+#: manual/api/decimal_gda.md:702
 msgid "When the exact result lies strictly between two representable neighbours, the algorithms choose as follows."
 msgstr "厳密な結果が表現可能な隣り合う 2 つの値の間に厳密にあるとき、丸めアルゴリズムは次のように選びます。"
 
-#: manual/api/decimal_gda.md:701
+#: manual/api/decimal_gda.md:705
 #: manual/design/decimal_gda.md:337
 #: manual/design/decimal_gda.md:506
 #: manual/design/interval.md:706
 msgid "Rounding"
 msgstr "丸め"
 
-#: manual/api/decimal_gda.md:703
+#: manual/api/decimal_gda.md:707
 msgid "the neighbour nearer zero"
 msgstr "ゼロに近い方の隣の値"
 
-#: manual/api/decimal_gda.md:704
+#: manual/api/decimal_gda.md:708
 msgid "the neighbour farther from zero"
 msgstr "ゼロから遠いほうの隣の値"
 
-#: manual/api/decimal_gda.md:705
+#: manual/api/decimal_gda.md:709
 msgid "the larger neighbour"
 msgstr "大きいほうの隣の値"
 
-#: manual/api/decimal_gda.md:706
+#: manual/api/decimal_gda.md:710
 msgid "the smaller neighbour"
 msgstr "小さいほうの隣の値"
 
-#: manual/api/decimal_gda.md:707
+#: manual/api/decimal_gda.md:711
 msgid "the nearer neighbour; an exact tie goes to the one with an even last digit"
 msgstr "近いほうの隣の値。同点のときは最終桁が偶数のほう"
 
-#: manual/api/decimal_gda.md:708
+#: manual/api/decimal_gda.md:712
 msgid "the nearer neighbour; an exact tie goes away from zero"
 msgstr "近いほうの隣の値。同点のときはゼロから離れるほう"
 
-#: manual/api/decimal_gda.md:709
+#: manual/api/decimal_gda.md:713
 msgid "the nearer neighbour; an exact tie goes towards zero"
 msgstr "近いほうの隣の値。同点のときはゼロに近づくほう"
 
-#: manual/api/decimal_gda.md:710
+#: manual/api/decimal_gda.md:714
 msgid "rounds towards zero unless that leaves a last digit of 0 or 5, in which case it rounds away from zero"
 msgstr "ゼロ方向に丸めますが、それで最終桁が 0 または 5 になる場合はゼロから離れる方向に丸めます"
 
-#: manual/api/decimal_gda.md:712
+#: manual/api/decimal_gda.md:716
 msgid "The [design page](../design/decimal_gda.md#rounding-to-precision) gives each algorithm as a formula."
 msgstr "[設計ページ](../design/decimal_gda.md#rounding-to-precision)では、各アルゴリズムを式で示します。"
 
-#: manual/api/decimal_gda.md:715
+#: manual/api/decimal_gda.md:719
 msgid "Signals, flags and traps"
 msgstr "シグナル、フラグ、トラップ"
 
-#: manual/api/decimal_gda.md:719
+#: manual/api/decimal_gda.md:723
 msgid "`GdaSignal` names the eight signals of GDA 1.70 and the Lost digits signal of its Appendix A. Each has a flag in the flags of a context and a trap-enabler."
 msgstr "`GdaSignal` は GDA 1.70 の 8 つのシグナルと、その付録 A の Lost digits シグナルを表します。各シグナルには、コンテキストのフラグの中のフラグと、トラップ有効化が 1 つずつあります。"
 
-#: manual/api/decimal_gda.md:736
+#: manual/api/decimal_gda.md:740
 msgid "The specification has eight signals (GDA 1.70, page 15 (flags and trap-enablers)): `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`, `Overflow`, `Rounded`, `Subnormal` and `Underflow`. `LostDigits` is the ninth, raised only in subset arithmetic (GDA 1.70, page 56 (Appendix A, The X3.274 subset))."
 msgstr "仕様には 8 つのシグナル（GDA 1.70、15 ページ（flags and trap-enablers））があります。`Clamped`、`DivisionByZero`、`Inexact`、`InvalidOperation`、`Overflow`、`Rounded`、`Subnormal`、`Underflow` です。`LostDigits` は 9 つ目で、サブセット算術でのみ発生します（GDA 1.70、56 ページ（Appendix A, The X3.274 subset））。"
 
-#: manual/api/decimal_gda.md:741
+#: manual/api/decimal_gda.md:745
 msgid "Four conditions that the specification says signal invalid-operation are not signals: conversion syntax, division impossible, division undefined and invalid context (GDA 1.70, pages 51 and 52 (Exceptional conditions)). They are conditions of `GdaFlags`, and raising any of them raises the signal `InvalidOperation`; [`GdaFlags::contains`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) states how."
 msgstr "仕様が invalid-operation をシグナルとする 4 つの条件、すなわち変換構文エラー、除算不可能、除算未定義、無効なコンテキストは、シグナルではありません（GDA 1.70、51 ページと 52 ページ（Exceptional conditions））。これらは `GdaFlags` の条件であり、いずれかが発生すると `InvalidOperation` シグナルが発生します。その方法は [`GdaFlags::contains`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) に記します。"
 
-#: manual/api/decimal_gda.md:750
+#: manual/api/decimal_gda.md:754
 msgid "`GdaFlags` is a set of conditions. It records both the conditions raised by one operation and the flags of a context. It holds the thirteen conditions the library raises, which are the twelve conditions of the Exceptional conditions section (GDA 1.70, pages 51 to 53) other than Insufficient storage, and Lost digits of Appendix A. Keeping the conditions apart is explained on the [design page](../design/decimal_gda.md#keep-the-detailed-invalid-conditions)."
 msgstr "`GdaFlags` は条件の集合です。1 つの演算が発生させた条件と、コンテキストのフラグの両方を記録します。ライブラリが発生させる 13 の条件を保持し、これは Exceptional conditions の節（GDA 1.70、51 ページから 53 ページ）の 12 の条件から Insufficient storage を除いたものと、付録 A の Lost digits です。条件を区別して保持する理由は[設計ページ](../design/decimal_gda.md#keep-the-detailed-invalid-conditions)で説明します。"
 
-#: manual/api/decimal_gda.md:761
+#: manual/api/decimal_gda.md:765
 msgid "The fields are private. Each of the 13 conditions is read with a method of the same name, such as `raised().inexact()` or `flags().division_by_zero()`. The only public constructor is `new`, so sets are built only with `new` and `combine`. `GdaTrapSet` reads the same way, with one method for each of the nine signals."
 msgstr "フィールドは非公開です。13 個の条件はそれぞれ同名のメソッドで読み取ります（例: `raised().inexact()`、`flags().division_by_zero()`）。公開コンストラクタは `new` だけなので、集合は `new` と `combine` だけで作られます。`GdaTrapSet` も同じ方法で読み取り、9 つのシグナルにそれぞれメソッドが 1 つあります。"
 
-#: manual/api/decimal_gda.md:769
+#: manual/api/decimal_gda.md:773
 msgid "`new` is the empty set, `combine` the field-wise union, and `contains` the membership test of a *signal*, with the GDA invalid-operation grouping. The accessor methods read one *condition* each."
 msgstr "`new` は空集合、`combine` はフィールドごとの和集合、`contains` は GDA の invalid-operation のグループ化を伴う*シグナル*の所属判定です。アクセサメソッドはそれぞれ 1 つの*条件*を読み取ります。"
 
-#: manual/api/decimal_gda.md:779
+#: manual/api/decimal_gda.md:783
 msgid "`combine` is associative, commutative and idempotent, with `new()` as identity."
 msgstr "`combine` は結合的、可換、冪等で、`new()` が単位元です。"
 
-#: manual/api/decimal_gda.md:781
+#: manual/api/decimal_gda.md:785
 msgid "`contains(s)` reads the field for `s`, except that `contains(InvalidOperation)` is true when any of `invalid_operation`, `conversion_syntax`, `division_impossible`, `division_undefined` or `invalid_context` is set. Use `contains(InvalidOperation)` to ask whether the signal was raised."
 msgstr "`contains(s)` は `s` に対応するフィールドを読み取りますが、`contains(InvalidOperation)` だけは `invalid_operation`、`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context` のいずれかが設定されていれば真です。シグナルが発生したかを調べるには `contains(InvalidOperation)` を使います。"
 
-#: manual/api/decimal_gda.md:786
+#: manual/api/decimal_gda.md:790
 msgid "The accessor `invalid_operation()` reads the plain Invalid operation condition only, and the plain condition is not raised with every one of the four. A division undefined or impossible raises it; a conversion syntax error or an invalid context does not. This is as in decNumber, whose status word the decTest rows describe."
 msgstr "アクセサ `invalid_operation()` は通常の無効演算の条件だけを読み取り、通常の条件は 4 つのすべてで発生するわけではありません。除算未定義と除算不可能では発生し、変換構文エラーと無効なコンテキストでは発生しません。これは decNumber と同じで、decTest の各行はその状態ワードを記述しています。"
 
-#: manual/api/decimal_gda.md:794
+#: manual/api/decimal_gda.md:798
 msgid "`GdaTrapSet` is the set of enabled trap-enablers, one for each of the nine signals."
 msgstr "`GdaTrapSet` は有効なトラップ有効化の集合で、9 つのシグナルにそれぞれ 1 つあります。"
 
-#: manual/api/decimal_gda.md:805
+#: manual/api/decimal_gda.md:809
 msgid "Build and query trap sets."
 msgstr "トラップ集合を構築し、照会します。"
 
-#: manual/api/decimal_gda.md:813
+#: manual/api/decimal_gda.md:817
 msgid "`new` enables no trap. `with_signal(s)` enables one trap, or disables it with `enabled=false`. `contains(s)` reads the trap-enabler of `s`. The trap of `InvalidOperation` fires for every condition that signals it, as [Trap selection](#trap-selection) states."
 msgstr "`new` はトラップを 1 つも有効にしません。`with_signal(s)` はトラップを 1 つ有効にし、`enabled=false` を渡すと無効にします。`contains(s)` は `s` のトラップ有効化を読み取ります。`InvalidOperation` のトラップは、そのシグナルを発生させるすべての条件で働きます。これは[トラップの選択](#trap-selection)に記すとおりです。"
 
-#: manual/api/decimal_gda.md:820
+#: manual/api/decimal_gda.md:824
 msgid "`GdaOutcome[T]` is the result of every GDA operation."
 msgstr "`GdaOutcome[T]` はすべての GDA 演算の結果です。"
 
-#: manual/api/decimal_gda.md:829
+#: manual/api/decimal_gda.md:833
 msgid "Both variants carry the GDA-defined result, the next context and the conditions raised by this operation. `Trapped` also names the trap that fired."
 msgstr "どちらのバリアントも、GDA で定義された結果、次のコンテキスト、この演算で発生した条件を保持します。`Trapped` はさらに発動したトラップを示します。"
 
-#: manual/api/decimal_gda.md:832
+#: manual/api/decimal_gda.md:836
 msgid "Outside the package a caller can `match` on the enum and use the accessors, but only the GDA operations, `GdaOutcome::completed` and `GdaOutcome::absorb` construct an outcome. `GdaOutcome::resume_defined` turns a trapped outcome into its defined result."
 msgstr "パッケージの外では、呼び出し側は列挙型を `match` で分解し、アクセサを使えますが、outcome を構築できるのは GDA 演算、`GdaOutcome::completed`、`GdaOutcome::absorb` だけです。`GdaOutcome::resume_defined` は、トラップされた outcome を定義済みの結果に変えます。"
 
-#: manual/api/decimal_gda.md:839
+#: manual/api/decimal_gda.md:843
 msgid "Read the fields that both variants share, without a `match`."
 msgstr "`match` を使わずに、両方のバリアントが共有するフィールドを読み取ります。"
 
-#: manual/api/decimal_gda.md:847
+#: manual/api/decimal_gda.md:851
 msgid "`value` is the defined result, also for `Trapped`. `next_context` is the context with the updated flags. `raised` is the conditions of this operation only."
 msgstr "`value` は、`Trapped` でも定義された結果です。`next_context` はフラグが更新されたコンテキストです。`raised` はこの演算の条件だけです。"
 
-#: manual/api/decimal_gda.md:853
+#: manual/api/decimal_gda.md:857
 msgid "Build the outcomes a pipeline needs."
 msgstr "パイプラインが必要とする outcome を構築します。"
 
-#: manual/api/decimal_gda.md:860
+#: manual/api/decimal_gda.md:864
 msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`."
 msgstr "`completed(v, c)` は何も発生させなかった演算の outcome で、`v` と `c` は変わらず、`raised` は空です。"
 
-#: manual/api/decimal_gda.md:863
+#: manual/api/decimal_gda.md:867
 msgid "`a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`. The conditions that `b` raised join `raised` and the flags of the next context. In the flags, `invalid_operation` is set when one of the [four detailed invalid conditions](#gdaflagsnew-gdaflagscontains-gdaflagscombine) is among them. When `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses `absorb` for the right operand of a binary operation."
 msgstr "`a.absorb(b)` は `a` の値、コンテキスト（トラップを含む）、トラップを保ちます。`b` が発生させた条件は `raised` と次のコンテキストのフラグに加わります。フラグでは、[4 つの詳細な無効条件](#gdaflagsnew-gdaflagscontains-gdaflagscombine)のいずれかがそれらに含まれるとき、`invalid_operation` が設定されます。`a` が完了し `b` がトラップされたときは、`b` のシグナルを持つ `Trapped` になります。`a` のトラップは `b` の条件に対しては検査されません。[`GdaDecimalChecked`](decimal_gda_checked.md) は二項演算の右オペランドに `absorb` を使います。"
 
-#: manual/api/decimal_gda.md:874
+#: manual/api/decimal_gda.md:878
 msgid "Turns a `Trapped` outcome into a `Completed` one; it is the only way to do so."
 msgstr "`Trapped` の outcome を `Completed` の outcome に変えます。そうする方法はこれだけです。"
 
-#: manual/api/decimal_gda.md:880
+#: manual/api/decimal_gda.md:884
 msgid "`Completed` is returned unchanged. `Trapped(s, v, C, R)` becomes `Completed(v, C, none)`, where `C` is the next context that the outcome carries (not the input context of [Trap selection](#trap-selection)) and `none` is an empty `raised`; this is the GDA rule for continuing after a trap with the defined result. `GdaDecimalChecked::resume_defined` calls it."
 msgstr "`Completed` はそのまま返します。`Trapped(s, v, C, R)` は `Completed(v, C, none)` になります。ここで `C` は結果が持つ次のコンテキスト（[トラップの選択](#trap-selection)の入力コンテキストではありません）、`none` は空の `raised` です。これは、トラップ後に定義済みの結果で続行する GDA の規則です。`GdaDecimalChecked::resume_defined` がこれを呼びます。"
 
-#: manual/api/decimal_gda.md:885
+#: manual/api/decimal_gda.md:889
 msgid "Trap selection"
 msgstr "トラップの選択"
 
-#: manual/api/decimal_gda.md:887
+#: manual/api/decimal_gda.md:891
 msgid "A GDA function ends in the same three steps. Let $R$ be the conditions the operation raised and $C$ the input context."
 msgstr "GDA 関数は、いずれも同じ 3 つの手順で終わります。$R$ を演算が発生させた条件、$C$ を入力コンテキストとします。"
 
-#: manual/api/decimal_gda.md:890
+#: manual/api/decimal_gda.md:894
 msgid "If $R$ is empty the outcome is `Completed(v, C, none)`: the same context comes back."
 msgstr "$R$ が空なら、結果は `Completed(v, C, none)` で、同じコンテキストが返ります。"
 
-#: manual/api/decimal_gda.md:892
+#: manual/api/decimal_gda.md:896
 msgid "Otherwise the next context $C'$ is $C$ with flags $C.\\mathrm{flags} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
 msgstr "そうでなければ、次のコンテキスト $C'$ はフラグを $C.\\mathrm{flags} \\cup R$ とした $C$ です。ここで、$R$ が 4 つの詳細な無効条件のいずれかを含むときは `invalid_operation` フラグも設定されます。"
 
-#: manual/api/decimal_gda.md:895
+#: manual/api/decimal_gda.md:899
 msgid "The trapped signal is the first $s$ in the order below with `raised.contains(s)` and `traps.contains(s)`: InvalidOperation, DivisionByZero, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped, LostDigits. If there is one the outcome is `Trapped(s, v, C', R)`, otherwise `Completed(v, C', R)`."
 msgstr "トラップされるシグナルは、次の順で最初に `raised.contains(s)` と `traps.contains(s)` を満たす $s$ です。InvalidOperation、DivisionByZero、Overflow、Underflow、Subnormal、Inexact、Rounded、Clamped、LostDigits。該当するものがあれば結果は `Trapped(s, v, C', R)`、なければ `Completed(v, C', R)` です。"
 
-#: manual/api/decimal_gda.md:901
+#: manual/api/decimal_gda.md:905
 msgid "Because `contains(InvalidOperation)` covers the detailed invalid conditions, the one `InvalidOperation` trap catches all of them, and the trapped signal is `InvalidOperation` whichever condition raised it."
 msgstr "`contains(InvalidOperation)` が詳細な無効条件を含むため、唯一の `InvalidOperation` トラップがそれらすべてを捕らえ、どの条件が発生させても、トラップされるシグナルは `InvalidOperation` です。"
 
-#: manual/api/decimal_gda.md:925
+#: manual/api/decimal_gda.md:929
 msgid "GDA operations"
 msgstr "GDA 演算"
 
-#: manual/api/decimal_gda.md:927
+#: manual/api/decimal_gda.md:931
 msgid "Every function in this section takes its operands (a string for `to_number`) and a `GdaContext` and returns a `GdaOutcome` built by the [trap selection](#trap-selection) rule, except the four `try_` functions, which return it in a `Result`. A signaling-NaN operand raises `InvalidOperation` and yields the corresponding quiet NaN; a quiet NaN operand propagates without raising anything (the first NaN operand wins). In subset contexts (`extended=false`) finite operands longer than the precision are rounded first (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new)). Unless stated otherwise the result is the exact result, correctly rounded, and when it is exact it has the *ideal exponent* listed for the operation."
 msgstr "この節のすべての関数は、オペランド（`to_number` では文字列）と `GdaContext` を受け取り、[トラップの選択](#trap-selection)の規則で構築した `GdaOutcome` を返します。ただし 4 つの `try_` 関数は、これを `Result` に入れて返します。signaling NaN のオペランドは `InvalidOperation` を発生させ、対応する quiet NaN を生じます。quiet NaN のオペランドは何も発生させずに伝播します（最初の NaN のオペランドが優先されます）。サブセットコンテキスト（`extended=false`）では、精度より長い有限のオペランドが先に丸められます（[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) を参照）。特に断りのない限り、結果は厳密な結果を正しく丸めたもので、結果が厳密な場合は演算ごとに示す*理想指数*を持ちます。"
 
-#: manual/api/decimal_gda.md:939
+#: manual/api/decimal_gda.md:943
 msgid "`to_number` converts a string to a `Decimal` by the GDA to-number conversion."
 msgstr "`to_number` は、GDA の to-number 変換によって文字列を `Decimal` に変換します。"
 
-#: manual/api/decimal_gda.md:945
+#: manual/api/decimal_gda.md:949
 msgid "The literal keeps its exponent unless it must be rounded to the precision or clamped to the exponent range. Overflow and underflow are decided from the exact exponent of the text, however large."
 msgstr "リテラルは、精度に合わせて丸める必要があるか、指数範囲にクランプする必要がない限り、その指数を保持します。オーバーフローとアンダーフローは、どれほど大きくてもテキストの厳密な指数から判定されます。"
 
-#: manual/api/decimal_gda.md:949
+#: manual/api/decimal_gda.md:953
 msgid "Malformed text gives a quiet NaN with `ConversionSyntax`. In subset contexts infinities and NaNs are also a conversion-syntax error."
 msgstr "不正なテキストは `ConversionSyntax` 付きの quiet NaN を与えます。サブセットコンテキストでは、無限大と NaN も変換構文エラーになります。"
 
-#: manual/api/decimal_gda.md:954
+#: manual/api/decimal_gda.md:958
 msgid "Round one operand to the context: `plus` is $0 + x$, `minus` is $0 - x$, `abs` is $|x|$, and `apply` is the plain conversion of a value to the context."
 msgstr "1 つのオペランドをコンテキストに合わせて丸めます。`plus` は $0 + x$、`minus` は $0 - x$、`abs` は $|x|$、`apply` は値をコンテキストへ単純に変換するものです。"
 
-#: manual/api/decimal_gda.md:964
+#: manual/api/decimal_gda.md:968
 msgid "The ideal exponent is that of the operand."
 msgstr "理想指数はオペランドの指数です。"
 
-#: manual/api/decimal_gda.md:966
+#: manual/api/decimal_gda.md:970
 msgid "A zero result takes its sign from the GDA rule for a zero sum. `plus(-0)` and `minus(0)` are $-0$ under `Floor` and $+0$ under every other rounding algorithm, while `plus(0)`, `minus(-0)` and `abs` of either zero are $+0$. In a subset context every zero result is $+0$."
 msgstr "ゼロの結果の符号は、ゼロになる和についての GDA の規則に従います。`plus(-0)` と `minus(0)` は `Floor` では $-0$、ほかのすべての丸めアルゴリズムでは $+0$ になります。一方、`plus(0)`、`minus(-0)`、およびどちらのゼロの `abs` も $+0$ です。サブセットコンテキストでは、ゼロの結果はすべて $+0$ です。"
 
-#: manual/api/decimal_gda.md:971
+#: manual/api/decimal_gda.md:975
 msgid "`apply` keeps the sign of a zero and does not round subset operands first."
 msgstr "`apply` はゼロの符号を保ち、サブセットのオペランドを先に丸めません。"
 
-#: manual/api/decimal_gda.md:975
+#: manual/api/decimal_gda.md:979
 msgid "Perform the basic arithmetic operations; `fma(a, b, c)` is $a \\times b + c$ with a single rounding."
 msgstr "基本的な算術演算を行います。`fma(a, b, c)` は 1 回の丸めによる $a \\times b + c$ です。"
 
-#: manual/api/decimal_gda.md:986
+#: manual/api/decimal_gda.md:990
 msgid "The ideal exponent of each operation, with $q_1$ and $q_2$ the exponents of the first and second operand:"
 msgstr "各演算の理想指数です。$q_1$ と $q_2$ はそれぞれ第 1 オペランドと第 2 オペランドの指数です。"
 
-#: manual/api/decimal_gda.md:989
-#: manual/api/decimal_gda.md:1033
+#: manual/api/decimal_gda.md:993
+#: manual/api/decimal_gda.md:1037
 msgid "Ideal exponent"
 msgstr "理想指数"
 
-#: manual/api/decimal_gda.md:993
+#: manual/api/decimal_gda.md:997
 msgid "$q_1 - q_2$ (an inexact quotient has a full $p$-digit coefficient)"
 msgstr "$q_1 - q_2$（厳密でない商は $p$ 桁の完全な係数を持ちます）"
 
-#: manual/api/decimal_gda.md:994
+#: manual/api/decimal_gda.md:998
 msgid "the `add` rule applied to the exact product and the addend"
 msgstr "厳密な積と加数に適用した `add` の規則"
 
-#: manual/api/decimal_gda.md:996
+#: manual/api/decimal_gda.md:1000
 msgid "An exact zero sum is $-0$ when both operands are negative, $+0$ when both are positive, and otherwise $+0$, or $-0$ under `Floor`. For `subtract` the operands are the first operand and the negated second. So `add(0, -0)` is `0` under `HalfEven` and `-0` under `Floor`, while `add(0, 0)` is `0` under every rounding algorithm."
 msgstr "厳密なゼロの和は、両方のオペランドが負なら $-0$、両方が正なら $+0$、それ以外では $+0$ で、`Floor` では $-0$ です。`subtract` では、オペランドは第 1 オペランドと符号を反転した第 2 オペランドです。したがって `add(0, -0)` は `HalfEven` では `0`、`Floor` では `-0` ですが、`add(0, 0)` はどの丸めアルゴリズムでも `0` です。"
 
-#: manual/api/decimal_gda.md:1002
+#: manual/api/decimal_gda.md:1006
 msgid "The special cases:"
 msgstr "特殊なケース:"
 
-#: manual/api/decimal_gda.md:1006
-#: manual/api/decimal_gda.md:1156
+#: manual/api/decimal_gda.md:1010
+#: manual/api/decimal_gda.md:1160
 msgid "invalid"
 msgstr "無効"
 
-#: manual/api/decimal_gda.md:1007
+#: manual/api/decimal_gda.md:1011
 msgid "$\\pm\\infty$ with `DivisionByZero`"
 msgstr "`DivisionByZero` 付きの $\\pm\\infty$"
 
-#: manual/api/decimal_gda.md:1008
+#: manual/api/decimal_gda.md:1012
 msgid "NaN with `DivisionUndefined`"
 msgstr "`DivisionUndefined` 付きの NaN"
 
-#: manual/api/decimal_gda.md:1009
+#: manual/api/decimal_gda.md:1013
 msgid "a zero with exponent $E_{\\mathrm{tiny}}$ and `Clamped`"
 msgstr "指数が $E_{\\mathrm{tiny}}$ のゼロと `Clamped`"
 
-#: manual/api/decimal_gda.md:1011
+#: manual/api/decimal_gda.md:1015
 msgid "An invalid result raises `InvalidOperation`; the conditions that count as that signal are listed under [`GdaFlags::new`](#gdaflagsnew-gdaflagscontains-gdaflagscombine). `fma` is invalid in a subset context."
 msgstr "無効な結果は `InvalidOperation` を発生させます。このシグナルに数えられる条件は [`GdaFlags::new`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) に挙げます。`fma` はサブセットコンテキストでは無効です。"
 
-#: manual/api/decimal_gda.md:1016
+#: manual/api/decimal_gda.md:1020
 msgid "A far smaller addend is absorbed as a sticky unit below every rounding boundary of the sum, and a result is rounded to the subnormal grid only when its exact result is below $10^{E_{\\min}}$, so every one of these operations rounds once. At precision 7, `add(1598618.5, 1E-20)` is `1598619`. In decimal32, `multiply(3.000001E-45, 1.500001E-45)` is `4.500005E-90` and `divide(1, 1.9999999999998E+101)` is `1E-101`."
 msgstr "はるかに小さい加数は、和のすべての丸めの境界より下にあるスティッキーな単位として吸収され、結果が非正規化数の格子へ丸められるのは、その厳密な結果が $10^{E_{\\min}}$ を下回るときだけです。したがって、これらの演算はいずれも一度だけ丸めます。精度 7 では `add(1598618.5, 1E-20)` は `1598619` です。decimal32 では `multiply(3.000001E-45, 1.500001E-45)` は `4.500005E-90`、`divide(1, 1.9999999999998E+101)` は `1E-101` です。"
 
-#: manual/api/decimal_gda.md:1025
+#: manual/api/decimal_gda.md:1029
 msgid "Divide to an integer quotient."
 msgstr "整数商を求める除算を行います。"
 
-#: manual/api/decimal_gda.md:1033
-#: manual/api/decimal_gda.md:1822
+#: manual/api/decimal_gda.md:1037
+#: manual/api/decimal_gda.md:1826
 msgid "Returns"
 msgstr "返り値"
 
-#: manual/api/decimal_gda.md:1036
+#: manual/api/decimal_gda.md:1040
 msgid "$x - Q y$ (the sign of $x$)"
 msgstr "$x - Q y$（符号は $x$ の符号）"
 
-#: manual/api/decimal_gda.md:1037
+#: manual/api/decimal_gda.md:1041
 msgid "$x - n y$, where $n$ is $x / y$ rounded to the nearest integer, ties to even"
 msgstr "$x - n y$。ここで $n$ は $x / y$ を最も近い整数に丸めた値で、同点の場合は偶数を選びます"
 
-#: manual/api/decimal_gda.md:1039
+#: manual/api/decimal_gda.md:1043
 msgid "When $Q$ (or $n$) needs more than $p$ digits the result is NaN with `DivisionImpossible`. A zero divisor gives `DivisionByZero` (`divide_integer` of a nonzero number) or `DivisionUndefined` ($0 / 0$). A zero divisor or an infinite dividend makes both remainders invalid. A finite dividend with an infinite divisor is its own remainder."
 msgstr "$Q$（または $n$）が $p$ 桁を超える桁を必要とするとき、結果は `DivisionImpossible` を伴う NaN です。除数がゼロのときは `DivisionByZero`（非ゼロの数に対する `divide_integer`）または `DivisionUndefined`（$0 / 0$）になります。除数がゼロの場合や被除数が無限大の場合は、どちらの剰余も無効になります。被除数が有限で除数が無限大の場合は、被除数自身が剰余です。"
 
-#: manual/api/decimal_gda.md:1045
+#: manual/api/decimal_gda.md:1049
 msgid "In an extended clamped context (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new)), a zero quotient keeps its exact sign and is folded to $E_{\\max}-p+1$ when needed, raising `Clamped` without raising `Rounded` or `Inexact`."
 msgstr "拡張されたクランプ付きコンテキスト（[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) を参照）では、ゼロの商は厳密な符号を保ち、必要なときは $E_{\\max}-p+1$ に折り畳まれます。このとき `Clamped` を発生させますが、`Rounded` と `Inexact` は発生させません。"
 
-#: manual/api/decimal_gda.md:1052
+#: manual/api/decimal_gda.md:1056
 msgid "Round a value to a prescribed exponent."
 msgstr "値を指定された指数に丸めます。"
 
-#: manual/api/decimal_gda.md:1059
+#: manual/api/decimal_gda.md:1063
 msgid "`quantize(x, y)` returns the value of $x$ with the exponent $q_y$ of `y`, rounded with the rounding of the context (raising `Rounded`, and `Inexact` when digits are lost). `rescale(x, n)` does the same with exponent $n$, where $n$ must be an integer value."
 msgstr "`quantize(x, y)` は、$x$ の値を `y` の指数 $q_y$ で表し、コンテキストの丸めで丸めた結果を返します（`Rounded` を発生させ、桁が失われるときは `Inexact` も発生させます）。`rescale(x, n)` は指数 $n$ で同じことを行い、$n$ は整数値でなければなりません。"
 
-#: manual/api/decimal_gda.md:1064
+#: manual/api/decimal_gda.md:1068
 msgid "The result is invalid when"
 msgstr "次のとき、結果は無効です"
 
-#: manual/api/decimal_gda.md:1066
+#: manual/api/decimal_gda.md:1070
 msgid "the target exponent lies outside $[E_{\\mathrm{tiny}}, E_{\\max}]$ ($[E_{\\min}, E_{\\max}]$ in subset contexts),"
 msgstr "目標の指数が $[E_{\\mathrm{tiny}}, E_{\\max}]$ の外にある（サブセットコンテキストでは $[E_{\\min}, E_{\\max}]$ の外にある）。"
 
-#: manual/api/decimal_gda.md:1068
+#: manual/api/decimal_gda.md:1072
 msgid "the result coefficient would need more than $p$ digits, or"
 msgstr "結果の係数が $p$ 桁を超える桁を必要とする。または"
 
-#: manual/api/decimal_gda.md:1069
+#: manual/api/decimal_gda.md:1073
 msgid "exactly one operand is infinite."
 msgstr "オペランドのちょうど一方が無限大である。"
 
-#: manual/api/decimal_gda.md:1071
+#: manual/api/decimal_gda.md:1075
 msgid "Two infinities give the infinity."
 msgstr "二つの無限大に対しては無限大を返します。"
 
-#: manual/api/decimal_gda.md:1073
+#: manual/api/decimal_gda.md:1077
 msgid "A subnormal result raises `Subnormal` (and `Inexact` and `Rounded` when digits are lost) but never `Underflow`: in `decimal32`, `quantize(1.55E-100, 1E-101)` is `1.6E-100` with `Subnormal`, `Inexact` and `Rounded`."
 msgstr "非正規化数の結果は `Subnormal`（桁が失われるときは `Inexact` と `Rounded` も）を発生させますが、`Underflow` は決して発生させません。`decimal32` では、`quantize(1.55E-100, 1E-101)` は `1.6E-100` で、`Subnormal`、`Inexact`、`Rounded` を伴います。"
 
-#: manual/api/decimal_gda.md:1079
+#: manual/api/decimal_gda.md:1083
 msgid "Round to an integer with the rounding of the context."
 msgstr "コンテキストの丸めで整数に丸めます。"
 
-#: manual/api/decimal_gda.md:1086
+#: manual/api/decimal_gda.md:1090
 msgid "A value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down)."
 msgstr "指数が $\\ge 0$ の値はすでに整数であり、$p$ 桁より長い場合でもそのまま返されます（`clamp` コンテキストでは、指数が引き続き折り下げられます）。"
 
-#: manual/api/decimal_gda.md:1090
+#: manual/api/decimal_gda.md:1094
 msgid "A value with negative exponent is quantized to exponent 0 at a working precision of $\\max(p, \\text{its digit count})$, as decNumber does, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`."
 msgstr "指数が負の値は、decNumber と同様に、作業精度 $\\max(p, \\text{its digit count})$ で指数 0 に量子化されます。そのため整数部が $p$ 桁に丸められることはありません。精度 3 では `12345.6` は `12346` になります。"
 
-#: manual/api/decimal_gda.md:1095
+#: manual/api/decimal_gda.md:1099
 msgid "`round_to_integral_exact` raises `Inexact` and `Rounded` when digits are dropped and `round_to_integral_value` never does. In a subset context the operand is first rounded to $p$ digits, with `LostDigits`."
 msgstr "`round_to_integral_exact` は桁が捨てられるとき `Inexact` と `Rounded` を発生させ、`round_to_integral_value` は決して発生させません。サブセットコンテキストでは、オペランドはまず `LostDigits` を伴って $p$ 桁に丸められます。"
 
-#: manual/api/decimal_gda.md:1113
+#: manual/api/decimal_gda.md:1117
 msgid "Implementation limit of `exp`, `ln`, `log10` and `power`"
 msgstr "`exp`、`ln`、`log10`、`power` の処理系限界"
 
-#: manual/api/decimal_gda.md:1115
+#: manual/api/decimal_gda.md:1119
 msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept a context only if $p \\le 999\\,999$, $E_{\\max} \\le 999\\,999$ and $E_{\\min} \\ge -999\\,999$. Beyond a limit they raise `InvalidContext`; with the default exponent range they return NaN and raise `InvalidContext`."
 msgstr "`exp`、`ln`、`log10`、および非整数の指数での `power` は、$p \\le 999\\,999$、$E_{\\max} \\le 999\\,999$、$E_{\\min} \\ge -999\\,999$ のコンテキストだけを受け付けます。限界を超えると `InvalidContext` を発生させます。既定の指数範囲では NaN を返し、`InvalidContext` を発生させます。"
 
-#: manual/api/decimal_gda.md:1119
+#: manual/api/decimal_gda.md:1123
 msgid "Limit"
 msgstr "限界"
 
-#: manual/api/decimal_gda.md:1119
+#: manual/api/decimal_gda.md:1123
 msgid "Applies to"
 msgstr "適用対象"
 
-#: manual/api/decimal_gda.md:1121
+#: manual/api/decimal_gda.md:1125
 msgid "`exp`, `ln`, `log10`, and `power` with a non-integer exponent"
 msgstr "`exp`、`ln`、`log10`、および非整数の指数での `power`"
 
-#: manual/api/decimal_gda.md:1122
+#: manual/api/decimal_gda.md:1126
 msgid "a nonzero operand has at most 999,999 digits"
 msgstr "非ゼロのオペランドの桁数が 999,999 以下である"
 
-#: manual/api/decimal_gda.md:1123
+#: manual/api/decimal_gda.md:1127
 msgid "the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\\,999\\,997$"
 msgstr "非ゼロのオペランドの調整指数が 999,999 以下かつ $-1\\,999\\,997$ 以上である"
 
-#: manual/api/decimal_gda.md:1123
+#: manual/api/decimal_gda.md:1127
 msgid "`exp`, `ln`, `log10`, and `power` with a non-integer exponent (its base, and its exponent at the lower limit)"
 msgstr "`exp`、`ln`、`log10`、および非整数の指数を持つ `power`（その底と、下限にある指数）"
 
-#: manual/api/decimal_gda.md:1125
+#: manual/api/decimal_gda.md:1129
 msgid "This is an implementation limit. The operation text of GDA 1.70 states no such bound, and the limit is permitted by its Invalid context condition, which applies when the precision \"exceeds the capability of the underlying concrete representation\" (GDA 1.70, page 52 (Exceptional conditions)). The value 999,999 is the `DEC_MAX_MATH` of decNumber. The [design page](../design/decimal_gda.md#correctly-rounded-exp-ln-log10-and-non-integer-power) gives the reason."
 msgstr "これは処理系限界です。GDA 1.70 の演算の本文にはこのような限界の記述がなく、この限界は Invalid context 条件によって許されます。この条件は、精度が「基となる具体的な表現の能力を超える」場合に適用されます（GDA 1.70、52 ページ（Exceptional conditions））。値 999,999 は decNumber の `DEC_MAX_MATH` です。理由は[設計ページ](../design/decimal_gda.md#correctly-rounded-exp-ln-log10-and-non-integer-power)に述べてあります。"
 
-#: manual/api/decimal_gda.md:1134
+#: manual/api/decimal_gda.md:1138
 msgid "Return the correctly rounded square root, exponential, natural logarithm and base-10 logarithm of a value."
 msgstr "値の正しく丸められた平方根、指数関数、自然対数、常用対数を返します。"
 
-#: manual/api/decimal_gda.md:1144
+#: manual/api/decimal_gda.md:1148
 msgid "They use the half-even rounding algorithm, whatever the rounding of the context. Every finite result not listed as exact is inexact with $p$ digits."
 msgstr "これらはコンテキストの丸めアルゴリズムにかかわらず、最近接偶数丸めを使います。厳密として挙げていない有限の結果は、すべて $p$ 桁で不正確です。"
 
-#: manual/api/decimal_gda.md:1147
-#: manual/api/decimal_gda.md:1154
+#: manual/api/decimal_gda.md:1151
+#: manual/api/decimal_gda.md:1158
 msgid "Operand"
 msgstr "オペランド"
 
-#: manual/api/decimal_gda.md:1149
+#: manual/api/decimal_gda.md:1153
 msgid "a perfect square"
 msgstr "完全平方数"
 
-#: manual/api/decimal_gda.md:1149
+#: manual/api/decimal_gda.md:1153
 msgid "exact, with the ideal exponent $\\lfloor q/2 \\rfloor$, where $q$ is the exponent of the operand"
 msgstr "厳密。理想指数は $\\lfloor q/2 \\rfloor$（$q$ はオペランドの指数）"
 
-#: manual/api/decimal_gda.md:1152
+#: manual/api/decimal_gda.md:1156
 msgid "a power of ten $10^k$"
 msgstr "10 の冪 $10^k$"
 
-#: manual/api/decimal_gda.md:1152
+#: manual/api/decimal_gda.md:1156
 msgid "the integer $k$, rounded if $k$ has more than $p$ digits"
 msgstr "整数 $k$（$k$ が $p$ 桁を超える桁をもつ場合は丸められる）"
 
-#: manual/api/decimal_gda.md:1156
+#: manual/api/decimal_gda.md:1160
 msgid "a negative number"
 msgstr "負の数"
 
-#: manual/api/decimal_gda.md:1157
+#: manual/api/decimal_gda.md:1161
 msgid "$-\\infty$; invalid in a subset context"
 msgstr "$-\\infty$。サブセットコンテキストでは無効"
 
-#: manual/api/decimal_gda.md:1159
+#: manual/api/decimal_gda.md:1163
 msgid "all four"
 msgstr "四つすべて"
 
-#: manual/api/decimal_gda.md:1161
+#: manual/api/decimal_gda.md:1165
 msgid "An invalid result raises `InvalidOperation`; the conditions that count as that signal are listed under [`GdaFlags::new`](#gdaflagsnew-gdaflagscontains-gdaflagscombine)."
 msgstr "無効な結果は `InvalidOperation` を発生させます。このシグナルとして扱われる条件は [`GdaFlags::new`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) に挙げてあります。"
 
-#: manual/api/decimal_gda.md:1164
+#: manual/api/decimal_gda.md:1168
 msgid "`exp`, `ln` and `log10` are subject to the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power). If the evaluation cannot decide the rounding within the [refinement limit](#gdacontextrefinement_limit-gdacontextwith_refinement_limit), the result is NaN with `InvalidOperation`."
 msgstr "`exp`、`ln`、`log10` には[処理系限界](#implementation-limit-of-exp-ln-log10-and-power)があります。評価が[精緻化の限界](#gdacontextrefinement_limit-gdacontextwith_refinement_limit)の範囲内で丸めを決定できないときは、結果は `InvalidOperation` を伴う NaN です。"
 
-#: manual/api/decimal_gda.md:1170
+#: manual/api/decimal_gda.md:1174
 msgid "GDA 1.70 allows an inexact result of `exp`, `ln` and `log10` to be up to one unit in the last place from the correctly rounded one (GDA 1.70, page 30 (exp); page 31 (ln, log10)). The library returns the correctly rounded result, in a subset context as in the extended arithmetic (see the [conformance page](../conformance/decimal_gda.md#deviations-of-the-corpus))."
 msgstr "GDA 1.70 は、`exp`、`ln`、`log10` の不正確な結果が、正しく丸められた結果から最終桁で最大 1 単位まで離れることを許しています（GDA 1.70、30 ページ（exp）、31 ページ（ln, log10））。このライブラリは、サブセットコンテキストでも拡張算術と同じく、正しく丸められた結果を返します（[適合性ページ](../conformance/decimal_gda.md#deviations-of-the-corpus)を参照）。"
 
-#: manual/api/decimal_gda.md:1177
+#: manual/api/decimal_gda.md:1181
 msgid "Return $x^y$ for `power(x, y)`."
 msgstr "`power(x, y)` について $x^y$ を返します。"
 
-#: manual/api/decimal_gda.md:1183
+#: manual/api/decimal_gda.md:1187
 msgid "For an integer $y$, the result is computed by binary powering with $p + \\operatorname{digits}(|y|) + 2$ working digits (one fewer in subset contexts) and then rounded with the rounding of the context. An exact power that fits in $p$ digits is returned exactly, with exponent $y \\cdot q_x$."
 msgstr "整数 $y$ の場合、結果は $p + \\operatorname{digits}(|y|) + 2$ 桁の作業桁（サブセットコンテキストでは 1 桁少ない）による二進冪乗で計算され、その後コンテキストの丸めで丸められます。$p$ 桁に収まる厳密な冪は、指数 $y \\cdot q_x$ で厳密に返されます。"
 
-#: manual/api/decimal_gda.md:1188
+#: manual/api/decimal_gda.md:1192
 msgid "For a non-integer $y$, $x$ must be positive (a negative base is invalid), and the result is certified to be correctly rounded *with the rounding of the context*. The case $y = 0.5$ is computed as a square root under the rounding of the context. The [implementation limit](#implementation-limit-of-exp-ln-log10-and-power) applies to a non-integer exponent. For a finite base, a non-integer exponent with a base whose adjusted exponent is above 999,999 or below $-1\\,999\\,997$, or an exponent whose adjusted exponent is below $-1\\,999\\,997$, and an integer exponent with an adjusted exponent above 999,999, give a NaN with `InvalidOperation`, not `InvalidContext`."
 msgstr "非整数の $y$ の場合、$x$ は正でなければならず（負の底は無効）、結果は*コンテキストの丸めで*正しく丸められていることが認証されます。$y = 0.5$ の場合は、コンテキストの丸めでの平方根として計算されます。非整数の指数には[処理系限界](#implementation-limit-of-exp-ln-log10-and-power)が適用されます。底が有限の場合、非整数の指数で、底の調整指数が 999,999 を超えるか $-1\\,999\\,997$ を下回るもの、または指数の調整指数が $-1\\,999\\,997$ を下回るもの、および調整指数が 999,999 を超える整数の指数は、`InvalidContext` ではなく `InvalidOperation` を伴う NaN を返します。"
 
-#: manual/api/decimal_gda.md:1197
+#: manual/api/decimal_gda.md:1201
 msgid "The special cases follow GDA:"
 msgstr "特殊な場合は GDA に従います。"
 
-#: manual/api/decimal_gda.md:1201
+#: manual/api/decimal_gda.md:1205
 msgid "$1$; $0^0$ is invalid"
 msgstr "$1$。$0^0$ は無効"
 
-#: manual/api/decimal_gda.md:1202
+#: manual/api/decimal_gda.md:1206
 msgid "a power of $\\pm\\infty$ or $\\pm 0$"
 msgstr "$\\pm\\infty$ または $\\pm 0$ の冪"
 
-#: manual/api/decimal_gda.md:1202
+#: manual/api/decimal_gda.md:1206
 msgid "takes its sign from the parity of an integer exponent"
 msgstr "整数の指数の偶奇から符号を決める"
 
-#: manual/api/decimal_gda.md:1203
+#: manual/api/decimal_gda.md:1207
 msgid "$1^y$, $y$ not an integer, or infinite"
 msgstr "$1^y$、$y$ が整数でない、または無限大"
 
-#: manual/api/decimal_gda.md:1203
+#: manual/api/decimal_gda.md:1207
 msgid "$1$ with `Inexact` and `Rounded`"
 msgstr "`Inexact` と `Rounded` を伴う $1$"
 
-#: manual/api/decimal_gda.md:1204
+#: manual/api/decimal_gda.md:1208
 msgid "subset context, $0^0$"
 msgstr "サブセットコンテキスト、$0^0$"
 
-#: manual/api/decimal_gda.md:1205
+#: manual/api/decimal_gda.md:1209
 msgid "subset context, $0^{-n}$"
 msgstr "サブセットコンテキスト、$0^{-n}$"
 
-#: manual/api/decimal_gda.md:1205
+#: manual/api/decimal_gda.md:1209
 msgid "invalid, instead of $\\infty$"
 msgstr "$\\infty$ ではなく無効"
 
-#: manual/api/decimal_gda.md:1207
+#: manual/api/decimal_gda.md:1211
 msgid "GDA treats every non-integer power as inexact, even when the real number $x^y$ is representable: `power(4, 1.5)` at precision 5 is `8.0000` with `Inexact` and `Rounded` in every rounding algorithm. Such cases, an exponent $a/b$ in lowest terms with $x$ a perfect $b$-th power, are decided before the refinement loop, because they lie on the boundary of a directed rounding cell or on a midpoint, which the loop cannot certify."
 msgstr "GDA は、実数 $x^y$ が表現可能な場合でも、非整数のべきをすべて不正確として扱います。精度 5 の `power(4, 1.5)` は、どの丸めアルゴリズムでも `8.0000` で、`Inexact` と `Rounded` が立ちます。このような場合、すなわち指数が既約な $a/b$ で、$x$ が完全な $b$ 乗数である場合は、精緻化ループの前に決定されます。これらは方向付き丸めセルの境界上または中点上にあり、ループでは認証できないためです。"
 
-#: manual/api/decimal_gda.md:1213
+#: manual/api/decimal_gda.md:1217
 msgid "GDA 1.70 allows an inexact `power` result to be up to one unit in the last place in error (GDA 1.70, page 35 (power)). The library always returns the correctly rounded result, so `Down`, `Floor` and `ZeroFiveUp` give `8.0000` where libmpdec gives `7.9999`."
 msgstr "GDA 1.70 は、不正確な `power` の結果に最終桁 1 単位までの誤差を許しています（GDA 1.70、35 ページ（power））。このライブラリは常に正しく丸められた結果を返すため、`Down`、`Floor`、`ZeroFiveUp` では、libmpdec が `7.9999` を返すところで `8.0000` を返します。"
 
-#: manual/api/decimal_gda.md:1219
+#: manual/api/decimal_gda.md:1223
 msgid "Return the outcome of `exp`, `ln`, `log10` or `power`, or `Err` when the library could not certify the result."
 msgstr "`exp`、`ln`、`log10`、`power` の結果を返します。ライブラリが結果を認証できなかった場合は `Err` を返します。"
 
-#: manual/api/decimal_gda.md:1229
+#: manual/api/decimal_gda.md:1233
 msgid "Every case the specification defines is an `Ok` outcome exactly as the plain function returns it. These cases are domain errors, signaling NaNs, and a context beyond the supported exponent range, which `exp` and its siblings report as `invalid_context` (the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power)). `Err` means that the refinement limit or a resource bound stopped the computation; the plain function then returns a NaN with `invalid_operation`."
 msgstr "仕様が定めるすべての場合は、通常の関数が返すものとまったく同じ `Ok` の結果です。これらの場合とは、定義域エラー、signaling NaN、およびサポートされる指数範囲を超えるコンテキストです。後者は `exp` とその仲間では `invalid_context` として報告されます（[処理系限界](#implementation-limit-of-exp-ln-log10-and-power)）。`Err` は、精緻化の上限または資源上の上限で計算が打ち切られたことを表します。そのとき通常の関数は `invalid_operation` を伴う NaN を返します。"
 
-#: manual/api/decimal_gda.md:1238
+#: manual/api/decimal_gda.md:1242
 msgid "Round a value to the context and remove its trailing zeros."
 msgstr "値をコンテキストに合わせて丸め、末尾のゼロを除きます。"
 
-#: manual/api/decimal_gda.md:1244
+#: manual/api/decimal_gda.md:1248
 msgid "A zero becomes $0$ with exponent 0, keeping its sign in extended contexts. In a clamped context (the parameter `clamp`, see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new)) the exponent is not raised above $E_{\\max} - p + 1$."
 msgstr "ゼロは指数 0 の $0$ になり、拡張コンテキストでは符号を保ちます。クランプされたコンテキスト（パラメーター `clamp`、[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) を参照）では、指数が $E_{\\max} - p + 1$ より大きくされることはありません。"
 
-#: manual/api/decimal_gda.md:1250
+#: manual/api/decimal_gda.md:1254
 msgid "`scaleb` scales a value by a power of ten, and `logb` returns its adjusted exponent."
 msgstr "`scaleb` は値を 10 のべきでスケールし、`logb` はその調整後指数を返します。"
 
-#: manual/api/decimal_gda.md:1257
+#: manual/api/decimal_gda.md:1261
 msgid "`scaleb(x, n)` returns $x \\cdot 10^n$ by adding $n$ to the exponent. The operand $n$ must be an integer with exponent 0 and $|n| \\le 2(E_{\\max} + p)$; otherwise the result is invalid. The result then goes through the shared finalization:"
 msgstr "`scaleb(x, n)` は、指数に $n$ を加えることで $x \\cdot 10^n$ を返します。オペランド $n$ は指数 0 の整数で、$|n| \\le 2(E_{\\max} + p)$ でなければなりません。そうでなければ結果は無効です。結果はそのあと共通の最終化を通ります。"
 
-#: manual/api/decimal_gda.md:1263
+#: manual/api/decimal_gda.md:1267
 msgid "a coefficient longer than $p$ digits"
 msgstr "$p$ 桁より長い係数"
 
-#: manual/api/decimal_gda.md:1263
+#: manual/api/decimal_gda.md:1267
 msgid "rounded"
 msgstr "丸められる"
 
-#: manual/api/decimal_gda.md:1264
+#: manual/api/decimal_gda.md:1268
 msgid "an overflow"
 msgstr "オーバーフロー"
 
-#: manual/api/decimal_gda.md:1264
+#: manual/api/decimal_gda.md:1268
 msgid "$\\pm\\infty$ or the largest finite number, by the rounding algorithm"
 msgstr "丸めアルゴリズムに応じて、$\\pm\\infty$ または最大の有限数"
 
-#: manual/api/decimal_gda.md:1264
+#: manual/api/decimal_gda.md:1268
 msgid "in decimal32 under `Down`, `scaleb(9E+96, 1)` is `9.999999E+96`"
 msgstr "decimal32 の `Down` では、`scaleb(9E+96, 1)` は `9.999999E+96` です"
 
-#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1269
 msgid "a zero result"
 msgstr "結果がゼロ"
 
-#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1269
 msgid "clamped into the exponent range"
 msgstr "指数範囲にクランプされる"
 
-#: manual/api/decimal_gda.md:1265
+#: manual/api/decimal_gda.md:1269
 msgid "`scaleb(0E+300, 400)` in decimal64 is `0E+369`"
 msgstr "decimal64 の `scaleb(0E+300, 400)` は `0E+369` です"
 
-#: manual/api/decimal_gda.md:1267
+#: manual/api/decimal_gda.md:1271
 msgid "`logb(x)` returns $\\hat q$ as an integer. `logb(0)` is $-\\infty$ with `DivisionByZero`, and `logb(±∞)` is $+\\infty$."
 msgstr "`logb(x)` は $\\hat q$ を整数として返します。`logb(0)` は `DivisionByZero` を伴う $-\\infty$ で、`logb(±∞)` は $+\\infty$ です。"
 
-#: manual/api/decimal_gda.md:1272
+#: manual/api/decimal_gda.md:1276
 msgid "Return the representable number adjacent to a value."
 msgstr "値に隣接する表現可能な数を返します。"
 
-#: manual/api/decimal_gda.md:1280
+#: manual/api/decimal_gda.md:1284
 msgid "`next_plus` returns the smallest representable number greater than $x$ in the context, and `next_minus` the largest smaller one. From a zero they step to $\\pm 10^{E_{\\mathrm{tiny}}}$, and past the largest finite number they reach $\\pm\\infty$. Neither raises flags for finite results."
 msgstr "`next_plus` はコンテキストにおいて $x$ より大きい最小の表現可能な数を、`next_minus` はそれより小さい最大の数を返します。ゼロからは $\\pm 10^{E_{\\mathrm{tiny}}}$ へ移動し、最大の有限数を超えると $\\pm\\infty$ に達します。どちらも有限の結果に対してはフラグを立てません。"
 
-#: manual/api/decimal_gda.md:1284
+#: manual/api/decimal_gda.md:1288
 msgid "`next_toward(x, y)` steps from $x$ towards $y$, returning $x$ (with the sign of $y$ for zeros) when they compare equal. When the step leaves the normal range, it raises `Overflow`, or `Underflow` and `Subnormal`, together with `Inexact` and `Rounded`."
 msgstr "`next_toward(x, y)` は $x$ から $y$ に向かって 1 ステップ移動し、両者が等しく比較されるときは $x$ を返します（ゼロなら $y$ の符号を付けます）。ステップが正規化数の範囲を出るときは、`Overflow`、または `Underflow` と `Subnormal` を、`Inexact` と `Rounded` とともに発生させます。"
 
-#: manual/api/decimal_gda.md:1290
+#: manual/api/decimal_gda.md:1294
 msgid "Compute the digit-wise and, or, exclusive or and inversion of logical operands (GDA 1.70, page 41 (Miscellaneous operations)). A logical operand is a non-negative integer with exponent 0 whose digits are all 0 or 1."
 msgstr "論理オペランドの桁ごとの論理積、論理和、排他的論理和、反転を計算します（GDA 1.70、41 ページ（Miscellaneous operations））。論理オペランドは、指数が 0 で、すべての桁が 0 または 1 である非負の整数です。"
 
-#: manual/api/decimal_gda.md:1300
+#: manual/api/decimal_gda.md:1304
 msgid "Each operand is read as exactly $p$ digits: a shorter operand is padded with leading zeros, and only the low $p$ digits of a longer one are used. `logical_invert` inverts all $p$ digits. Any other operand makes the result invalid (an [`InvalidOperation`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) condition)."
 msgstr "各オペランドはちょうど $p$ 桁として読まれます。短いオペランドは先頭をゼロで埋め、長いオペランドは下位 $p$ 桁だけが使われます。`logical_invert` は $p$ 桁すべてを反転します。それ以外のオペランドは結果を無効にします（[`InvalidOperation`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) 条件）。"
 
-#: manual/api/decimal_gda.md:1308
+#: manual/api/decimal_gda.md:1312
 msgid "Move the coefficient digits of $x$ by $n$ places within a window of $p$ digits (GDA 1.70, page 49 (shift); page 47 (rotate))."
 msgstr "$x$ の係数の桁を $p$ 桁の窓の中で $n$ 桁移動します（GDA 1.70、49 ページ（shift）、47 ページ（rotate））。"
 
-#: manual/api/decimal_gda.md:1316
+#: manual/api/decimal_gda.md:1320
 msgid "$n$ must be an integer with exponent 0 and $|n| \\le p$, otherwise the result is invalid. A positive $n$ moves digits to the left. `shift` drops the digits that leave the window and fills with zeros; `rotate` moves them round to the other end. The exponent and sign are unchanged, and an infinite $x$ is returned unchanged."
 msgstr "$n$ は指数 0 で $|n| \\le p$ の整数でなければならず、そうでなければ結果は無効です。正の $n$ は桁を左へ移動します。`shift` は窓からはみ出た桁を捨ててゼロで埋め、`rotate` はそれを反対側の端へ回り込ませます。指数と符号は変わらず、無限大の $x$ はそのまま返されます。"
 
-#: manual/api/decimal_gda.md:1324
+#: manual/api/decimal_gda.md:1328
 msgid "Compare two values by value or in the GDA total order (GDA 1.70, page 42 (compare-total))."
 msgstr "二つの値を、値によって、または GDA の全順序で比較します（GDA 1.70、42 ページ（compare-total））。"
 
-#: manual/api/decimal_gda.md:1333
+#: manual/api/decimal_gda.md:1337
 msgid "An operand is a NaN"
 msgstr "オペランドが NaN である"
 
-#: manual/api/decimal_gda.md:1335
+#: manual/api/decimal_gda.md:1339
 msgid "the decimal $-1$, $0$ or $1$, by value ($-0 = +0$, $2.50 = 2.5$)"
 msgstr "値による十進の $-1$、$0$、$1$（$-0 = +0$、$2.50 = 2.5$）"
 
-#: manual/api/decimal_gda.md:1335
+#: manual/api/decimal_gda.md:1339
 msgid "a quiet NaN; `InvalidOperation` only for a signaling NaN"
 msgstr "quiet NaN。`InvalidOperation` は signaling NaN の場合だけ"
 
-#: manual/api/decimal_gda.md:1336
+#: manual/api/decimal_gda.md:1340
 msgid "the same as `compare`"
 msgstr "`compare` と同じ"
 
-#: manual/api/decimal_gda.md:1336
+#: manual/api/decimal_gda.md:1340
 msgid "a quiet NaN; `InvalidOperation` for any NaN"
 msgstr "quiet NaN。どの NaN に対しても `InvalidOperation`"
 
-#: manual/api/decimal_gda.md:1338
+#: manual/api/decimal_gda.md:1342
 msgid "`compare_total` returns $-1$, $0$ or $1$ in the GDA total order. The order is by sign bit first. For positive values it is $\\text{finite} < \\infty < \\text{sNaN} < \\text{NaN}$, with finite values ordered by value and then by exponent (`2.50` < `2.5`) and NaNs by payload; for negative values it is reversed. `compare_total_magnitude` applies the total order to the absolute values. The total orders never raise flags in an extended context."
 msgstr "`compare_total` は GDA の全順序で $-1$、$0$、$1$ を返します。順序はまず符号ビットで決まります。正の値については $\\text{finite} < \\infty < \\text{sNaN} < \\text{NaN}$ の順で、有限値は値、次いで指数で（`2.50` < `2.5`）、NaN はペイロードで順序付けられます。負の値では順序が逆になります。`compare_total_magnitude` は絶対値に全順序を適用します。拡張コンテキストでは、全順序がフラグを立てることはありません。"
 
-#: manual/api/decimal_gda.md:1346
+#: manual/api/decimal_gda.md:1350
 msgid "A subset context (`extended=false`) first rounds the operands to the precision, as it does for every operand (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new); GDA 1.70, page 56 (Appendix A, The X3.274 subset)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same names](#decimalcompare_total-decimalcompare_total_magnitude) compare the operands as they are."
 msgstr "サブセットコンテキスト（`extended=false`）は、ほかのすべてのオペランドと同様に、まずオペランドを精度に丸め（[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) と、GDA 1.70、56 ページ（Appendix A, The X3.274 subset）を参照）、`Rounded` と `LostDigits` が発生します。同名の [`Decimal` のメソッド](#decimalcompare_total-decimalcompare_total_magnitude)はオペランドをそのまま比較します。"
 
-#: manual/api/decimal_gda.md:1354
+#: manual/api/decimal_gda.md:1358
 msgid "Return the larger or smaller of two operands, by value or by magnitude (GDA 1.70, page 32 (max))."
 msgstr "二つのオペランドのうち、値または絶対値で大きいほう、または小さいほうを返します（GDA 1.70、32 ページ（max））。"
 
-#: manual/api/decimal_gda.md:1366
+#: manual/api/decimal_gda.md:1370
 msgid "one quiet NaN, the other operand not a NaN"
 msgstr "一方が quiet NaN で、他方のオペランドは NaN でない"
 
-#: manual/api/decimal_gda.md:1366
+#: manual/api/decimal_gda.md:1370
 msgid "the operand that is not a NaN"
 msgstr "NaN でないほうのオペランド"
 
-#: manual/api/decimal_gda.md:1367
+#: manual/api/decimal_gda.md:1371
 msgid "two quiet NaNs"
 msgstr "二つの quiet NaN"
 
-#: manual/api/decimal_gda.md:1367
+#: manual/api/decimal_gda.md:1371
 msgid "the first"
 msgstr "最初のもの"
 
-#: manual/api/decimal_gda.md:1368
+#: manual/api/decimal_gda.md:1372
 msgid "a signaling NaN"
 msgstr "signaling NaN"
 
-#: manual/api/decimal_gda.md:1368
+#: manual/api/decimal_gda.md:1372
 msgid "a quiet NaN, with `InvalidOperation`"
 msgstr "`InvalidOperation` を伴う quiet NaN"
 
-#: manual/api/decimal_gda.md:1369
+#: manual/api/decimal_gda.md:1373
 msgid "values that compare equal, extended context"
 msgstr "等しく比較される値、拡張コンテキスト"
 
-#: manual/api/decimal_gda.md:1369
+#: manual/api/decimal_gda.md:1373
 msgid "the operand the total order selects (so `max(2.5, 2.50)` is `2.5`)"
 msgstr "全順序が選ぶオペランド（したがって `max(2.5, 2.50)` は `2.5`）"
 
-#: manual/api/decimal_gda.md:1370
+#: manual/api/decimal_gda.md:1374
 msgid "values that compare equal, subset context"
 msgstr "等しく比較される値、サブセットコンテキスト"
 
-#: manual/api/decimal_gda.md:1370
+#: manual/api/decimal_gda.md:1374
 msgid "the first operand"
 msgstr "最初のオペランド"
 
-#: manual/api/decimal_gda.md:1372
+#: manual/api/decimal_gda.md:1376
 msgid "The selected operand is then rounded to the context as by `plus`, except that in an extended context a zero keeps its sign: `max(-0, -0)` is `-0` for every rounding algorithm, while `plus(-0)` is `0` unless the rounding is `Floor`."
 msgstr "選ばれたオペランドは、そのあと `plus` と同様にコンテキストに合わせて丸められます。ただし拡張コンテキストではゼロが符号を保ちます。`max(-0, -0)` はどの丸めアルゴリズムでも `-0` ですが、`plus(-0)` は丸めが `Floor` でない限り `0` です。"
 
-#: manual/api/decimal_gda.md:1378
+#: manual/api/decimal_gda.md:1382
 msgid "Classify a value under a context (GDA 1.70, page 42 (class); page 45 (is-normal); page 46 (is-subnormal)). They never raise conditions, so they always return `Completed` with the input context."
 msgstr "コンテキストのもとで値を分類します（GDA 1.70、42 ページ（class）、45 ページ（is-normal）、46 ページ（is-subnormal））。条件を発生させることはないので、常に入力コンテキストとともに `Completed` を返します。"
 
-#: manual/api/decimal_gda.md:1388
+#: manual/api/decimal_gda.md:1392
 msgid "They need the exponent limit $E_{\\min}$ of the context, which is why they are functions of the context. `same_quantum` uses no context and is a [`Decimal` method](#decimalsame_quantum)."
 msgstr "これらはコンテキストの指数の下限 $E_{\\min}$ を必要とするため、コンテキストを取る関数です。`same_quantum` はコンテキストを使わず、[`Decimal` のメソッド](#decimalsame_quantum) です。"
 
-#: manual/api/decimal_gda.md:1418
+#: manual/api/decimal_gda.md:1422
 msgid "Ordering and plain arithmetic on values"
 msgstr "値に対する順序付けと素の演算"
 
-#: manual/api/decimal_gda.md:1420
+#: manual/api/decimal_gda.md:1424
 msgid "The methods and operators of this section take no context. They never signal and never trap; use the GDA functions when flags matter."
 msgstr "この節のメソッドと演算子はコンテキストを受け取りません。シグナルもトラップも発生させないので、フラグが重要な場合は GDA の関数を使用してください。"
 
-#: manual/api/decimal_gda.md:1425
+#: manual/api/decimal_gda.md:1429
 msgid "`compare` returns the three-way numeric comparison of two values, total on all values; `compare_checked` refuses NaNs."
 msgstr "`compare` は二つの値の数値的な三方比較を返し、すべての値の上で全です。`compare_checked` は NaN を拒否します。"
 
-#: manual/api/decimal_gda.md:1435
+#: manual/api/decimal_gda.md:1439
 msgid "`compare` orders finite values and infinities numerically with $-0 = +0$ and places every NaN equal to every other NaN and above every value that is not a NaN, so it is a total preorder and sorting never aborts. `compare_checked` returns `Err(unordered_comparison)` when either operand is a NaN."
 msgstr "`compare` は有限値と無限大を $-0 = +0$ として数値的に順序付け、すべての NaN を他のすべての NaN と等しく、NaN でないすべての値より上に置くため、全前順序であり、ソートが中断することはありません。`compare_checked` は、どちらかのオペランドが NaN のとき `Err(unordered_comparison)` を返します。"
 
-#: manual/api/decimal_gda.md:1440
+#: manual/api/decimal_gda.md:1444
 msgid "Comparison operators"
 msgstr "比較演算子"
 
-#: manual/api/decimal_gda.md:1442
+#: manual/api/decimal_gda.md:1446
 msgid "Implement the operators of `Eq` and `Compare`."
 msgstr "`Eq` と `Compare` の演算子を実装します。"
 
-#: manual/api/decimal_gda.md:1454
+#: manual/api/decimal_gda.md:1458
 msgid "`==` compares as follows:"
 msgstr "`==` は次のように比較します。"
 
-#: manual/api/decimal_gda.md:1458
+#: manual/api/decimal_gda.md:1462
 msgid "finite values"
 msgstr "有限値"
 
-#: manual/api/decimal_gda.md:1458
+#: manual/api/decimal_gda.md:1462
 msgid "numeric equality ($2.50 = 2.5$, $-0 = +0$)"
 msgstr "数値としての等しさ（$2.50 = 2.5$、$-0 = +0$）"
 
-#: manual/api/decimal_gda.md:1459
+#: manual/api/decimal_gda.md:1463
 msgid "infinities"
 msgstr "無限大"
 
-#: manual/api/decimal_gda.md:1459
+#: manual/api/decimal_gda.md:1463
 msgid "equality of the signs"
 msgstr "符号の等しさ"
 
-#: manual/api/decimal_gda.md:1462
+#: manual/api/decimal_gda.md:1466
 msgid "`<`, `<=`, `>` and `>=` follow `compare`."
 msgstr "`<`、`<=`、`>`、`>=` は `compare` に従います。"
 
-#: manual/api/decimal_gda.md:1466
+#: manual/api/decimal_gda.md:1470
 msgid "Return $-1$, $0$ or $1$ by the GDA total orders."
 msgstr "GDA の全順序により、$-1$、$0$、$1$ のいずれかを返します。"
 
-#: manual/api/decimal_gda.md:1473
+#: manual/api/decimal_gda.md:1477
 msgid "Each agrees with the package function of the same name, [`compare_total`, `compare_total_magnitude`](#compare-compare_signal-compare_total-compare_total_magnitude), except that the package function applies the rounding of operands of subset arithmetic ([`GdaContext::new`](#gdacontextnew-gdacontexttry_new)) and the method does not."
 msgstr "いずれも同名のパッケージ関数 [`compare_total`, `compare_total_magnitude`](#compare-compare_signal-compare_total-compare_total_magnitude) と一致しますが、パッケージ関数はサブセット算術のオペランドの丸め（[`GdaContext::new`](#gdacontextnew-gdacontexttry_new)）を適用し、メソッドは適用しない点が異なります。"
 
-#: manual/api/decimal_gda.md:1480
+#: manual/api/decimal_gda.md:1484
 msgid "Limit a value to $[\\min, \\max]$ without rounding. The GDA operations `min` and `max` are the free functions `min` and `max` of the package, which take a `GdaContext` and return a `GdaOutcome`; there are no methods of those names."
 msgstr "丸めずに値を $[\\min, \\max]$ に制限します。GDA の演算 `min` と `max` は、このパッケージの自由関数 `min` と `max` で、`GdaContext` を受け取って `GdaOutcome` を返します。同名のメソッドはありません。"
 
-#: manual/api/decimal_gda.md:1489
+#: manual/api/decimal_gda.md:1493
 msgid "`clamp` returns `min` or `max` when the value lies outside $[\\min, \\max]$ and the value otherwise (a NaN value is returned unchanged). It aborts when a bound is NaN or `min > max`; there `clamp_checked` returns `Err(domain_error)`."
 msgstr "`clamp` は、値が $[\\min, \\max]$ の外にあれば `min` か `max` を、そうでなければ値を返します（NaN の値はそのまま返されます）。境界が NaN であるか `min > max` のときは中断します。その場合 `clamp_checked` は `Err(domain_error)` を返します。"
 
-#: manual/api/decimal_gda.md:1496
+#: manual/api/decimal_gda.md:1500
 msgid "Implement `+`, `-`, `*`, `/` and unary `-` without a context."
 msgstr "コンテキストなしで `+`、`-`、`*`、`/` と単項の `-` を実装します。"
 
-#: manual/api/decimal_gda.md:1510
+#: manual/api/decimal_gda.md:1514
 msgid "`+`, `-`, `*` and `/` run the free functions `add`, `subtract`, `multiply` and `divide` in a private working context and return their value. The working context has these parameters:"
 msgstr "`+`、`-`、`*`、`/` は、非公開の作業コンテキストで自由関数 `add`、`subtract`、`multiply`、`divide` を実行し、その値を返します。作業コンテキストのパラメータは次のとおりです。"
 
-#: manual/api/decimal_gda.md:1516
+#: manual/api/decimal_gda.md:1520
 msgid "precision"
 msgstr "精度"
 
-#: manual/api/decimal_gda.md:1516
+#: manual/api/decimal_gda.md:1520
 msgid "$P$, the larger of the precisions of the two operands"
 msgstr "$P$、2 つのオペランドの精度のうち大きい方"
 
-#: manual/api/decimal_gda.md:1517
+#: manual/api/decimal_gda.md:1521
 msgid "half-even"
 msgstr "偶数への丸め"
 
-#: manual/api/decimal_gda.md:1518
+#: manual/api/decimal_gda.md:1522
 msgid "arithmetic"
 msgstr "算術"
 
-#: manual/api/decimal_gda.md:1521
+#: manual/api/decimal_gda.md:1525
 msgid "exponent range"
 msgstr "指数範囲"
 
-#: manual/api/decimal_gda.md:1521
+#: manual/api/decimal_gda.md:1525
 msgid "the one below"
 msgstr "下記のもの"
 
-#: manual/api/decimal_gda.md:1523
+#: manual/api/decimal_gda.md:1527
 msgid "The result is therefore a member of the cohort with the ideal exponent that GDA prescribes (see [GDA operations](#gda-operations)):"
 msgstr "したがって結果は、GDA が定める理想指数を持つコホートの要素です（[GDA の演算](#gda-operations) を参照）。"
 
-#: manual/api/decimal_gda.md:1526
+#: manual/api/decimal_gda.md:1530
 msgid "Exponent of the result"
 msgstr "結果の指数"
 
-#: manual/api/decimal_gda.md:1528
+#: manual/api/decimal_gda.md:1532
 msgid "the smaller exponent of the operands"
 msgstr "オペランドの指数のうち小さい方"
 
-#: manual/api/decimal_gda.md:1528
+#: manual/api/decimal_gda.md:1532
 msgid "`1.10 + 3.50` is `4.60`"
 msgstr "`1.10 + 3.50` は `4.60`"
 
-#: manual/api/decimal_gda.md:1529
+#: manual/api/decimal_gda.md:1533
 msgid "the sum of the exponents"
 msgstr "指数の和"
 
-#: manual/api/decimal_gda.md:1530
+#: manual/api/decimal_gda.md:1534
 msgid "the difference of the exponents, with only the trailing zeros removed that an exact quotient allows"
 msgstr "指数の差。ただし、厳密な商が許す範囲の末尾のゼロだけを除く"
 
-#: manual/api/decimal_gda.md:1530
+#: manual/api/decimal_gda.md:1534
 msgid "`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`"
 msgstr "`1.5 / 0.5` は `3`、`1.50 / 0.5` は `3.0`"
 
-#: manual/api/decimal_gda.md:1532
+#: manual/api/decimal_gda.md:1536
 msgid "A result of any of the four operations with more than $P$ digits is rounded to $P$ digits (the product of `*` is then rounded, not exact)."
 msgstr "4 つの演算のいずれでも、結果が $P$ 桁を超える場合は $P$ 桁に丸められます（このとき `*` の積は丸められ、厳密ではありません）。"
 
-#: manual/api/decimal_gda.md:1535
+#: manual/api/decimal_gda.md:1539
 msgid "`x + 0 == x` and `x * 1 == x` hold because equality compares values, not members of the cohort, and, for every stored finite value, because the working exponent range below is the [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny)."
 msgstr "`x + 0 == x` と `x * 1 == x` が格納されたすべての有限値で成り立つのは、等しさが値を比較するもので、コホートの要素を比較するのではなく、かつ下の作業指数範囲が[格納される値の指数に対する処理系限界](#gda_value_e_max-gda_value_e_tiny)だからです。"
 
-#: manual/api/decimal_gda.md:1539
+#: manual/api/decimal_gda.md:1543
 msgid "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) cannot build the working exponent range. It limits $E_{\\max}$ of a context to at most $999{,}999{,}999$ and $E_{\\min}$ to at least $-999{,}999{,}999$ (GDA 1.70, page 10 (Abstract representation of numbers) allows a limit Elimit without giving a value), and the working range fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$ and the smallest exponent is $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$ for every $P$, so $E_{\\mathrm{tiny}}$ is always a valid `Int` exponent. A result above the range is a signed infinity (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded with the half-even rounding algorithm to $E_{\\mathrm{tiny}}$, possibly to a signed zero."
 msgstr "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) では作業指数範囲を作れません。この関数はコンテキストの $E_{\\max}$ を $999{,}999{,}999$ 以下に、$E_{\\min}$ を $-999{,}999{,}999$ 以上に制限しており（GDA 1.70、10 ページ（Abstract representation of numbers）は、値を示さずに上限 Elimit を認めています）、作業範囲は `Int` 全体を占めるからです。どの $P$ でも、最大の調整指数は $2^{31}-2 = 2{,}147{,}483{,}646$、最小の指数は $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$ なので、$E_{\\mathrm{tiny}}$ は常に有効な `Int` の指数です。範囲を上回る結果は符号付きの無限大になり（`1E+1500000000 * 1E+1500000000` は `inf`）、下回る結果は half-even の丸めアルゴリズムで $E_{\\mathrm{tiny}}$ に丸められ、符号付きのゼロになることがあります。"
 
-#: manual/api/decimal_gda.md:1548
+#: manual/api/decimal_gda.md:1552
 msgid "Special values follow the default results of IEEE 754-2019 6.2 (operations with NaNs), 7.2 (invalid operation) and 7.3 (division by zero), without signals:"
 msgstr "特殊値は、IEEE 754-2019 の 6.2（NaN を伴う演算）、7.2（無効演算）、7.3（ゼロ除算）の既定の結果に従い、シグナルは出しません。"
 
-#: manual/api/decimal_gda.md:1553
+#: manual/api/decimal_gda.md:1557
 msgid "a NaN operand"
 msgstr "NaN のオペランド"
 
-#: manual/api/decimal_gda.md:1553
+#: manual/api/decimal_gda.md:1557
 msgid "a quiet NaN"
 msgstr "quiet NaN"
 
-#: manual/api/decimal_gda.md:1555
+#: manual/api/decimal_gda.md:1559
 msgid "$x/0$, $x$ non-zero and not a NaN"
 msgstr "$x/0$、$x$ はゼロでなく NaN でもない"
 
-#: manual/api/decimal_gda.md:1555
+#: manual/api/decimal_gda.md:1559
 msgid "a signed infinity"
 msgstr "符号付きの無限大"
 
-#: manual/api/decimal_gda.md:1556
+#: manual/api/decimal_gda.md:1560
 msgid "a signed zero"
 msgstr "符号付きのゼロ"
 
-#: manual/api/decimal_gda.md:1558
+#: manual/api/decimal_gda.md:1562
 msgid "Use the free functions with a `GdaContext` when you need another precision, rounding, range or the signals."
 msgstr "別の精度、丸め、範囲、あるいはシグナルが必要なときは、`GdaContext` を渡して自由関数を使ってください。"
 
-#: manual/api/decimal_gda.md:1561
+#: manual/api/decimal_gda.md:1565
 msgid "Unary `-` is [`Decimal::neg`](#sign-operations): it flips the sign bit and uses no context. The working context, the precision $P$, the cohort rules and the working range above apply to `+`, `-`, `*` and `/` only."
 msgstr "単項 `-` は [`Decimal::neg`](#sign-operations) です。符号ビットを反転するだけで、コンテキストを使いません。上の作業コンテキスト、精度 $P$、コホートの規則、作業範囲は `+`、`-`、`*`、`/` にだけ当てはまります。"
 
-#: manual/api/decimal_gda.md:1568
+#: manual/api/decimal_gda.md:1572
 msgid "`sqrt` is the square root in the working context of the [plain operators](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg), at the precision of the value."
 msgstr "`sqrt` は、[素の演算子](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg)の作業コンテキストで、その値の精度で平方根を求めます。"
 
-#: manual/api/decimal_gda.md:1576
+#: manual/api/decimal_gda.md:1580
 msgid "A negative operand gives NaN, as the free function [`sqrt`](#sqrt-exp-ln-log10) does. The checked forms are `sqrt_checked` and `DivChecked::div_checked`. `Decimal::div_checked` does not exist: use `1 / 0` for the infinity, or `divide` with a trapping `GdaContext` for an error."
 msgstr "負のオペランドは、自由関数 [`sqrt`](#sqrt-exp-ln-log10) と同じく NaN を返します。検査付きの形は `sqrt_checked` と `DivChecked::div_checked` です。`Decimal::div_checked` は存在しません。無限大が欲しいときは `1 / 0`、エラーが欲しいときはトラップを有効にした `GdaContext` で `divide` を使います。"
 
-#: manual/api/decimal_gda.md:1601
+#: manual/api/decimal_gda.md:1605
 msgid "`GdaInterchangeFormat` selects one of the three decimal interchange formats of IEEE 754: decimal32, decimal64 or decimal128."
 msgstr "`GdaInterchangeFormat` は、IEEE 754 の 3 つの十進交換形式 decimal32、decimal64、decimal128 のうち 1 つを選びます。"
 
-#: manual/api/decimal_gda.md:1613
+#: manual/api/decimal_gda.md:1617
 msgid "`context` returns the extended default `GdaContext` of the format: precision 7, 16 or 34, half-even, clamped."
 msgstr "`context` は、その形式の拡張デフォルトの `GdaContext` を返します。精度は 7、16、34、丸めは half-even、クランプ有効です。"
 
-#: manual/api/decimal_gda.md:1619
+#: manual/api/decimal_gda.md:1623
 msgid "The contexts are the presets `GdaContext::decimal32()`, `decimal64()` and `decimal128()`."
 msgstr "コンテキストは、プリセット `GdaContext::decimal32()`、`decimal64()`、`decimal128()` です。"
 
-#: manual/api/decimal_gda.md:1624
+#: manual/api/decimal_gda.md:1628
 msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding."
 msgstr "`GdaInterchange` は、densely packed decimal（DPD）表現による decimal32、decimal64、または decimal128 のビットパターンを保持します。"
 
-#: manual/api/decimal_gda.md:1635
+#: manual/api/decimal_gda.md:1639
 msgid "`format` returns the format of the pattern."
 msgstr "`format` はパターンの形式を返します。"
 
-#: manual/api/decimal_gda.md:1643
+#: manual/api/decimal_gda.md:1647
 msgid "`from_decimal` encodes a `Decimal` in a format; `to_decimal` decodes a pattern."
 msgstr "`from_decimal` は `Decimal` を形式にエンコードし、`to_decimal` はパターンをデコードします。"
 
-#: manual/api/decimal_gda.md:1650
+#: manual/api/decimal_gda.md:1654
 msgid "`from_decimal` rounds the value to the format and encodes it; the returned `GdaFlags` report the rounding, overflow, underflow and clamping. `to_decimal` decodes exactly, keeping the exponent, and raises nothing; when the subnormal condition is needed, test the result with [`is_subnormal`](#class_name-is_normal-is_subnormal)."
 msgstr "`from_decimal` は値を形式に合わせて丸めてエンコードします。返される `GdaFlags` は、丸め、オーバーフロー、アンダーフロー、クランプを報告します。`to_decimal` は指数を保ったまま厳密にデコードし、何も発生させません。非正規化数の条件が必要なときは、結果を [`is_subnormal`](#class_name-is_normal-is_subnormal) で調べます。"
 
-#: manual/api/decimal_gda.md:1656
+#: manual/api/decimal_gda.md:1660
 msgid "A NaN is encoded with its sign, its signaling bit and its payload. The payload of a decimal32, decimal64 or decimal128 pattern has 6, 15 or 33 digits (the trailing significand field, IEEE 754-2019 3.5.2). A payload that is wider keeps its low digits and no flag is raised. IEEE 754-2019 6.2.3 asks that a conversion that cannot preserve the payload return a quiet NaN carrying some language-defined diagnostic information, and names no signal."
 msgstr "NaN は、符号、シグナルビット、ペイロードとともにエンコードされます。decimal32、decimal64、decimal128 のパターンのペイロードは、それぞれ 6、15、33 桁です（末尾の仮数部フィールド、IEEE 754-2019 3.5.2）。それより広いペイロードは下位の桁を保ち、フラグは発生しません。IEEE 754-2019 6.2.3 は、ペイロードを保てない変換が言語定義の診断情報を持つ quiet NaN を返すことを求めており、シグナルは指定していません。"
 
-#: manual/api/decimal_gda.md:1665
+#: manual/api/decimal_gda.md:1669
 msgid "`from_hex` parses a bit pattern from hexadecimal text; `to_hex` prints it."
 msgstr "`from_hex` は 16 進テキストからビットパターンを解析し、`to_hex` はそれを出力します。"
 
-#: manual/api/decimal_gda.md:1672
+#: manual/api/decimal_gda.md:1676
 msgid "The text is `#` (optional on input) followed by exactly 8, 16 or 32 hexadecimal digits; surrounding spaces are ignored. Any other input gives `Err(parse_error)`. `to_hex` prints `#` and uppercase digits."
 msgstr "テキストは `#`（入力では省略可）に続くちょうど 8、16、または 32 桁の 16 進数字です。前後の空白は無視されます。それ以外の入力は `Err(parse_error)` を与えます。`to_hex` は `#` と大文字の数字を出力します。"
 
-#: manual/api/decimal_gda.md:1678
+#: manual/api/decimal_gda.md:1682
 msgid "`canonical` returns the canonical encoding of a pattern; `is_canonical` tests whether a pattern is canonical."
 msgstr "`canonical` はパターンの正準表現を返し、`is_canonical` はパターンが正準かどうかを判定します。"
 
-#: manual/api/decimal_gda.md:1685
+#: manual/api/decimal_gda.md:1689
 msgid "`canonical` decodes and re-encodes the pattern, which replaces non-canonical declets and payloads with their canonical form. `is_canonical` is true when that leaves the pattern unchanged."
 msgstr "`canonical` はパターンをデコードして再エンコードし、非正準な declet とペイロードを正準形に置き換えます。`is_canonical` は、それでパターンが変わらないときに真です。"
 
-#: manual/api/decimal_gda.md:1689
+#: manual/api/decimal_gda.md:1693
 msgid "Sign operations on an encoding"
 msgstr "表現に対する符号演算"
 
-#: manual/api/decimal_gda.md:1691
+#: manual/api/decimal_gda.md:1695
 msgid "Operate on the sign bit of an encoding without decoding it."
 msgstr "エンコーディングの符号ビットを、デコードせずに操作します。"
 
-#: manual/api/decimal_gda.md:1700
+#: manual/api/decimal_gda.md:1704
 msgid "`copy_sign` aborts when the two patterns have different formats."
 msgstr "`copy_sign` は 2 つのパターンの形式が異なると中断します。"
 
-#: manual/api/decimal_gda.md:1718
+#: manual/api/decimal_gda.md:1722
 msgid "Derived `Eq` of the enumerations and flag sets"
 msgstr "列挙型とフラグ集合の導出された `Eq`"
 
-#: manual/api/decimal_gda.md:1720
+#: manual/api/decimal_gda.md:1724
 msgid "`GdaRoundingMode`, `GdaSignal`, `GdaFlags`, `GdaTrapSet` and `GdaInterchangeFormat` have the derived `Eq` methods, which test two values for equality."
 msgstr "`GdaRoundingMode`、`GdaSignal`、`GdaFlags`、`GdaTrapSet`、`GdaInterchangeFormat` には導出された `Eq` メソッドがあり、2 つの値が等しいかどうかを判定します。"
 
-#: manual/api/decimal_gda.md:1735
+#: manual/api/decimal_gda.md:1739
 msgid "They compare field by field (or variant by variant). `GdaContext` has no `Eq`. `Decimal` has its own numeric `Eq`, documented under [Comparison operators](#comparison-operators)."
 msgstr "フィールドごと（またはバリアントごと）に比較します。`GdaContext` には `Eq` はありません。`Decimal` には独自の数値的な `Eq` があり、[比較演算子](#comparison-operators)で説明しています。"
 
-#: manual/api/decimal_gda.md:1738
+#: manual/api/decimal_gda.md:1742
 msgid "Contextual traits of `Luna-Flow/arithmetic`"
 msgstr "`Luna-Flow/arithmetic` の contextual トレイト"
 
-#: manual/api/decimal_gda.md:1740
+#: manual/api/decimal_gda.md:1744
 msgid "`Decimal` implements the contextual traits of `Luna-Flow/arithmetic` on top of the package's private engine: each operation runs under an `ArithmeticContext` and returns an outcome or an error."
 msgstr "`Decimal` は、パッケージの非公開エンジンの上に `Luna-Flow/arithmetic` の contextual トレイトを実装します。各演算は `ArithmeticContext` のもとで実行され、outcome またはエラーを返します。"
 
-#: manual/api/decimal_gda.md:1761
+#: manual/api/decimal_gda.md:1765
 msgid "Each converts the arithmetic context to an engine context, runs the operation, and maps the conditions the operation raises to the result:"
 msgstr "いずれも、算術コンテキストをエンジンのコンテキストに変換し、演算を実行して、演算が発生させた条件を次のように結果に対応づけます。"
 
-#: manual/api/decimal_gda.md:1764
+#: manual/api/decimal_gda.md:1768
 msgid "Condition raised"
 msgstr "発生した条件"
 
-#: manual/api/decimal_gda.md:1768
+#: manual/api/decimal_gda.md:1772
 msgid "any other error flag"
 msgstr "それ以外のエラーフラグ"
 
-#: manual/api/decimal_gda.md:1769
+#: manual/api/decimal_gda.md:1773
 msgid "none of these"
 msgstr "上のいずれでもない"
 
-#: manual/api/decimal_gda.md:1769
+#: manual/api/decimal_gda.md:1773
 msgid "`Ok` with the value and the diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped`"
 msgstr "`Ok`。値と、診断情報 `inexact`、`rounded`、`overflow`、`underflow`、`subnormal`、`clamped` を持ちます"
 
-#: manual/api/decimal_gda.md:1771
+#: manual/api/decimal_gda.md:1775
 msgid "The rounding is one of the five rounding algorithms of `ArithmeticContext`. `sqrt_contextual` and `exp_contextual` round with it, not half-even as the GDA functions do."
 msgstr "丸めは、`ArithmeticContext` の 5 つの丸めアルゴリズムのいずれかです。`sqrt_contextual` と `exp_contextual` は、GDA の関数のような half-even ではなく、この丸めアルゴリズムで丸めます。"
 
-#: manual/api/decimal_gda.md:1774
+#: manual/api/decimal_gda.md:1778
 msgid "`exp_contextual` needs an `ArithmeticContext` that sets the exponent bounds. Like the package function `exp`, it is subject to the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power): precision, $E_{\\max}$ and $-E_{\\min}$ of at most $999\\,999$. An `ArithmeticContext` without `e_min` or `e_max` is not given bounds by default. It translates to the full range $\\pm 999\\,999\\,999$, which is an invalid context for `exp`."
 msgstr "`exp_contextual` には、指数の上下限を設定した `ArithmeticContext` が必要です。パッケージ関数 `exp` と同じく、[処理系限界](#implementation-limit-of-exp-ln-log10-and-power)の対象で、精度、$E_{\\max}$、$-E_{\\min}$ はいずれも $999\\,999$ 以下でなければなりません。`e_min` や `e_max` を持たない `ArithmeticContext` には、既定の上下限が補われません。全範囲 $\\pm 999\\,999\\,999$ に変換され、これは `exp` にとって無効なコンテキストです。"
 
-#: manual/api/decimal_gda.md:1779
+#: manual/api/decimal_gda.md:1783
 msgid "The result for such a context is `Err(unsupported)`, whatever the operand (`-Infinity` included). Its message starts with `invalid context:`, states the limit and names the bounds the `ArithmeticContext` does not set. `ArithmeticContext::new(16)` therefore fails, while `ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` and `ArithmeticContext::decimal64()` work."
 msgstr "そのようなコンテキストの結果は、オペランドによらず（`-Infinity` も含めて）`Err(unsupported)` です。メッセージは `invalid context:` で始まり、限界を示し、`ArithmeticContext` が設定していない上下限を挙げます。したがって `ArithmeticContext::new(16)` は失敗し、`ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` と `ArithmeticContext::decimal64()` は動作します。"
 
-#: manual/api/decimal_gda.md:1806
+#: manual/api/decimal_gda.md:1810
 msgid "`Decimal` implements `NumericFormatContextual`, which describes the number format of an `ArithmeticContext`. `zero_contextual` and `one_contextual` return `0` and `1`, each with the precision of the context, and do not check the context."
 msgstr "`Decimal` は `NumericFormatContextual` を実装します。これは `ArithmeticContext` の数値形式を記述するものです。`zero_contextual` と `one_contextual` は、それぞれコンテキストの精度を持つ `0` と `1` を返し、コンテキストを検査しません。"
 
-#: manual/api/decimal_gda.md:1820
+#: manual/api/decimal_gda.md:1824
 msgid "With $p$ the precision of the context and $E_{\\min}$, $E_{\\max}$ its exponent limits:"
 msgstr "$p$ をコンテキストの精度、$E_{\\min}$、$E_{\\max}$ をその指数の限界とすると、次のようになります。"
 
-#: manual/api/decimal_gda.md:1828
+#: manual/api/decimal_gda.md:1832
 msgid "If the `ArithmeticContext` is invalid, that is, if it cannot be converted to an engine context (for example a precision above 999,999,999), these three methods return a zero with the precision of the context limited to the range 1 through 999,999,999."
 msgstr "`ArithmeticContext` が無効な場合、つまりエンジンのコンテキストに変換できない場合（たとえば精度が 999,999,999 を超えるとき）、これら 3 つのメソッドは、コンテキストの精度を 1 から 999,999,999 の範囲に制限した精度のゼロを返します。"
 
-#: manual/api/decimal_gda.md:1832
+#: manual/api/decimal_gda.md:1836
 msgid "Checked traits of `Luna-Flow/arithmetic`"
 msgstr "`Luna-Flow/arithmetic` の checked トレイト"
 
-#: manual/api/decimal_gda.md:1834
+#: manual/api/decimal_gda.md:1838
 msgid "`Decimal` implements the checked traits of `Luna-Flow/arithmetic`, which return `Result` instead of flags."
 msgstr "`Decimal` は `Luna-Flow/arithmetic` の checked トレイトを実装し、フラグの代わりに `Result` を返します。"
 
-#: manual/api/decimal_gda.md:1849
+#: manual/api/decimal_gda.md:1853
 msgid "`parse_checked` converts the arithmetic context to an engine context and converts the string under it: the precision, rounding, exponent bounds and clamp setting of the context apply. If the context cannot be converted (a precision above 999,999,999, for example), it returns `Err(domain_error)` for that conversion before it reads the string. It returns the converted value; conditions such as overflow are available from [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`."
 msgstr "`parse_checked` は、算術コンテキストをエンジンのコンテキストに変換し、その下で文字列を変換します。コンテキストの精度、丸め、指数の上下限、clamp 設定が適用されます。コンテキストを変換できない場合（たとえば精度が 999,999,999 を超えるとき）は、文字列を読む前に、その変換について `Err(domain_error)` を返します。変換後の値を返し、オーバーフローなどの条件は [`to_number`](#to_number) から取得できます。構文が無効な場合は `Err(parse_error)` を返します。"
 
-#: manual/api/decimal_gda.md:1855
+#: manual/api/decimal_gda.md:1859
 msgid "`sqrt_checked` returns `Err(domain_error)` for negative operands."
 msgstr "`sqrt_checked` は、負のオペランドに対して `Err(domain_error)` を返します。"
 
-#: manual/api/decimal_gda.md:1857
+#: manual/api/decimal_gda.md:1861
 msgid "`pow_int_checked` and `pow_nat_checked` call the power operation with the integer exponent converted exactly, with at least ten digits, which hold every accepted exponent. So at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return an error in these cases:"
 msgstr "`pow_int_checked` と `pow_nat_checked` は、厳密に変換した整数の指数（少なくとも 10 桁で、受け付けるすべての指数を収められます）で冪演算を呼び出します。そのため、精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。次の場合はエラーを返します。"
 
-#: manual/api/decimal_gda.md:1864
+#: manual/api/decimal_gda.md:1868
 msgid "zero base, negative exponent"
 msgstr "底がゼロで指数が負"
 
-#: manual/api/decimal_gda.md:1865
+#: manual/api/decimal_gda.md:1869
 msgid "`power` raises `invalid_context`: a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
 msgstr "`power` が `invalid_context` を発生させる場合。指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで、999,999,999 を超える正の指数を使ったとき"
 
-#: manual/api/decimal_gda.md:1865
+#: manual/api/decimal_gda.md:1869
 msgid "`Err(unsupported)` with an `invalid context:` message"
 msgstr "`invalid context:` メッセージ付きの `Err(unsupported)`"
 
-#: manual/api/decimal_gda.md:1866
+#: manual/api/decimal_gda.md:1870
 msgid "any other invalid result"
 msgstr "その他の無効な結果"
 
-#: manual/api/decimal_gda.md:1867
+#: manual/api/decimal_gda.md:1871
 msgid "`pow_nat_checked` with an exponent above 999,999,999"
 msgstr "999,999,999 を超える指数での `pow_nat_checked`"
 
-#: manual/api/decimal_gda.md:1869
+#: manual/api/decimal_gda.md:1873
 msgid "`DivChecked::div_checked` divides under the given context and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division."
 msgstr "`DivChecked::div_checked` は、与えられたコンテキストのもとで除算し、除数がゼロなら `Err(division_by_zero)` を、無効な除算なら `Err(domain_error)` を返します。"
 
-#: manual/api/decimal_gda.md:1872
+#: manual/api/decimal_gda.md:1876
 msgid "`FromNat`, `FromInteger` and the `luna-generic` algebra traits"
 msgstr "`FromNat`、`FromInteger` と `luna-generic` の代数トレイト"
 
-#: manual/api/decimal_gda.md:1874
+#: manual/api/decimal_gda.md:1878
 msgid "`Decimal` implements the `luna-generic` traits that let generic algebra code use it."
 msgstr "`Decimal` は `luna-generic` のトレイトを実装しており、ジェネリックな代数のコードから使えます。"
 
-#: manual/api/decimal_gda.md:1888
+#: manual/api/decimal_gda.md:1892
 msgid "`FromNat::from_natural` and `FromInteger::from_integer` are the canonical maps out of the naturals and the integers. `Decimal` has no inherent method of those names: call the trait method, or `Decimal::from_bigint(n).normalized()`, which is what they compute. They convert with `Decimal::from_bigint` (34 digits) and reduce the result, so they are exact only for integers of at most 34 significant digits. To convert another Luna-Flow integer type, pick its representative with `Integral::normalize` first, or use `lift_to`."
 msgstr "`FromNat::from_natural` と `FromInteger::from_integer` は、自然数と整数からの正準な写像です。`Decimal` にこれらの名前の固有メソッドはないので、トレイトのメソッドか、それらが計算している `Decimal::from_bigint(n).normalized()` を呼んでください。変換には `Decimal::from_bigint`（34 桁）を使い、結果の末尾のゼロを除くので、有効数字 34 桁以内の整数でのみ厳密です。他の Luna-Flow の整数型を変換するには、先に `Integral::normalize` でその代表元を取るか、`lift_to` を使います。"
 
-#: manual/api/decimal_gda.md:1895
+#: manual/api/decimal_gda.md:1899
 msgid "`Zero::zero` and `One::one` are `Decimal::zero()` and `Decimal::one()`."
 msgstr "`Zero::zero` と `One::one` は `Decimal::zero()` と `Decimal::one()` です。"
 
-#: manual/api/decimal_gda.md:1897
+#: manual/api/decimal_gda.md:1901
 msgid "The ring structure uses the context-free operators. Because `+` rounds to the operand precision, the ring laws hold exactly only while sums stay within that precision."
 msgstr "環構造は、コンテキストなしの演算子を使います。`+` はオペランドの精度に丸めるので、環の法則が厳密に成り立つのは、和がその精度に収まる間だけです。"
 
-#: manual/api/decimal_gda.md:1900
+#: manual/api/decimal_gda.md:1904
 msgid "`Decimal::to_repr` and the `@def.Floating`, `Show` and `Debug` implementations"
 msgstr "`Decimal::to_repr` と `@def.Floating`、`Show`、`Debug` の実装"
 
-#: manual/api/decimal_gda.md:1902
+#: manual/api/decimal_gda.md:1906
 msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show` (see [`Decimal::to_string`](#decimalto_string-decimaloutput)) and `Debug`."
 msgstr "`Decimal` は `def` パッケージの浮動小数点の語彙、`Show`（[`Decimal::to_string`](#decimalto_string-decimaloutput) を参照）、`Debug` を実装します。"
 
-#: manual/api/decimal_gda.md:1910
+#: manual/api/decimal_gda.md:1914
 msgid "The `Floating` methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`. The first three are documented under [`Decimal::classify`](#decimalclassify-decimalsignum-decimalprecision), the last two under [`Decimal::normalized`](#decimalnormalized-decimaltrim-decimalwith_precision). `to_repr` is the structural `Debug` representation."
 msgstr "`Floating` のメソッドは `classify`、`signum`、`precision`、`with_precision`、`normalized` です。前の 3 つは [`Decimal::classify`](#decimalclassify-decimalsignum-decimalprecision) で、後の 2 つは [`Decimal::normalized`](#decimalnormalized-decimaltrim-decimalwith_precision) で説明しています。`to_repr` は構造的な `Debug` 表現です。"
 
@@ -10260,7 +10260,6 @@ msgstr "TestFloat ゲート; `library/src/binary/ieee754_wbtest.mbt`"
 #: manual/conformance/decimal_gda.md:33
 #: manual/conformance/decimal_gda.md:34
 #: manual/conformance/decimal_gda.md:35
-#: manual/conformance/decimal_gda.md:36
 #: manual/conformance/interval.md:17
 #: manual/conformance/interval.md:18
 #: manual/conformance/interval.md:19
@@ -10977,7 +10976,7 @@ msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is e
 msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行します。必要な local artifact が repository にないため LLVM は除外します。target-specific coefficient dispatch は value、encoding、flags を変更してはなりません。"
 
 #: manual/conformance/decimal.md:82
-#: manual/conformance/decimal_gda.md:87
+#: manual/conformance/decimal_gda.md:94
 #: manual/design/bench.md:243
 #: manual/design/bench/binary.md:68
 #: manual/design/bench/decimal.md:67
@@ -11029,7 +11028,7 @@ msgid "The matrix passes on the current branch, which has no [known deviations](
 msgstr "マトリクスは現在のブランチで合格し、そのブランチにはもはや[既知の逸脱](../design/decimal.md#known-deviations)はありません。ゲートの合格はカバーされた行についてのみのエビデンスです。"
 
 #: manual/conformance/decimal.md:95
-#: manual/conformance/decimal_gda.md:151
+#: manual/conformance/decimal_gda.md:158
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -11177,203 +11176,227 @@ msgstr "`extended = false` contexts"
 msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests"
 msgstr "ゲート段階 `DECIMAL_GDA: official0 decTest` で実行する固定サブセット corpus `dectest0.zip`（32 ファイル、うち 31 が `extended: 0`）；`library/src/decimal_gda/` のホワイトボックステスト"
 
+#: manual/conformance/decimal_gda.md:36
+msgid "conforming for the operations of the corpus; see [subset arithmetic](#subset-arithmetic-and-operations-appendix-a-does-not-name)"
+msgstr "コーパスの演算については適合しています。[サブセット算術](#subset-arithmetic-and-operations-appendix-a-does-not-name)を参照"
+
 #: manual/conformance/decimal_gda.md:38
 msgid "Subset arithmetic and operations Appendix A does not name"
 msgstr "サブセット算術と付録 A が挙げていない演算"
 
 #: manual/conformance/decimal_gda.md:40
-msgid "For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the two round-to-integral operations, and its text does not decide them. For these the library gives the results of decNumber 3.68: a measurement of 26 calls on 2026-11-22, in a subset and in an extended context, found no difference. This is a recorded decision; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)."
-msgstr "指数が正の結果については、GDA 1.70 の付録 A が挙げている `add`、`subtract`、`divide`、`divide_integer`、`max`、`min` は 55 ページの規則を適用します。付録 A は `reduce`、`rescale`、`scaleb`、`shift`、`rotate`、`remainder`、および 2 つの round-to-integral 演算を挙げておらず、その本文もこれらを決めていません。これらについて、ライブラリは decNumber 3.68 の結果を返します。2026-11-22 に 26 回の呼び出しを測定し、サブセットコンテキストと拡張コンテキストの両方で差は見つかりませんでした。これは記録された決定です。指数が正のまま保たれる演算は、API ページの[サブセット算術](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)に挙げています。"
+msgid "For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`, and its text does not decide them. A comparison with decNumber 3.68 on 2026-11-22, with 2,268 calls per context in a subset and in an extended context, found:"
+msgstr "指数が正の結果については、GDA 1.70 の付録 A が挙げている `add`、`subtract`、`divide`、`divide_integer`、`max`、`min` は 55 ページの規則を適用します。付録 A は `reduce`、`rescale`、`scaleb`、`shift`、`rotate`、`remainder`、`remainder_near`、2 つの round-to-integral 演算、`next_toward` を挙げておらず、その本文もこれらを決めていません。2026-11-22 に decNumber 3.68 と比較しました。サブセットコンテキストと拡張コンテキストでそれぞれコンテキストあたり 2,268 回の呼び出しを行い、次の結果が得られました。"
 
 #: manual/conformance/decimal_gda.md:42
+msgid "equal results for `reduce`, `rescale`, `scaleb`, `shift` and `rotate`;"
+msgstr "`reduce`、`rescale`、`scaleb`、`shift`、`rotate` の結果は等しい。"
+
+#: manual/conformance/decimal_gda.md:43
+msgid "`remainder` and `remainder_near` keep a positive exponent (`remainder(1.4E+3, 5E+2)` is `4E+2`), where decNumber gives `400`; page 55 converts a positive exponent to an integer when the coefficient fits in the precision;"
+msgstr "`remainder` と `remainder_near` は正の指数を保持します（`remainder(1.4E+3, 5E+2)` は `4E+2`）。decNumber は `400` を返します。55 ページは、係数が精度に収まるとき、正の指数を整数に変換します。"
+
+#: manual/conformance/decimal_gda.md:44
+msgid "`round_to_integral_value` and `round_to_integral_exact` give `0` for the operands `-0`, `0E+2` and `-0E+2`, where decNumber returns the operand; page 55 sets the exponent of a zero result to 0;"
+msgstr "`round_to_integral_value` と `round_to_integral_exact` は、オペランドが `-0`、`0E+2`、`-0E+2` のとき `0` を返します。decNumber はオペランドをそのまま返します。55 ページは、ゼロの結果の指数を 0 にします。"
+
+#: manual/conformance/decimal_gda.md:45
+msgid "`next_toward` from a zero returns the smallest subnormal number (`1E-1000000007` at precision 9), also in a subset context, where decNumber gives `0`; page 55 says \"Subnormal numbers are not permitted\"."
+msgstr "ゼロからの `next_toward` は、サブセットコンテキストでも最小の非正規化数（精度 9 で `1E-1000000007`）を返します。decNumber は `0` を返します。55 ページは「Subnormal numbers are not permitted」と述べています。"
+
+#: manual/conformance/decimal_gda.md:47
+msgid "The comparison records what the library does; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)."
+msgstr "この比較が記録しているのは、ライブラリの動作です。正の指数を保持する演算は、API ページの[サブセット算術](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)に挙げています。"
+
+#: manual/conformance/decimal_gda.md:49
 msgid "decTest rows behind statements of the API page"
 msgstr "API ページの記述の裏づけとなる decTest の行"
 
-#: manual/conformance/decimal_gda.md:44
+#: manual/conformance/decimal_gda.md:51
 msgid "The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them."
 msgstr "[API ページ](../api/decimal_gda.md)は、これらの規則を、それを検査するコーパスの行を挙げずに述べています。"
 
-#: manual/conformance/decimal_gda.md:46
+#: manual/conformance/decimal_gda.md:53
 msgid "Statement of the API page"
 msgstr "API ページの記述"
 
-#: manual/conformance/decimal_gda.md:46
+#: manual/conformance/decimal_gda.md:53
 msgid "decTest rows"
 msgstr "decTest の行"
 
-#: manual/conformance/decimal_gda.md:48
+#: manual/conformance/decimal_gda.md:55
 msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context within the [implementation limit](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999"
 msgstr "`exp`、`ln`、`log10`、および非整数の指数を持つ `power` は、[処理系限界](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999 以内のコンテキストのみを受け付けます"
 
-#: manual/conformance/decimal_gda.md:48
+#: manual/conformance/decimal_gda.md:55
 msgid "`power.decTest` rows powx4001 to powx4005; rows expx901 to expx906, lnx901 to lnx906 and logx901 to logx906 of `exp.decTest`, `ln.decTest` and `log10.decTest`, in a section that decTest labels decNumber's restricted range for the mathematical functions"
 msgstr "`power.decTest` の行 powx4001 から powx4005、および `exp.decTest`、`ln.decTest`、`log10.decTest` の行 expx901 から expx906、lnx901 から lnx906、logx901 から logx906。decTest が、数学関数に対する decNumber の制限範囲と呼ぶ節にあります"
 
-#: manual/conformance/decimal_gda.md:49
+#: manual/conformance/decimal_gda.md:56
 msgid "`exp(-Infinity)` under a context beyond that limit is `Invalid_context`"
 msgstr "その限界を超えるコンテキストでの `exp(-Infinity)` は `Invalid_context` です"
 
-#: manual/conformance/decimal_gda.md:49
+#: manual/conformance/decimal_gda.md:56
 msgid "row `expx901`"
 msgstr "行 `expx901`"
 
-#: manual/conformance/decimal_gda.md:50
+#: manual/conformance/decimal_gda.md:57
 msgid "`pow_int_checked` returns `Err(unsupported)` for a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
 msgstr "指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで、999,999,999 を超える正の指数を与えると、`pow_int_checked` は `Err(unsupported)` を返します"
 
-#: manual/conformance/decimal_gda.md:50
+#: manual/conformance/decimal_gda.md:57
 msgid "rows `powx1183` and `powx1184`"
 msgstr "行 `powx1183` と `powx1184`"
 
-#: manual/conformance/decimal_gda.md:51
+#: manual/conformance/decimal_gda.md:58
 msgid "the official decTest files use the parameters `clamp` and `extended`"
 msgstr "公式の decTest ファイルはパラメータ `clamp` と `extended` を使います"
 
-#: manual/conformance/decimal_gda.md:51
+#: manual/conformance/decimal_gda.md:58
 msgid "`clamp:` in 30,649 rows; `extended: 0` in all 16,162 rows of `dectest0`"
 msgstr "`clamp:` は 30,649 行、`extended: 0` は `dectest0` の全 16,162 行"
 
-#: manual/conformance/decimal_gda.md:52
+#: manual/conformance/decimal_gda.md:59
 msgid "a NaN payload wider than the interchange format keeps its low digits, and no flag is raised"
 msgstr "交換形式より幅の広い NaN のペイロードは下位の桁が保たれ、フラグは発生しません"
 
-#: manual/conformance/decimal_gda.md:52
+#: manual/conformance/decimal_gda.md:59
 msgid "the decTest interchange rows have no payload wider than their format"
 msgstr "decTest の交換形式の行には、その形式より幅の広いペイロードを持つものはありません"
 
-#: manual/conformance/decimal_gda.md:54
+#: manual/conformance/decimal_gda.md:61
 msgid "Legacy corpus"
 msgstr "レガシーコーパス"
 
-#: manual/conformance/decimal_gda.md:56
+#: manual/conformance/decimal_gda.md:63
 msgid "The pinned `official0` corpus passes 16,124/16,124 legal executable rows with zero failures. It is retained for historical compatibility checks, not as the definition of the current surface."
 msgstr "固定 `official0` corpus の legal executable row 16,124/16,124 が通過します。historical compatibility check 用であり、現在の surface の定義ではありません。"
 
-#: manual/conformance/decimal_gda.md:58
+#: manual/conformance/decimal_gda.md:65
 msgid "State semantics"
 msgstr "状態の意味論"
 
-#: manual/conformance/decimal_gda.md:60
+#: manual/conformance/decimal_gda.md:67
 msgid "Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with accumulated sticky status. Enabling a trap changes the outcome variant but does not erase the defined result."
 msgstr "各 operation は GDA-defined result、今回 raised された flags、sticky status を蓄積した next context を持つ `GdaOutcome` を返します。trap を有効にすると outcome variant は変わりますが、defined result は失われません。"
 
-#: manual/conformance/decimal_gda.md:62
+#: manual/conformance/decimal_gda.md:69
 msgid "The arithmetic `ParseChecked` adapter applies its mapped engine context to GDA parsing but returns only a value or syntax error. Use the `decimal_gda::to_number` API with `GdaContext` when sticky status and traps must remain observable."
 msgstr "ParseChecked アダプターは、対応付けたエンジンのコンテキストを GDA の解析に適用しますが、値または構文エラーだけを返します。累積状態やトラップを観測する必要があるときは、`GdaContext` を受け取る `decimal_gda::to_number` API を使います。"
 
-#: manual/conformance/decimal_gda.md:66
+#: manual/conformance/decimal_gda.md:73
 msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
 msgstr "ホワイトボックステストは、有限および無限の除数について、クランプされた拡張コンテキストでのゼロの `divide_integer` 結果を対象とし、折りたたまれた指数と `Clamped` 条件を検査します。"
 
-#: manual/conformance/decimal_gda.md:70
+#: manual/conformance/decimal_gda.md:77
 msgid "White-box tests of the fast paths"
 msgstr "高速経路のホワイトボックステスト"
 
-#: manual/conformance/decimal_gda.md:72
+#: manual/conformance/decimal_gda.md:79
 msgid "Each of the three plain-operation fast paths of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`."
 msgstr "[設計ページ](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent)の単純な演算の 3 つの高速経路はそれぞれ、`library/src/decimal_gda/` のホワイトボックステストで一般経路と比較されます。"
 
-#: manual/conformance/decimal_gda.md:74
+#: manual/conformance/decimal_gda.md:81
 msgid "Fast path"
 msgstr "高速経路"
 
-#: manual/conformance/decimal_gda.md:74
+#: manual/conformance/decimal_gda.md:81
 msgid "Parameters"
 msgstr "パラメータ"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:83
 msgid "plain sums (`add`, `subtract`)"
 msgstr "単純な和（`add`、`subtract`）"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:83
 msgid "random, 1 to 120 digits, mixed signs, cancellations and exponent gaps"
 msgstr "ランダム、1 から 120 桁、符号の混在、相殺、指数の間隔"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:83
 msgid "nine precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
 msgstr "9 種類の精度、8 つの丸めアルゴリズムすべて、狭い・広い指数範囲、クランプ、トラップされたシグナル"
 
-#: manual/conformance/decimal_gda.md:77
+#: manual/conformance/decimal_gda.md:84
 msgid "plain products and quotients (`multiply`, `divide`)"
 msgstr "単純な積と商（`multiply`、`divide`）"
 
-#: manual/conformance/decimal_gda.md:77
+#: manual/conformance/decimal_gda.md:84
 msgid "random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$"
 msgstr "ランダム、1 から 120 桁。厳密な商（積をその因数の 1 つで割る場合、除数 $2^a 5^b$）、循環展開になる短い除数、$10^p$ への繰り上がり"
 
-#: manual/conformance/decimal_gda.md:77
+#: manual/conformance/decimal_gda.md:84
 msgid "chained contexts, all eight rounding algorithms"
 msgstr "連鎖したコンテキスト、8 つの丸めアルゴリズムすべて"
 
-#: manual/conformance/decimal_gda.md:78
+#: manual/conformance/decimal_gda.md:85
 msgid "plain square roots (`sqrt`)"
 msgstr "単純な平方根（`sqrt`）"
 
-#: manual/conformance/decimal_gda.md:78
+#: manual/conformance/decimal_gda.md:85
 msgid "random, 1 to 130 digits; squares; near squares ($s^2 \\pm 1$, $s^2 \\pm s$); the comparison is at the public level: value, every condition and the flags of the context"
 msgstr "ランダム、1 から 130 桁。平方数。平方に近い数（$s^2 \\pm 1$、$s^2 \\pm s$）。比較は公開レベルで行い、値、すべての条件、およびコンテキストのフラグを対象とします"
 
-#: manual/conformance/decimal_gda.md:78
+#: manual/conformance/decimal_gda.md:85
 msgid "all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
 msgstr "8 つの丸めアルゴリズムすべて、狭い・広い指数範囲、クランプ、トラップされたシグナル"
 
-#: manual/conformance/decimal_gda.md:80
+#: manual/conformance/decimal_gda.md:87
 msgid "Runner model"
 msgstr "ランナーモデル"
 
-#: manual/conformance/decimal_gda.md:82
+#: manual/conformance/decimal_gda.md:89
 msgid "Documents are parsed once, directive state is snapshotted per case, and deterministic shards execute disjoint case positions through the public `GdaContext`/`GdaOutcome` operation surface. Executable, diagnostic, unsupported, legacy, passed, and failed counts remain separate."
 msgstr "document は一度だけ parse し、directive state を case ごとに snapshot し、 deterministic shard が public `GdaContext`/`GdaOutcome` operation surface を通じて disjoint case position を実行します。executable、diagnostic、unsupported、legacy、 passed、failed count は分離します。"
 
-#: manual/conformance/decimal_gda.md:89
+#: manual/conformance/decimal_gda.md:96
 msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it."
 msgstr "宣言は固定 corpus の legal scalar row だけを対象にします。placeholder/non-scalar invalid row、future directive、固定されていない revision、無限の decimal string 空間は対象外です。"
 
-#: manual/conformance/decimal_gda.md:91
+#: manual/conformance/decimal_gda.md:98
 msgid "Deviations of the corpus"
 msgstr "コーパスの逸脱"
 
-#: manual/conformance/decimal_gda.md:93
+#: manual/conformance/decimal_gda.md:100
 msgid "The pinned corpora are decNumber's test suite, and decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
 msgstr "固定されたコーパスは decNumber のテストスイートであり、decNumber の数学関数は仕様が与える許容誤差を使います。仕様は `exp`、`ln`、`log10` について、不正確な結果は「round-half-even アルゴリズムで丸められる」こと、また「正しく丸められるべきだが、最大 1 ulp ... の誤差があってもよい」ことを定めています（GDA 1.70、29 ページと 30 ページ）。ライブラリは両方の算術で正しく丸めた値を返します。コーパスの行が別の値（最終桁の 1 単位違いで許容誤差の内側）を持つ場合、その行はコーパスの値、保持する値、decNumber 3.68 の値、保持する値の根拠とともに `testdata/decimal_gda/deviations.tsv` に記録されます。コーパスの値が誤りなのではなく、2 つのテキストが異なるために記録されるだけです。このステージはその行を保持する値に対して判定し、判定の種類 `deviation` として報告し、行の結果トークンが記録されたコーパスの値でなくなった場合は失敗とします。上流への報告は行いません。該当は 1 行です。`official0/ln0.decTest` の `ln116`（17 桁、サブセット算術の `ln 0.99999991000000405`）は decNumber の値 `-8.9999999999999879E-8` を期待しますが、正しく丸めた結果は `-8.9999999999999878E-8` です（厳密値は `-8.99999999999998784999918E-8`）。拡張算術の行 `official/ln.decTest` の `lnx116` は正しく丸めた値を挙げており、decNumber 自身はこれに別の値を返し、`lnx732` でも同様です。2 つのコーパスの `exp`、`ln`、`log10`、`squareroot` のその他すべての行（対応する演算の 4,816 行と 3,652 行）は、CPython `decimal` が自身のコンテキストで返す正しく丸めた結果と等しく、CPython の指数範囲や CPython にないサブセット規則に依存する行は除きます。"
 
-#: manual/conformance/decimal_gda.md:116
+#: manual/conformance/decimal_gda.md:123
 msgid "Known deviations outside the corpus"
 msgstr "コーパス外の既知の逸脱"
 
-#: manual/conformance/decimal_gda.md:118
+#: manual/conformance/decimal_gda.md:125
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "コーパスへの合格は有限の主張にすぎません。実装のレビューにより次の挙動が見つかっていますが、いずれにも固定された行はありません。"
 
-#: manual/conformance/decimal_gda.md:121
+#: manual/conformance/decimal_gda.md:128
 msgid "Integer `power` is not correctly rounded, as the specification allows. In the nearest rounding modes the result is within about 0.55 units in the last place of the exact value (0.6 for negative exponents). In the directed modes it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact value (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
 msgstr "整数 `power` は正しく丸められません。仕様はこれを許しています。最近接の丸めモードでは、結果は厳密な値から約 0.55 最小桁単位以内です（負の指数では 0.6）。方向付きの丸めモードでは、結果は正しく丸めた結果から 1 最小桁単位以内で、厳密な値からは最大 1.03 最小桁単位です（両方の算術で 8,320 個の無作為ケースを Python `decimal` と比較して測定。2 単位以上離れたケースはありません）。"
 
-#: manual/conformance/decimal_gda.md:127
+#: manual/conformance/decimal_gda.md:134
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` の指数が 10 桁以上のときは計算されません。結果は Invalid operation を伴う NaN で、decNumber の設計上の制限です (仕様にはこの制限はありません)。Python `decimal` (libmpdec) と IEEE `decimal` パッケージはこれらのべき乗を計算します。"
 
-#: manual/conformance/decimal_gda.md:131
+#: manual/conformance/decimal_gda.md:138
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "方向付き丸めモードでは、不正確な `power` は最後の桁が libmpdec と異なることがあります。仕様は不正確な `power` が正しく丸めた結果から最大 1 ulp ずれることを許しており、libmpdec もそこでは正しい丸めではないためです。"
 
-#: manual/conformance/decimal_gda.md:135
+#: manual/conformance/decimal_gda.md:142
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "ゼロの底と負の指数の `power` は無限大で、条件は立ちません (libmpdec と同じ)。仕様の Division by zero は「被除数がゼロでない」場合に当てはまります。IEEE `decimal` パッケージはこれに divideByZero を立てます (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:140
+#: manual/conformance/decimal_gda.md:147
 msgid "Isolation and native benchmark"
 msgstr "分離とネイティブベンチマーク"
 
-#: manual/conformance/decimal_gda.md:142
+#: manual/conformance/decimal_gda.md:149
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "Production dependency scan は `decimal_gda`、`decimal_gda_checked`、 `frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを要求します。IEEE test と independent conformance corpus は別に実行します。"
 
-#: manual/conformance/decimal_gda.md:146
+#: manual/conformance/decimal_gda.md:153
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに 3 native sample を実行します。Arithmetic、parser、context、elementary の timing を観測しますが、performance を conformance requirement にせず、historical adapter とも比較しません。"
 
-#: manual/conformance/decimal_gda.md:160
+#: manual/conformance/decimal_gda.md:167
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、filter、phase、JSON output、failure triage は[decimal_gda data guide](../../../testdata/decimal_gda/README.md)を参照してください。"
 
