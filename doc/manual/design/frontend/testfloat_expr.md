@@ -54,16 +54,18 @@ digits. The front end builds the same mask from the five flag accessors of `Bina
 ### The pass rule
 
 Let $\hat r$ be the `bin_float` result computed in
-`format.context(rounding~, tininess~)`, $\hat F$ its flags, and $(e, M)$ the
-expected encoding and mask. For arithmetic operations the executor
-re-encodes $\hat r$ in the format, obtaining $\operatorname{enc}(\hat r)$ and
-flags $F_{\mathrm{enc}}$, and the vector passes when
+`format.context(rounding~, tininess~)` (for a format conversion, the result of
+`convert_format` into the destination format), $\hat F$ its flags, and $(e, M)$
+the expected encoding and mask. For arithmetic operations the executor packs
+$\hat r$ into the bit fields of the format, without rounding, obtaining
+$\operatorname{pack}(\hat r)$, which is undefined when $\hat r$ is not a number of
+the format. The vector passes when
 
 $$
 \Bigl( \bigl(e \text{ is a NaN} \wedge \hat r \text{ is a quiet NaN}\bigr)
-\vee \operatorname{enc}(\hat r) = e \Bigr)
+\vee \operatorname{pack}(\hat r) = e \Bigr)
 \;\wedge\;
-\operatorname{mask}(\hat F \cup F_{\mathrm{enc}}) = M .
+\operatorname{mask}(\hat F) = M .
 $$
 
 For integer conversions the value check is replaced by: if $16 \in M$ the
@@ -82,12 +84,35 @@ invalid operation to the implementation (SoftFloat's default NaN has its own
 pattern), so an expected NaN only requires the actual result to be a quiet
 NaN. A signaling NaN as a result would fail, which is the IEEE requirement.
 
+### The operation is judged, not the operation followed by a rounding
+
+An earlier version encoded the result with `BinaryInterchange::from_bin_float`,
+which first rounds to the format and adds the flags of that rounding. Every
+vector then tested "the operation, then a rounding": an operation that returned
+a value with more bits than the format, or below its smallest subnormal, or that
+dropped the inexact flag, passed whenever the rounding happened to repair it. The
+executor now packs the sign, the coefficient and the exponent of the result into
+the fields of the format with the layout of the format written out in the front
+end (precision, width, bias), and fails the vector with "result not in the
+format" when the value does not fit: more significant bits than the precision, a
+bit below the last place of the smallest subnormal, a leading bit above the
+largest exponent. The same holds for the format conversions, where the operation
+under test is `convert_format` and nothing rounds behind it. No flag is added by
+the harness.
+
+What stays shared with the code under test: the decoding of the operands
+(`BinaryInterchange::from_hex` and `to_bin_float`; a wrong decoding changes the
+result and shows as a mismatch with the vector, it cannot be compensated by the
+packing, which is independent) and `BinFloat::to_hex` in the failure message. The
+expected column is compared as the text of the vector, not decoded. A NaN column
+is compared as a quiet NaN result; the payload and the sign of a NaN are not
+compared.
+
 ### Exact flag masks
 
 The mask comparison is an equality, so a missing inexact or an extra
-underflow fails the vector. Combining the flags of the re-encoding step means
-that if `bin_float` returned a value that the format cannot hold exactly, the
-encoding flags expose it.
+underflow fails the vector, and the flags compared are those of the operation
+alone.
 
 ### Invalid conversions by flags only
 
@@ -114,7 +139,8 @@ independent of the others, so merged shard counts equal the serial counts.
 
 **Soundness of a pass.** If the expected vector is correct, a passing arithmetic vector shows that
 `bin_float` returned the correctly rounded, correctly encoded result and
-raised exactly the IEEE exceptions, except for the NaN payload.
+raised exactly the IEEE exceptions, except for the NaN payload; a result that
+is not a number of the format fails.
 
 **Counter identity.** Every selected vector is executed:
 $\text{selected} = \text{passed} + \text{failed}$, and
@@ -124,7 +150,7 @@ $\text{total} = N$, the number of vectors in the document.
 is checked against the operation, so execution never meets a vector with the
 wrong number of operands.
 
-**Complexity.** One `bin_float` operation and one encoding per vector, linear
+**Complexity.** One `bin_float` operation and one packing per vector, linear
 in the number of vectors.
 
 ## Alternatives rejected

@@ -126,7 +126,10 @@ are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (
   operations, mulAdd and the narrowing format conversions, and both exact and inexact variants for roundToInt and
   the conversions. Invalid integer conversions are compared by flags only,
   because SoftFloat returns platform-specific sentinel values where the API
-  returns `None`. The MPFR part adds the 1,055 executable rows of the pinned
+  returns `None`. The gate judges the operation, not the operation followed by a rounding
+  of the harness: the result is packed into the bit fields of its format by the
+  front end itself and a result that is not a number of the format fails the
+  vector; the flags compared are the operation's own. The MPFR part adds the 1,055 executable rows of the pinned
   square-root data, 2,088 hash-pinned witnesses covering 29 elementary
   operations at binary32/64/128 precision under all six `BinaryRoundingMode`
   values, and the decimal character conversions of IEEE 754-2019 §5.12:
