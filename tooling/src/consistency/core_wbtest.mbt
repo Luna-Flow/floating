@@ -3652,14 +3652,13 @@ test "decimal context division reports inexact and exceptional flags" {
   assert_eq(quarter.to_string(), "0.25")
   assert_false(quarter_flags.inexact())
   let (third, third_flags) = one.div_ctx(three, ctx)
-  assert_true(third.to_string().has_prefix("0.333333"))
+  assert_eq(third.to_string(), "0.333333")
   assert_true(third_flags.inexact())
   let (inf, div_zero_flags) = one.div_ctx(zero, ctx)
   assert_true(inf.classify() == @lf_arith.FpClass::Infinity)
   assert_true(div_zero_flags.division_by_zero())
   let (nan, undefined_flags) = zero.div_ctx(zero, ctx)
   assert_true(nan.classify() == @lf_arith.FpClass::NaN)
-  assert_true(undefined_flags.invalid_operation())
   assert_true(undefined_flags.invalid_operation())
 }
 
