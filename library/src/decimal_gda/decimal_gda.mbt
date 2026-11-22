@@ -12,20 +12,6 @@ fn complete_decimal_gda(
 }
 
 ///|
-/// The completion of `reduce`, `sqrt` and `round_to_integral_value`, which do not
-/// get the rules of page 55 in a subset context: the pinned subset corpus
-/// (`dectest0`, rows red060 to red144, sqtx2207 to sqtx2847, int067 to int090)
-/// expects a positive exponent from them, and the corpus is not changed
-/// (issue 754).
-fn complete_decimal_gda_corpus(
-  value : Decimal,
-  context : GdaContext,
-  flags : DecimalFlags,
-) -> GdaOutcome[Decimal] {
-  complete_gda(value, context, flags)
-}
-
-///|
 fn complete_gda_subset(
   value : Decimal,
   context : GdaContext,
