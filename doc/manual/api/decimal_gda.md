@@ -1292,13 +1292,15 @@ pub fn next_toward(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 `next_plus` returns the smallest representable number greater than $x$ in the context, and
 `next_minus` the largest smaller one. From a zero they step to $\pm 10^{E_{\mathrm{tiny}}}$, and
-past the largest finite number they reach $\pm\infty$. Neither raises flags for finite results,
-except in a subset context, where a step below the normal range gives $+0$ with `Underflow`,
-`Subnormal`, `Inexact` and `Rounded` (a subnormal result is not permitted).
+past the largest finite number they reach $\pm\infty$. Neither raises flags for finite results (GDA 1.70, page 34); in a subset context a step below the
+normal range gives $+0$, since a subnormal result is not permitted, and still no flag
+([#770](https://github.com/Luna-Flow/floating/issues/770)).
 
 `next_toward(x, y)` steps from $x$ towards $y$, returning $x$ (with the sign of $y$ for zeros) when
 they compare equal. When the step leaves the normal range, it raises `Overflow`, or `Underflow` and
-`Subnormal`, together with `Inexact` and `Rounded`.
+`Subnormal`, together with `Inexact` and `Rounded` (page 35: the flags of the sum with an
+infinitesimal); in a subset context the step below the normal range gives $+0$ with `Underflow`,
+`Subnormal`, `Inexact` and `Rounded`.
 
 ### `logical_and`, `logical_or`, `logical_xor`, `logical_invert`
 
