@@ -295,10 +295,19 @@ fn Decimal::compare_total_magnitude_ctx(
   // compare-total-magnitude(x, y) is compare-total(copy-abs(x), copy-abs(y))
   // (GDA 1.70, page 43): the sign goes before the operands are rounded, which
   // matters in Floor and Ceiling.
+  // Only Floor and Ceiling in a subset context round a negative operand
+  // differently from its absolute value.
+  let (self, other) = if !ctx.extended &&
+    (
+      ctx.decimal_rounding == DecimalRoundingMode::Floor ||
+      ctx.decimal_rounding == DecimalRoundingMode::Ceiling
+    ) {
+    (self.abs(), other.abs())
+  } else {
+    (self, other)
+  }
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self.abs(),
-    other.abs(),
-    ctx,
+    self, other, ctx,
   )
   (lhs.compare_total_magnitude(rhs), operand_flags)
 }
