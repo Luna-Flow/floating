@@ -42,7 +42,7 @@ pub fn fma(
 
 ///|
 pub fn sqrt(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  if !ctx.extended_ {
+  if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return sqrt_subset(value, ctx)
   }
   let (result, flags) = value.sqrt_ctx(ctx.mathematical_decimal_context())
@@ -134,7 +134,7 @@ pub fn round_to_integral_value(
 
 ///|
 pub fn exp(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  if !ctx.extended_ {
+  if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return exp_subset(value, ctx)
   }
   let (result, flags) = value.exp_ctx(ctx.mathematical_decimal_context())
@@ -152,7 +152,7 @@ fn exp_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 
 ///|
 pub fn ln(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  if !ctx.extended_ {
+  if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return ln_subset(value, ctx)
   }
   let (result, flags) = value.ln_ctx(ctx.mathematical_decimal_context())
@@ -170,7 +170,7 @@ fn ln_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 
 ///|
 pub fn log10(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  if !ctx.extended_ {
+  if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return log10_subset(value, ctx)
   }
   let (result, flags) = value.log10_ctx(ctx.mathematical_decimal_context())
@@ -572,4 +572,13 @@ fn rotate_subset(
   let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
   let (result, flags) = value.rotate_ctx(count, ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// Whether a finite operand has more digits than the precision, so that a subset
+/// context rounds it before use (GDA 1.70, page 56).
+fn gda_operand_is_long(value : Decimal, ctx : GdaContext) -> Bool {
+  value.class == FpClass::Finite &&
+  ctx.precision_ > 0 &&
+  value.coefficient.digits10() > ctx.precision_
 }
