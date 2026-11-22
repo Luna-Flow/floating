@@ -3847,7 +3847,7 @@ test "decimal context flags signaling nan as invalid operation" {
 // source: IEEE 754-2019 3.3 (q <= emax - p + 1 = 9 - 3 + 1 = 7), 5.2 (when no member of the cohort has the preferred
 //   exponent, the member with the closest exponent is used) and 5.4.1: 1E+9 + 0E+9 and 1E+9 + 0 are exact as 1.00E+9
 //   with exponent 7, by hand.
-// shares: Decimal::from_string (reading the inputs)
+// shares: Decimal::from_string (reading the inputs); Decimal::to_string (printing the result)
 test "decimal context clamps finite exponent by padding coefficient" {
   let ctx = @decimal.DecimalContext::new(precision=3, e_max=9)
   let value = @decimal.Decimal::from_string("1e9", precision=10).unwrap()
@@ -3897,8 +3897,8 @@ test "decimal context overflows finite results above emax" {
 //   number and a positive one to +inf; overflow and inexact are signaled), written out. The operand texts are read
 //   by Decimal::from_string; the results are compared as text (to_string, to_sci_string) and some with values read
 //   by Decimal::from_string through total_order_compare, and the flags are checked.
-// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
-//   values); to_sci_string and to_eng_string are the code under test
+// shares: Decimal::from_string (reading the inputs); Decimal::to_string and to_sci_string (printing the result);
+//   total_order_compare (comparing the results with the expected values)
 test "decimal context directed overflow follows gda rounding result selection" {
   let positive = @decimal.Decimal::from_string(
     "9999999999999999E+369",
@@ -4072,8 +4072,8 @@ test "decimal power with exponent one matches official rounding and representati
 //   above 1.0), orders signaling below quiet for positive NaNs and every number below a positive NaN (c.1, c.3, d.3,
 //   d.5). The operand texts are read by Decimal::from_string; no expected text is read: the order of the
 //   representations is checked by the sign of total_order_compare, and one pair with ==.
-// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
-//   values)
+// shares: Decimal::from_string (reading the inputs); total_order_compare (the function under test: only the sign of
+//   its result is checked)
 test "decimal total comparison orders representations without signaling unordered" {
   let one = @decimal.Decimal::from_string("1", precision=8).unwrap()
   let one_point_zero = @decimal.Decimal::from_string("1.0", precision=8).unwrap()
@@ -5249,8 +5249,8 @@ test "decimal gda string conversions canonicalize special spellings and payloads
 
 ///|
 // oracle: A
-// source: strings and flags written from the GDA 1.70 conversion and to-engineering-string rules
-// shares: Decimal::from_string (reading the inputs); to_sci_string and to_eng_string are the code under test
+// source: strings and flags written from the GDA 1.70 conversion and to-scientific-string rules
+// shares: Decimal::from_string (reading the inputs); to_sci_string is the code under test
 test "decimal gda string conversions enforce clamped nan payload bounds" {
   let ctx = @decimal.DecimalContext::new(precision=4)
 
