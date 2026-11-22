@@ -115,16 +115,18 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 
 ## Deviations of the corpus
 
-The pinned corpora are decNumber's test suite, and decNumber's mathematical
+The pinned corpora are decNumber's test suite. A row is recorded in
+`testdata/decimal_gda/deviations.tsv` when its result token differs from the value
+this library returns. There are two kinds of row. The first kind rests on the
+tolerance of the mathematical functions: decNumber's mathematical
 functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the
 specification says that an inexact result "will be rounded using the round-half-even
 algorithm" and "should be correctly rounded, but may be up to 1 ulp ... in error"
 (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both
 arithmetics. Where a row of the corpus holds the other value, one unit in the last
-place away and inside the tolerance, the row is recorded in
-`testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value
-of decNumber 3.68 and what the held value rests on: the corpus value is not wrong,
-the row is recorded because the two texts differ. The stage judges the row against
+place away and inside the tolerance, the row is recorded with the corpus value, the
+held value, the value of decNumber 3.68 and what the held value rests on: the corpus
+value is not wrong, the row is recorded because the two texts differ. The stage judges the row against
 the held value, reports it as the verdict `deviation`, and fails it if the result
 token of the row stops being the recorded corpus value. Nothing is reported upstream.
 There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17
@@ -138,7 +140,7 @@ correctly rounded result of CPython `decimal` in its own context, apart from row
 that depend on the exponent range of CPython or on the subset rules that CPython does
 not have.
 
-A second kind of row follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream.
+The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream.
 
 ## Known deviations outside the corpus
 

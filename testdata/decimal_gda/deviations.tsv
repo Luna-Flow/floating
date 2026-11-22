@@ -1,15 +1,16 @@
 # Recorded deviations of the pinned decTest corpora: rows whose result token differs
-# from the value this library returns, where both values are inside the tolerance of
-# the specification (GDA 1.70 allows the mathematical functions a result up to one
-# unit in the last place from the correctly rounded one).
+# from the value this library returns. There are two kinds of row.
 #
-# The corpus value is decNumber's and is not wrong; the held value is the correctly
-# rounded one, which the library returns. The row is recorded only because the two
-# texts differ. The stage judges such a row against the held value, reports it as the
-# verdict kind `deviation`, and fails it if the result token of the row no longer is
-# the corpus value recorded here. Nothing is reported upstream.
+# The first kind (one row, `ln116`): both values are inside the tolerance of the
+# specification (GDA 1.70 allows the mathematical functions a result up to one unit in
+# the last place from the correctly rounded one). The corpus value is decNumber's and is
+# not wrong; the held value is the correctly rounded one, which the library returns. The
+# row is recorded only because the two texts differ. The stage judges such a row against
+# the held value, reports it as the verdict kind `deviation`, and fails it if the result
+# token of the row no longer is the corpus value recorded here. Nothing is reported
+# upstream.
 #
-# A second kind of row is a subset row (official0, extended: 0) of `reduce`,
+# The second kind (64 rows) is a subset row (official0, extended: 0) of `reduce`,
 # `tointegral` or `squareroot` whose result keeps a positive exponent. GDA 1.70, page 55
 # (Appendix A, The X3.274 subset), states for any operation that after the rounding of
 # its result a positive exponent is reduced to 0 when the coefficient then has at most
