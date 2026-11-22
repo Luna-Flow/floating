@@ -22,7 +22,8 @@ test "def predicates classify finite and nan consistently" {
 // oracle: A, S
 // source: the error kinds written; the word #A2300000000003D0 is -7.50 (testdata/decimal/ieee/decimal64_dpd.json, id
 //   negative-7-50, and tools/decimal_interchange_oracle.py); the fields of the context are read back (S)
-// shares: Decimal::from_string, total_order_compare for the value
+// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
+//   values)
 test "context and parse error types are exposed" {
   let ctx = @lf_arith.ArithmeticContext::new(
     7,
@@ -195,7 +196,7 @@ test "decimal interchange facade from_decimal preserves finite bits flags and fo
 // oracle: A
 // source: #47F4C000, #47FD300000000000 and #47FFD300000000000000000000000000 for 1.23E+96, 1.23E+384, 1.23E+6144
 //   reproduced by tools/decimal_interchange_oracle.py
-// shares: Decimal::from_string (input)
+// shares: Decimal::from_string (reading the inputs)
 test "decimal interchange scalar encode preserves finite flags across formats" {
   let value32 = @decimal.Decimal::from_string("1.23E+96", precision=64).unwrap()
   let value64 = @decimal.Decimal::from_string("1.23E+384", precision=64).unwrap()
@@ -337,7 +338,8 @@ test "decimal interchange facade exposes decimal32 non-canonical qnan witness" {
 // oracle: A
 // source: the non-canonical word #77FFFF3FCFF3FCFF: is_canonical false for the wrapper, the decoded scalar is
 //   canonical and is 9.999999999999999E+384, read by Decimal::from_string
-// shares: Decimal::from_string, total_order_compare
+// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
+//   values)
 test "decimal interchange facade keeps wrapper canonical predicate distinct from scalar decimal" {
   let raw = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3FCFF3FCFF",
@@ -413,7 +415,8 @@ test "decimal interchange facade sign transforms preserve special raw bits" {
 // oracle: A
 // source: the result words are the input words with the sign bit changed (written); the meaning of the word is read
 //   by Decimal::from_string (9.999999999999999E+384, 9.999999E+96)
-// shares: Decimal::from_string, total_order_compare
+// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
+//   values)
 test "decimal interchange facade sign transforms preserve finite raw bits and meaning" {
   let finite64 = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3FCFF3FCFF",
@@ -462,7 +465,8 @@ test "decimal interchange facade sign transforms preserve finite raw bits and me
 // oracle: A
 // source: the result words are the input words with the sign bit changed (written); the meaning of the word is read
 //   by Decimal::from_string (9.999999999999999E+384, 9.999999E+96)
-// shares: Decimal::from_string, total_order_compare
+// shares: Decimal::from_string (reading the inputs); total_order_compare (comparing the results with the expected
+//   values)
 test "decimal interchange facade sign transforms preserve canonical decimal32 finite raw bits and meaning" {
   let finite32 = @decimal.DecimalInterchange::from_hex(
     "#77F3FCFF",
@@ -689,7 +693,7 @@ test "binary checked compare rejects nan" {
 // source: 13 * 2^-3 = 1.625 rounded to 2 bits, ties to even, is 1.5 (3p-1) and its ulp is 0.5 (1p-1): hand
 //   arithmetic. The last assert, ulp of zero at 4 bits = 1p-3, pins a library convention (IEEE 754-2019 defines no
 //   ulp of zero) and is not claimed as an oracle
-// shares: binary_test_make (BinCoeff text round trip)
+// shares: binary_test_make (BinCoeff text round trip); Binary::to_string (printing the result)
 test "binary low precision rounding and ulp stay explicit" {
   let x = binary_test_make(13N, -3, 8)
   let rounded = x.with_precision(2, @binary.BinaryRoundingMode::RoundTiesToEven)
@@ -701,7 +705,7 @@ test "binary low precision rounding and ulp stay explicit" {
 ///|
 // oracle: A
 // source: 12.5 parses and prints as 12.5; 7/2 = 3.5, written
-// shares: nothing
+// shares: Decimal::to_string (printing the result)
 test "checked trait helpers are usable through arithmetic boundary" {
   let parsed : Result[@decimal.Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
     "12.5", audit_ctx,
