@@ -34,10 +34,10 @@ class CoveredTest(unittest.TestCase):
         self.assertFalse(su.covered("library/src/a.mbt", declared))
 
     def test_audit_parsing_and_the_undeclared_set(self) -> None:
-        audit = su.parse_audit("R tools/a.py\nR data/x\nD data\nD library/src\nR tools/b.py\nS /bin/ls\nS /usr/bin/python3\n")
+        audit = su.parse_audit("R tools/a.py\nR data/x\nD data\nD library/src\nR tools/b.py\nL os.system ls\nU ctypes.dlopen\n")
         self.assertEqual(su.undeclared(audit, ("tools/a.py", "data/")), ["library/src", "tools/b.py"])
         self.assertEqual(su.undeclared(su.parse_audit("D tools\nD .\nD testdata\n"), ("tools/a.py", "testdata/interval/")), [])  # listing above a declared entry
-        self.assertEqual(su.unseen_programs(audit, sys.executable), ["/bin/ls"])
+        self.assertEqual((audit.launches, audit.unsafe), (("os.system ls",), ("ctypes.dlopen",)))
 
 
 class KeyTest(unittest.TestCase):
@@ -107,15 +107,6 @@ class RealAuditHookTest(unittest.TestCase):
         self.assertNotIn("out.txt", audit.reads)
         self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])
 
-    def test_a_child_python_process_and_another_program_are_seen(self) -> None:
-        audit = self.run_script(
-            "import subprocess, sys\n"
-            "subprocess.run([sys.executable, '-c', \"open('other.txt').read()\"])\n"
-            "subprocess.run(['ls', '.'], capture_output=True)\n"
-        )
-        self.assertIn("other.txt", audit.reads)  # read by the child
-        self.assertEqual([Path(p).name for p in su.unseen_programs(audit, sys.executable)], ["ls"])
-
     def test_the_hook_does_not_change_what_the_stage_prints(self) -> None:
         script = self.root / "tools/check.py"
         script.write_text("print(open('data/a.txt').read())")
@@ -145,7 +136,7 @@ class RealAuditHookTest(unittest.TestCase):
                 self.assertEqual(audit.starts, (sys.version,))
             else:
                 self.assertEqual(audit.reads, ())  # the read of other.txt was not seen, and an empty log must not read as clean
-                self.assertIn("did not start", su.not_recorded_why(audit, sys.executable, sys.version))
+                self.assertIn("did not start", su.not_recorded_why(audit, sys.version))
 
     def test_a_read_outside_the_repository_counts_unless_it_is_the_interpreters_or_the_runs_own(self) -> None:
         with tempfile.TemporaryDirectory() as other:
@@ -159,8 +150,8 @@ class RealAuditHookTest(unittest.TestCase):
                 f"open({str(made)!r}).read()\n"
                 f"open({str(outside)!r}, 'w').write('z')\n"  # a write is not a read
             )
-        self.assertEqual(self.mine(audit), [str(outside)])
-        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
+        self.assertEqual(su.outside_reads(audit), [str(outside)])
+        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.version))
         self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])  # not a file of the repository
 
     def test_a_file_created_by_one_process_of_the_run_and_read_by_another_is_the_runs_own(self) -> None:
@@ -171,7 +162,7 @@ class RealAuditHookTest(unittest.TestCase):
                 f"open({str(made)!r}, 'w').write('y')\n"
                 f"subprocess.run([sys.executable, '-c', \"open({str(made)!r}).read()\"], check=True)\n"
             )
-        self.assertEqual(self.mine(audit), [])
+        self.assertEqual(su.outside_reads(audit), [])
 
     def test_a_compiled_module_of_the_tree_cannot_run_in_place_of_its_source(self) -> None:
         import importlib.util
@@ -195,10 +186,10 @@ class RealAuditHookTest(unittest.TestCase):
         self.assertEqual(result.stdout.strip(), "source")
         self.assertIn("tools/helper.py", audit.reads)
         self.assertEqual(su.compiled_reads(audit), [])
-        self.assertEqual(self.mine(audit), [])  # the private cache of the run is not an outside input
+        self.assertEqual(su.outside_reads(audit), [])  # the private cache of the run is not an outside input
         self.assertEqual(su.undeclared(audit, ("tools/check.py", "tools/helper.py")), [])
 
-    def python_children_are_counted(self, body: str) -> su.Audit:
+    def run_logged(self, body: str) -> su.Audit:
         script = self.root / "tools/check.py"
         script.write_text(body)
         log = self.root / "audit.log"
@@ -207,38 +198,7 @@ class RealAuditHookTest(unittest.TestCase):
         self.last_log = log.read_text()
         return su.parse_audit(self.last_log)
 
-    @staticmethod
-    def mine(audit: su.Audit) -> list[str]:
-        """The outside reads of the script, without the directories of `sys.path` that some interpreters list on their own
-        (an installed-packages directory is listed when a module is looked for there; that stays an outside input)."""
-        import sysconfig
-
-        search_path = {os.path.realpath(p) for p in sys.path if p}
-        search_path |= {os.path.realpath(sysconfig.get_path(name)) for name in ("purelib", "platlib")}
-        return [p for p in su.outside_reads(audit) if p not in search_path and os.path.basename(p) not in ("site-packages", "dist-packages")]
-
-    def assert_counting_is_right(self, audit: su.Audit) -> None:
-        why = su.not_recorded_why(audit, sys.executable, sys.version)
-        self.assertNotIn("loaded the hook", why, self.last_log)
-        self.assertNotIn("another version", why, self.last_log)
-
-    def test_a_python_child_that_does_not_load_the_hook_is_not_recorded(self) -> None:
-        read = "open('other.txt').read()"  # an in-repository file that no unit declares
-        children = {
-            "-I": f"subprocess.run([sys.executable, '-I', '-c', {read!r}], check=True)",
-            "-E": f"subprocess.run([sys.executable, '-E', '-c', {read!r}], check=True)",
-            "-S": f"subprocess.run([sys.executable, '-S', '-c', {read!r}], check=True)",
-            "env={}": f"subprocess.run([sys.executable, '-c', {read!r}], env={{}}, check=True)",
-            "no PYTHONPATH": f"subprocess.run([sys.executable, '-c', {read!r}], env={{k: v for k, v in os.environ.items() if k != 'PYTHONPATH'}}, check=True)",
-            "os.execv": f"os.execv(sys.executable, [sys.executable, '-I', '-c', {read!r}])",
-            "os.posix_spawn": f"os.waitpid(os.posix_spawn(sys.executable, [sys.executable, '-I', '-c', {read!r}], {{}}), 0)",
-        }
-        for name, launch in children.items():
-            audit = self.python_children_are_counted(f"import os, subprocess, sys\n{launch}\n")
-            self.assertNotIn("other.txt", audit.reads, name)  # the unhooked child's read is invisible
-            self.assertIn("Python processes loaded the hook", su.not_recorded_why(audit, sys.executable, sys.version), name)
-
-    def test_a_stale_compiled_module_loaded_by_an_unhooked_child_is_not_recorded(self) -> None:
+    def test_a_stale_compiled_module_loaded_by_a_child_is_not_recorded(self) -> None:
         import importlib.util
         import py_compile
 
@@ -249,55 +209,11 @@ class RealAuditHookTest(unittest.TestCase):
         cached = Path(importlib.util.cache_from_source(str(helper)))
         cached.parent.mkdir(exist_ok=True)
         py_compile.compile(str(decoy), cfile=str(cached), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
-        audit = self.python_children_are_counted(
+        audit = self.run_logged(
             "import subprocess, sys\n"
             "subprocess.run([sys.executable, '-I', '-c', \"import sys; sys.path.insert(0, 'tools'); import helper; print(helper.NAME)\"], check=True)\n"
         )
-        self.assertIn("Python processes loaded the hook", su.not_recorded_why(audit, sys.executable, sys.version))
-
-    def test_hooked_python_children_are_counted_and_recorded(self) -> None:
-        audit = self.python_children_are_counted(
-            "import subprocess, sys\n"
-            "subprocess.run([sys.executable, '-c', 'pass'], check=True)\n"
-            "subprocess.run([sys.executable, '-c', 'import subprocess, sys; subprocess.run([sys.executable, \"-c\", \"pass\"])'], check=True)\n"
-        )
-        # the log is in the message: it shows which events one launch raised on the machine that runs this
-        self.assertEqual((len(audit.starts), len(audit.launches)), (4, 3), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
-        self.assert_counting_is_right(audit)
-
-    def test_a_launch_that_raises_two_events_is_counted_once(self) -> None:
-        # `close_fds=False` starts the child with posix_spawn: `subprocess.Popen` and then `os.posix_spawn` are
-        # raised for the one launch (recent Linux builds do that by default, so does this call on macOS)
-        events = (
-            "import os, subprocess, sys\n"
-            "log = []\n"
-            "sys.addaudithook(lambda e, a: log.append(e) if e in ('subprocess.Popen', 'os.posix_spawn', 'os.exec', 'os.spawn') else None)\n"
-            "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)\n"
-            "print(log, file=sys.stderr)\n"
-        )
-        audit = self.python_children_are_counted(events + "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)\n")
-        self.assertEqual((len(audit.starts), len(audit.launches)), (3, 2), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
-        self.assert_counting_is_right(audit)
-
-    def test_a_posix_spawn_after_a_popen_with_another_environment_is_a_launch_of_its_own(self) -> None:
-        # the same program and arguments, directly after the Popen, but an empty environment: the child does not
-        # load the hook, and the two launches must not be counted as one
-        audit = self.python_children_are_counted(
-            "import os, subprocess, sys\n"
-            "args = [sys.executable, '-c', 'pass']\n"
-            "subprocess.run(args, close_fds=False)\n"
-            "os.waitpid(os.posix_spawn(sys.executable, args, {}), 0)\n"
-        )
-        self.assertEqual(len(audit.launches), 2, self.last_log)
-        self.assertIn("Python processes loaded the hook", su.not_recorded_why(audit, sys.executable, sys.version))
-
-    def test_a_direct_posix_spawn_is_counted_once(self) -> None:
-        audit = self.python_children_are_counted(
-            "import os, sys\n"
-            "os.waitpid(os.posix_spawn(sys.executable, [sys.executable, '-c', 'pass'], os.environ), 0)\n"
-        )
-        self.assertEqual((len(audit.starts), len(audit.launches)), (2, 1), self.last_log)
-        self.assert_counting_is_right(audit)
+        self.assertIn("launched a process", su.not_recorded_why(audit, sys.version))
 
     def test_a_listing_outside_the_repository_is_an_outside_input(self) -> None:
         with tempfile.TemporaryDirectory() as other:
@@ -311,8 +227,8 @@ class RealAuditHookTest(unittest.TestCase):
                 f"glob.glob({str(outside / '*.txt')!r})\n"
                 f"os.listdir({stdlib!r})\n"  # the standard library is the interpreter's own
             )
-        self.assertEqual(self.mine(audit), [str(outside), str(outside / "*.txt")])
-        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
+        self.assertEqual(su.outside_reads(audit), [str(outside), str(outside / "*.txt")])
+        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.version))
 
     def test_an_installed_package_is_an_outside_input_but_the_standard_library_is_not(self) -> None:
         import sysconfig
@@ -322,8 +238,8 @@ class RealAuditHookTest(unittest.TestCase):
         if found is None:
             self.skipTest("no installed package")
         audit = self.run_script(f"import json\nopen({str(found)!r}).read()\n")  # purelib is usually below the standard library path
-        self.assertEqual(self.mine(audit), [os.path.realpath(found)])
-        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
+        self.assertEqual(su.outside_reads(audit), [os.path.realpath(found)])
+        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.version))
 
     def test_a_name_cannot_forge_a_line_of_the_log(self) -> None:
         with tempfile.TemporaryDirectory() as other:
@@ -336,20 +252,102 @@ class RealAuditHookTest(unittest.TestCase):
                     f"try:\n    os.listdir({name!r})\nexcept OSError:\n    pass\n"  # a name that does not exist, listed
                     f"open({str(outside)!r}).read()\n"
                 )
-                self.assertEqual(self.mine(audit), [str(outside)], repr(ending))
+                self.assertEqual(su.outside_reads(audit), [str(outside)], repr(ending))
                 self.assertTrue(any(item.startswith("x\\u") for item in audit.listings), (repr(ending), audit.listings))  # the name is there, escaped
         forged = su.parse_audit("D a\rC /x\x85C /y\u2028C /z\nX /x\n")  # a log that a hook of another version wrote
         self.assertEqual(forged.outside, ("/x",))
 
+    def test_every_event_that_launches_a_process_keeps_a_run_from_being_recorded(self) -> None:
+        launches = {
+            "subprocess.Popen": "subprocess.run([sys.executable, '-c', 'pass'])",
+            "subprocess.Popen, close_fds=False": "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)",
+            "os.system": "os.system('true')",
+            "os.posix_spawn": "os.waitpid(os.posix_spawn(sys.executable, [sys.executable, '-c', 'pass'], os.environ), 0)",
+            "os.spawnv": "os.spawnv(os.P_WAIT, sys.executable, [sys.executable, '-c', 'pass'])",
+            "os.fork": "pid = os.fork()\nif pid == 0:\n    os._exit(0)\nos.waitpid(pid, 0)",
+            "os.execv": "os.execv(sys.executable, [sys.executable, '-c', 'pass'])",
+            "pty.spawn": "import pty\npty.spawn([sys.executable, '-c', 'pass'])",
+        }
+        for name, launch in launches.items():
+            audit = self.run_logged(f"import os, subprocess, sys\n{launch}\n")
+            why = su.not_recorded_why(audit, sys.version)
+            self.assertIn("launched a process", why, f"{name}: {why!r}\n{self.last_log}")
+
+    def test_a_python_command_line_run_by_os_system_is_not_recorded(self) -> None:  # probe C
+        audit = self.run_logged("import os, sys\nos.system(f\"{sys.executable} -I -c 'print(open(\\\"other.txt\\\").read())'\")\n")
+        self.assertNotIn("other.txt", audit.reads)  # the child that did not load the hook read it
+        self.assertIn("launched a process (os.system", su.not_recorded_why(audit, sys.version))
+
+    def test_two_launches_are_two_launch_lines_even_with_the_same_arguments(self) -> None:  # probe H5
+        audit = self.run_logged(
+            "import os, subprocess, sys\n"
+            "args = [sys.executable, '-c', 'pass']\n"
+            "subprocess.run(args, close_fds=False)\n"
+            "os.waitpid(os.posix_spawn(sys.executable, args, os.environ), 0)\n"
+        )
+        self.assertGreaterEqual(len(audit.launches), 2, self.last_log)
+        self.assertIn("launched a process", su.not_recorded_why(audit, sys.version))
+
+    def test_a_shell_wrapper_named_like_python_is_a_launch(self) -> None:  # probe K
+        wrapper = self.root / "python-wrap.sh"
+        wrapper.write_text(f"#!/bin/sh\ncat other.txt\nexec {sys.executable} -c pass\n")
+        wrapper.chmod(0o755)
+        audit = self.run_logged(f"import subprocess\nsubprocess.run(['./python-wrap.sh'])\n")
+        self.assertNotIn("other.txt", audit.reads)  # `cat` is not seen
+        self.assertIn("launched a process", su.not_recorded_why(audit, sys.version))
+
+    def test_a_second_start_line_without_a_launch_event_is_not_recorded(self) -> None:
+        audit = su.parse_audit(f"{START}B 4243 {VERSION}\nR tools/check.py\n")
+        self.assertIn("2 Python processes loaded the hook", su.not_recorded_why(audit, VERSION))
+
+    def test_a_multiprocessing_child_is_not_recorded(self) -> None:
+        body = (
+            "import multiprocessing as mp\n"
+            "def work():\n    open('other.txt').read()\n"
+            "if __name__ == '__main__':\n"
+            "    mp.set_start_method(%r)\n"
+            "    p = mp.Process(target=work)\n    p.start()\n    p.join()\n"
+        )
+        for method in ("fork", "spawn"):
+            audit = self.run_logged(body % method)
+            why = su.not_recorded_why(audit, sys.version)
+            self.assertNotEqual(why, "", f"{method}\n{self.last_log}")
+
+    def test_a_ctypes_event_keeps_a_run_from_being_recorded(self) -> None:
+        audit = self.run_logged("import ctypes\nctypes.CDLL(None)\n")
+        self.assertTrue(audit.unsafe, self.last_log)
+        self.assertIn("foreign library", su.not_recorded_why(audit, sys.version))
+
+    def test_an_honest_stage_that_reads_declared_files_is_recorded(self) -> None:
+        audit = self.run_logged("print(open('data/a.txt').read())\n")
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [], self.report(audit))
+        self.assertEqual(su.not_recorded_why(audit, sys.version), "", self.report(audit))
+
+    def test_an_honest_stage_that_imports_standard_library_modules_it_had_not_imported_is_recorded(self) -> None:
+        audit = self.run_logged("import colorsys, difflib, graphlib, fractions, decimal, statistics, textwrap\nprint(colorsys.rgb_to_hsv(0.1, 0.2, 0.3))\n")
+        self.assertEqual(su.not_recorded_why(audit, sys.version), "", self.report(audit))
+
+    def report(self, audit: su.Audit) -> str:
+        return f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}"
+
+    def test_the_directories_the_interpreter_lists_on_its_own_are_not_an_input_but_a_file_below_them_is(self) -> None:
+        # a directory that is on `sys.path` of the stage's own interpreter at start-up, found by the stage itself
+        listed = self.run_logged(
+            "import os, sys\n"
+            "sites = [p for p in sys.path if 'site-packages' in p or 'dist-packages' in p]\n"
+            "for p in sites:\n    os.listdir(p)\n"
+        )
+        self.assertEqual(su.outside_reads(listed), [], self.report(listed))
+
     def test_a_compiled_module_read_from_the_tree_is_not_recorded(self) -> None:
         audit = su.parse_audit(f"{START}R tools/check.py\nR tools/__pycache__/check.cpython-313.pyc\n")
         self.assertEqual(su.compiled_reads(audit), ["tools/__pycache__/check.cpython-313.pyc"])
-        self.assertIn("compiled module", su.not_recorded_why(audit, sys.executable, VERSION))
+        self.assertIn("compiled module", su.not_recorded_why(audit, VERSION))
 
     def test_another_interpreter_than_the_one_of_the_key_is_not_recorded(self) -> None:
-        audit = su.parse_audit(f"{START}B 4243 3.14.0 (other)\nL /usr/bin/python3\nR tools/check.py\n")
-        self.assertIn("another version", su.not_recorded_why(audit, sys.executable, VERSION))
-        self.assertEqual(su.not_recorded_why(su.parse_audit(START + "R tools/check.py\n"), sys.executable, VERSION), "")
+        audit = su.parse_audit("B 4243 3.14.0 (other)\nR tools/check.py\n")
+        self.assertIn("another version", su.not_recorded_why(audit, VERSION))
+        self.assertEqual(su.not_recorded_why(su.parse_audit(START + "R tools/check.py\n"), VERSION), "")
 
 
 class InterpreterTest(unittest.TestCase):
@@ -540,11 +538,11 @@ class RunStageTest(Fixture):
         self.assertEqual(self.run_one(plan, "T: python", execute), 0)
         self.assertIsNotNone(plan.ledger.result(plan.keys["T: python"]))
 
-    def test_a_python_stage_that_starts_another_program_passes_but_is_not_recorded(self) -> None:
+    def test_a_python_stage_that_launches_a_process_passes_but_is_not_recorded(self) -> None:
         plan = self.plan()
 
         def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
-            return self.python_ran(env, "R tools/check.py\nS /usr/bin/mpfr-tool\n")
+            return self.python_ran(env, "R tools/check.py\nL subprocess.Popen /usr/bin/mpfr-tool\n")
 
         self.assertEqual(self.run_one(plan, "T: python", execute), 0)
         self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))

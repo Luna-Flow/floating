@@ -21,11 +21,13 @@ Python stages (`kind == "python"`): the key is the content of a *declared* set o
 directories written in `SPECS` below, rounded up to whole directories, the Python version and the
 hook file. What a run happened to open is not a key: a file opened only on some path is missing
 from any observation. The declaration is therefore checked by every real run, which executes under
-the audit hook of `tools/stage_audit/sitecustomize.py` (the process and every Python process it
-starts). A read or a listing of anything below the repository outside the declared set fails the
-unit: nothing is recorded, the exit status is 70 (a defect of the system, with the path), so that the
-declaration cannot go stale silently. A program that is not Python started by the stage cannot be
-observed: the stage still runs and passes, but its result is not recorded (and the report says so).
+the audit hook of `tools/stage_audit/sitecustomize.py`. A read or a listing of anything below the
+repository outside the declared set fails the unit: nothing is recorded, the exit status is 70 (a
+defect of the system, with the path), so that the declaration cannot go stale silently. The audit is a
+check against an honest mistake, not a sandbox: it reports what CPython reports about the stage's own
+process. A stage that launches a process (any event that starts or replaces one), starts a second
+Python process, raises a `ctypes` event or reads outside the repository beyond the interpreter's own
+files still runs and passes, but its result is not recorded (and the report says so).
 
 Everything that cannot be read (a `moon.pkg`, the dry run, the toolchain) disables reuse for the
 stage, which then runs as in the gate. Stages of these gates that are not here stay full stages:
@@ -137,9 +139,9 @@ def covered(path: str, declared: Sequence[str]) -> bool:
 class Audit:
     reads: tuple[str, ...]
     listings: tuple[str, ...]
-    programs: tuple[str, ...]
     starts: tuple[str, ...] = ()  # `sys.version` of every hooked Python process, one per start line
-    launches: tuple[str, ...] = ()  # every launch of a Python interpreter that the hook saw
+    launches: tuple[str, ...] = ()  # every event that launched or replaced a process: `<event> <what>`
+    unsafe: tuple[str, ...] = ()  # the `ctypes` events that were raised
     outside: tuple[str, ...] = ()  # files outside the repository that were read and not created by the run
 
 
@@ -148,7 +150,7 @@ def parse_audit(text: str) -> Audit:
     created is an input of nothing when a later line reads it; every other outside read counts."""
     reads: set[str] = set()
     listings: set[str] = set()
-    programs: set[str] = set()
+    unsafe: set[str] = set()
     starts: list[str] = []
     launches: list[str] = []
     outside: set[str] = set()
@@ -159,8 +161,8 @@ def parse_audit(text: str) -> Audit:
             reads.add(value)
         elif kind == "D":
             listings.add(value)
-        elif kind == "S":
-            programs.add(value)
+        elif kind == "U":
+            unsafe.add(value)
         elif kind == "B":
             starts.append(value.partition(" ")[2])  # `B <pid> <version>`
         elif kind == "L":
@@ -169,7 +171,7 @@ def parse_audit(text: str) -> Audit:
             created.add(value)
         elif kind == "X" and value not in created:
             outside.add(value)
-    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(sorted(programs)), tuple(starts), tuple(launches), tuple(sorted(outside)))
+    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(starts), tuple(launches), tuple(sorted(unsafe)), tuple(sorted(outside)))
 
 
 def ancestors(declared: Sequence[str]) -> set[str]:
@@ -214,27 +216,26 @@ def compiled_reads(audit: Audit) -> list[str]:
     return [p for p in audit.reads if p.endswith(".pyc") and "__pycache__" in p.split("/")]
 
 
-def not_recorded_why(audit: Audit, python: str, version: str) -> str:
-    """Why the pass of a Python stage must not be recorded ('' when it may be): no hook ran in the
-    process (an interpreter run with `-I` or `-S` does not load it, and an empty log would read as
-    nothing outside), a Python launch with no start line of its own (counted: one start line for the
-    stage's own process and one per launch), an interpreter other than the one the key names ran, a
-    program the audit cannot see into, a read or listing outside the repository, or a compiled module
-    of the tree."""
+def not_recorded_why(audit: Audit, version: str) -> str:
+    """Why the pass of a Python stage must not be recorded ('' when it may be). The audit sees what
+    CPython reports about the stage's own process; it is not a sandbox. So a run is recorded only if the
+    hook wrote its start line exactly once (an interpreter run with `-I` or `-S` does not load it, and an
+    empty log would read as nothing outside; a second start line is a second Python process, for example
+    a `multiprocessing` child), the stage launched nothing (no event that starts or replaces a process:
+    whatever a child reads is not seen), raised no `ctypes` event (a foreign library can start anything
+    unseen), ran under the Python of the key, read or listed nothing outside the repository that no key
+    covers, and read no compiled module from the tree."""
     if not audit.starts:
         return "the audit hook did not start (no start line in its log), so nothing the stage read was seen"
-    expected = 1 + len(audit.launches)
-    if len(audit.starts) != expected:
-        return (
-            f"{len(audit.starts)} Python processes loaded the hook for {len(audit.launches)} Python launches seen "
-            f"(expected {expected}): a Python process that did not load it (`-I`, `-E`, `-S`, an empty environment) ran unseen"
-        )
-    other = [s for s in audit.starts if s != version]
-    if other:
-        return f"a Python of another version ran ({other[0].split()[0]}), not the one of the key ({version.split()[0] if version else 'unknown'})"
-    unseen = unseen_programs(audit, python)
-    if unseen:
-        return f"it started {unseen}, which the audit cannot see into"
+    if audit.launches:
+        first = audit.launches[0]
+        return f"it launched a process ({first}{', and %d more' % (len(audit.launches) - 1) if len(audit.launches) > 1 else ''}): what a child reads is not seen"
+    if len(audit.starts) != 1:
+        return f"{len(audit.starts)} Python processes loaded the hook and no launch event was seen (a multiprocessing child?): the others read unseen"
+    if audit.unsafe:
+        return f"it raised {audit.unsafe[0]}: a call into a foreign library can start anything unseen"
+    if audit.starts[0] != version:
+        return f"a Python of another version ran ({audit.starts[0].split()[0]}), not the one of the key ({version.split()[0] if version else 'unknown'})"
     outside = outside_reads(audit)
     if outside:
         return f"it read {outside[:3]}{' ...' if len(outside) > 3 else ''} outside the repository, which no key covers"
@@ -242,12 +243,6 @@ def not_recorded_why(audit: Audit, python: str, version: str) -> str:
     if compiled:
         return f"it read the compiled module {compiled[0]} from the tree, which may be older than its source"
     return ""
-
-
-def unseen_programs(audit: Audit, python: str) -> list[str]:
-    """Programs started by the stage that the audit cannot see into (not the Python interpreter)."""
-    names = {Path(python).name, "python", "python3", Path(python).resolve().name}
-    return sorted(p for p in audit.programs if Path(p).name not in names and not Path(p).name.startswith("python"))
 
 
 def key_parts(
@@ -546,7 +541,7 @@ def run_stage(
     if name in plan.keys and not plan.disabled:
         why_not = ""
         if unit.spec.kind == "python":
-            why_not = not_recorded_why(audit, sys.executable, plan.parts[name]["python"])
+            why_not = not_recorded_why(audit, plan.parts[name]["python"])
         if not why_not and not record_pass(plan, unit, seconds, tests):
             why_not = "its files changed during the run"
         if why_not:
