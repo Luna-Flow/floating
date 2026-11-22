@@ -22,8 +22,9 @@ sandbox: it reports what CPython reports. With
                 directories on the interpreter's own `sys.path` at start-up (the import system looking
                 for a module; opening a file below them is still an `X`) and the files below
                 `STAGE_AUDIT_EXEMPT` (the private compiled-module cache of the run)
-    C <path>    a file outside the root was created by the run (a later `X` of the same path, read
-                by any process of the run, is not an outside input)
+    C <path>    a file or directory outside the root was created by the run (an open with `O_CREAT`
+                of a path that did not exist, or `os.mkdir` of one that did not): a later `X` of the
+                same path or of anything below it is not an outside input
 
 Paths below the root are relative to it, with `/`. A name is written with every character that ends
 a line for `str.splitlines` escaped as `\\uXXXX`, so that no name can forge a line. Nothing else is recorded and nothing is changed:
@@ -49,6 +50,7 @@ if _LOG and _ROOT:
 
     _STDLIB = _paths("stdlib", "platstdlib")
     _SITE = _paths("purelib", "platlib")  # usually below the standard library path
+    _O_TMPFILE = getattr(os, "O_TMPFILE", 0)
     _SYS_PATH = frozenset(_real(p) for p in sys.path if p)  # where the import system looks, as of start-up
     _EXEMPT = tuple(_real(p) for p in os.environ.get("STAGE_AUDIT_EXEMPT", "").split(os.pathsep) if p)
 
@@ -120,10 +122,16 @@ if _LOG and _ROOT:
                         _write(f"R {relative}")
                 elif _own(absolute) or _under(absolute, _EXEMPT):
                     return
+                elif (flags & os.O_CREAT or (_O_TMPFILE and flags & _O_TMPFILE == _O_TMPFILE)) and os.path.isdir(absolute):
+                    return  # `tempfile` opens the directory name (with an opener that creates the file, or O_TMPFILE on Linux); an unnamed file has no path of its own
+                elif flags & os.O_CREAT and not os.path.lexists(absolute):
+                    _write(f"C {absolute}")  # the open creates the file: it is the run's own, whatever the mode
                 elif flags & 3 != 1:
                     _write(f"X {absolute}")
-                if relative is None and flags & os.O_CREAT and not os.path.lexists(absolute):
-                    _write(f"C {absolute}")
+            elif event == "os.mkdir":
+                absolute = _resolve(args[0]) if args and isinstance(args[0], (str, bytes, os.PathLike)) else None
+                if absolute is not None and _relative(absolute) is None and not os.path.lexists(absolute):
+                    _write(f"C {absolute}")  # a directory the run creates: what it holds below is the run's own
             elif event in ("os.listdir", "os.scandir", "glob.glob"):
                 target = args[0] if args and args[0] is not None else "."
                 if isinstance(target, (str, bytes, os.PathLike)):

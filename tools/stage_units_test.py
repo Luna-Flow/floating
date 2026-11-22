@@ -193,6 +193,7 @@ class RealAuditHookTest(unittest.TestCase):
         script = self.root / "tools/check.py"
         script.write_text(body)
         log = self.root / "audit.log"
+        log.unlink(missing_ok=True)  # one log per run: several runs of one test must not add up
         env = su.audit_environment(self.root, log, os.environ)
         subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True, check=True)
         self.last_log = log.read_text()
@@ -338,6 +339,40 @@ class RealAuditHookTest(unittest.TestCase):
             "for p in sites:\n    os.listdir(p)\n"
         )
         self.assertEqual(su.outside_reads(listed), [], self.report(listed))
+
+    def test_an_honest_use_of_tempfile_is_recorded(self) -> None:
+        uses = {
+            "mkstemp": "fd, name = tempfile.mkstemp()\nos.write(fd, b'x')\nos.close(fd)\nopen(name).read()\nos.remove(name)",
+            "NamedTemporaryFile": "with tempfile.NamedTemporaryFile('w+') as f:\n    f.write('x')\n    f.seek(0)\n    f.read()",
+            "TemporaryFile": "with tempfile.TemporaryFile('w+') as f:\n    f.write('x')\n    f.seek(0)\n    f.read()",
+            "TemporaryDirectory": "with tempfile.TemporaryDirectory() as d:\n    open(d + '/a', 'w').write('x')\n    open(d + '/a').read()\n    os.listdir(d)",
+            "mkdtemp and makedirs": "d = tempfile.mkdtemp()\nos.makedirs(d + '/p/q')\nopen(d + '/p/q/a', 'w').write('x')\nopen(d + '/p/q/a').read()\nos.listdir(d + '/p')",
+        }
+        for name, use in uses.items():
+            audit = self.run_logged(f"import os, tempfile\n{use}\n")
+            self.assertEqual(su.not_recorded_why(audit, sys.version), "", f"{name}: {self.report(audit)}")
+        with tempfile.TemporaryDirectory() as other:
+            outside = Path(other).resolve()
+            audit = self.run_logged(f"f = open({str(outside / 'new.txt')!r}, 'w+')\nf.write('x')\nf.seek(0)\nf.read()\nf.close()\n")
+            self.assertEqual(su.not_recorded_why(audit, sys.version), "", self.report(audit))  # a new file opened with w+
+
+    def test_a_file_that_existed_is_not_the_runs_own_with_any_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as other:
+            outside = Path(other).resolve()
+            existing = outside / "old.txt"
+            existing.write_text("x")
+            for name, use in {
+                "w+ then read": f"f = open({str(existing)!r}, 'w+')\nf.write('y')\nf.seek(0)\nf.read()",
+                "r+": f"open({str(existing)!r}, 'r+').read()",
+                "a+": f"open({str(existing)!r}, 'a+').read()",
+                "O_RDWR": f"os.close(os.open({str(existing)!r}, os.O_RDWR))",
+                "overwrite, then read (probe 2c)": f"open({str(existing)!r}, 'w').write('y')\nopen({str(existing)!r}).read()",
+                "listing a directory that existed, with one file created in it": f"open({str(outside / 'new.txt')!r}, 'w').write('x')\nos.listdir({str(outside)!r})",
+                "a temporary file renamed, then read (probe 2d)": f"open({str(outside / 'tmp.txt')!r}, 'w').write('x')\nos.replace({str(outside / 'tmp.txt')!r}, {str(outside / 'other.txt')!r})\nopen({str(outside / 'other.txt')!r}).read()",
+            }.items():
+                audit = self.run_logged(f"import os\n{use}\n")
+                self.assertNotEqual(su.outside_reads(audit), [], f"{name}: {self.report(audit)}")
+                self.assertIn("outside the repository", su.not_recorded_why(audit, sys.version), name)
 
     def test_a_compiled_module_read_from_the_tree_is_not_recorded(self) -> None:
         audit = su.parse_audit(f"{START}R tools/check.py\nR tools/__pycache__/check.cpython-313.pyc\n")

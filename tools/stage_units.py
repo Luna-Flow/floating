@@ -169,7 +169,7 @@ def parse_audit(text: str) -> Audit:
             launches.append(value)
         elif kind == "C":
             created.add(value)
-        elif kind == "X" and value not in created:
+        elif kind == "X" and not any(value == c or value.startswith(c + "/") for c in created):
             outside.add(value)
     return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(starts), tuple(launches), tuple(sorted(unsafe)), tuple(sorted(outside)))
 
