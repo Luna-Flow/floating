@@ -42,8 +42,20 @@ pub fn fma(
 
 ///|
 pub fn sqrt(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  if !ctx.extended_ {
+    return sqrt_subset(value, ctx)
+  }
   let (result, flags) = value.sqrt_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+/// `sqrt` in a subset context: the operand is rounded first with the algorithm of
+/// the context, not that of the mathematical context (GDA 1.70, page 56).
+fn sqrt_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.sqrt_ctx(ctx.mathematical_decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
 }
 
 ///|
@@ -122,20 +134,56 @@ pub fn round_to_integral_value(
 
 ///|
 pub fn exp(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  if !ctx.extended_ {
+    return exp_subset(value, ctx)
+  }
   let (result, flags) = value.exp_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
+/// `exp` in a subset context: the operand is rounded first with the algorithm of
+/// the context, not that of the mathematical context (GDA 1.70, page 56).
+fn exp_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.exp_ctx(ctx.mathematical_decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
 pub fn ln(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  if !ctx.extended_ {
+    return ln_subset(value, ctx)
+  }
   let (result, flags) = value.ln_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
+/// `ln` in a subset context: the operand is rounded first with the algorithm of
+/// the context, not that of the mathematical context (GDA 1.70, page 56).
+fn ln_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.ln_ctx(ctx.mathematical_decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
 pub fn log10(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  if !ctx.extended_ {
+    return log10_subset(value, ctx)
+  }
   let (result, flags) = value.log10_ctx(ctx.mathematical_decimal_context())
   complete_decimal_gda(result, ctx, flags)
+}
+
+///|
+/// `log10` in a subset context: the operand is rounded first with the algorithm of
+/// the context, not that of the mathematical context (GDA 1.70, page 56).
+fn log10_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.log10_ctx(ctx.mathematical_decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
 }
 
 ///|
