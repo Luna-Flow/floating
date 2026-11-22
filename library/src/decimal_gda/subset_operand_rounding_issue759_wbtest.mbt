@@ -83,6 +83,6 @@ let i759_rows : String =
 // shares: Decimal::from_string and Decimal::to_sci_string (the printing of a Decimal, `Show` is to_string), GdaFlags::lost_digits, the table runner i754_call and i754_mode of the issue 754 test file
 test "issue 759: operations round a long operand first in a subset context and are unchanged in an extended one" {
   let (calls, bad) = i759_run(i759_rows)
-  inspect(calls, content="35")
-  inspect(bad, content="[]")
+  assert_eq(bad, [])
+  assert_eq(calls, 35)
 }
