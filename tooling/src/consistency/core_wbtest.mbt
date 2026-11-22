@@ -5501,10 +5501,14 @@ test "decimal integer power keeps large exact powers exact when precision allows
 
 ///|
 // oracle: A
-// source: exp, ln, log10 and power rows written out with their decTest ids; exp(0.1) at 7 digits = 1.105171, ln 2 and
-//   log10 2 at 16 digits, 2^2.000001 at 16 digits = 4.000002772589683: re-run in CPython decimal (libmpdec) for this
-//   batch; the min and max rows by hand. The written texts of the expected values are read by Decimal::from_string and
-//   compared with total_order_compare.
+// source: exp, ln, log10 and power rows written out with their decTest ids; a script over the
+//   run_decimal_*_conformance_case calls of the file found the row of each id in the pinned corpus
+//   (testdata/decimal_gda/corpora.json, official) and the calls of this block agree with it in operands and result,
+//   except pow028: the test runs 2^32 at 10 digits, where the row powx028 (precision 9) has 4.29496730E+9, so its
+//   expected value 4294967296 is the exact power, 2^32 from CPython integers; the exp, ln and log10 rows were not
+//   compared by script; exp(0.1) at 7 digits = 1.105171, ln 2 and log10 2 at 16 digits, 2^2.000001 at 16 digits =
+//   4.000002772589683: re-run in CPython decimal (libmpdec) for this batch; the min and max rows by hand. The
+//   written texts of the expected values are read by Decimal::from_string and compared with total_order_compare.
 // shares: Decimal::from_string, total_order_compare
 test "decimal official dectest math subsets stay aligned after gda fixes" {
   let exp_ctx9 = @decimal.DecimalContext::new(
