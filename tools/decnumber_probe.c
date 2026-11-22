@@ -6,9 +6,14 @@
  *     max min maxmag minmag exp ln log10 sqrt tointegral nextplus nextminus nexttoward; y is ignored by a unary op; rounding is a decNumber
  *     name without the DEC_ROUND_ prefix (HALF_EVEN, DOWN, UP, CEILING, FLOOR, HALF_UP, HALF_DOWN, 05UP).
  * Writes: the result as decNumberToString, a vertical bar and 13 flag letters (see the end of main).
- * Build (the zip is fetched by the user, sha256 14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25):
- *   cc -O1 -DDECSUBSET=1 -DDECNUMDIGITS=100 -I<src>/decNumber tools/decnumber_probe.c \
- *      <src>/decNumber/decNumber.c <src>/decNumber/decContext.c -o <out>/decnumber_probe
+ * Pin: decNumber 3.68, https://speleotrove.com/decimal/decNumber-icu-368.zip, sha256
+ *   14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25 (ICU licence; the same pin as the header of
+ *   testdata/decimal_gda/deviations.tsv). The archive is fetched by the user, checked against that sha256, unpacked
+ *   into an empty directory outside the repository and never committed.
+ * Build against the unpacked sources (<src> is the directory that holds decNumber.c; DECSUBSET=1 compiles the
+ * subset arithmetic of GDA 1.70, which the rows with extended=0 need):
+ *   cc -O1 -DDECSUBSET=1 -DDECNUMDIGITS=100 -I<src> tools/decnumber_probe.c \
+ *      <src>/decNumber.c <src>/decContext.c -o <out>/decnumber_probe
  */
 #include <stdio.h>
 #include <stdlib.h>
