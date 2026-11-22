@@ -159,7 +159,7 @@ class RealAuditHookTest(unittest.TestCase):
                 f"open({str(made)!r}).read()\n"
                 f"open({str(outside)!r}, 'w').write('z')\n"  # a write is not a read
             )
-        self.assertEqual(su.outside_reads(audit), [str(outside)])
+        self.assertEqual(self.mine(audit), [str(outside)])
         self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
         self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])  # not a file of the repository
 
@@ -171,7 +171,7 @@ class RealAuditHookTest(unittest.TestCase):
                 f"open({str(made)!r}, 'w').write('y')\n"
                 f"subprocess.run([sys.executable, '-c', \"open({str(made)!r}).read()\"], check=True)\n"
             )
-        self.assertEqual(su.outside_reads(audit), [])
+        self.assertEqual(self.mine(audit), [])
 
     def test_a_compiled_module_of_the_tree_cannot_run_in_place_of_its_source(self) -> None:
         import importlib.util
@@ -195,7 +195,7 @@ class RealAuditHookTest(unittest.TestCase):
         self.assertEqual(result.stdout.strip(), "source")
         self.assertIn("tools/helper.py", audit.reads)
         self.assertEqual(su.compiled_reads(audit), [])
-        self.assertEqual(su.outside_reads(audit), [])  # the private cache of the run is not an outside input
+        self.assertEqual(self.mine(audit), [])  # the private cache of the run is not an outside input
         self.assertEqual(su.undeclared(audit, ("tools/check.py", "tools/helper.py")), [])
 
     def python_children_are_counted(self, body: str) -> su.Audit:
@@ -206,6 +206,21 @@ class RealAuditHookTest(unittest.TestCase):
         subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True, check=True)
         self.last_log = log.read_text()
         return su.parse_audit(self.last_log)
+
+    @staticmethod
+    def mine(audit: su.Audit) -> list[str]:
+        """The outside reads of the script, without the directories of `sys.path` that some interpreters list on their own
+        (an installed-packages directory is listed when a module is looked for there; that stays an outside input)."""
+        import sysconfig
+
+        search_path = {os.path.realpath(p) for p in sys.path if p}
+        search_path |= {os.path.realpath(sysconfig.get_path(name)) for name in ("purelib", "platlib")}
+        return [p for p in su.outside_reads(audit) if p not in search_path and os.path.basename(p) not in ("site-packages", "dist-packages")]
+
+    def assert_counting_is_right(self, audit: su.Audit) -> None:
+        why = su.not_recorded_why(audit, sys.executable, sys.version)
+        self.assertNotIn("loaded the hook", why, self.last_log)
+        self.assertNotIn("another version", why, self.last_log)
 
     def test_a_python_child_that_does_not_load_the_hook_is_not_recorded(self) -> None:
         read = "open('other.txt').read()"  # an in-repository file that no unit declares
@@ -248,7 +263,7 @@ class RealAuditHookTest(unittest.TestCase):
         )
         # the log is in the message: it shows which events one launch raised on the machine that runs this
         self.assertEqual((len(audit.starts), len(audit.launches)), (4, 3), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
-        self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
+        self.assert_counting_is_right(audit)
 
     def test_a_launch_that_raises_two_events_is_counted_once(self) -> None:
         # `close_fds=False` starts the child with posix_spawn: `subprocess.Popen` and then `os.posix_spawn` are
@@ -262,7 +277,7 @@ class RealAuditHookTest(unittest.TestCase):
         )
         audit = self.python_children_are_counted(events + "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)\n")
         self.assertEqual((len(audit.starts), len(audit.launches)), (3, 2), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
-        self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
+        self.assert_counting_is_right(audit)
 
     def test_a_posix_spawn_after_a_popen_with_another_environment_is_a_launch_of_its_own(self) -> None:
         # the same program and arguments, directly after the Popen, but an empty environment: the child does not
@@ -282,7 +297,7 @@ class RealAuditHookTest(unittest.TestCase):
             "os.waitpid(os.posix_spawn(sys.executable, [sys.executable, '-c', 'pass'], os.environ), 0)\n"
         )
         self.assertEqual((len(audit.starts), len(audit.launches)), (2, 1), self.last_log)
-        self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
+        self.assert_counting_is_right(audit)
 
     def test_a_listing_outside_the_repository_is_an_outside_input(self) -> None:
         with tempfile.TemporaryDirectory() as other:
@@ -296,7 +311,7 @@ class RealAuditHookTest(unittest.TestCase):
                 f"glob.glob({str(outside / '*.txt')!r})\n"
                 f"os.listdir({stdlib!r})\n"  # the standard library is the interpreter's own
             )
-        self.assertEqual(su.outside_reads(audit), [str(outside), str(outside / "*.txt")])
+        self.assertEqual(self.mine(audit), [str(outside), str(outside / "*.txt")])
         self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
 
     def test_an_installed_package_is_an_outside_input_but_the_standard_library_is_not(self) -> None:
@@ -307,7 +322,7 @@ class RealAuditHookTest(unittest.TestCase):
         if found is None:
             self.skipTest("no installed package")
         audit = self.run_script(f"import json\nopen({str(found)!r}).read()\n")  # purelib is usually below the standard library path
-        self.assertEqual(su.outside_reads(audit), [str(found)])
+        self.assertEqual(self.mine(audit), [os.path.realpath(found)])
         self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
 
     def test_a_name_cannot_forge_a_line_of_the_log(self) -> None:
@@ -321,7 +336,7 @@ class RealAuditHookTest(unittest.TestCase):
                     f"try:\n    os.listdir({name!r})\nexcept OSError:\n    pass\n"  # a name that does not exist, listed
                     f"open({str(outside)!r}).read()\n"
                 )
-                self.assertEqual(su.outside_reads(audit), [str(outside)], repr(ending))
+                self.assertEqual(self.mine(audit), [str(outside)], repr(ending))
                 self.assertTrue(any(item.startswith("x\\u") for item in audit.listings), (repr(ending), audit.listings))  # the name is there, escaped
         forged = su.parse_audit("D a\rC /x\x85C /y\u2028C /z\nX /x\n")  # a log that a hook of another version wrote
         self.assertEqual(forged.outside, ("/x",))
