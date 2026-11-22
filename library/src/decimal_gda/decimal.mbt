@@ -900,6 +900,37 @@ fn prepare_operand_for_context(
 }
 
 ///|
+/// A subset operand with a positive exponent becomes an integer when the coefficient
+/// then has no more than precision digits (GDA 1.70, page 55 and its footnote 45: the
+/// positive exponents of the operands are reduced to zero before the operation).
+fn reduce_positive_exponent_for_subset(
+  value : Decimal,
+  ctx : DecimalContext,
+) -> Decimal {
+  if ctx.extended ||
+    ctx.precision <= 0 ||
+    value.class != FpClass::Finite ||
+    value.exponent10 <= 0 ||
+    value.coefficient.is_zero() {
+    return value
+  }
+  let digits = value.coefficient.digits10().to_int64() +
+    value.exponent10.to_int64()
+  if digits > ctx.precision.to_int64() {
+    return value
+  }
+  finite_with_exponent_repr(
+    value.negative,
+    dec_coeff_shift_power10_repr(value.coefficient, value.exponent10),
+    0,
+    finite_precision_for_coeff(
+      dec_coeff_shift_power10_repr(value.coefficient, value.exponent10),
+      ctx,
+    ),
+  )
+}
+
+///|
 fn prepare_binary_operands_for_context(
   lhs : Decimal,
   rhs : Decimal,
