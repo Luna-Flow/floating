@@ -345,8 +345,10 @@ fn Decimal::sub_ctx(
   }
   if !ctx.extended &&
     other.class == FpClass::Finite &&
-    (ctx.decimal_rounding == DecimalRoundingMode::Floor ||
-    ctx.decimal_rounding == DecimalRoundingMode::Ceiling) &&
+    (
+      ctx.decimal_rounding == DecimalRoundingMode::Floor ||
+      ctx.decimal_rounding == DecimalRoundingMode::Ceiling
+    ) &&
     ctx.precision > 0 &&
     other.coefficient.digits10() > ctx.precision {
     // GDA 1.70, page 56: the operand is rounded with its own sign first and the
