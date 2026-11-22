@@ -14,11 +14,14 @@ fn sqrt_plain_expected(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (result, flags) = value.sqrt_ctx_impl(
+  // a subset context rounds the operand with the context first (page 56), the
+  // result with round-half-even (the mathematical context)
+  let (operand, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = operand.sqrt_ctx_impl(
     ctx.mathematical_decimal_context(),
     plain=false,
   )
-  complete_decimal_gda(result, ctx, flags)
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
 }
 
 ///|
@@ -39,7 +42,7 @@ fn sqrt_plain_check(value : Decimal, ctx : GdaContext) -> Bool raise {
   // the engine level: the operand as `sqrt_ctx` sees it (prepared for the
   // context), the plain path against the general route
   let math = ctx.mathematical_decimal_context()
-  let (operand, _) = prepare_operand_for_context(value, math)
+  let (operand, _) = gda_prepare_operand(value, ctx)
   match decimal_sqrt_plain(operand, math, math.precision) {
     Some((root, flags)) => {
       let (expected, expected_flags) = decimal_sqrt_general(
