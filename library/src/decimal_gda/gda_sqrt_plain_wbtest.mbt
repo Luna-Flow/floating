@@ -18,7 +18,7 @@ fn sqrt_plain_expected(
     ctx.mathematical_decimal_context(),
     plain=false,
   )
-  complete_decimal_gda(result, ctx, flags)
+  complete_decimal_gda_corpus(result, ctx, flags)
 }
 
 ///|

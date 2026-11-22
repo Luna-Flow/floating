@@ -4,7 +4,101 @@ fn complete_decimal_gda(
   context : GdaContext,
   flags : DecimalFlags,
 ) -> GdaOutcome[Decimal] {
+  if context.extended_ {
+    complete_gda(value, context, flags)
+  } else {
+    complete_gda_subset(value, context, flags, false)
+  }
+}
+
+///|
+/// The completion of `reduce`, `sqrt` and `round_to_integral_value`, which do not
+/// get the rules of page 55 in a subset context: the pinned subset corpus
+/// (`dectest0`, rows red060 to red144, sqtx2207 to sqtx2847, int067 to int090)
+/// expects a positive exponent from them, and the corpus is not changed
+/// (issue 754).
+fn complete_decimal_gda_corpus(
+  value : Decimal,
+  context : GdaContext,
+  flags : DecimalFlags,
+) -> GdaOutcome[Decimal] {
   complete_gda(value, context, flags)
+}
+
+///|
+fn complete_gda_subset(
+  value : Decimal,
+  context : GdaContext,
+  flags : DecimalFlags,
+  keep_exponent : Bool,
+) -> GdaOutcome[Decimal] {
+  let (value, flags) = gda_subset_result(value, flags, context, keep_exponent)
+  complete_gda(value, context, flags)
+}
+
+///|
+/// `complete_decimal_gda` for `quantize`, `rescale` and `to_number`: the result
+/// keeps the exponent of a zero and a positive exponent (GDA 1.70, page 55:
+/// "unless the operation is quantize"); a zero is still of sign 0.
+fn complete_decimal_gda_keep_exponent(
+  value : Decimal,
+  context : GdaContext,
+  flags : DecimalFlags,
+) -> GdaOutcome[Decimal] {
+  if context.extended_ {
+    complete_gda(value, context, flags)
+  } else {
+    complete_gda_subset(value, context, flags, true)
+  }
+}
+
+///|
+/// The last step of every operation in a subset context (`extended=false`), the
+/// three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset):
+/// a subnormal result is not permitted and becomes the zero of the subset with
+/// the conditions of an underflow (as `multiply` has always given), a zero has
+/// sign 0 and exponent 0, and a positive exponent is reduced to 0 when the
+/// coefficient then has at most precision digits. With `keep_exponent` (quantize)
+/// the last two stop at the sign of a zero. The functions that apply the rules
+/// in the operation itself (`add`, `divide`) meet the rules again here and
+/// leave their result as it is.
+fn gda_subset_result(
+  value : Decimal,
+  flags : DecimalFlags,
+  context : GdaContext,
+  keep_exponent : Bool,
+) -> (Decimal, DecimalFlags) {
+  guard value.class == FpClass::Finite else { return (value, flags) }
+  if !value.coefficient.is_zero() &&
+    adjusted_exponent64(value) < context.e_min_.to_int64() {
+    let zero = Decimal::zero_raw(precision=value.precision_)
+    let underflow = {
+      ..flags,
+      underflow: true,
+      subnormal: true,
+      inexact: true,
+      rounded: true,
+      clamped: false,
+    }
+    return (zero, underflow)
+  }
+  if keep_exponent {
+    if value.coefficient.is_zero() && value.negative {
+      (
+        finite_with_exponent_repr(
+          false,
+          value.coefficient,
+          value.exponent10,
+          value.precision_,
+        ),
+        flags,
+      )
+    } else {
+      (value, flags)
+    }
+  } else {
+    (finish_subset_finite_result(value, context.decimal_, false), flags)
+  }
 }
 
 ///|
@@ -141,7 +235,7 @@ pub fn to_number(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
     None => ()
   }
   let (value, flags) = Decimal::from_string_ctx(source, ctx.decimal_context())
-  complete_decimal_gda(value, ctx, flags)
+  complete_decimal_gda_keep_exponent(value, ctx, flags)
 }
 
 ///|
