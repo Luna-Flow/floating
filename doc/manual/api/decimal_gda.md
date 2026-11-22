@@ -1002,7 +1002,10 @@ first and second operand:
 
 An exact zero sum is $-0$ when both operands are negative, $+0$ when both are
 positive, and otherwise $+0$, or $-0$ under `Floor`. For `subtract` the
-operands are the first operand and the negated second. So `add(0, -0)` is `0`
+operands are the first operand and the negated second; in a subset context a
+second operand longer than $p$ digits is first rounded with its own sign and
+then negated ([#761](https://github.com/Luna-Flow/floating/issues/761)), so
+`subtract(0, 12)` at precision 1 under `Floor` is `-1E+1`. So `add(0, -0)` is `0`
 under `HalfEven` and `-0` under `Floor`, while `add(0, 0)` is `0` under every
 rounding algorithm.
 
