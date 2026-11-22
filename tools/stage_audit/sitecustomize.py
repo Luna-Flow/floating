@@ -1,21 +1,28 @@
 """Audit hook for the Python stages that run as incremental units (`tools/stage_units.py`).
 
 Python imports this module at start-up of every interpreter whose `PYTHONPATH` starts with this
-directory, so the stage's own process and every Python process it starts are observed. With
+directory, so the stage's own process and every Python process it starts with that environment are
+observed; a Python process that does not load it is detected by counting (`B` and `L` below). With
 `STAGE_AUDIT_LOG` and `STAGE_AUDIT_ROOT` set it appends one line per event to the log:
 
-    B <version> the hook was loaded by an interpreter of this `sys.version` (the start line: a log
-                without one says that no hook ran, as with `python -I` or `-S`)
+    B <pid> <version>
+                the hook was loaded by the interpreter process <pid> of this `sys.version` (the start
+                line: one per hooked process; a Python process that does not load the hook, as with
+                `-I`, `-E` or `-S`, an empty environment or a missing `PYTHONPATH`, writes none)
+    L <program> a Python interpreter was launched (subprocess, os.exec*, os.spawn*, posix_spawn): the
+                log must hold one start line for the stage's own process and one per launch
     R <path>    a file below the root was opened for reading (or reading and writing)
     D <path>    a directory below the root was listed or scanned
     S <program> a program was started (subprocess, os.system, os.exec*, os.spawn*, posix_spawn)
-    X <path>    a file outside the root (absolute path) was opened for reading, except the files of
-                the interpreter itself (its standard library and site-packages) and the files below
-                `STAGE_AUDIT_EXEMPT` (the private compiled-module cache of the run)
+    X <path>    a file outside the root (absolute path) was opened for reading, or a directory outside
+                the root was listed or scanned, except the standard library of the interpreter (not
+                its site-packages: an installed package is an input that no key covers) and the files
+                below `STAGE_AUDIT_EXEMPT` (the private compiled-module cache of the run)
     C <path>    a file outside the root was created by the run (a later `X` of the same path, read
                 by any process of the run, is not an outside input)
 
-Paths below the root are relative to it, with `/`. Nothing else is recorded and nothing is changed:
+Paths below the root are relative to it, with `/`. A name is written with every character that ends
+a line for `str.splitlines` escaped as `\\uXXXX`, so that no name can forge a line. Nothing else is recorded and nothing is changed:
 the hook only appends text, so the stage behaves as without it.
 """
 
@@ -33,19 +40,24 @@ if _LOG and _ROOT:
     def _real(path: str) -> str:
         return os.path.realpath(path)
 
-    _OWN = tuple(
-        sorted(
-            {
-                _real(p)
-                for p in (sysconfig.get_path(name) for name in ("stdlib", "platstdlib", "purelib", "platlib"))
-                if p
-            }
-        )
-    )
+    def _paths(*names: str) -> tuple[str, ...]:
+        return tuple(sorted({_real(p) for p in (sysconfig.get_path(name) for name in names) if p}))
+
+    _STDLIB = _paths("stdlib", "platstdlib")
+    _SITE = _paths("purelib", "platlib")  # usually below the standard library path
     _EXEMPT = tuple(_real(p) for p in os.environ.get("STAGE_AUDIT_EXEMPT", "").split(os.pathsep) if p)
 
     def _under(absolute: str, bases: tuple[str, ...]) -> bool:
         return any(absolute == base or absolute.startswith(base + os.sep) for base in bases)
+
+    def _own(absolute: str) -> bool:
+        """The standard library, but not an installed package below it."""
+        return _under(absolute, _STDLIB) and not _under(absolute, _SITE)
+
+    _ENDS_A_LINE = {chr(c) for c in (0x0A, 0x0B, 0x0C, 0x0D, 0x1C, 0x1D, 0x1E, 0x85, 0x2028, 0x2029)}
+
+    def _clean(text: str) -> str:
+        return "".join(f"\\u{ord(c):04x}" if c in _ENDS_A_LINE else c for c in text)
 
     def _resolve(path: object) -> str | None:
         try:
@@ -59,8 +71,14 @@ if _LOG and _ROOT:
         return None
 
     def _write(line: str) -> None:
-        with open(_LOG, "a", encoding="utf-8") as stream:
-            stream.write(line.replace("\n", " ") + "\n")
+        with open(_LOG, "a", encoding="utf-8", errors="backslashreplace") as stream:
+            stream.write(_clean(line) + "\n")
+
+    def _launched(program: object, may_be_python: bool = True) -> None:
+        name = os.fsdecode(program)
+        _write(f"S {name}")
+        if may_be_python and os.path.basename(name).startswith("python"):
+            _write(f"L {name}")
 
     def _hook(event: str, args: tuple) -> None:  # type: ignore[type-arg]
         try:
@@ -75,7 +93,7 @@ if _LOG and _ROOT:
                 if relative is not None:
                     if flags & 3 != 1:  # not write-only
                         _write(f"R {relative}")
-                elif _under(absolute, _OWN) or _under(absolute, _EXEMPT):
+                elif _own(absolute) or _under(absolute, _EXEMPT):
                     return
                 elif flags & 3 != 1:
                     _write(f"X {absolute}")
@@ -88,15 +106,16 @@ if _LOG and _ROOT:
                     relative = _relative(absolute) if absolute is not None else None
                     if relative is not None:
                         _write(f"D {relative}")
+                    elif absolute is not None and not _own(absolute) and not _under(absolute, _EXEMPT):
+                        _write(f"X {absolute}")
             elif event == "subprocess.Popen":
-                program = args[0] if args[0] else (args[1][0] if args[1] else "")
-                _write(f"S {os.fsdecode(program)}")
+                _launched(args[0] if args[0] else (args[1][0] if args[1] else ""))
             elif event in ("os.system", "os.exec", "os.posix_spawn"):
-                _write(f"S {os.fsdecode(args[0])}")
+                _launched(args[0], event != "os.system")
             elif event == "os.spawn":
-                _write(f"S {os.fsdecode(args[1])}")
+                _launched(args[1])
         except Exception:  # an audit hook must never break the stage
             pass
 
-    _write(f"B {sys.version}")
+    _write(f"B {os.getpid()} {sys.version}")
     sys.addaudithook(_hook)
