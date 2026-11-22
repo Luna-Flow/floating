@@ -34,6 +34,7 @@ _ROOT = os.environ.get("STAGE_AUDIT_ROOT")
 
 if _LOG and _ROOT:
     import sysconfig
+    import threading
 
     _ROOT = os.path.realpath(_ROOT)
 
@@ -74,6 +75,18 @@ if _LOG and _ROOT:
         with open(_LOG, "a", encoding="utf-8", errors="backslashreplace") as stream:
             stream.write(_clean(line) + "\n")
 
+    # One launch can raise two events: `subprocess.Popen` and then, when the interpreter starts the child with
+    # `posix_spawn` (always on recent Linux builds, with `close_fds=False` elsewhere), `os.posix_spawn` with the
+    # same program, arguments and environment, directly after it. That second event is the same launch.
+    # Anything else in between, or a different program, argument list or environment, makes it a launch of its own.
+    _pending: list = [None]
+
+    def _launch_key(program: object, argv: object, env: object) -> tuple:  # type: ignore[type-arg]
+        try:
+            return (threading.get_ident(), os.fsdecode(program), tuple(os.fsdecode(a) for a in argv), repr(env))  # type: ignore[attr-defined,union-attr]
+        except Exception:
+            return (None,)
+
     def _launched(program: object, may_be_python: bool = True) -> None:
         name = os.fsdecode(program)
         _write(f"S {name}")
@@ -81,7 +94,10 @@ if _LOG and _ROOT:
             _write(f"L {name}")
 
     def _hook(event: str, args: tuple) -> None:  # type: ignore[type-arg]
+        pending, _pending[0] = _pending[0], None
         try:
+            if event == "os.posix_spawn" and pending is not None and pending == _launch_key(args[0], args[1], args[2]):
+                return  # the second event of a launch that `subprocess.Popen` already wrote
             if event == "open":
                 flags = args[2] if len(args) > 2 and isinstance(args[2], int) else 0
                 if not isinstance(args[0], (str, bytes, os.PathLike)):
@@ -109,7 +125,9 @@ if _LOG and _ROOT:
                     elif absolute is not None and not _own(absolute) and not _under(absolute, _EXEMPT):
                         _write(f"X {absolute}")
             elif event == "subprocess.Popen":
-                _launched(args[0] if args[0] else (args[1][0] if args[1] else ""))
+                program = args[0] if args[0] else (args[1][0] if args[1] else "")
+                _launched(program)
+                _pending[0] = _launch_key(program, args[1], args[3])
             elif event in ("os.system", "os.exec", "os.posix_spawn"):
                 _launched(args[0], event != "os.system")
             elif event == "os.spawn":
