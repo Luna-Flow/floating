@@ -1,8 +1,9 @@
 ///|
 pub fn apply(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return apply_subset(value, ctx)
+  }
   let (result, flags) = value.apply_ctx(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -100,9 +101,10 @@ pub fn round_to_integral_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return round_to_integral_exact_subset(value, ctx)
+  }
   let (result, flags) = value.to_integral_exact(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -111,9 +113,10 @@ pub fn round_to_integral_value(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return round_to_integral_value_subset(value, ctx)
+  }
   let (result, flags) = value.to_integral_value(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -147,25 +150,28 @@ pub fn power(
 
 ///|
 pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return reduce_subset(value, ctx)
+  }
   let (result, flags) = value.reduce_ctx(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return next_plus_subset(value, ctx)
+  }
   let (result, flags) = value.next_plus(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
-  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  if !ctx.extended_ {
+    return next_minus_subset(value, ctx)
+  }
   let (result, flags) = value.next_minus(ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -175,9 +181,10 @@ pub fn next_toward(
   target : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, target, operand_flags) = gda_prepare_operands(value, target, ctx)
+  if !ctx.extended_ {
+    return next_toward_subset(value, target, ctx)
+  }
   let (result, flags) = value.next_toward(target, ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -187,9 +194,10 @@ pub fn scaleb(
   scale : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, scale, operand_flags) = gda_prepare_operands(value, scale, ctx)
+  if !ctx.extended_ {
+    return scaleb_subset(value, scale, ctx)
+  }
   let (result, flags) = value.scaleb_ctx(scale, ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -199,9 +207,10 @@ pub fn shift(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
+  if !ctx.extended_ {
+    return shift_subset(value, count, ctx)
+  }
   let (result, flags) = value.shift_ctx(count, ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -211,9 +220,10 @@ pub fn rotate(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
-  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
+  if !ctx.extended_ {
+    return rotate_subset(value, count, ctx)
+  }
   let (result, flags) = value.rotate_ctx(count, ctx.decimal_context())
-  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -412,4 +422,106 @@ pub fn compare_total_magnitude(
     ctx.decimal_context(),
   )
   complete_gda(result, ctx, flags)
+}
+
+///|
+/// `apply` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn apply_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.apply_ctx(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `reduce` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn reduce_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.reduce_ctx(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `round_to_integral_exact` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn round_to_integral_exact_subset(
+  value : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.to_integral_exact(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `round_to_integral_value` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn round_to_integral_value_subset(
+  value : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.to_integral_value(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `next_plus` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn next_plus_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.next_plus(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `next_minus` in a subset context: the operand is rounded first (GDA 1.70, page 56).
+fn next_minus_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
+  let (result, flags) = value.next_minus(ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `next_toward` in a subset context: the operands are rounded first (GDA 1.70, page 56).
+fn next_toward_subset(
+  value : Decimal,
+  target : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, target, operand_flags) = gda_prepare_operands(value, target, ctx)
+  let (result, flags) = value.next_toward(target, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `scaleb` in a subset context: the operands are rounded first (GDA 1.70, page 56).
+fn scaleb_subset(
+  value : Decimal,
+  scale : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, scale, operand_flags) = gda_prepare_operands(value, scale, ctx)
+  let (result, flags) = value.scaleb_ctx(scale, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `shift` in a subset context: the operands are rounded first (GDA 1.70, page 56).
+fn shift_subset(
+  value : Decimal,
+  count : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
+  let (result, flags) = value.shift_ctx(count, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+}
+
+///|
+/// `rotate` in a subset context: the operands are rounded first (GDA 1.70, page 56).
+fn rotate_subset(
+  value : Decimal,
+  count : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Decimal] {
+  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
+  let (result, flags) = value.rotate_ctx(count, ctx.decimal_context())
+  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
 }
