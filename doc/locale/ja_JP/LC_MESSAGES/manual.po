@@ -4660,7 +4660,7 @@ msgstr "値の精度がこの関係に含まれるのは、[通常の演算子](
 #: manual/api/decimal_gda.md:1465
 #: manual/api/decimal_gda.md:1560
 #: manual/api/frontend/testfloat_expr.md:58
-#: manual/conformance/decimal_gda.md:101
+#: manual/conformance/decimal_gda.md:102
 msgid "Operands"
 msgstr "オペランド"
 
@@ -10978,7 +10978,7 @@ msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is e
 msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行します。必要な local artifact が repository にないため LLVM は除外します。target-specific coefficient dispatch は value、encoding、flags を変更してはなりません。"
 
 #: manual/conformance/decimal.md:82
-#: manual/conformance/decimal_gda.md:114
+#: manual/conformance/decimal_gda.md:115
 #: manual/design/bench.md:243
 #: manual/design/bench/binary.md:68
 #: manual/design/bench/decimal.md:67
@@ -11030,7 +11030,7 @@ msgid "The matrix passes on the current branch, which has no [known deviations](
 msgstr "マトリクスは現在のブランチで合格し、そのブランチにはもはや[既知の逸脱](../design/decimal.md#known-deviations)はありません。ゲートの合格はカバーされた行についてのみのエビデンスです。"
 
 #: manual/conformance/decimal.md:95
-#: manual/conformance/decimal_gda.md:182
+#: manual/conformance/decimal_gda.md:183
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -11211,8 +11211,8 @@ msgid "`reduce`, `round_to_integral_value` and `sqrt` obey the rules too (`reduc
 msgstr "`reduce`、`round_to_integral_value`、`sqrt` も規則に従い（`reduce(1200)` は `1200`、`round_to_integral_value(1.2E+3)` は `1200`、`sqrt(1E+2)` は `10`）、`round_to_integral_exact` も同様です。固定されたサブセットコーパス（`dectest0`）の 64 行はこれらに decNumber の結果を期待しており、逸脱として記録されています（[コーパスの逸脱](#deviations-of-the-corpus)）。コーパスにはサブセットコンテキストの `scaleb`、`shift`、`rotate`、`next_toward`、`round_to_integral_exact` の行がなく、これらの結果は 55 ページの文面のみに基づきます。"
 
 #: manual/conformance/decimal_gda.md:50
-msgid "Every operation that takes a context also rounds an operand longer than the precision first and raises `LostDigits` when non-zero digits go (GDA 1.70, page 56 (Appendix A, The X3.274 subset), \"Operation differences\", first item; [#759](https://github.com/Luna-Flow/floating/issues/759)). `apply`, `reduce`, the two round-to-integral operations, `next_plus`, `next_minus`, `next_toward`, `scaleb`, `shift` and `rotate` did not before: `next_toward(1234567891, 0)` at precision 9 was `1.23456789E+9` and is `1.23456788E+9`, with `LostDigits`, as in decNumber 3.68; `shift(1234567891, 0)` was `1234567891` and is `1.23456789E+9`. Where a second operand exists it is rounded too, as it is for `add`. The logical operations, `compare_total`, `compare_total_magnitude`, `logb` and the classifications are not arithmetic on the value and keep their operands."
-msgstr "コンテキストを取るすべての演算は、精度より長いオペランドを先に丸め、非ゼロの桁が失われるときは `LostDigits` を発生させます（GDA 1.70、56 ページ（Appendix A, The X3.274 subset）、「Operation differences」、最初の項目。[#759](https://github.com/Luna-Flow/floating/issues/759)）。`apply`、`reduce`、整数への丸め 2 演算、`next_plus`、`next_minus`、`next_toward`、`scaleb`、`shift`、`rotate` は以前はそうしていませんでした。精度 9 の `next_toward(1234567891, 0)` は以前は `1.23456789E+9` で、現在は `LostDigits` を伴う `1.23456788E+9` であり、decNumber 3.68 と同じです。`shift(1234567891, 0)` は以前は `1234567891` で、現在は `1.23456789E+9` です。第 2 オペランドがある場合は、それも `add` と同様に丸めます。論理演算、`compare_total`、`compare_total_magnitude`、`logb`、分類は値に対する算術ではないので、オペランドをそのまま使います。"
+msgid "Every operation that takes a context also rounds an operand longer than the precision first and raises `LostDigits` when non-zero digits go (GDA 1.70, page 56 (Appendix A, The X3.274 subset), \"Operation differences\", first item; [#759](https://github.com/Luna-Flow/floating/issues/759)). `apply`, `reduce`, the two round-to-integral operations, `next_plus`, `next_minus`, `next_toward`, `scaleb`, `shift` and `rotate` did not before: `next_toward(1234567891, 0)` at precision 9 was `1.23456789E+9` and is `1.23456788E+9`, with `LostDigits`, as in decNumber 3.68; `shift(1234567891, 0)` was `1234567891` and is `1.23456789E+9`. decNumber 3.68 does not round the operand of `shift` and `rotate`, and for `next_toward` it gives other results when the operand or the target is longer than the precision (40 rows of the sampled matrix of the decNumber comparison, recorded in the tests; the library follows the text). Where a second operand exists it is rounded too, as it is for `add`. The logical operations, `compare_total`, `compare_total_magnitude`, `logb` and the classifications are not arithmetic on the value and keep their operands."
+msgstr "コンテキストを取るすべての演算は、精度より長いオペランドを先に丸め、非ゼロの桁が失われるときは `LostDigits` を発生させます（GDA 1.70、56 ページ（Appendix A, The X3.274 subset）、「Operation differences」、最初の項目。[#759](https://github.com/Luna-Flow/floating/issues/759)）。`apply`、`reduce`、整数への丸め 2 演算、`next_plus`、`next_minus`、`next_toward`、`scaleb`、`shift`、`rotate` は以前はそうしていませんでした。精度 9 の `next_toward(1234567891, 0)` は以前は `1.23456789E+9` で、現在は `LostDigits` を伴う `1.23456788E+9` であり、decNumber 3.68 と同じです。`shift(1234567891, 0)` は以前は `1234567891` で、現在は `1.23456789E+9` です。decNumber 3.68 は `shift` と `rotate` のオペランドを丸めず、`next_toward` ではオペランドまたはターゲットが精度より長いと別の結果を返します（decNumber 比較のサンプル行列のうち 40 行で、テストに記録しています。ライブラリはテキストに従います）。第 2 オペランドがある場合は、それも `add` と同様に丸めます。論理演算、`compare_total`、`compare_total_magnitude`、`logb`、分類は値に対する算術ではないので、オペランドをそのまま使います。"
 
 #: manual/conformance/decimal_gda.md:52
 msgid "What Appendix A defines differently is not changed: the rounding of the operands first, the trailing zeros that `divide` and `power` remove, and the power rules of pages 56 and 57."
@@ -11254,203 +11254,215 @@ msgstr "正の指数、ゼロ、非正規化数"
 msgid "zero"
 msgstr "ゼロ"
 
-#: manual/conformance/decimal_gda.md:67
+#: manual/conformance/decimal_gda.md:66
+msgid "operand longer than the precision (page 56)"
+msgstr "精度より長いオペランド（56 ページ）"
+
+#: manual/conformance/decimal_gda.md:66
+msgid "`rotate(123456789123, 0)` at precision 9, round-ceiling"
+msgstr "精度 9、切り上げ（round-ceiling）の `rotate(123456789123, 0)`"
+
+#: manual/conformance/decimal_gda.md:66
+msgid "`1.23456790E+11` with `LostDigits`"
+msgstr "`1.23456790E+11`、`LostDigits` を伴う"
+
+#: manual/conformance/decimal_gda.md:68
 msgid "Three consequences follow from the rules and are kept: `reduce(1200)` is `1200`, so `reduce` no longer shortens an integer, and `scaleb(12, 2)` is `1200`, where it left a positive exponent before; a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: the contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)."
 msgstr "これらの規則から 3 つの結果が生じ、そのまま残します。`reduce(1200)` は `1200` で、`reduce` はもう整数を短くしません。`scaleb(12, 2)` は `1200` で、以前は正の指数を残していました。符号が 1 のゼロはサブセットコンテキストの結果としては現れなくなるので、`power(-0, 3)` は `+0` です。サブセットコンテキストには、これらの規則によらない decNumber 3.68 との差異が他にも残ります。精度 1 のコンテキスト、decNumber が `+0` として読むゼロのオペランドの符号です。この比較はライブラリの動作を記録するもので、ゼロと正の指数が何になるかは API ページの[サブセット算術](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)に挙げています。"
 
-#: manual/conformance/decimal_gda.md:69
+#: manual/conformance/decimal_gda.md:70
 msgid "decTest rows behind statements of the API page"
 msgstr "API ページの記述の裏づけとなる decTest の行"
 
-#: manual/conformance/decimal_gda.md:71
+#: manual/conformance/decimal_gda.md:72
 msgid "The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them."
 msgstr "[API ページ](../api/decimal_gda.md)は、これらの規則を、それを検査するコーパスの行を挙げずに述べています。"
 
-#: manual/conformance/decimal_gda.md:73
+#: manual/conformance/decimal_gda.md:74
 msgid "Statement of the API page"
 msgstr "API ページの記述"
 
-#: manual/conformance/decimal_gda.md:73
+#: manual/conformance/decimal_gda.md:74
 msgid "decTest rows"
 msgstr "decTest の行"
 
-#: manual/conformance/decimal_gda.md:75
+#: manual/conformance/decimal_gda.md:76
 msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context within the [implementation limit](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999"
 msgstr "`exp`、`ln`、`log10`、および非整数の指数を持つ `power` は、[処理系限界](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999 以内のコンテキストのみを受け付けます"
 
-#: manual/conformance/decimal_gda.md:75
+#: manual/conformance/decimal_gda.md:76
 msgid "`power.decTest` rows powx4001 to powx4005; rows expx901 to expx906, lnx901 to lnx906 and logx901 to logx906 of `exp.decTest`, `ln.decTest` and `log10.decTest`, in a section that decTest labels decNumber's restricted range for the mathematical functions"
 msgstr "`power.decTest` の行 powx4001 から powx4005、および `exp.decTest`、`ln.decTest`、`log10.decTest` の行 expx901 から expx906、lnx901 から lnx906、logx901 から logx906。decTest が、数学関数に対する decNumber の制限範囲と呼ぶ節にあります"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:77
 msgid "`exp(-Infinity)` under a context beyond that limit is `Invalid_context`"
 msgstr "その限界を超えるコンテキストでの `exp(-Infinity)` は `Invalid_context` です"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:77
 msgid "row `expx901`"
 msgstr "行 `expx901`"
 
-#: manual/conformance/decimal_gda.md:77
+#: manual/conformance/decimal_gda.md:78
 msgid "`pow_int_checked` returns `Err(unsupported)` for a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
 msgstr "指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで、999,999,999 を超える正の指数を与えると、`pow_int_checked` は `Err(unsupported)` を返します"
 
-#: manual/conformance/decimal_gda.md:77
+#: manual/conformance/decimal_gda.md:78
 msgid "rows `powx1183` and `powx1184`"
 msgstr "行 `powx1183` と `powx1184`"
 
-#: manual/conformance/decimal_gda.md:78
+#: manual/conformance/decimal_gda.md:79
 msgid "the official decTest files use the parameters `clamp` and `extended`"
 msgstr "公式の decTest ファイルはパラメータ `clamp` と `extended` を使います"
 
-#: manual/conformance/decimal_gda.md:78
+#: manual/conformance/decimal_gda.md:79
 msgid "`clamp:` in 30,649 rows; `extended: 0` in all 16,162 rows of `dectest0`"
 msgstr "`clamp:` は 30,649 行、`extended: 0` は `dectest0` の全 16,162 行"
 
-#: manual/conformance/decimal_gda.md:79
+#: manual/conformance/decimal_gda.md:80
 msgid "a NaN payload wider than the interchange format keeps its low digits, and no flag is raised"
 msgstr "交換形式より幅の広い NaN のペイロードは下位の桁が保たれ、フラグは発生しません"
 
-#: manual/conformance/decimal_gda.md:79
+#: manual/conformance/decimal_gda.md:80
 msgid "the decTest interchange rows have no payload wider than their format"
 msgstr "decTest の交換形式の行には、その形式より幅の広いペイロードを持つものはありません"
 
-#: manual/conformance/decimal_gda.md:81
+#: manual/conformance/decimal_gda.md:82
 msgid "Legacy corpus"
 msgstr "レガシーコーパス"
 
-#: manual/conformance/decimal_gda.md:83
+#: manual/conformance/decimal_gda.md:84
 msgid "The pinned `official0` corpus passes 16,124/16,124 legal executable rows with zero failures. It is retained for historical compatibility checks, not as the definition of the current surface."
 msgstr "固定 `official0` corpus の legal executable row 16,124/16,124 が通過します。historical compatibility check 用であり、現在の surface の定義ではありません。"
 
-#: manual/conformance/decimal_gda.md:85
+#: manual/conformance/decimal_gda.md:86
 msgid "State semantics"
 msgstr "状態の意味論"
 
-#: manual/conformance/decimal_gda.md:87
+#: manual/conformance/decimal_gda.md:88
 msgid "Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with accumulated sticky status. Enabling a trap changes the outcome variant but does not erase the defined result."
 msgstr "各 operation は GDA-defined result、今回 raised された flags、sticky status を蓄積した next context を持つ `GdaOutcome` を返します。trap を有効にすると outcome variant は変わりますが、defined result は失われません。"
 
-#: manual/conformance/decimal_gda.md:89
+#: manual/conformance/decimal_gda.md:90
 msgid "The arithmetic `ParseChecked` adapter applies its mapped engine context to GDA parsing but returns only a value or syntax error. Use the `decimal_gda::to_number` API with `GdaContext` when sticky status and traps must remain observable."
 msgstr "ParseChecked アダプターは、対応付けたエンジンのコンテキストを GDA の解析に適用しますが、値または構文エラーだけを返します。累積状態やトラップを観測する必要があるときは、`GdaContext` を受け取る `decimal_gda::to_number` API を使います。"
 
-#: manual/conformance/decimal_gda.md:93
+#: manual/conformance/decimal_gda.md:94
 msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
 msgstr "ホワイトボックステストは、有限および無限の除数について、クランプされた拡張コンテキストでのゼロの `divide_integer` 結果を対象とし、折りたたまれた指数と `Clamped` 条件を検査します。"
 
-#: manual/conformance/decimal_gda.md:97
+#: manual/conformance/decimal_gda.md:98
 msgid "White-box tests of the fast paths"
 msgstr "高速経路のホワイトボックステスト"
 
-#: manual/conformance/decimal_gda.md:99
+#: manual/conformance/decimal_gda.md:100
 msgid "Each of the three plain-operation fast paths of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`."
 msgstr "[設計ページ](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent)の単純な演算の 3 つの高速経路はそれぞれ、`library/src/decimal_gda/` のホワイトボックステストで一般経路と比較されます。"
 
-#: manual/conformance/decimal_gda.md:101
+#: manual/conformance/decimal_gda.md:102
 msgid "Fast path"
 msgstr "高速経路"
 
-#: manual/conformance/decimal_gda.md:101
+#: manual/conformance/decimal_gda.md:102
 msgid "Parameters"
 msgstr "パラメータ"
 
-#: manual/conformance/decimal_gda.md:103
+#: manual/conformance/decimal_gda.md:104
 msgid "plain sums (`add`, `subtract`)"
 msgstr "単純な和（`add`、`subtract`）"
 
-#: manual/conformance/decimal_gda.md:103
+#: manual/conformance/decimal_gda.md:104
 msgid "random, 1 to 120 digits, mixed signs, cancellations and exponent gaps"
 msgstr "ランダム、1 から 120 桁、符号の混在、相殺、指数の間隔"
 
-#: manual/conformance/decimal_gda.md:103
+#: manual/conformance/decimal_gda.md:104
 msgid "nine precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
 msgstr "9 種類の精度、8 つの丸めアルゴリズムすべて、狭い・広い指数範囲、クランプ、トラップされたシグナル"
 
-#: manual/conformance/decimal_gda.md:104
+#: manual/conformance/decimal_gda.md:105
 msgid "plain products and quotients (`multiply`, `divide`)"
 msgstr "単純な積と商（`multiply`、`divide`）"
 
-#: manual/conformance/decimal_gda.md:104
+#: manual/conformance/decimal_gda.md:105
 msgid "random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$"
 msgstr "ランダム、1 から 120 桁。厳密な商（積をその因数の 1 つで割る場合、除数 $2^a 5^b$）、循環展開になる短い除数、$10^p$ への繰り上がり"
 
-#: manual/conformance/decimal_gda.md:104
+#: manual/conformance/decimal_gda.md:105
 msgid "chained contexts, all eight rounding algorithms"
 msgstr "連鎖したコンテキスト、8 つの丸めアルゴリズムすべて"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:106
 msgid "plain square roots (`sqrt`)"
 msgstr "単純な平方根（`sqrt`）"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:106
 msgid "random, 1 to 130 digits; squares; near squares ($s^2 \\pm 1$, $s^2 \\pm s$); the comparison is at the public level: value, every condition and the flags of the context"
 msgstr "ランダム、1 から 130 桁。平方数。平方に近い数（$s^2 \\pm 1$、$s^2 \\pm s$）。比較は公開レベルで行い、値、すべての条件、およびコンテキストのフラグを対象とします"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:106
 msgid "all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
 msgstr "8 つの丸めアルゴリズムすべて、狭い・広い指数範囲、クランプ、トラップされたシグナル"
 
-#: manual/conformance/decimal_gda.md:107
+#: manual/conformance/decimal_gda.md:108
 msgid "Runner model"
 msgstr "ランナーモデル"
 
-#: manual/conformance/decimal_gda.md:109
+#: manual/conformance/decimal_gda.md:110
 msgid "Documents are parsed once, directive state is snapshotted per case, and deterministic shards execute disjoint case positions through the public `GdaContext`/`GdaOutcome` operation surface. Executable, diagnostic, unsupported, legacy, passed, and failed counts remain separate."
 msgstr "document は一度だけ parse し、directive state を case ごとに snapshot し、 deterministic shard が public `GdaContext`/`GdaOutcome` operation surface を通じて disjoint case position を実行します。executable、diagnostic、unsupported、legacy、 passed、failed count は分離します。"
 
-#: manual/conformance/decimal_gda.md:116
+#: manual/conformance/decimal_gda.md:117
 msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it."
 msgstr "宣言は固定 corpus の legal scalar row だけを対象にします。placeholder/non-scalar invalid row、future directive、固定されていない revision、無限の decimal string 空間は対象外です。"
 
-#: manual/conformance/decimal_gda.md:118
+#: manual/conformance/decimal_gda.md:119
 msgid "Deviations of the corpus"
 msgstr "コーパスの逸脱"
 
-#: manual/conformance/decimal_gda.md:120
+#: manual/conformance/decimal_gda.md:121
 msgid "The pinned corpora are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are two kinds of row. The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
 msgstr "固定されたコーパスは decNumber のテストスイートです。結果のトークンがこのライブラリの返す値と異なる行は `testdata/decimal_gda/deviations.tsv` に記録され、2 種類あります。第 1 の種類は数学関数の許容誤差に基づきます。decNumber の関数は仕様が与える許容誤差を使います。仕様は `exp`、`ln`、`log10` について、不正確な結果は「round-half-even アルゴリズムで丸められる」こと、また「正しく丸められるべきだが、最大 1 ulp ... の誤差があってもよい」ことを定めています（GDA 1.70、29 ページと 30 ページ）。ライブラリは両方の算術で正しく丸めた値を返します。コーパスの行が別の値（最終桁の 1 単位違いで許容誤差の内側）を持つ場合、その行はコーパスの値、保持する値、decNumber 3.68 の値、保持する値の根拠とともに記録されます。コーパスの値が誤りなのではなく、2 つのテキストが異なるために記録されるだけです。このステージはその行を保持する値に対して判定し、判定の種類 `deviation` として報告し、行の結果トークンが記録されたコーパスの値でなくなった場合は失敗とします。上流への報告は行いません。この種類の行は 1 行です。`official0/ln0.decTest` の `ln116`（17 桁、サブセット算術の `ln 0.99999991000000405`）は decNumber の値 `-8.9999999999999879E-8` を期待しますが、正しく丸めた結果は `-8.9999999999999878E-8` です（厳密値は `-8.99999999999998784999918E-8`）。拡張算術の行 `official/ln.decTest` の `lnx116` は正しく丸めた値を挙げており、decNumber 自身はこれに別の値を返し、`lnx732` でも同様です。2 つのコーパスの `exp`、`ln`、`log10`、`squareroot` のその他すべての行（対応する演算の 4,816 行と 3,652 行）は、CPython `decimal` が自身のコンテキストで返す正しく丸めた結果と等しく、CPython の指数範囲や CPython にないサブセット規則に依存する行は除きます。"
 
-#: manual/conformance/decimal_gda.md:145
+#: manual/conformance/decimal_gda.md:146
 msgid "The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream."
 msgstr "第 2 の種類の行（64 行）は、55 ページの規則 P（GDA 1.70、55 ページ（Appendix A, The X3.274 subset））から生じます。サブセットコンテキストでは、どの演算の後でも、係数がそのとき精度の桁数以下であれば、正の指数は 0 になります。コーパスが持つのは、指数を保持する `reduce`、`tointegral`、`squareroot` の decNumber の結果で、`official0` の 64 行がこの規則だけによってライブラリと異なります。数値もフラグも同じで、`reduce0.decTest` が 47 行（`red060` から `red144`）、`squareroot0.decTest` が 9 行（`sqtx2207` から `sqtx2847`）、`tointegral0.decTest` が 8 行（`int067` から `int090`）です。`reduce 10.0` は `1E+1` を期待しますが、ライブラリは `10` を返します。各行は `testdata/decimal_gda/deviations.tsv` に、コーパスの値、保持する値、decNumber 3.68 の値（コーパスの値に等しい）、およびライブラリがすべての演算で 55 ページの文面に従うという決定とともに記録されます。コーパスの値が誤りなのではなく、上流への報告は行いません。"
 
-#: manual/conformance/decimal_gda.md:147
+#: manual/conformance/decimal_gda.md:148
 msgid "Known deviations outside the corpus"
 msgstr "コーパス外の既知の逸脱"
 
-#: manual/conformance/decimal_gda.md:149
+#: manual/conformance/decimal_gda.md:150
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "コーパスへの合格は有限の主張にすぎません。実装のレビューにより次の挙動が見つかっていますが、いずれにも固定された行はありません。"
 
-#: manual/conformance/decimal_gda.md:152
+#: manual/conformance/decimal_gda.md:153
 msgid "Integer `power` is not correctly rounded, as the specification allows. In the nearest rounding modes the result is within about 0.55 units in the last place of the exact value (0.6 for negative exponents). In the directed modes it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact value (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
 msgstr "整数 `power` は正しく丸められません。仕様はこれを許しています。最近接の丸めモードでは、結果は厳密な値から約 0.55 最小桁単位以内です（負の指数では 0.6）。方向付きの丸めモードでは、結果は正しく丸めた結果から 1 最小桁単位以内で、厳密な値からは最大 1.03 最小桁単位です（両方の算術で 8,320 個の無作為ケースを Python `decimal` と比較して測定。2 単位以上離れたケースはありません）。"
 
-#: manual/conformance/decimal_gda.md:158
+#: manual/conformance/decimal_gda.md:159
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` の指数が 10 桁以上のときは計算されません。結果は Invalid operation を伴う NaN で、decNumber の設計上の制限です (仕様にはこの制限はありません)。Python `decimal` (libmpdec) と IEEE `decimal` パッケージはこれらのべき乗を計算します。"
 
-#: manual/conformance/decimal_gda.md:162
+#: manual/conformance/decimal_gda.md:163
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "方向付き丸めモードでは、不正確な `power` は最後の桁が libmpdec と異なることがあります。仕様は不正確な `power` が正しく丸めた結果から最大 1 ulp ずれることを許しており、libmpdec もそこでは正しい丸めではないためです。"
 
-#: manual/conformance/decimal_gda.md:166
+#: manual/conformance/decimal_gda.md:167
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "ゼロの底と負の指数の `power` は無限大で、条件は立ちません (libmpdec と同じ)。仕様の Division by zero は「被除数がゼロでない」場合に当てはまります。IEEE `decimal` パッケージはこれに divideByZero を立てます (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:171
+#: manual/conformance/decimal_gda.md:172
 msgid "Isolation and native benchmark"
 msgstr "分離とネイティブベンチマーク"
 
-#: manual/conformance/decimal_gda.md:173
+#: manual/conformance/decimal_gda.md:174
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "Production dependency scan は `decimal_gda`、`decimal_gda_checked`、 `frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを要求します。IEEE test と independent conformance corpus は別に実行します。"
 
-#: manual/conformance/decimal_gda.md:177
+#: manual/conformance/decimal_gda.md:178
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに 3 native sample を実行します。Arithmetic、parser、context、elementary の timing を観測しますが、performance を conformance requirement にせず、historical adapter とも比較しません。"
 
-#: manual/conformance/decimal_gda.md:191
+#: manual/conformance/decimal_gda.md:192
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、filter、phase、JSON output、failure triage は[decimal_gda data guide](../../../testdata/decimal_gda/README.md)を参照してください。"
 
