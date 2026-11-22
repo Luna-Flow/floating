@@ -76,15 +76,21 @@ let i759_rows : String =
   #|nextplus	9	half_up	1	1	-	1.00000001	N
   #|nexttoward	9	half_up	1	1	0	0.999999999	N
   #|shift	9	half_up	1	12	2	1200	N
+  #|nexttoward	1	half_up	0	0.999	1	1	Y
+  #|nexttoward	3	half_up	0	99950	99950	1.00E+5	Y
+  #|rotate	2	half_up	0	999	1	1E+2	Y
+  #|shift	1	half_up	0	12	0.999	0	Y
+  #|scaleb	1	half_up	0	12	0.999	1E+2	Y
+  #|shift	3	ceiling	0	99901	0	1.00E+5	Y
 
 ///|
 // oracle: A
-// source: expected values written by hand from GDA 1.70, page 56 (Appendix A, "Operation differences", first item: the operand is rounded to precision digits with the rounding of the context, Lost digits when non-zero digits go, trailing zeros not counted) and from the definitions of the operations (reduce strips trailing zeros, next_plus and next_minus step one unit of the last place of the rounded operand); the repro row is the table of issue 759 (decNumber 3.68 with DECSUBSET=1 gives 1.23456788E+9 for next_toward); extended rows follow from the same operations without operand rounding
+// source: (the six carry rows: 999 at precision 2 is 1.0E+3, 99950 and 99901 at precision 3 are 1.00E+5, 0.999 at precision 1 is 1: the rounding that carries leaves precision digits, as page 56 says "rounded to precision significant digits") expected values written by hand from GDA 1.70, page 56 (Appendix A, "Operation differences", first item: the operand is rounded to precision digits with the rounding of the context, Lost digits when non-zero digits go, trailing zeros not counted) and from the definitions of the operations (reduce strips trailing zeros, next_plus and next_minus step one unit of the last place of the rounded operand); the repro row is the table of issue 759 (decNumber 3.68 with DECSUBSET=1 gives 1.23456788E+9 for next_toward); extended rows follow from the same operations without operand rounding
 // shares: Decimal::from_string and Decimal::to_sci_string (the printing of a Decimal, `Show` is to_string), GdaFlags::lost_digits, the table runner i754_call and i754_mode of the issue 754 test file
 test "issue 759: operations round a long operand first in a subset context and are unchanged in an extended one" {
   let (calls, bad) = i759_run(i759_rows)
   assert_eq(bad, [])
-  assert_eq(calls, 35)
+  assert_eq(calls, 41)
 }
 
 ///|

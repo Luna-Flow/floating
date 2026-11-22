@@ -853,7 +853,20 @@ fn round_operand_for_subset(
     if inexact {
       flags = { ..flags, inexact: true, lost_digits: true, }
     }
-    rounded_magnitude
+    if rounded_magnitude.digits10() > precision {
+      // The rounding carried into a new digit (999 to 1000): the operand has
+      // precision digits (GDA 1.70, page 56), so the coefficient 10^precision
+      // becomes 10^(precision - 1) and the exponent grows by one.
+      let (shorter, shorter_exp, _) = trim_trailing_decimal_zeros_repr(
+        rounded_magnitude,
+        exponent10,
+        max_drop=1,
+      )
+      exponent10 = shorter_exp
+      shorter
+    } else {
+      rounded_magnitude
+    }
   } else {
     magnitude
   }
