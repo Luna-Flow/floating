@@ -1,7 +1,8 @@
 # decimal_gda tutorial
 
-Use `decimal_gda` to parse decimal input, carry a context through calculations,
-round amounts, inspect conditions and preserve trailing zeros. A context sets
+`decimal_gda` implements General Decimal Arithmetic (GDA). Use it to parse
+decimal input, carry a context through calculations, round amounts, inspect
+conditions and preserve trailing zeros. A context sets
 the precision, rounding algorithm and exponent limits; its flags record the
 conditions raised by each operation, and its traps can stop an operation while
 returning its defined result. The [design page](../design/decimal_gda.md)
@@ -54,8 +55,8 @@ test "quick start: one third in nine digits" {
 ```
 
 `raised()` reports the conditions from this operation. The flags in
-`next_context()` accumulate every condition raised since the context was created
-or its flags were cleared.
+`next_context().flags()` accumulate every condition raised since the context
+was created or its flags were cleared.
 
 ## Everyday tasks
 
@@ -113,8 +114,8 @@ test "round to cents with quantize" {
 }
 ```
 
-`reduce` removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it when you
-want the shortest representation in the same cohort.
+`reduce` removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it only when
+you really want the shortest cohort member.
 
 ### Handle a trap without losing the result
 
@@ -195,6 +196,7 @@ test "overflow and underflow in decimal32" {
   inspect(sub.raised().contains(Underflow), content="true")
 }
 ```
+
 ### Call the elementary functions
 
 `sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
@@ -206,13 +208,6 @@ decTest suite requires and GDA's Invalid context condition permits; the
 operation text of the specification states no such bound); the
 decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
 `context` (exponent range ±999,999,999) do not:
-
-GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be
-up to 1 ulp from the correctly rounded result; this package returns the correctly
-rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for
-an inexact square root, and this package also returns the correctly rounded result.
-GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer
-exponent; this package returns the correctly rounded result.
 
 ```moonbit
 ///|
@@ -238,10 +233,17 @@ test "elementary functions" {
 }
 ```
 
+GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be
+up to 1 ulp from the correctly rounded result; this package returns the correctly
+rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for
+an inexact square root, and this package also returns the correctly rounded result.
+GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer
+exponent; this package returns the correctly rounded result.
+
 Here, certification means that the package decides the rounding result before
-returning it. Each function
-refines its enclosure at most twelve times by default. For an argument close
-to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows 24 steps;
+returning it. Each function refines its enclosure at most twelve times by
+default. For an argument close to a rounding boundary,
+`ctx.with_refinement_limit(Some(24))` allows 24 steps;
 `with_refinement_limit(None)` removes the count, so the working precision
 stops at a resource bound of at least 8,000,000 bits. Read the current setting
 with `refinement_limit()`.
@@ -273,6 +275,7 @@ test "comparisons and text" {
   inspect(big.to_eng_string(), content="12.3E+6")
 }
 ```
+
 ## Going further
 
 ### Long chains with `decimal_gda_checked`
@@ -363,6 +366,7 @@ test "decimal64 interchange round trip" {
   inspect(bits.to_decimal(), content="-7.50")
 }
 ```
+
 ## Common pitfalls
 
 - **Reusing the original context.** Flags accumulate only when you pass each
@@ -379,9 +383,9 @@ test "decimal64 interchange round trip" {
   cohort member: `1.10 + 3.50` is `4.60`. Use the package functions when GDA
   results, flags or traps matter.
 - **Equality and NaN.** `==` and `compare` put every NaN equal to every other
-  NaN and above every finite number. Use the package `compare`,
-  `compare_signal`, or `Decimal::compare_checked` when NaN must remain
-  unordered.
+  NaN and above every number (a total preorder, so sorting never aborts). Use
+  the package `compare`, `compare_signal`, or `Decimal::compare_checked` when
+  NaN must remain unordered.
 - **Mixing the two decimal packages.** `@decimal_gda.Decimal` and
   `@decimal.Decimal` have different contracts and types. Convert between them
   through strings or interchange bits.
@@ -389,14 +393,14 @@ test "decimal64 interchange round trip" {
   `ln`, `log10` and `sqrt` round half to even; only `power` follows the
   context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions)
   gives the required context range.
-- **Using a default context for elementary functions.** The default exponent
-  range is $-999{,}999{,}999$ to $999{,}999{,}999$, outside the implementation
-  limit for these operations. They return NaN and raise `InvalidContext` (an
-  `InvalidOperation`). Use a preset or set the bounds described in [the
-  elementary-functions task](#call-the-elementary-functions). The same applies
-  to an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in,
-  and `exp_contextual` returns `Err(unsupported)` with an `invalid context:`
-  message naming the missing bounds.
+- **Using a default context for elementary functions.** `GdaContext::new()` and
+  `context()` allow exponents up to ±999,999,999, outside the implementation
+  limit for these operations. `exp`, `ln`, `log10` and non-integer `power`
+  return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or
+  pass `e_min=-999_999, e_max=999_999`. The same applies to an `ArithmeticContext`
+  without `e_min` and `e_max`: no bounds are filled in, and `exp_contextual`
+  returns `Err(unsupported)` with an `invalid context:` message naming the missing
+  bounds.
 
 ## Next steps
 
