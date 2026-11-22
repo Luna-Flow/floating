@@ -212,15 +212,21 @@ fn Decimal::try_power_ctx(
   if gda_context_is_restricted(ctx) {
     return Ok(invalid_context_result(ctx))
   }
-  let (base, rounded_exponent, operand_flags) = prepare_binary_operands_for_context(
+  let (prepared_base, prepared_exponent, operand_flags) = prepare_binary_operands_for_context(
     self, exponent, ctx,
   )
   // GDA 1.70, page 55, footnote 45: a positive exponent of an operand is reduced
-  // before the operation, so `1.2E+3` and `1200` behave alike.
-  let base = reduce_positive_exponent_for_subset(base, ctx)
-  let rounded_exponent = reduce_positive_exponent_for_subset(
-    rounded_exponent, ctx,
-  )
+  // before the operation, so `1.2E+3` and `1200` behave alike (subset only).
+  let base = if ctx.extended {
+    prepared_base
+  } else {
+    reduce_positive_exponent_for_subset(prepared_base, ctx)
+  }
+  let rounded_exponent = if ctx.extended {
+    prepared_exponent
+  } else {
+    reduce_positive_exponent_for_subset(prepared_exponent, ctx)
+  }
   let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
   if base.class == FpClass::Finite &&
     !base.negative &&
