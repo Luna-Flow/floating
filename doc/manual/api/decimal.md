@@ -2063,14 +2063,14 @@ The table gives the domains, poles and exact cases for the functions from `exp2`
 | `atan` | none | none | $\pm 0$; $\pm\infty \mapsto \pm\pi/2$ (certified) |
 | `asinpi`, `acospi` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asinPi}(\pm0)=\pm0$, $\operatorname{asinPi}(\pm1)=\pm\tfrac12$, $\operatorname{acosPi}(1)=+0$, $\operatorname{acosPi}(-1)=1$, $\operatorname{acosPi}(\pm0)=\tfrac12$ |
 | `atanpi` | none | none | $\pm 0$; $\pm 1 \mapsto \pm\tfrac14$; $\pm\infty \mapsto \pm\tfrac12$ (no exception) |
-| `atan2pi(y, x)` | none | none | the eleven exact rows of §9.2.1 ($\pm0$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, $\pm1$) and $\lvert y\rvert = \lvert x\rvert \mapsto \pm\tfrac14, \pm\tfrac34$ |
+| `atan2pi(y, x)` | none | none | the eleven exact rows of 9.2.1 ($\pm0$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, $\pm1$) and $\lvert y\rvert = \lvert x\rvert \mapsto \pm\tfrac14, \pm\tfrac34$ |
 | `atan2(y, x)` | none | none | $\operatorname{atan2}(\pm 0, x) = \pm 0$ for $x = +0$ or $x > 0$, and $\operatorname{atan2}(y, +\infty) = \pm 0$ for finite $y$; any other zero or infinite operand gives $\pi$, $\pi/2$, $\pi/4$ or $3\pi/4$ with the sign of $y$ (certified) |
 | `sinh`, `tanh`, `asinh` | none | none | $\pm0\mapsto\pm0$; $\sinh$, $\operatorname{asinh}$ keep $\pm\infty$; $\tanh(\pm\infty)=\pm 1$ |
 | `cosh` | none | none | $\cosh(\pm 0) = 1$, $\cosh(\pm\infty)=+\infty$ |
 | `acosh` | $x < 1$, $-\infty$ | none | $1 \mapsto 0$, $+\infty \mapsto +\infty$ |
 | `atanh` | $\lvert x\rvert>1$, $\pm\infty$ | $\pm1 \mapsto \pm\infty$ | $\pm0 \mapsto \pm0$ |
 
-These special values follow IEEE 754-2019 §9.2.1: in decimal64,
+These special values follow IEEE 754-2019 9.2.1: in decimal64,
 `atan2_ctx(-0, -1)` is `-3.141592653589793`, `atan2_ctx(+∞, -∞)` is
 `2.356194490192345` and `atan2_ctx(-1, +∞)` is `-0`.
 
