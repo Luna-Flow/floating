@@ -936,9 +936,10 @@ pub fn Decimal::with_precision(Self, Int, DecimalRoundingMode) -> Self
 
 `normalized` returns the reduced member of the cohort: it removes all trailing
 zeros and gives zero exponent 0. If the coefficient has more digits than the
-precision of the value, it first rounds half-even to that precision. IEEE
-754-2019 defines no operation that strips trailing zeros. To apply a context
-before reducing, call `x.apply_ctx(ctx).0.normalized()`.
+precision of the value, it first rounds half-even to that precision. It is the
+only operation in this package that strips trailing zeros; IEEE 754-2019 defines
+no such operation. To apply a context before reducing, call
+`x.apply_ctx(ctx).0.normalized()`.
 
 `with_precision(p, mode)` rounds a finite value to $p$ digits with `mode`,
 reduces it and sets its precision to $p$. It changes only the precision of a
@@ -1853,6 +1854,7 @@ test "decimal exp2m1 exp10m1 log2p1 log10p1" {
   inspect(flags.division_by_zero(), content="true")
 }
 ```
+
 ### `Decimal::rsqrt_ctx`, `compound_ctx`, `powr_ctx`, `try_rsqrt_ctx`, `try_compound_ctx`, `try_powr_ctx`
 
 Compute the reciprocal square root, compound and real-power operations of IEEE 754-2019 9.2.
@@ -1950,6 +1952,7 @@ pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags
 pub fn Decimal::try_atan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_atan2_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
+
 ### `Decimal::asinpi_ctx`, `acospi_ctx`, `atanpi_ctx`, `atan2pi_ctx`, `try_asinpi_ctx`, `try_acospi_ctx`, `try_atanpi_ctx`, `try_atan2pi_ctx`
 
 Compute the inverse circular functions measured in half-revolutions:
@@ -2019,6 +2022,7 @@ test "decimal inverse circular functions in half-revolutions" {
   inspect(flags.invalid_operation(), content="true")
 }
 ```
+
 ### `Decimal::sinh_ctx`, `cosh_ctx`, `tanh_ctx`, `asinh_ctx`, `acosh_ctx`, `atanh_ctx`, `try_sinh_ctx`, `try_cosh_ctx`, `try_tanh_ctx`, `try_asinh_ctx`, `try_acosh_ctx`, `try_atanh_ctx`
 
 These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described
