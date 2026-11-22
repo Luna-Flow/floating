@@ -303,8 +303,8 @@ fn Decimal::compare_total_magnitude_ctx(
       ctx.decimal_rounding == DecimalRoundingMode::Ceiling
     ) {
     let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-      { ..self, negative: false, },
-      { ..other, negative: false, },
+      self.abs(),
+      other.abs(),
       ctx,
     )
     return (lhs.compare_total_magnitude(rhs), operand_flags)
