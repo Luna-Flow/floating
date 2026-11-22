@@ -550,23 +550,22 @@ extensions that the library keeps, and the official decTest files use both.
   In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
   `LostDigits` when it is inexact. Special values cannot be parsed, `divide` and `power` remove
   fractional trailing zeros, and `fma` is invalid.
-  - After `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `max`,
-    `min`, `max_magnitude` and `min_magnitude`, a zero is $+0$ with exponent 0, and a result with a
-    positive exponent has exponent 0 when it then has at most $p$ digits (the rule of page 55).
-  - `apply`, `to_number`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `sqrt`,
-    `remainder` and `remainder_near` give a zero as $+0$ with exponent 0 but keep a positive
-    exponent: `reduce` of `1200` is `1.2E+3`.
-  - `quantize`, `rescale`, `scaleb`, `shift`, `rotate` and `next_toward` keep the exponent of a zero
-    and a positive exponent: `rescale(12, 2)` is `0E+2` and `scaleb(12, 2)` is `1.2E+3`. `scaleb`,
-    `shift` and `rotate` also keep the sign of $-0$. `power` returns $-0$ for $-0$ to an odd integer
-    power.
-  - Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the
-    two round-to-integral operations. For `reduce`, `rescale`, `scaleb`, `shift` and `rotate` the
-    library gives the results of decNumber 3.68
+  - The result of every operation obeys three rules (GDA 1.70, page 55 (Appendix A, The X3.274
+    subset)): a zero is $+0$ with exponent 0; a result below $E_{\min}$ (a subnormal result) is
+    $+0$ with exponent 0 and the flags `Underflow`, `Subnormal`, `Inexact` and `Rounded`; and a
+    result with a positive exponent has exponent 0 when it then has at most $p$ digits. So
+    `scaleb(12, 2)` is `1200`, `remainder(1.4E+3, 5E+2)` is `400`,
+    `round_to_integral_exact(1.2E+3)` is `1200`, `power(-0, 3)` is $+0$ and `next_toward(0, 1)` is
+    $+0$ with `Underflow`.
+  - `reduce`, `round_to_integral_value` and `sqrt` are not changed: they keep a positive exponent
+    (`reduce` of `1200` is `1.2E+3`), as the pinned subset corpus expects.
+  - `quantize` and `rescale` keep the exponent of a zero and a positive exponent (`quantize` is the
+    exception of page 55, `rescale` its former name): `quantize(-0, 1E+2)` is `0E+2`. `to_number`
+    keeps a positive exponent, and reads a zero as $+0$ with exponent 0.
+  - Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`,
+    `remainder_near`, the two round-to-integral operations or `next_toward`; the rules apply to
+    them as to every operation, except for the three operations above. decNumber 3.68 gives other results for some of them
     ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
-    `remainder` and `remainder_near` keep a positive exponent: `remainder(1.4E+3, 5E+2)` is `4E+2`.
-    `round_to_integral_value` and `round_to_integral_exact` give $+0$ with exponent 0 for a zero operand.
-    `next_toward` from a zero returns the smallest subnormal number, as in an extended context.
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with
@@ -972,7 +971,7 @@ A zero result takes its sign from the GDA rule for a zero sum. `plus(-0)` and
 algorithm, while `plus(0)`, `minus(-0)` and `abs` of either zero are $+0$. In a
 subset context every zero result is $+0$.
 
-`apply` keeps the sign of a zero and does not round subset operands first.
+In an extended context `apply` keeps the sign of a zero; it does not round subset operands first.
 
 ### `add`, `subtract`, `multiply`, `divide`, `fma`
 
@@ -1283,7 +1282,9 @@ pub fn next_toward(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 `next_plus` returns the smallest representable number greater than $x$ in the context, and
 `next_minus` the largest smaller one. From a zero they step to $\pm 10^{E_{\mathrm{tiny}}}$, and
-past the largest finite number they reach $\pm\infty$. Neither raises flags for finite results.
+past the largest finite number they reach $\pm\infty$. Neither raises flags for finite results,
+except in a subset context, where a step below the normal range gives $+0$ with `Underflow`,
+`Subnormal`, `Inexact` and `Rounded` (a subnormal result is not permitted).
 
 `next_toward(x, y)` steps from $x$ towards $y$, returning $x$ (with the sign of $y$ for zeros) when
 they compare equal. When the step leaves the normal range, it raises `Overflow`, or `Underflow` and

@@ -37,14 +37,30 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 
 ## Subset arithmetic and operations Appendix A does not name
 
-For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`, and its text does not decide them. A comparison with decNumber 3.68 on 2026-11-22, with 2,268 calls per context in a subset and in an extended context, found:
+In a subset context (`extended=false`) the result of every operation of `decimal_gda` obeys the three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset), which the page states for any operation:
 
-- equal results for `reduce`, `rescale`, `scaleb`, `shift` and `rotate`;
-- `remainder` and `remainder_near` keep a positive exponent (`remainder(1.4E+3, 5E+2)` is `4E+2`), where decNumber gives `400`; page 55 converts a positive exponent to an integer when the coefficient fits in the precision;
-- `round_to_integral_value` and `round_to_integral_exact` give `0` for the operands `-0`, `0E+2` and `-0E+2`, where decNumber returns the operand; page 55 sets the exponent of a zero result to 0;
-- `next_toward` from a zero returns the smallest subnormal number (`1E-1000000007` at precision 9), also in a subset context, where decNumber gives `0`; page 55 says "Subnormal numbers are not permitted".
+- a result whose coefficient is zero has sign 0 and, unless the operation is quantize, exponent 0;
+- a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded`, as `multiply` has always given;
+- after the rounding of its result (unless the operation is quantize), a positive exponent is reduced to 0 when the coefficient then has at most precision digits.
 
-The comparison records what the library does; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
+The library applies the rules in one step, the last of every operation in a subset context ([#754](https://github.com/Luna-Flow/floating/issues/754)); an extended context does not reach it. The one exception is `quantize`, and with it `rescale`, the former name of the operation (GDA 1.70, page 37 (quantize), note 2): they keep the exponent of a zero and a positive exponent, and a zero is still of sign 0. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`; the rules say "after any operation", so they apply to these operations too. The to-number conversion and the parsing keep a positive exponent, as page 55 states the rule for operations; a zero they read is `+0` with exponent 0.
+
+Three operations are the exception to the exception: `reduce`, `round_to_integral_value` and `sqrt` keep a positive exponent in a subset context (`reduce(1200)` is `1.2E+3`), because the pinned subset corpus (`dectest0`) expects it of them in 64 rows (`red060` to `red144`, `int067` to `int090`, `sqtx2207` to `sqtx2847`) and the corpus is not changed; a decision on them is open.
+
+What Appendix A defines differently is not changed: the rounding of the operands first, the trailing zeros that `divide` and `power` remove, and the power rules of pages 56 and 57.
+
+A comparison with decNumber 3.68 (built with `DECSUBSET=1`) over 149,338 calls of 31 operations in a subset and in an extended context found no difference in an extended context. In a subset context decNumber 3.68 gives results that the text of page 55 does not allow. The library gives the text, and the recorded differences are (precision 9, round-half-up):
+
+| Operation | Rule | Call | Library | decNumber 3.68 |
+| --- | --- | --- | --- | --- |
+| `add`, `subtract` | positive exponent | `add(1.2E+3, 1E+2)` | `1300` | `1.3E+3` |
+| `scaleb` | positive exponent, zero | `scaleb(12, 2)`, `scaleb(0, 2)` | `1200`, `0` | `1.2E+3`, `0E+2` |
+| `shift`, `rotate` | positive exponent, zero, subnormal | `shift(1.2E+3, 1)`, `shift(1.2E+3, -2)`, `rotate(1.2E+3, 0)` | `12000`, `0`, `1200` | `1.20E+4`, `0E+2`, `1.2E+3` |
+| `round_to_integral_exact` | positive exponent | `round_to_integral_exact(1.2E+3)` | `1200` | `1.2E+3` |
+| `next_toward` | positive exponent | `next_toward(1.2E+3, 1200)` | `1200` | `1.2E+3` |
+| `power` | zero | `power(-0, 3)` | `0` | `-0` |
+
+Two consequences follow from the rules and are kept: `scaleb(12, 2)` is `1200`, where it left a positive exponent before; a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: operands longer than the precision (decNumber 3.68 rounds the operand of `next_toward`, `next_plus` and `next_minus` first and the library does not, so `next_toward(1234567891, 0)` at precision 9 is `1.23456789E+9` in the library and `1.23456788E+9` in decNumber 3.68), the contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
 
 ## decTest rows behind statements of the API page
 
