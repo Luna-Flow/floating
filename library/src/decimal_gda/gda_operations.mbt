@@ -40,7 +40,7 @@ pub fn fma(
 ///|
 pub fn sqrt(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.sqrt_ctx(ctx.mathematical_decimal_context())
-  complete_decimal_gda_corpus(result, ctx, flags)
+  complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
@@ -108,7 +108,7 @@ pub fn round_to_integral_value(
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
   let (result, flags) = value.to_integral_value(ctx.decimal_context())
-  complete_decimal_gda_corpus(result, ctx, flags)
+  complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
@@ -142,7 +142,7 @@ pub fn power(
 ///|
 pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.reduce_ctx(ctx.decimal_context())
-  complete_decimal_gda_corpus(result, ctx, flags)
+  complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
