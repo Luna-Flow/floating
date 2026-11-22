@@ -343,6 +343,14 @@ fn Decimal::sub_ctx(
     Some(result) => return result
     None => ()
   }
+  if !ctx.extended && other.class == FpClass::Finite {
+    // GDA 1.70, page 56: the operand is rounded with its own sign first and the
+    // sign is adjusted for the subtraction afterwards; negating first would
+    // round the other way in Floor and Ceiling.
+    let (rounded, operand_flags) = round_operand_for_subset(other, ctx)
+    let (value, flags) = self.add_ctx(rounded.neg(), ctx)
+    return (value, operand_flags.combine(flags))
+  }
   self.add_ctx(other.neg(), ctx)
 }
 
