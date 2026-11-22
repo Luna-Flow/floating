@@ -1355,7 +1355,9 @@ by sign bit first. For positive values it is
 $\text{finite} < \infty < \text{sNaN} < \text{NaN}$, with finite values
 ordered by value and then by exponent (`2.50` < `2.5`) and NaNs by payload; for negative
 values it is reversed. `compare_total_magnitude` applies the total
-order to the absolute values. The total orders never raise flags in an
+order to the absolute values: it is `compare_total` of the two absolute values (GDA 1.70, page 43), so
+in a subset context the sign goes before the operands are rounded
+([#763](https://github.com/Luna-Flow/floating/issues/763)). The total orders never raise flags in an
 extended context.
 
 A subset context (`extended=false`) first rounds the operands to the precision,
