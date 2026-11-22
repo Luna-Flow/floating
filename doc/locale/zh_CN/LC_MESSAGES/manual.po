@@ -11030,7 +11030,7 @@ msgid "The matrix passes on the current branch, which has no [known deviations](
 msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏差](../design/decimal.md#known-deviations)。门禁通过仅是所覆盖各行的证据。"
 
 #: manual/conformance/decimal.md:95
-#: manual/conformance/decimal_gda.md:178
+#: manual/conformance/decimal_gda.md:180
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -11403,50 +11403,50 @@ msgid "Deviations of the corpus"
 msgstr "语料的偏差"
 
 #: manual/conformance/decimal_gda.md:118
-msgid "The pinned corpora are decNumber's test suite, and decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
-msgstr "固定的语料是 decNumber 的测试套件，而 decNumber 的数学函数使用规范给出的容差：规范对 `exp`、`ln` 和 `log10` 规定，不精确的结果“将按 round-half-even 算法舍入”，并且“应当正确舍入，但可以有至多 1 ulp ... 的误差”（GDA 1.70，第 29 和 30 页）。库在两种算术中都返回正确舍入的值。语料某一行若持有另一个值（相差一个末位单位、处于容差之内），该行就记录在 `testdata/decimal_gda/deviations.tsv` 中，写明语料值、所持值、decNumber 3.68 的值以及所持值的依据：语料值并没有错，记录该行只是因为两个文本不同。该阶段按所持值判定这一行，以判定类型 `deviation` 报告它，并且在该行的结果记号不再是所记录的语料值时判其失败。不向上游报告任何事项。这一类只有一行：`official0/ln0.decTest` 的 `ln116`（17 位、子集算术下的 `ln 0.99999991000000405`）期望 `-8.9999999999999879E-8`，即 decNumber 的值，而正确舍入的结果是 `-8.9999999999999878E-8`（精确值为 `-8.99999999999998784999918E-8`）。扩展行 `official/ln.decTest` 的 `lnx116` 列出的是正确舍入的值，而 decNumber 本身对它返回另一个值，对 `lnx732` 也是如此。两个语料中其余所有 `exp`、`ln`、`log10` 和 `squareroot` 的行（受支持运算的 4,816 行和 3,652 行）都等于 CPython `decimal` 在其自身上下文中的正确舍入结果，但依赖 CPython 的指数范围或 CPython 所没有的子集规则的行除外。"
-
-#: manual/conformance/decimal_gda.md:141
-msgid "A second kind of row follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream."
-msgstr "第二类行来自第 55 页的规则 P（GDA 1.70，第 55 页（Appendix A, The X3.274 subset））：在子集上下文中，任何运算之后，当系数此时不超过精度位数时，正指数被化为 0。语料库保存的是 decNumber 对 `reduce`、`tointegral` 和 `squareroot` 的结果，它们保留指数；`official0` 中有 64 行仅因这条规则而与本库不同，数值相同，标志相同：`reduce0.decTest` 47 行（`red060` 至 `red144`），`squareroot0.decTest` 9 行（`sqtx2207` 至 `sqtx2847`），`tointegral0.decTest` 8 行（`int067` 至 `int090`）。`reduce 10.0` 期望 `1E+1`，本库给出 `10`。每一行都记录在 `testdata/decimal_gda/deviations.tsv` 中，写明语料值、所持值、decNumber 3.68 的值（与语料值相等）以及本库对每个运算都遵循第 55 页文本这一决定；语料值并没有错，也不向上游报告任何事项。"
+msgid "The pinned corpora are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are two kinds of row. The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
+msgstr "固定的语料是 decNumber 的测试套件。结果记号与本库返回值不同的行记录在 `testdata/decimal_gda/deviations.tsv` 中，共有两类。第一类基于数学函数的容差：decNumber 的函数使用规范给出的容差：规范对 `exp`、`ln` 和 `log10` 规定，不精确的结果“将按 round-half-even 算法舍入”，并且“应当正确舍入，但可以有至多 1 ulp ... 的误差”（GDA 1.70，第 29 和 30 页）。库在两种算术中都返回正确舍入的值。语料某一行若持有另一个值（相差一个末位单位、处于容差之内），该行就记录下来，写明语料值、所持值、decNumber 3.68 的值以及所持值的依据：语料值并没有错，记录该行只是因为两个文本不同。该阶段按所持值判定这一行，以判定类型 `deviation` 报告它，并且在该行的结果记号不再是所记录的语料值时判其失败。不向上游报告任何事项。这一类只有一行：`official0/ln0.decTest` 的 `ln116`（17 位、子集算术下的 `ln 0.99999991000000405`）期望 `-8.9999999999999879E-8`，即 decNumber 的值，而正确舍入的结果是 `-8.9999999999999878E-8`（精确值为 `-8.99999999999998784999918E-8`）。扩展行 `official/ln.decTest` 的 `lnx116` 列出的是正确舍入的值，而 decNumber 本身对它返回另一个值，对 `lnx732` 也是如此。两个语料中其余所有 `exp`、`ln`、`log10` 和 `squareroot` 的行（受支持运算的 4,816 行和 3,652 行）都等于 CPython `decimal` 在其自身上下文中的正确舍入结果，但依赖 CPython 的指数范围或 CPython 所没有的子集规则的行除外。"
 
 #: manual/conformance/decimal_gda.md:143
+msgid "The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream."
+msgstr "第二类行，共 64 行，来自第 55 页的规则 P（GDA 1.70，第 55 页（Appendix A, The X3.274 subset））：在子集上下文中，任何运算之后，当系数此时不超过精度位数时，正指数被化为 0。语料库保存的是 decNumber 对 `reduce`、`tointegral` 和 `squareroot` 的结果，它们保留指数；`official0` 中有 64 行仅因这条规则而与本库不同，数值相同，标志相同：`reduce0.decTest` 47 行（`red060` 至 `red144`），`squareroot0.decTest` 9 行（`sqtx2207` 至 `sqtx2847`），`tointegral0.decTest` 8 行（`int067` 至 `int090`）。`reduce 10.0` 期望 `1E+1`，本库给出 `10`。每一行都记录在 `testdata/decimal_gda/deviations.tsv` 中，写明语料值、所持值、decNumber 3.68 的值（与语料值相等）以及本库对每个运算都遵循第 55 页文本这一决定；语料值并没有错，也不向上游报告任何事项。"
+
+#: manual/conformance/decimal_gda.md:145
 msgid "Known deviations outside the corpus"
 msgstr "语料之外的已知偏差"
 
-#: manual/conformance/decimal_gda.md:145
+#: manual/conformance/decimal_gda.md:147
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "通过语料只是一个有限的声明。对实现的审查发现了以下行为，它们都没有对应的固定行："
 
-#: manual/conformance/decimal_gda.md:148
+#: manual/conformance/decimal_gda.md:150
 msgid "Integer `power` is not correctly rounded, as the specification allows. In the nearest rounding modes the result is within about 0.55 units in the last place of the exact value (0.6 for negative exponents). In the directed modes it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact value (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
 msgstr "整数 `power` 并非正确舍入，规范允许这样。在就近舍入模式下，结果与精确值相差约 0.55 个末位单位以内（负指数为 0.6）。在定向舍入模式下，结果与正确舍入的结果相差一个末位单位以内，与精确值最多相差 1.03 个末位单位（在两种算术中对 8,320 个随机用例与 Python `decimal` 比较的实测；没有相差两个或更多单位的用例）。"
 
-#: manual/conformance/decimal_gda.md:154
+#: manual/conformance/decimal_gda.md:156
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` 的指数超过九位时不做计算：结果是带 Invalid operation 的 NaN，这是 decNumber 设计的限制 (规范没有这样的限制)。Python `decimal` (libmpdec) 和 IEEE `decimal` 包会计算这些幂。"
 
-#: manual/conformance/decimal_gda.md:158
+#: manual/conformance/decimal_gda.md:160
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "在定向舍入模式下，不精确的 `power` 可能在最后一位与 libmpdec 不同，因为规范允许不精确的 `power` 与正确舍入的结果相差至多一个末位单位，而 libmpdec 在这些模式下也不是正确舍入。"
 
-#: manual/conformance/decimal_gda.md:162
+#: manual/conformance/decimal_gda.md:164
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "零底数和负指数的 `power` 是无穷，不引发任何条件，与 libmpdec 相同：规范的 Division by zero 条件适用于“被除数不为零”的情形。IEEE `decimal` 包对此引发 divideByZero (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:167
+#: manual/conformance/decimal_gda.md:169
 msgid "Isolation and native benchmark"
 msgstr "隔离与原生基准测试"
 
-#: manual/conformance/decimal_gda.md:169
+#: manual/conformance/decimal_gda.md:171
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "生产依赖扫描要求 `decimal_gda`、`decimal_gda_checked` 与 `frontend/gda_expr` 不包含 IEEE `decimal` import 或 GDA profile bridge。IEEE 测试和独立一致性语料单独运行。"
 
-#: manual/conformance/decimal_gda.md:173
+#: manual/conformance/decimal_gda.md:175
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "快速 benchmark 只在隔离快照中构建当前引擎，每个 cell 运行 3 个 native sample。它报告算术、parser、context 与 elementary 的耗时观察值，不把性能作为 conformance 要求，也不与历史 adapter 比较。"
 
-#: manual/conformance/decimal_gda.md:187
+#: manual/conformance/decimal_gda.md:189
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、过滤、phase、JSON 输出和失败排查见[decimal_gda 数据指南](../../../testdata/decimal_gda/README.md)。"
 
