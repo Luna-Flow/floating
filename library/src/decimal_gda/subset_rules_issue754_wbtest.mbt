@@ -449,7 +449,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_up	999	-999	0	0	12E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	0	5E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	0	1.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_up	999	-999	0	0	1.23456789123E+11	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	0	12E-3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	0	1.01E-998	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	0	-1E-999	0	Inexact,Rounded,Subnormal,Underflow
@@ -457,7 +456,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_up	999	-999	0	-0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-0	-1.4E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-0	0.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_up	999	-999	0	-0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-0	1E-5	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-0	1.1E-999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-0	1E+999	0	Inexact,Rounded,Subnormal,Underflow
@@ -466,7 +464,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_up	999	-999	0	1E+2	0	99.9999999	-
   #|nexttoward	9	half_up	999	-999	0	5E+2	7	499.999999	-
   #|nexttoward	9	half_up	999	-999	0	0.5	12E-3	0.499999999	-
-  #|nexttoward	9	half_up	999	-999	0	1.23456789123E+11	123456789123	123456789123	-
   #|nexttoward	9	half_up	999	-999	0	12E-3	12E+2	0.0120000001	-
   #|nexttoward	9	half_up	999	-999	0	1E-999	-0	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	1E-999	-1E-999	0	Inexact,Rounded,Subnormal,Underflow
@@ -476,7 +473,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_up	999	-999	0	-1E-999	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-1E-999	5E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-1E-999	1.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_up	999	-999	0	-1E-999	1.23456789123E+11	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-1E-999	12E-3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_up	999	-999	0	-1E-999	1.01E-998	0	Inexact,Rounded,Subnormal,Underflow
   #|scaleb	9	half_up	999	-999	0	-0	0	0	-
@@ -694,7 +690,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_even	999	-999	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	0	-1.4E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	0	0.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_even	999	-999	0	0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	0	1E-5	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	0	1.1E-999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	0	1E+999	0	Inexact,Rounded,Subnormal,Underflow
@@ -707,7 +702,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_even	999	-999	0	-0	1E-999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-0	9.99999999E+999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	12	12	12	-
-  #|nexttoward	9	half_even	999	-999	0	1.2E+3	123456789123	1200.00001	-
   #|nexttoward	9	half_even	999	-999	0	-1.4E+3	-0	-1399.99999	-
   #|nexttoward	9	half_even	999	-999	0	7	7	7	-
   #|nexttoward	9	half_even	999	-999	0	1.5	12E-3	1.49999999	-
@@ -720,7 +714,6 @@ let i754_matrix : String =
   #|nexttoward	9	half_even	999	-999	0	-1E-999	1200	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-1E-999	1E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-1E-999	0.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_even	999	-999	0	-1E-999	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-1E-999	1E-5	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-1E-999	1.1E-999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_even	999	-999	0	-1E-999	1E+999	0	Inexact,Rounded,Subnormal,Underflow
@@ -733,7 +726,6 @@ let i754_matrix : String =
   #|rotate	9	half_even	999	-999	0	-0	-2	0	-
   #|rotate	9	half_even	999	-999	0	-0	3	0	-
   #|rotate	9	half_even	999	-999	0	12	2	1200	-
-  #|rotate	9	half_even	999	-999	0	1.23456789123E+11	2	678912345	-
   #|rotate	9	half_even	999	-999	0	1E+999	12	NaN	Invalid_operation
   #|apply	9	half_down	999	-999	0	-1.4E+3	-	-1400	-
   #|tointegral	9	half_down	999	-999	0	1.1E-999	-	0	-
@@ -760,7 +752,6 @@ let i754_matrix : String =
   #|quantize	9	half_down	999	-999	0	1.1E-999	123456789123	0	Inexact,Lost_digits,Rounded
   #|rescale	9	half_down	999	-999	0	123456789123	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|nexttoward	9	half_down	999	-999	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	half_down	999	-999	0	0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_down	999	-999	0	0	1E+999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_down	999	-999	0	0.5	0	0.499999999	-
   #|scaleb	9	half_down	999	-999	0	1.1E-999	1	1.1E-998	-
@@ -794,7 +785,6 @@ let i754_matrix : String =
   #|nexttoward	9	down	999	-999	0	0	1E-5	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	down	999	-999	0	1.1E-999	0.5	1.10000001E-999	-
   #|shift	9	down	999	-999	0	1.2E+3	12	NaN	Invalid_operation
-  #|rotate	9	down	999	-999	0	123456789123	12	NaN	Invalid_operation
   #|apply	9	up	999	-999	0	1.2E+3	-	1200	-
   #|squareroot	9	up	999	-999	0	1E-5	-	0.00316227766	Inexact,Rounded
   #|add	9	up	999	-999	0	1.2E+3	1E+999	1.00000001E+999	Inexact,Rounded
@@ -851,11 +841,9 @@ let i754_matrix : String =
   #|rescale	9	ceiling	999	-999	0	0	1E-5	NaN	Invalid_operation
   #|rescale	9	ceiling	999	-999	0	1.1E-999	-1.4E+3	NaN	Invalid_operation
   #|nexttoward	9	ceiling	999	-999	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	ceiling	999	-999	0	0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	ceiling	999	-999	0	0	1E+999	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	ceiling	999	-999	0	1.1E-999	0	1.09999999E-999	-
   #|shift	9	ceiling	999	-999	0	-1	0	-1	-
-  #|rotate	9	ceiling	999	-999	0	123456789123	0	123456789123	-
   #|squareroot	9	floor	999	-999	0	-1	-	NaN	Invalid_operation
   #|add	9	floor	999	-999	0	1.2E+3	-1.4E+3	-200	-
   #|subtract	9	floor	999	-999	0	0	1.2E+3	-1200	-
@@ -913,7 +901,6 @@ let i754_matrix : String =
   #|nexttoward	9	05up	999	-999	0	0	-1	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	05up	999	-999	0	0	0.5	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	05up	999	-999	0	0	1.1E-999	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	9	05up	999	-999	0	1E-5	123456789123	0.0000100000001	-
   #|shift	9	05up	999	-999	0	0	3	0	-
   #|rotate	9	05up	999	-999	0	0.5	-1	50000000.0	-
   #|minus	9	half_up	999	-999	1	-0	-	0	-
@@ -1710,22 +1697,17 @@ let i754_matrix : String =
   #|nexttoward	3	half_up	99	-99	0	0	25E+1	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	0	9E+7	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	0	1E-99	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	3	half_up	99	-99	0	0	9.99999999E+99	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	-0	0	-
   #|nexttoward	3	half_up	99	-99	0	-0	12	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	12E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	5E+2	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	1.5	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	3	half_up	99	-99	0	-0	1.23456789123E+11	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	12E-3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	1.01E-98	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-0	-1E-99	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	1	-1E-99	0.999	-
-  #|nexttoward	3	half_up	99	-99	0	1200	12E+2	1200	-
-  #|nexttoward	3	half_up	99	-99	0	12E+2	123456789123	1.21E+3	-
   #|nexttoward	3	half_up	99	-99	0	-1.4E+3	1E+99	-1.39E+3	-
   #|nexttoward	3	half_up	99	-99	0	0.5	12E+2	0.501	-
-  #|nexttoward	3	half_up	99	-99	0	25E+1	1.23456789123E+11	251	-
   #|nexttoward	3	half_up	99	-99	0	1E-5	1E-99	0.00000999	-
   #|nexttoward	3	half_up	99	-99	0	1E-99	-1	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	1.1E-99	12E+2	1.11E-99	-
@@ -1737,7 +1719,6 @@ let i754_matrix : String =
   #|nexttoward	3	half_up	99	-99	0	-1E-99	25E+1	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-1E-99	9E+7	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_up	99	-99	0	-1E-99	1E-99	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	3	half_up	99	-99	0	-1E-99	9.99999999E+99	0	Inexact,Rounded,Subnormal,Underflow
   #|scaleb	3	half_up	99	-99	0	7	-2	0.07	-
   #|scaleb	3	half_up	99	-99	0	1.01E-98	1	1.01E-97	-
   #|shift	3	half_up	99	-99	0	-0	2	0	-
@@ -1747,7 +1728,6 @@ let i754_matrix : String =
   #|rotate	3	half_up	99	-99	0	-0	2	0	-
   #|rotate	3	half_up	99	-99	0	-0	1	0	-
   #|rotate	3	half_up	99	-99	0	12E+2	0	1.2E+3	-
-  #|rotate	3	half_up	99	-99	0	1.23456789123E+11	-1	312	-
   #|rotate	3	half_up	99	-99	0	-1E-99	0	-1E-99	-
   #|tointegral	3	half_even	99	-99	0	-1.4E+3	-	-1.4E+3	-
   #|add	3	half_even	99	-99	0	-1.4E+3	1.1E-99	-1.40E+3	Inexact,Rounded
@@ -1774,7 +1754,6 @@ let i754_matrix : String =
   #|nexttoward	3	half_even	99	-99	0	-1	-1.4E+3	-1.01	-
   #|nexttoward	3	half_even	99	-99	0	1E+99	1E+99	1E+99	-
   #|shift	3	half_even	99	-99	0	-1.4E+3	2	-4.00E+4	-
-  #|rotate	3	half_even	99	-99	0	123456789123	2	312	-
   #|apply	3	half_down	99	-99	0	1E-5	-	0.00001	-
   #|add	3	half_down	99	-99	0	-1	-1	-2	-
   #|add	3	half_down	99	-99	0	1.1E-99	1E+99	1.00E+99	Inexact,Rounded
@@ -1796,7 +1775,6 @@ let i754_matrix : String =
   #|rescale	3	half_down	99	-99	0	0	1.2E+3	NaN	Invalid_operation
   #|rescale	3	half_down	99	-99	0	1E-5	1E+99	NaN	Invalid_operation
   #|nexttoward	3	half_down	99	-99	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	3	half_down	99	-99	0	0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_down	99	-99	0	0	1E+99	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	half_down	99	-99	0	1E-5	-1.4E+3	0.00000999	-
   #|scaleb	3	half_down	99	-99	0	1.1E-99	12	1.1E-87	-
@@ -1874,7 +1852,6 @@ let i754_matrix : String =
   #|rescale	3	ceiling	99	-99	0	0	1.1E-99	NaN	Invalid_operation
   #|rescale	3	ceiling	99	-99	0	1.1E-99	0.5	NaN	Invalid_operation
   #|nexttoward	3	ceiling	99	-99	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
-  #|nexttoward	3	ceiling	99	-99	0	0	123456789123	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	ceiling	99	-99	0	0	1E+99	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	3	ceiling	99	-99	0	1E-5	1E+99	0.0000101	-
   #|scaleb	3	ceiling	99	-99	0	1E+99	3	Infinity	Inexact,Overflow,Rounded
@@ -2478,20 +2455,12 @@ let i754_matrix : String =
   #|rescale	1	half_up	9	-9	0	12E-3	1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	half_up	9	-9	0	1.01E-8	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	half_up	9	-9	0	1E+9	1E-9	NaN	Invalid_operation
-  #|nexttoward	1	half_up	9	-9	0	-1	12	-0.9	-
-  #|nexttoward	1	half_up	9	-9	0	5E+2	1200	6E+2	-
-  #|nexttoward	1	half_up	9	-9	0	0.5	12E-3	0.4	-
-  #|nexttoward	1	half_up	9	-9	0	1E-9	1200	2E-9	-
   #|scaleb	1	half_up	9	-9	0	-0	0	0	-
   #|scaleb	1	half_up	9	-9	0	-1	-1	-0.1	-
   #|scaleb	1	half_up	9	-9	0	1E+9	1	Infinity	Inexact,Overflow,Rounded
   #|shift	1	half_up	9	-9	0	-0	-1	0	-
-  #|shift	1	half_up	9	-9	0	-1.4E+3	-2	NaN	Invalid_operation
-  #|shift	1	half_up	9	-9	0	1.01E-8	12	NaN	Invalid_operation
   #|rotate	1	half_up	9	-9	0	-0	-1	0	-
-  #|rotate	1	half_up	9	-9	0	1.2E+3	-1	1.2E+3	-
   #|rotate	1	half_up	9	-9	0	9E+7	0	9E+7	-
-  #|rotate	1	half_up	9	-9	0	-1E-9	12	NaN	Invalid_operation
   #|nextplus	1	half_even	9	-9	0	1E+9	-	2E+9	-
   #|add	1	half_even	9	-9	0	1E+9	-1.4E+3	1E+9	Inexact,Lost_digits,Rounded
   #|subtract	1	half_even	9	-9	0	1.1E-9	1E+9	-1E+9	Inexact,Lost_digits,Rounded
@@ -2506,9 +2475,7 @@ let i754_matrix : String =
   #|minmag	1	half_even	9	-9	0	1.2E+3	-1.4E+3	1E+3	Inexact,Lost_digits,Rounded
   #|quantize	1	half_even	9	-9	0	-1	1E+9	0E+9	Inexact,Rounded
   #|rescale	1	half_even	9	-9	0	-1	-1.4E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|nexttoward	1	half_even	9	-9	0	-1	1.1E-9	-0.9	-
   #|shift	1	half_even	9	-9	0	0	2	NaN	Invalid_operation
-  #|rotate	1	half_even	9	-9	0	1.2E+3	3	NaN	Invalid_operation
   #|plus	1	half_down	9	-9	0	1.1E-9	-	1E-9	Inexact,Lost_digits,Rounded
   #|add	1	half_down	9	-9	0	1.2E+3	1.1E-9	1E+3	Inexact,Lost_digits,Rounded
   #|subtract	1	half_down	9	-9	0	1.2E+3	1.2E+3	0	Inexact,Lost_digits,Rounded
@@ -2524,9 +2491,7 @@ let i754_matrix : String =
   #|minmag	1	half_down	9	-9	0	1E-5	1.2E+3	0.00001	Inexact,Lost_digits,Rounded
   #|quantize	1	half_down	9	-9	0	0.5	1.1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	half_down	9	-9	0	0.5	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|nexttoward	1	half_down	9	-9	0	1E+9	1.2E+3	9E+8	-
   #|shift	1	half_down	9	-9	0	0.5	-2	NaN	Invalid_operation
-  #|rotate	1	half_down	9	-9	0	1E-5	12	NaN	Invalid_operation
   #|tointegral	1	down	9	-9	0	1E-5	-	0	-
   #|add	1	down	9	-9	0	1E-5	1E-5	0.00002	-
   #|subtract	1	down	9	-9	0	1E-5	-1	1	Inexact,Rounded
@@ -2559,8 +2524,6 @@ let i754_matrix : String =
   #|minmag	1	up	9	-9	0	0.5	1.2E+3	0.5	Inexact,Lost_digits,Rounded
   #|quantize	1	up	9	-9	0	-1.4E+3	1.1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	up	9	-9	0	-1.4E+3	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|nexttoward	1	up	9	-9	0	1E-5	-1.4E+3	0.000009	-
-  #|shift	1	up	9	-9	0	1.2E+3	3	NaN	Invalid_operation
   #|rotate	1	up	9	-9	0	0.5	-1	0.5	-
   #|reduce	1	ceiling	9	-9	0	0.5	-	0.5	-
   #|add	1	ceiling	9	-9	0	0.5	1E+9	2E+9	Inexact,Rounded
@@ -2576,9 +2539,7 @@ let i754_matrix : String =
   #|minmag	1	ceiling	9	-9	0	1.2E+3	-1.4E+3	-1E+3	Inexact,Lost_digits,Rounded
   #|quantize	1	ceiling	9	-9	0	-1	1E+9	0E+9	Inexact,Rounded
   #|rescale	1	ceiling	9	-9	0	-1	-1.4E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|nexttoward	1	ceiling	9	-9	0	-1	1.1E-9	-0.9	-
   #|shift	1	ceiling	9	-9	0	0	2	NaN	Invalid_operation
-  #|rotate	1	ceiling	9	-9	0	1.2E+3	3	NaN	Invalid_operation
   #|plus	1	floor	9	-9	0	1.1E-9	-	1E-9	Inexact,Lost_digits,Rounded
   #|add	1	floor	9	-9	0	1.2E+3	1.1E-9	1E+3	Inexact,Lost_digits,Rounded
   #|subtract	1	floor	9	-9	0	-1.4E+3	-1	-2E+3	Inexact,Lost_digits,Rounded
@@ -2613,7 +2574,6 @@ let i754_matrix : String =
   #|rescale	1	05up	9	-9	0	1.2E+3	-1.4E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|nexttoward	1	05up	9	-9	0	0.5	0.5	0.5	-
   #|shift	1	05up	9	-9	0	-1	-2	NaN	Invalid_operation
-  #|rotate	1	05up	9	-9	0	-1.4E+3	-1	-1.4E+3	-
   #|minus	1	half_up	9	-9	1	-1	-	1	-
   #|apply	1	half_up	9	-9	1	5E+2	-	5E+2	-
   #|ln	1	half_up	9	-9	1	12E-3	-	-4	Inexact,Rounded
@@ -2975,12 +2935,12 @@ test "issue 754: named calls obey the rules of page 55 in a subset context and a
 
 ///|
 // oracle: A
-// source: a sample of a matrix of 149338 decNumber 3.68 calls (same build and pin as the named test) over 31 operations, precision 1, 3 and 9, exponent ends of 9, 99 and 999, every rounding where it can matter, operands longer than the precision, positive exponents that fit and do not fit, signed zeros; the rows kept are those where the library and decNumber agree after the fix: every third of the 925 rows whose result the fix changed and every 60th of the other agreeing rows
+// source: (40 rows were removed by issue 759: in them decNumber 3.68 does not round an operand longer than the precision before shift, rotate or the count of next_toward, which GDA 1.70, page 56 requires; the rows are covered by the issue 759 test) a sample of a matrix of 149338 decNumber 3.68 calls (same build and pin as the named test) over 31 operations, precision 1, 3 and 9, exponent ends of 9, 99 and 999, every rounding where it can matter, operands longer than the precision, positive exponents that fit and do not fit, signed zeros; the rows kept are those where the library and decNumber agree after the fix: every third of the 925 rows whose result the fix changed and every 60th of the other agreeing rows
 // shares: Decimal::from_string and Decimal::to_sci_string (the printing of a Decimal, `Show` is to_string), GdaFlags accessors
 test "issue 754: sampled matrix against decNumber 3.68" {
   let (calls, bad) = i754_run(i754_matrix)
   assert_eq(bad, [])
-  assert_eq(calls, 2718)
+  assert_eq(calls, 2678)
 }
 
 ///|
