@@ -118,6 +118,19 @@ fn gda_subset_result(
 }
 
 ///|
+/// `complete_decimal_gda` for `next_plus` and `next_minus` in a subset context: rule S of
+/// page 55 still turns a subnormal next number into 0, but the flags of the operation stay
+/// as they were, because page 34 says that no flags are set for a numeric operand.
+fn complete_decimal_gda_next(
+  value : Decimal,
+  context : GdaContext,
+  flags : DecimalFlags,
+) -> GdaOutcome[Decimal] {
+  let (result, _) = gda_subset_result(value, flags, context, false)
+  complete_gda(result, context, flags)
+}
+
+///|
 fn gda_exact_small_result(
   negative : Bool,
   coefficient : UInt64,
