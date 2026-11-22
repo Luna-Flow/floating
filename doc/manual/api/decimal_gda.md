@@ -547,8 +547,11 @@ extensions that the library keeps, and the official decTest files use both.
   conditions)). It limits exponents to $E_{\max} - p + 1$, as the interchange formats do.
 - `extended=false` selects the GDA subset arithmetic of Appendix A (GDA 1.70, page 55
   (Appendix A, The X3.274 subset); footnote 43: a parameter of the context "might" select it).
-  In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
-  `LostDigits` when it is inexact. Special values cannot be parsed, `divide` and `power` remove
+  In subset arithmetic, every operation that takes a context rounds an operand longer than $p$
+  digits first (GDA 1.70, page 56 (Appendix A, The X3.274 subset)), which raises
+  `LostDigits` when it is inexact; so `reduce(1234567891)` at precision 9 raises `LostDigits`
+  and `next_toward(1234567891, 0)` is `1.23456788E+9`. The logical operations, the total orders and the
+  classifications do not round their operands. Special values cannot be parsed, `divide` and `power` remove
   fractional trailing zeros, and `fma` is invalid.
   - The result of every operation that takes a context obeys three rules (GDA 1.70, page 55 (Appendix A, The X3.274
     subset)): a zero is $+0$ with exponent 0; a result below $E_{\min}$ (a subnormal result) is
