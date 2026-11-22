@@ -148,7 +148,7 @@ test "huge quantize and to-integral shifts round to zero" {
 //   1E-9, the nearest operand decNumber can read (its exponent limit is -999999999): next_plus gives 1 and next_minus
 //   0 with no flag, next_toward 0 gives 0 with Inexact, Rounded, Underflow (and Subnormal, Clamped, which the test
 //   does not assert); CPython agrees on next_plus and next_minus and differs on the next_toward flags (none)
-// shares: nothing
+// shares: Decimal::to_string (printing the result)
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
   let tiny = decimal_unchecked(false, 1N, -2_147_483_648, 34)

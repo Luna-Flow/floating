@@ -24,7 +24,7 @@ test "GdaContext carries the refinement limit of the elementary functions" {
 // oracle: A
 // source: exp(1), ln(2), log10(2) and 2^0.5 at 12 digits computed with CPython decimal (libmpdec 4.0.0), context
 //   prec=12, Emin=-999999, Emax=999999, rounding ROUND_HALF_EVEN, no traps
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs)
 test "try_exp, try_ln, try_log10 and try_power agree with the plain functions" {
   // a bounded context: the elementary functions refuse an exponent range above 999,999 (the old test used the
   // default range, so both sides were NaN)
@@ -47,7 +47,7 @@ test "try_exp, try_ln, try_log10 and try_power agree with the plain functions" {
 // oracle: A
 // source: strings written out from the to-scientific-string and to-engineering-string rules (GDA 1.70, Conversions)
 //   123E+5 = 1.23E+7 = 12.3E+6, Infinity and NaN spellings from the specification
-// shares: nothing
+// shares: Decimal::from_string (reading the input); to_sci_string and to_eng_string are the code under test, so the oracle is the hand-written text only
 test "to_sci_string and to_eng_string print a number without a context" {
   let big = Decimal::from_string("123E+5").unwrap()
   inspect(big.to_sci_string(), content="1.23E+7")
@@ -63,7 +63,7 @@ test "to_sci_string and to_eng_string print a number without a context" {
 //   decimal32 hex of 1.234567890 (1.234568, 7 digits, Inexact) decoded by hand: #25F4D2E8, sign 0,
 //   combination 01001 (exponent bits 01 and leading digit 1), exponent continuation 011111 (biased 95 for
 //   10^-6), coefficient declets 234 and 568; decNumber 3.68 decimal32FromString gives the same bytes
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs)
 test "interchange formats expose their extended default context" {
   inspect(GdaInterchangeFormat::Decimal64.context().precision(), content="16")
   inspect(GdaInterchangeFormat::Decimal128.context().e_max(), content="6144")

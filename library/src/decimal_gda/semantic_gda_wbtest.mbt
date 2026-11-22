@@ -30,7 +30,7 @@ test "GDA binary and ternary operations prioritize signaling nan payloads" {
 // source: GDA 1.70 Subnormal (tininess is judged before rounding): 0.999E-999 plus at precision 3, Emin -999,
 //   half-up gives 1.00E-999 with Subnormal, Underflow, Inexact and Rounded; re-run with decNumber 3.68
 //   (tools/decnumber_probe.c, plus): same value and flags
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA unary operations use before-rounding tininess" {
   let context = DecimalContext::new(
     precision=3,

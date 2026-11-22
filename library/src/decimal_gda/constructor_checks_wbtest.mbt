@@ -253,7 +253,7 @@ test "make and with_precision take a GDA rounding mode" {
 // source: the payload width of decimal32 (6 digits) is IEEE 754-2019 3.5.2, written out in the expected strings
 //   567890 and 123456; which digits a wider payload keeps (the low ones) is the library's own rule, not a clause of
 //   the standard, and is pinned here by the literal 567890 (S)
-// shares: nothing
+// shares: BigInt::to_string (printing the payload that is read back)
 test "an interchange NaN keeps the low digits of a payload that is too wide" {
   let wide = Decimal::quiet_nan(payload=12345678901234567890N, negative=true)
   let (encoded, flags) = GdaInterchange::from_decimal(wide, Decimal32)
