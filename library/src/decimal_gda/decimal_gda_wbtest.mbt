@@ -17,7 +17,7 @@ test "GDA facade selects signaling NaN precedence" {
 ///|
 // oracle: A
 // source: hand: construction literals; min Int -2147483648
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "decimal direct constructors preserve public representations" {
   let zero = Decimal::zero(precision=1)
   assert_true(zero.is_zero())

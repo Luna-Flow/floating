@@ -61,7 +61,7 @@ fn check_remainder_row(
 // source: values and flags of the 37 rows computed with CPython decimal (libmpdec 4.0.0), remainder and
 //   remainder_near in an extended context with the precision, Emin, Emax and clamp of the row, traps off
 //   (the flag letters d, U and C map to InvalidOperation in CPython); re-run for this inventory, 37 of 37 agree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper check_remainder_row)
 test "remainder and remainder_near follow the exact quotient (extended contexts)" {
   let rows : Array[
     (String, String, Int32, Int32, Int32, Bool, Bool, String, String, String),
@@ -147,7 +147,7 @@ test "remainder and remainder_near follow the exact quotient (extended contexts)
 //   tools/decnumber_probe.c with remainder and remainderNear, extended=0, operands read exactly: value and
 //   all 11 flag letters of every row agree (the earlier claim of agreement with the decimal package was a
 //   comparison with this library's own sibling and is not the oracle)
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper check_remainder_row)
 test "remainder and remainder_near in subset contexts do not use the clamped quotient" {
   let rows : Array[
     (String, String, Int32, Int32, Int32, Bool, Bool, String, String, String),

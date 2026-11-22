@@ -32,7 +32,7 @@ fn refinement_failed(
 //   digits 1.0000000000000000000000000000000005000000000000000000000000000000001250 (above the midpoint);
 //   the default limit 12 is the library design constant (S); a == b compares two spellings of one context
 //   (S)
-// shares: Decimal::to_string (printing the result)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper refinement_hard_input)
 test "refinement limit: default is Some(12) and matches the explicit value" {
   let context = refinement_context(34)
   inspect(context.refinement_limit() == Some(12), content="true")
@@ -63,7 +63,7 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 // source: exp(5E-34) at 34 digits = 1.000000000000000000000000000000001, CPython decimal 80 digits
 //   1.0000000000000000000000000000000005000000000000000000000000000000001250 (level A); the threshold is the
 //   implementation's own choice, only its shape is asserted (S)
-// shares: Decimal::to_string (printing the result)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper refinement_hard_input)
 test "refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on" {
   let x = refinement_hard_input()
   let base = refinement_context(34)
@@ -91,7 +91,7 @@ test "refinement limit: a hard-to-round exp fails below a threshold and succeeds
 // oracle: S
 // source: shape of the limit rule (a limit below one is one step), no computed value; the refinement count 1 is
 //   written out from the rule of the context (#15)
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper refinement_hard_input)
 test "refinement limit: 0, 1 and negative limits are one step" {
   let x = refinement_hard_input()
   let base = refinement_context(34)

@@ -82,7 +82,7 @@ test "the limits of the precision are accepted" {
 /// GDA 1.70, page 11: a payload is no larger than the coefficient less one digit.
 // oracle: A
 // source: GDA 1.70 page 11 payload rule; hand literals
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "a NaN payload has at most precision - 1 digits" {
   assert_eq(Decimal::quiet_nan(payload=99N, precision=3).to_string(), "nan99")
   assert_eq(
@@ -152,7 +152,7 @@ test "GdaInterchange::from_hex returns Err for text that is not a pattern" {
 // source: CPython: Decimal(0.1) = 0.1000000000000000055511..., rounded to 5 digits Down 0.10000, Up 0.10001, half-
 //   even 0.10000; the last assertion pins the precision field of the result to the requested 20 (API
 //   contract, written out)
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "from_binary takes a required precision in digits and a rounding mode" {
   let tenth = @binary.Binary::from_double(0.1, precision=53)
   let down = Decimal::from_binary(
@@ -273,7 +273,7 @@ test "an interchange NaN keeps the low digits of a payload that is too wide" {
 // oracle: A
 // source: hand by to-scientific-string (cohort kept, zero exponents); CPython plus agrees on the 1000000 and
 //   1234567 rows
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "make keeps the given exponent and does not reduce a rounded coefficient" {
   assert_eq(Decimal::make(1200N, 0, 34).to_string(), "1200")
   assert_eq(Decimal::make(100N, 0, 5).to_string(), "100")

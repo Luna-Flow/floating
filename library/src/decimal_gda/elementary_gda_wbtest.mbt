@@ -86,7 +86,7 @@ test "GDA extreme exp uses HalfEven without endpoint expansion" {
 // oracle: A
 // source: literal 3.296831E-434295; CPython exp(-1E6) at p7 gives 3.296831E-434295 Inexact Rounded, no
 //   Underflow (agrees)
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA finite extreme-range exp certifies without full decimal expansion" {
   let context = GdaContext::new(precision=7, e_min=-999_999, e_max=999_999)
   let outcome = exp(Decimal::from_int(-1_000_000), context)

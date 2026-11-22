@@ -178,7 +178,7 @@ fn issue264_check(
 /// oracle, checked against the clause by hand; the oracle is not the specification.
 // oracle: A
 // source: Python decimal (libmpdec 4.0.0) row table; all 172 rows re-run by me
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue264_check)
 test "add, subtract and fma judge overflow on the rounded result (#264)" {
   let rows : Array[
     (

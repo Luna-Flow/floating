@@ -133,7 +133,7 @@ test "gda checked power to one half is the padded inexact result without Clamped
 /// trap short-circuits, the context of the left pipeline decides the operation.
 // oracle: A
 // source: literal strings for 17 checked operations (decTest-like values), hand derived
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "gda checked merges the conditions and the trap of the right operand" {
   let left_context = @decimal_gda.GdaContext::new(precision=5)
   let right_context = @decimal_gda.GdaContext::new(precision=3)

@@ -179,7 +179,7 @@ fn issue267_check(
 /// is not the specification.
 // oracle: A
 // source: CPython decimal rows checked against Clamped clause; 54/54 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue267_check)
 test "power signals Clamped only when the result exponent was altered (#267)" {
   let rows : Array[
     (

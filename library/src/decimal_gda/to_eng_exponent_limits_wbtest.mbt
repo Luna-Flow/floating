@@ -31,7 +31,7 @@ test "engineering format preserves minimum finite exponent" {
 ///|
 // oracle: A
 // source: CPython to_eng_string of 12345E+2147483647: 123.45E+2147483649
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: nothing (the printer format_eng_finite is the code under test and the input is built with finite_with_exponent_repr)
 test "engineering format extends adjusted exponent without wrapping" {
   let value = finite_with_exponent_repr(
     false,

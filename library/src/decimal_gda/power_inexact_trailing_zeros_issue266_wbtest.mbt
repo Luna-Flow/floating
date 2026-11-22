@@ -180,7 +180,7 @@ fn issue266_check(
 /// as oracle, checked against the clauses by hand; the oracle is not the specification.
 // oracle: A
 // source: CPython decimal rows plus decTest powx028/powx706/powx1186; 52/52 rows re-run in Python, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue266_check)
 test "an inexact integer power keeps precision digits, trailing zeros included (#266)" {
   let rows : Array[
     (

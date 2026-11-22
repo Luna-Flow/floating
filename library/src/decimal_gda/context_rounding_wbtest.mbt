@@ -31,7 +31,7 @@ fn gda_rounding_dec(text : String) -> Decimal {
 /// Expected values agree with Python's decimal module.
 // oracle: A
 // source: Python decimal (libmpdec 4.0.0) prec 7, 4 single rows and 5 rounding-mode rows, 9 of 9 agree
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "gda add rounds sums with a far smaller addend once" {
   let ctx = fn(mode : GdaRoundingMode) {
     GdaContext::new(precision=7, rounding=mode)
@@ -81,7 +81,7 @@ test "gda add rounds sums with a far smaller addend once" {
 /// tie 4.5000045E-90, which the second rounding sent to even.
 // oracle: A
 // source: Python decimal: re-ran all rows in decimal32 context (p7 emin-95 emax96 clamp 1 half-even)
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "gda rounds normal results below Etiny once" {
   let c32 = GdaContext::decimal32()
   let d = gda_rounding_dec

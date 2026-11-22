@@ -11,7 +11,7 @@
 // oracle: A
 // source: decNumber 3.68 built with DECSUBSET=1 for the 20 subset rows (sha256 in docstring); 20 extended rows
 //   re-run in CPython, 0 disagree
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "to_number of a literal far below the range: the subset gives 0, the extended arithmetic Etiny" {
   let rows = [
     (true, "half_even", "1e-1000000014", "0", "xrsu."),

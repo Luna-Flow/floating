@@ -107,7 +107,7 @@ test "power rounds an exact result longer than the precision" {
 // source: 2^1800 * 10^-1800 from the BigInt shift of the MoonBit core library and 5^1200 from five_power (the BigInt
 //   power of core, checked by digit count and first and last 20 digits against CPython integers); the test
 //   does not assert Inexact and Rounded for these exact-in-digits results
-// shares: BigInt shift and pow of the MoonBit core library
+// shares: BigInt shift and pow of the MoonBit core library; Decimal::from_string and to_string (reading the inputs, printing the result)
 // primitives: core BigInt shift, pow and to_string, checked on these values by digit count and first and last 20
 //   digits (CPython integers)
 test "power decides exact non-integral results past base^p's size (#138)" {
@@ -153,7 +153,7 @@ test "power decides exact non-integral results past base^p's size (#138)" {
 // source: 5^1024^(1/1024) = 5 and 0.25^4096.5 = 2^-8193 = 5^8193 * 10^-8193 by hand; 5^8193 and 5^1024 from five_power
 //   (the BigInt power of the MoonBit core library, checked by digit count and first and last 20 digits against
 //   CPython integers); CPython Decimal(5**8193) agrees with the expected value in half-even and floor
-// shares: BigInt pow of the MoonBit core library
+// shares: BigInt pow of the MoonBit core library; Decimal::from_string and to_string (reading the inputs, printing the result)
 // primitives: core BigInt pow and to_string, checked on these values by digit count and first and last 20 digits
 //   (CPython integers)
 test "power decides exact powers with large reduced exponents" {
