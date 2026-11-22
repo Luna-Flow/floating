@@ -1,23 +1,27 @@
 """Audit hook for the Python stages that run as incremental units (`tools/stage_units.py`).
 
 Python imports this module at start-up of every interpreter whose `PYTHONPATH` starts with this
-directory, so the stage's own process and every Python process it starts with that environment are
-observed; a Python process that does not load it is detected by counting (`B` and `L` below). With
+directory, so the stage's own process is observed. The audit is a check against an honest mistake, not a
+sandbox: it reports what CPython reports. With
 `STAGE_AUDIT_LOG` and `STAGE_AUDIT_ROOT` set it appends one line per event to the log:
 
     B <pid> <version>
                 the hook was loaded by the interpreter process <pid> of this `sys.version` (the start
-                line: one per hooked process; a Python process that does not load the hook, as with
-                `-I`, `-E` or `-S`, an empty environment or a missing `PYTHONPATH`, writes none)
-    L <program> a Python interpreter was launched (subprocess, os.exec*, os.spawn*, posix_spawn): the
-                log must hold one start line for the stage's own process and one per launch
+                line: a log must hold exactly one, the stage's own process; a Python process that does
+                not load the hook, as with `-I`, `-E` or `-S`, writes none)
     R <path>    a file below the root was opened for reading (or reading and writing)
     D <path>    a directory below the root was listed or scanned
-    S <program> a program was started (subprocess, os.system, os.exec*, os.spawn*, posix_spawn)
+    L <event> <what>
+                a process was launched or replaced (`subprocess.Popen`, `os.posix_spawn`, `os.exec`,
+                `os.spawn`, `os.system`, `os.fork`, `os.forkpty`, `pty.spawn`, `os.startfile`,
+                `webbrowser.open`): a run with any such line is not recorded
+    U <event>   a `ctypes` event (a call into a foreign library, which can start anything unseen)
     X <path>    a file outside the root (absolute path) was opened for reading, or a directory outside
                 the root was listed or scanned, except the standard library of the interpreter (not
-                its site-packages: an installed package is an input that no key covers) and the files
-                below `STAGE_AUDIT_EXEMPT` (the private compiled-module cache of the run)
+                its site-packages: an installed package is an input that no key covers), the
+                directories on the interpreter's own `sys.path` at start-up (the import system looking
+                for a module; opening a file below them is still an `X`) and the files below
+                `STAGE_AUDIT_EXEMPT` (the private compiled-module cache of the run)
     C <path>    a file outside the root was created by the run (a later `X` of the same path, read
                 by any process of the run, is not an outside input)
 
@@ -34,7 +38,6 @@ _ROOT = os.environ.get("STAGE_AUDIT_ROOT")
 
 if _LOG and _ROOT:
     import sysconfig
-    import threading
 
     _ROOT = os.path.realpath(_ROOT)
 
@@ -46,6 +49,7 @@ if _LOG and _ROOT:
 
     _STDLIB = _paths("stdlib", "platstdlib")
     _SITE = _paths("purelib", "platlib")  # usually below the standard library path
+    _SYS_PATH = frozenset(_real(p) for p in sys.path if p)  # where the import system looks, as of start-up
     _EXEMPT = tuple(_real(p) for p in os.environ.get("STAGE_AUDIT_EXEMPT", "").split(os.pathsep) if p)
 
     def _under(absolute: str, bases: tuple[str, ...]) -> bool:
@@ -75,30 +79,35 @@ if _LOG and _ROOT:
         with open(_LOG, "a", encoding="utf-8", errors="backslashreplace") as stream:
             stream.write(_clean(line) + "\n")
 
-    # One launch can raise two events: `subprocess.Popen` and then, when the interpreter starts the child with
-    # `posix_spawn` (always on recent Linux builds, with `close_fds=False` elsewhere), `os.posix_spawn` with the
-    # same program, arguments and environment, directly after it. That second event is the same launch.
-    # Anything else in between, or a different program, argument list or environment, makes it a launch of its own.
-    _pending: list = [None]
+    # Every event that starts or replaces a process (CPython's audit events table): a stage that raises one is
+    # not recorded, so no launch has to be counted or matched with a start line.
+    _LAUNCH = {
+        "subprocess.Popen", "os.posix_spawn", "os.exec", "os.spawn", "os.system", "os.fork", "os.forkpty",
+        "pty.spawn", "os.startfile", "webbrowser.open",
+    }
+    _unsafe_seen: set = set()
 
-    def _launch_key(program: object, argv: object, env: object) -> tuple:  # type: ignore[type-arg]
+    def _detail(event: str, args: tuple) -> str:  # type: ignore[type-arg]
         try:
-            return (threading.get_ident(), os.fsdecode(program), tuple(os.fsdecode(a) for a in argv), repr(env))  # type: ignore[attr-defined,union-attr]
+            if event == "subprocess.Popen":
+                return os.fsdecode(args[0] if args[0] else (args[1][0] if args[1] else ""))
+            if event == "os.spawn":
+                return os.fsdecode(args[1])
+            if event in ("os.system", "os.exec", "os.posix_spawn", "pty.spawn", "os.startfile", "webbrowser.open"):
+                return os.fsdecode(args[0])
         except Exception:
-            return (None,)
-
-    def _launched(program: object, may_be_python: bool = True) -> None:
-        name = os.fsdecode(program)
-        _write(f"S {name}")
-        if may_be_python and os.path.basename(name).startswith("python"):
-            _write(f"L {name}")
+            pass
+        return ""
 
     def _hook(event: str, args: tuple) -> None:  # type: ignore[type-arg]
-        pending, _pending[0] = _pending[0], None
         try:
-            if event == "os.posix_spawn" and pending is not None and pending == _launch_key(args[0], args[1], args[2]):
-                return  # the second event of a launch that `subprocess.Popen` already wrote
-            if event == "open":
+            if event in _LAUNCH:
+                _write(f"L {event} {_detail(event, args)}")
+            elif event.startswith("ctypes."):  # a call into a foreign library starts anything unseen
+                if event not in _unsafe_seen:
+                    _unsafe_seen.add(event)
+                    _write(f"U {event}")
+            elif event == "open":
                 flags = args[2] if len(args) > 2 and isinstance(args[2], int) else 0
                 if not isinstance(args[0], (str, bytes, os.PathLike)):
                     return
@@ -122,16 +131,8 @@ if _LOG and _ROOT:
                     relative = _relative(absolute) if absolute is not None else None
                     if relative is not None:
                         _write(f"D {relative}")
-                    elif absolute is not None and not _own(absolute) and not _under(absolute, _EXEMPT):
+                    elif absolute is not None and not _own(absolute) and not _under(absolute, _EXEMPT) and absolute not in _SYS_PATH:
                         _write(f"X {absolute}")
-            elif event == "subprocess.Popen":
-                program = args[0] if args[0] else (args[1][0] if args[1] else "")
-                _launched(program)
-                _pending[0] = _launch_key(program, args[1], args[3])
-            elif event in ("os.system", "os.exec", "os.posix_spawn"):
-                _launched(args[0], event != "os.system")
-            elif event == "os.spawn":
-                _launched(args[1])
         except Exception:  # an audit hook must never break the stage
             pass
 
