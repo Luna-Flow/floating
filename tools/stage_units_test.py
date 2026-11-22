@@ -204,7 +204,8 @@ class RealAuditHookTest(unittest.TestCase):
         log = self.root / "audit.log"
         env = su.audit_environment(self.root, log, os.environ)
         subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True, check=True)
-        return su.parse_audit(log.read_text())
+        self.last_log = log.read_text()
+        return su.parse_audit(self.last_log)
 
     def test_a_python_child_that_does_not_load_the_hook_is_not_recorded(self) -> None:
         read = "open('other.txt').read()"  # an in-repository file that no unit declares
@@ -245,7 +246,42 @@ class RealAuditHookTest(unittest.TestCase):
             "subprocess.run([sys.executable, '-c', 'pass'], check=True)\n"
             "subprocess.run([sys.executable, '-c', 'import subprocess, sys; subprocess.run([sys.executable, \"-c\", \"pass\"])'], check=True)\n"
         )
-        self.assertEqual((len(audit.starts), len(audit.launches)), (4, 3))
+        # the log is in the message: it shows which events one launch raised on the machine that runs this
+        self.assertEqual((len(audit.starts), len(audit.launches)), (4, 3), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
+        self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
+
+    def test_a_launch_that_raises_two_events_is_counted_once(self) -> None:
+        # `close_fds=False` starts the child with posix_spawn: `subprocess.Popen` and then `os.posix_spawn` are
+        # raised for the one launch (recent Linux builds do that by default, so does this call on macOS)
+        events = (
+            "import os, subprocess, sys\n"
+            "log = []\n"
+            "sys.addaudithook(lambda e, a: log.append(e) if e in ('subprocess.Popen', 'os.posix_spawn', 'os.exec', 'os.spawn') else None)\n"
+            "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)\n"
+            "print(log, file=sys.stderr)\n"
+        )
+        audit = self.python_children_are_counted(events + "subprocess.run([sys.executable, '-c', 'pass'], close_fds=False)\n")
+        self.assertEqual((len(audit.starts), len(audit.launches)), (3, 2), f"python {sys.version.split()[0]} on {sys.platform}; log:\n{self.last_log}")
+        self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
+
+    def test_a_posix_spawn_after_a_popen_with_another_environment_is_a_launch_of_its_own(self) -> None:
+        # the same program and arguments, directly after the Popen, but an empty environment: the child does not
+        # load the hook, and the two launches must not be counted as one
+        audit = self.python_children_are_counted(
+            "import os, subprocess, sys\n"
+            "args = [sys.executable, '-c', 'pass']\n"
+            "subprocess.run(args, close_fds=False)\n"
+            "os.waitpid(os.posix_spawn(sys.executable, args, {}), 0)\n"
+        )
+        self.assertEqual(len(audit.launches), 2, self.last_log)
+        self.assertIn("Python processes loaded the hook", su.not_recorded_why(audit, sys.executable, sys.version))
+
+    def test_a_direct_posix_spawn_is_counted_once(self) -> None:
+        audit = self.python_children_are_counted(
+            "import os, sys\n"
+            "os.waitpid(os.posix_spawn(sys.executable, [sys.executable, '-c', 'pass'], os.environ), 0)\n"
+        )
+        self.assertEqual((len(audit.starts), len(audit.launches)), (2, 1), self.last_log)
         self.assertEqual(su.not_recorded_why(audit, sys.executable, sys.version), "")
 
     def test_a_listing_outside_the_repository_is_an_outside_input(self) -> None:
