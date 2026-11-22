@@ -1,12 +1,12 @@
 # decimal design
 
-This page explains the arithmetic model of `Luna-Flow/floating/decimal`: what a
-decimal floating-point number is, how cohorts and preferred exponents carry
-information, how the interchange encodings pack digits into bits, how every
-result is rounded exactly once, which error bounds follow, how the exponent
-range is enforced, and how elementary functions are certified. The
-[decimal API](../api/decimal.md) specifies each function; the
-[decimal tutorial](../tutorial/decimal.md) shows them in use.
+The arithmetic model of `Luna-Flow/floating/decimal` represents decimal values
+with a coefficient, an exponent and a sign, then rounds each context result
+once. Its cohort preserves the chosen exponent, while a context defines
+precision, rounding direction and exponent range. This page derives those rules,
+the interchange encodings and the certification of elementary functions. The
+[API](../api/decimal.md) specifies each function; the
+[tutorial](../tutorial/decimal.md) shows them in use.
 
 ## Design goal
 
@@ -34,11 +34,10 @@ Decimal Arithmetic specification by M. F. Cowlishaw (version 1.70) gives the
 same model in an arbitrary-precision form; its terms *coefficient*,
 *adjusted exponent*, *Etiny* and *clamp* are used here.
 
-The checked ParseChecked adapter follows IEEE 754-2019 section 4.3 and section
-5.12.2: text conversion uses the supplied rounding-direction attribute and
-the context exponent range. parse_checked returns the converted value through
-Result; callers that need exception flags such as overflow use
-Decimal::from_string_ctx directly.
+The checked ParseChecked adapter follows IEEE 754-2019 4.3 and 5.12.2. Text
+conversion uses the supplied rounding-direction attribute and context exponent
+range. parse_checked returns the converted value through Result. To inspect
+exception flags such as overflow, use `Decimal::from_string_ctx`.
 
 ## Mathematical background
 
@@ -53,8 +52,8 @@ s \in \{0,1\},\quad c \in \mathbb{Z},\ 0 \le c < 10^{p},\quad
 E_{\text{tiny}} \le q \le E_{\text{top}},
 $$
 
-together with $\pm\infty$ and NaNs, where $c$ is the *coefficient*, $q$ the
-*exponent* or *quantum*, and
+together with $\pm\infty$ and NaNs. Here $c$ is the *coefficient* and $q$ is
+the *exponent*. The *quantum* is $10^q$, and
 
 $$
 E_{\text{tiny}} = e_{\min} - p + 1, \qquad E_{\text{top}} = e_{\max} - p + 1 .
@@ -117,7 +116,7 @@ $$
 Quantities defined in decimal — prices, rates, measurements, protocol fields —
 are therefore represented exactly by decimal floating point, and decimal
 rounding happens at the decimal places a person or a regulation specifies.
-The price is a larger *wobble* (below) and more expensive digit arithmetic.
+The trade-off is a larger *wobble* (below) and more expensive digit arithmetic.
 
 ### Cohorts and quantum
 
@@ -157,7 +156,7 @@ member with the smallest exponent; an inexact subnormal result ends at
 $E_{\text{tiny}}$. `quantize_ctx` makes the exponent an explicit argument, and
 `normalized` chooses the member with the largest exponent.
 
-For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
+For conversion from a character sequence, IEEE 754-2019 5.2 selects the
 least possible exponent for an inexact result. Thus parsing `1.0001` at
 precision 3 gives `1.00`, and `99999` gives `1.00E+5`, since a carry into
 $10^p$ still leaves $p$ digits; an exact result uses the representable cohort
@@ -187,17 +186,18 @@ x \cdot 10^{-t} = c + f, \qquad c \in \mathbb{Z}_{\ge 0},\ 0 \le f < 1 .
 $$
 
 Each rounding direction returns $c$ or $c + 1$ (times $10^{t}$); the choice
-depends on $f$, the last digit of $c$ and the sign:
+depends on $f$, the last digit of $c$ and the sign. The table shows the choice
+for positive $x$.
 
 The kernels implement eight algorithms. A context selects one of the five
-that IEEE 754-2019 §4.3 names (public `DecimalRoundingMode`: `RoundTowardZero`
+that IEEE 754-2019 4.3 names (public `DecimalRoundingMode`: `RoundTowardZero`
 is `Down`, `RoundTowardPositive` is `Ceiling`, `RoundTowardNegative` is
 `Floor`, `RoundTiesToAway` is `HalfUp`, `RoundTiesToEven` is `HalfEven`); `Up`,
 `HalfDown` and `ZeroFiveUp` are working modes of the library (directed bounds of
 the certified functions, the guard digit of division) that no context can
 select. The table uses the kernel names.
 
-| Mode | IEEE name | returns $c+1$ when ($f > 0$) |
+| Mode | IEEE name | For positive $x$ with $f > 0$, increment when |
 | --- | --- | --- |
 | `Down` | roundTowardZero | never |
 | `Up` | — | always |
@@ -240,8 +240,8 @@ $$
 \frac{\tfrac12\,10^{1-p}}{\tfrac12\,10^{-p}} = 10 = \beta ,
 $$
 
-the *wobble* of base $\beta = 10$.[^wobble] In binary the wobble is 2, so for
-the same storage decimal has a slightly worse worst-case relative error:
+the *wobble* of base $\beta = 10$.[^wobble] In binary the wobble is 2, so
+for the same storage decimal has a slightly worse worst-case relative error:
 decimal64 has $u = \tfrac12 10^{-15} = 5\cdot 10^{-16}$, binary64 has $u =
 2^{-53} \approx 1.1 \cdot 10^{-16}$. The directed modes have
 $|\delta| < 10^{1-p} = 2u$. The machine epsilon, the distance from 1 to the
@@ -272,14 +272,14 @@ semantics and GDA compatibility, without converting between types.
 **Options.** One type per format (like hardware); one arbitrary-precision type
 with the format carried by a context; a type parameterised by the format.
 
-**Choice.** One `Decimal` type holding a sign, a coefficient of any length, an
-exponent, a class, a NaN-kind bit and a working-precision field, and a
-separate immutable `DecimalContext`. A decimal64 computation is a computation
-under `DecimalContext::decimal64()`; the interchange encoders apply the format
-context before encoding. This keeps the arithmetic in one place, lets a caller
-work at 50 digits and round to decimal64 at the end, and matches the General
-Decimal Arithmetic model. The precision field in the value serves only the
-context-free operators and conversions.
+**Choice.** One `Decimal` type holds a sign, a coefficient of any length, an
+exponent, a class, a NaN-kind bit and the precision of the value. An immutable
+`DecimalContext` supplies the parameters for contextual operations. A decimal64
+computation uses `DecimalContext::decimal64()`; interchange encoders apply the
+format context before encoding. One representation keeps arithmetic in one
+place and lets a caller work at 50 digits before rounding to decimal64. It also
+matches the General Decimal Arithmetic model. The precision of the value sets
+the precision used by context-free operators and conversions.
 
 ### Round once, in one place
 
@@ -308,23 +308,28 @@ subnormal grid; the result is $\circ(C\,10^{Q-t})\,10^{t}$, followed by the
 overflow check (on the value rounded to $p$ digits with unbounded exponent),
 the underflow flag and the fold-down.
 
-The routine rounds to the subnormal grid only when $t = E_{\text{tiny}} > Q$,
-which it tests as $Q + \max(0, D - p) < E_{\text{tiny}}$: the exact value is
-then below $10^{e_{\min}}$ and $C$ is rounded once with shift
+The routine rounds to the subnormal grid only when $t = E_{\text{tiny}} > Q$.
+It tests this condition as $Q + \max(0, D - p) < E_{\text{tiny}}$. Then the
+exact value is below $10^{e_{\min}}$, and $C$ is rounded once with shift
 $E_{\text{tiny}} - Q$. Every other coefficient is rounded once to $p$ digits,
-also when $Q < E_{\text{tiny}}$. Rounding such a *normal* result first to the
-grid $10^{E_{\text{tiny}}}$ and then to $p$ digits would not be rounding once:
-if the first rounding lands exactly on a midpoint of the second grid, the tie
-rule of the second rounding decides a case the exact value had already
-decided. In decimal32 ($E_{\text{tiny}} = -101$) the product
-$3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45} = 4500004500001\cdot
-10^{-102}$ would first become $450000450000\cdot 10^{-101}$ (the dropped digit
-1 is below half), the exact midpoint $4500004.5\cdot 10^{-96}$, and
-`HalfEven` would then give $4.500004\cdot 10^{-90}$; the exact value lies
-above the midpoint, and the single rounding returns $4.500005\cdot 10^{-90}$.
-(The directed modes would be unaffected, because
-$\lfloor\lfloor y\,10^{-s_1}\rfloor 10^{-s_2}\rfloor = \lfloor y\,
-10^{-s_1-s_2}\rfloor$ for every real $y \ge 0$ and integers $s_1, s_2 \ge 0$.)
+even when $Q < E_{\text{tiny}}$.
+
+Rounding a normal result first to the subnormal grid $10^{E_{\text{tiny}}}$ and
+then to $p$ digits can change the answer. The first rounding may land exactly
+on a midpoint of the second grid, leaving the tie rule to decide a case the
+exact value already decided. In decimal32, where $E_{\text{tiny}} = -101$,
+consider
+$3.000001\cdot 10^{-45} \times 1.500001\cdot 10^{-45} =
+4500004500001\cdot 10^{-102}$. The first rounding drops digit 1, which is
+below half, and gives $450000450000\cdot 10^{-101}$. That is the exact
+midpoint $4500004.5\cdot 10^{-96}$. A second `HalfEven` rounding gives
+$4.500004\cdot 10^{-90}$, while rounding the exact product once gives
+$4.500005\cdot 10^{-90}$ because it lies above the midpoint.
+
+The directed modes would be unaffected because, for every real $y \ge 0$ and
+integers $s_1, s_2 \ge 0$,
+$\lfloor\lfloor y\,10^{-s_1}\rfloor 10^{-s_2}\rfloor =
+\lfloor y\,10^{-s_1-s_2}\rfloor$.
 
 #### Addition with a far smaller addend
 
@@ -377,9 +382,9 @@ discarded, $Q = 0$, and only $s = D$ can reach the midpoint: the code then
 compares $C$ with $5\cdot 10^{D-1}$. A carry that turns $10^{p}-1$ into
 $10^{p}$ is removed by one exact division by 10 and an exponent increment.
 
-`rounded` is raised whenever $s > 0$ and `inexact` whenever $R \ne 0$; trailing
-zeros are dropped before rounding so that discarding zeros raises only
-`rounded`.
+The finalizer raises `rounded` whenever $s > 0$ and `inexact` whenever
+$R \ne 0$. It drops trailing zeros before rounding, so discarding only zeros
+raises `rounded` alone.
 
 #### Division
 
@@ -402,10 +407,8 @@ routes, in this order.
    factors 2 and 5 of $c_b$). The valuations $a$ and $b$ are read from the
    lowest limb when both are below 9, so for a divisor prime to 10 (the usual
    case) the test is $c_b \mid c_a$, one division of limb arrays. Only a
-   terminating quotient runs the gcd route above; a non-terminating one, which
-   is nearly every division of random operands, used to pay a gcd of the two
-   coefficients (quadratic, hundreds of allocations at 34 digits) to learn that
-   it has no exact result.
+   terminating quotient runs the gcd route above. This avoids computing a gcd
+   for a quotient that cannot terminate.
 3. *Non-terminating quotient.* The result is certainly inexact. Let
    $a_c = \operatorname{adj}(c_a/c_b)$, found exactly by comparing $c_a$ with
    $c_b$ scaled by the right power of ten. Scaling the numerator (or the
@@ -467,7 +470,7 @@ rounding direction); a product and a quotient require nonzero operands. A
 quotient with a finite decimal expansion is left to the general route, because
 its exponent follows the ideal-exponent rules.
 
-A sum is formed in one limb array and rounded in place by the kernel; a product
+The direct sum path forms the sum in one limb array and rounds it in place; a product
 is the exact product rounded at the digit count. A quotient is one division of
 $c_a \cdot 10^{k}$ with $k = \max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit
 counts of the coefficients), which has at least $p + 2$ digits, rounded with
@@ -481,11 +484,11 @@ record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,739
 instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and
 3,251, `div_ctx` 13 and 3,840 instead of 38 and 9,212.
 
-The general route stays the definition of the behavior, and the plain paths are
-checked against it: the white-box test compares both on random operands of 1 to
-130 digits with mixed signs, cancellations, exponent gaps and carries, at
+The general route defines the behavior; the direct paths must return the same
+result and flags. The white-box test compares both routes on operands of 1 to
+130 digits, with mixed signs, cancellations, exponent gaps and carries, for
 every rounding direction, in clamped and unclamped formats with tight and
-storage-wide exponent ranges, with operands placed at both ends of the range.
+storage-wide exponent ranges and operands at both ends of the range.
 
 #### Square root
 
@@ -555,7 +558,7 @@ exponent $Q'$, i.e. on the value rounded with an unbounded exponent range.
 #### Overflow
 
 If $\operatorname{adj}(C' 10^{Q'}) > e_{\max}$ the result overflows. IEEE
-754 §7.4 defines the delivered result as the rounding of the exact value in a
+IEEE 754-2019 7.4 defines the delivered result as the rounding of the exact value in a
 format with the same $p$ but unbounded exponent, then saturated: a direction
 that never increases magnitude cannot leave the finite range, a direction
 that may increase it goes to infinity. Hence, with
@@ -596,13 +599,13 @@ If the exact value is below $10^{e_{\min}}$ and needs an exponent below
 $E_{\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes
 $s = E_{\text{tiny}} - Q$ and the rounding rule above applies with fewer than
 $p$ digits kept. The result is **tiny** when its adjusted exponent is below
-$e_{\min}$, measured on the exact value. IEEE 754-2019 §7.5 requires this for
-decimal formats ("tininess is detected before rounding"); the binary-style rule,
-on the value rounded to $p$ digits with unbounded exponent, was an option of the
-library until 0.12 and is gone. With $p = 3$ and $e_{\min} = 0$, $0.9951$ and
-$0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny **and** inexact result raises `underflow`, as IEEE 754
-§7.5 requires for default exception handling. A result that rounds to zero
-gets exponent $E_{\text{tiny}}$.
+$e_{\min}$, measured on the exact value. IEEE 754-2019 7.5 requires this for
+decimal formats ("tininess is detected before rounding"). With $p = 3$ and
+$e_{\min} = 0$, $0.9951$ and
+$0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny and
+inexact result raises `underflow`, as required for default exception handling
+by IEEE 754-2019 7.5. A result that rounds to zero gets exponent
+$E_{\text{tiny}}$.
 
 #### Clamping
 
@@ -636,15 +639,12 @@ test "design: fold-down in decimal32" {
 Zeros have no digits to pad, so their exponent is simply clamped into
 $[E_{\text{tiny}}, E_{\text{top}}]$.
 
-A zero is the one result `quantize_ctx` can return above $E_{\text{top}}$: its
-target exponent only has to be at most $e_{\max}$ (a zero has one digit, so
-$e_{\max} - \operatorname{digits} + 1 = e_{\max}$ is the overflow bound of
-decNumber's `decQuantizeOp`). decNumber calls `decFinalize` there, whose clamp
-branch lowers the exponent to $E_{\text{top}}$. A result
-of an IEEE format is a member of the format (§3.3), whose exponents stop at
-$E_{\text{top}}$, so `quantize_ctx` folds a zero like every
-other operation does through `finalize_finite_ctx`; until 0.12 the fold of these two
-was an option (`with_clamp_fold`).
+A zero is the one result `quantize_ctx` can accept with a target exponent above
+$E_{\text{top}}$: its one-digit coefficient allows a target as high as
+$e_{\max}$. Since an IEEE format
+contains only exponents through $E_{\text{top}}$ (IEEE 754-2019 3.3),
+`quantize_ctx` folds the zero exponent down to $E_{\text{top}}$, as it does for
+other results.
 
 ### Flags as returned values
 
@@ -694,7 +694,7 @@ agree.
 
 ### Conversion to integers
 
-`to_int_ctx` and its three siblings (IEEE 754-2019 §5.4.1 and §5.8) share one
+`to_int_ctx` and its three siblings (IEEE 754-2019 5.4.1 and 5.8) share one
 function that rounds a finite value $c\,10^{q}$ to an integer in the direction
 of the context and checks the range, so the four types differ only in their
 limits. A value with $q \ge 0$ is an integer already; one with $q < 0$ is
@@ -716,9 +716,9 @@ result is not a decimal), and a negative value that rounds to zero converts to
 
 ### Conversions between formats
 
-`convert_format`, `from_binary_ctx` and `to_binary_ctx` (IEEE 754-2019
-§5.4.2) are thin on purpose: each rounds the exact source value once, in the
-destination's context, and returns the flags of that rounding.
+`convert_format`, `from_binary_ctx` and `to_binary_ctx` (IEEE 754-2019 5.4.2)
+each round the exact source value once in the destination's context and return
+the flags of that rounding.
 Decimal to decimal is `apply_ctx` of the format's context, so the preferred
 exponent $Q(\text{source})$ is the one the normalization keeps when the value
 fits. Binary to decimal does not form the expansion $c\,2^e$, whose cost grows
@@ -733,7 +733,7 @@ nothing is rounded twice) the result and its flags are those of $x$, and the
 tininess of the unrounded value is the one of $x$ (same leading digit). An exact
 value has no sticky digit; its trailing zeros are dropped and an integer takes
 exponent 0, the preferred exponent, or, when it has more than $p$ digits, the
-member closest to it (IEEE 754-2019 §5.2): zeros are appended up to $p + 1$ digits,
+member closest to it (IEEE 754-2019 5.2): zeros are appended up to $p + 1$ digits,
 and the zero that `apply_ctx` rounds away leaves the $p$-digit member with the
 exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`, flagged
 rounded). The digits are not
@@ -794,7 +794,7 @@ For example, `125` is the declet `0010100101` = `0x0A5` (three small digits)
 and `999` is `0011111111` = `0x0FF`, also written `0x1FF`, `0x2FF`, `0x3FF`.
 
 [^dpd]: M. F. Cowlishaw, "Densely packed decimal encoding", *IEE Proceedings —
-Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 §3.5.2 gives
+Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 3.5.2 gives
 the encoding tables; the code implements them as Boolean formulas, and the
 conformance corpus checks all 1024 declets.
 
@@ -874,9 +874,14 @@ schedule grows by a factor of about $3/2$ per step (exactly $w + \lfloor w/2
 and the last one works with about $w_0 \cdot (3/2)^{11} \approx 86\,w_0$
 bits.
 
-Three kinds of inputs are decided outside the agreement test:
+Three kinds of inputs are decided outside the enclosure-agreement test. Exact results
+need their preferred exponent and flags; integer powers use exact integer
+information; range-limit results can be decided by representatives; and
+non-integral powers use one composed enclosure.
 
-- **Exact results.** If $f(x)$ is a representable decimal and the enclosure
+#### Exact results
+
+If $f(x)$ is a representable decimal and the enclosure
   is not a point, $L < f(x) < U$ round to different neighbours in a directed
   mode, forever. In a half mode both endpoints round to $f(x)$ itself, but
   with `inexact`, so the agreement test would *accept* the right value with
@@ -916,7 +921,9 @@ Three kinds of inputs are decided outside the agreement test:
   midpoint in the half modes — so the search covers exactly those and leaves
   a longer exact value, which lies strictly inside its rounding cell, to the
   enclosure.
-- **Integer powers** are not certified; they are rounded once from exact
+#### Integer powers
+
+Integer powers are not certified; they are rounded once from exact
   integer information. `pow_ctx` with an integral exponent $n$ that does
   not fit in $p$ digits first runs the General Decimal Arithmetic
   square-and-multiply with $p + \operatorname{digits}(n) + 2$ working
@@ -939,37 +946,39 @@ Three kinds of inputs are decided outside the agreement test:
   $10^{E_{\text{tiny}}}$) is not evaluated: it rounds like any non-zero value
   below $\tfrac12 10^{E_{\text{tiny}}}$, to zero in the nearest modes and to
   $\pm 10^{E_{\text{tiny}}}$ when the rounding direction is away from zero
-  for its sign (IEEE 754-2019 §7.5).
-- **Out-of-range results.** An enclosure such as $[0, \text{tiny}]$ has
+  for its sign (IEEE 754-2019 7.5).
+#### Out-of-range results
+
+An enclosure such as $[0, \text{tiny}]$ has
   endpoints that round with different flags. Any value $\ge 10^{e_{\max}+2}$
   overflows identically, and any non-zero value
   $\le 10^{E_{\text{tiny}}-2} < \tfrac12 10^{E_{\text{tiny}}}$ rounds identically (to zero or to the
   smallest subnormal, depending only on the mode and sign), so far endpoints
   are replaced by such representatives; the binary test uses $3.322 >
   \log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10`
-  share one decision (`decimal_exponential_coarse_extreme_result`, issue
-  [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with
+  share one range decision. For $b^x$ with
   $b \in \{e, 2, 10\}$ let $k \ge 1/\log_{10} b$ be the integer 3, 4 or 1.
   Then $x \ge k\,(e_{\max}+1)$ gives
   $b^x = 10^{x \log_{10} b} \ge 10^{e_{\max}+1}$, above the largest finite
   number $(10^p - 1)\,10^{e_{\max}-p+1}$, so the overflow result of the
-  rounding direction applies (IEEE 754-2019 §7.4); and $x \le -k\,(1 -
+  rounding direction applies (IEEE 754-2019 7.4); and $x \le -k\,(1 -
   E_{\text{tiny}})$ gives $b^x \le 10^{E_{\text{tiny}}-1}$, below half of
   the smallest subnormal and, as $E_{\text{tiny}} \le e_{\min}$, tiny before
   and after rounding, so the result is zero or the smallest subnormal by
-  direction with `inexact` and `underflow` (§7.5). The comparison
+  direction with `inexact` and `underflow` (IEEE 754-2019 7.5). The comparison
   is exact and the margin is the whole slack between $k$ and $1/\log_{10} b$:
   an argument between the true boundary and the threshold is not decided here
   but by the Ziv loop, which is sound there because the threshold is at most
   $4\,(1 - E_{\text{tiny}})$ with $E_{\text{tiny}} \ge -1999997$, far below
   the exponent range of the binary enclosure. Without the decision a very
   negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure
-  $[0, \text{tiny}]$ and never certifies. The decision is tested on both sides
-  of each threshold and at results just inside and outside the range, in all
-  eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its
-  generated rows. `power` bounds $y \log_2 x$
+  $[0, \text{tiny}]$ and never certifies. The conformance page records tests
+  on both sides of each threshold and at results just inside and outside the
+  range, in all eight rounding directions. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
-- **Enclosure of a non-integral power.** For a positive base the Ziv loop
+#### Enclosure of a non-integral power
+
+For a positive base the Ziv loop
   evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
   one interval product and one `exp` enclosure, instead of the four corners
   times two directions (eight correctly rounded binary powers) of
@@ -982,22 +991,21 @@ Three kinds of inputs are decided outside the agreement test:
   working precision therefore grows by a bound of that quantity, taken from
   the adjusted exponents of $x$ and $y$ ($|\ln x| \le \ln 10\,(|\operatorname{adjusted}(x)| + 1)$
   and $|y| < 10^{\operatorname{adjusted}(y)+1}$), so the first attempt usually
-  decides ([#352](https://github.com/Luna-Flow/floating/issues/352)).
+  decides when this bound is sufficient.
 
-**One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1`
-and `log10p1`, and the families that follow in
-[#236](https://github.com/Luna-Flow/floating/issues/236), take three
-decisions from one internal file (`elementary_range.mbt`) instead of writing
-them again: an exact result is formed as an exact decimal, rounded once by the
-context and then moved to the cohort member nearest the preferred exponent
-(`decimal_exact_constant`, which uses the cohort step of `power` with the
-preferred exponent as an argument), so a context that cannot hold the value
+### The IEEE 754-2019 9.2 exponential and logarithm extensions
+
+`exp2m1`, `exp10m1`, `log2p1` and `log10p1`, along with the later IEEE 754-2019
+9.2 families, share three range and exact-result rules. An exact result is
+formed as an exact decimal, rounded once by the context and then moved to the
+cohort member nearest the preferred exponent, using the cohort rule of `power`.
+A context that cannot hold the value
 rounds it with its own flags; a result whose certified bracket of $\log_2$
 lies above $\log_2 10\,(e_{\max}+2)$ or below
 $\log_2 10\,(E_{\text{tiny}}-2)$ rounds like the representative
 $10^{e_{\max}+2}$ or $10^{E_{\text{tiny}}-2}$
-(`decimal_range_from_log2_bracket`, the former tail of the `power` range
-test); and every other result comes from the Ziv loop above. No result is a
+using a certified logarithmic range bound; every other result comes from the
+Ziv loop above. No result is a
 zero or an infinity chosen because the argument is small or large: a tiny
 result is the rounding of its certified endpoints, so subnormals, `Underflow`
 under the before-rounding rule and the sign of a zero are those of the
@@ -1010,15 +1018,19 @@ few units of the working precision for every legal operand, down to
 $x = 10^{-1\,999\,996}$; no tiny-argument anchor is needed because the slopes
 $\ln b$ and $1/\ln b$ are irrational. Before the loop:
 
-- *Exact cases.* $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$
+#### Exact cases
+
+$b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$
   are irrational for a non-integer rational $r$), and $\log_b(1+x)$ is
   rational only when $1+x = b^k$. For $0 < |n| \le 4(p+2)$ the value $2^n-1$,
   $10^n-1$, $-(1-2^{-m})$ or $-(1-10^{-m})$ is formed and rounded once; $k$
   is found from $x$ without forming $1+x$ ($x+1$ a power of two, compared
   first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or
   $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0
-  (IEEE 754-2019 §9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`.
-- *Clusters.* For an integer $n > 4(p+2)$, $2^n$ has $D \ge p+3$ digits and
+  (IEEE 754-2019 9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`.
+#### Clusters near one
+
+For an integer $n > 4(p+2)$, $2^n$ has $D \ge p+3$ digits and
   every rounding boundary of a $D$-digit integer is a multiple of the even
   number $5 \cdot 10^{D-p-1}$; neither $2^n$ (no factor 5) nor the odd
   $2^n - 1$ is one, so both lie in one open rounding cell and `exp2m1(n)` is
@@ -1029,16 +1041,22 @@ $\ln b$ and $1/\ln b$ are irrational. Before the loop:
   for $x \le -(p+2)$ (base 10) or $x \le -(4p+8)$ (base 2) the value is
   $-1 + \delta$ with $0 < \delta \le 10^{-(p+2)}$ and rounds like
   $-(1 - 10^{-(p+2)})$, as for `expm1`.
-- *Overflow.* $x \ge \lceil 3.322\,(e_{\max}+2) \rceil$ (base 2) or
+#### Overflow
+
+$x \ge \lceil 3.322\,(e_{\max}+2) \rceil$ (base 2) or
   $x \ge e_{\max}+2$ (base 10) gives the overflow result of the context.
-- *Below the subnormal range.* For $|x| \le 10^{-5}$ all four satisfy
+#### Results below the subnormal range
+
+For $|x| \le 10^{-5}$ all four satisfy
   $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\text{tiny}}-3}$
   puts $f(x)$ below $10^{E_{\text{tiny}}-2}$, where it rounds like the
   representative $\pm 10^{E_{\text{tiny}}-2}$ that the enclosure would use
   for its endpoints. The result is that rounding, decided without converting
   $x$ to binary (the conversion of $10^{-1\,999\,997}$ alone costs about a
   second).
-- *Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write
+#### Tiny arguments within range
+
+For $|x| < 10^{-(p+11)}$, write
   $x = m\,10^{q}$; then $f(x) = c\,x\,(1 + d)$ with $c = \ln b$ or $1/\ln b$
   and $|d| \le 2.31|x|$, so $f(x)/10^{q}$ lies in
   $c\,m\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \ge 4|x|$. The endpoints of that
@@ -1051,32 +1069,41 @@ $\ln b$ and $1/\ln b$ are irrational. Before the loop:
   the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14
   (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the
   level of `exp` (13) and `log1p` (18).
-- *Poles and domain.* $x = -1$ is $-\infty$ with `division_by_zero` and
+#### Poles and domain
+
+$x = -1$ is $-\infty$ with `division_by_zero` and
   $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an
   operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0$ resolves,
   as for `log1p`.
 
-**`rSqrt`, `compound` and `powr`.** The three take their exact results from
-`decimal_exact_constant` and none of them expands a binary endpoint near an
+#### `rSqrt`, `compound` and `powr`
+
+These three operations take their exact results from
+the exact-case path and none of them expands a binary endpoint near an
 extreme power of ten.
 
-- *`rsqrt`.* $1/\sqrt{x}$ terminates exactly when $x = 2^{2i}5^{2j}$: with
+##### `rsqrt`
+
+`rsqrt(x)` terminates exactly when
+$x = 2^{2i}5^{2j}$: with
   $c$ the coefficient stripped of trailing zeros and $e$ its exponent, $c$ is
   $2^a$ or $5^b$ with $a$ (or $b$) and $e$ even, and the value is
   $5^{a/2}10^{-(e+a)/2}$ or $2^{b/2}10^{-(e+b)/2}$. It is formed when it has
   at most $p + 1$ digits and given the preferred exponent
-  $-\lfloor Q(x)/2 \rfloor$ (§9.2.2); a longer one ends in a 5 or a non-zero
+  $-\lfloor Q(x)/2 \rfloor$ (IEEE 754-2019 9.2.2); a longer one ends in a 5 or a non-zero
   even digit beyond the $(p+1)$-th place, so it is neither representable nor a
   midpoint, and the enclosure decides it. Every other $x$ is written
   $x = s\,10^{2k}$ with $s \in [1, 100)$: the Ziv loop encloses
   $1/\sqrt{s}$, whose endpoints are moderate, and multiplies them by
   $10^{-k}$ (an exponent shift) before the context rounds them, under the same
   agreement test. An operand $10^{-1\,999\,997}$ costs what $1$ costs.
-- *`compound`.* The special values are the list of §9.2.1 (with $x < -1$
+##### `compound`
+
+`compound(x,n)` uses the special values of IEEE 754-2019 9.2.1 (with $x < -1$
   invalid also for $n = 0$, Table 9.1). For a tiny $x$,
   $(1+x)^n - 1$ has the sign of $nx$ and
   $|(1+x)^n - 1| \le |nx|\,e^{|nx|} < 10^{\operatorname{adj}(x) + 12}$ for
-  $|n| \le 2^{31}$, so `decimal_tiny_argument_result` decides a one-sided
+  $|n| \le 2^{31}$, so a bound decides a one-sided
   neighbour of 1 and $1 + x$ (up to two million digits) is never formed.
   Otherwise $1 + x = c\,10^{e}$ is formed exactly ($c$ without trailing
   zeros, $d$ digits, exponent $\min(0, Q(x))$ before stripping). For $n > 0$,
@@ -1091,12 +1118,11 @@ extreme power of ten.
   `decimal_range_from_log2_bracket` on $n \operatorname{log1p}(x)/\ln 2$
   whenever $|n| \max(\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already
   keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an
-  `Int64`. `pown(1 + x, n)` is not used: when this function was written, its
-  exponents beyond the machine count gave wrong values and some negative ones
-  a spurious `Clamped` for a base near 1 (issues [#348](https://github.com/Luna-Flow/floating/issues/348) and
-  [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed),
-  and the Ziv loop never forms $1 + x$.
-- *`powr`.* §9.2.1 lists the invalid pairs $(\pm 0, \pm 0)$,
+  `Int64`. `pown(1 + x, n)` is not used for this case. The Ziv loop evaluates
+  $\exp(n\operatorname{log1p}(x))$ and never forms $1+x$.
+##### `powr`
+
+`powr(x,y)` follows the invalid pairs listed in IEEE 754-2019 9.2.1: $(\pm 0, \pm 0)$,
   $(+\infty, \pm 0)$, $(1, \pm\infty)$ and $x < 0$, and a NaN result for a NaN
   operand even when $y = \pm 0$. Two cases are not stated and are read as
   follows: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is
@@ -1107,7 +1133,9 @@ extreme power of ten.
   `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its
   odd-integer sign rule).
 
-**`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate
+#### `asinPi`, `acosPi`, `atanPi` and `atan2Pi`
+
+These four functions evaluate
 $\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
 $\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$ in the
 existing Ziv driver, with $\pi$ enclosed as $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$
@@ -1117,21 +1145,25 @@ $4\operatorname{atan}(1)$ bit for bit) and the angle
 enclosure divided by it (error: the angle, $\pi$ and the division, about
 4 ulp relative).
 
-- *Exact results.* By Niven's theorem a rational $x$ has a rational
+##### Exact results
+
+By Niven's theorem a rational $x$ has a rational
   $\operatorname{asin}(x)/\pi$ or $\operatorname{acos}(x)/\pi$ only at
   $0, \pm\tfrac12, \pm 1$ and a rational $\operatorname{atan}(x)/\pi$ only at
-  $0, \pm 1$, so the dyadic exact results are those of §9.2.1 and
+  $0, \pm 1$, so the dyadic exact results are those of IEEE 754-2019 9.2.1 and
   $\operatorname{atanPi}(\pm 1) = \pm\tfrac14$,
   $\operatorname{atan2Pi}(\pm a, \pm a) = \pm\tfrac14, \pm\tfrac34$. They are
-  built by `decimal_exact_constant` at the preferred exponent 0 (§9.2.2).
+  built by the exact-case path at the preferred exponent 0 (IEEE 754-2019 9.2.2).
   $\pm\tfrac16$, $\tfrac13$ and $\tfrac23$ do not terminate, so they sit
   strictly inside a rounding cell and the loop decides them. No Pi function
   is anchored at a tiny argument: $x/\pi$ is irrational and nowhere near a
   representable value.
-- *Clusters next to $\pm\tfrac12$ and $\pm 1$.* These are the only inexact
+##### Clusters near representable values
+
+These are the only inexact
   results that approach a representable value, and the distance does not
   depend on the digits of the operand, so a $w_0$ that grows with $D$ cannot cover it.
-  Each is decided by `decimal_tiny_argument_result` from a bound on the
+  A bound decides each case on one side of the anchor:
   distance, one-sided: $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
   $0 < \delta < 1/(\pi|x|) < 10^{-\operatorname{adj}(x)}$ for a large $|x|$;
   $\operatorname{acosPi}(x) = \tfrac12 - \operatorname{asin}(x)/\pi$ with
@@ -1143,12 +1175,14 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
   $\pm(\tfrac12 \mp \delta)$ with $\delta < 10^{1-D}$ for a large ratio
   (below $\tfrac12$ in magnitude for $x > 0$, above for $x < 0$), and
   $\pm(1 - \delta)$ with $\delta < 10^{D+1}$ for $x < 0$ and a small ratio.
-  The guard of `decimal_tiny_argument_result` (error exponent below the
-  anchor's adjusted exponent minus $p + 3$) picks the threshold; between it and
+  The guard (error exponent below the anchor's adjusted exponent minus $p + 3$)
+  picks the threshold; between it and
   the moderate range the enclosure resolves the gap at the working precision.
   The tests compare every anchored result with the plain loop in all eight
   rounding modes, on both sides.
-- *Tiny results.* For $|x| \le 10^{-4}$, $\operatorname{asin}(x)/x \in
+##### Tiny results
+
+For $|x| \le 10^{-4}$, $\operatorname{asin}(x)/x \in
   [1, 1 + x^2]$ and $\operatorname{atan}(x)/x \in [1 - x^2, 1]$, and the same
   holds for $\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$.
   Once $x^2 < 2^{-(8\max(D,p)+400)}$ the loop encloses the moderate value
@@ -1184,9 +1218,8 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
 
 #### Operands of extreme exponent and the cost of a first attempt
 
-Four changes of issue [#378](https://github.com/Luna-Flow/floating/issues/378)
-keep the cost of a call independent of the size of its operands' exponents
-while the results stay those of correct rounding.
+The following paths keep the cost of a call independent of the size of its
+operands' exponents while preserving correctly rounded results.
 
 - *Conversion to binary.* For $x = c\,10^{-s}$ the quotient $\lfloor c\,2^{u} /
   10^{s} \rfloor$ is formed once, with $u = p + 3 + \lceil s \log_2 10 \rceil$
@@ -1213,7 +1246,7 @@ while the results stay those of correct rounding.
   $t \le -1$: $|b^x - 1| \le |x|\ln b\,e^{|x| \ln b} < 10^{t+1}$ for
   $b \in \{e, 2, 10\}$ ($\ln b < 2.31$, $e^{0.231} < 1.3$) with the sign of $x$, so
   the result is $1$ plus or minus less than $10^{t+1}$, one-sided next to the
-  representable 1 and decided by `decimal_tiny_argument_result` once
+  representable 1 and decided by a one-sided bound once
   $t + 1 < -(p + 3)$; and $\operatorname{expm1}(x) - x = x^2/2 + \dots > 0$,
   $x - \operatorname{log1p}(x) = x^2/2 - \dots > 0$, both below $x^2$ for
   $0 < |x| < 1/2$, so expm1 lies above $x$ and log1p below it, within
@@ -1231,7 +1264,7 @@ while the results stay those of correct rounding.
   integer multiple of 10 with $\operatorname{adj}(x) \ge p + 2$ (the sum ends in 1:
   no power of 2, 5 or 10) or for $n > 0$ when $\operatorname{adj}(x) < -(p + 2)$
   (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root.
-- *Negative integer power ([#375](https://github.com/Luna-Flow/floating/issues/375)).* For $n = |{\rm count}|$, $|b|^n \in [10^{n\,lb},
+- *Negative integer power.* For $n = |{\rm count}|$, $|b|^n \in [10^{n\,lb},
   10^{n\,ub})$ with $lb = \operatorname{adj}(b)$, $ub = lb + 1$, hence
   $1/|b|^n \in (10^{-n\,ub}, 10^{-n\,lb}]$: it overflows when $-n\,ub > e_{\max}$ and
   lies below half of the smallest subnormal when $-n\,lb \le E_{\text{tiny}} - 2$;
@@ -1391,8 +1424,9 @@ transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for
 multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring —
 and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger
 block lengths. These are dispatch boundaries: they change cost, never results.
-The native Newton path is implemented and tested but disabled, because native
-measurements do not show a crossover.
+The Newton division path is disabled on native because its measured cost has no
+crossover there. The table lists separate division thresholds for LLVM and
+Wasm-family targets; the square-root path is a different algorithm.
 
 ## Correctness and invariants
 
@@ -1428,8 +1462,7 @@ measurements do not show a crossover.
 
 No behaviour of the current branch contradicts the goals above. A deviation
 found later is listed here, reproduced in the
-[API reference](../api/decimal.md) next to the operation, and tracked in a
-GitHub issue together with the pull request that proposes a fix.
+[API reference](../api/decimal.md) next to the operation.
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel
