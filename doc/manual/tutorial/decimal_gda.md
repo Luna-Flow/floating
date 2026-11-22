@@ -10,7 +10,7 @@ every public name.
 
 | I want to | Use |
 | --- | --- |
-| Read a number under a context | [`to_number`](#quick-start) |
+| Read a number under a context | [`parse`](#quick-start) |
 | Carry flags from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
 | Round an amount to cents | [`quantize`](#keep-and-set-the-quantum) |
 | Stop on a condition but keep the result | [`GdaContext::trap`](#handle-a-trap-without-losing-the-result) |
@@ -197,22 +197,22 @@ test "overflow and underflow in decimal32" {
 ```
 ### Call the elementary functions
 
-`sqrt`, `exp`, `ln` and `log10` return correctly rounded results with the
-half-even rounding algorithm, whatever rounding the context selects. GDA 1.70,
-page 30 (exp) and page 31 (ln, log10), allows an inexact result to be up to 1
-ulp from the correctly rounded result; this package returns the correctly
-rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding
-for an inexact square root, and this package also returns the correctly rounded
-result. A non-integer `power` returns a correctly rounded result using the
-context's rounding algorithm; GDA 1.70, page 35 (power), allows up to 1 ulp of
-error for that operation.
+`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
+even, whatever the context's rounding algorithm says. `power` with a non-integer
+exponent is also correctly rounded, but under the context's own rounding
+algorithm. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with
+precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the
+decTest suite requires and GDA's Invalid context condition permits; the
+operation text of the specification states no such bound); the
+decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
+`context` (exponent range ±999,999,999) do not:
 
-`exp`, `ln`, `log10` and non-integer `power` accept a context only when its
-precision, `e_max` and `-e_min` are at most 999,999. The presets
-`decimal32`, `decimal64` and `decimal128` meet this implementation limit. The
-defaults of `GdaContext::new` and `context` do not: their exponent range is
-±999,999,999. The [design page](../design/decimal_gda.md) explains why this
-limit exists.
+GDA 1.70, pages 30 and 31, allows an inexact result of `exp`, `ln` or `log10`
+to be up to 1 ulp from the correctly rounded result; this package returns the
+correctly rounded result. GDA 1.70, page 39, specifies half-even rounding for an
+inexact square root, and this package also returns the correctly rounded result.
+GDA 1.70, page 35, allows up to 1 ulp of error for non-integer `power`; this
+package returns the correctly rounded result.
 
 ```moonbit
 ///|
@@ -372,7 +372,7 @@ test "decimal64 interchange round trip" {
   the result. Read `value()` before deciding whether to stop.
 - **Expecting constructors to keep zeros.** `Decimal::from_int(100)` and
   `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use
-  `Decimal::from_string("100")` or `to_number` when the quantum matters.
+  `Decimal::from_string("100")` or `parse` when the quantum matters.
 - **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context.
   They use a private context with larger operand precision, half-even rounding,
   no clamp and no traps. They round to that private precision and return the GDA
