@@ -667,13 +667,15 @@ event: nothing that starts or replaces a process (`subprocess.Popen`, `os.posix_
 `os.spawn*`, `os.system`, `os.fork`, `os.forkpty`, `pty.spawn`, `os.startfile`, `webbrowser.open`) and
 no `ctypes` event. A Python process started with `-I`, `-E` or `-S` writes no start line; a second
 start line without a launch event is another Python process, for example a `multiprocessing` child.
-A stage that uses children is therefore never recorded, whatever the children read; if a later unit
-needs children, that is a design of its own. Besides, the start line has the version of the key, the
+A stage that starts children through one of these events is therefore never recorded, whatever the
+children read; if a later unit needs children, that is a design of its own. Besides, the start line has the version of the key, the
 stage read no compiled module from the tree, and it read or listed nothing outside the repository
 except the standard library of the interpreter (not its site-packages), the directories that are
 entries of the interpreter's own `sys.path` at start-up (the import system looking for a module;
-opening a file below one of them is still an outside read), the cache directory of the run and files
-that the run created before reading them. A read or a listing outside the repository that the key does
+opening a file below one of them is still an outside read), the cache directory of the run, and what
+the run created before reading it (a file that did not exist and that an open with `O_CREAT` creates,
+whatever the mode, as `tempfile` does; a directory that `os.mkdir` creates, and everything below it).
+A file that existed is not the run's own, with any mode. A read or a listing outside the repository that the key does
 not cover (a cache file, a toolchain file, a shared library, an installed package, a directory of
 another tool) does not fail the stage; the stage passes, `verify` says why it was not recorded, and
 the stage runs again next time. A stage that imports an installed package is therefore never recorded.
@@ -681,7 +683,10 @@ the stage runs again next time. A stage that imports an installed package is the
 The audit is a check against an honest mistake, not a sandbox. It finds an input that the author of a
 stage forgot to declare, through the events that CPython reports. A stage written to deceive it, for
 example by starting a process through a private or foreign-function interface that raises no launch
-event (`_posixsubprocess.fork_exec`, `ctypes`), is outside what it claims: the stage scripts are code
+event (`_posixsubprocess.fork_exec`, `ctypes`), is outside what it claims. One such route is not a
+deception but a configuration: `multiprocessing` with the `spawn` method after `set_executable` of a
+program that is not Python starts the child through `_posixsubprocess.fork_exec`, raises no launch
+event and writes no second start line, so that run is recorded although a child ran. The stage scripts are code
 of the repository and are reviewed as such, and the 2 % reruns of the verifier exist for what a key
 misses. A `ctypes` event, which is a call into a foreign library, is still refused.
 
