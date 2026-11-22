@@ -116,8 +116,7 @@ fn decimal_coeff_magnitude(x : @decimal.Decimal) -> BigInt {
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.4.1 multiplication, exact at 40 digits with preferred exponent Q(x) + Q(y) = 0:
-//   1234567890123 x 987654321 = 1219326311247834171483, done by hand and checked with CPython integers. The written
-//   texts of the expected values are read by Decimal::from_string and compared with total_order_compare.
+//   1234567890123 x 987654321 = 1219326311247834171483, done by hand and checked with CPython integers.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal multiply exact paths can use coefficient kernel" {
   let lhs = decimal_test_operand("1234567890123")
@@ -135,8 +134,7 @@ test "decimal multiply exact paths can use coefficient kernel" {
 // oracle: A
 // source: IEEE 754-2019 5.4.1 addition and subtraction, exact at 40 digits with preferred exponent min(Q(x), Q(y)):
 //   the sum 123456789012345678900009876.54321 and the difference 0.0000000001 done by hand and checked with CPython
-//   decimal. The written texts of the expected values are read by Decimal::from_string and compared with
-//   total_order_compare.
+//   decimal.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal add/sub exact alignment can follow coefficient kernel shifts" {
   let ctx = @decimal.DecimalContext::new(precision=40)
@@ -437,8 +435,7 @@ test "binary coefficient constructor normalizes canonical dyadics" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.12.2 (a conversion from a decimal character sequence preserves the quantum, see also
-//   5.4.2): 0012.3400 has digits 12.3400 and exponent -4, by hand. The written texts of the expected values are read
-//   by Decimal::from_string and compared with total_order_compare.
+//   5.4.2): 0012.3400 has digits 12.3400 and exponent -4, by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal parses and normalizes" {
   let x = @decimal.Decimal::from_string("0012.3400", precision=20)
@@ -456,8 +453,7 @@ test "decimal parses and normalizes" {
 // oracle: A
 // source: IEEE 754-2019 5.12.1 (the character sequences of infinities, quiet and signaling NaNs, the sign kept); the
 //   form of a payload suffix and its limits are language-defined there, so the rows on payloads (digits only, at
-//   most precision - 1 of them) are the library's rule written by hand. The written texts of the expected values are
-//   read by Decimal::from_string and compared with total_order_compare.
+//   most precision - 1 of them) are the library's rule written by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal parse accepts special values and rejects malformed special payloads" {
   match @decimal.Decimal::from_string("-Infinity", precision=12) {
@@ -505,8 +501,7 @@ test "decimal parse accepts special values and rejects malformed special payload
 // oracle: A
 // source: IEEE 754-2019 6.3 (the sign of a zero), 5.5.1 (abs and negate act on the sign), 5.7.2 (isSignMinus applies
 //   to zeros), 5.11 (+0 = -0), 5.12.2 (the conversion keeps the exponent of -0.00); the normalized form -0 is the
-//   library's reduction, written by hand. The written texts of the expected values are read by Decimal::from_string
-//   and compared with total_order_compare.
+//   library's reduction, written by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal preserves signed zero through GDA-ready observers" {
   let pos = @decimal.Decimal::from_string("0.00", precision=12).unwrap()
@@ -534,8 +529,7 @@ test "decimal preserves signed zero through GDA-ready observers" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.7.2 (isSignMinus applies to zeros and NaNs; the ten classes of class); the signum of a NaN
-//   as zero is the library's definition, IEEE 754-2019 has no signum; written by hand. The written texts of the
-//   expected values are read by Decimal::from_string and compared with total_order_compare.
+//   as zero is the library's definition, IEEE 754-2019 has no signum; written by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal observers distinguish sign from signedness on specials" {
   let ctx = @decimal.DecimalContext::new(precision=8)
@@ -562,8 +556,7 @@ test "decimal observers distinguish sign from signedness on specials" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 6.3: the sign of a product or quotient is the exclusive OR of the signs, x + x has the sign
-//   of x for a zero x, and an exact zero sum of opposite signs is +0 (not under roundTowardNegative). The written
-//   texts of the expected values are read by Decimal::from_string and compared with total_order_compare.
+//   of x for a zero x, and an exact zero sum of opposite signs is +0 (not under roundTowardNegative).
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal zero arithmetic preserves meaningful result signs" {
   let pos = @decimal.Decimal::zero(precision=12)
@@ -582,8 +575,7 @@ test "decimal zero arithmetic preserves meaningful result signs" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.4.1 (the preferred exponent of an addition is min(Q(x), Q(y)), so 0.00 + 0 is 0.00 and
-//   -0.0 + 0.00 is 0.00) and 6.3 (the exact zero sum of opposite signs is +0). The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+//   -0.0 + 0.00 is 0.00) and 6.3 (the exact zero sum of opposite signs is +0).
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context zero addition canonicalizes ordinary zero results" {
   let ctx = @decimal.DecimalContext::new(precision=9)
@@ -1152,8 +1144,7 @@ test "decimal subtract preserves rhs nan sign while canonicalizing payload" {
 ///|
 // oracle: A
 // source: rows ddsub508 and ddsub608 of the pinned decTest corpus (testdata/decimal_gda/corpora.json, dectest.zip),
-//   named by id; a script over the calls of the file found both rows with the same operands, result and flags. The
-//   written texts of the expected values are read by Decimal::from_string and compared with total_order_compare.
+//   named by id; a script over the calls of the file found both rows with the same operands, result and flags.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal absorbed subtract half-up ties keep away-from-zero representative" {
   let dd_ctx = @decimal.DecimalContext::new(
@@ -1502,8 +1493,7 @@ test "IEEE decimal fma preserves first nan payload and signals snans" {
 // oracle: A
 // source: IEEE 754-2019 6.1 (an operation with an infinite operand is exact and signals nothing) and 7.2 d (the
 //   magnitude subtraction of infinities in fusedMultiplyAdd is invalid operation): inf x 2 + inf = inf, 1 x -inf +
-//   inf is a NaN with invalid operation. The written texts of the expected values are read by Decimal::from_string
-//   and compared with total_order_compare.
+//   inf is a NaN with invalid operation.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal fma handles infinite addends with direct infinity semantics" {
   let ctx = @decimal.DecimalContext::new(precision=9, e_max=999999)
@@ -1537,8 +1527,7 @@ test "decimal fma handles infinite addends with direct infinity semantics" {
 // oracle: A
 // source: IEEE 754-2019 7.4 c and d: with roundTowardPositive a positive overflow carries to +inf, with
 //   roundTowardNegative a negative overflow carries to -inf, with overflow and inexact signaled; the exact value
-//   9E+6145 + 1 exceeds the largest finite number of 34 digits and emax 6144. The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+//   9E+6145 + 1 exceeds the largest finite number of 34 digits and emax 6144.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal fma preserves directed overflow when tiny addend cannot affect result" {
   let ctx = @decimal.DecimalContext::new(
@@ -1567,8 +1556,7 @@ test "decimal fma preserves directed overflow when tiny addend cannot affect res
 
 ///|
 // oracle: A
-// source: exact arithmetic done by hand: 1.25 + 2.5 = 3.75 and 1.25 x 2.5 = 3.125. The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+// source: exact arithmetic done by hand: 1.25 + 2.5 = 3.75 and 1.25 x 2.5 = 3.125.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal arithmetic and display stay aligned" {
   let a = @decimal.Decimal::from_string("1.25", precision=20).unwrap()
@@ -3061,8 +3049,7 @@ test "decimal participates in luna generic semiring algorithms" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 7.6: 123 + 0 is exact at 3 digits, 1234 + 0 rounds to 1.23E+3 and signals inexact; done by
-//   hand. The written texts of the expected values are read by Decimal::from_string and compared with
-//   total_order_compare.
+//   hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context flags distinguish exact in-range and rounded addition" {
   let ctx = @decimal.DecimalContext::new(precision=3)
@@ -3085,8 +3072,7 @@ test "decimal context flags distinguish exact in-range and rounded addition" {
 ///|
 // oracle: A
 // source: exact arithmetic done by hand: 10000E+9 + 700000 = 10000000700000, which is 1.00000007E+13 at 9 digits
-//   with no digit discarded, so inexact is not signaled (IEEE 754-2019 7.6). The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+//   with no digit discarded, so inexact is not signaled (IEEE 754-2019 7.6).
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context reports rounded for discarded trailing zeros" {
   let ctx = @decimal.DecimalContext::new(
@@ -3125,8 +3111,7 @@ test "decimal context reports rounded for discarded trailing zeros" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 7.6, by hand: 1 - 77E-999 lies just below 1 and rounds to 1.00000000 at 9 digits, which
-//   differs from the exact value, so inexact is signaled. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   differs from the exact value, so inexact is signaled.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context addition absorbs far smaller operand as sticky" {
   let ctx = @decimal.DecimalContext::new(precision=9)
@@ -3142,8 +3127,7 @@ test "decimal context addition absorbs far smaller operand as sticky" {
 // oracle: A
 // source: IEEE 754-2019 4.3.1 (roundTiesToAway) and 4.3.2 (toward positive, toward zero) and 7.6, by hand: 1 +
 //   4.99999E-9 and 1 + 5.00001E-9 at 9 digits, 1 + 4.99999E-9 toward positive, 1.23456789 - 5.00001E-9 toward zero;
-//   checked with CPython decimal. The written texts of the expected values are read by Decimal::from_string and
-//   compared with total_order_compare.
+//   checked with CPython decimal.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context addition rounds exact dominant operand with sub-ulp addend" {
   let lhs = @decimal.Decimal::from_string("1", precision=64).unwrap()
@@ -3207,8 +3191,7 @@ test "decimal context addition rounds exact dominant operand with sub-ulp addend
 // oracle: A
 // source: IEEE 754-2019 7.5 (for decimal formats tininess is detected before rounding) and 7.6: 1E-383 - 1E-400 =
 //   9.9999999999999999E-384 is below 10^emin, tiny; at 16 digits it rounds to 1.000000000000000E-383 and differs
-//   from the exact value, so underflow and inexact are signaled; checked with CPython decimal. The written texts of
-//   the expected values are read by Decimal::from_string and compared with total_order_compare.
+//   from the exact value, so underflow and inexact are signaled; checked with CPython decimal.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context reports underflow when tiny exact result rounds normal" {
   let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
@@ -3563,8 +3546,7 @@ test "decimal canonical tiny-nonzero subtract rows preserve canonical finite res
 ///|
 // oracle: A
 // source: IEEE 754-2019 7.4 a: 0 + -9.999E+999999999 at 3 digits rounds to -1.00E+1000000000, above emax 999999999,
-//   so the result is -inf with overflow and inexact signaled. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   so the result is -inf with overflow and inexact signaled.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context zero plus huge finite overflows without scaling zero" {
   let ctx = @decimal.DecimalContext::new(precision=3, e_max=999999999)
@@ -3604,8 +3586,7 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
 // oracle: A
 // source: IEEE 754-2019 4.3.1: 1.25 at 2 digits is a tie, roundTiesToAway gives 1.3 and roundTiesToEven gives 1.2,
 //   both inexact; the conversions to and from the arithmetic rounding direction are the library's mapping, written
-//   by hand. The written texts of the expected values are read by Decimal::from_string and compared with
-//   total_order_compare.
+//   by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context supports round ties to away" {
   let source = @decimal.Decimal::from_string("1.25", precision=12).unwrap()
@@ -3639,8 +3620,7 @@ test "decimal context supports round ties to away" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 7.3 (1/0 is an infinity with divideByZero), 7.2 e (0/0 is invalid operation) and 7.6; 1/4 =
-//   0.25 exact and 1/3 = 0.333333 inexact at 6 digits, by hand. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   0.25 exact and 1/3 = 0.333333 inexact at 6 digits, by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context division reports inexact and exceptional flags" {
   let ctx = @decimal.DecimalContext::new(precision=6)
@@ -3723,8 +3703,7 @@ test "decimal inexact division matches official rounded quotients" {
 // oracle: A
 // source: IEEE 754-2019 5.4.1 (squareRoot, with squareRoot(-0) = -0 and preferred exponent floor(Q(x) / 2)), 7.2 g
 //   (the square root of a number below zero is invalid operation) and 7.6: sqrt 4 = 2, sqrt 2 = 1.41 inexact at 3
-//   digits, sqrt -0.00 = -0.0, by hand. The written texts of the expected values are read by Decimal::from_string
-//   and compared with total_order_compare.
+//   digits, sqrt -0.00 = -0.0, by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal sqrt context reports exact inexact and invalid cases" {
   let ctx = @decimal.DecimalContext::new(precision=3)
@@ -3786,8 +3765,7 @@ test "decimal sqrt exact results preserve cohort-only input rounding" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 6.2 and 7.2 a: a signaling NaN operand signals invalid operation and the default result is a
-//   quiet NaN. The written texts of the expected values are read by Decimal::from_string and compared with
-//   total_order_compare.
+//   quiet NaN.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context flags signaling nan as invalid operation" {
   let ctx = @decimal.DecimalContext::new(precision=8)
@@ -3802,8 +3780,7 @@ test "decimal context flags signaling nan as invalid operation" {
 // oracle: A
 // source: IEEE 754-2019 3.3 (q <= emax - p + 1 = 9 - 3 + 1 = 7), 5.2 (when no member of the cohort has the preferred
 //   exponent, the member with the closest exponent is used) and 5.4.1: 1E+9 + 0E+9 and 1E+9 + 0 are exact as 1.00E+9
-//   with exponent 7, by hand. The written texts of the expected values are read by Decimal::from_string and compared
-//   with total_order_compare.
+//   with exponent 7, by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context clamps finite exponent by padding coefficient" {
   let ctx = @decimal.DecimalContext::new(precision=3, e_max=9)
@@ -3832,8 +3809,7 @@ test "decimal context clamps finite exponent by padding coefficient" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 7.4 a: 1E+4 at 3 digits and emax 3 exceeds the largest finite number, the default result is
-//   +inf with overflow and inexact, by hand. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   +inf with overflow and inexact, by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal context overflows finite results above emax" {
   let ctx = @decimal.DecimalContext::new(precision=3, e_max=3)
@@ -4040,8 +4016,7 @@ test "decimal total comparison orders representations without signaling unordere
 // oracle: A
 // source: IEEE 754-2019 5.10 (totalOrder; for equal values the larger exponent orders higher when positive) and
 //   5.5.1 (abs): the order of the values 9.99999999E+999999999, 1, 1E-3, 1E-999999999 is by hand;
-//   123.4560000000000000E789 orders below 123.456E789 and 0E-383 below 0E+384. The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+//   123.4560000000000000E789 orders below 123.456E789 and 0E-383 below 0E+384.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal finite comparison avoids huge exponent expansion" {
   let huge = @decimal.Decimal::from_string(
@@ -4102,8 +4077,7 @@ test "decimal finite compare handles same-adjusted decade boundaries" {
 //   NaN); 6.2.3 lets the implementation choose which payload, so which of two NaNs is returned (the left operand for
 //   both max_num and min_num here) is the library's rule. The row finite.min_num(sNaN) asserts a NaN with the
 //   payload of the signaling NaN, while 9.6 says that the signaling NaN is ignored when the other operand is a
-//   number: that row is the library's rule, not 9.6. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   number: that row is the library's rule, not 9.6.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "plain decimal minmax follows IEEE operand-order nan propagation" {
   let finite = @decimal.Decimal::from_int(9, precision=8)
@@ -4932,8 +4906,7 @@ test "decimal ln lookaside constants preserve official-scale semantics" {
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.2 with 5.4.1 (the preferred exponent of an exact quotient is Q(x) - Q(y)): 100 / 100 = 1
-//   and 1.2300 / 10 = 0.1230 (exponent -4), by hand. The written texts of the expected values are read by
-//   Decimal::from_string and compared with total_order_compare.
+//   and 1.2300 / 10 = 0.1230 (exponent -4), by hand.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal exact division by power of ten preserves preferred exponent behavior" {
   let ctx = @decimal.DecimalContext::new(
@@ -4964,8 +4937,7 @@ test "decimal exact division by power of ten preserves preferred exponent behavi
 ///|
 // oracle: A
 // source: IEEE 754-2019 5.3.1 remainder (r = x - y x n with n the integer nearest x/y, preferred exponent min(Q(x),
-//   Q(y))): 12345 - 1E+2 x 123 = 45, by hand and checked with CPython decimal. The written texts of the expected
-//   values are read by Decimal::from_string and compared with total_order_compare.
+//   Q(y))): 12345 - 1E+2 x 123 = 45, by hand and checked with CPython decimal.
 // shares: Decimal::from_string for operand texts (input side), total_order_compare where the expected text is read
 test "decimal remainder fast path for power-of-ten divisors preserves results" {
   let ctx = @decimal.DecimalContext::new(
