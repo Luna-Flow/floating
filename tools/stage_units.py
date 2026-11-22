@@ -121,7 +121,9 @@ def units_for(scope: str, stages: Sequence[tuple[str, tuple[str, ...]]]) -> list
 def covered(path: str, declared: Sequence[str]) -> bool:
     """Whether a repository-relative path lies in the declared set (a file, or below a directory)."""
     if any(part in IGNORED_PARTS for part in path.split("/")):
-        return True
+        # Never covered by a directory (the key leaves such files out): only a unit that declares the
+        # file itself reads it.
+        return path in declared
     for item in declared:
         if item.endswith("/"):
             if path == item.rstrip("/") or path.startswith(item):
@@ -136,7 +138,8 @@ class Audit:
     reads: tuple[str, ...]
     listings: tuple[str, ...]
     programs: tuple[str, ...]
-    starts: tuple[str, ...] = ()  # `sys.version` of every interpreter that loaded the hook
+    starts: tuple[str, ...] = ()  # `sys.version` of every hooked Python process, one per start line
+    launches: tuple[str, ...] = ()  # every launch of a Python interpreter that the hook saw
     outside: tuple[str, ...] = ()  # files outside the repository that were read and not created by the run
 
 
@@ -146,10 +149,11 @@ def parse_audit(text: str) -> Audit:
     reads: set[str] = set()
     listings: set[str] = set()
     programs: set[str] = set()
-    starts: set[str] = set()
+    starts: list[str] = []
+    launches: list[str] = []
     outside: set[str] = set()
     created: set[str] = set()
-    for line in text.splitlines():
+    for line in text.split("\n"):  # not `splitlines`: only the hook ends a line, and it escapes the others
         kind, _, value = line.partition(" ")
         if kind == "R":
             reads.add(value)
@@ -158,12 +162,14 @@ def parse_audit(text: str) -> Audit:
         elif kind == "S":
             programs.add(value)
         elif kind == "B":
-            starts.add(value)
+            starts.append(value.partition(" ")[2])  # `B <pid> <version>`
+        elif kind == "L":
+            launches.append(value)
         elif kind == "C":
             created.add(value)
         elif kind == "X" and value not in created:
             outside.add(value)
-    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(sorted(programs)), tuple(sorted(starts)), tuple(sorted(outside)))
+    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(sorted(programs)), tuple(starts), tuple(launches), tuple(sorted(outside)))
 
 
 def ancestors(declared: Sequence[str]) -> set[str]:
@@ -195,9 +201,10 @@ def undeclared(audit: Audit, declared: Sequence[str]) -> list[str]:
 
 
 def outside_reads(audit: Audit) -> list[str]:
-    """Files outside the repository that the run read, other than the interpreter's own files (its
-    standard library and site-packages), the run's private compiled-module cache and files that the run
-    created itself first: inputs that no key covers, so the run is not recorded."""
+    """Files outside the repository that the run read and directories outside it that it listed, other
+    than the standard library of the interpreter (not its site-packages), the run's private
+    compiled-module cache and files that the run created itself first: inputs that no key covers, so
+    the run is not recorded."""
     return list(audit.outside)
 
 
@@ -210,10 +217,18 @@ def compiled_reads(audit: Audit) -> list[str]:
 def not_recorded_why(audit: Audit, python: str, version: str) -> str:
     """Why the pass of a Python stage must not be recorded ('' when it may be): no hook ran in the
     process (an interpreter run with `-I` or `-S` does not load it, and an empty log would read as
-    nothing outside), an interpreter other than the one the key names ran, a program the audit cannot
-    see into, a read outside the repository, or a compiled module of the tree."""
+    nothing outside), a Python launch with no start line of its own (counted: one start line for the
+    stage's own process and one per launch), an interpreter other than the one the key names ran, a
+    program the audit cannot see into, a read or listing outside the repository, or a compiled module
+    of the tree."""
     if not audit.starts:
         return "the audit hook did not start (no start line in its log), so nothing the stage read was seen"
+    expected = 1 + len(audit.launches)
+    if len(audit.starts) != expected:
+        return (
+            f"{len(audit.starts)} Python processes loaded the hook for {len(audit.launches)} Python launches seen "
+            f"(expected {expected}): a Python process that did not load it (`-I`, `-E`, `-S`, an empty environment) ran unseen"
+        )
     other = [s for s in audit.starts if s != version]
     if other:
         return f"a Python of another version ran ({other[0].split()[0]}), not the one of the key ({version.split()[0] if version else 'unknown'})"
