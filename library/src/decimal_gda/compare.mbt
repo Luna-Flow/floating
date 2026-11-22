@@ -297,14 +297,17 @@ fn Decimal::compare_total_magnitude_ctx(
   // matters in Floor and Ceiling.
   // Only Floor and Ceiling in a subset context round a negative operand
   // differently from its absolute value.
-  let (self, other) = if !ctx.extended &&
+  if !ctx.extended &&
     (
       ctx.decimal_rounding == DecimalRoundingMode::Floor ||
       ctx.decimal_rounding == DecimalRoundingMode::Ceiling
     ) {
-    (self.abs(), other.abs())
-  } else {
-    (self, other)
+    let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
+      self.abs(),
+      other.abs(),
+      ctx,
+    )
+    return (lhs.compare_total_magnitude(rhs), operand_flags)
   }
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
     self, other, ctx,
