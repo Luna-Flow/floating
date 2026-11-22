@@ -292,8 +292,13 @@ fn Decimal::compare_total_magnitude_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Int32, DecimalFlags) {
+  // compare-total-magnitude(x, y) is compare-total(copy-abs(x), copy-abs(y))
+  // (GDA 1.70, page 43): the sign goes before the operands are rounded, which
+  // matters in Floor and Ceiling.
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
+    self.abs(),
+    other.abs(),
+    ctx,
   )
   (lhs.compare_total_magnitude(rhs), operand_flags)
 }
