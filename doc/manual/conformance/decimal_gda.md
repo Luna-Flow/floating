@@ -37,15 +37,15 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 
 ## Subset arithmetic and operations Appendix A does not name
 
-In a subset context (`extended=false`) the result of every operation of `decimal_gda` obeys the three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset), which the page states for any operation:
+In a subset context (`extended=false`) the result of every operation of `decimal_gda` that takes a context obeys the three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset), which the page states for any operation:
 
 - a result whose coefficient is zero has sign 0 and, unless the operation is quantize, exponent 0;
-- a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded`, as `multiply` has always given;
+- a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded` as `multiply` has always given (an operation that raised `Clamped` before keeps it: `exp` raises it as well);
 - after the rounding of its result (unless the operation is quantize), a positive exponent is reduced to 0 when the coefficient then has at most precision digits.
 
-The library applies the rules in one step, the last of every operation in a subset context ([#754](https://github.com/Luna-Flow/floating/issues/754)); an extended context does not reach it. The one exception is `quantize`, and with it `rescale`, the former name of the operation (GDA 1.70, page 37 (quantize), note 2): they keep the exponent of a zero and a positive exponent, and a zero is still of sign 0. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`; the rules say "after any operation", so they apply to these operations too. The to-number conversion and the parsing keep a positive exponent, as page 55 states the rule for operations; a zero they read is `+0` with exponent 0.
+The library applies the rules in one step, the last of every operation in a subset context ([#754](https://github.com/Luna-Flow/floating/issues/754)); an extended context does not reach it. `add` and `subtract` obeyed the zero and the exponent rule before; a subnormal result is now refused for them too (`add(1E-9, -1E-99)` at precision 3, round-down, Emin -9 was `9.9E-10` and is `0`). The copy operations (`copy`, `copy_abs`, `copy_negate`, `copy_sign`) take no context and are outside the rules: `copy_negate(0)` is `-0`. The one exception is `quantize`, and with it `rescale`, the former name of the operation (GDA 1.70, page 37 (quantize), note 2): they keep the exponent of a zero and a positive exponent, and a zero is still of sign 0. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`; the rules say "after any operation", so they apply to these operations too. The to-number conversion and the parsing keep a positive exponent, as page 55 states the rule for operations; a zero they read is `+0` with exponent 0.
 
-Three operations are the exception to the exception: `reduce`, `round_to_integral_value` and `sqrt` keep a positive exponent in a subset context (`reduce(1200)` is `1.2E+3`), because the pinned subset corpus (`dectest0`) expects it of them in 64 rows (`red060` to `red144`, `int067` to `int090`, `sqtx2207` to `sqtx2847`) and the corpus is not changed; a decision on them is open.
+`reduce`, `round_to_integral_value` and `sqrt` obey the rules too (`reduce(1200)` is `1200`, `round_to_integral_value(1.2E+3)` is `1200`, `sqrt(1E+2)` is `10`), and so does `round_to_integral_exact`. 64 rows of the pinned subset corpus (`dectest0`) expect decNumber's result for them and are recorded as deviations ([Deviations of the corpus](#deviations-of-the-corpus)). The corpus has no row in a subset context for `scaleb`, `shift`, `rotate`, `next_toward` or `round_to_integral_exact`: their results rest on the text of page 55 alone.
 
 What Appendix A defines differently is not changed: the rounding of the operands first, the trailing zeros that `divide` and `power` remove, and the power rules of pages 56 and 57.
 
@@ -56,11 +56,13 @@ A comparison with decNumber 3.68 (built with `DECSUBSET=1`) over 149,338 calls o
 | `add`, `subtract` | positive exponent | `add(1.2E+3, 1E+2)` | `1300` | `1.3E+3` |
 | `scaleb` | positive exponent, zero | `scaleb(12, 2)`, `scaleb(0, 2)` | `1200`, `0` | `1.2E+3`, `0E+2` |
 | `shift`, `rotate` | positive exponent, zero, subnormal | `shift(1.2E+3, 1)`, `shift(1.2E+3, -2)`, `rotate(1.2E+3, 0)` | `12000`, `0`, `1200` | `1.20E+4`, `0E+2`, `1.2E+3` |
-| `round_to_integral_exact` | positive exponent | `round_to_integral_exact(1.2E+3)` | `1200` | `1.2E+3` |
+| `reduce` | positive exponent | `reduce(1200)` | `1200` | `1.2E+3` |
+| `round_to_integral_value`, `round_to_integral_exact` | positive exponent | `round_to_integral_value(1.2E+3)` | `1200` | `1.2E+3` |
+| `sqrt` | positive exponent | `sqrt(1E+2)` | `10` | `1E+1` |
 | `next_toward` | positive exponent | `next_toward(1.2E+3, 1200)` | `1200` | `1.2E+3` |
 | `power` | zero | `power(-0, 3)` | `0` | `-0` |
 
-Two consequences follow from the rules and are kept: `scaleb(12, 2)` is `1200`, where it left a positive exponent before; a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: operands longer than the precision (decNumber 3.68 rounds the operand of `next_toward`, `next_plus` and `next_minus` first and the library does not, so `next_toward(1234567891, 0)` at precision 9 is `1.23456789E+9` in the library and `1.23456788E+9` in decNumber 3.68), the contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
+Three consequences follow from the rules and are kept: `reduce(1200)` is `1200`, so `reduce` no longer shortens an integer, and `scaleb(12, 2)` is `1200`, where it left a positive exponent before; a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: operands longer than the precision (decNumber 3.68 rounds the operand of `next_toward`, `next_plus` and `next_minus` first and the library does not, so `next_toward(1234567891, 0)` at precision 9 is `1.23456789E+9` in the library and `1.23456788E+9` in decNumber 3.68), the contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
 
 ## decTest rows behind statements of the API page
 
@@ -125,7 +127,7 @@ of decNumber 3.68 and what the held value rests on: the corpus value is not wron
 the row is recorded because the two texts differ. The stage judges the row against
 the held value, reports it as the verdict `deviation`, and fails it if the result
 token of the row stops being the recorded corpus value. Nothing is reported upstream.
-There is one: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17
+There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17
 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where
 the correctly rounded result is `-8.9999999999999878E-8` (the exact value is
 `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116`
@@ -135,6 +137,8 @@ the two corpora (4,816 and 3,652 rows of the supported operations) equals the
 correctly rounded result of CPython `decimal` in its own context, apart from rows
 that depend on the exponent range of CPython or on the subset rules that CPython does
 not have.
+
+A second kind of row follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream.
 
 ## Known deviations outside the corpus
 

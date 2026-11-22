@@ -550,21 +550,22 @@ extensions that the library keeps, and the official decTest files use both.
   In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
   `LostDigits` when it is inexact. Special values cannot be parsed, `divide` and `power` remove
   fractional trailing zeros, and `fma` is invalid.
-  - The result of every operation obeys three rules (GDA 1.70, page 55 (Appendix A, The X3.274
+  - The result of every operation that takes a context obeys three rules (GDA 1.70, page 55 (Appendix A, The X3.274
     subset)): a zero is $+0$ with exponent 0; a result below $E_{\min}$ (a subnormal result) is
-    $+0$ with exponent 0 and the flags `Underflow`, `Subnormal`, `Inexact` and `Rounded`; and a
+    $+0$ with exponent 0 and the flags `Underflow`, `Subnormal`, `Inexact` and `Rounded` (and
+    `Clamped`, where the operation raised it before, as `exp` does); and a
     result with a positive exponent has exponent 0 when it then has at most $p$ digits. So
-    `scaleb(12, 2)` is `1200`, `remainder(1.4E+3, 5E+2)` is `400`,
-    `round_to_integral_exact(1.2E+3)` is `1200`, `power(-0, 3)` is $+0$ and `next_toward(0, 1)` is
+    `reduce` of `1200` is `1200`, `scaleb(12, 2)` is `1200`, `remainder(1.4E+3, 5E+2)` is `400`,
+    `round_to_integral_value(1.2E+3)` is `1200`, `sqrt(1E+2)` is `10`, `power(-0, 3)` is $+0$ and `next_toward(0, 1)` is
     $+0$ with `Underflow`.
-  - `reduce`, `round_to_integral_value` and `sqrt` are not changed: they keep a positive exponent
-    (`reduce` of `1200` is `1.2E+3`), as the pinned subset corpus expects.
+  - The copy operations (`copy`, `copy_abs`, `copy_negate`, `copy_sign`) take no context and are
+    outside the rules: `copy_negate(0)` is $-0$.
   - `quantize` and `rescale` keep the exponent of a zero and a positive exponent (`quantize` is the
     exception of page 55, `rescale` its former name): `quantize(-0, 1E+2)` is `0E+2`. `to_number`
     keeps a positive exponent, and reads a zero as $+0$ with exponent 0.
   - Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`,
     `remainder_near`, the two round-to-integral operations or `next_toward`; the rules apply to
-    them as to every operation, except for the three operations above. decNumber 3.68 gives other results for some of them
+    them as to every operation. decNumber 3.68 gives other results for some of them
     ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
 
 > [!NOTE]
