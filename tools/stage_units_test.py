@@ -13,6 +13,8 @@ L = su.L
 SPEC_MOON = su.StageSpec("T: moon", "moon", (f"{L}/low",))
 SPEC_PY = su.StageSpec("T: python", "python", declared=("tools/check.py", "data/"))
 OK = (0, "Total tests: 7, passed: 7, failed: 0.\n")
+VERSION = "3.13.0 (test build)"
+START = f"B {VERSION}\n"  # the start line of the audit hook
 
 
 class CoveredTest(unittest.TestCase):
@@ -43,9 +45,9 @@ class KeyTest(unittest.TestCase):
 
     def test_every_input_of_a_moon_unit_changes_its_key(self) -> None:
         reference = self.key(SPEC_MOON)
-        for part, value in (("content", "c2"), ("modules", "m2"), ("compile_commands", "y"), ("wrapper", "w2"), ("toolchain", "t2"), ("verifier", "v2"), ("ambient", "MOON_X=1")):
+        for part, value in (("content", "c2"), ("modules", "m2"), ("compile_commands", "y"), ("wrapper", "w2"), ("hook", "h2"), ("toolchain", "t2"), ("verifier", "v2"), ("ambient", "MOON_X=1")):
             self.assertNotEqual(self.key(SPEC_MOON, **{part: value}), reference, part)
-        self.assertEqual(self.key(SPEC_MOON, hook="h2", python_version="2"), reference)  # not inputs of a moon stage
+        self.assertEqual(self.key(SPEC_MOON, python_version="2"), reference)  # not an input of a moon stage; the hook directory is one of every unit
 
     def test_every_input_of_a_python_unit_changes_its_key(self) -> None:
         reference = self.key(SPEC_PY)
@@ -118,6 +120,97 @@ class RealAuditHookTest(unittest.TestCase):
         audited = subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True).stdout
         self.assertEqual(plain, audited)
 
+    def test_the_directory_of_the_hook_is_a_declared_read(self) -> None:
+        # On CI the interpreter lists the hook directory again after the hook is installed (a module is
+        # looked for with the finder caches dropped); forced here, so that it shows on every machine.
+        audit = self.run_script("import importlib\nimportlib.invalidate_caches()\ntry:\n    import no_such_module_anywhere\nexcept ImportError:\n    pass\n")
+        self.assertIn("tools/stage_audit", audit.listings)
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])
+
+    def test_the_hook_writes_a_start_line_and_an_interpreter_that_does_not_load_it_does_not(self) -> None:
+        script = self.root / "tools/check.py"
+        script.write_text("print(open('other.txt').read())")
+        log = self.root / "audit.log"
+        env = su.audit_environment(self.root, log, os.environ)
+        for flags, started in (([], True), (["-I"], False), (["-S"], False)):
+            log.write_text("")
+            subprocess.run([sys.executable, *flags, str(script)], cwd=self.root, env=env, capture_output=True, text=True, check=True)
+            audit = su.parse_audit(log.read_text())
+            self.assertEqual(bool(audit.starts), started, flags)
+            if started:
+                self.assertEqual(audit.starts, (sys.version.replace("\n", " "),))
+            else:
+                self.assertEqual(audit.reads, ())  # the read of other.txt was not seen, and an empty log must not read as clean
+                self.assertIn("did not start", su.not_recorded_why(audit, sys.executable, sys.version))
+
+    def test_a_read_outside_the_repository_counts_unless_it_is_the_interpreters_or_the_runs_own(self) -> None:
+        with tempfile.TemporaryDirectory() as other:
+            outside = Path(other).resolve() / "cache.txt"
+            outside.write_text("x")
+            made = Path(other).resolve() / "made.txt"
+            audit = self.run_script(
+                "import json, os\n"  # the standard library is the interpreter's own
+                f"open({str(outside)!r}).read()\n"
+                f"open({str(made)!r}, 'w').write('y')\n"
+                f"open({str(made)!r}).read()\n"
+                f"open({str(outside)!r}, 'w').write('z')\n"  # a write is not a read
+            )
+        self.assertEqual(su.outside_reads(audit), [str(outside)])
+        self.assertIn("outside the repository", su.not_recorded_why(audit, sys.executable, sys.version))
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])  # not a file of the repository
+
+    def test_a_file_created_by_one_process_of_the_run_and_read_by_another_is_the_runs_own(self) -> None:
+        with tempfile.TemporaryDirectory() as other:
+            made = Path(other).resolve() / "made.txt"
+            audit = self.run_script(
+                "import subprocess, sys\n"
+                f"open({str(made)!r}, 'w').write('y')\n"
+                f"subprocess.run([sys.executable, '-c', \"open({str(made)!r}).read()\"], check=True)\n"
+            )
+        self.assertEqual(su.outside_reads(audit), [])
+
+    def test_a_compiled_module_of_the_tree_cannot_run_in_place_of_its_source(self) -> None:
+        import importlib.util
+        import py_compile
+
+        helper = self.root / "tools/helper.py"
+        helper.write_text("NAME = 'source'\n")
+        decoy = self.root / "decoy.py"
+        decoy.write_text("NAME = 'stale compiled module'\n")
+        cached = Path(importlib.util.cache_from_source(str(helper)))
+        cached.parent.mkdir(exist_ok=True)
+        # a compiled module that is loaded without looking at its source: the key (the content of helper.py) does not cover it
+        py_compile.compile(str(decoy), cfile=str(cached), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+        script = self.root / "tools/check.py"
+        script.write_text("import sys\nsys.path.insert(0, 'tools')\nimport helper\nprint(helper.NAME)\n")
+        log = self.root / "audit.log"
+        with tempfile.TemporaryDirectory() as pycache:
+            env = su.audit_environment(self.root, log, os.environ, Path(pycache))
+            result = subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True, check=True)
+        audit = su.parse_audit(log.read_text())
+        self.assertEqual(result.stdout.strip(), "source")
+        self.assertIn("tools/helper.py", audit.reads)
+        self.assertEqual(su.compiled_reads(audit), [])
+        self.assertEqual(su.outside_reads(audit), [])  # the private cache of the run is not an outside input
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "tools/helper.py")), [])
+
+    def test_a_compiled_module_read_from_the_tree_is_not_recorded(self) -> None:
+        audit = su.parse_audit(f"{START}R tools/check.py\nR tools/__pycache__/check.cpython-313.pyc\n")
+        self.assertEqual(su.compiled_reads(audit), ["tools/__pycache__/check.cpython-313.pyc"])
+        self.assertIn("compiled module", su.not_recorded_why(audit, sys.executable, VERSION))
+
+    def test_another_interpreter_than_the_one_of_the_key_is_not_recorded(self) -> None:
+        audit = su.parse_audit(f"{START}B 3.14.0 (other)\nR tools/check.py\n")
+        self.assertIn("another version", su.not_recorded_why(audit, sys.executable, VERSION))
+        self.assertEqual(su.not_recorded_why(su.parse_audit(START + "R tools/check.py\n"), sys.executable, VERSION), "")
+
+
+class InterpreterTest(unittest.TestCase):
+    def test_the_version_of_the_interpreter_that_runs_the_stage_is_asked_of_it(self) -> None:
+        self.assertEqual(su.interpreter_version((sys.executable, "tools/check.py")), sys.version.replace("\n", " "))
+        self.assertEqual(su.interpreter_version(("sh", "x")), "")  # not a Python stage
+        self.assertEqual(su.interpreter_version(("python3-does-not-exist", "x")), "")
+
 
 class Fixture(unittest.TestCase):
     def setUp(self) -> None:
@@ -152,8 +245,8 @@ class Fixture(unittest.TestCase):
         self.addCleanup(patcher.stop)
         self.stages = [("T: moon", ("sh", "x", "test")), ("T: python", ("python3", "tools/check.py"))]
 
-    def plan(self, scope: str = "t", dry: str = "dry") -> su.Plan:
-        return su.make_plan(scope, self.stages, self.root, inc.Ledger(self.root / "ledger.jsonl"), 1, rate=0.0, environ={}, run=lambda *a, **k: dry)
+    def plan(self, scope: str = "t", dry: str = "dry", version: str = VERSION) -> su.Plan:
+        return su.make_plan(scope, self.stages, self.root, inc.Ledger(self.root / "ledger.jsonl"), 1, rate=0.0, environ={}, run=lambda *a, **k: dry, ask_version=lambda command: version)
 
     def edit(self, name: str, text: str = "// edit\n") -> None:
         with (self.root / name).open("a") as stream:
@@ -203,9 +296,22 @@ class MutationTest(Fixture):
         self.assertEqual(self.changed(base, self.plan()), {"T: moon"})
         base = self.plan()
         self.edit(su.AUDIT_FILE, "# x\n")
-        self.assertEqual(self.changed(base, self.plan()), {"T: python"})
+        self.assertEqual(self.changed(base, self.plan()), {"T: moon", "T: python"})  # the hook directory is an input of every unit
+        base = self.plan()
+        (self.root / su.AUDIT_DIR / "second.py").write_text("x")  # any file of that directory
+        self.assertEqual(self.changed(base, self.plan()), {"T: moon", "T: python"})
         base = self.plan()
         self.assertEqual(self.changed(base, self.plan(dry="another command line")), {"T: moon"})
+
+    def test_the_version_of_the_stage_interpreter_is_in_the_key_of_the_python_unit_only(self) -> None:
+        base = self.plan()
+        self.assertEqual(self.changed(base, self.plan(version="3.14.0 (other)")), {"T: python"})
+
+    def test_a_python_unit_whose_interpreter_cannot_be_asked_is_not_keyed(self) -> None:
+        plan = self.plan(version="")
+        self.assertIn("T: python", plan.unit_disabled)
+        self.assertNotIn("T: python", plan.keys)
+        self.assertIn("T: moon", plan.keys)
 
     def test_a_missing_declared_file_disables_reuse_and_so_does_a_dry_run_without_output(self) -> None:
         (self.root / "tools/check.py").unlink()
@@ -231,6 +337,12 @@ class RunStageTest(Fixture):
         self.tally = su.Tally()
         self.commits: dict[str, int] = {}
 
+    @staticmethod
+    def python_ran(env, log: str) -> tuple[int, str]:  # noqa: ANN001
+        """What a Python stage that started the hook and then wrote `log` leaves behind."""
+        Path(env["STAGE_AUDIT_LOG"]).write_text(START + log)
+        return 0, ""
+
     def run_one(self, plan: su.Plan, name: str, execute) -> int:  # noqa: ANN001
         unit = next(u for u in plan.units if u.name == name)
         return su.run_stage(plan, unit, execute, self.tally, self.commits, self.lines.append, environ={})
@@ -238,7 +350,7 @@ class RunStageTest(Fixture):
     def test_a_pass_is_recorded_and_the_next_run_reuses_it_without_executing(self) -> None:
         plan = self.plan()
         for name in ("T: moon", "T: python"):
-            self.assertEqual(self.run_one(plan, name, lambda c, e: OK if "test" in c else (0, "")), 0)
+            self.assertEqual(self.run_one(plan, name, lambda c, e: OK if "test" in c else self.python_ran(e, "")), 0)
         self.assertEqual(self.tally.ran, 2)
         self.assertTrue(all(plan.ledger.result(k) for k in plan.keys.values()))
         again = self.plan()
@@ -265,8 +377,7 @@ class RunStageTest(Fixture):
         plan = self.plan()
 
         def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
-            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nR data/x.itl\nR elsewhere/y.txt\nD elsewhere\n")  # a new input, not declared
-            return 0, ""
+            return self.python_ran(env, "R tools/check.py\nR data/x.itl\nR elsewhere/y.txt\nD elsewhere\n")  # a new input, not declared
 
         status = self.run_one(plan, "T: python", execute)
         self.assertEqual(status, inc.EXIT_DEFECT)
@@ -277,8 +388,7 @@ class RunStageTest(Fixture):
         plan = self.plan()
 
         def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
-            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nR data/x.itl\nD data\nR tools/__pycache__/check.pyc\n")
-            return 0, ""
+            return self.python_ran(env, "R tools/check.py\nR data/x.itl\nD data\nD tools/stage_audit\nR tools/stage_audit/sitecustomize.py\n")
 
         self.assertEqual(self.run_one(plan, "T: python", execute), 0)
         self.assertIsNotNone(plan.ledger.result(plan.keys["T: python"]))
@@ -287,12 +397,55 @@ class RunStageTest(Fixture):
         plan = self.plan()
 
         def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
-            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nS /usr/bin/mpfr-tool\n")
-            return 0, ""
+            return self.python_ran(env, "R tools/check.py\nS /usr/bin/mpfr-tool\n")
 
         self.assertEqual(self.run_one(plan, "T: python", execute), 0)
         self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
         self.assertTrue(any("not recorded" in line for line in self.lines))
+
+    def test_a_python_stage_without_a_start_line_passes_but_is_not_recorded(self) -> None:
+        plan = self.plan()
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            subprocess.run([sys.executable, "-I", "-c", "open('tools/check.py').read()"], cwd=self.root, env=env, check=True)  # the hook is not loaded
+            return 0, ""
+
+        self.assertEqual(self.run_one(plan, "T: python", execute), 0)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
+        self.assertTrue(any("not recorded" in line and "did not start" in line for line in self.lines))
+        self.assertEqual(self.tally.unrecorded, 1)
+
+    def test_a_python_stage_that_reads_outside_the_repository_is_not_recorded_but_its_own_files_are_fine(self) -> None:
+        plan = self.plan()
+        self.assertEqual(self.run_one(plan, "T: python", lambda c, e: self.python_ran(e, "R tools/check.py\nX /var/cache/tool.json\n")), 0)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
+        self.assertTrue(any("not recorded" in line and "/var/cache/tool.json" in line for line in self.lines))
+        plan = self.plan()
+        self.assertEqual(self.run_one(plan, "T: python", lambda c, e: self.python_ran(e, "R tools/check.py\nC /tmp/x.json\nX /tmp/x.json\n")), 0)
+        self.assertIsNotNone(plan.ledger.result(plan.keys["T: python"]))
+
+    def test_a_python_stage_run_by_another_version_than_the_key_is_not_recorded(self) -> None:
+        plan = self.plan()
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            Path(env["STAGE_AUDIT_LOG"]).write_text("B 3.14.0 (a Python the verifier did not ask)\nR tools/check.py\n")
+            return 0, ""
+
+        self.assertEqual(self.run_one(plan, "T: python", execute), 0)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
+
+    def test_every_python_run_gets_a_private_cache_directory_that_is_removed_after_it(self) -> None:
+        plan = self.plan()
+        seen: list[Path] = []
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            seen.append(Path(env["PYTHONPYCACHEPREFIX"]))
+            self.assertEqual(list(seen[0].iterdir()), [])
+            self.assertEqual(env["STAGE_AUDIT_EXEMPT"], env["PYTHONPYCACHEPREFIX"])
+            return self.python_ran(env, "R tools/check.py\n")
+
+        self.assertEqual(self.run_one(plan, "T: python", execute), 0)
+        self.assertFalse(seen[0].exists())
 
     def test_a_not_keyed_moon_unit_runs_and_says_why(self) -> None:
         spec = su.StageSpec("T: moon", "moon", (f"{L}/io",))
