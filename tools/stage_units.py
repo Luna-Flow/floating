@@ -39,7 +39,9 @@ from __future__ import annotations
 import dataclasses
 import os
 import random
+import shutil
 import socket
+import subprocess
 import sys
 import tempfile
 import time
@@ -134,12 +136,19 @@ class Audit:
     reads: tuple[str, ...]
     listings: tuple[str, ...]
     programs: tuple[str, ...]
+    starts: tuple[str, ...] = ()  # `sys.version` of every interpreter that loaded the hook
+    outside: tuple[str, ...] = ()  # files outside the repository that were read and not created by the run
 
 
 def parse_audit(text: str) -> Audit:
+    """The log in the order it was written: a file outside the repository that a process of the run
+    created is an input of nothing when a later line reads it; every other outside read counts."""
     reads: set[str] = set()
     listings: set[str] = set()
     programs: set[str] = set()
+    starts: set[str] = set()
+    outside: set[str] = set()
+    created: set[str] = set()
     for line in text.splitlines():
         kind, _, value = line.partition(" ")
         if kind == "R":
@@ -148,7 +157,13 @@ def parse_audit(text: str) -> Audit:
             listings.add(value)
         elif kind == "S":
             programs.add(value)
-    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(sorted(programs)))
+        elif kind == "B":
+            starts.add(value)
+        elif kind == "C":
+            created.add(value)
+        elif kind == "X" and value not in created:
+            outside.add(value)
+    return Audit(tuple(sorted(reads)), tuple(sorted(listings)), tuple(sorted(programs)), tuple(sorted(starts)), tuple(sorted(outside)))
 
 
 def ancestors(declared: Sequence[str]) -> set[str]:
@@ -161,13 +176,57 @@ def ancestors(declared: Sequence[str]) -> set[str]:
     return found
 
 
+def with_hook(declared: Sequence[str]) -> tuple[str, ...]:
+    """The declared set of a unit with the directory of the audit hook: the interpreter reads or lists
+    it on start-up (and, on some builds, again when a module is looked for after the hook is installed),
+    and a change of the hook changes what is recorded, so it is an input of every unit."""
+    return (*declared, f"{AUDIT_DIR}/")
+
+
 def undeclared(audit: Audit, declared: Sequence[str]) -> list[str]:
-    """Everything the run read or listed below the repository outside the declared set. Listing a
-    directory above a declared entry is allowed (the import system does it); reading in it is not."""
+    """Everything the run read or listed below the repository outside the declared set (the hook
+    directory is always declared). Listing a directory above a declared entry is allowed (the import
+    system does it); reading in it is not. Files outside the repository are `outside_reads`."""
+    declared = with_hook(declared)
     above = ancestors(declared)
     outside = [p for p in audit.reads if not covered(p, declared)]
     outside += [p for p in audit.listings if not covered(p, declared) and p not in above]
     return sorted(set(outside))
+
+
+def outside_reads(audit: Audit) -> list[str]:
+    """Files outside the repository that the run read, other than the interpreter's own files (its
+    standard library and site-packages), the run's private compiled-module cache and files that the run
+    created itself first: inputs that no key covers, so the run is not recorded."""
+    return list(audit.outside)
+
+
+def compiled_reads(audit: Audit) -> list[str]:
+    """Compiled modules read from a `__pycache__` below the repository: the run was started with the
+    cache redirected, so a process that read one did not honour that and may have run a stale one."""
+    return [p for p in audit.reads if p.endswith(".pyc") and "__pycache__" in p.split("/")]
+
+
+def not_recorded_why(audit: Audit, python: str, version: str) -> str:
+    """Why the pass of a Python stage must not be recorded ('' when it may be): no hook ran in the
+    process (an interpreter run with `-I` or `-S` does not load it, and an empty log would read as
+    nothing outside), an interpreter other than the one the key names ran, a program the audit cannot
+    see into, a read outside the repository, or a compiled module of the tree."""
+    if not audit.starts:
+        return "the audit hook did not start (no start line in its log), so nothing the stage read was seen"
+    other = [s for s in audit.starts if s != version]
+    if other:
+        return f"a Python of another version ran ({other[0].split()[0]}), not the one of the key ({version.split()[0] if version else 'unknown'})"
+    unseen = unseen_programs(audit, python)
+    if unseen:
+        return f"it started {unseen}, which the audit cannot see into"
+    outside = outside_reads(audit)
+    if outside:
+        return f"it read {outside[:3]}{' ...' if len(outside) > 3 else ''} outside the repository, which no key covers"
+    compiled = compiled_reads(audit)
+    if compiled:
+        return f"it read the compiled module {compiled[0]} from the tree, which may be older than its source"
+    return ""
 
 
 def unseen_programs(audit: Audit, python: str) -> list[str]:
@@ -199,13 +258,29 @@ def key_parts(
         "modules": modules if unit.spec.kind == "moon" else "",
         "compile": inc.digest(compile_commands) if unit.spec.kind == "moon" else "",
         "wrapper": wrapper if unit.spec.kind == "moon" else "",
-        "hook": hook if unit.spec.kind == "python" else "",
+        "hook": hook,
         "toolchain": toolchain,
         "verifier": verifier,
         "python": python_version if unit.spec.kind == "python" else "",
         "ambient": inc.digest(ambient),
     }
     return inc.digest(*(f"{k}={v}" for k, v in sorted(parts.items()))), parts
+
+
+def is_python(program: str) -> bool:
+    return Path(program).name.startswith("python")
+
+
+def interpreter_version(command: Sequence[str], run: Callable[..., "subprocess.CompletedProcess[str]"] | None = None) -> str:
+    """`sys.version` of the interpreter that runs a Python stage, asked of that interpreter (the one
+    of the command, which need not be the one that runs the verifier). '' when it cannot be asked."""
+    if not command or not is_python(command[0]):
+        return ""
+    try:
+        result = (run or subprocess.run)([command[0], "-c", "import sys; print(sys.version)"], capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return result.stdout.strip().replace("\n", " ") if result.returncode == 0 else ""
 
 
 @dataclasses.dataclass
@@ -231,6 +306,11 @@ def summary_line(tally: Tally, seed: int, rate: float, commits: Mapping[str, int
 # ---------------------------------------------------------------------------------------
 # Files, processes and the ledger
 # ---------------------------------------------------------------------------------------
+
+
+def hook_files(repo_root: Path) -> list[Path]:
+    """Every file of the hook directory: all of it is an input of every unit."""
+    return sorted(p for p in (repo_root / AUDIT_DIR).rglob("*") if p.is_file() and not any(part in IGNORED_PARTS for part in p.parts))
 
 
 def content_files(repo_root: Path, unit: StageUnit, packages: Mapping[str, nu.Package]) -> list[Path]:
@@ -281,6 +361,7 @@ def make_plan(
     rate: float = DEFAULT_RATE,
     environ: Mapping[str, str] | None = None,
     run: Callable[..., str] | None = None,
+    ask_version: Callable[[Sequence[str]], str] = interpreter_version,
 ) -> Plan:
     """Keys and actions of the stage units of a scope (file system and processes: moon's dry runs,
     the toolchain, git). An error while forming keys disables reuse for all of them."""
@@ -298,12 +379,18 @@ def make_plan(
         ambient = ku.ambient_environment(env)
         modules = cf.hash_tree(nu.module_files(repo_root), repo_root)
         wrapper = cf.hash_tree([repo_root / nu.WRAPPER], repo_root)
-        hook = cf.hash_tree([repo_root / AUDIT_FILE], repo_root)
+        hook = cf.hash_tree(hook_files(repo_root), repo_root)
         for unit in units:
             if unit.spec.kind == "moon":
                 bad = nu.impure_imports(unit.spec.packages, plan.packages)
                 if bad:
                     plan.unit_disabled[unit.name] = f"its closure imports {bad}: tests could read files or the environment"
+                    continue
+            python_version = ""
+            if unit.spec.kind == "python":
+                python_version = ask_version(unit.command)
+                if not python_version:
+                    plan.unit_disabled[unit.name] = f"its interpreter '{unit.command[0] if unit.command else ''}' could not be asked for its version"
                     continue
             files = content_files(repo_root, unit, plan.packages)
             plan.digests[unit.name] = cf.hash_tree(files, repo_root)
@@ -317,7 +404,7 @@ def make_plan(
                     plan.disabled = f"moon did not find a package of '{unit.name}'"
                     return plan
             plan.keys[unit.name], plan.parts[unit.name] = key_parts(
-                unit, plan.digests[unit.name], modules, compile_commands, wrapper, hook, toolchain, verifier, sys.version, ambient
+                unit, plan.digests[unit.name], modules, compile_commands, wrapper, hook, toolchain, verifier, python_version, ambient
             )
     except (OSError, ValueError, KeyError) as error:
         plan.disabled = f"no key can be formed: {error}"
@@ -357,13 +444,21 @@ def record_pass(plan: Plan, unit: StageUnit, seconds: float, tests: int = 0) -> 
     return True
 
 
-def audit_environment(repo_root: Path, log: Path, environ: Mapping[str, str]) -> dict[str, str]:
-    """The environment of a Python stage run under the audit hook."""
+def audit_environment(repo_root: Path, log: Path, environ: Mapping[str, str], pycache: Path | None = None) -> dict[str, str]:
+    """The environment of a Python stage run under the audit hook. With `pycache` (an empty directory
+    made for this run) every Python process of the stage compiles its modules from source into that
+    directory and reads nothing from a `__pycache__` of the tree: a compiled module of the tree, stale
+    or hand-made (an `unchecked-hash` one is loaded without looking at its source), cannot run in place
+    of a source file that the key covers. Mapping a compiled module back to its source would not do
+    that: the module that runs would still be the compiled one."""
     env = dict(environ)
     hook_dir = str(repo_root / AUDIT_DIR)
     env["PYTHONPATH"] = hook_dir + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
     env["STAGE_AUDIT_LOG"] = str(log)
     env["STAGE_AUDIT_ROOT"] = str(repo_root)
+    if pycache is not None:
+        env["PYTHONPYCACHEPREFIX"] = str(pycache)
+        env["STAGE_AUDIT_EXEMPT"] = str(pycache)
     return env
 
 
@@ -393,12 +488,14 @@ def run_stage(
     tag = "stage unit, sampled rerun" if action == "sample" else ("stage unit" if name in plan.keys else "full")
     started = time.monotonic()
     log: Path | None = None
+    pycache: Path | None = None
     env: Mapping[str, str] | None = None
     if unit.spec.kind == "python":
         handle, raw = tempfile.mkstemp(prefix="stage-audit-", suffix=".log")
         os.close(handle)
         log = Path(raw)
-        env = audit_environment(plan.repo_root, log, dict(os.environ if environ is None else environ))
+        pycache = Path(tempfile.mkdtemp(prefix="stage-pycache-"))
+        env = audit_environment(plan.repo_root, log, dict(os.environ if environ is None else environ), pycache)
     try:
         raw_status, output = execute(unit.command, env)
         seconds = time.monotonic() - started
@@ -411,6 +508,8 @@ def run_stage(
     finally:
         if log:
             log.unlink(missing_ok=True)
+        if pycache:
+            shutil.rmtree(pycache, ignore_errors=True)
     if status != 0:
         tally.failed += 1
         out(f"FAIL  {name} [{tag}] {why}, {seconds:.1f}s")
@@ -431,9 +530,9 @@ def run_stage(
     tally.ran += 1
     if name in plan.keys and not plan.disabled:
         why_not = ""
-        if unit.spec.kind == "python" and unseen_programs(audit, sys.executable):
-            why_not = f"it started {unseen_programs(audit, sys.executable)}, which the audit cannot see into"
-        elif not record_pass(plan, unit, seconds, tests):
+        if unit.spec.kind == "python":
+            why_not = not_recorded_why(audit, sys.executable, plan.parts[name]["python"])
+        if not why_not and not record_pass(plan, unit, seconds, tests):
             why_not = "its files changed during the run"
         if why_not:
             tally.unrecorded += 1
