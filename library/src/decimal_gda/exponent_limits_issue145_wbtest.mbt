@@ -168,7 +168,7 @@ test "next operations handle Int minimum with zero etiny" {
 ///|
 // oracle: A
 // source: CPython fma prec 34 Emin/Emax +-999,999,999: 1.000000000000000000000000000000000E+999999999 xr
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA fma far gap uses sticky addend without aborting" {
   let ctx = DecimalContext::new(
     precision=34,
@@ -192,7 +192,7 @@ test "GDA fma far gap uses sticky addend without aborting" {
 ///|
 // oracle: A
 // source: CPython fma prec 2 Emax 0 ROUND_DOWN: 9.9 xr
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA fma exact product boundary honors negative addend" {
   let ctx = DecimalContext::new(
     precision=2,
@@ -215,7 +215,7 @@ test "GDA fma exact product boundary honors negative addend" {
 ///|
 // oracle: A
 // source: CPython fma prec 2 Emax 0 ROUND_FLOOR: 9.9 xr
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA fma exact product boundary follows floor without overflow" {
   let ctx = DecimalContext::new(
     precision=2,
@@ -237,7 +237,7 @@ test "GDA fma exact product boundary follows floor without overflow" {
 ///|
 // oracle: A
 // source: CPython fma with 1E-2147483648 operands (64-bit libmpdec): same value, xr
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA fma product below Int range uses a bounded sticky alignment" {
   let ctx = DecimalContext::new(
     precision=34,

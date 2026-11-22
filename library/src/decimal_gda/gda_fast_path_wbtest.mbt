@@ -26,7 +26,7 @@ fn assert_gda_outcome(
 // source: expected values and flags computed with CPython decimal (libmpdec 4.0.0), context prec=40,
 //   Emin=-999999, Emax=999999, traps off: 314159265358979328 + 2, - 2, * 2, fma(.., 2, 3) and the
 //   conversion of the same text are exact and raise no flag
-// shares: Decimal::from_string (reading the inputs)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper assert_gda_outcome)
 test "GDA exact small wrapper paths match generic finalization" {
   let context = GdaContext::new(precision=40, e_min=-999999, e_max=999999)
   let left = Decimal::from_string("314159265358979328").unwrap()
@@ -60,7 +60,7 @@ test "GDA exact small wrapper paths match generic finalization" {
 // source: expected values and flags computed with CPython decimal (libmpdec 4.0.0): 999999999999999999 + 2 at
 //   prec=9, Emin=-2, Emax=2 and the conversion of 314159265358979328 at prec=18, Emin=-2, Emax=2,
 //   clamp=1 both overflow to Infinity with Overflow, Inexact and Rounded
-// shares: Decimal::from_string (reading the inputs)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper assert_gda_outcome)
 test "GDA small wrapper paths fall back at semantic boundaries" {
   let tiny_context = GdaContext::new(precision=9, e_min=-2, e_max=2)
   let left = Decimal::from_string("999999999999999999").unwrap()

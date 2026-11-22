@@ -134,7 +134,7 @@ fn issue351_run(
 //   has precision digits, Inexact and Rounded); re-run with CPython decimal (libmpdec 4.0.0) per row context: every
 //   half-even, half-up and half-down row agrees, 242 directed-mode rows (down 45, floor 45, up 36, ceiling 36,
 //   05up 80) differ by one unit in the last place (known libmpdec tolerance: see conformance/decimal_gda.md)
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue351_run)
 test "power of a power of ten with an integral k*y is exact in every mode (issue 351)" {
   for row in issue351_exact_rows {
     let (context_name, base, exponent, mode, value, flags) = row
@@ -149,7 +149,7 @@ test "power of a power of ten with an integral k*y is exact in every mode (issue
 // oracle: A
 // source: libmpdec results (CPython 3.13, cross-check only), 105 literal neighbour rows with k*y not an integer;
 //   all 105 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue351_run)
 test "power of a power of ten with a non-integral k*y keeps the certified path (issue 351)" {
   for row in issue351_neighbour_rows {
     let (context_name, base, exponent, mode, value, flags) = row
@@ -163,7 +163,7 @@ test "power of a power of ten with a non-integral k*y keeps the certified path (
 ///|
 // oracle: A
 // source: exact 10^(k*y) padded to precision, derived from GDA power rule and decTest powx2039 shape
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue351_run)
 test "power of 1E-5 to 1.2 in decimal64 is 1E-6 padded in every mode (issue 351)" {
   // Reported case: Floor, Ceiling, Down and Up returned NaN with Invalid
   // operation; libmpdec gives 0.000001000000000000001 in ceiling and up.

@@ -178,7 +178,7 @@ fn issue305_check(
 // oracle: A
 // source: CPython decimal (libmpdec 4.0.0) power rows; all 32 rows and both paths agree, Clamped asserted
 //   through the flag text
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue305_check)
 test "an inexact integer power that rounds to a power of ten is not Clamped (#305)" {
   let rows : Array[
     (

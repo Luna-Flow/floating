@@ -178,7 +178,7 @@ fn issue265_check(
 /// against the clause by hand; the oracle is not the specification.
 // oracle: A
 // source: CPython decimal rows checked against GDA power sign rule; 102/102 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue265_check)
 test "power overflows with the sign of the power, not of the reciprocal (#265)" {
   let rows : Array[
     (

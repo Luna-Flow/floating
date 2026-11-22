@@ -183,7 +183,7 @@ fn issue342_check(
 /// away from the exact power, are left out.
 // oracle: A
 // source: Python decimal (libmpdec 4.0.0) row table
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue342_check)
 test "an inexact subnormal integer power raises Underflow (#342)" {
   let rows : Array[
     (

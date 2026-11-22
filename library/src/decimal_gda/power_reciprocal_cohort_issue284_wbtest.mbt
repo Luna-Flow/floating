@@ -177,7 +177,7 @@ fn issue284_check(
 /// the oracle is not the specification.
 // oracle: A
 // source: CPython decimal rows checked against GDA power clause; 50/50 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue284_check)
 test "an exact negative integer power keeps the cohort of its reciprocal (#284)" {
   let rows : Array[
     (

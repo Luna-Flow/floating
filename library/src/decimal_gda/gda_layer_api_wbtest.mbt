@@ -24,7 +24,7 @@ test "GdaContext carries the refinement limit of the elementary functions" {
 // oracle: A
 // source: exp(1), ln(2), log10(2) and 2^0.5 at 12 digits computed with CPython decimal (libmpdec 4.0.0), context
 //   prec=12, Emin=-999999, Emax=999999, rounding ROUND_HALF_EVEN, no traps
-// shares: Decimal::from_string (reading the inputs)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, also through inspect or interpolation of a Decimal)
 test "try_exp, try_ln, try_log10 and try_power agree with the plain functions" {
   // a bounded context: the elementary functions refuse an exponent range above 999,999 (the old test used the
   // default range, so both sides were NaN)

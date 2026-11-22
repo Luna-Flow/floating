@@ -255,7 +255,7 @@ fn context_bounds_case(
 ///|
 // oracle: A
 // source: decTest exp.decTest expx901-906, rows checked against testdata/decimal_gda/official/exp.decTest
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper context_bounds_case)
 test "decTest expx901-906: exp requires bounded contexts" {
   // exp.decTest: extended 1, half_even, maxExponent 999 / minExponent -999
   // before the restriction rows.
@@ -273,7 +273,7 @@ test "decTest expx901-906: exp requires bounded contexts" {
 ///|
 // oracle: A
 // source: decTest ln.decTest lnx901-906 and log10.decTest logx901-906, checked against the corpus files
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper context_bounds_case)
 test "decTest lnx901-906 and logx901-906: logarithms require bounded contexts" {
   let ln_row = fn(x, p, e_min, e_max) raise {
     context_bounds_case("ln", [x], p, e_min, e_max)
@@ -299,7 +299,7 @@ test "decTest lnx901-906 and logx901-906: logarithms require bounded contexts" {
 ///|
 // oracle: A
 // source: decTest power.decTest powx4001-4006, checked against the corpus file
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper context_bounds_case)
 test "decTest powx4001-4006: non-integral power requires bounded contexts" {
   // power.decTest: extended 1, half_even, maxExponent 384 / minExponent -383
   // before the restriction rows.

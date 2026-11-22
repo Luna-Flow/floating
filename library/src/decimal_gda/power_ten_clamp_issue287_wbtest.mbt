@@ -177,7 +177,7 @@ fn issue287_check(
 /// clause by hand; the oracle is not the specification.
 // oracle: A
 // source: CPython decimal rows checked against Clamped clause; 43/43 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue287_check)
 test "a power of ten above Etop is folded down and flagged Clamped (#287)" {
   let rows : Array[
     (

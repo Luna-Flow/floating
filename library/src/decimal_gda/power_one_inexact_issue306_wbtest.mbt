@@ -178,7 +178,7 @@ fn issue306_check(
 // oracle: A
 // source: 29 power rows of 1^non-integer (GDA 1.70 power: inexact unless exponent integral and result exact;
 //   powx2017 shape), CPython decimal (libmpdec 4.0.0) agrees 29 of 29
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue306_check)
 test "the power of 1 to a non-integer exponent is inexact whatever Emax is (#306)" {
   let rows : Array[
     (

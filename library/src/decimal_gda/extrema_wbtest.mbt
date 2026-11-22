@@ -10,7 +10,7 @@ fn extrema_test_operand(source : String) -> Decimal {
 // oracle: A
 // source: CPython max/min on sNaN7, NaN11, -NaN54, -sNaN93 (selected NaN and payload agree); printed lowercase
 //   library form
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA min and max keep the preferred NaN diagnostics" {
   let ctx = DecimalContext::new(precision=4)
   let finite = Decimal::from_int(2, precision=8)
@@ -41,7 +41,7 @@ test "GDA min and max keep the preferred NaN diagnostics" {
 // oracle: A
 // source: decNumber 3.68 built with DECSUBSET=1 (tools/decnumber_probe.c, extended=0, precision 9): max, min,
 //   maxmag and minmag of -0 and 0 give 0 (positive zero) with no flag, as the test asserts
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper extrema_test_operand)
 test "GDA subset min and max clean the selected zero" {
   let ctx = DecimalContext::new(
     precision=9,
@@ -73,7 +73,7 @@ test "GDA subset min and max clean the selected zero" {
 ///|
 // oracle: A
 // source: CPython max/min(0, -0) at prec 16: min -0, max 0, no flags; decTest min/max rows
-// shares: nothing
+// shares: Decimal::from_string (reading the inputs, through the helper extrema_test_operand)
 test "GDA min and max order signed zeros by the total order in the extended mode" {
   let ctx = DecimalContext::new(
     precision=16,

@@ -177,7 +177,7 @@ fn issue283_check(
 /// Python `decimal` (libmpdec 4.0.0) for the value and flag set; the oracle is not the specification.
 // oracle: A
 // source: CPython decimal rows (extended context); 22/22 re-run, 0 disagree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result, through the helper issue283_check)
 test "a subset-context power whose reciprocal overflows returns the overflow result (#283)" {
   let rows : Array[
     (

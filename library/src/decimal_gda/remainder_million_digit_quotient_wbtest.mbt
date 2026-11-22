@@ -4,7 +4,7 @@
 /// `decimal` package.)
 // oracle: A
 // source: hand and Python: 9E+1000008 mod 469135780 = 54833220 (pow(10,1000008,m)*9 % m)
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::from_string (reading the inputs)
 test "remainder avoids materializing a million-digit quotient" {
   let lhs = Decimal::from_string("9E+1000008", precision=34).unwrap()
   let rhs = Decimal::from_string("469135780", precision=34).unwrap()

@@ -44,7 +44,7 @@ test "certified results far outside the decimal range stay bounded" {
 // oracle: A
 // source: literal text: 2**1E300 -> inf overflow, 2**-1E300 and 0.5**1E300 -> 0E-398 underflow; CPython agrees
 //   on all three
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::from_string (reading the inputs)
 test "power far outside the decimal range stays bounded" {
   let ctx = DecimalContext::decimal64()
   let huge = Decimal::from_string_ctx("1E300", ctx).0

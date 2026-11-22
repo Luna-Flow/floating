@@ -117,7 +117,7 @@ test "literals outside the stored range are rejected, not folded" {
 // oracle: A
 // source: literal -1E-1000000032 [Underflow,Subnormal,Inexact,Rounded] from CPython/GDA Floor rule; try_new Err
 //   is the library's own limit
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result, through the helper exponent_range_show)
 test "context conversion of huge exponents overflows or underflows" {
   assert_true(
     GdaContext::try_new(e_min=-2_000_000_000, e_max=2_000_000_000) is Err(_),

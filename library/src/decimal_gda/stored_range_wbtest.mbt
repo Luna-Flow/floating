@@ -85,7 +85,7 @@ test "the limits are the range of the working context of the plain operators" {
 // oracle: A
 // source: expected strings and error substrings written out at the two limits of the stored range (-2147483645
 //   and 2147483646, the documented design range); the carry case follows from 35 nines rounding to 10^34
-// shares: Int::to_string (the exponent searched for in the error message)
+// shares: Int::to_string (the exponent searched for in the error message) and Decimal::to_string (printing Decimal::make results through inspect)
 test "make and try_make accept the limits and reject one past each" {
   let e_max = gda_value_e_max
   let e_tiny = gda_value_e_tiny
@@ -140,7 +140,7 @@ test "make and try_make accept the limits and reject one past each" {
 // source: the edge rows are expected strings written out at the two limits of the stored range (x + 0, x - 0
 //   and x * 1 keep the operand, GDA 1.70 add and multiply); the loop over stored_range_values is an
 //   identity (S) whose expected value is the operand itself
-// shares: stored_in_range (the range predicate, checked by the make and try_make block)
+// shares: stored_in_range (the range predicate, checked by the make and try_make block); Decimal::to_string (printing the result, also through inspect or interpolation of a Decimal)
 test "x + 0, x * 1 and x - 0 equal x for every stored finite value" {
   let zero = Decimal::zero()
   let one = Decimal::one()
@@ -178,7 +178,7 @@ test "x + 0, x * 1 and x - 0 equal x for every stored finite value" {
 // oracle: S
 // source: the invariant that a result is not finite or inside the stored range, checked by stored_in_range; no
 //   expected value is computed
-// shares: stored_in_range
+// shares: stored_in_range; Decimal::to_string (printing the result)
 test "no function without a context leaves the stored range" {
   let values = stored_range_values()
   let modes = [

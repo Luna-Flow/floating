@@ -31,7 +31,7 @@ fn issue187_context(
 // source: the 29 rows (add, sub, mul, fma, sqrt, remainder, remainder_near) re-run with CPython decimal (libmpdec
 //   4.0.0), Emin=-999999999, Emax=999999999, traps off, with the precision, clamp and rounding of the row: values
 //   and the 8 flag letters of every row agree
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "operands with exponents near the Int limits give the specified results (#187)" {
   let rows : Array[
     (String, Array[String], Int32, Bool, DecimalRoundingMode, String, String),
@@ -277,7 +277,7 @@ test "operands with exponents near the Int limits give the specified results (#1
 //   integers beyond the exponent range, so every row is an Invalid operation with a NaN; rows 1 and 3 re-run
 //   with decNumber 3.68 (decNumberRescale, tools/decnumber_probe.c): NaN with Invalid operation; decNumber cannot
 //   read the operand of row 2 (its exponent is below -999999999)
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "rescale with an exponent operand beyond Int is invalid (#187)" {
   let ctx = issue187_context(34, false, DecimalRoundingMode::HalfEven)
   let cases = [

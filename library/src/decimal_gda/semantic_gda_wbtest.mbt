@@ -1,7 +1,7 @@
 ///|
 // oracle: A
 // source: spec: sNaN payload wins; payload truncated to precision digits (nan23456 at p5); Python agrees
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA binary and ternary operations prioritize signaling nan payloads" {
   let context = DecimalContext::new(precision=9)
   let left = Decimal::quiet_nan(payload=95N, precision=12)
@@ -51,7 +51,7 @@ test "GDA unary operations use before-rounding tininess" {
 ///|
 // oracle: A
 // source: spec: remainder when integer quotient exceeds precision is DivisionImpossible/Invalid; Python agrees
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::from_string (reading the inputs)
 test "GDA huge remainders report DivisionImpossible" {
   let context = DecimalContext::new(
     precision=9,

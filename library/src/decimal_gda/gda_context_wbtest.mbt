@@ -107,7 +107,7 @@ test "GDA Decimal checked powers preserve arithmetic exponent bounds" {
 ///|
 // oracle: A
 // source: hand: 1/0 flags DivisionByZero; 1+1 = 2; flags are sticky per spec
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA exact outcomes preserve sticky status without raising flags" {
   let sticky = divide(
     Decimal::one(precision=9),
@@ -225,7 +225,7 @@ test "GDA invalid conditions signal InvalidOperation" {
 ///|
 // oracle: A
 // source: hand: (-1)^odd and (-1)^even; exponent not rounded to precision 7
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::to_string (printing the result)
 test "GDA Decimal checked integer powers use the exact exponent" {
   // An exponent longer than the context precision must not be rounded
   // before use: rounding 12345679 to seven digits makes it even (#51).
@@ -261,7 +261,7 @@ test "GDA Decimal checked integer powers use the exact exponent" {
 // oracle: A
 // source: GDA 1.70: Conversion syntax, Division undefined, Division impossible, Invalid context are Invalid
 //   operation; inputs 0/0, 1E+10 // 1 at p5, precision 5,000,000 beyond the 999,999 limit
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::from_string (reading the inputs)
 test "the four conditions that signal invalid-operation are raised, read and trapped as InvalidOperation" {
   let plain = GdaContext::new(precision=5)
   let trapping = plain.trap(GdaSignal::InvalidOperation)
@@ -353,7 +353,7 @@ test "a trap-enabler exists for each of the nine signals and nothing else traps"
 // oracle: A
 // source: GDA 1.70 Precedence of exceptions: any other trap before Subnormal/Inexact/Rounded; 9.99E+9*10
 //   overflows at Emax 9
-// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
+// shares: Decimal::from_string (reading the inputs)
 test "the first trapped signal follows the handler order" {
   let traps = GdaTrapSet::new()
     .with_signal(GdaSignal::Inexact)
