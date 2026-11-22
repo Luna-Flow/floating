@@ -256,7 +256,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2355
 #: manual/api/decimal_checked.md:388
-#: manual/api/decimal_gda.md:1948
+#: manual/api/decimal_gda.md:1950
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
 #: manual/api/differential.md:97
@@ -309,7 +309,7 @@ msgstr "基准用例"
 #: manual/api/bench/interval.md:32
 #: manual/api/decimal_gda.md:1212
 #: manual/api/decimal_gda.md:1274
-#: manual/api/decimal_gda.md:1879
+#: manual/api/decimal_gda.md:1881
 #: manual/api/frontend/itl_expr.md:115
 #: manual/design/bench/binary.md:33
 #: manual/design/bench/decimal.md:33
@@ -585,7 +585,7 @@ msgstr "形式"
 
 #: manual/api/binary.md:46
 #: manual/api/decimal_gda.md:1274
-#: manual/api/decimal_gda.md:1543
+#: manual/api/decimal_gda.md:1545
 msgid "Example"
 msgstr "示例"
 
@@ -612,11 +612,11 @@ msgstr "上下文"
 #: manual/api/decimal_gda.md:1167
 #: manual/api/decimal_gda.md:1212
 #: manual/api/decimal_gda.md:1274
-#: manual/api/decimal_gda.md:1348
-#: manual/api/decimal_gda.md:1381
-#: manual/api/decimal_gda.md:1568
-#: manual/api/decimal_gda.md:1781
-#: manual/api/decimal_gda.md:1879
+#: manual/api/decimal_gda.md:1350
+#: manual/api/decimal_gda.md:1383
+#: manual/api/decimal_gda.md:1570
+#: manual/api/decimal_gda.md:1783
+#: manual/api/decimal_gda.md:1881
 #: manual/api/interval.md:807
 #: manual/conformance/binary.md:107
 #: manual/design/binary_checked.md:176
@@ -1371,7 +1371,7 @@ msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `
 msgstr "语法为 IEEE 754-2019 §5.12.3 的 hexSequence：可选符号、`0x` 或 `0X`、最多含一个小数点的十六进制数字（`1.8`、`.8` 或 `1.`），以及必需的 `p` 或 `P` 指数，指数带可选符号、由十进制数字组成。其值为十六进制有效数乘以 $2^{\\text{exponent}}$，因此 `0x3p-1` 和 `0x1.8p0` 都是 $1.5$。`from_hex(s, p)` 以就近舍入（偶数优先）一次舍入到精度 `p`，不报告标志；`p` 超出 `1..=binary_precision_max` 时返回 `Err`。`from_hex_ctx(s, context)` 是 §5.12.3 的转换：它按 `context` 的舍入方向、精度、指数范围和 tininess 规则把精确值一次舍入，并像 `from_string_ctx` 一样返回 `inexact`、`underflow` 和 `overflow` 标志；任意长度的指数字段都是有效文本：它像十进制读取器那样以 $2^{60}$ 饱和读取，所以超出 32 位范围的指数在这里会上溢或下溢（上下文的结果及其标志，在每个舍入方向上），而不是解析错误；零有效数字对任何指数都是带符号的零。存储精确值的 `from_hex` 把超出 32 位范围的指数报告为解析错误（零有效数字仍然是零）。两者都接受任意大小写、带可选符号的 `inf`、`infinity`、`nan` 和 `snan`（§5.12.1）；`snan` 得到 signaling NaN。首尾空白会被去掉；其他任何文本都是 `parse_error`。`to_hex` 以小写输出存储的系数，零输出为 `0x0p0` 或 `-0x0p0`，`nan`/`inf` 带符号输出。"
 
 #: manual/api/binary.md:1451
-#: manual/api/decimal_gda.md:1614
+#: manual/api/decimal_gda.md:1616
 #: manual/design/decimal.md:752
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
@@ -1974,7 +1974,7 @@ msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果属于�
 #: manual/api/binary.md:2433
 #: manual/api/binary_checked.md:821
 #: manual/api/decimal.md:2157
-#: manual/api/decimal_gda.md:1733
+#: manual/api/decimal_gda.md:1735
 #: manual/api/def.md:414
 #: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
@@ -3150,7 +3150,7 @@ msgstr "`new` 根据精度和 `e_max` 构造 IEEE 754-2019 十进制格式的上
 
 #: manual/api/decimal.md:493
 #: manual/api/decimal_gda.md:518
-#: manual/api/decimal_gda.md:1531
+#: manual/api/decimal_gda.md:1533
 msgid "Parameter"
 msgstr "参数"
 
@@ -3697,7 +3697,7 @@ msgstr "从 `exp2` 到 `atanh` 的上述七组函数的定义域与特殊值："
 #: manual/api/decimal_gda.md:1043
 #: manual/api/decimal_gda.md:1160
 #: manual/api/decimal_gda.md:1167
-#: manual/api/decimal_gda.md:1348
+#: manual/api/decimal_gda.md:1350
 #: manual/api/interval.md:978
 #: manual/api/interval.md:1981
 #: manual/design/interval.md:548
@@ -3734,8 +3734,8 @@ msgstr "精确情形"
 #: manual/api/decimal_gda.md:596
 #: manual/api/decimal_gda.md:597
 #: manual/api/decimal_gda.md:598
-#: manual/api/decimal_gda.md:1536
-#: manual/api/decimal_gda.md:1537
+#: manual/api/decimal_gda.md:1538
+#: manual/api/decimal_gda.md:1539
 #: manual/conformance/binary.md:94
 #: manual/conformance/binary.md:96
 #: manual/conformance/binary.md:97
@@ -3966,7 +3966,7 @@ msgid "`to_string` formats a value in scientific notation without a context. Fin
 msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值。有限值使用 [`to_sci_string`](#decimalto_sci_string-to_eng_string) 的科学记数字符串规则，因此尾随零和指数均可见：`1.20`、`1E+3`、`1.2E-7`。特殊值以小写书写：`inf`、`-inf`、`nan`、`snan`、`-nan12`。`output` 将相同文本写入 logger。`to_repr` 是 `debug_inspect` 和 `assert_eq` 所使用的派生结构表示。"
 
 #: manual/api/decimal.md:2357
-#: manual/api/decimal_gda.md:1950
+#: manual/api/decimal_gda.md:1952
 #: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
@@ -4092,7 +4092,7 @@ msgstr "这些方法在左侧流水线所存的上下文下，对当前值和一
 
 #: manual/api/decimal_checked.md:259
 #: manual/api/decimal_gda.md:680
-#: manual/api/decimal_gda.md:1839
+#: manual/api/decimal_gda.md:1841
 msgid "Method"
 msgstr "方法"
 
@@ -4250,7 +4250,7 @@ msgstr "常量"
 #: manual/api/decimal_gda.md:127
 #: manual/api/decimal_gda.md:285
 #: manual/api/decimal_gda.md:325
-#: manual/api/decimal_gda.md:1531
+#: manual/api/decimal_gda.md:1533
 #: manual/performance/bench/external.md:42
 msgid "Value"
 msgstr "值"
@@ -4365,7 +4365,7 @@ msgid "A binary floating-point number $m \\cdot 2^{k}$ with $k < 0$ is first wri
 msgstr "二进制浮点数 $m \\cdot 2^{k}$（$k < 0$）首先被精确写成 $m 5^{-k} \\cdot 10^{k}$，因此只要结果能容纳于 `precision` 位，转换就是精确的。例如，`from_double(0.1)` 是最接近 $0.1$ 的 binary64 的精确值，按半值取偶舍入到 34 位的结果。"
 
 #: manual/api/decimal_gda.md:214
-#: manual/api/decimal_gda.md:1571
+#: manual/api/decimal_gda.md:1573
 #: manual/numeric_semantics.md:552
 #: manual/numeric_semantics.md:600
 msgid "NaN"
@@ -4580,7 +4580,7 @@ msgstr "这里的每个运算都只改变值的符号位。它们都不舍入，
 
 #: manual/api/decimal_gda.md:410
 #: manual/api/decimal_gda.md:996
-#: manual/api/decimal_gda.md:1543
+#: manual/api/decimal_gda.md:1545
 #: manual/api/interval.md:1842
 #: manual/conformance/decimal_gda.md:15
 #: manual/conformance/decimal_gda.md:56
@@ -4656,9 +4656,9 @@ msgstr "值的精度属于该关系的一部分，因为[普通运算符](#decim
 
 #: manual/api/decimal_gda.md:478
 #: manual/api/decimal_gda.md:1014
-#: manual/api/decimal_gda.md:1381
-#: manual/api/decimal_gda.md:1473
-#: manual/api/decimal_gda.md:1568
+#: manual/api/decimal_gda.md:1383
+#: manual/api/decimal_gda.md:1475
+#: manual/api/decimal_gda.md:1570
 #: manual/api/frontend/testfloat_expr.md:58
 #: manual/conformance/decimal_gda.md:102
 msgid "Operands"
@@ -4678,12 +4678,12 @@ msgstr "两个无穷"
 
 #: manual/api/decimal_gda.md:481
 #: manual/api/decimal_gda.md:482
-#: manual/api/decimal_gda.md:1477
+#: manual/api/decimal_gda.md:1479
 msgid "true"
 msgstr "真"
 
 #: manual/api/decimal_gda.md:482
-#: manual/api/decimal_gda.md:1477
+#: manual/api/decimal_gda.md:1479
 msgid "two NaNs"
 msgstr "两个 NaN"
 
@@ -4772,22 +4772,22 @@ msgid "Return the default contexts (GDA 1.70, page 16 (Default contexts)): `basi
 msgstr "返回默认上下文（GDA 1.70，第 16 页（Default contexts））：`basic_default`，以及扩展默认上下文 `decimal32`、`decimal64` 和 `decimal128`。"
 
 #: manual/api/decimal_gda.md:593
-#: manual/api/decimal_gda.md:1534
+#: manual/api/decimal_gda.md:1536
 msgid "rounding"
 msgstr "舍入"
 
 #: manual/api/decimal_gda.md:593
-#: manual/api/decimal_gda.md:1536
+#: manual/api/decimal_gda.md:1538
 msgid "clamp"
 msgstr "clamp"
 
 #: manual/api/decimal_gda.md:593
-#: manual/api/decimal_gda.md:1535
+#: manual/api/decimal_gda.md:1537
 msgid "extended"
 msgstr "扩展"
 
 #: manual/api/decimal_gda.md:593
-#: manual/api/decimal_gda.md:1537
+#: manual/api/decimal_gda.md:1539
 msgid "traps"
 msgstr "陷阱"
 
@@ -5146,7 +5146,7 @@ msgid "Divide to an integer quotient."
 msgstr "做除法得到整数商。"
 
 #: manual/api/decimal_gda.md:1043
-#: manual/api/decimal_gda.md:1839
+#: manual/api/decimal_gda.md:1841
 msgid "Returns"
 msgstr "返回"
 
@@ -5424,490 +5424,490 @@ msgid "Return the representable number adjacent to a value."
 msgstr "返回与值相邻的可表示数。"
 
 #: manual/api/decimal_gda.md:1293
-msgid "`next_plus` returns the smallest representable number greater than $x$ in the context, and `next_minus` the largest smaller one. From a zero they step to $\\pm 10^{E_{\\mathrm{tiny}}}$, and past the largest finite number they reach $\\pm\\infty$. Neither raises flags for finite results, except in a subset context, where a step below the normal range gives $+0$ with `Underflow`, `Subnormal`, `Inexact` and `Rounded` (a subnormal result is not permitted)."
-msgstr "`next_plus` 返回上下文中大于 $x$ 的最小可表示数，`next_minus` 返回比它小的最大可表示数。从零出发时它们步进到 $\\pm 10^{E_{\\mathrm{tiny}}}$，越过最大有限数时到达 $\\pm\\infty$。对有限结果，二者都不引发标志；但在子集上下文中，低于正规范围的一步给出带 `Underflow`、`Subnormal`、`Inexact` 和 `Rounded` 的 $+0$（不允许次正规结果）。"
+msgid "`next_plus` returns the smallest representable number greater than $x$ in the context, and `next_minus` the largest smaller one. From a zero they step to $\\pm 10^{E_{\\mathrm{tiny}}}$, and past the largest finite number they reach $\\pm\\infty$. Neither raises flags for finite results (GDA 1.70, page 34); in a subset context a step below the normal range gives $+0$, since a subnormal result is not permitted, and still no flag ([#770](https://github.com/Luna-Flow/floating/issues/770))."
+msgstr "`next_plus` 返回上下文中大于 $x$ 的最小可表示数，`next_minus` 返回比它小的最大可表示数。从零出发时它们步进到 $\\pm 10^{E_{\\mathrm{tiny}}}$，越过最大有限数时到达 $\\pm\\infty$。对有限结果，二者都不引发标志（GDA 1.70，第 34 页）；在子集上下文中，低于正规范围的一步给出 $+0$（不允许次正规结果），同样不引发标志（[#770](https://github.com/Luna-Flow/floating/issues/770)）。"
 
 #: manual/api/decimal_gda.md:1299
-msgid "`next_toward(x, y)` steps from $x$ towards $y$, returning $x$ (with the sign of $y$ for zeros) when they compare equal. When the step leaves the normal range, it raises `Overflow`, or `Underflow` and `Subnormal`, together with `Inexact` and `Rounded`."
-msgstr "`next_toward(x, y)` 从 $x$ 朝 $y$ 步进；当二者比较相等时返回 $x$（对零则取 $y$ 的符号）。当这一步离开正规范围时，引发 `Overflow`，或 `Underflow` 和 `Subnormal`，并同时引发 `Inexact` 和 `Rounded`。"
+msgid "`next_toward(x, y)` steps from $x$ towards $y$, returning $x$ (with the sign of $y$ for zeros) when they compare equal. When the step leaves the normal range, it raises `Overflow`, or `Underflow` and `Subnormal`, together with `Inexact` and `Rounded` (page 35: the flags of the sum with an infinitesimal); in a subset context the step below the normal range gives $+0$ with `Underflow`, `Subnormal`, `Inexact` and `Rounded`."
+msgstr "`next_toward(x, y)` 从 $x$ 朝 $y$ 步进；当二者比较相等时返回 $x$（对零则取 $y$ 的符号）。当这一步离开正规范围时，引发 `Overflow`，或 `Underflow` 和 `Subnormal`，并同时引发 `Inexact` 和 `Rounded`（第 35 页：与加上一个无穷小量之和的标志相同）；在子集上下文中，低于正规范围的一步给出带 `Underflow`、`Subnormal`、`Inexact` 和 `Rounded` 的 $+0$。"
 
-#: manual/api/decimal_gda.md:1305
+#: manual/api/decimal_gda.md:1307
 msgid "Compute the digit-wise and, or, exclusive or and inversion of logical operands (GDA 1.70, page 41 (Miscellaneous operations)). A logical operand is a non-negative integer with exponent 0 whose digits are all 0 or 1."
 msgstr "计算逻辑操作数的逐位与、或、异或和取反（GDA 1.70，第 41 页（Miscellaneous operations））。逻辑操作数是指数为 0 的非负整数，其各位数字都是 0 或 1。"
 
-#: manual/api/decimal_gda.md:1315
+#: manual/api/decimal_gda.md:1317
 msgid "Each operand is read as exactly $p$ digits: a shorter operand is padded with leading zeros, and only the low $p$ digits of a longer one are used. `logical_invert` inverts all $p$ digits. Any other operand makes the result invalid (an [`InvalidOperation`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) condition)."
 msgstr "每个操作数都恰好按 $p$ 位读取：较短的操作数以前导零填充，较长的只使用其低 $p$ 位。`logical_invert` 对全部 $p$ 位取反。任何其他操作数都会使结果无效（即 [`InvalidOperation`](#gdaflagsnew-gdaflagscontains-gdaflagscombine) 条件）。"
 
-#: manual/api/decimal_gda.md:1323
+#: manual/api/decimal_gda.md:1325
 msgid "Move the coefficient digits of $x$ by $n$ places within a window of $p$ digits (GDA 1.70, page 49 (shift); page 47 (rotate))."
 msgstr "在 $p$ 位的窗口内将 $x$ 的系数数字移动 $n$ 位（GDA 1.70，第 49 页（shift）；第 47 页（rotate））。"
 
-#: manual/api/decimal_gda.md:1331
+#: manual/api/decimal_gda.md:1333
 msgid "$n$ must be an integer with exponent 0 and $|n| \\le p$, otherwise the result is invalid. A positive $n$ moves digits to the left. `shift` drops the digits that leave the window and fills with zeros; `rotate` moves them round to the other end. The exponent and sign are unchanged, and an infinite $x$ is returned unchanged."
 msgstr "$n$ 必须是指数为 0 且满足 $|n| \\le p$ 的整数，否则结果无效。正的 $n$ 将数字向左移动。`shift` 丢弃移出窗口的数字并以零填充；`rotate` 将它们循环移到另一端。指数与符号不变，无穷的 $x$ 原样返回。"
 
-#: manual/api/decimal_gda.md:1339
+#: manual/api/decimal_gda.md:1341
 msgid "Compare two values by value or in the GDA total order (GDA 1.70, page 42 (compare-total))."
 msgstr "按值或按 GDA 全序比较两个值（GDA 1.70，第 42 页（compare-total））。"
 
-#: manual/api/decimal_gda.md:1348
+#: manual/api/decimal_gda.md:1350
 msgid "An operand is a NaN"
 msgstr "某个操作数是 NaN"
 
-#: manual/api/decimal_gda.md:1350
+#: manual/api/decimal_gda.md:1352
 msgid "the decimal $-1$, $0$ or $1$, by value ($-0 = +0$, $2.50 = 2.5$)"
 msgstr "十进制数 $-1$、$0$ 或 $1$，按值比较（$-0 = +0$，$2.50 = 2.5$）"
 
-#: manual/api/decimal_gda.md:1350
+#: manual/api/decimal_gda.md:1352
 msgid "a quiet NaN; `InvalidOperation` only for a signaling NaN"
 msgstr "静默 NaN；仅对信号 NaN 引发 `InvalidOperation`"
 
-#: manual/api/decimal_gda.md:1351
+#: manual/api/decimal_gda.md:1353
 msgid "the same as `compare`"
 msgstr "与 `compare` 相同"
 
-#: manual/api/decimal_gda.md:1351
+#: manual/api/decimal_gda.md:1353
 msgid "a quiet NaN; `InvalidOperation` for any NaN"
 msgstr "静默 NaN；对任何 NaN 都引发 `InvalidOperation`"
 
-#: manual/api/decimal_gda.md:1353
+#: manual/api/decimal_gda.md:1355
 msgid "`compare_total` returns $-1$, $0$ or $1$ in the GDA total order. The order is by sign bit first. For positive values it is $\\text{finite} < \\infty < \\text{sNaN} < \\text{NaN}$, with finite values ordered by value and then by exponent (`2.50` < `2.5`) and NaNs by payload; for negative values it is reversed. `compare_total_magnitude` applies the total order to the absolute values: it is `compare_total` of the two absolute values (GDA 1.70, page 43), so in a subset context the sign goes before the operands are rounded ([#763](https://github.com/Luna-Flow/floating/issues/763)). The total orders never raise flags in an extended context."
 msgstr "`compare_total` 按 GDA 全序返回 $-1$、$0$ 或 $1$。该顺序先比较符号位。对正值有 $\\text{finite} < \\infty < \\text{sNaN} < \\text{NaN}$，有限值先按值、再按指数排序（`2.50` < `2.5`），NaN 按载荷排序；对负值则顺序相反。`compare_total_magnitude` 对绝对值应用该全序：它就是两个绝对值的 `compare_total`（GDA 1.70，第 43 页），因此在子集上下文中，符号先于操作数的舍入被去掉（[#763](https://github.com/Luna-Flow/floating/issues/763)）。在扩展上下文中，全序比较从不引发标志。"
 
-#: manual/api/decimal_gda.md:1363
+#: manual/api/decimal_gda.md:1365
 msgid "A subset context (`extended=false`) first rounds the operands to the precision, as it does for every operand (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new); GDA 1.70, page 56 (Appendix A, The X3.274 subset)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same names](#decimalcompare_total-decimalcompare_total_magnitude) compare the operands as they are."
 msgstr "子集上下文（`extended=false`）与对待其他所有操作数一样，先把操作数舍入到该精度（见 [`GdaContext::new`](#gdacontextnew-gdacontexttry_new)；GDA 1.70，第 56 页（Appendix A, The X3.274 subset）），这会引发 `Rounded` 和 `LostDigits`。同名的 [`Decimal` 方法](#decimalcompare_total-decimalcompare_total_magnitude) 则按原样比较操作数。"
 
-#: manual/api/decimal_gda.md:1371
+#: manual/api/decimal_gda.md:1373
 msgid "Return the larger or smaller of two operands, by value or by magnitude (GDA 1.70, page 32 (max))."
 msgstr "按值或按绝对值返回两个操作数中较大或较小的一个（GDA 1.70，第 32 页（max））。"
 
-#: manual/api/decimal_gda.md:1383
+#: manual/api/decimal_gda.md:1385
 msgid "one quiet NaN, the other operand not a NaN"
 msgstr "一个是静默 NaN，另一个操作数不是 NaN"
 
-#: manual/api/decimal_gda.md:1383
+#: manual/api/decimal_gda.md:1385
 msgid "the operand that is not a NaN"
 msgstr "不是 NaN 的那个操作数"
 
-#: manual/api/decimal_gda.md:1384
+#: manual/api/decimal_gda.md:1386
 msgid "two quiet NaNs"
 msgstr "两个静默 NaN"
 
-#: manual/api/decimal_gda.md:1384
+#: manual/api/decimal_gda.md:1386
 msgid "the first"
 msgstr "第一个"
 
-#: manual/api/decimal_gda.md:1385
+#: manual/api/decimal_gda.md:1387
 msgid "a signaling NaN"
 msgstr "信号 NaN"
 
-#: manual/api/decimal_gda.md:1385
+#: manual/api/decimal_gda.md:1387
 msgid "a quiet NaN, with `InvalidOperation`"
 msgstr "静默 NaN，并带有 `InvalidOperation`"
 
-#: manual/api/decimal_gda.md:1386
+#: manual/api/decimal_gda.md:1388
 msgid "values that compare equal, extended context"
 msgstr "比较相等的值，扩展上下文"
 
-#: manual/api/decimal_gda.md:1386
+#: manual/api/decimal_gda.md:1388
 msgid "the operand the total order selects (so `max(2.5, 2.50)` is `2.5`)"
 msgstr "全序所选中的操作数（因此 `max(2.5, 2.50)` 是 `2.5`）"
 
-#: manual/api/decimal_gda.md:1387
+#: manual/api/decimal_gda.md:1389
 msgid "values that compare equal, subset context"
 msgstr "比较相等的值，子集上下文"
 
-#: manual/api/decimal_gda.md:1387
+#: manual/api/decimal_gda.md:1389
 msgid "the first operand"
 msgstr "第一个操作数"
 
-#: manual/api/decimal_gda.md:1389
+#: manual/api/decimal_gda.md:1391
 msgid "The selected operand is then rounded to the context as by `plus`, except that in an extended context a zero keeps its sign: `max(-0, -0)` is `-0` for every rounding algorithm, while `plus(-0)` is `0` unless the rounding is `Floor`."
 msgstr "随后所选的操作数像 `plus` 一样被舍入到上下文，但在扩展上下文中零保留其符号：对每种舍入算法，`max(-0, -0)` 都是 `-0`，而 `plus(-0)` 是 `0`，除非舍入为 `Floor`。"
 
-#: manual/api/decimal_gda.md:1395
+#: manual/api/decimal_gda.md:1397
 msgid "Classify a value under a context (GDA 1.70, page 42 (class); page 45 (is-normal); page 46 (is-subnormal)). They never raise conditions, so they always return `Completed` with the input context."
 msgstr "在上下文下对值进行分类（GDA 1.70，第 42 页（class）；第 45 页（is-normal）；第 46 页（is-subnormal））。它们从不引发条件，因此总是返回带输入上下文的 `Completed`。"
 
-#: manual/api/decimal_gda.md:1405
+#: manual/api/decimal_gda.md:1407
 msgid "They need the exponent limit $E_{\\min}$ of the context, which is why they are functions of the context. `same_quantum` uses no context and is a [`Decimal` method](#decimalsame_quantum)."
 msgstr "它们需要上下文的指数下限 $E_{\\min}$，所以是以上下文为参数的函数。`same_quantum` 不使用上下文，是 [`Decimal` 的方法](#decimalsame_quantum)。"
 
-#: manual/api/decimal_gda.md:1435
+#: manual/api/decimal_gda.md:1437
 msgid "Ordering and plain arithmetic on values"
 msgstr "值上的排序与普通算术"
 
-#: manual/api/decimal_gda.md:1437
+#: manual/api/decimal_gda.md:1439
 msgid "The methods and operators of this section take no context. They never signal and never trap; use the GDA functions when flags matter."
 msgstr "本节的方法和运算符不接受上下文。它们从不发出信号，也从不触发陷阱；当标志重要时，请使用 GDA 函数。"
 
-#: manual/api/decimal_gda.md:1442
+#: manual/api/decimal_gda.md:1444
 msgid "`compare` returns the three-way numeric comparison of two values, total on all values; `compare_checked` refuses NaNs."
 msgstr "`compare` 返回两个值的三路数值比较结果，对所有值都完全；`compare_checked` 拒绝 NaN。"
 
-#: manual/api/decimal_gda.md:1452
+#: manual/api/decimal_gda.md:1454
 msgid "`compare` orders finite values and infinities numerically with $-0 = +0$ and places every NaN equal to every other NaN and above every value that is not a NaN, so it is a total preorder and sorting never aborts. `compare_checked` returns `Err(unordered_comparison)` when either operand is a NaN."
 msgstr "`compare` 按数值对有限值和无穷排序，其中 $-0 = +0$，并使每个 NaN 与其他所有 NaN 相等，且大于所有不是 NaN 的值，因此它是全预序，排序永不中止。当任一操作数为 NaN 时，`compare_checked` 返回 `Err(unordered_comparison)`。"
 
-#: manual/api/decimal_gda.md:1457
+#: manual/api/decimal_gda.md:1459
 msgid "Comparison operators"
 msgstr "比较运算符"
 
-#: manual/api/decimal_gda.md:1459
+#: manual/api/decimal_gda.md:1461
 msgid "Implement the operators of `Eq` and `Compare`."
 msgstr "实现 `Eq` 和 `Compare` 的运算符。"
 
-#: manual/api/decimal_gda.md:1471
+#: manual/api/decimal_gda.md:1473
 msgid "`==` compares as follows:"
 msgstr "`==` 的比较方式如下："
 
-#: manual/api/decimal_gda.md:1475
+#: manual/api/decimal_gda.md:1477
 msgid "finite values"
 msgstr "有限值"
 
-#: manual/api/decimal_gda.md:1475
+#: manual/api/decimal_gda.md:1477
 msgid "numeric equality ($2.50 = 2.5$, $-0 = +0$)"
 msgstr "数值相等（$2.50 = 2.5$，$-0 = +0$）"
 
-#: manual/api/decimal_gda.md:1476
+#: manual/api/decimal_gda.md:1478
 msgid "infinities"
 msgstr "无穷"
 
-#: manual/api/decimal_gda.md:1476
+#: manual/api/decimal_gda.md:1478
 msgid "equality of the signs"
 msgstr "符号相等"
 
-#: manual/api/decimal_gda.md:1479
+#: manual/api/decimal_gda.md:1481
 msgid "`<`, `<=`, `>` and `>=` follow `compare`."
 msgstr "`<`、`<=`、`>` 和 `>=` 遵循 `compare`。"
 
-#: manual/api/decimal_gda.md:1483
+#: manual/api/decimal_gda.md:1485
 msgid "Return $-1$, $0$ or $1$ by the GDA total orders."
 msgstr "按 GDA 全序返回 $-1$、$0$ 或 $1$。"
 
-#: manual/api/decimal_gda.md:1490
+#: manual/api/decimal_gda.md:1492
 msgid "Each agrees with the package function of the same name, [`compare_total`, `compare_total_magnitude`](#compare-compare_signal-compare_total-compare_total_magnitude), except that the package function applies the rounding of operands of subset arithmetic ([`GdaContext::new`](#gdacontextnew-gdacontexttry_new)) and the method does not."
 msgstr "每个方法都与本包中同名的包函数 [`compare_total`, `compare_total_magnitude`](#compare-compare_signal-compare_total-compare_total_magnitude) 一致，区别在于：包函数会对子集算术的操作数做舍入（[`GdaContext::new`](#gdacontextnew-gdacontexttry_new)），而方法不会。"
 
-#: manual/api/decimal_gda.md:1497
+#: manual/api/decimal_gda.md:1499
 msgid "Limit a value to $[\\min, \\max]$ without rounding. The GDA operations `min` and `max` are the free functions `min` and `max` of the package, which take a `GdaContext` and return a `GdaOutcome`; there are no methods of those names."
 msgstr "在不舍入的情况下把值限制在 $[\\min, \\max]$ 之内。GDA 的运算 `min` 和 `max` 是本包的自由函数 `min` 和 `max`，它们接受 `GdaContext` 并返回 `GdaOutcome`；没有同名的方法。"
 
-#: manual/api/decimal_gda.md:1506
+#: manual/api/decimal_gda.md:1508
 msgid "`clamp` returns `min` or `max` when the value lies outside $[\\min, \\max]$ and the value otherwise (a NaN value is returned unchanged). It aborts when a bound is NaN or `min > max`; there `clamp_checked` returns `Err(domain_error)`."
 msgstr "当值位于 $[\\min, \\max]$ 之外时，`clamp` 返回 `min` 或 `max`，否则返回该值（NaN 值原样返回）。当某个界为 NaN 或 `min > max` 时它会中止；此时 `clamp_checked` 返回 `Err(domain_error)`。"
 
-#: manual/api/decimal_gda.md:1513
+#: manual/api/decimal_gda.md:1515
 msgid "Implement `+`, `-`, `*`, `/` and unary `-` without a context."
 msgstr "在无上下文的情况下实现 `+`、`-`、`*`、`/` 以及一元 `-`。"
 
-#: manual/api/decimal_gda.md:1527
+#: manual/api/decimal_gda.md:1529
 msgid "`+`, `-`, `*` and `/` run the free functions `add`, `subtract`, `multiply` and `divide` in a private working context and return their value. The working context has these parameters:"
 msgstr "`+`、`-`、`*` 和 `/` 在私有的工作上下文中运行自由函数 `add`、`subtract`、`multiply` 和 `divide`，并返回其值。该工作上下文的参数如下："
 
-#: manual/api/decimal_gda.md:1533
+#: manual/api/decimal_gda.md:1535
 msgid "precision"
 msgstr "精度"
 
-#: manual/api/decimal_gda.md:1533
+#: manual/api/decimal_gda.md:1535
 msgid "$P$, the larger of the precisions of the two operands"
 msgstr "$P$，两个操作数的精度中较大者"
 
-#: manual/api/decimal_gda.md:1534
+#: manual/api/decimal_gda.md:1536
 msgid "half-even"
 msgstr "半值取偶"
 
-#: manual/api/decimal_gda.md:1535
+#: manual/api/decimal_gda.md:1537
 msgid "arithmetic"
 msgstr "算术"
 
-#: manual/api/decimal_gda.md:1538
+#: manual/api/decimal_gda.md:1540
 msgid "exponent range"
 msgstr "指数范围"
 
-#: manual/api/decimal_gda.md:1538
+#: manual/api/decimal_gda.md:1540
 msgid "the one below"
 msgstr "下面的范围"
 
-#: manual/api/decimal_gda.md:1540
+#: manual/api/decimal_gda.md:1542
 msgid "The result is therefore a member of the cohort with the ideal exponent that GDA prescribes (see [GDA operations](#gda-operations)):"
 msgstr "因此，结果是同值类中具有 GDA 所规定理想指数的成员（见 [GDA 运算](#gda-operations)）："
 
-#: manual/api/decimal_gda.md:1543
+#: manual/api/decimal_gda.md:1545
 msgid "Exponent of the result"
 msgstr "结果的指数"
 
-#: manual/api/decimal_gda.md:1545
+#: manual/api/decimal_gda.md:1547
 msgid "the smaller exponent of the operands"
 msgstr "两个操作数中较小的指数"
 
-#: manual/api/decimal_gda.md:1545
+#: manual/api/decimal_gda.md:1547
 msgid "`1.10 + 3.50` is `4.60`"
 msgstr "`1.10 + 3.50` 为 `4.60`"
 
-#: manual/api/decimal_gda.md:1546
+#: manual/api/decimal_gda.md:1548
 msgid "the sum of the exponents"
 msgstr "两个指数之和"
 
-#: manual/api/decimal_gda.md:1547
+#: manual/api/decimal_gda.md:1549
 msgid "the difference of the exponents, with only the trailing zeros removed that an exact quotient allows"
 msgstr "两个指数之差，并且只去除精确商所允许去除的尾随零"
 
-#: manual/api/decimal_gda.md:1547
+#: manual/api/decimal_gda.md:1549
 msgid "`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`"
 msgstr "`1.5 / 0.5` 为 `3`，`1.50 / 0.5` 为 `3.0`"
 
-#: manual/api/decimal_gda.md:1549
+#: manual/api/decimal_gda.md:1551
 msgid "A result of any of the four operations with more than $P$ digits is rounded to $P$ digits (the product of `*` is then rounded, not exact)."
 msgstr "四种运算中任何一种的结果若多于 $P$ 位数字，就舍入到 $P$ 位（因此 `*` 的积会被舍入，而不是精确的）。"
 
-#: manual/api/decimal_gda.md:1552
+#: manual/api/decimal_gda.md:1554
 msgid "`x + 0 == x` and `x * 1 == x` hold because equality compares values, not members of the cohort, and, for every stored finite value, because the working exponent range below is the [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny)."
 msgstr "`x + 0 == x` 和 `x * 1 == x` 成立，是因为相等比较的是值，而不是同值类的成员；并且对每个已存储的有限值，也是因为下面的工作指数范围是[已存储值的指数的实现限制](#gda_value_e_max-gda_value_e_tiny)。"
 
-#: manual/api/decimal_gda.md:1556
+#: manual/api/decimal_gda.md:1558
 msgid "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) cannot build the working exponent range. It limits $E_{\\max}$ of a context to at most $999{,}999{,}999$ and $E_{\\min}$ to at least $-999{,}999{,}999$ (GDA 1.70, page 10 (Abstract representation of numbers) allows a limit Elimit without giving a value), and the working range fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$ and the smallest exponent is $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$ for every $P$, so $E_{\\mathrm{tiny}}$ is always a valid `Int` exponent. A result above the range is a signed infinity (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded with the half-even rounding algorithm to $E_{\\mathrm{tiny}}$, possibly to a signed zero."
 msgstr "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) 无法构造该工作指数范围。它把上下文的 $E_{\\max}$ 限制为至多 $999{,}999{,}999$，把 $E_{\\min}$ 限制为至少 $-999{,}999{,}999$（GDA 1.70，第 10 页（Abstract representation of numbers）允许设置上限 Elimit，但没有给出数值），而工作范围占满整个 `Int` 范围：对每个 $P$，最大调整后指数为 $2^{31}-2 = 2{,}147{,}483{,}646$，最小指数为 $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$，因此 $E_{\\mathrm{tiny}}$ 总是合法的 `Int` 指数。高于该范围的结果为带符号的无穷（`1E+1500000000 * 1E+1500000000` 为 `inf`）；低于该范围的结果按半值取偶舍入算法舍入到 $E_{\\mathrm{tiny}}$，可能得到带符号的零。"
 
-#: manual/api/decimal_gda.md:1565
+#: manual/api/decimal_gda.md:1567
 msgid "Special values follow the default results of IEEE 754-2019 6.2 (operations with NaNs), 7.2 (invalid operation) and 7.3 (division by zero), without signals:"
 msgstr "特殊值遵循 IEEE 754-2019 第 6.2 条（含 NaN 的运算）、第 7.2 条（无效运算）和第 7.3 条（除以零）的默认结果，且不发出信号："
 
-#: manual/api/decimal_gda.md:1570
+#: manual/api/decimal_gda.md:1572
 msgid "a NaN operand"
 msgstr "NaN 操作数"
 
-#: manual/api/decimal_gda.md:1570
+#: manual/api/decimal_gda.md:1572
 msgid "a quiet NaN"
 msgstr "静默 NaN"
 
-#: manual/api/decimal_gda.md:1572
+#: manual/api/decimal_gda.md:1574
 msgid "$x/0$, $x$ non-zero and not a NaN"
 msgstr "$x/0$，$x$ 非零且不是 NaN"
 
-#: manual/api/decimal_gda.md:1572
+#: manual/api/decimal_gda.md:1574
 msgid "a signed infinity"
 msgstr "带符号的无穷"
 
-#: manual/api/decimal_gda.md:1573
+#: manual/api/decimal_gda.md:1575
 msgid "a signed zero"
 msgstr "带符号的零"
 
-#: manual/api/decimal_gda.md:1575
+#: manual/api/decimal_gda.md:1577
 msgid "Use the free functions with a `GdaContext` when you need another precision, rounding, range or the signals."
 msgstr "需要其他精度、舍入、范围或信号时，请使用自由函数并传入 `GdaContext`。"
 
-#: manual/api/decimal_gda.md:1578
+#: manual/api/decimal_gda.md:1580
 msgid "Unary `-` is [`Decimal::neg`](#sign-operations): it flips the sign bit and uses no context. The working context, the precision $P$, the cohort rules and the working range above apply to `+`, `-`, `*` and `/` only."
 msgstr "一元 `-` 即 [`Decimal::neg`](#sign-operations)：它翻转符号位，不使用上下文。上文的工作上下文、精度 $P$、同值类规则和工作范围只适用于 `+`、`-`、`*` 和 `/`。"
 
-#: manual/api/decimal_gda.md:1585
+#: manual/api/decimal_gda.md:1587
 msgid "`sqrt` is the square root in the working context of the [plain operators](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg), at the precision of the value."
 msgstr "`sqrt` 是在[普通运算符](#decimaladd-decimalsub-decimalmul-decimaldiv-decimalneg)的工作上下文中，以该值的精度求平方根。"
 
-#: manual/api/decimal_gda.md:1593
+#: manual/api/decimal_gda.md:1595
 msgid "A negative operand gives NaN, as the free function [`sqrt`](#sqrt-exp-ln-log10) does. The checked forms are `sqrt_checked` and `DivChecked::div_checked`. `Decimal::div_checked` does not exist: use `1 / 0` for the infinity, or `divide` with a trapping `GdaContext` for an error."
 msgstr "负操作数给出 NaN，与自由函数 [`sqrt`](#sqrt-exp-ln-log10) 相同。带检查的形式是 `sqrt_checked` 和 `DivChecked::div_checked`。`Decimal::div_checked` 不存在：要得到无穷请用 `1 / 0`，要得到错误请用带陷阱的 `GdaContext` 调用 `divide`。"
 
-#: manual/api/decimal_gda.md:1618
+#: manual/api/decimal_gda.md:1620
 msgid "`GdaInterchangeFormat` selects one of the three decimal interchange formats of IEEE 754: decimal32, decimal64 or decimal128."
 msgstr "`GdaInterchangeFormat` 选择 IEEE 754 三种十进制交换格式之一：decimal32、decimal64 或 decimal128。"
 
-#: manual/api/decimal_gda.md:1630
+#: manual/api/decimal_gda.md:1632
 msgid "`context` returns the extended default `GdaContext` of the format: precision 7, 16 or 34, half-even, clamped."
 msgstr "`context` 返回该格式的扩展默认 `GdaContext`：精度为 7、16 或 34，半值取偶，启用钳制。"
 
-#: manual/api/decimal_gda.md:1636
+#: manual/api/decimal_gda.md:1638
 msgid "The contexts are the presets `GdaContext::decimal32()`, `decimal64()` and `decimal128()`."
 msgstr "这些上下文即预设 `GdaContext::decimal32()`、`decimal64()` 和 `decimal128()`。"
 
-#: manual/api/decimal_gda.md:1641
+#: manual/api/decimal_gda.md:1643
 msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding."
 msgstr "`GdaInterchange` 保存采用密集压缩十进制（DPD）编码的 decimal32、decimal64 或 decimal128 比特模式。"
 
-#: manual/api/decimal_gda.md:1652
+#: manual/api/decimal_gda.md:1654
 msgid "`format` returns the format of the pattern."
 msgstr "`format` 返回该比特模式的格式。"
 
-#: manual/api/decimal_gda.md:1660
+#: manual/api/decimal_gda.md:1662
 msgid "`from_decimal` encodes a `Decimal` in a format; `to_decimal` decodes a pattern."
 msgstr "`from_decimal` 把 `Decimal` 编码为某种格式；`to_decimal` 对比特模式解码。"
 
-#: manual/api/decimal_gda.md:1667
+#: manual/api/decimal_gda.md:1669
 msgid "`from_decimal` rounds the value to the format and encodes it; the returned `GdaFlags` report the rounding, overflow, underflow and clamping. `to_decimal` decodes exactly, keeping the exponent, and raises nothing; when the subnormal condition is needed, test the result with [`is_subnormal`](#class_name-is_normal-is_subnormal)."
 msgstr "`from_decimal` 将值舍入到该格式并对其编码；返回的 `GdaFlags` 报告舍入、上溢、下溢和钳制。`to_decimal` 精确解码，保留指数，且不引发任何标志；需要次正规条件时，请用 [`is_subnormal`](#class_name-is_normal-is_subnormal) 检验结果。"
 
-#: manual/api/decimal_gda.md:1673
+#: manual/api/decimal_gda.md:1675
 msgid "A NaN is encoded with its sign, its signaling bit and its payload. The payload of a decimal32, decimal64 or decimal128 pattern has 6, 15 or 33 digits (the trailing significand field, IEEE 754-2019 3.5.2). A payload that is wider keeps its low digits and no flag is raised. IEEE 754-2019 6.2.3 asks that a conversion that cannot preserve the payload return a quiet NaN carrying some language-defined diagnostic information, and names no signal."
 msgstr "NaN 以其符号、信号位和载荷编码。decimal32、decimal64 或 decimal128 比特模式的载荷分别有 6、15 或 33 位数字（尾随有效数字段，IEEE 754-2019 3.5.2）。更宽的载荷保留其低位数字，且不引发标志。IEEE 754-2019 6.2.3 要求，无法保留载荷的转换应返回一个带有某种语言自定诊断信息的静默 NaN，并未指定任何信号。"
 
-#: manual/api/decimal_gda.md:1682
+#: manual/api/decimal_gda.md:1684
 msgid "`from_hex` parses a bit pattern from hexadecimal text; `to_hex` prints it."
 msgstr "`from_hex` 从十六进制文本解析比特模式；`to_hex` 将其打印出来。"
 
-#: manual/api/decimal_gda.md:1689
+#: manual/api/decimal_gda.md:1691
 msgid "The text is `#` (optional on input) followed by exactly 8, 16 or 32 hexadecimal digits; surrounding spaces are ignored. Any other input gives `Err(parse_error)`. `to_hex` prints `#` and uppercase digits."
 msgstr "文本为 `#`（输入时可选）后跟恰好 8、16 或 32 个十六进制数字；两侧的空格被忽略。其他任何输入都得到 `Err(parse_error)`。`to_hex` 打印 `#` 和大写数字。"
 
-#: manual/api/decimal_gda.md:1695
+#: manual/api/decimal_gda.md:1697
 msgid "`canonical` returns the canonical encoding of a pattern; `is_canonical` tests whether a pattern is canonical."
 msgstr "`canonical` 返回比特模式的规范编码；`is_canonical` 检测比特模式是否规范。"
 
-#: manual/api/decimal_gda.md:1702
+#: manual/api/decimal_gda.md:1704
 msgid "`canonical` decodes and re-encodes the pattern, which replaces non-canonical declets and payloads with their canonical form. `is_canonical` is true when that leaves the pattern unchanged."
 msgstr "`canonical` 对比特模式解码后重新编码，从而将非规范的 declet 和载荷替换为其规范形式。若这样做不改变比特模式，`is_canonical` 为真。"
 
-#: manual/api/decimal_gda.md:1706
+#: manual/api/decimal_gda.md:1708
 msgid "Sign operations on an encoding"
 msgstr "对编码的符号运算"
 
-#: manual/api/decimal_gda.md:1708
+#: manual/api/decimal_gda.md:1710
 msgid "Operate on the sign bit of an encoding without decoding it."
 msgstr "不经解码直接操作编码的符号位。"
 
-#: manual/api/decimal_gda.md:1717
+#: manual/api/decimal_gda.md:1719
 msgid "`copy_sign` aborts when the two patterns have different formats."
 msgstr "当两个比特模式的格式不同时，`copy_sign` 会中止。"
 
-#: manual/api/decimal_gda.md:1735
+#: manual/api/decimal_gda.md:1737
 msgid "Derived `Eq` of the enumerations and flag sets"
 msgstr "枚举和标志集的派生 `Eq`"
 
-#: manual/api/decimal_gda.md:1737
+#: manual/api/decimal_gda.md:1739
 msgid "`GdaRoundingMode`, `GdaSignal`, `GdaFlags`, `GdaTrapSet` and `GdaInterchangeFormat` have the derived `Eq` methods, which test two values for equality."
 msgstr "`GdaRoundingMode`、`GdaSignal`、`GdaFlags`、`GdaTrapSet` 和 `GdaInterchangeFormat` 具有派生的 `Eq` 方法，用于检验两个值是否相等。"
 
-#: manual/api/decimal_gda.md:1752
+#: manual/api/decimal_gda.md:1754
 msgid "They compare field by field (or variant by variant). `GdaContext` has no `Eq`. `Decimal` has its own numeric `Eq`, documented under [Comparison operators](#comparison-operators)."
 msgstr "它们逐字段（或逐变体）比较。`GdaContext` 没有 `Eq`。`Decimal` 有自己的数值 `Eq`，见[比较运算符](#comparison-operators)。"
 
-#: manual/api/decimal_gda.md:1755
+#: manual/api/decimal_gda.md:1757
 msgid "Contextual traits of `Luna-Flow/arithmetic`"
 msgstr "`Luna-Flow/arithmetic` 的上下文式 trait"
 
-#: manual/api/decimal_gda.md:1757
+#: manual/api/decimal_gda.md:1759
 msgid "`Decimal` implements the contextual traits of `Luna-Flow/arithmetic` on top of the package's private engine: each operation runs under an `ArithmeticContext` and returns an outcome or an error."
 msgstr "`Decimal` 在本包私有引擎之上实现 `Luna-Flow/arithmetic` 的上下文式 trait：每个运算在一个 `ArithmeticContext` 下运行，返回结果或错误。"
 
-#: manual/api/decimal_gda.md:1778
+#: manual/api/decimal_gda.md:1780
 msgid "Each converts the arithmetic context to an engine context, runs the operation, and maps the conditions the operation raises to the result:"
 msgstr "每个方法把算术上下文转换为引擎上下文，运行运算，并把运算引发的条件映射到返回结果："
 
-#: manual/api/decimal_gda.md:1781
+#: manual/api/decimal_gda.md:1783
 msgid "Condition raised"
 msgstr "引发的条件"
 
-#: manual/api/decimal_gda.md:1785
+#: manual/api/decimal_gda.md:1787
 msgid "any other error flag"
 msgstr "任何其他错误标志"
 
-#: manual/api/decimal_gda.md:1786
+#: manual/api/decimal_gda.md:1788
 msgid "none of these"
 msgstr "以上皆无"
 
-#: manual/api/decimal_gda.md:1786
+#: manual/api/decimal_gda.md:1788
 msgid "`Ok` with the value and the diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped`"
 msgstr "`Ok`，带有值以及诊断信息 `inexact`、`rounded`、`overflow`、`underflow`、`subnormal` 和 `clamped`"
 
-#: manual/api/decimal_gda.md:1788
+#: manual/api/decimal_gda.md:1790
 msgid "The rounding is one of the five rounding algorithms of `ArithmeticContext`. `sqrt_contextual` and `exp_contextual` round with it, not half-even as the GDA functions do."
 msgstr "舍入为 `ArithmeticContext` 的五种舍入算法之一。`sqrt_contextual` 和 `exp_contextual` 按它舍入，而不像 GDA 函数那样按偶数优先舍入。"
 
-#: manual/api/decimal_gda.md:1791
+#: manual/api/decimal_gda.md:1793
 msgid "`exp_contextual` needs an `ArithmeticContext` that sets the exponent bounds. Like the package function `exp`, it is subject to the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power): precision, $E_{\\max}$ and $-E_{\\min}$ of at most $999\\,999$. An `ArithmeticContext` without `e_min` or `e_max` is not given bounds by default. It translates to the full range $\\pm 999\\,999\\,999$, which is an invalid context for `exp`."
 msgstr "`exp_contextual` 需要一个设置了指数边界的 `ArithmeticContext`。与包函数 `exp` 一样，它受[实现限制](#implementation-limit-of-exp-ln-log10-and-power)约束：精度、$E_{\\max}$ 和 $-E_{\\min}$ 都不超过 $999\\,999$。未设置 `e_min` 或 `e_max` 的 `ArithmeticContext` 不会得到默认边界，而是转换为完整范围 $\\pm 999\\,999\\,999$，这对 `exp` 是无效上下文。"
 
-#: manual/api/decimal_gda.md:1796
+#: manual/api/decimal_gda.md:1798
 msgid "The result for such a context is `Err(unsupported)`, whatever the operand (`-Infinity` included). Its message starts with `invalid context:`, states the limit and names the bounds the `ArithmeticContext` does not set. `ArithmeticContext::new(16)` therefore fails, while `ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` and `ArithmeticContext::decimal64()` work."
 msgstr "这样的上下文的结果为 `Err(unsupported)`，与操作数无关（包括 `-Infinity`）。其消息以 `invalid context:` 开头，说明该限制，并指出 `ArithmeticContext` 未设置的边界。因此 `ArithmeticContext::new(16)` 会失败，而 `ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` 和 `ArithmeticContext::decimal64()` 可以正常工作。"
 
-#: manual/api/decimal_gda.md:1823
+#: manual/api/decimal_gda.md:1825
 msgid "`Decimal` implements `NumericFormatContextual`, which describes the number format of an `ArithmeticContext`. `zero_contextual` and `one_contextual` return `0` and `1`, each with the precision of the context, and do not check the context."
 msgstr "`Decimal` 实现 `NumericFormatContextual`，它描述 `ArithmeticContext` 的数值格式。`zero_contextual` 和 `one_contextual` 分别返回 `0` 和 `1`，二者都带有该上下文的精度，且不检查上下文。"
 
-#: manual/api/decimal_gda.md:1837
+#: manual/api/decimal_gda.md:1839
 msgid "With $p$ the precision of the context and $E_{\\min}$, $E_{\\max}$ its exponent limits:"
 msgstr "设 $p$ 为上下文的精度，$E_{\\min}$、$E_{\\max}$ 为其指数限制："
 
-#: manual/api/decimal_gda.md:1845
+#: manual/api/decimal_gda.md:1847
 msgid "If the `ArithmeticContext` is invalid, that is, if it cannot be converted to an engine context (for example a precision above 999,999,999), these three methods return a zero with the precision of the context limited to the range 1 through 999,999,999."
 msgstr "若 `ArithmeticContext` 无效，即无法转换为引擎上下文（例如精度高于 999,999,999），这三个方法返回一个零，其精度取该上下文的精度并限制在 1 到 999,999,999 的范围内。"
 
-#: manual/api/decimal_gda.md:1849
+#: manual/api/decimal_gda.md:1851
 msgid "Checked traits of `Luna-Flow/arithmetic`"
 msgstr "`Luna-Flow/arithmetic` 的 checked trait"
 
-#: manual/api/decimal_gda.md:1851
+#: manual/api/decimal_gda.md:1853
 msgid "`Decimal` implements the checked traits of `Luna-Flow/arithmetic`, which return `Result` instead of flags."
 msgstr "`Decimal` 实现 `Luna-Flow/arithmetic` 的 checked trait，它们返回 `Result` 而不是标志。"
 
-#: manual/api/decimal_gda.md:1866
+#: manual/api/decimal_gda.md:1868
 msgid "`parse_checked` converts the arithmetic context to an engine context and converts the string under it: the precision, rounding, exponent bounds and clamp setting of the context apply. If the context cannot be converted (a precision above 999,999,999, for example), it returns `Err(domain_error)` for that conversion before it reads the string. It returns the converted value; conditions such as overflow are available from [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`."
 msgstr "`parse_checked` 把算术上下文转换为引擎上下文，并在其下转换字符串：上下文的精度、舍入、指数边界和 clamp 设置均会生效。若上下文无法转换（例如精度高于 999,999,999），它在读取字符串之前就因该转换返回 `Err(domain_error)`。它返回转换后的值；溢出等条件可从 [`to_number`](#to_number) 获取。语法无效时返回 `Err(parse_error)`。"
 
-#: manual/api/decimal_gda.md:1872
+#: manual/api/decimal_gda.md:1874
 msgid "`sqrt_checked` returns `Err(domain_error)` for negative operands."
 msgstr "`sqrt_checked` 对负操作数返回 `Err(domain_error)`。"
 
-#: manual/api/decimal_gda.md:1874
+#: manual/api/decimal_gda.md:1876
 msgid "`pow_int_checked` and `pow_nat_checked` call the power operation with the integer exponent converted exactly, with at least ten digits, which hold every accepted exponent. So at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return an error in these cases:"
 msgstr "`pow_int_checked` 和 `pow_nat_checked` 以精确转换的整数指数调用幂运算，该指数至少有十位数字，足以容纳每个可接受的指数。因此精度为 7 时 `(-1).pow_int_checked(12345679, ctx)` 为 `-1`。在以下情形它们返回错误："
 
-#: manual/api/decimal_gda.md:1881
+#: manual/api/decimal_gda.md:1883
 msgid "zero base, negative exponent"
 msgstr "零底数，负指数"
 
-#: manual/api/decimal_gda.md:1882
+#: manual/api/decimal_gda.md:1884
 msgid "`power` raises `invalid_context`: a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
 msgstr "`power` 引发 `invalid_context`：在指数边界不在 $\\pm 999\\,999$ 以内的上下文下，指数为大于 999,999,999 的正数"
 
-#: manual/api/decimal_gda.md:1882
+#: manual/api/decimal_gda.md:1884
 msgid "`Err(unsupported)` with an `invalid context:` message"
 msgstr "带 `invalid context:` 消息的 `Err(unsupported)`"
 
-#: manual/api/decimal_gda.md:1883
+#: manual/api/decimal_gda.md:1885
 msgid "any other invalid result"
 msgstr "任何其他无效结果"
 
-#: manual/api/decimal_gda.md:1884
+#: manual/api/decimal_gda.md:1886
 msgid "`pow_nat_checked` with an exponent above 999,999,999"
 msgstr "`pow_nat_checked`，指数大于 999,999,999"
 
-#: manual/api/decimal_gda.md:1886
+#: manual/api/decimal_gda.md:1888
 msgid "`DivChecked::div_checked` divides under the given context and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division."
 msgstr "`DivChecked::div_checked` 在给定上下文下做除法，除数为零时返回 `Err(division_by_zero)`，除法无效时返回 `Err(domain_error)`。"
 
-#: manual/api/decimal_gda.md:1889
+#: manual/api/decimal_gda.md:1891
 msgid "`FromNat`, `FromInteger` and the `luna-generic` algebra traits"
 msgstr "`FromNat`、`FromInteger` 与 `luna-generic` 代数 trait"
 
-#: manual/api/decimal_gda.md:1891
+#: manual/api/decimal_gda.md:1893
 msgid "`Decimal` implements the `luna-generic` traits that let generic algebra code use it."
 msgstr "`Decimal` 实现 `luna-generic` 的 trait，使泛型代数代码可以使用它。"
 
-#: manual/api/decimal_gda.md:1905
+#: manual/api/decimal_gda.md:1907
 msgid "`FromNat::from_natural` and `FromInteger::from_integer` are the canonical maps out of the naturals and the integers. `Decimal` has no inherent method of those names: call the trait method, or `Decimal::from_bigint(n).normalized()`, which is what they compute. They convert with `Decimal::from_bigint` (34 digits) and reduce the result, so they are exact only for integers of at most 34 significant digits. To convert another Luna-Flow integer type, pick its representative with `Integral::normalize` first, or use `lift_to`."
 msgstr "`FromNat::from_natural` 和 `FromInteger::from_integer` 是从自然数和整数出发的典范映射。`Decimal` 没有这些名字的固有方法：请调用 trait 方法，或 `Decimal::from_bigint(n).normalized()`，它们计算的就是这个。它们用 `Decimal::from_bigint`（34 位）转换并约简结果，因此只对至多 34 位有效数字的整数是精确的。要转换其他 Luna-Flow 整数类型，请先用 `Integral::normalize` 取其代表元，或使用 `lift_to`。"
 
-#: manual/api/decimal_gda.md:1912
+#: manual/api/decimal_gda.md:1914
 msgid "`Zero::zero` and `One::one` are `Decimal::zero()` and `Decimal::one()`."
 msgstr "`Zero::zero` 和 `One::one` 即 `Decimal::zero()` 和 `Decimal::one()`。"
 
-#: manual/api/decimal_gda.md:1914
+#: manual/api/decimal_gda.md:1916
 msgid "The ring structure uses the context-free operators. Because `+` rounds to the operand precision, the ring laws hold exactly only while sums stay within that precision."
 msgstr "环结构使用无上下文的运算符。由于 `+` 会舍入到操作数精度，只有当和保持在该精度之内时，环公理才精确成立。"
 
-#: manual/api/decimal_gda.md:1917
+#: manual/api/decimal_gda.md:1919
 msgid "`Decimal::to_repr` and the `@def.Floating`, `Show` and `Debug` implementations"
 msgstr "`Decimal::to_repr` 以及 `@def.Floating`、`Show` 与 `Debug` 的实现"
 
-#: manual/api/decimal_gda.md:1919
+#: manual/api/decimal_gda.md:1921
 msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show` (see [`Decimal::to_string`](#decimalto_string-decimaloutput)) and `Debug`."
 msgstr "`Decimal` 实现了 `def` 包的浮点词汇、`Show`（参见 [`Decimal::to_string`](#decimalto_string-decimaloutput)）以及 `Debug`。"
 
-#: manual/api/decimal_gda.md:1927
+#: manual/api/decimal_gda.md:1929
 msgid "The `Floating` methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`. The first three are documented under [`Decimal::classify`](#decimalclassify-decimalsignum-decimalprecision), the last two under [`Decimal::normalized`](#decimalnormalized-decimaltrim-decimalwith_precision). `to_repr` is the structural `Debug` representation."
 msgstr "`Floating` 方法为 `classify`、`signum`、`precision`、`with_precision` 和 `normalized`。前三个见 [`Decimal::classify`](#decimalclassify-decimalsignum-decimalprecision)，后两个见 [`Decimal::normalized`](#decimalnormalized-decimaltrim-decimalwith_precision)。`to_repr` 是结构化的 `Debug` 表示。"
 
@@ -11195,8 +11195,8 @@ msgid "a result whose coefficient is zero has sign 0 and, unless the operation i
 msgstr "系数为零的结果，符号为 0，并且（除非运算是 quantize）指数为 0；"
 
 #: manual/conformance/decimal_gda.md:43
-msgid "a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded` as `multiply` has always given (an operation that raised `Clamped` before keeps it: `exp` raises it as well);"
-msgstr "不允许次正规结果：它是 Underflow 错误，结果是子集的零，带有 `Underflow`、`Subnormal`、`Inexact` 和 `Rounded`，与 `multiply` 一直以来给出的相同（此前已引发 `Clamped` 的运算仍保留它：`exp` 也引发它）；"
+msgid "a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded` as `multiply` has always given (an operation that raised `Clamped` before keeps it: `exp` raises it as well); `next_plus` and `next_minus` are the exception, they set no flag for a numeric operand (page 34) and give `0` without flags ([#770](https://github.com/Luna-Flow/floating/issues/770)), while `next_toward` raises the four flags, as the sum with an infinitesimal of page 35 does;"
+msgstr "不允许次正规结果：它是 Underflow 错误，结果是子集的零，带有 `Underflow`、`Subnormal`、`Inexact` 和 `Rounded`，与 `multiply` 一直以来给出的相同（此前已引发 `Clamped` 的运算仍保留它：`exp` 也引发它）；`next_plus` 和 `next_minus` 是例外，它们对数值操作数不设置任何标志（第 34 页），给出不带标志的 `0`（[#770](https://github.com/Luna-Flow/floating/issues/770)），而 `next_toward` 引发这四个标志，与第 35 页加上无穷小量之和相同；"
 
 #: manual/conformance/decimal_gda.md:44
 msgid "after the rounding of its result (unless the operation is quantize), a positive exponent is reduced to 0 when the coefficient then has at most precision digits."
