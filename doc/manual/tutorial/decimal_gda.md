@@ -1,22 +1,20 @@
 # decimal_gda tutorial
 
-This tutorial teaches you to compute with `decimal_gda`, the package that
-implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that
-keep their trailing zeros, a context that fixes precision, rounding and
-exponent limits, sticky flags that records what happened, and traps that stop
-a calculation while still handing you the defined result. By the end you can
-thread a context through a calculation, round money, handle traps, overflow and
-underflow, call the elementary functions and pick the right comparison. The
-mathematics behind each rule is on the [design page](../design/decimal_gda.md);
-every public name is on the [API page](../api/decimal_gda.md).
+Use `decimal_gda` to parse decimal input, carry a context through calculations,
+round amounts, inspect conditions and preserve trailing zeros. A context sets
+the precision, rounding algorithm and exponent limits; its flags record the
+conditions raised by each operation, and its traps can stop an operation while
+returning its defined result. The [design page](../design/decimal_gda.md)
+explains the arithmetic rules, and the [API page](../api/decimal_gda.md) lists
+every public name.
 
 | I want to | Use |
 | --- | --- |
-| Read a number under a context | [`parse`](#quick-start) |
+| Read a number under a context | [`to_number`](#quick-start) |
 | Carry flags from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
 | Round an amount to cents | [`quantize`](#keep-and-set-the-quantum) |
 | Stop on a condition but keep the result | [`GdaContext::trap`](#handle-a-trap-without-losing-the-result) |
-| Control overflow and underflow | [exponent limits and rounding modes](#respect-the-exponent-range) |
+| Control overflow and underflow | [exponent limits and rounding algorithms](#respect-the-exponent-range) |
 | Compute `exp`, `ln`, `log10`, `sqrt` or `power` | [elementary functions](#call-the-elementary-functions) |
 | Compare numbers or representations | [`compare`, `compare_total`](#compare-and-print) |
 | Chain many operations without manual threading | [`decimal_gda_checked`](#long-chains-with-decimal_gda_checked) |
@@ -24,7 +22,7 @@ every public name is on the [API page](../api/decimal_gda.md).
 
 ## Quick start
 
-Add the module:
+Add the module to your project:
 
 ```bash
 moon add Luna-Flow/floating@0.11.0
@@ -38,9 +36,9 @@ import {
 }
 ```
 
-Every GDA operation takes its operands and a `GdaContext` and returns a
-`GdaOutcome`: the result, the context to use next, and the conditions this
-operation raised.
+Pass the operands and a `GdaContext` to a GDA operation. It returns a
+`GdaOutcome` containing the result, the next context and the conditions raised
+by that operation.
 
 ```moonbit
 ///|
@@ -55,16 +53,16 @@ test "quick start: one third in nine digits" {
 }
 ```
 
-`raised()` describes this one operation. `next_context().flags()` is sticky:
-it collects every condition since the context was created or cleared.
+`raised()` reports the conditions from this operation. The flags in
+`next_context()` accumulate every condition raised since the context was created
+or its flags were cleared.
 
 ## Everyday tasks
 
 ### Thread the context through a calculation
 
-Status accumulates only when you pass each outcome's `next_context()` to the
-next operation. The context you started with never changes, because a context
-is a value, not a mutable object.
+Pass each outcome's `next_context()` to the next operation to accumulate flags.
+The starting context remains unchanged because a context is a value.
 
 ```moonbit
 ///|
@@ -87,10 +85,10 @@ test "sticky flags follows the threaded context" {
 
 ### Keep and set the quantum
 
-A GDA number is a coefficient and an exponent, so `2.50` and `2.5` are equal
-numbers with different exponents (different *quanta*). Arithmetic keeps the
-exponent that the exact result calls for, and `quantize` sets it explicitly.
-That is how you round an amount to cents:
+A GDA number has a coefficient and an exponent. The quantum is $10^q$, where
+$q$ is that exponent, so `2.50` and `2.5` have the same value but different
+quanta. Arithmetic chooses the exponent required by the exact result, while
+`quantize` sets a target exponent. Use it to round an amount to cents:
 
 ```moonbit
 ///|
@@ -115,14 +113,14 @@ test "round to cents with quantize" {
 }
 ```
 
-`reduce` goes the other way: it removes trailing zeros, so `reduce(7.50)` is
-`7.5`. Use it only when you really want the shortest cohort member.
+`reduce` removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it when you
+want the shortest representation in the same cohort.
 
 ### Handle a trap without losing the result
 
-Enable a trap by deriving a new context with `trap`. A trapped operation
-returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result
-is still there, and the sticky flags is still updated.
+Call `trap` on a context to enable a trap. A trapped operation returns
+`Trapped(signal, value, next_context, raised)`. The result specified by GDA
+remains available as `value`, and `next_context` contains the updated flags.
 
 ```moonbit
 ///|
@@ -142,11 +140,11 @@ test "a trapped division keeps its defined result" {
 }
 ```
 
-An `InvalidOperation` trap also catches the four detailed invalid conditions
-(conversion syntax, division impossible, division undefined and invalid
-context), which are flags of the outcome but not signals: the nine signals of
-the specification are the only ones with a trap. The basic default context
-enables `InvalidOperation`, so a malformed literal traps:
+An `InvalidOperation` trap also covers conversion syntax, division impossible,
+division undefined and invalid context. These four detailed conditions appear
+as flags in the outcome, not as signals. Only the specification's nine signals
+can be trapped. `GdaContext::basic_default()` enables `InvalidOperation`, so a
+malformed literal traps:
 
 ```moonbit
 ///|
@@ -164,15 +162,15 @@ test "the InvalidOperation trap covers conversion syntax" {
 }
 ```
 
-When one operation raises several trapped conditions, the package reports one
-of them by a fixed precedence (listed in the [API page](../api/decimal_gda.md#trap-selection)),
-so you never have to invent your own order.
+When an operation raises several trapped conditions, the package reports one
+according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection)
+lists that precedence.
 
 ### Respect the exponent range
 
-A context bounds the adjusted exponent to `[e_min, e_max]`. Beyond `e_max` the
-result overflows; what it overflows *to* depends on the rounding mode. Below
-`e_min` the result becomes subnormal and loses digits:
+The context bounds the adjusted exponent to `[e_min, e_max]`. A result above
+`e_max` overflows; its rounding algorithm determines what the result becomes.
+A result below `e_min` becomes subnormal and loses digits:
 
 ```moonbit
 ///|
@@ -197,18 +195,24 @@ test "overflow and underflow in decimal32" {
   inspect(sub.raised().contains(Underflow), content="true")
 }
 ```
-
 ### Call the elementary functions
 
-`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
-even, whatever the context's rounding mode says. `power` with a non-integer
-exponent is also correctly rounded, but under the context's own rounding mode.
-`exp`, `ln`, `log10` and non-integer `power` only accept contexts with
-precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the
-decTest suite requires and GDA's Invalid context condition permits; the
-operation text of the specification states no such bound); the
-decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
-`context` (exponent range ±999,999,999) do not:
+`sqrt`, `exp`, `ln` and `log10` return correctly rounded results with the
+half-even rounding algorithm, whatever rounding the context selects. GDA 1.70,
+page 30 (exp) and page 31 (ln, log10), allows an inexact result to be up to 1
+ulp from the correctly rounded result; this package returns the correctly
+rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding
+for an inexact square root, and this package also returns the correctly rounded
+result. A non-integer `power` returns a correctly rounded result using the
+context's rounding algorithm; GDA 1.70, page 35 (power), allows up to 1 ulp of
+error for that operation.
+
+`exp`, `ln`, `log10` and non-integer `power` accept a context only when its
+precision, `e_max` and `-e_min` are at most 999,999. The presets
+`decimal32`, `decimal64` and `decimal128` meet this implementation limit. The
+defaults of `GdaContext::new` and `context` do not: their exponent range is
+±999,999,999. The [design page](../design/decimal_gda.md) explains why this
+limit exists.
 
 ```moonbit
 ///|
@@ -234,18 +238,20 @@ test "elementary functions" {
 }
 ```
 
-A certified elementary function refines its enclosure at most twelve times by
-default. For a rare argument that sits very close to a rounding boundary,
-`ctx.with_refinement_limit(Some(24))` allows more steps and
-`with_refinement_limit(None)` removes the count (the working precision then
-stops at a cap of at least 8,000,000 bits). `refinement_limit()` reads it.
+Here, certification means that the package decides the rounding result before
+returning it. Each function
+refines its enclosure at most twelve times by default. For an argument close
+to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows 24 steps;
+`with_refinement_limit(None)` removes the count, so the working precision
+stops at a resource bound of at least 8,000,000 bits. Read the current setting
+with `refinement_limit()`.
 
 ### Compare and print
 
-`compare` is numeric and returns a decimal (`-1`, `0`, `1`, or NaN when an
-operand is NaN). `compare_total` orders representations, so it tells `2.50`
-from `2.5`. Printing a value gives its scientific string; `class_name` names
-its class:
+Use `compare` for numerical order: it returns a decimal containing `-1`, `0`,
+or `1`, and returns NaN when an operand is NaN. Use `compare_total` when the
+representation matters; it orders `2.50` before `2.5`. Printing a value uses
+scientific notation, while `class_name` returns its class name:
 
 ```moonbit
 ///|
@@ -267,14 +273,14 @@ test "comparisons and text" {
   inspect(big.to_eng_string(), content="12.3E+6")
 }
 ```
-
 ## Going further
 
 ### Long chains with `decimal_gda_checked`
 
-Manual threading is clearest at boundaries. For a long linear pipeline,
-[`decimal_gda_checked`](decimal_gda_checked.md) keeps one outcome, threads the
-sticky context for you and stops after the first trap:
+Manual context threading is clearest at calculation boundaries. For a long
+linear pipeline, use [`decimal_gda_checked`](decimal_gda_checked.md): it keeps
+one outcome, threads the flags and context through each operation, and stops
+after the first trap:
 
 ```moonbit
 ///|
@@ -293,10 +299,11 @@ test "a checked GDA pipeline" {
 ### Generic code through `Luna-Flow/arithmetic`
 
 `Decimal` implements the contextual traits of
-[`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written
-against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on
-it. These adapters use the five IEEE-style rounding modes of
-`ArithmeticContext`, report errors as `Err`, and know nothing about traps:
+[`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/). Generic code that
+uses traits such as `AddContextual`, `DivContextual` and `SqrtContextual` can
+therefore use `Decimal`. These adapters use the five IEEE-style rounding
+algorithms of `ArithmeticContext`, return errors as `Err`, and do not support
+traps:
 
 ```moonbit
 ///|
@@ -323,11 +330,11 @@ test "generic contextual addition" {
 
 ### Subset arithmetic and lost digits
 
-`GdaContext::basic_default()` is the GDA *basic default context*: precision 9,
-`HalfUp`, `extended=false`, with the `DivisionByZero`, `InvalidOperation`,
-`Overflow`, `Underflow` and `Clamped` traps enabled. A non-extended context
-rounds operands that are longer than the precision before using them and
-reports `LostDigits` when that loses information:
+`GdaContext::basic_default()` is the GDA basic default context: precision 9,
+`HalfUp`, `extended=false`, and traps for `DivisionByZero`,
+`InvalidOperation`, `Overflow`, `Underflow` and `Clamped`. A non-extended
+context rounds an operand with more digits than the precision before using it
+and raises `LostDigits` when that rounding loses information:
 
 ```moonbit
 ///|
@@ -343,8 +350,9 @@ test "subset arithmetic rounds long operands" {
 
 ### Interchange encodings
 
-`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the
-densely packed decimal (DPD) encoding, written as `#` and hexadecimal digits:
+`GdaInterchange` represents a decimal32, decimal64 or decimal128 bit pattern
+in densely packed decimal (DPD) encoding. The pattern is written as `#`
+followed by hexadecimal digits:
 
 ```moonbit
 ///|
@@ -355,46 +363,46 @@ test "decimal64 interchange round trip" {
   inspect(bits.to_decimal(), content="-7.50")
 }
 ```
-
 ## Common pitfalls
 
-- **Reusing the original context.** Status only accumulates if you pass
-  `next_context()` on. A trap set or flags you put on a context also travels
-  with every context derived from it.
-- **Treating `Trapped` as "no value".** A trap changes the variant, not the
-  result; read the value with `value()` before you decide to stop.
+- **Reusing the original context.** Flags accumulate only when you pass each
+  outcome's `next_context()` to the next operation. Trap settings and flags also
+  travel with contexts derived from the original.
+- **Treating `Trapped` as "no value".** A trap changes the outcome variant, not
+  the result. Read `value()` before deciding whether to stop.
 - **Expecting constructors to keep zeros.** `Decimal::from_int(100)` and
   `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use
-  `Decimal::from_string("100")` or `parse` when the quantum matters.
-- **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context:
-  they run the package function in a private context (larger operand
-  precision, half-even, no clamp, no traps), so they round every result to that
-  precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never
-  signal. Use the package functions whenever GDA results, flags or traps
-  matter.
+  `Decimal::from_string("100")` or `to_number` when the quantum matters.
+- **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context.
+  They use a private context with larger operand precision, half-even rounding,
+  no clamp and no traps. They round to that private precision and return the GDA
+  cohort member: `1.10 + 3.50` is `4.60`. Use the package functions when GDA
+  results, flags or traps matter.
 - **Equality and NaN.** `==` and `compare` put every NaN equal to every other
-  NaN and above every number (a total preorder, so sorting never aborts). Use
-  `compare` (the package function), `compare_signal`, or
-  `Decimal::compare_checked` when NaN must stay unordered.
+  NaN and above every finite number. Use the package `compare`,
+  `compare_signal`, or `Decimal::compare_checked` when NaN must remain
+  unordered.
 - **Mixing the two decimal packages.** `@decimal_gda.Decimal` and
-  `@decimal.Decimal` are different types with different contracts; cross
-  between them through strings or interchange bits.
-- **Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.**
-  They always round half to even; only `power` follows the context.
-- **Calling `exp`, `ln`, `log10` or non-integer `power` with a default
-  context.** `GdaContext::new()` and `context()` allow exponents up to
-  ±999,999,999, which is outside the range these functions accept, so
-  they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a
-  preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an
-  `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for
-  you, and `exp_contextual` returns `Err(unsupported)` with an
-  `invalid context:` message naming the missing bounds.
+  `@decimal.Decimal` have different contracts and types. Convert between them
+  through strings or interchange bits.
+- **Expecting elementary functions to follow the context rounding.** `exp`,
+  `ln`, `log10` and `sqrt` round half to even; only `power` follows the
+  context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions)
+  gives the required context range.
+- **Using a default context for elementary functions.** The default exponent
+  range is $-999{,}999{,}999$ to $999{,}999{,}999$, outside the implementation
+  limit for these operations. They return NaN and raise `InvalidContext` (an
+  `InvalidOperation`). Use a preset or set the bounds described in [the
+  elementary-functions task](#call-the-elementary-functions). The same applies
+  to an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in,
+  and `exp_contextual` returns `Err(unsupported)` with an `invalid context:`
+  message naming the missing bounds.
 
 ## Next steps
 
 - [Design](../design/decimal_gda.md): the arithmetic model, ideal exponents,
-  rounding functions, the signal and trap state machine, and how the
-  elementary functions are certified.
+  rounding functions, the signal and trap state machine, and the certification
+  method for elementary functions.
 - [API reference](../api/decimal_gda.md): every type, function and method.
 - [Conformance](../conformance/decimal_gda.md) and
   [performance](../performance/decimal_gda.md): the pinned test-suite result and
