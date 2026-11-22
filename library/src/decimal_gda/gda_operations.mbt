@@ -1,6 +1,8 @@
 ///|
 pub fn apply(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.apply_ctx(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -98,7 +100,9 @@ pub fn round_to_integral_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.to_integral_exact(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -107,7 +111,9 @@ pub fn round_to_integral_value(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.to_integral_value(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -141,19 +147,25 @@ pub fn power(
 
 ///|
 pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.reduce_ctx(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.next_plus(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
 pub fn next_minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
+  let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.next_minus(ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -163,7 +175,9 @@ pub fn next_toward(
   target : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, target, operand_flags) = gda_prepare_operands(value, target, ctx)
   let (result, flags) = value.next_toward(target, ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -173,7 +187,9 @@ pub fn scaleb(
   scale : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, scale, operand_flags) = gda_prepare_operands(value, scale, ctx)
   let (result, flags) = value.scaleb_ctx(scale, ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -183,7 +199,9 @@ pub fn shift(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
   let (result, flags) = value.shift_ctx(count, ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
@@ -193,7 +211,9 @@ pub fn rotate(
   count : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
+  let (value, count, operand_flags) = gda_prepare_operands(value, count, ctx)
   let (result, flags) = value.rotate_ctx(count, ctx.decimal_context())
+  let flags = flags.combine(operand_flags)
   complete_decimal_gda(result, ctx, flags)
 }
 
