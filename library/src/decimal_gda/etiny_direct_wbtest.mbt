@@ -1,7 +1,8 @@
 ///|
 // oracle: A
-// source: Etiny = Emin - precision + 1 and Etop = Emax - digits + 1 (GDA 1.70, Context): 30 etiny rows and 16 etop rows, 30 etiny rows and 16 etop
-//   rows written out as integers computed with Python
+// source: Etiny = Emin - precision + 1 and Etop = Emax - digits + 1 (GDA 1.70, Context): 30 etiny rows and 16 etop rows
+//   written out as integers computed with Python, and five rows for precision 0 (the unlimited work context, whose
+//   default precision is 1, so Etiny = Emin)
 // shares: nothing
 test "etiny and etop equal the exponent bounds they replace" {
   let etiny_rows : Array[(Int32, Int32, Int32)] = [
@@ -83,4 +84,10 @@ test "etiny and etop equal the exponent bounds they replace" {
     }
   }
   assert_eq(built, 46)
+  // precision 0 is not accepted by try_new; the exact work context has it, and the default
+  // precision of a context without a limit is 1, so Etiny = Emin - 1 + 1 = Emin
+  for e_min in [0, -1, -101, -6_176, -999_999_999] {
+    let ctx = { ..decimal_exact_work_context(), e_min, }
+    assert_eq(etiny(ctx), e_min)
+  }
 }
