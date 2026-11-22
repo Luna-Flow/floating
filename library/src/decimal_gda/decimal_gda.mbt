@@ -12,6 +12,36 @@ fn complete_decimal_gda(
 }
 
 ///|
+/// Operand rounding of a subset context (GDA 1.70, page 56, Appendix A,
+/// "Operation differences", first item): an operand with more digits than the
+/// precision is rounded to precision digits before use, with the conditions that
+/// the rounding raises (Lost digits when non-zero digits go). An extended
+/// context returns the operand as it is.
+fn gda_prepare_operand(
+  value : Decimal,
+  ctx : GdaContext,
+) -> (Decimal, DecimalFlags) {
+  if ctx.extended_ {
+    (value, DecimalFlags::new())
+  } else {
+    prepare_operand_for_context(value, ctx.decimal_context())
+  }
+}
+
+///|
+fn gda_prepare_operands(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> (Decimal, Decimal, DecimalFlags) {
+  if ctx.extended_ {
+    (lhs, rhs, DecimalFlags::new())
+  } else {
+    prepare_binary_operands_for_context(lhs, rhs, ctx.decimal_context())
+  }
+}
+
+///|
 fn complete_gda_subset(
   value : Decimal,
   context : GdaContext,
