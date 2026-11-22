@@ -207,12 +207,12 @@ operation text of the specification states no such bound); the
 decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
 `context` (exponent range ±999,999,999) do not:
 
-GDA 1.70, pages 30 and 31, allows an inexact result of `exp`, `ln` or `log10`
-to be up to 1 ulp from the correctly rounded result; this package returns the
-correctly rounded result. GDA 1.70, page 39, specifies half-even rounding for an
-inexact square root, and this package also returns the correctly rounded result.
-GDA 1.70, page 35, allows up to 1 ulp of error for non-integer `power`; this
-package returns the correctly rounded result.
+GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be
+up to 1 ulp from the correctly rounded result; this package returns the correctly
+rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for
+an inexact square root, and this package also returns the correctly rounded result.
+GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer
+exponent; this package returns the correctly rounded result.
 
 ```moonbit
 ///|
