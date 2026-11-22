@@ -653,36 +653,49 @@ its key is a declared set of files and directories written in `tools/stage_units
 audit of one run and rounded up to whole directories, with the `sys.version` of the interpreter of the
 stage command (asked of that interpreter, not taken from the verifier) and the directory of the audit
 hook, which is an input of every unit. What a run happened to open is not a key, so every real run of the stage executes under an audit
-hook: the process of the stage, and every Python process that it starts with its environment, report
-what they open and list, and a read of anything below the repository outside the declared set fails
-the stage with exit status 70 and the path: the declaration cannot go stale silently. A path with a
-`.git` or `__pycache__` part is left out of the key of a declared directory, so a read of one is
-undeclared too, unless the unit declares that very file. Every such run also gets an empty directory
-of its own as the cache of compiled modules (`PYTHONPYCACHEPREFIX`), so that a compiled module of the
-tree, stale or made by hand, cannot run in place of a source file that the key covers.
+hook: the process of the stage reports what it opens and lists, and a read of anything below the
+repository outside the declared set fails the stage with exit status 70 and the path: the declaration
+cannot go stale silently. A path with a `.git` or `__pycache__` part is left out of the key of a
+declared directory, so a read of one is undeclared too, unless the unit declares that very file. Every
+such run also gets an empty directory of its own as the cache of compiled modules
+(`PYTHONPYCACHEPREFIX`), so that a compiled module of the tree, stale or made by hand, cannot run in
+place of a source file that the key covers.
 
 A pass of a Python stage is recorded only when the log of the hook shows that the audit saw the whole
-run. The hook writes a start line for each process that loads it, and a launch line for each launch of
-a Python interpreter that it sees (`subprocess`, `os.exec*`, `os.spawn*`, `os.posix_spawn`); the log
-must hold exactly one start line for the stage's own process and one for every launch. A Python
-process started with `-I`, `-E` or `-S`, with an empty environment or without `PYTHONPATH`, or by
-`os.execv` of such a command line, does not load the hook, so its start line is missing and the run is
-not recorded; neither is a run with a launch that failed. Besides, every start line has the version of
-the key, the stage started no program other than Python, it read no compiled module from the tree, and
-it read or listed nothing outside the repository except the standard library of the interpreter (not
-its site-packages), the cache directory of the run and files that the run created before reading them.
-A read or a listing outside the repository that the key does not cover (a cache file, a toolchain
-file, a shared library, an installed package, a directory of another tool) does not fail the stage; the
-stage passes, `verify` says why it was not recorded, and the stage runs again next time. A stage that
-imports an installed package is therefore never recorded.
+run. The log must hold exactly one start line, the one of the stage's own process, and no launch
+event: nothing that starts or replaces a process (`subprocess.Popen`, `os.posix_spawn`, `os.exec*`,
+`os.spawn*`, `os.system`, `os.fork`, `os.forkpty`, `pty.spawn`, `os.startfile`, `webbrowser.open`) and
+no `ctypes` event. A Python process started with `-I`, `-E` or `-S` writes no start line; a second
+start line without a launch event is another Python process, for example a `multiprocessing` child.
+A stage that uses children is therefore never recorded, whatever the children read; if a later unit
+needs children, that is a design of its own. Besides, the start line has the version of the key, the
+stage read no compiled module from the tree, and it read or listed nothing outside the repository
+except the standard library of the interpreter (not its site-packages), the directories that are
+entries of the interpreter's own `sys.path` at start-up (the import system looking for a module;
+opening a file below one of them is still an outside read), the cache directory of the run and files
+that the run created before reading them. A read or a listing outside the repository that the key does
+not cover (a cache file, a toolchain file, a shared library, an installed package, a directory of
+another tool) does not fail the stage; the stage passes, `verify` says why it was not recorded, and
+the stage runs again next time. A stage that imports an installed package is therefore never recorded.
+
+The audit is a check against an honest mistake, not a sandbox. It finds an input that the author of a
+stage forgot to declare, through the events that CPython reports. A stage written to deceive it, for
+example by starting a process through a private or foreign-function interface that raises no launch
+event (`_posixsubprocess.fork_exec`, `ctypes`), is outside what it claims: the stage scripts are code
+of the repository and are reviewed as such, and the 2 % reruns of the verifier exist for what a key
+misses. A `ctypes` event, which is a call into a foreign library, is still refused.
 
 What the audit still cannot see: `os.stat`, `os.path.exists`, `os.path.isfile`, `os.path.getsize`,
 `os.path.getmtime`, `os.access` and `os.readlink` raise no audit event, so a stage whose result
 depends on whether a file exists, how large or how old it is, or where a link points, without opening
-it, is not seen (only a directory that the key lists as a whole covers a new file in it); environment
-variables, the clock, random numbers and sockets are not files and the hook does not log them; and a
-program that is not Python, started by the stage, cannot be seen into, so the stage passes and is not
-recorded.
+it, is not seen (only a directory that the key lists as a whole covers a new file in it); a stage whose
+result depends only on whether an installed package exists is not seen either, because the import
+system's own listing of the package directories is not counted; environment variables, the clock,
+random numbers and sockets are not files and the hook does not log them; and a process started
+through an interface that raises no launch event is not seen. The oracle checks of the interval gate
+need the ITF1788 corpus, which the continuous-integration runner does not have, so the real unit is
+not run there; two tests that run on every interpreter show that a stage that reads only declared
+files, and a stage that imports only standard-library modules, are recorded.
 
 The stages that stay full are listed by `verify`: the interval corpus (it needs the
 split of the interval frontend into arms), the differential stage of the interval gate, and the three
