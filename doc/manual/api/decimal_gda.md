@@ -1151,7 +1151,10 @@ pub fn ln(Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn log10(Decimal, GdaContext) -> GdaOutcome[Decimal]
 ```
 
-They use the half-even rounding algorithm, whatever the rounding of the context. Every finite
+They round the result with the half-even algorithm, whatever the rounding of the context. In a
+subset context an operand longer than $p$ digits is first rounded with the rounding algorithm of
+the context, not with the half-even one ([#762](https://github.com/Luna-Flow/floating/issues/762)):
+`sqrt(0.999)` at precision 1 under `Down` is `0.9`. Every finite
 result not listed as exact is inexact with $p$ digits.
 
 | Function | Operand | Result |
