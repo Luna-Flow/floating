@@ -343,10 +343,16 @@ fn Decimal::sub_ctx(
     Some(result) => return result
     None => ()
   }
-  if !ctx.extended && other.class == FpClass::Finite {
+  if !ctx.extended &&
+    other.class == FpClass::Finite &&
+    (ctx.decimal_rounding == DecimalRoundingMode::Floor ||
+    ctx.decimal_rounding == DecimalRoundingMode::Ceiling) &&
+    ctx.precision > 0 &&
+    other.coefficient.digits10() > ctx.precision {
     // GDA 1.70, page 56: the operand is rounded with its own sign first and the
     // sign is adjusted for the subtraction afterwards; negating first would
-    // round the other way in Floor and Ceiling.
+    // round the other way. Only Floor and Ceiling depend on the sign, so the
+    // other algorithms keep the single rounding of `add_ctx`.
     let (rounded, operand_flags) = round_operand_for_subset(other, ctx)
     let (value, flags) = self.add_ctx(rounded.neg(), ctx)
     return (value, operand_flags.combine(flags))
