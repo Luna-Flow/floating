@@ -515,7 +515,7 @@ fn round_to_integral_value_subset(
 fn next_plus_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.next_plus(ctx.decimal_context())
-  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+  complete_decimal_gda_next(result, ctx, flags.combine(operand_flags))
 }
 
 ///|
@@ -523,7 +523,7 @@ fn next_plus_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 fn next_minus_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (value, operand_flags) = gda_prepare_operand(value, ctx)
   let (result, flags) = value.next_minus(ctx.decimal_context())
-  complete_decimal_gda(result, ctx, flags.combine(operand_flags))
+  complete_decimal_gda_next(result, ctx, flags.combine(operand_flags))
 }
 
 ///|
