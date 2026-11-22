@@ -32,7 +32,7 @@ fn refinement_failed(
 //   digits 1.0000000000000000000000000000000005000000000000000000000000000000001250 (above the midpoint);
 //   the default limit 12 is the library design constant (S); a == b compares two spellings of one context
 //   (S)
-// shares: nothing
+// shares: Decimal::to_string (printing the result)
 test "refinement limit: default is Some(12) and matches the explicit value" {
   let context = refinement_context(34)
   inspect(context.refinement_limit() == Some(12), content="true")
@@ -63,7 +63,7 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 // source: exp(5E-34) at 34 digits = 1.000000000000000000000000000000001, CPython decimal 80 digits
 //   1.0000000000000000000000000000000005000000000000000000000000000000001250 (level A); the threshold is the
 //   implementation's own choice, only its shape is asserted (S)
-// shares: nothing
+// shares: Decimal::to_string (printing the result)
 test "refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on" {
   let x = refinement_hard_input()
   let base = refinement_context(34)

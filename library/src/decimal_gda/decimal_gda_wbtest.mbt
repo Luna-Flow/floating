@@ -99,7 +99,7 @@ test "Decimal GDA checked parsing uses the arithmetic context" {
 //   Clamped only) and differs from libmpdec (CPython: -0, no flag); -8.95E-6 // 2.40E-5 agrees with CPython decimal
 //   (-0E-7, Clamped only) and differs from decNumber (-0, no flag; decNumber folds 1 // 3 to 0E-7 with Clamped but
 //   not this quotient)
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA divide_integer clamps zero quotient exponents" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }

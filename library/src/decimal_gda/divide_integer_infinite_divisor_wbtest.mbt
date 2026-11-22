@@ -7,7 +7,7 @@
 //   clamp) re-run with decNumber 3.68 (tools/decnumber_probe.c): quotients 0E-7 or -0E-7 and remainders 1.0000000
 //   or -1.0000000, flag Clamped only, all as the test asserts; libmpdec (CPython) differs on the quotient (0, no
 //   flag), decNumber is the reference of GDA 1.70
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "divide_integer clamps a zero quotient over an infinite divisor" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let cases = [

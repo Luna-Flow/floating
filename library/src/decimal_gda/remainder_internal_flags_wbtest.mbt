@@ -176,7 +176,7 @@ test "remainder and remainder_near in subset contexts do not use the clamped quo
 // oracle: A
 // source: 6.00000000E-15 and 1 with no flag, the remainder of exact operands at precision 9 (remainder of
 //   6E-6 by -9.99999999E-15 and of 123456789 by 7, verified with CPython decimal, libmpdec 4.0.0)
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "remainder keeps only the flags of the delivered remainder (issue 183)" {
   let x = Decimal::from_string("6E-6").unwrap()
   let y = Decimal::from_string("-9.99999999E-15").unwrap()
@@ -214,7 +214,7 @@ test "remainder keeps only the flags of the delivered remainder (issue 183)" {
 // oracle: A
 // source: -0.0800, 4.7360000 and -0.730000 (the dividend when the quotient is zero, GDA 1.70 remainder,
 //   remainder-near), with no flag, verified with CPython decimal (libmpdec 4.0.0)
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "a zero-quotient remainder is clamped only at its result" {
   let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
@@ -236,7 +236,7 @@ test "a zero-quotient remainder is clamped only at its result" {
 // source: CPython decimal (libmpdec 4.0.0) prec 9 Emin 0 Emax 1 clamp 1: remainder 1E-8, remainder_near -1E-8
 //   (quotient 3.5 to even 4), remainder of 0 is 0E-8; Subnormal flag only on the first two
 //   (remainder_flags_text letters); 3 of 3 agree
-// shares: nothing
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "remainder keeps the exact quotient when the quotient would be clamped" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }

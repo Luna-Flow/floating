@@ -85,7 +85,7 @@ test "the limits are the range of the working context of the plain operators" {
 // oracle: A
 // source: expected strings and error substrings written out at the two limits of the stored range (-2147483645
 //   and 2147483646, the documented design range); the carry case follows from 35 nines rounding to 10^34
-// shares: nothing
+// shares: Int::to_string (the exponent searched for in the error message)
 test "make and try_make accept the limits and reject one past each" {
   let e_max = gda_value_e_max
   let e_tiny = gda_value_e_tiny
