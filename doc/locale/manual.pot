@@ -1371,7 +1371,7 @@ msgstr ""
 #: manual/api/binary.md:1451
 #: manual/api/decimal_gda.md:1621
 #: manual/design/decimal.md:752
-#: manual/tutorial/decimal_gda.md:354
+#: manual/tutorial/decimal_gda.md:355
 msgid "Interchange encodings"
 msgstr ""
 
@@ -24585,7 +24585,7 @@ msgstr ""
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:325
 #: manual/tutorial/decimal_checked.md:159
-#: manual/tutorial/decimal_gda.md:279
+#: manual/tutorial/decimal_gda.md:280
 #: manual/tutorial/decimal_gda_checked.md:176
 #: manual/tutorial/def.md:163
 #: manual/tutorial/differential.md:173
@@ -24635,7 +24635,7 @@ msgstr ""
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:408
 #: manual/tutorial/decimal_checked.md:242
-#: manual/tutorial/decimal_gda.md:370
+#: manual/tutorial/decimal_gda.md:371
 #: manual/tutorial/decimal_gda_checked.md:254
 #: manual/tutorial/def.md:197
 #: manual/tutorial/differential.md:184
@@ -24689,7 +24689,7 @@ msgstr ""
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:438
 #: manual/tutorial/decimal_checked.md:269
-#: manual/tutorial/decimal_gda.md:405
+#: manual/tutorial/decimal_gda.md:406
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:214
 #: manual/tutorial/differential.md:195
@@ -26860,7 +26860,7 @@ msgid "An `InvalidOperation` trap also covers conversion syntax, division imposs
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:166
-msgid "When an operation raises several trapped conditions, the package reports one according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection) lists that precedence."
+msgid "When an operation raises several trapped conditions, the package reports one according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection) lists that precedence, so you never have to invent your own order."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:170
@@ -26884,94 +26884,94 @@ msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:243
-msgid "Here, certification means that the package decides the rounding result before returning it. Each function refines its enclosure at most twelve times by default. For an argument close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows 24 steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:251
+#: manual/tutorial/decimal_gda.md:252
 msgid "Compare and print"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:253
+#: manual/tutorial/decimal_gda.md:254
 msgid "Use `compare` for numerical order: it returns a decimal containing `-1`, `0`, or `1`, and returns NaN when an operand is NaN. Use `compare_total` when the representation matters; it orders `2.50` before `2.5`. Printing a value uses scientific notation, while `class_name` returns its class name:"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:281
+#: manual/tutorial/decimal_gda.md:282
 msgid "Long chains with `decimal_gda_checked`"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:283
+#: manual/tutorial/decimal_gda.md:284
 msgid "Manual context threading is clearest at calculation boundaries. For a long linear pipeline, use [`decimal_gda_checked`](decimal_gda_checked.md): it keeps one outcome, threads the flags and context through each operation, and stops after the first trap:"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:302
+#: manual/tutorial/decimal_gda.md:303
 msgid "Generic code through `Luna-Flow/arithmetic`"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:304
-msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/). Generic code that uses traits such as `AddContextual`, `DivContextual` and `SqrtContextual` can therefore use `Decimal`. These adapters use the five IEEE-style rounding algorithms of `ArithmeticContext`, return errors as `Err`, and do not support traps:"
+#: manual/tutorial/decimal_gda.md:305
+msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on it. These adapters use the five IEEE-style rounding algorithms of `ArithmeticContext`, return errors as `Err`, and know nothing about traps:"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:334
+#: manual/tutorial/decimal_gda.md:335
 msgid "Subset arithmetic and lost digits"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:336
+#: manual/tutorial/decimal_gda.md:337
 msgid "`GdaContext::basic_default()` is the GDA basic default context: precision 9, `HalfUp`, `extended=false`, and traps for `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped`. A non-extended context rounds an operand with more digits than the precision before using it and raises `LostDigits` when that rounding loses information:"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:356
+#: manual/tutorial/decimal_gda.md:357
 msgid "`GdaInterchange` represents a decimal32, decimal64 or decimal128 bit pattern in densely packed decimal (DPD) encoding. The pattern is written as `#` followed by hexadecimal digits:"
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:372
-msgid "**Reusing the original context.** Flags accumulate only when you pass each outcome's `next_context()` to the next operation. Trap settings and flags also travel with contexts derived from the original."
+#: manual/tutorial/decimal_gda.md:373
+msgid "**Reusing the original context.** Flags accumulate only when you pass each outcome's `next_context()` to the next operation. Trap settings and flags also travel with every context derived from the original."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:375
+#: manual/tutorial/decimal_gda.md:376
 msgid "**Treating `Trapped` as \"no value\".** A trap changes the outcome variant, not the result. Read `value()` before deciding whether to stop."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:377
+#: manual/tutorial/decimal_gda.md:378
 msgid "**Expecting constructors to keep zeros.** `Decimal::from_int(100)` and `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use `Decimal::from_string(\"100\")` or `parse` when the quantum matters."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:380
-msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context. They use a private context with larger operand precision, half-even rounding, no clamp and no traps. They round to that private precision and return the GDA cohort member: `1.10 + 3.50` is `4.60`. Use the package functions when GDA results, flags or traps matter."
+#: manual/tutorial/decimal_gda.md:381
+msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context. They use a private context with larger operand precision, half-even rounding, no clamp and no traps, so they round every result to that private precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions when GDA results, flags or traps matter."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:385
+#: manual/tutorial/decimal_gda.md:386
 msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use the package `compare`, `compare_signal`, or `Decimal::compare_checked` when NaN must remain unordered."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:389
+#: manual/tutorial/decimal_gda.md:390
 msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` have different contracts and types. Convert between them through strings or interchange bits."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:392
-msgid "**Expecting elementary functions to follow the context rounding.** `exp`, `ln`, `log10` and `sqrt` round half to even; only `power` follows the context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions) gives the required context range."
+#: manual/tutorial/decimal_gda.md:393
+msgid "**Expecting elementary functions to follow the context rounding.** `exp`, `ln`, `log10` and `sqrt` always round half to even; only `power` follows the context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions) gives the required context range."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:396
+#: manual/tutorial/decimal_gda.md:397
 msgid "**Using a default context for elementary functions.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, outside the implementation limit for these operations. `exp`, `ln`, `log10` and non-integer `power` return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same applies to an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:407
+#: manual/tutorial/decimal_gda.md:408
 msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and the certification method for elementary functions."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:410
+#: manual/tutorial/decimal_gda.md:411
 msgid "[API reference](../api/decimal_gda.md): every type, function and method."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:411
+#: manual/tutorial/decimal_gda.md:412
 msgid "[Conformance](../conformance/decimal_gda.md) and [performance](../performance/decimal_gda.md): the pinned test-suite result and how to measure speed."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:414
+#: manual/tutorial/decimal_gda.md:415
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): trap short-circuiting and recovery in pipelines."
 msgstr ""
 
-#: manual/tutorial/decimal_gda.md:416
+#: manual/tutorial/decimal_gda.md:417
 msgid "[`decimal` tutorial](decimal.md): the IEEE 754 decimal model with per-operation flags."
 msgstr ""
 
