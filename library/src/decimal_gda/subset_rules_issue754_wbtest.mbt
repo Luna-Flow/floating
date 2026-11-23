@@ -429,7 +429,6 @@ let i754_matrix : String =
   #|quantize	9	half_up	999	-999	0	7	9E+7	0E+7	Inexact,Rounded
   #|quantize	9	half_up	999	-999	0	1.5	-1E-999	NaN	Invalid_operation
   #|quantize	9	half_up	999	-999	0	1.23456789123E+11	12E+2	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|quantize	9	half_up	999	-999	0	1E-5	123456789123	0	Inexact,Lost_digits,Rounded
   #|quantize	9	half_up	999	-999	0	1E-999	9.99999999E+999	0E+991	Inexact,Rounded
   #|quantize	9	half_up	999	-999	0	9.99999999E+999	1200	NaN	Invalid_operation
   #|quantize	9	half_up	999	-999	0	-1E-999	25E+1	0E+1	Inexact,Rounded
@@ -671,7 +670,6 @@ let i754_matrix : String =
   #|quantize	9	half_even	999	-999	0	0.5	9E+7	0E+7	Inexact,Rounded
   #|quantize	9	half_even	999	-999	0	25E+1	-1E-999	NaN	Invalid_operation
   #|quantize	9	half_even	999	-999	0	9E+7	12E+2	9.00000E+7	-
-  #|quantize	9	half_even	999	-999	0	12E-3	123456789123	0	Inexact,Lost_digits,Rounded
   #|quantize	9	half_even	999	-999	0	1.1E-999	9.99999999E+999	0E+991	Inexact,Rounded
   #|quantize	9	half_even	999	-999	0	1E+999	1.2E+3	NaN	Invalid_operation
   #|rescale	9	half_even	999	-999	0	0	25E+1	0E+250	-
@@ -749,7 +747,6 @@ let i754_matrix : String =
   #|maxmag	9	half_down	999	-999	0	123456789123	123456789123	1.23456789E+11	Inexact,Lost_digits,Rounded
   #|minmag	9	half_down	999	-999	0	-1.4E+3	1.2E+3	1200	-
   #|quantize	9	half_down	999	-999	0	0	1E+999	0E+999	-
-  #|quantize	9	half_down	999	-999	0	1.1E-999	123456789123	0	Inexact,Lost_digits,Rounded
   #|rescale	9	half_down	999	-999	0	123456789123	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|nexttoward	9	half_down	999	-999	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
   #|nexttoward	9	half_down	999	-999	0	0	1E+999	0	Inexact,Rounded,Subnormal,Underflow
@@ -895,7 +892,6 @@ let i754_matrix : String =
   #|maxmag	9	05up	999	-999	0	0	123456789123	1.23456789E+11	Inexact,Lost_digits,Rounded
   #|maxmag	9	05up	999	-999	0	1.1E-999	1.2E+3	1200	-
   #|minmag	9	05up	999	-999	0	0.5	1E+999	0.5	-
-  #|quantize	9	05up	999	-999	0	1.2E+3	123456789123	1200	Inexact,Lost_digits,Rounded
   #|rescale	9	05up	999	-999	0	0	1.2E+3	NaN	Invalid_operation
   #|rescale	9	05up	999	-999	0	1E-5	1E+999	NaN	Invalid_operation
   #|nexttoward	9	05up	999	-999	0	0	-1	0	Inexact,Rounded,Subnormal,Underflow
@@ -1669,9 +1665,7 @@ let i754_matrix : String =
   #|minmag	3	half_up	99	-99	0	9.99999999E+99	9E+7	9E+7	Inexact,Lost_digits,Overflow,Rounded
   #|minmag	3	half_up	99	-99	0	-1E-99	-1E-99	-1E-99	-
   #|quantize	3	half_up	99	-99	0	1	12E+2	0E+2	Inexact,Rounded
-  #|quantize	3	half_up	99	-99	0	12	123456789123	12	Inexact,Lost_digits,Rounded
   #|quantize	3	half_up	99	-99	0	1.2E+3	9.99999999E+99	NaN	Inexact,Invalid_operation,Lost_digits,Overflow,Rounded
-  #|quantize	3	half_up	99	-99	0	-1.4E+3	1200	NaN	Invalid_operation,Rounded
   #|quantize	3	half_up	99	-99	0	7	1.5	7.0	-
   #|quantize	3	half_up	99	-99	0	1.5	1.1E-99	NaN	Invalid_operation
   #|quantize	3	half_up	99	-99	0	1.23456789123E+11	-1	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
@@ -1771,7 +1765,6 @@ let i754_matrix : String =
   #|maxmag	3	half_down	99	-99	0	0	123456789123	1.23E+11	Inexact,Lost_digits,Rounded
   #|maxmag	3	half_down	99	-99	0	1.1E-99	1.2E+3	1.2E+3	-
   #|minmag	3	half_down	99	-99	0	0.5	1E+99	0.5	-
-  #|quantize	3	half_down	99	-99	0	1.2E+3	123456789123	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	3	half_down	99	-99	0	0	1.2E+3	NaN	Invalid_operation
   #|rescale	3	half_down	99	-99	0	1E-5	1E+99	NaN	Invalid_operation
   #|nexttoward	3	half_down	99	-99	0	0	1.2E+3	0	Inexact,Rounded,Subnormal,Underflow
@@ -2437,13 +2430,9 @@ let i754_matrix : String =
   #|minmag	1	half_up	9	-9	0	1.01E-8	1E-9	1E-9	Inexact,Lost_digits,Rounded
   #|minmag	1	half_up	9	-9	0	-1E-9	1.2E+3	-1E-9	Inexact,Lost_digits,Rounded
   #|quantize	1	half_up	9	-9	0	-0	1E-9	0E-9	-
-  #|quantize	1	half_up	9	-9	0	12	1.2E+3	0E+2	Inexact,Lost_digits,Rounded
   #|quantize	1	half_up	9	-9	0	1.2E+3	1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
-  #|quantize	1	half_up	9	-9	0	-1.4E+3	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|quantize	1	half_up	9	-9	0	7	1E-9	NaN	Invalid_operation
-  #|quantize	1	half_up	9	-9	0	25E+1	1.2E+3	3E+2	Inexact,Lost_digits,Rounded
   #|quantize	1	half_up	9	-9	0	1E-5	1E-9	NaN	Invalid_operation
-  #|quantize	1	half_up	9	-9	0	1.1E-9	1.2E+3	0E+2	Inexact,Lost_digits,Rounded
   #|quantize	1	half_up	9	-9	0	9.99999999E+9	1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Overflow,Rounded
   #|rescale	1	half_up	9	-9	0	0	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	half_up	9	-9	0	1	1E-9	NaN	Invalid_operation
@@ -2553,7 +2542,6 @@ let i754_matrix : String =
   #|maxmag	1	floor	9	-9	0	0	1.2E+3	1E+3	Inexact,Lost_digits,Rounded
   #|maxmag	1	floor	9	-9	0	1E+9	1.1E-9	1E+9	Inexact,Lost_digits,Rounded
   #|minmag	1	floor	9	-9	0	1E+9	1.2E+3	1E+3	Inexact,Lost_digits,Rounded
-  #|quantize	1	floor	9	-9	0	1.1E-9	1.1E-9	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|rescale	1	floor	9	-9	0	1.1E-9	1.2E+3	NaN	Inexact,Invalid_operation,Lost_digits,Rounded
   #|scaleb	1	floor	9	-9	0	0.5	2	5E+1	-
   #|shift	1	floor	9	-9	0	1E+9	0	1E+9	-
@@ -2935,12 +2923,12 @@ test "issue 754: named calls obey the rules of page 55 in a subset context and a
 
 ///|
 // oracle: A
-// source: (40 rows were moved by issue 759 to the table of deviations of subset_operand_rounding_issue759_wbtest.mbt: in them decNumber 3.68 gives a different result for an operand longer than the precision in shift, rotate or next_toward, which GDA 1.70, page 56 rounds first) a sample of a matrix of 149338 decNumber 3.68 calls (same build and pin as the named test) over 31 operations, precision 1, 3 and 9, exponent ends of 9, 99 and 999, every rounding where it can matter, operands longer than the precision, positive exponents that fit and do not fit, signed zeros; the rows kept are those where the library and decNumber agree after the fix: every third of the 925 rows whose result the fix changed and every 60th of the other agreeing rows
+// source: (12 quantize rows were moved by issue 764 to the table of deviations of subset_quantum_issue764_wbtest.mbt: in them decNumber 3.68 takes the quantum from the unrounded second operand, which GDA 1.70, page 56 rounds first; 40 rows were moved by issue 759 to the table of deviations of subset_operand_rounding_issue759_wbtest.mbt: in them decNumber 3.68 gives a different result for an operand longer than the precision in shift, rotate or next_toward, which GDA 1.70, page 56 rounds first) a sample of a matrix of 149338 decNumber 3.68 calls (same build and pin as the named test) over 31 operations, precision 1, 3 and 9, exponent ends of 9, 99 and 999, every rounding where it can matter, operands longer than the precision, positive exponents that fit and do not fit, signed zeros; the rows kept are those where the library and decNumber agree after the fix: every third of the 925 rows whose result the fix changed and every 60th of the other agreeing rows
 // shares: Decimal::from_string and Decimal::to_sci_string (the printing of a Decimal, `Show` is to_string), GdaFlags accessors
 test "issue 754: sampled matrix against decNumber 3.68" {
   let (calls, bad) = i754_run(i754_matrix)
   assert_eq(bad, [])
-  assert_eq(calls, 2678)
+  assert_eq(calls, 2666)
 }
 
 ///|

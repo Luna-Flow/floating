@@ -289,7 +289,7 @@ fn Decimal::quantize(
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
     self, quantum, ctx,
   )
-  let result = lhs.quantize_impl(rhs, quantum, ctx)
+  let result = lhs.quantize_impl(rhs, ctx)
   (result.0, operand_flags.combine(result.1))
 }
 
@@ -297,7 +297,6 @@ fn Decimal::quantize(
 fn Decimal::quantize_impl(
   self : Decimal,
   quantum : Decimal,
-  original_quantum : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(self.coefficient, ctx)
@@ -314,12 +313,12 @@ fn Decimal::quantize_impl(
           (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) => {
           let target = if !ctx.extended &&
-            original_quantum.class == FpClass::Finite &&
-            !original_quantum.coefficient.is_zero() &&
-            original_quantum.exponent10 < -999_999_999 {
+            quantum.class == FpClass::Finite &&
+            !quantum.coefficient.is_zero() &&
+            quantum.exponent10 < -999_999_999 {
             0
           } else {
-            original_quantum.exponent10
+            quantum.exponent10
           }
           quantize_finite_to_exponent(self, target, precision, ctx)
         }
@@ -439,7 +438,7 @@ fn Decimal::rescale(
   let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
     self, quantum, ctx,
   )
-  let result = lhs.rescale_impl(rhs, quantum, ctx)
+  let result = lhs.rescale_impl(rhs, ctx)
   (result.0, operand_flags.combine(result.1))
 }
 
@@ -447,7 +446,6 @@ fn Decimal::rescale(
 fn Decimal::rescale_impl(
   self : Decimal,
   quantum : Decimal,
-  original_quantum : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(self.coefficient, ctx)
@@ -463,7 +461,7 @@ fn Decimal::rescale_impl(
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
           (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
-          match decimal_power_gda_integer_count(original_quantum) {
+          match decimal_power_gda_integer_count(quantum) {
             Some(target) =>
               quantize_finite_to_exponent(self, target, precision, ctx)
             None => (Decimal::nan_raw(precision~), invalid_flags())
