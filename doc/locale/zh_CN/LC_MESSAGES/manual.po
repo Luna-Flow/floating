@@ -1373,7 +1373,7 @@ msgstr "语法为 IEEE 754-2019 §5.12.3 的 hexSequence：可选符号、`0x` �
 #: manual/api/binary.md:1451
 #: manual/api/decimal_gda.md:1621
 #: manual/design/decimal.md:752
-#: manual/tutorial/decimal_gda.md:344
+#: manual/tutorial/decimal_gda.md:355
 msgid "Interchange encodings"
 msgstr "交换编码"
 
@@ -24472,7 +24472,7 @@ msgstr "本教程介绍如何运行 `floating` 的基准测试套件、结果存
 #: manual/tutorial/consistency.md:7
 #: manual/tutorial/decimal.md:12
 #: manual/tutorial/decimal_checked.md:14
-#: manual/tutorial/decimal_gda.md:13
+#: manual/tutorial/decimal_gda.md:12
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
@@ -24512,7 +24512,7 @@ msgstr "我想要"
 #: manual/tutorial/consistency.md:7
 #: manual/tutorial/decimal.md:12
 #: manual/tutorial/decimal_checked.md:14
-#: manual/tutorial/decimal_gda.md:13
+#: manual/tutorial/decimal_gda.md:12
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
@@ -24581,7 +24581,7 @@ msgstr "[bench 设计](../design/bench.md)"
 #: manual/tutorial/consistency.md:14
 #: manual/tutorial/decimal.md:24
 #: manual/tutorial/decimal_checked.md:25
-#: manual/tutorial/decimal_gda.md:25
+#: manual/tutorial/decimal_gda.md:24
 #: manual/tutorial/decimal_gda_checked.md:22
 #: manual/tutorial/def.md:21
 #: manual/tutorial/differential.md:17
@@ -24737,7 +24737,7 @@ msgstr "保持 plan-compiles 测试不被跳过：它会在每次常规测试运
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:325
 #: manual/tutorial/decimal_checked.md:159
-#: manual/tutorial/decimal_gda.md:271
+#: manual/tutorial/decimal_gda.md:280
 #: manual/tutorial/decimal_gda_checked.md:176
 #: manual/tutorial/def.md:163
 #: manual/tutorial/differential.md:173
@@ -24787,7 +24787,7 @@ msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录�
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:408
 #: manual/tutorial/decimal_checked.md:242
-#: manual/tutorial/decimal_gda.md:359
+#: manual/tutorial/decimal_gda.md:371
 #: manual/tutorial/decimal_gda_checked.md:254
 #: manual/tutorial/def.md:197
 #: manual/tutorial/differential.md:184
@@ -24841,7 +24841,7 @@ msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:438
 #: manual/tutorial/decimal_checked.md:269
-#: manual/tutorial/decimal_gda.md:393
+#: manual/tutorial/decimal_gda.md:406
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:214
 #: manual/tutorial/differential.md:195
@@ -25394,7 +25394,6 @@ msgstr "[泛型 trait](#write-generic-code)"
 
 #: manual/tutorial/binary.md:28
 #: manual/tutorial/binary_checked.md:23
-#: manual/tutorial/decimal_gda.md:27
 #: manual/tutorial/decimal_gda_checked.md:24
 #: manual/tutorial/interval.md:25
 #: manual/tutorial/interval_checked.md:23
@@ -26917,206 +26916,214 @@ msgid "decimal_gda tutorial"
 msgstr "decimal_gda 教程"
 
 #: manual/tutorial/decimal_gda.md:3
-msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
-msgstr "本教程教你使用 `decimal_gda` 进行计算。该包实现了 Cowlishaw 的通用十进制算术（GDA）：保留尾随零的十进制数，确定精度、舍入和指数界限的上下文，记录所发生情况的粘滞标志，以及在终止计算的同时仍把确定结果交给你的陷阱。学完之后，你将能够在计算中传递上下文、对金额舍入、处理陷阱、上溢和下溢、调用初等函数，并选择合适的比较方式。每条规则背后的数学见[设计页面](../design/decimal_gda.md)；所有公开名称都在 [API 页面](../api/decimal_gda.md)上。"
+msgid "`decimal_gda` implements General Decimal Arithmetic (GDA). Use it to parse decimal input, carry a context through calculations, round amounts, inspect conditions and preserve trailing zeros. A context sets the precision, rounding algorithm and exponent limits; its flags record the conditions raised by each operation, and its traps can stop an operation while returning its defined result. The [design page](../design/decimal_gda.md) explains the arithmetic rules, and the [API page](../api/decimal_gda.md) lists every public name."
+msgstr "`decimal_gda` 实现通用十进制算术（General Decimal Arithmetic，GDA）。使用它解析十进制输入，在计算中传递上下文，舍入金额，检查条件并保留尾随零。上下文设置精度、舍入算法和指数界限；其标志记录每个运算引发的条件，陷阱则可以在返回定义结果的同时停止运算。[设计页](../design/decimal_gda.md)解释算术规则，[API 页面](../api/decimal_gda.md)列出所有公开名称。"
 
-#: manual/tutorial/decimal_gda.md:15
+#: manual/tutorial/decimal_gda.md:14
 msgid "Read a number under a context"
 msgstr "在上下文下读取一个数"
 
-#: manual/tutorial/decimal_gda.md:16
+#: manual/tutorial/decimal_gda.md:15
 msgid "Carry flags from one operation to the next"
 msgstr "把标志从一个运算传递到下一个运算"
 
-#: manual/tutorial/decimal_gda.md:17
+#: manual/tutorial/decimal_gda.md:16
 msgid "Round an amount to cents"
 msgstr "把金额舍入到分"
 
-#: manual/tutorial/decimal_gda.md:18
+#: manual/tutorial/decimal_gda.md:17
 msgid "Stop on a condition but keep the result"
 msgstr "在某个条件下停止但保留结果"
 
-#: manual/tutorial/decimal_gda.md:19
+#: manual/tutorial/decimal_gda.md:18
 msgid "Control overflow and underflow"
 msgstr "控制上溢与下溢"
 
-#: manual/tutorial/decimal_gda.md:19
-msgid "[exponent limits and rounding modes](#respect-the-exponent-range)"
-msgstr "[指数界限与舍入模式](#respect-the-exponent-range)"
+#: manual/tutorial/decimal_gda.md:18
+msgid "[exponent limits and rounding algorithms](#respect-the-exponent-range)"
+msgstr "[指数界限与舍入算法](#respect-the-exponent-range)"
 
-#: manual/tutorial/decimal_gda.md:20
+#: manual/tutorial/decimal_gda.md:19
 msgid "Compute `exp`, `ln`, `log10`, `sqrt` or `power`"
 msgstr "计算 `exp`、`ln`、`log10`、`sqrt` 或 `power`"
 
-#: manual/tutorial/decimal_gda.md:20
+#: manual/tutorial/decimal_gda.md:19
 msgid "[elementary functions](#call-the-elementary-functions)"
 msgstr "[初等函数](#call-the-elementary-functions)"
 
-#: manual/tutorial/decimal_gda.md:21
+#: manual/tutorial/decimal_gda.md:20
 msgid "Compare numbers or representations"
 msgstr "比较数值或表示"
 
-#: manual/tutorial/decimal_gda.md:22
+#: manual/tutorial/decimal_gda.md:21
 msgid "Chain many operations without manual threading"
 msgstr "串联多个运算而无需手动传递上下文"
 
-#: manual/tutorial/decimal_gda.md:23
+#: manual/tutorial/decimal_gda.md:22
 msgid "Encode decimal32/64/128 bit patterns"
 msgstr "编码 decimal32/64/128 位模式"
 
-#: manual/tutorial/decimal_gda.md:33
+#: manual/tutorial/decimal_gda.md:26
+msgid "Add the module to your project:"
+msgstr "将模块添加到项目中："
+
+#: manual/tutorial/decimal_gda.md:32
 msgid "Import the package in your `moon.pkg`:"
 msgstr "在你的 `moon.pkg` 中导入该包："
 
-#: manual/tutorial/decimal_gda.md:41
-msgid "Every GDA operation takes its operands and a `GdaContext` and returns a `GdaOutcome`: the result, the context to use next, and the conditions this operation raised."
-msgstr "每个 GDA 运算都接收操作数和一个 `GdaContext`，并返回一个 `GdaOutcome`：结果、下一步要使用的上下文，以及该运算引发的情形。"
+#: manual/tutorial/decimal_gda.md:40
+msgid "Pass the operands and a `GdaContext` to a GDA operation. It returns a `GdaOutcome` containing the result, the next context and the conditions raised by that operation."
+msgstr "将操作数和一个 `GdaContext` 传给 GDA 运算。它返回一个包含结果、下一上下文以及该运算引发条件的 `GdaOutcome`。"
 
-#: manual/tutorial/decimal_gda.md:58
-msgid "`raised()` describes this one operation. `next_context().flags()` is sticky: it collects every condition since the context was created or cleared."
-msgstr "`raised()` 描述的是这一个运算。`next_context().flags()` 是粘滞的：它收集自上下文创建或清除以来的所有情形。"
+#: manual/tutorial/decimal_gda.md:57
+msgid "`raised()` reports the conditions from this operation. The flags in `next_context().flags()` accumulate every condition raised since the context was created or its flags were cleared."
+msgstr "`raised()` 报告本次运算引发的条件。`next_context().flags()` 会累积上下文创建以来或其标志清除以来引发的所有条件。"
 
 #: manual/tutorial/decimal_gda.md:63
 msgid "Thread the context through a calculation"
 msgstr "在计算中传递上下文"
 
 #: manual/tutorial/decimal_gda.md:65
-msgid "Status accumulates only when you pass each outcome's `next_context()` to the next operation. The context you started with never changes, because a context is a value, not a mutable object."
-msgstr "只有把每个结果的 `next_context()` 传给下一个运算，状态才会累积。你最初使用的上下文永远不会改变，因为上下文是一个值，而不是可变对象。"
+msgid "Pass each outcome's `next_context()` to the next operation to accumulate flags. The starting context remains unchanged because a context is a value."
+msgstr "将每个结果的 `next_context()` 传给下一个运算，以累积标志。起始上下文保持不变，因为上下文是一个值。"
 
-#: manual/tutorial/decimal_gda.md:88
+#: manual/tutorial/decimal_gda.md:87
 msgid "Keep and set the quantum"
 msgstr "保留并设定量子"
 
-#: manual/tutorial/decimal_gda.md:90
-msgid "A GDA number is a coefficient and an exponent, so `2.50` and `2.5` are equal numbers with different exponents (different *quanta*). Arithmetic keeps the exponent that the exact result calls for, and `quantize` sets it explicitly. That is how you round an amount to cents:"
-msgstr "GDA 数由系数和指数组成，因此 `2.50` 和 `2.5` 是相等的数，但指数不同（*量子*不同）。算术保留精确结果所要求的指数，而 `quantize` 显式地设定指数。这就是把金额舍入到分的方法："
+#: manual/tutorial/decimal_gda.md:89
+msgid "A GDA number has a coefficient and an exponent. The quantum is $10^q$, where $q$ is that exponent, so `2.50` and `2.5` have the same value but different quanta. Arithmetic chooses the exponent required by the exact result, while `quantize` sets a target exponent. Use it to round an amount to cents:"
+msgstr "GDA 数由系数和指数构成。量子是 $10^q$，其中 $q$ 是该指数，因此 `2.50` 和 `2.5` 的值相同但量子不同。算术选择精确结果所需的指数，而 `quantize` 设置目标指数。使用它将金额舍入到分："
 
-#: manual/tutorial/decimal_gda.md:118
-msgid "`reduce` goes the other way: it removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it only when you really want the shortest cohort member."
-msgstr "`reduce` 的作用正相反：它去除尾随零，因此 `reduce(7.50)` 是 `7.5`。只有在确实需要同值类中最短的成员时才使用它。"
+#: manual/tutorial/decimal_gda.md:117
+msgid "`reduce` removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it only when you really want the shortest cohort member."
+msgstr "`reduce` 会去除尾随零，因此 `reduce(7.50)` 是 `7.5`。只有确实想要同值类中最短的成员时才使用它。"
 
-#: manual/tutorial/decimal_gda.md:121
+#: manual/tutorial/decimal_gda.md:120
 msgid "Handle a trap without losing the result"
 msgstr "处理陷阱而不丢失结果"
 
-#: manual/tutorial/decimal_gda.md:123
-msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky flags is still updated."
-msgstr "用 `trap` 派生出一个新上下文即可启用陷阱。被陷阱捕获的运算返回 `Trapped(signal, value, next_context, raised)`：GDA 定义的结果仍然在其中，粘滞标志也照样更新。"
+#: manual/tutorial/decimal_gda.md:122
+msgid "Call `trap` on a context to enable a trap. A trapped operation returns `Trapped(signal, value, next_context, raised)`. The result specified by GDA remains available as `value`, and `next_context` contains the updated flags."
+msgstr "在上下文上调用 `trap` 以启用陷阱。被陷阱捕获的运算返回 `Trapped(signal, value, next_context, raised)`。GDA 规定的结果仍可通过 `value` 取得，`next_context` 包含更新后的标志。"
 
-#: manual/tutorial/decimal_gda.md:145
-msgid "An `InvalidOperation` trap also catches the four detailed invalid conditions (conversion syntax, division impossible, division undefined and invalid context), which are flags of the outcome but not signals: the nine signals of the specification are the only ones with a trap. The basic default context enables `InvalidOperation`, so a malformed literal traps:"
-msgstr "`InvalidOperation` 陷阱也会捕获四个细分的无效条件（转换语法错误、除法不可行、除法未定义和无效上下文），它们是结果的标志，但不是信号：只有规范的九种信号才有陷阱。基本默认上下文启用了 `InvalidOperation`，因此格式错误的字面量会触发陷阱："
+#: manual/tutorial/decimal_gda.md:144
+msgid "An `InvalidOperation` trap also covers conversion syntax, division impossible, division undefined and invalid context. These four detailed conditions appear as flags in the outcome, not as signals. Only the specification's nine signals can be trapped. `GdaContext::basic_default()` enables `InvalidOperation`, so a malformed literal traps:"
+msgstr "`InvalidOperation` 陷阱还涵盖转换语法、除法不可行、除法未定义和无效上下文。这四个细分条件会作为结果中的标志出现，而不是信号。只有规范的九种信号可以触发陷阱。`GdaContext::basic_default()` 启用 `InvalidOperation`，因此格式错误的字面量会触发陷阱："
 
-#: manual/tutorial/decimal_gda.md:167
-msgid "When one operation raises several trapped conditions, the package reports one of them by a fixed precedence (listed in the [API page](../api/decimal_gda.md#trap-selection)), so you never have to invent your own order."
-msgstr "当一个运算引发多个被陷阱捕获的情形时，本包按固定的优先级（列于 [API 页面](../api/decimal_gda.md#trap-selection)）报告其中之一，因此你无需自行规定顺序。"
+#: manual/tutorial/decimal_gda.md:166
+msgid "When an operation raises several trapped conditions, the package reports one according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection) lists that precedence, so you never have to invent your own order."
+msgstr "一个运算引发多个可陷阱条件时，本包按固定优先级报告其中一个。[API 页面](../api/decimal_gda.md#trap-selection)列出了该优先级，因此你无需自行设定顺序。"
 
-#: manual/tutorial/decimal_gda.md:171
+#: manual/tutorial/decimal_gda.md:170
 msgid "Respect the exponent range"
 msgstr "遵守指数范围"
 
-#: manual/tutorial/decimal_gda.md:173
-msgid "A context bounds the adjusted exponent to `[e_min, e_max]`. Beyond `e_max` the result overflows; what it overflows *to* depends on the rounding mode. Below `e_min` the result becomes subnormal and loses digits:"
-msgstr "上下文把调整后的指数限制在 `[e_min, e_max]` 之内。超出 `e_max` 时结果上溢；上溢*成*什么取决于舍入模式。低于 `e_min` 时结果成为次正规数并丢失数字："
+#: manual/tutorial/decimal_gda.md:172
+msgid "The context bounds the adjusted exponent to `[e_min, e_max]`. A result above `e_max` overflows; its rounding algorithm determines what the result becomes. A result below `e_min` becomes subnormal and loses digits:"
+msgstr "上下文将调整后指数限制在 `[e_min, e_max]` 内。结果高于 `e_max` 时会上溢；其舍入算法决定结果变成什么。结果低于 `e_min` 时会成为次正规数并丢失数字："
 
-#: manual/tutorial/decimal_gda.md:201
+#: manual/tutorial/decimal_gda.md:200
 msgid "Call the elementary functions"
 msgstr "调用初等函数"
 
-#: manual/tutorial/decimal_gda.md:203
-msgid "`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to even, whatever the context's rounding mode says. `power` with a non-integer exponent is also correctly rounded, but under the context's own rounding mode. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the decTest suite requires and GDA's Invalid context condition permits; the operation text of the specification states no such bound); the decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and `context` (exponent range ±999,999,999) do not:"
-msgstr "`sqrt`、`exp`、`ln` 和 `log10` 是正确舍入的，并且无论上下文的舍入模式如何，总是采用半偶舍入。非整数指数的 `power` 同样是正确舍入的，但使用上下文自身的舍入模式。`exp`、`ln`、`log10` 和非整数 `power` 只接受精度、`e_max` 和 `-e_min` 都不超过 999,999 的上下文（这是 decNumber 的限制，decTest 套件要求它，GDA 的 Invalid context 条件允许它；规范的运算正文并未规定这样的界）；decimal32/64/128 预设满足这一条件，而 `GdaContext::new` 和 `context` 的默认值（指数范围 ±999,999,999）不满足："
+#: manual/tutorial/decimal_gda.md:202
+msgid "`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to even, whatever the context's rounding algorithm says. `power` with a non-integer exponent is also correctly rounded, but under the context's own rounding algorithm. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the decTest suite requires and GDA's Invalid context condition permits; the operation text of the specification states no such bound); the decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and `context` (exponent range ±999,999,999) do not:"
+msgstr "`sqrt`、`exp`、`ln` 和 `log10` 是正确舍入的，并且无论上下文的舍入算法如何，总是采用半值取偶舍入。非整数指数的 `power` 同样是正确舍入的，但使用上下文自身的舍入算法。`exp`、`ln`、`log10` 和非整数 `power` 只接受精度、`e_max` 和 `-e_min` 都不超过 999,999 的上下文（这是 decNumber 的限制，decTest 套件要求它，GDA 的 Invalid context 条件允许它；规范的运算正文并未规定这样的界）；decimal32/64/128 预设满足这一条件，而 `GdaContext::new` 和 `context` 的默认值（指数范围 ±999,999,999）不满足："
 
-#: manual/tutorial/decimal_gda.md:237
-msgid "A certified elementary function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps and `with_refinement_limit(None)` removes the count (the working precision then stops at a cap of at least 8,000,000 bits). `refinement_limit()` reads it."
-msgstr "认证初等函数默认至多细化包络十二次。对于极少数非常接近舍入边界的参数，`ctx.with_refinement_limit(Some(24))` 允许更多步，`with_refinement_limit(None)` 取消步数（此时工作精度在至少 8,000,000 位的上限处停止）；`refinement_limit()` 读取该限制。"
+#: manual/tutorial/decimal_gda.md:236
+msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be up to 1 ulp from the correctly rounded result; this package returns the correctly rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for an inexact square root, and this package also returns the correctly rounded result. GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer exponent; this package returns the correctly rounded result."
+msgstr "GDA 1.70 第 30 页（exp）和第 31 页（ln、log10）允许非精确结果与正确舍入结果相差最多 1 ulp；本包返回正确舍入的结果。GDA 1.70 第 39 页（square-root）规定非精确平方根使用半值取偶舍入，本包也返回正确舍入的结果。GDA 1.70 第 35 页（power）允许非整数指数的误差最多为 1 ulp；本包返回正确舍入的结果。"
 
 #: manual/tutorial/decimal_gda.md:243
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgstr "这里，认证是指一个已知包含函数值的区间落在其舍入单元内。每个函数默认最多细化其包含区间十二次。对于罕见且非常接近舍入边界的参数，`ctx.with_refinement_limit(Some(24))` 允许更多步；`with_refinement_limit(None)` 移除次数限制，此时工作精度会在至少 8,000,000 位的资源界限处停止。使用 `refinement_limit()` 读取当前设置。"
+
+#: manual/tutorial/decimal_gda.md:252
 msgid "Compare and print"
 msgstr "比较与打印"
 
-#: manual/tutorial/decimal_gda.md:245
-msgid "`compare` is numeric and returns a decimal (`-1`, `0`, `1`, or NaN when an operand is NaN). `compare_total` orders representations, so it tells `2.50` from `2.5`. Printing a value gives its scientific string; `class_name` names its class:"
-msgstr "`compare` 按数值比较并返回一个十进制数（`-1`、`0`、`1`，或在某个操作数为 NaN 时返回 NaN）。`compare_total` 对表示进行排序，因此能区分 `2.50` 和 `2.5`。打印一个值会得到其科学记数法字符串；`class_name` 给出其类别名称："
+#: manual/tutorial/decimal_gda.md:254
+msgid "Use `compare` for numerical order: it returns a decimal containing `-1`, `0`, or `1`, and returns NaN when an operand is NaN. Use `compare_total` when the representation matters; it orders `2.50` before `2.5`. Printing a value uses scientific notation, while `class_name` returns its class name:"
+msgstr "使用 `compare` 进行数值排序：它返回包含 `-1`、`0` 或 `1` 的十进制数，操作数为 NaN 时返回 NaN。表示形式重要时使用 `compare_total`；它将 `2.50` 排在 `2.5` 之前。打印值使用科学记数法，而 `class_name` 返回其类别名称："
 
-#: manual/tutorial/decimal_gda.md:273
+#: manual/tutorial/decimal_gda.md:282
 msgid "Long chains with `decimal_gda_checked`"
 msgstr "用 `decimal_gda_checked` 构建长链"
 
-#: manual/tutorial/decimal_gda.md:275
-msgid "Manual threading is clearest at boundaries. For a long linear pipeline, [`decimal_gda_checked`](decimal_gda_checked.md) keeps one outcome, threads the sticky context for you and stops after the first trap:"
-msgstr "手动传递上下文在边界处最为清晰。对于较长的线性流水线，[`decimal_gda_checked`](decimal_gda_checked.md) 只保留一个结果，替你传递粘滞上下文，并在第一个陷阱之后停止："
+#: manual/tutorial/decimal_gda.md:284
+msgid "Manual context threading is clearest at calculation boundaries. For a long linear pipeline, use [`decimal_gda_checked`](decimal_gda_checked.md): it keeps one outcome, threads the flags and context through each operation, and stops after the first trap:"
+msgstr "在计算边界处，手动传递上下文最为清晰。对于较长的线性流水线，使用 [`decimal_gda_checked`](decimal_gda_checked.md)：它保留一个结果，在每个运算中传递标志和上下文，并在第一个陷阱后停止："
 
-#: manual/tutorial/decimal_gda.md:293
+#: manual/tutorial/decimal_gda.md:303
 msgid "Generic code through `Luna-Flow/arithmetic`"
 msgstr "通过 `Luna-Flow/arithmetic` 编写泛型代码"
 
-#: manual/tutorial/decimal_gda.md:295
-msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on it. These adapters use the five IEEE-style rounding modes of `ArithmeticContext`, report errors as `Err`, and know nothing about traps:"
-msgstr "`Decimal` 实现了 [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) 的 contextual trait，因此针对 `AddContextual`、`DivContextual`、`SqrtContextual` 等编写的代码可以在其上运行。这些适配器使用 `ArithmeticContext` 的五种 IEEE 风格舍入模式，以 `Err` 报告错误，并且对陷阱一无所知："
+#: manual/tutorial/decimal_gda.md:305
+msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on it. These adapters use the five IEEE-style rounding algorithms of `ArithmeticContext`, return errors as `Err`, and know nothing about traps:"
+msgstr "`Decimal` 实现 [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) 的上下文 trait，因此，针对 `AddContextual`、`DivContextual`、`SqrtContextual` 等 trait 编写的代码都能用于该类型。这些适配器使用 `ArithmeticContext` 的五种 IEEE 风格舍入算法，以 `Err` 返回错误，并不了解陷阱："
 
-#: manual/tutorial/decimal_gda.md:324
+#: manual/tutorial/decimal_gda.md:335
 msgid "Subset arithmetic and lost digits"
 msgstr "子集算术与丢失的数字"
 
-#: manual/tutorial/decimal_gda.md:326
-msgid "`GdaContext::basic_default()` is the GDA *basic default context*: precision 9, `HalfUp`, `extended=false`, with the `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped` traps enabled. A non-extended context rounds operands that are longer than the precision before using them and reports `LostDigits` when that loses information:"
-msgstr "`GdaContext::basic_default()` 是 GDA 的*基本默认上下文*：精度 9、`HalfUp`、`extended=false`，并启用 `DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow` 和 `Clamped` 陷阱。非扩展上下文会在使用之前对长于精度的操作数进行舍入，并在因此丢失信息时报告 `LostDigits`："
+#: manual/tutorial/decimal_gda.md:337
+msgid "`GdaContext::basic_default()` is the GDA basic default context: precision 9, `HalfUp`, `extended=false`, and traps for `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped`. A non-extended context rounds an operand with more digits than the precision before using it and raises `LostDigits` when that rounding loses information:"
+msgstr "`GdaContext::basic_default()` 是 GDA 基本默认上下文：精度为 9，使用 `HalfUp`，`extended=false`，并为 `DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow` 和 `Clamped` 启用陷阱。非扩展上下文会在使用操作数前舍入其超过精度的部分，并在该舍入丢失信息时引发 `LostDigits`："
 
-#: manual/tutorial/decimal_gda.md:346
-msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding, written as `#` and hexadecimal digits:"
-msgstr "`GdaInterchange` 以密集压缩十进制（DPD）编码保存 decimal32、decimal64 或 decimal128 位模式，写作 `#` 加十六进制数字："
+#: manual/tutorial/decimal_gda.md:357
+msgid "`GdaInterchange` represents a decimal32, decimal64 or decimal128 bit pattern in densely packed decimal (DPD) encoding. The pattern is written as `#` followed by hexadecimal digits:"
+msgstr "`GdaInterchange` 表示密集压缩十进制（DPD）编码中的 decimal32、decimal64 或 decimal128 位模式。该模式写作 `#` 后跟十六进制数字："
 
-#: manual/tutorial/decimal_gda.md:361
-msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
-msgstr "**重复使用原始上下文。** 只有把 `next_context()` 传递下去，标志才会累积。你在某个上下文上设置的陷阱集合或标志，也会随从它派生的每个上下文一起传递。"
+#: manual/tutorial/decimal_gda.md:373
+msgid "**Reusing the original context.** Flags accumulate only when you pass each outcome's `next_context()` to the next operation. Trap settings and flags also travel with every context derived from the original."
+msgstr "**重用原始上下文。** 只有将每个结果的 `next_context()` 传给下一个运算，标志才会累积。陷阱设置和标志也会随从原始上下文派生的每个上下文一起传递。"
 
-#: manual/tutorial/decimal_gda.md:364
-msgid "**Treating `Trapped` as \"no value\".** A trap changes the variant, not the result; read the value with `value()` before you decide to stop."
-msgstr "**把 `Trapped` 当作“没有值”。** 陷阱改变的是变体，而不是结果；在决定停止之前，请用 `value()` 读取值。"
+#: manual/tutorial/decimal_gda.md:376
+msgid "**Treating `Trapped` as \"no value\".** A trap changes the outcome variant, not the result. Read `value()` before deciding whether to stop."
+msgstr "**把 `Trapped` 当作“没有值”。** 陷阱改变的是结果变体，而不是结果本身。在决定停止之前读取 `value()`。"
 
-#: manual/tutorial/decimal_gda.md:366
+#: manual/tutorial/decimal_gda.md:378
 msgid "**Expecting constructors to keep zeros.** `Decimal::from_int(100)` and `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use `Decimal::from_string(\"100\")` or `parse` when the quantum matters."
 msgstr "**指望构造器保留零。** `Decimal::from_int(100)` 和 `Decimal::make` 会去除尾随零，因此 `from_int(100)` 打印为 `1E+2`。当量子重要时，请使用 `Decimal::from_string(\"100\")` 或 `parse`。"
 
-#: manual/tutorial/decimal_gda.md:369
-msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context: they run the package function in a private context (larger operand precision, half-even, no clamp, no traps), so they round every result to that precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions whenever GDA results, flags or traps matter."
-msgstr "**用运算符做 GDA 计算。** `+`、`-`、`*` 和 `/` 不接收上下文：它们在私有上下文（较大的操作数精度、半偶舍入、无钳制、无陷阱）中运行包里的函数，因此每个结果都舍入到该精度，返回 GDA 的同值类成员（`1.10 + 3.50` 为 `4.60`），并且从不发出信号。只要 GDA 的结果、标志或陷阱有意义，就请使用包中的函数。"
+#: manual/tutorial/decimal_gda.md:381
+msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context. They use a private context with larger operand precision, half-even rounding, no clamp and no traps, so they round every result to that private precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions when GDA results, flags or traps matter."
+msgstr "**用运算符进行 GDA 运算。** `+`、`-`、`*` 和 `/` 不接收上下文。它们使用操作数精度更大的私有上下文、半值取偶舍入、无钳制和无陷阱，因此每个结果都舍入到该私有精度，返回 GDA 同值类成员（`1.10 + 3.50` 是 `4.60`），并且绝不会发出信号。需要 GDA 结果、标志或陷阱时使用包函数。"
 
-#: manual/tutorial/decimal_gda.md:375
-msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use `compare` (the package function), `compare_signal`, or `Decimal::compare_checked` when NaN must stay unordered."
-msgstr "**相等性与 NaN。** `==` 和 `compare` 把每个 NaN 视为与其他所有 NaN 相等，并大于每个数（这是一个全预序，因此排序从不中止）。当 NaN 必须保持无序时，请使用 `compare`（包中的函数）、`compare_signal` 或 `Decimal::compare_checked`。"
+#: manual/tutorial/decimal_gda.md:386
+msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use the package `compare`, `compare_signal`, or `Decimal::compare_checked` when NaN must remain unordered."
+msgstr "**相等性与 NaN。** `==` 和 `compare` 将每个 NaN 与其他所有 NaN 视为相等，并将 NaN 排在所有数之上（这是全预序，因此排序不会中止）。需要让 NaN 保持无序时，使用包函数 `compare`、`compare_signal` 或 `Decimal::compare_checked`。"
 
-#: manual/tutorial/decimal_gda.md:379
-msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` are different types with different contracts; cross between them through strings or interchange bits."
-msgstr "**混用两个十进制包。** `@decimal_gda.Decimal` 和 `@decimal.Decimal` 是具有不同契约的不同类型；在它们之间转换请通过字符串或交换位模式。"
+#: manual/tutorial/decimal_gda.md:390
+msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` have different contracts and types. Convert between them through strings or interchange bits."
+msgstr "**混用两个十进制包。** `@decimal_gda.Decimal` 和 `@decimal.Decimal` 的契约和类型不同。通过字符串或交换格式位在二者之间转换。"
 
-#: manual/tutorial/decimal_gda.md:382
-msgid "**Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.** They always round half to even; only `power` follows the context."
-msgstr "**指望 `exp`、`ln`、`log10` 或 `sqrt` 遵循上下文的舍入。** 它们总是采用半偶舍入；只有 `power` 遵循上下文。"
+#: manual/tutorial/decimal_gda.md:393
+msgid "**Expecting elementary functions to follow the context rounding.** `exp`, `ln`, `log10` and `sqrt` always round half to even; only `power` follows the context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions) gives the required context range."
+msgstr "**期待初等函数遵循上下文舍入。** `exp`、`ln`、`log10` 和 `sqrt` 总是采用半值取偶舍入；只有 `power` 遵循上下文的舍入算法。[初等函数任务](#call-the-elementary-functions)给出了所需的上下文范围。"
 
-#: manual/tutorial/decimal_gda.md:384
-msgid "**Calling `exp`, `ln`, `log10` or non-integer `power` with a default context.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, which is outside the range these functions accept, so they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for you, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
-msgstr "**用默认上下文调用 `exp`、`ln`、`log10` 或非整数 `power`。** `GdaContext::new()` 和 `context()` 允许指数达到 ±999,999,999，超出了这些函数接受的范围，因此它们返回 NaN 并引发 `InvalidContext`（一种 `InvalidOperation`）。请使用预设，或传入 `e_min=-999_999, e_max=999_999`。未设置 `e_min` 和 `e_max` 的 `ArithmeticContext` 同样如此：不会替你补上边界，`exp_contextual` 返回 `Err(unsupported)`，其 `invalid context:` 消息会指出缺少的边界。"
+#: manual/tutorial/decimal_gda.md:397
+msgid "**Using a default context for elementary functions.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, outside the implementation limit for these operations. `exp`, `ln`, `log10` and non-integer `power` return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same applies to an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
+msgstr "**为初等函数使用默认上下文。** `GdaContext::new()` 和 `context()` 允许指数达到 ±999,999,999，超出这些运算的实现限制。`exp`、`ln`、`log10` 和非整数 `power` 会返回 NaN 并引发 `InvalidContext`（一种 `InvalidOperation`）。使用预设，或传入 `e_min=-999_999, e_max=999_999`。没有 `e_min` 和 `e_max` 的 `ArithmeticContext` 也一样：不会自动填充界限，`exp_contextual` 会返回带有 `invalid context:` 消息并指出缺失界限的 `Err(unsupported)`。"
 
-#: manual/tutorial/decimal_gda.md:395
-msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and how the elementary functions are certified."
-msgstr "[设计](../design/decimal_gda.md)：算术模型、理想指数、舍入函数、信号与陷阱状态机，以及初等函数如何认证。"
+#: manual/tutorial/decimal_gda.md:408
+msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and the certification method for elementary functions."
+msgstr "[设计页](../design/decimal_gda.md)：算术模型、理想指数、舍入函数、信号和陷阱状态机，以及初等函数的认证方法。"
 
-#: manual/tutorial/decimal_gda.md:398
+#: manual/tutorial/decimal_gda.md:411
 msgid "[API reference](../api/decimal_gda.md): every type, function and method."
 msgstr "[API 参考](../api/decimal_gda.md)：每个类型、函数和方法。"
 
-#: manual/tutorial/decimal_gda.md:399
+#: manual/tutorial/decimal_gda.md:412
 msgid "[Conformance](../conformance/decimal_gda.md) and [performance](../performance/decimal_gda.md): the pinned test-suite result and how to measure speed."
 msgstr "[符合性](../conformance/decimal_gda.md)和[性能](../performance/decimal_gda.md)：固定版本测试套件的结果以及如何测量速度。"
 
-#: manual/tutorial/decimal_gda.md:402
+#: manual/tutorial/decimal_gda.md:415
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): trap short-circuiting and recovery in pipelines."
 msgstr "[`decimal_gda_checked` 教程](decimal_gda_checked.md)：流水线中的陷阱短路与恢复。"
 
-#: manual/tutorial/decimal_gda.md:404
+#: manual/tutorial/decimal_gda.md:417
 msgid "[`decimal` tutorial](decimal.md): the IEEE 754 decimal model with per-operation flags."
 msgstr "[`decimal` 教程](decimal.md)：带逐运算标志的 IEEE 754 十进制模型。"
 
@@ -30931,6 +30938,12 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:945
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
+#~ msgstr "本教程教你使用 `decimal_gda` 进行计算。该包实现了 Cowlishaw 的通用十进制算术（GDA）：保留尾随零的十进制数，确定精度、舍入和指数界限的上下文，记录所发生情况的粘滞标志，以及在终止计算的同时仍把确定结果交给你的陷阱。学完之后，你将能够在计算中传递上下文、对金额舍入、处理陷阱、上溢和下溢、调用初等函数，并选择合适的比较方式。每条规则背后的数学见[设计页面](../design/decimal_gda.md)；所有公开名称都在 [API 页面](../api/decimal_gda.md)上。"
+
+#~ msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
+#~ msgstr "**重复使用原始上下文。** 只有把 `next_context()` 传递下去，标志才会累积。你在某个上下文上设置的陷阱集合或标志，也会随从它派生的每个上下文一起传递。"
 
 #~ msgid "They use the half-even rounding algorithm, whatever the rounding of the context. Every finite result not listed as exact is inexact with $p$ digits."
 #~ msgstr "无论上下文的舍入如何，它们都使用半偶舍入算法。每个未列为精确的有限结果，在 $p$ 位下都是不精确的。"

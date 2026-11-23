@@ -1373,7 +1373,7 @@ msgstr "構文は IEEE 754-2019 §5.12.3 の hexSequence です。省略可能�
 #: manual/api/binary.md:1451
 #: manual/api/decimal_gda.md:1621
 #: manual/design/decimal.md:752
-#: manual/tutorial/decimal_gda.md:344
+#: manual/tutorial/decimal_gda.md:355
 msgid "Interchange encodings"
 msgstr "交換エンコーディング"
 
@@ -24472,7 +24472,7 @@ msgstr "このチュートリアルでは、`floating` のベンチマークス�
 #: manual/tutorial/consistency.md:7
 #: manual/tutorial/decimal.md:12
 #: manual/tutorial/decimal_checked.md:14
-#: manual/tutorial/decimal_gda.md:13
+#: manual/tutorial/decimal_gda.md:12
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
@@ -24512,7 +24512,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/consistency.md:7
 #: manual/tutorial/decimal.md:12
 #: manual/tutorial/decimal_checked.md:14
-#: manual/tutorial/decimal_gda.md:13
+#: manual/tutorial/decimal_gda.md:12
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
@@ -24581,7 +24581,7 @@ msgstr "[bench の設計](../design/bench.md)"
 #: manual/tutorial/consistency.md:14
 #: manual/tutorial/decimal.md:24
 #: manual/tutorial/decimal_checked.md:25
-#: manual/tutorial/decimal_gda.md:25
+#: manual/tutorial/decimal_gda.md:24
 #: manual/tutorial/decimal_gda_checked.md:22
 #: manual/tutorial/def.md:21
 #: manual/tutorial/differential.md:17
@@ -24737,7 +24737,7 @@ msgstr "plan-compiles テストはスキップしないでください。この�
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:325
 #: manual/tutorial/decimal_checked.md:159
-#: manual/tutorial/decimal_gda.md:271
+#: manual/tutorial/decimal_gda.md:280
 #: manual/tutorial/decimal_gda_checked.md:176
 #: manual/tutorial/def.md:163
 #: manual/tutorial/differential.md:173
@@ -24787,7 +24787,7 @@ msgstr "[性能監査](../performance_audit.md)と `performance/` のページ�
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:408
 #: manual/tutorial/decimal_checked.md:242
-#: manual/tutorial/decimal_gda.md:359
+#: manual/tutorial/decimal_gda.md:371
 #: manual/tutorial/decimal_gda_checked.md:254
 #: manual/tutorial/def.md:197
 #: manual/tutorial/differential.md:184
@@ -24841,7 +24841,7 @@ msgstr "**僅差のときは、速い方ではなく安定した候補が選ば�
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:438
 #: manual/tutorial/decimal_checked.md:269
-#: manual/tutorial/decimal_gda.md:393
+#: manual/tutorial/decimal_gda.md:406
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:214
 #: manual/tutorial/differential.md:195
@@ -25394,7 +25394,6 @@ msgstr "[ジェネリックなトレイト](#write-generic-code)"
 
 #: manual/tutorial/binary.md:28
 #: manual/tutorial/binary_checked.md:23
-#: manual/tutorial/decimal_gda.md:27
 #: manual/tutorial/decimal_gda_checked.md:24
 #: manual/tutorial/interval.md:25
 #: manual/tutorial/interval_checked.md:23
@@ -26917,206 +26916,214 @@ msgid "decimal_gda tutorial"
 msgstr "decimal_gda チュートリアル"
 
 #: manual/tutorial/decimal_gda.md:3
-msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
-msgstr "このチュートリアルでは、Cowlishaw の General Decimal Arithmetic (GDA) を実装するパッケージ `decimal_gda` を使った計算方法を学びます。末尾のゼロを保持する十進数、精度・丸め・指数の限界を固定するコンテキスト、何が起きたかを記録するスティッキーなフラグ、そして定義済みの結果を渡しつつ計算を停止させるトラップです。最後には、計算を通してコンテキストを受け渡し、金額を丸め、トラップ・オーバーフロー・アンダーフローを処理し、初等関数を呼び出し、適切な比較を選べるようになります。各規則の背後にある数学は[設計ページ](../design/decimal_gda.md)に、すべての公開名は [API ページ](../api/decimal_gda.md)にあります。"
+msgid "`decimal_gda` implements General Decimal Arithmetic (GDA). Use it to parse decimal input, carry a context through calculations, round amounts, inspect conditions and preserve trailing zeros. A context sets the precision, rounding algorithm and exponent limits; its flags record the conditions raised by each operation, and its traps can stop an operation while returning its defined result. The [design page](../design/decimal_gda.md) explains the arithmetic rules, and the [API page](../api/decimal_gda.md) lists every public name."
+msgstr "`decimal_gda` は General Decimal Arithmetic (GDA) を実装します。これを使って十進入力を解析し、計算の中でコンテキストを渡し、金額を丸め、条件を調べ、末尾のゼロを保持します。コンテキストは精度、丸めアルゴリズム、指数の限界を設定し、そのフラグは各演算で発生した条件を記録します。トラップは定義された結果を返しながら演算を停止できます。[設計ページ](../design/decimal_gda.md)で算術規則を説明し、[API ページ](../api/decimal_gda.md)ですべての公開名を列挙します。"
 
-#: manual/tutorial/decimal_gda.md:15
+#: manual/tutorial/decimal_gda.md:14
 msgid "Read a number under a context"
 msgstr "コンテキストのもとで数を読み取る"
 
-#: manual/tutorial/decimal_gda.md:16
+#: manual/tutorial/decimal_gda.md:15
 msgid "Carry flags from one operation to the next"
 msgstr "ある演算から次の演算へフラグを引き継ぐ"
 
-#: manual/tutorial/decimal_gda.md:17
+#: manual/tutorial/decimal_gda.md:16
 msgid "Round an amount to cents"
 msgstr "金額をセント単位に丸める"
 
-#: manual/tutorial/decimal_gda.md:18
+#: manual/tutorial/decimal_gda.md:17
 msgid "Stop on a condition but keep the result"
 msgstr "条件で停止しつつ結果を保持する"
 
-#: manual/tutorial/decimal_gda.md:19
+#: manual/tutorial/decimal_gda.md:18
 msgid "Control overflow and underflow"
 msgstr "オーバーフローとアンダーフローを制御する"
 
-#: manual/tutorial/decimal_gda.md:19
-msgid "[exponent limits and rounding modes](#respect-the-exponent-range)"
-msgstr "[指数の限界と丸めモード](#respect-the-exponent-range)"
+#: manual/tutorial/decimal_gda.md:18
+msgid "[exponent limits and rounding algorithms](#respect-the-exponent-range)"
+msgstr "[指数の限界と丸めアルゴリズム](#respect-the-exponent-range)"
 
-#: manual/tutorial/decimal_gda.md:20
+#: manual/tutorial/decimal_gda.md:19
 msgid "Compute `exp`, `ln`, `log10`, `sqrt` or `power`"
 msgstr "`exp`、`ln`、`log10`、`sqrt`、`power` を計算する"
 
-#: manual/tutorial/decimal_gda.md:20
+#: manual/tutorial/decimal_gda.md:19
 msgid "[elementary functions](#call-the-elementary-functions)"
 msgstr "[初等関数](#call-the-elementary-functions)"
 
-#: manual/tutorial/decimal_gda.md:21
+#: manual/tutorial/decimal_gda.md:20
 msgid "Compare numbers or representations"
 msgstr "数値または表現を比較する"
 
-#: manual/tutorial/decimal_gda.md:22
+#: manual/tutorial/decimal_gda.md:21
 msgid "Chain many operations without manual threading"
 msgstr "手作業で受け渡すことなく多数の演算を連鎖させる"
 
-#: manual/tutorial/decimal_gda.md:23
+#: manual/tutorial/decimal_gda.md:22
 msgid "Encode decimal32/64/128 bit patterns"
 msgstr "decimal32/64/128 のビットパターンをエンコードする"
 
-#: manual/tutorial/decimal_gda.md:33
+#: manual/tutorial/decimal_gda.md:26
+msgid "Add the module to your project:"
+msgstr "プロジェクトにモジュールを追加します。"
+
+#: manual/tutorial/decimal_gda.md:32
 msgid "Import the package in your `moon.pkg`:"
 msgstr "`moon.pkg` でパッケージをインポートします。"
 
-#: manual/tutorial/decimal_gda.md:41
-msgid "Every GDA operation takes its operands and a `GdaContext` and returns a `GdaOutcome`: the result, the context to use next, and the conditions this operation raised."
-msgstr "すべての GDA 演算はオペランドと `GdaContext` を受け取り、`GdaOutcome` を返します。それは結果、次に使うコンテキスト、そしてこの演算が発生させた条件からなります。"
+#: manual/tutorial/decimal_gda.md:40
+msgid "Pass the operands and a `GdaContext` to a GDA operation. It returns a `GdaOutcome` containing the result, the next context and the conditions raised by that operation."
+msgstr "オペランドと `GdaContext` を GDA 演算に渡します。演算は結果、次に使うコンテキスト、そしてその演算で発生した条件を含む `GdaOutcome` を返します。"
 
-#: manual/tutorial/decimal_gda.md:58
-msgid "`raised()` describes this one operation. `next_context().flags()` is sticky: it collects every condition since the context was created or cleared."
-msgstr "`raised()` はこの一回の演算を記述します。`next_context().flags()` はスティッキーであり、コンテキストが作成またはクリアされて以降のすべての条件を集めます。"
+#: manual/tutorial/decimal_gda.md:57
+msgid "`raised()` reports the conditions from this operation. The flags in `next_context().flags()` accumulate every condition raised since the context was created or its flags were cleared."
+msgstr "`raised()` はこの演算が発生させた条件を報告します。`next_context().flags()` は、コンテキストの作成時またはフラグのクリア時から発生したすべての条件を蓄積します。"
 
 #: manual/tutorial/decimal_gda.md:63
 msgid "Thread the context through a calculation"
 msgstr "計算を通してコンテキストを受け渡す"
 
 #: manual/tutorial/decimal_gda.md:65
-msgid "Status accumulates only when you pass each outcome's `next_context()` to the next operation. The context you started with never changes, because a context is a value, not a mutable object."
-msgstr "ステータスが蓄積されるのは、各結果の `next_context()` を次の演算に渡した場合だけです。コンテキストは可変オブジェクトではなく値なので、最初に使ったコンテキストが変わることはありません。"
+msgid "Pass each outcome's `next_context()` to the next operation to accumulate flags. The starting context remains unchanged because a context is a value."
+msgstr "フラグを蓄積するには、各結果の `next_context()` を次の演算に渡します。開始時のコンテキストは値なので変更されません。"
 
-#: manual/tutorial/decimal_gda.md:88
+#: manual/tutorial/decimal_gda.md:87
 msgid "Keep and set the quantum"
 msgstr "量子を保持し、設定する"
 
-#: manual/tutorial/decimal_gda.md:90
-msgid "A GDA number is a coefficient and an exponent, so `2.50` and `2.5` are equal numbers with different exponents (different *quanta*). Arithmetic keeps the exponent that the exact result calls for, and `quantize` sets it explicitly. That is how you round an amount to cents:"
-msgstr "GDA の数は係数と指数からなるので、`2.50` と `2.5` は異なる指数（異なる*量子*）を持つ等しい数です。算術は厳密な結果が要求する指数を保持し、`quantize` はそれを明示的に設定します。金額をセント単位に丸めるにはこうします。"
+#: manual/tutorial/decimal_gda.md:89
+msgid "A GDA number has a coefficient and an exponent. The quantum is $10^q$, where $q$ is that exponent, so `2.50` and `2.5` have the same value but different quanta. Arithmetic chooses the exponent required by the exact result, while `quantize` sets a target exponent. Use it to round an amount to cents:"
+msgstr "GDA の数は係数と指数を持ちます。量子は $10^q$ で、$q$ はその指数です。そのため `2.50` と `2.5` は値が同じでも量子が異なります。算術は厳密な結果が必要とする指数を選び、`quantize` は目標の指数を設定します。これを使って金額をセントに丸めます。"
 
-#: manual/tutorial/decimal_gda.md:118
-msgid "`reduce` goes the other way: it removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it only when you really want the shortest cohort member."
-msgstr "`reduce` は逆方向の操作で、末尾のゼロを取り除くので、`reduce(7.50)` は `7.5` です。本当にコホートの最短の元が欲しい場合にだけ使ってください。"
+#: manual/tutorial/decimal_gda.md:117
+msgid "`reduce` removes trailing zeros, so `reduce(7.50)` is `7.5`. Use it only when you really want the shortest cohort member."
+msgstr "`reduce` は末尾のゼロを取り除くので、`reduce(7.50)` は `7.5` になります。同じコホートで本当に最短のメンバーだけが必要な場合に使います。"
 
-#: manual/tutorial/decimal_gda.md:121
+#: manual/tutorial/decimal_gda.md:120
 msgid "Handle a trap without losing the result"
 msgstr "結果を失わずにトラップを処理する"
 
-#: manual/tutorial/decimal_gda.md:123
-msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky flags is still updated."
-msgstr "`trap` で新しいコンテキストを派生させることでトラップを有効にします。トラップされた演算は `Trapped(signal, value, next_context, raised)` を返します。GDA が定義する結果は依然としてそこにあり、スティッキーなフラグも更新されています。"
+#: manual/tutorial/decimal_gda.md:122
+msgid "Call `trap` on a context to enable a trap. A trapped operation returns `Trapped(signal, value, next_context, raised)`. The result specified by GDA remains available as `value`, and `next_context` contains the updated flags."
+msgstr "コンテキストで `trap` を呼び出すとトラップが有効になります。トラップされた演算は `Trapped(signal, value, next_context, raised)` を返します。GDA が定める結果は `value` で取得でき、`next_context` には更新されたフラグが含まれます。"
 
-#: manual/tutorial/decimal_gda.md:145
-msgid "An `InvalidOperation` trap also catches the four detailed invalid conditions (conversion syntax, division impossible, division undefined and invalid context), which are flags of the outcome but not signals: the nine signals of the specification are the only ones with a trap. The basic default context enables `InvalidOperation`, so a malformed literal traps:"
-msgstr "`InvalidOperation` のトラップは、4 つの詳細な無効条件（変換構文エラー、除算不可能、除算未定義、無効なコンテキスト）も捕らえます。これらは結果のフラグですがシグナルではなく、トラップがあるのは仕様の 9 つのシグナルだけです。基本デフォルトコンテキストは `InvalidOperation` を有効にするので、不正なリテラルはトラップされます。"
+#: manual/tutorial/decimal_gda.md:144
+msgid "An `InvalidOperation` trap also covers conversion syntax, division impossible, division undefined and invalid context. These four detailed conditions appear as flags in the outcome, not as signals. Only the specification's nine signals can be trapped. `GdaContext::basic_default()` enables `InvalidOperation`, so a malformed literal traps:"
+msgstr "`InvalidOperation` のトラップは、変換構文、除算不可能、除算未定義、無効なコンテキストも対象にします。この 4 つの詳細な条件は結果のフラグであり、シグナルではありません。トラップできるのは仕様の 9 つのシグナルだけです。`GdaContext::basic_default()` は `InvalidOperation` を有効にするため、不正なリテラルはトラップされます。"
 
-#: manual/tutorial/decimal_gda.md:167
-msgid "When one operation raises several trapped conditions, the package reports one of them by a fixed precedence (listed in the [API page](../api/decimal_gda.md#trap-selection)), so you never have to invent your own order."
-msgstr "一つの演算が複数のトラップ対象の条件を発生させた場合、パッケージは固定された優先順位（[API ページ](../api/decimal_gda.md#trap-selection)に記載）に従ってそのうちの一つを報告するので、独自の順序を考え出す必要はありません。"
+#: manual/tutorial/decimal_gda.md:166
+msgid "When an operation raises several trapped conditions, the package reports one according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection) lists that precedence, so you never have to invent your own order."
+msgstr "一つの演算で複数のトラップ対象条件が発生すると、パッケージは固定された優先順位に従って一つを報告します。[API ページ](../api/decimal_gda.md#trap-selection)にその優先順位が記載されているため、自分で順序を決める必要はありません。"
 
-#: manual/tutorial/decimal_gda.md:171
+#: manual/tutorial/decimal_gda.md:170
 msgid "Respect the exponent range"
 msgstr "指数範囲を守る"
 
-#: manual/tutorial/decimal_gda.md:173
-msgid "A context bounds the adjusted exponent to `[e_min, e_max]`. Beyond `e_max` the result overflows; what it overflows *to* depends on the rounding mode. Below `e_min` the result becomes subnormal and loses digits:"
-msgstr "コンテキストは調整済み指数を `[e_min, e_max]` に制限します。`e_max` を超えると結果はオーバーフローし、何に*向かって*オーバーフローするかは丸めモードに依存します。`e_min` を下回ると結果は非正規化数になり、桁を失います。"
+#: manual/tutorial/decimal_gda.md:172
+msgid "The context bounds the adjusted exponent to `[e_min, e_max]`. A result above `e_max` overflows; its rounding algorithm determines what the result becomes. A result below `e_min` becomes subnormal and loses digits:"
+msgstr "コンテキストは調整済み指数を `[e_min, e_max]` に制限します。`e_max` より大きい結果はオーバーフローし、その結果を決めるのは丸めアルゴリズムです。`e_min` より小さい結果は非正規化数になり、桁を失います。"
 
-#: manual/tutorial/decimal_gda.md:201
+#: manual/tutorial/decimal_gda.md:200
 msgid "Call the elementary functions"
 msgstr "初等関数を呼び出す"
 
-#: manual/tutorial/decimal_gda.md:203
-msgid "`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to even, whatever the context's rounding mode says. `power` with a non-integer exponent is also correctly rounded, but under the context's own rounding mode. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the decTest suite requires and GDA's Invalid context condition permits; the operation text of the specification states no such bound); the decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and `context` (exponent range ±999,999,999) do not:"
-msgstr "`sqrt`、`exp`、`ln`、`log10` は正しく丸められ、文脈の丸めモードによらず常に偶数丸めです。非整数指数の `power` も正しく丸められますが、文脈自身の丸めモードに従います。`exp`、`ln`、`log10` と非整数指数の `power` は、精度、`e_max`、`-e_min` がいずれも 999,999 以下の文脈のみを受け付けます（decNumber の制限であり、decTest スイートが要求し、GDA の Invalid context 条件が許容します。仕様の演算本文にはこのような限界は書かれていません）。decimal32/64/128 のプリセットは満たしますが、`GdaContext::new` と `context` の既定値（指数範囲 ±999,999,999）は満たしません。"
+#: manual/tutorial/decimal_gda.md:202
+msgid "`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to even, whatever the context's rounding algorithm says. `power` with a non-integer exponent is also correctly rounded, but under the context's own rounding algorithm. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the decTest suite requires and GDA's Invalid context condition permits; the operation text of the specification states no such bound); the decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and `context` (exponent range ±999,999,999) do not:"
+msgstr "`sqrt`、`exp`、`ln`、`log10` は正しく丸められ、コンテキストの丸めアルゴリズムによらず常に最近接偶数丸めです。非整数指数の `power` も正しく丸められますが、コンテキスト自身の丸めアルゴリズムに従います。`exp`、`ln`、`log10` と非整数指数の `power` は、精度、`e_max`、`-e_min` がいずれも 999,999 以下のコンテキストのみを受け付けます（decNumber の制限であり、decTest スイートが要求し、GDA の Invalid context 条件が許容します。仕様の演算本文にはこのような限界は書かれていません）。decimal32/64/128 のプリセットは満たしますが、`GdaContext::new` と `context` の既定値（指数範囲 ±999,999,999）は満たしません。"
 
-#: manual/tutorial/decimal_gda.md:237
-msgid "A certified elementary function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps and `with_refinement_limit(None)` removes the count (the working precision then stops at a cap of at least 8,000,000 bits). `refinement_limit()` reads it."
-msgstr "認証付きの初等関数は、既定では包含を最大 12 回精緻化します。丸めの境界のごく近くにある、まれな引数では、`ctx.with_refinement_limit(Some(24))` でさらに多くのステップを許し、`with_refinement_limit(None)` で回数の上限を外します（その場合、作業精度は少なくとも 8,000,000 ビットの上限で止まります）。`refinement_limit()` で読み取れます。"
+#: manual/tutorial/decimal_gda.md:236
+msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be up to 1 ulp from the correctly rounded result; this package returns the correctly rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for an inexact square root, and this package also returns the correctly rounded result. GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer exponent; this package returns the correctly rounded result."
+msgstr "GDA 1.70 の 30 ページ（exp）と 31 ページ（ln、log10）は、不正確な結果について正しく丸められた結果との差を最大 1 ulp まで許します。このパッケージは正しく丸められた結果を返します。GDA 1.70 の 39 ページ（square-root）は不正確な平方根に最近接偶数丸めを指定し、このパッケージも正しく丸められた結果を返します。GDA 1.70 の 35 ページ（power）は非整数指数に最大 1 ulp の誤差を許します。このパッケージは正しく丸められた結果を返します。"
 
 #: manual/tutorial/decimal_gda.md:243
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgstr "ここでいう認証とは、関数値を含むと分かっている区間が、その丸めセルの内側にあることです。各関数はデフォルトで最大 12 回、包含区間を精緻化します。丸め境界に非常に近いまれな引数では、`ctx.with_refinement_limit(Some(24))` でさらに多くの反復を許可できます。`with_refinement_limit(None)` は回数制限を外し、作業精度は少なくとも 8,000,000 ビットの資源限界で停止します。現在の設定は `refinement_limit()` で読み取れます。"
+
+#: manual/tutorial/decimal_gda.md:252
 msgid "Compare and print"
 msgstr "比較と出力"
 
-#: manual/tutorial/decimal_gda.md:245
-msgid "`compare` is numeric and returns a decimal (`-1`, `0`, `1`, or NaN when an operand is NaN). `compare_total` orders representations, so it tells `2.50` from `2.5`. Printing a value gives its scientific string; `class_name` names its class:"
-msgstr "`compare` は数値的な比較で、十進数（`-1`、`0`、`1`、またはオペランドが NaN のときは NaN）を返します。`compare_total` は表現を順序付けるので、`2.50` と `2.5` を区別します。値を出力すると科学記法の文字列が得られ、`class_name` はそのクラスの名前を返します。"
+#: manual/tutorial/decimal_gda.md:254
+msgid "Use `compare` for numerical order: it returns a decimal containing `-1`, `0`, or `1`, and returns NaN when an operand is NaN. Use `compare_total` when the representation matters; it orders `2.50` before `2.5`. Printing a value uses scientific notation, while `class_name` returns its class name:"
+msgstr "数値順序には `compare` を使います。これは `-1`、`0`、`1` のいずれかを含む十進数を返し、オペランドが NaN のときは NaN を返します。表現が重要な場合は `compare_total` を使います。これは `2.50` を `2.5` より前に順序付けます。値の出力は科学記法を使い、`class_name` はクラス名を返します。"
 
-#: manual/tutorial/decimal_gda.md:273
+#: manual/tutorial/decimal_gda.md:282
 msgid "Long chains with `decimal_gda_checked`"
 msgstr "`decimal_gda_checked` による長い連鎖"
 
-#: manual/tutorial/decimal_gda.md:275
-msgid "Manual threading is clearest at boundaries. For a long linear pipeline, [`decimal_gda_checked`](decimal_gda_checked.md) keeps one outcome, threads the sticky context for you and stops after the first trap:"
-msgstr "手動での受け渡しは境界部分では最もわかりやすい方法です。長い線形のパイプラインには、[`decimal_gda_checked`](decimal_gda_checked.md) が一つの結果を保持し、スティッキーなコンテキストを代わりに受け渡し、最初のトラップの後で停止します。"
+#: manual/tutorial/decimal_gda.md:284
+msgid "Manual context threading is clearest at calculation boundaries. For a long linear pipeline, use [`decimal_gda_checked`](decimal_gda_checked.md): it keeps one outcome, threads the flags and context through each operation, and stops after the first trap:"
+msgstr "計算の境界では、コンテキストを手動で渡す方法が最も明確です。長い線形パイプラインには [`decimal_gda_checked`](decimal_gda_checked.md) を使います。これは一つの結果を保持し、各演算にフラグとコンテキストを渡し、最初のトラップの後で停止します。"
 
-#: manual/tutorial/decimal_gda.md:293
+#: manual/tutorial/decimal_gda.md:303
 msgid "Generic code through `Luna-Flow/arithmetic`"
 msgstr "`Luna-Flow/arithmetic` を通じたジェネリックなコード"
 
-#: manual/tutorial/decimal_gda.md:295
-msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on it. These adapters use the five IEEE-style rounding modes of `ArithmeticContext`, report errors as `Err`, and know nothing about traps:"
-msgstr "`Decimal` は [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) の contextual トレイトを実装しているので、`AddContextual`、`DivContextual`、`SqrtContextual` などに対して書かれたコードはそのまま動作します。これらのアダプタは `ArithmeticContext` の五つの IEEE 流の丸めモードを使い、エラーを `Err` として報告し、トラップについては何も知りません。"
+#: manual/tutorial/decimal_gda.md:305
+msgid "`Decimal` implements the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on it. These adapters use the five IEEE-style rounding algorithms of `ArithmeticContext`, return errors as `Err`, and know nothing about traps:"
+msgstr "`Decimal` は [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) のコンテキスト付き trait を実装するため、`AddContextual`、`DivContextual`、`SqrtContextual` などに基づいて書かれたコードをその型で実行できます。これらのアダプターは `ArithmeticContext` の 5 つの IEEE 流の丸めアルゴリズムを使い、エラーを `Err` として返し、トラップについては何も知りません。"
 
-#: manual/tutorial/decimal_gda.md:324
+#: manual/tutorial/decimal_gda.md:335
 msgid "Subset arithmetic and lost digits"
 msgstr "サブセット算術と失われた桁"
 
-#: manual/tutorial/decimal_gda.md:326
-msgid "`GdaContext::basic_default()` is the GDA *basic default context*: precision 9, `HalfUp`, `extended=false`, with the `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped` traps enabled. A non-extended context rounds operands that are longer than the precision before using them and reports `LostDigits` when that loses information:"
-msgstr "`GdaContext::basic_default()` は GDA の*基本デフォルトコンテキスト*です。精度 9、`HalfUp`、`extended=false` で、`DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow`、`Clamped` のトラップが有効になっています。非拡張のコンテキストは、精度より長いオペランドを使用前に丸め、それによって情報が失われた場合は `LostDigits` を報告します。"
+#: manual/tutorial/decimal_gda.md:337
+msgid "`GdaContext::basic_default()` is the GDA basic default context: precision 9, `HalfUp`, `extended=false`, and traps for `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped`. A non-extended context rounds an operand with more digits than the precision before using it and raises `LostDigits` when that rounding loses information:"
+msgstr "`GdaContext::basic_default()` は GDA の基本デフォルトコンテキストです。精度 9、`HalfUp`、`extended=false` で、`DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow`、`Clamped` のトラップが有効です。非拡張コンテキストは、精度より桁数の多いオペランドを使用前に丸め、その丸めで情報を失ったとき `LostDigits` を発生させます。"
 
-#: manual/tutorial/decimal_gda.md:346
-msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding, written as `#` and hexadecimal digits:"
-msgstr "`GdaInterchange` は、densely packed decimal (DPD) エンコーディングの decimal32、decimal64、decimal128 のビットパターンを保持し、`#` と十六進数字で表記します。"
+#: manual/tutorial/decimal_gda.md:357
+msgid "`GdaInterchange` represents a decimal32, decimal64 or decimal128 bit pattern in densely packed decimal (DPD) encoding. The pattern is written as `#` followed by hexadecimal digits:"
+msgstr "`GdaInterchange` は densely packed decimal (DPD) エンコーディングの decimal32、decimal64、decimal128 のビットパターンを表します。パターンは `#` の後に 16 進数字を続けて記述します。"
 
-#: manual/tutorial/decimal_gda.md:361
-msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
-msgstr "**元のコンテキストを使い回す。** フラグが蓄積されるのは `next_context()` を引き継いだ場合だけです。コンテキストに設定したトラップ集合やフラグは、そこから派生したすべてのコンテキストにも引き継がれます。"
+#: manual/tutorial/decimal_gda.md:373
+msgid "**Reusing the original context.** Flags accumulate only when you pass each outcome's `next_context()` to the next operation. Trap settings and flags also travel with every context derived from the original."
+msgstr "**元のコンテキストを再利用する。** 各結果の `next_context()` を次の演算に渡したときだけフラグが蓄積します。トラップ設定とフラグは、元のコンテキストから派生したすべてのコンテキストにも渡ります。"
 
-#: manual/tutorial/decimal_gda.md:364
-msgid "**Treating `Trapped` as \"no value\".** A trap changes the variant, not the result; read the value with `value()` before you decide to stop."
-msgstr "**`Trapped` を「値なし」として扱う。** トラップが変えるのはバリアントであって結果ではありません。停止を決める前に `value()` で値を読み取ってください。"
+#: manual/tutorial/decimal_gda.md:376
+msgid "**Treating `Trapped` as \"no value\".** A trap changes the outcome variant, not the result. Read `value()` before deciding whether to stop."
+msgstr "**`Trapped` を「値なし」として扱う。** トラップが変えるのは結果のバリアントであって結果ではありません。停止を決める前に `value()` を読み取ります。"
 
-#: manual/tutorial/decimal_gda.md:366
+#: manual/tutorial/decimal_gda.md:378
 msgid "**Expecting constructors to keep zeros.** `Decimal::from_int(100)` and `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use `Decimal::from_string(\"100\")` or `parse` when the quantum matters."
 msgstr "**コンストラクタがゼロを保持すると期待する。** `Decimal::from_int(100)` と `Decimal::make` は末尾のゼロを取り除くので、`from_int(100)` は `1E+2` と出力されます。量子が重要な場合は `Decimal::from_string(\"100\")` または `parse` を使ってください。"
 
-#: manual/tutorial/decimal_gda.md:369
-msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context: they run the package function in a private context (larger operand precision, half-even, no clamp, no traps), so they round every result to that precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions whenever GDA results, flags or traps matter."
-msgstr "**GDA の計算に演算子を使う。** `+`、`-`、`*`、`/` はコンテキストを取りません。非公開のコンテキスト（大きいほうのオペランドの精度、偶数丸め、クランプなし、トラップなし）でパッケージの関数を実行するため、すべての結果がその精度に丸められ、GDA の同値類のメンバー（`1.10 + 3.50` は `4.60`）を返し、シグナルは出しません。GDA の結果、フラグ、トラップが重要なときは、パッケージの関数を使ってください。"
+#: manual/tutorial/decimal_gda.md:381
+msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context. They use a private context with larger operand precision, half-even rounding, no clamp and no traps, so they round every result to that private precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions when GDA results, flags or traps matter."
+msgstr "**GDA の計算に演算子を使う。** `+`、`-`、`*`、`/` はコンテキストを受け取りません。オペランドより大きい精度、最近接偶数丸め、クランプなし、トラップなしの非公開コンテキストを使うため、すべての結果をその精度に丸め、GDA のコホートのメンバー（`1.10 + 3.50` は `4.60`）を返し、シグナルを発生させません。GDA の結果、フラグ、トラップが必要なときはパッケージ関数を使います。"
 
-#: manual/tutorial/decimal_gda.md:375
-msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use `compare` (the package function), `compare_signal`, or `Decimal::compare_checked` when NaN must stay unordered."
-msgstr "**等価性と NaN。** `==` と `compare` はすべての NaN を他のすべての NaN と等しく、すべての数より上に置きます（全前順序なので、ソートが異常終了することはありません）。NaN を順序付けられないままにする必要がある場合は、`compare`（パッケージの関数）、`compare_signal`、または `Decimal::compare_checked` を使ってください。"
+#: manual/tutorial/decimal_gda.md:386
+msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use the package `compare`, `compare_signal`, or `Decimal::compare_checked` when NaN must remain unordered."
+msgstr "**等価性と NaN。** `==` と `compare` はすべての NaN を他のすべての NaN と等しくし、NaN をすべての数より上に置きます（全前順序なのでソートは中断されません）。NaN を順序付けられないままにする必要がある場合は、パッケージの `compare`、`compare_signal`、`Decimal::compare_checked` を使います。"
 
-#: manual/tutorial/decimal_gda.md:379
-msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` are different types with different contracts; cross between them through strings or interchange bits."
-msgstr "**二つの十進パッケージを混在させる。** `@decimal_gda.Decimal` と `@decimal.Decimal` は異なる契約を持つ別々の型です。両者の間は文字列か交換形式のビット列を介して行き来してください。"
+#: manual/tutorial/decimal_gda.md:390
+msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` have different contracts and types. Convert between them through strings or interchange bits."
+msgstr "**二つの十進パッケージを混在させる。** `@decimal_gda.Decimal` と `@decimal.Decimal` は異なる契約と型を持ちます。文字列または交換形式のビットを介して変換します。"
 
-#: manual/tutorial/decimal_gda.md:382
-msgid "**Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.** They always round half to even; only `power` follows the context."
-msgstr "**`exp`、`ln`、`log10`、`sqrt` がコンテキストの丸めに従うと期待する。** これらは常に最近接偶数丸めを行います。コンテキストに従うのは `power` だけです。"
+#: manual/tutorial/decimal_gda.md:393
+msgid "**Expecting elementary functions to follow the context rounding.** `exp`, `ln`, `log10` and `sqrt` always round half to even; only `power` follows the context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions) gives the required context range."
+msgstr "**初等関数がコンテキストの丸めに従うと期待する。** `exp`、`ln`、`log10`、`sqrt` は常に最近接偶数丸めを行い、コンテキストの丸めアルゴリズムに従うのは `power` だけです。[初等関数のタスク](#call-the-elementary-functions)に必要なコンテキスト範囲があります。"
 
-#: manual/tutorial/decimal_gda.md:384
-msgid "**Calling `exp`, `ln`, `log10` or non-integer `power` with a default context.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, which is outside the range these functions accept, so they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for you, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
-msgstr "**既定の文脈で `exp`、`ln`、`log10`、非整数指数の `power` を呼ぶ。** `GdaContext::new()` と `context()` は指数 ±999,999,999 まで許しますが、これはこれらの関数が受け付ける範囲の外なので、NaN を返して `InvalidContext`（`InvalidOperation` の一種）を発生させます。プリセットを使うか、`e_min=-999_999, e_max=999_999` を渡してください。`e_min` と `e_max` のない `ArithmeticContext` も同様で、境界は補われず、`exp_contextual` は不足している境界を示す `invalid context:` メッセージ付きの `Err(unsupported)` を返します。"
+#: manual/tutorial/decimal_gda.md:397
+msgid "**Using a default context for elementary functions.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, outside the implementation limit for these operations. `exp`, `ln`, `log10` and non-integer `power` return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same applies to an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
+msgstr "**初等関数にデフォルトコンテキストを使う。** `GdaContext::new()` と `context()` は指数を ±999,999,999 まで許容し、これらの演算の処理系限界を超えています。`exp`、`ln`、`log10`、非整数 `power` は NaN を返し、`InvalidContext`（`InvalidOperation`）を発生させます。プリセットを使うか、`e_min=-999_999, e_max=999_999` を渡します。`e_min` と `e_max` のない `ArithmeticContext` も同様です。限界は自動補完されず、`exp_contextual` は不足する限界を示す `invalid context:` メッセージ付きの `Err(unsupported)` を返します。"
 
-#: manual/tutorial/decimal_gda.md:395
-msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and how the elementary functions are certified."
-msgstr "[設計](../design/decimal_gda.md): 算術モデル、理想指数、丸め関数、シグナルとトラップの状態機械、初等関数の認証方法。"
+#: manual/tutorial/decimal_gda.md:408
+msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and the certification method for elementary functions."
+msgstr "[設計](../design/decimal_gda.md)：算術モデル、理想指数、丸め関数、シグナルとトラップの状態機械、初等関数の認証方法。"
 
-#: manual/tutorial/decimal_gda.md:398
+#: manual/tutorial/decimal_gda.md:411
 msgid "[API reference](../api/decimal_gda.md): every type, function and method."
 msgstr "[API リファレンス](../api/decimal_gda.md): すべての型、関数、メソッド。"
 
-#: manual/tutorial/decimal_gda.md:399
+#: manual/tutorial/decimal_gda.md:412
 msgid "[Conformance](../conformance/decimal_gda.md) and [performance](../performance/decimal_gda.md): the pinned test-suite result and how to measure speed."
 msgstr "[適合性](../conformance/decimal_gda.md)と[性能](../performance/decimal_gda.md): 固定されたテストスイートの結果と速度の測定方法。"
 
-#: manual/tutorial/decimal_gda.md:402
+#: manual/tutorial/decimal_gda.md:415
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): trap short-circuiting and recovery in pipelines."
 msgstr "[`decimal_gda_checked` チュートリアル](decimal_gda_checked.md): パイプラインにおけるトラップによる短絡と回復。"
 
-#: manual/tutorial/decimal_gda.md:404
+#: manual/tutorial/decimal_gda.md:417
 msgid "[`decimal` tutorial](decimal.md): the IEEE 754 decimal model with per-operation flags."
 msgstr "[`decimal` チュートリアル](decimal.md): 演算ごとのフラグを持つ IEEE 754 の十進モデル。"
 
@@ -30931,6 +30938,12 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:945
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
+#~ msgstr "このチュートリアルでは、Cowlishaw の General Decimal Arithmetic (GDA) を実装するパッケージ `decimal_gda` を使った計算方法を学びます。末尾のゼロを保持する十進数、精度・丸め・指数の限界を固定するコンテキスト、何が起きたかを記録するスティッキーなフラグ、そして定義済みの結果を渡しつつ計算を停止させるトラップです。最後には、計算を通してコンテキストを受け渡し、金額を丸め、トラップ・オーバーフロー・アンダーフローを処理し、初等関数を呼び出し、適切な比較を選べるようになります。各規則の背後にある数学は[設計ページ](../design/decimal_gda.md)に、すべての公開名は [API ページ](../api/decimal_gda.md)にあります。"
+
+#~ msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
+#~ msgstr "**元のコンテキストを使い回す。** フラグが蓄積されるのは `next_context()` を引き継いだ場合だけです。コンテキストに設定したトラップ集合やフラグは、そこから派生したすべてのコンテキストにも引き継がれます。"
 
 #~ msgid "They use the half-even rounding algorithm, whatever the rounding of the context. Every finite result not listed as exact is inexact with $p$ digits."
 #~ msgstr "これらはコンテキストの丸めアルゴリズムにかかわらず、最近接偶数丸めを使います。厳密として挙げていない有限の結果は、すべて $p$ 桁で不正確です。"
