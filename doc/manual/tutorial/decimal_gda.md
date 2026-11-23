@@ -242,7 +242,7 @@ exponent; this package returns the correctly rounded result.
 
 Here, certification means that an interval known to contain the function value
 lies inside its rounding cell. Each function refines its enclosure at most
-twelve times by default. For a rare argument that sits very close to a rounding
+twelve times by default. For an argument very close to a rounding
 boundary,
 `ctx.with_refinement_limit(Some(24))` allows more steps;
 `with_refinement_limit(None)` removes the count, so the working precision stops

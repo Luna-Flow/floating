@@ -27036,8 +27036,8 @@ msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result
 msgstr "GDA 1.70 の 30 ページ（exp）と 31 ページ（ln、log10）は、不正確な結果について正しく丸められた結果との差を最大 1 ulp まで許します。このパッケージは正しく丸められた結果を返します。GDA 1.70 の 39 ページ（square-root）は不正確な平方根に最近接偶数丸めを指定し、このパッケージも正しく丸められた結果を返します。GDA 1.70 の 35 ページ（power）は非整数指数に最大 1 ulp の誤差を許します。このパッケージは正しく丸められた結果を返します。"
 
 #: manual/tutorial/decimal_gda.md:243
-msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
-msgstr "ここでいう認証とは、関数値を含むと分かっている区間が、その丸めセルの内側にあることです。各関数はデフォルトで最大 12 回、包含区間を精緻化します。丸め境界に非常に近いまれな引数では、`ctx.with_refinement_limit(Some(24))` でさらに多くの反復を許可できます。`with_refinement_limit(None)` は回数制限を外し、作業精度は少なくとも 8,000,000 ビットの資源限界で停止します。現在の設定は `refinement_limit()` で読み取れます。"
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For an argument very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgstr "ここでいう認証とは、関数値を含むと分かっている区間が、その丸めセルの内側にあることです。各関数はデフォルトで最大 12 回、包含区間を精緻化します。丸め境界に非常に近い引数では、`ctx.with_refinement_limit(Some(24))` でさらに多くの反復を許可できます。`with_refinement_limit(None)` は回数制限を外し、作業精度は少なくとも 8,000,000 ビットの資源限界で停止します。現在の設定は `refinement_limit()` で読み取れます。"
 
 #: manual/tutorial/decimal_gda.md:252
 msgid "Compare and print"

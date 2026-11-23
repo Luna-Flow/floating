@@ -26884,7 +26884,7 @@ msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:243
-msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For an argument very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:252
