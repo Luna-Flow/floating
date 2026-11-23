@@ -80,9 +80,9 @@ pub struct RunOptions {
   // private fields
 }
 pub fn RunOptions::case_filter(Self) -> String
-pub fn RunOptions::deviations(Self) -> Array[(String, String, String)]
+pub fn RunOptions::deviations(Self) -> Array[(String, String, String, String?)]
 pub fn RunOptions::equal(Self, Self) -> Bool
-pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String)]) -> Self
+pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String, String?)]) -> Self
 pub fn RunOptions::not_equal(Self, Self) -> Bool
 pub fn RunOptions::shard_count(Self) -> Int32
 pub fn RunOptions::shard_index(Self) -> Int32

@@ -229,7 +229,7 @@ pub struct RunOptions {
   priv shard : @conformance.ShardSpec
   priv strict_supported : Bool
   priv case_filter : String
-  priv deviations : Array[(String, String, String)]
+  priv deviations : Array[(String, String, String, String?)]
 }
 
 ///|
@@ -238,7 +238,7 @@ pub fn RunOptions::new(
   shard_index~ : Int32 = 0,
   strict_supported~ : Bool = false,
   case_filter~ : String = "",
-  deviations~ : Array[(String, String, String)] = [],
+  deviations~ : Array[(String, String, String, String?)] = [],
 ) -> RunOptions {
   {
     shard: @conformance.ShardSpec::new(shard_count, shard_index),
@@ -266,12 +266,15 @@ pub fn RunOptions::strict_supported(self : RunOptions) -> Bool {
 ///|
 /// The recorded deviations of the corpus: `(file, row id, corpus value, held value)` is
 /// written `file:id`, corpus value, held value in this order of the tuple
-/// `(key, corpus_value, held_value)` with `key = file ":" id`. A row listed here is
-/// judged against the held value when its result token still is the corpus value
-/// (a changed token fails the row), and is reported as the kind `deviation`.
+/// `(key, corpus_value, held_value, held_flags)` with `key = file ":" id`. A row listed here
+/// is judged against the held value when its result token still is the corpus value
+/// (a changed token fails the row), and is reported as the kind `deviation`. With
+/// `held_flags` (condition names separated by spaces, possibly none) the flags of the row
+/// are judged against them and not against the conditions of the row; `None` keeps the
+/// conditions of the row.
 pub fn RunOptions::deviations(
   self : RunOptions,
-) -> Array[(String, String, String)] {
+) -> Array[(String, String, String, String?)] {
   self.deviations.copy()
 }
 

@@ -60,9 +60,9 @@ test "gda interpreter judges a recorded deviation against the held value" {
     [document],
     options=@gda_expr.RunOptions::new(deviations=[
       // the corpus value 3 is recorded and the held value is the correct 2
-      ("deviation.decTest:d1", "3", "2"),
+      ("deviation.decTest:d1", "3", "2", None),
       // the record does not match the row: the row fails and says why
-      ("deviation.decTest:d2", "4", "4"),
+      ("deviation.decTest:d2", "4", "4", None),
     ]),
   )
   let kinds = summary.results().map(fn(result) { result.message() })
@@ -71,4 +71,32 @@ test "gda interpreter judges a recorded deviation against the held value" {
   assert_eq(kinds[0], "deviation")
   assert_true(kinds[1].contains("records the corpus value 4"))
   assert_eq(kinds[2], "text")
+}
+
+///|
+// oracle: A
+// source: expected verdicts written by hand from the definition of the column: a row recorded with held flags is judged by them and not by the conditions of the row (the corpus gives `d1 add 1 1 -> 2 Rounded`; 1 + 1 at precision 9 raises no flag, so the row fails without a record, passes with the held flags "" (none) and fails with the held flags "Rounded")
+// shares: nothing
+test "gda interpreter judges a recorded deviation against the held flags" {
+  let source =
+    #|precision: 9
+    #|rounding: half_up
+    #|d1 add 1 1 -> 2 Rounded
+    #|d2 add 1 1 -> 2 Rounded
+    #|d3 add 1 1 -> 2 Rounded
+    #|
+  let document = @gda_expr.parse_dectest("flags.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents(
+    [document],
+    options=@gda_expr.RunOptions::new(deviations=[
+      ("flags.decTest:d1", "2", "2", Some("")),
+      ("flags.decTest:d2", "2", "2", Some("Rounded")),
+    ]),
+  )
+  let kinds = summary.results().map(fn(result) { result.message() })
+  assert_eq(summary.passed_cases(), 1)
+  assert_eq(summary.failed_cases(), 2)
+  assert_eq(kinds[0], "deviation")
+  assert_true(kinds[1].contains("status flags mismatch: expected Rounded"))
+  assert_true(kinds[2].contains("status flags mismatch: expected Rounded"))
 }

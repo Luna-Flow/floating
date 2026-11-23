@@ -934,6 +934,7 @@ fn compare_evaluated(
   case : GdaCase,
   actual : EvaluatedValue,
   held? : String,
+  held_flags? : Array[String],
 ) -> Result[String, String] {
   let written = case.expected()
   let expected = match held {
@@ -1033,10 +1034,14 @@ fn compare_evaluated(
       )
     }
   }
-  guard flags_match(actual_flags, case.conditions()) else {
+  let conditions = match held_flags {
+    Some(value) => value
+    None => case.conditions()
+  }
+  guard flags_match(actual_flags, conditions) else {
     return Err(
       "status flags mismatch: expected " +
-      case.conditions().join(" ") +
+      conditions.join(" ") +
       ", actual " +
       decimal_flags_text(actual_flags),
     )
@@ -1061,6 +1066,7 @@ fn execute_case(
   case : GdaCase,
   resolved_context : ResolvedContext?,
   held? : String,
+  held_flags? : Array[String],
 ) -> CaseResult {
   let disposition = case_disposition(case, resolved_context)
   match disposition {
@@ -1090,7 +1096,7 @@ fn execute_case(
   )
   match result {
     Ok(actual) =>
-      match compare_evaluated(case, actual, held?) {
+      match compare_evaluated(case, actual, held?, held_flags?) {
         Ok(kind) => case_result(case.id(), disposition, true, message=kind)
         Err(message) => case_result(case.id(), disposition, false, message~)
       }
@@ -1157,6 +1163,7 @@ pub fn execute_documents(
       }
       let key = source_file_name(document.source()) + ":" + case.id()
       let mut held : String? = None
+      let mut held_flags : Array[String]? = None
       for deviation in options.deviations() {
         if deviation.0 == key {
           if deviation.1 != case.expected() {
@@ -1176,13 +1183,24 @@ pub fn execute_documents(
             held = Some("")
           } else {
             held = Some(deviation.2)
+            held_flags = match deviation.3 {
+              Some(text) =>
+                Some(
+                  text
+                  .split(" ")
+                  .filter(fn(word) { word.length() > 0 })
+                  .map(fn(word) { word.to_owned() })
+                  .collect(),
+                )
+              None => None
+            }
           }
         }
       }
       if held is Some("") {
         continue
       }
-      let result = execute_case(case, resolved_context, held?)
+      let result = execute_case(case, resolved_context, held?, held_flags?)
       results.push(result)
     }
   }

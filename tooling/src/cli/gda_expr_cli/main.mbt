@@ -67,16 +67,16 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, String] {
 ///|
 /// The recorded deviations of the corpus (`testdata/decimal_gda/deviations.tsv`):
 /// tab-separated `corpus, file, id, corpus value, held value, decNumber value, rests
-/// on`; lines starting with `#` and blank lines are comments. Each row becomes
-/// `("file:id", corpus value, held value)`.
+/// on, held flags`; the last is optional (condition names separated by spaces; the flags of the row are then judged against them); lines starting with `#` and blank lines are comments. Each row becomes
+/// `("file:id", corpus value, held value, held flags)`.
 fn load_deviations(
   path : String,
-) -> Result[Array[(String, String, String)], String] {
+) -> Result[Array[(String, String, String, String?)], String] {
   let text = match @runner_cli.read_source(path) {
     Ok(value) => value
     Err(message) => return Err(message)
   }
-  let rows : Array[(String, String, String)] = []
+  let rows : Array[(String, String, String, String?)] = []
   for line_view in text.split("\n") {
     let line = line_view.to_owned()
     if line.length() == 0 || line.has_prefix("#") {
@@ -88,7 +88,8 @@ fn load_deviations(
         "deviations: a row needs at least 5 tab-separated fields: " + line,
       )
     }
-    rows.push((fields[1] + ":" + fields[2], fields[3], fields[4]))
+    let held_flags = if fields.length() >= 8 { Some(fields[7]) } else { None }
+    rows.push((fields[1] + ":" + fields[2], fields[3], fields[4], held_flags))
   }
   Ok(rows)
 }
