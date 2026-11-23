@@ -21,8 +21,20 @@
 # recorded only if it differs from the held value by rule P alone. Nothing is reported
 # upstream.
 #
+# The third kind (3 rows, `res397` to `res399` of `rescale0.decTest`) is a subset row of
+# `rescale` whose second operand is longer than the precision. GDA 1.70, page 56
+# (Appendix A, The X3.274 subset), rounds such an operand to precision digits before use,
+# and the exponent of the quantum is then the rounded integer (issue 764). decNumber 3.68
+# refuses the unrounded operand 2.000000001 as not being an integer and raises
+# Invalid_operation, which the corpus records without a value (`?`); the held value is the
+# result for the rounded operand 2.00000000 (an integer), and the row carries the held
+# flags in the eighth column, which the stage judges instead of the flags of the row. A row
+# is recorded only if it differs from the held result by this cause alone. Nothing is
+# reported upstream.
+#
 # Columns (tab-separated): corpus, file, row id, corpus value, held value,
-# decNumber 3.68 value, what the held value rests on.
+# decNumber 3.68 value, what the held value rests on, and optionally the held flags
+# (condition names separated by spaces; given for the third kind only).
 #
 # decNumber 3.68 (https://speleotrove.com/decimal/decNumber-icu-368.zip, sha256
 # 14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25, ICU licence) was
@@ -92,3 +104,6 @@ official0	tointegral0.decTest	int087	-5.6267E+5	-562670	-5.6267E+5	GDA 1.70 page
 official0	tointegral0.decTest	int088	-5.6267E+6	-5626700	-5.6267E+6	GDA 1.70 page 55 (Appendix A, The X3.274 subset): rule P, a positive exponent is reduced to 0 when the coefficient then has at most precision digits (precision 9); decision of the maintainer of 2026-11-22
 official0	tointegral0.decTest	int089	-5.6267E+7	-56267000	-5.6267E+7	GDA 1.70 page 55 (Appendix A, The X3.274 subset): rule P, a positive exponent is reduced to 0 when the coefficient then has at most precision digits (precision 9); decision of the maintainer of 2026-11-22
 official0	tointegral0.decTest	int090	-5.6267E+8	-562670000	-5.6267E+8	GDA 1.70 page 55 (Appendix A, The X3.274 subset): rule P, a positive exponent is reduced to 0 when the coefficient then has at most precision digits (precision 9); decision of the maintainer of 2026-11-22
+official0	rescale0.decTest	res397	?	2E+2	NaN	GDA 1.70 page 56 (Appendix A, The X3.274 subset): the second operand, longer than the precision (9), is rounded to 9 digits before use and 2.00000000 is an integer, so the quantum exponent is 2 and there is no Invalid_operation; page 37, note 2 (rescale is the former name of quantize); issue 764	Inexact Lost_digits Rounded
+official0	rescale0.decTest	res398	?	2E+2	NaN	GDA 1.70 page 56 (Appendix A, The X3.274 subset): the second operand, longer than the precision (9), is rounded to 9 digits before use and 2.00000000 is an integer, so the quantum exponent is 2 and there is no Invalid_operation; page 37, note 2 (rescale is the former name of quantize); issue 764	Inexact Lost_digits Rounded
+official0	rescale0.decTest	res399	?	2E+2	NaN	GDA 1.70 page 56 (Appendix A, The X3.274 subset): the second operand, longer than the precision (9), is rounded to 9 digits before use and 2.00000000 is an integer, so the quantum exponent is 2 and there is no Invalid_operation; page 37, note 2 (rescale is the former name of quantize); issue 764	Inexact Lost_digits Rounded
