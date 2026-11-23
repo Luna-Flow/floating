@@ -2953,7 +2953,7 @@ msgid "Notation"
 msgstr ""
 
 #: manual/api/decimal.md:43
-msgid "For a finite value, $(-1)^s \\cdot c \\cdot 10^q$ denotes its value, where $s$ is its sign, $c$ its non-negative integer coefficient and $q$ its exponent. The quantum is $10^q$, the unit in the last digit position (IEEE 754-2019 2.1). The context precision is $p$; its exponent limits $E_{\\min}$ and $E_{\\max}$ bound the adjusted exponent $\\hat q = q + \\operatorname{digits}(c) - 1$. The smallest exponent of a subnormal is $E_{\\mathrm{tiny}} = E_{\\min} - p + 1$."
+msgid "For a finite value, $(-1)^s \\cdot c \\cdot 10^q$ denotes its value, where $s$ is its sign, $c$ its non-negative integer coefficient and $q$ its exponent. The quantum is $10^q$, the unit in the last digit position (IEEE 754-2019 2.1). The context precision is $p$; its exponent limits $e_{\\min}$ and $e_{\\max}$ bound the adjusted exponent $\\hat q = q + \\operatorname{digits}(c) - 1$. The smallest exponent of a subnormal is $E_{\\text{tiny}} = e_{\\min} - p + 1$."
 msgstr ""
 
 #: manual/api/decimal.md:51
@@ -2997,7 +2997,7 @@ msgid "`classify` returns the coarse class of a value. `class_of` returns one of
 msgstr ""
 
 #: manual/api/decimal.md:132
-msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `class_of` returns one of the ten [`IeeeClass`](def.md#ieeeclass) values. The context's $E_{\\min}$ determines whether a finite nonzero value is normal or subnormal. `IeeeClass` has no text form; use `match` on its value."
+msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `class_of` returns one of the ten [`IeeeClass`](def.md#ieeeclass) values. The context's $e_{\\min}$ determines whether a finite nonzero value is normal or subnormal. `IeeeClass` has no text form; use `match` on its value."
 msgstr ""
 
 #: manual/api/decimal.md:139
@@ -3009,7 +3009,7 @@ msgid "`is_canonical` returns `true` for every value. A `Decimal` has no non-can
 msgstr ""
 
 #: manual/api/decimal.md:158
-msgid "Under a context, a finite nonzero value is normal when its adjusted exponent is at least $E_{\\min}$, and subnormal when its adjusted exponent is below $E_{\\min}$. Zeros, infinities and NaNs are neither."
+msgid "Under a context, a finite nonzero value is normal when its adjusted exponent is at least $e_{\\min}$, and subnormal when its adjusted exponent is below $e_{\\min}$. Zeros, infinities and NaNs are neither."
 msgstr ""
 
 #: manual/api/decimal.md:164
@@ -3234,11 +3234,11 @@ msgid "`DecimalContext` stores the arithmetic parameters used by context operati
 msgstr ""
 
 #: manual/api/decimal.md:493
-msgid "An IEEE 754-2019 decimal format has precision $p$, maximum adjusted exponent $E_{\\max}$ and minimum adjusted exponent $E_{\\min}=1-E_{\\max}$ (3.3). A `DecimalContext` selects one such format and one rounding-direction attribute, `rounding`, whose value is a `DecimalRoundingMode`."
+msgid "An IEEE 754-2019 decimal format has precision $p$, maximum adjusted exponent $e_{\\max}$ and minimum adjusted exponent $e_{\\min}=1-e_{\\max}$ (3.3). A `DecimalContext` selects one such format and one rounding-direction attribute, `rounding`, whose value is a `DecimalRoundingMode`."
 msgstr ""
 
 #: manual/api/decimal.md:498
-msgid "For a finite result with exponent $q$, the format requires $E_{\\min} \\le q + p - 1 \\le E_{\\max}$. Therefore $q \\le E_{\\max}-p+1$; larger exponents are folded down. IEEE 754-2019 7.5 requires decimal formats to detect tininess before rounding. The context has no option for these format rules. Each context operation receives its context as an argument and reads no ambient state."
+msgid "For a finite result with exponent $q$, the format requires $e_{\\min} \\le q + p - 1 \\le e_{\\max}$. Therefore $q \\le e_{\\max}-p+1$; larger exponents are folded down. IEEE 754-2019 7.5 requires decimal formats to detect tininess before rounding. The context has no option for these format rules. Each context operation receives its context as an argument and reads no ambient state."
 msgstr ""
 
 #: manual/api/decimal.md:507
@@ -3276,7 +3276,7 @@ msgid "These are the decNumber `decContext.h` limits."
 msgstr ""
 
 #: manual/api/decimal.md:524
-msgid "`try_new` and `new` check `precision` against `1..=decimal_precision_max` and `e_max` against `1..=decimal_context_e_max_limit`; the constants used for the checks are also the public limits. These values bound contexts only. The certified elementary functions have a lower implementation limit: $E_{\\max} \\le 999{,}999$ and $p \\le 999{,}999$. See [Elementary functions](#elementary-functions)."
+msgid "`try_new` and `new` check `precision` against `1..=decimal_precision_max` and `e_max` against `1..=decimal_context_e_max_limit`; the constants used for the checks are also the public limits. These values bound contexts only. The certified elementary functions have a lower implementation limit: $e_{\\max} \\le 999{,}999$ and $p \\le 999{,}999$. See [Elementary functions](#elementary-functions)."
 msgstr ""
 
 #: manual/api/decimal.md:533
@@ -3299,7 +3299,7 @@ msgid "coefficient digits $p$"
 msgstr ""
 
 #: manual/api/decimal.md:544
-msgid "The maximum adjusted exponent $E_{\\max}$; $E_{\\min}=1-E_{\\max}$."
+msgid "The maximum adjusted exponent $e_{\\max}$; $e_{\\min}=1-e_{\\max}$."
 msgstr ""
 
 #: manual/api/decimal.md:545
@@ -3307,7 +3307,7 @@ msgid "The rounding-direction attribute (IEEE 754-2019 4.3)."
 msgstr ""
 
 #: manual/api/decimal.md:547
-msgid "`precision` and `e_max` must each be in `1..=999,999,999`. IEEE 754-2019 3.7 requires a language that supports an extendable format specified by precision alone to define $E_{\\max}$ as at least $1000p$ when decimal precision is at least 51 digits. The library sets its default `e_max` to $\\max(999{,}999,1000p)$; 999,999 is the widest range in which every package operation runs."
+msgid "`precision` and `e_max` must each be in `1..=999,999,999`. IEEE 754-2019 3.7 requires a language that supports an extendable format specified by precision alone to define $e_{\\max}$ as at least $1000p$ when decimal precision is at least 51 digits. The library sets its default `e_max` to $\\max(999{,}999,1000p)$; 999,999 is the widest range in which every package operation runs."
 msgstr ""
 
 #: manual/api/decimal.md:554
@@ -3315,7 +3315,7 @@ msgid "`new()` therefore creates format $(34,999{,}999)$, not decimal128; use `d
 msgstr ""
 
 #: manual/api/decimal.md:561
-msgid "IEEE 754-2019 3.7 NOTE 3 recommends $E_{\\max}\\ge2$. The library accepts 1, the least value for which $E_{\\min}\\le E_{\\max}$ under 3.3."
+msgid "IEEE 754-2019 3.7 NOTE 3 recommends $e_{\\max}\\ge2$. The library accepts 1, the least value for which $e_{\\min}\\le e_{\\max}$ under 3.3."
 msgstr ""
 
 #: manual/api/decimal.md:564
@@ -3327,7 +3327,7 @@ msgid "A context has no `clamp`, `extended` or `tininess` setting and no unlimit
 msgstr ""
 
 #: manual/api/decimal.md:579
-msgid "[!NOTE] Certified elementary functions accept contexts with $E_{\\max}\\le999{,}999$ and $p\\le999{,}999$. For $p\\le999$, `DecimalContext::new` defaults to the largest range inside that limit. A larger range, from explicit `e_max` or $p\\ge1000$, makes them return NaN with `invalid_operation`."
+msgid "[!NOTE] Certified elementary functions accept contexts with $e_{\\max}\\le999{,}999$ and $p\\le999{,}999$. For $p\\le999$, `DecimalContext::new` defaults to the largest range inside that limit. A larger range, from explicit `e_max` or $p\\ge1000$, makes them return NaN with `invalid_operation`."
 msgstr ""
 
 #: manual/api/decimal.md:587
@@ -3407,7 +3407,7 @@ msgid "`to_arithmetic` returns `None` for `RoundTiesToAway`, which the shared en
 msgstr ""
 
 #: manual/api/decimal.md:773
-msgid "Every context detects tininess before rounding (IEEE 754-2019 7.5). A non-zero exact result whose magnitude is below $10^{E_{\\min}}$ is tiny, regardless of the delivered value. An inexact tiny result raises `underflow`. Contexts have no option for the binary after-rounding rule."
+msgid "Every context detects tininess before rounding (IEEE 754-2019 7.5). A non-zero exact result whose magnitude is below $10^{e_{\\min}}$ is tiny, regardless of the delivered value. An inexact tiny result raises `underflow`. Contexts have no option for the binary after-rounding rule."
 msgstr ""
 
 #: manual/api/decimal.md:778
@@ -3435,7 +3435,7 @@ msgid "the result is tiny and inexact"
 msgstr ""
 
 #: manual/api/decimal.md:794
-msgid "the rounded result's adjusted exponent exceeds $E_{\\max}$"
+msgid "the rounded result's adjusted exponent exceeds $e_{\\max}$"
 msgstr ""
 
 #: manual/api/decimal.md:795
@@ -3599,7 +3599,7 @@ msgid "Context arithmetic"
 msgstr ""
 
 #: manual/api/decimal.md:967
-msgid "Each function in this group takes a `DecimalContext` and returns `(result, flags)`. It rounds the exact result once to the context precision in the context's rounding direction, then applies the exponent range. Overflow gives the result for that rounding direction; see [overflow](../design/decimal.md#overflow). A result whose exact magnitude is below $10^{E_{\\min}}$ is rounded directly to the subnormal grid $10^{E_{\\mathrm{tiny}}}$. A normal result is rounded only to $p$ digits even when its exact exponent is below $E_{\\mathrm{tiny}}$. Large exponents are folded down to $E_{\\max}-p+1$."
+msgid "Each function in this group takes a `DecimalContext` and returns `(result, flags)`. It rounds the exact result once to the context precision in the context's rounding direction, then applies the exponent range. Overflow gives the result for that rounding direction; see [overflow](../design/decimal.md#overflow). A result whose exact magnitude is below $10^{e_{\\min}}$ is rounded directly to the subnormal grid $10^{E_{\\text{tiny}}}$. A normal result is rounded only to $p$ digits even when its exact exponent is below $E_{\\text{tiny}}$. Large exponents are folded down to $e_{\\max}-p+1$."
 msgstr ""
 
 #: manual/api/decimal.md:976
@@ -3607,7 +3607,7 @@ msgid "When the exact result fits, the operation uses its *preferred exponent*, 
 msgstr ""
 
 #: manual/api/decimal.md:982
-msgid "Near the underflow threshold, the single rounding determines the result. In decimal32, the exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\\cdot 10^{-90}$. It is a normal number even though its exact exponent is below $E_{\\mathrm{tiny}}=-101$, and rounds once to seven digits as `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is $5.0000000000005\\cdot 10^{-102}$, which is subnormal. Its guarded quotient rounds once to the grid $10^{-101}$, giving `1E-101` with `inexact` and `underflow`."
+msgid "Near the underflow threshold, the single rounding determines the result. In decimal32, the exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\\cdot 10^{-90}$. It is a normal number even though its exact exponent is below $E_{\\text{tiny}}=-101$, and rounds once to seven digits as `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is $5.0000000000005\\cdot 10^{-102}$, which is subnormal. Its guarded quotient rounds once to the grid $10^{-101}$, giving `1E-101` with `inexact` and `underflow`."
 msgstr ""
 
 #: manual/api/decimal.md:993
@@ -3615,7 +3615,7 @@ msgid "Add, subtract, multiply and divide return correctly rounded results."
 msgstr ""
 
 #: manual/api/decimal.md:1002
-msgid "The preferred exponents are $\\min(q_a,q_b)$ for addition and subtraction, $q_a+q_b$ for multiplication, and $q_a-q_b$ for division. An exact quotient uses the cohort member closest to its preferred exponent. An inexact quotient has $p$ digits, except a subnormal quotient, whose exponent is $E_{\\mathrm{tiny}}$. A zero sum is $+0$ except under `Floor`, when it is $-0$ if either operand is negative, or when both operands are $-0$."
+msgid "The preferred exponents are $\\min(q_a,q_b)$ for addition and subtraction, $q_a+q_b$ for multiplication, and $q_a-q_b$ for division. An exact quotient uses the cohort member closest to its preferred exponent. An inexact quotient has $p$ digits, except a subnormal quotient, whose exponent is $E_{\\text{tiny}}$. A zero sum is $+0$ except under `Floor`, when it is $-0$ if either operand is negative, or when both operands are $-0$."
 msgstr ""
 
 #: manual/api/decimal.md:1009
@@ -3658,7 +3658,7 @@ msgid "finite$/\\infty$"
 msgstr ""
 
 #: manual/api/decimal.md:1016
-msgid "Signed zero with exponent $E_{\\mathrm{tiny}}$"
+msgid "Signed zero with exponent $E_{\\text{tiny}}$"
 msgstr ""
 
 #: manual/api/decimal.md:1018
@@ -3686,7 +3686,7 @@ msgid "Round a value to the context or return its absolute value rounded to the 
 msgstr ""
 
 #: manual/api/decimal.md:1094
-msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $E_{\\mathrm{top}}=E_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
+msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $E_{\\mathrm{top}}=e_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
 msgstr ""
 
 #: manual/api/decimal.md:1100
@@ -3784,7 +3784,7 @@ msgid "Condition"
 msgstr ""
 
 #: manual/api/decimal.md:1168
-msgid "The target exponent is outside $[E_{\\mathrm{tiny}},E_{\\max}]$"
+msgid "The target exponent is outside $[E_{\\text{tiny}},e_{\\max}]$"
 msgstr ""
 
 #: manual/api/decimal.md:1169
@@ -3792,7 +3792,7 @@ msgid "The resulting coefficient needs more than $p$ digits"
 msgstr ""
 
 #: manual/api/decimal.md:1170
-msgid "The adjusted exponent exceeds $E_{\\max}$"
+msgid "The adjusted exponent exceeds $e_{\\max}$"
 msgstr ""
 
 #: manual/api/decimal.md:1171
@@ -3800,7 +3800,7 @@ msgid "Exactly one operand is infinite"
 msgstr ""
 
 #: manual/api/decimal.md:1173
-msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(E_{\\mathrm{top}},E_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $E_{\\mathrm{top}}$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
+msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(E_{\\mathrm{top}},e_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $E_{\\mathrm{top}}$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
 msgstr ""
 
 #: manual/api/decimal.md:1196
@@ -3836,11 +3836,11 @@ msgid "Scale a value by a power of ten or return its adjusted exponent."
 msgstr ""
 
 #: manual/api/decimal.md:1268
-msgid "`x.scaleb_ctx(n, ctx)` adds $n$ to the exponent of $x$ and returns $x \\cdot 10^n$. IEEE 754-2019 5.3.3 defines scaleB for integral counts only; the language defines behavior for a non-integral second operand, including an infinity. This package also requires $n$ to be finite and integral, with exponent 0, and $|n| \\le 2(E_{\\max}+p)$; otherwise it returns NaN and raises `invalid_operation`. The count bound follows the GDA `scaleb` rule, while `Binary::scaleb_ctx` clamps a larger count."
+msgid "`x.scaleb_ctx(n, ctx)` adds $n$ to the exponent of $x$ and returns $x \\cdot 10^n$. IEEE 754-2019 5.3.3 defines scaleB for integral counts only; the language defines behavior for a non-integral second operand, including an infinity. This package also requires $n$ to be finite and integral, with exponent 0, and $|n| \\le 2(e_{\\max}+p)$; otherwise it returns NaN and raises `invalid_operation`. The count bound follows the GDA `scaleb` rule, while `Binary::scaleb_ctx` clamps a larger count."
 msgstr ""
 
 #: manual/api/decimal.md:1276
-msgid "The scaled value is rounded once as a context result. A coefficient longer than $p$ digits is rounded to $p$ digits: scaling `12345678901234567890` by 0 in decimal64 gives `1.234567890123457E+19` with `inexact`. A subnormal result is rounded to $E_{\\mathrm{tiny}}$. Overflow produces the result selected by the context's rounding direction and raises `overflow` and `inexact`; with decimal64 and `TowardZero`, scaling `9E+384` by 1 gives `9.999999999999999E+384`. Large exponents are folded down. A zero keeps its sign and its exponent is clamped to the range: scaling `0` by 700 in decimal64 gives `0E+369`."
+msgid "The scaled value is rounded once as a context result. A coefficient longer than $p$ digits is rounded to $p$ digits: scaling `12345678901234567890` by 0 in decimal64 gives `1.234567890123457E+19` with `inexact`. A subnormal result is rounded to $E_{\\text{tiny}}$. Overflow produces the result selected by the context's rounding direction and raises `overflow` and `inexact`; with decimal64 and `TowardZero`, scaling `9E+384` by 1 gives `9.999999999999999E+384`. Large exponents are folded down. A zero keeps its sign and its exponent is clamped to the range: scaling `0` by 700 in decimal64 gives `0E+369`."
 msgstr ""
 
 #: manual/api/decimal.md:1301
@@ -3856,7 +3856,7 @@ msgid "Return the neighboring representable values in a context."
 msgstr ""
 
 #: manual/api/decimal.md:1316
-msgid "`next_up_ctx` returns the least value in the context greater than `x`; `next_down_ctx` returns the greatest value less than `x`. The range includes subnormals down to $10^{E_{\\text{tiny}}}$ and the largest finite value $(10^{p}-1)\\,10^{E_{\\max}-p+1}$. For example, `next_up_ctx(-∞)` returns the most negative finite value. Finite results raise no flags. IEEE 754-2019 5.3.1 defines nextUp and nextDown only: the next-toward operation of GDA 1.70 is `next_toward` of `decimal_gda`, and this package has no `next_toward_ctx`."
+msgid "`next_up_ctx` returns the least value in the context greater than `x`; `next_down_ctx` returns the greatest value less than `x`. The range includes subnormals down to $10^{E_{\\text{tiny}}}$ and the largest finite value $(10^{p}-1)\\,10^{e_{\\max}-p+1}$. For example, `next_up_ctx(-∞)` returns the most negative finite value. Finite results raise no flags. IEEE 754-2019 5.3.1 defines nextUp and nextDown only: the next-toward operation of GDA 1.70 is `next_toward` of `decimal_gda`, and this package has no `next_toward_ctx`."
 msgstr ""
 
 #: manual/api/decimal.md:1338
@@ -3864,7 +3864,7 @@ msgid "Compare two values numerically with `compare`. `Compare`, `==` and the co
 msgstr ""
 
 #: manual/api/decimal.md:1345
-msgid "`compare` returns $-1$, 0 or 1 by numeric value. It treats $-0$ and $+0$ as equal and treats every member of a cohort as equal. It places every NaN above every non-NaN and equates all NaNs, so `Compare` is a total preorder and sorting does not abort. `equal` (`==`) follows the same rule, including `NaN == NaN` as `true`. For IEEE numeric comparison, use [`compare_checked`](#decimalcompare_checked), `compare_quiet` or the predicates; these leave NaN unordered. The operator methods are listed under [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge)."
+msgid "`compare` returns $-1$, 0 or 1 by numeric value. It treats $-0$ and $+0$ as equal and treats every member of a cohort as equal. NaN has no numeric order, so `Compare` stays a total preorder (sorting never aborts): every NaN compares equal to every other NaN and greater than every non-NaN. `equal` (`==`) follows the same rule, including `NaN == NaN` as `true`. This is *not* IEEE equality; use [`compare_checked`](#decimalcompare_checked), `compare_quiet` or the predicates; these leave NaN unordered. The operator methods are listed under [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge)."
 msgstr ""
 
 #: manual/api/decimal.md:1369
@@ -3972,7 +3972,7 @@ msgid "These operations return NaN with `not_computed`; the `try_` forms return 
 msgstr ""
 
 #: manual/api/decimal.md:1614
-msgid "In such a context, cases listed in IEEE 754-2019 9.2.1 or Table 9.1 return values; other cases return `not_computed`. The listed cases include a NaN operand; an infinite or zero operand; the exact points (`ln_ctx(1)`, `log2_ctx(1)`, `log10_ctx(1)`, `acos_ctx(1)`, `acospi_ctx(1)`, `acosh_ctx(1)` are `0`, `atanpi_ctx(+inf)` is `0.5`, `sinpi_ctx(n)` for an integer `n`, `cospi_ctx(n + 0.5)`, `tanpi_ctx` at integers and half-integers); domain errors (`invalid_operation`) and poles (`division_by_zero`); `compound`, `rootn` and `rsqrt` for the operands the clause lists; and the constants of `atan2`, `atan2pi` and `atan(+-inf)`. The context limit is tested after these cases and before the first computation. Exact results of ordinary operands not listed by the clause still return `not_computed`: `hypot_ctx(3, 4)`, `rsqrt_ctx(4)`, `log10_ctx(1E+5)`, `atanpi_ctx(1)`, `acospi_ctx(0)`, `sinpi_ctx(0.5)`, `cospi_ctx(1)`, `exp2_ctx(3)`, `rootn_ctx(8, 3)`. Accepting every context for ordinary operands is the subject of [#478](https://github.com/Luna-Flow/floating/issues/478). `decimal_gda` keeps the other order, which the decTest corpus requires."
+msgid "In such a context, cases listed in IEEE 754-2019 9.2.1 or Table 9.1 return values; other cases return `not_computed`. The listed cases are a NaN operand; an infinite or zero operand; the exact points (`ln_ctx(1)`, `log2_ctx(1)`, `log10_ctx(1)`, `acos_ctx(1)`, `acospi_ctx(1)`, `acosh_ctx(1)` are `0`, `atanpi_ctx(+inf)` is `0.5`, `sinpi_ctx(n)` for an integer `n`, `cospi_ctx(n + 0.5)`, `tanpi_ctx` at integers and half-integers); domain errors (`invalid_operation`) and poles (`division_by_zero`); `compound`, `rootn` and `rsqrt` for the operands the clause lists; and the constants of `atan2`, `atan2pi` and `atan(+-inf)`. The context limit is tested after these cases and before the first computation. Exact results of ordinary operands not listed by the clause still return `not_computed`: `hypot_ctx(3, 4)`, `rsqrt_ctx(4)`, `log10_ctx(1E+5)`, `atanpi_ctx(1)`, `acospi_ctx(0)`, `sinpi_ctx(0.5)`, `cospi_ctx(1)`, `exp2_ctx(3)`, `rootn_ctx(8, 3)`. Accepting every context for ordinary operands is the subject of [#478](https://github.com/Luna-Flow/floating/issues/478). `decimal_gda` keeps the other order, which the decTest corpus requires."
 msgstr ""
 
 #: manual/api/decimal.md:1631
@@ -4000,7 +4000,7 @@ msgid "The `pow` family (`pow_ctx`, `pown_ctx`, `powr_ctx` and their `try_` form
 msgstr ""
 
 #: manual/api/decimal.md:1689
-msgid "The recorded cost is `pow(2, 0.5)` taking about 0.6 s at 100,000 digits, 14.7 s at 1,000,000 digits and more than 300 s at 10,000,000 digits. The special cases for `pow` listed in IEEE 754-2019 9.2.1 still return values at every context precision. `pown_ctx` applies `pow_ctx` to an integral exponent and shares the same limit, including for an exact integral power. `rootn_ctx` and `compound_ctx` were already under it. `sqrt_ctx` has no such limit because it is a basic operation (IEEE 754-2019 5.4.1)."
+msgid "The cost is the reason for the limit: `pow(2, 0.5)` takes about 0.6 s at 100,000 digits, 14.7 s at 1,000,000 digits and more than 300 s at 10,000,000 digits. The special cases for `pow` listed in IEEE 754-2019 9.2.1 still return values at every context precision. `pown_ctx` applies `pow_ctx` to an integral exponent and shares the same limit, including for an exact integral power. `rootn_ctx` and `compound_ctx` were already under it. `sqrt_ctx` has no such limit because it is a basic operation (IEEE 754-2019 5.4.1)."
 msgstr ""
 
 #: manual/api/decimal.md:1708
