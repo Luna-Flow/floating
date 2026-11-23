@@ -123,7 +123,7 @@ The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar
 
 The pinned corpora are decNumber's test suite. A row is recorded in
 `testdata/decimal_gda/deviations.tsv` when its result token differs from the value
-this library returns. There are two kinds of row. The first kind rests on the
+this library returns. There are three kinds of row. The first kind rests on the
 tolerance of the mathematical functions: decNumber's mathematical
 functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the
 specification says that an inexact result "will be rounded using the round-half-even
@@ -147,6 +147,8 @@ that depend on the exponent range of CPython or on the subset rules that CPython
 not have.
 
 The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream.
+
+The third kind, 3 rows (`res397` to `res399` of `rescale0.decTest`), follows from the rounding of the second operand of `rescale` (GDA 1.70, page 56 (Appendix A, The X3.274 subset), first item of "Operation differences"): `rescale 222 +2.000000001` at precision 9 has the second operand `2.00000000` after rounding, an integer, and the library gives `2E+2` with `Inexact`, `Lost_digits` and `Rounded`; the corpus value is decNumber's, which refuses the unrounded operand as not being an integer (`Invalid_operation`, no value). The row is recorded with the held value `2E+2` and, in the eighth column of `deviations.tsv`, the held flags, which the stage judges instead of the flags of the row. The corpus value is not wrong, and nothing is reported upstream.
 
 ## Known deviations outside the corpus
 
