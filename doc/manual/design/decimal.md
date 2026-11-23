@@ -186,7 +186,7 @@ x \cdot 10^{-t} = c + f, \qquad c \in \mathbb{Z}_{\ge 0},\ 0 \le f < 1 .
 $$
 
 Each rounding direction returns $c$ or $c + 1$ (times $10^{t}$); the choice
-depends on $f$, the last digit of $c$ and the sign.
+depends on $f$, the last digit of $c$ and the sign:
 
 The kernels implement eight algorithms. A context selects one of the five
 that IEEE 754-2019 4.3 names (public `DecimalRoundingMode`: `RoundTowardZero`
@@ -196,7 +196,7 @@ is `Down`, `RoundTowardPositive` is `Ceiling`, `RoundTowardNegative` is
 the certified functions, the guard digit of division) that no context can
 select. The table uses the kernel names.
 
-| Mode | IEEE name | Returns $c+1$ when ($f > 0$) |
+| Mode | IEEE name | returns $c+1$ when ($f > 0$) |
 | --- | --- | --- |
 | `Down` | roundTowardZero | never |
 | `Up` | — | always |
@@ -883,7 +883,6 @@ need their preferred exponent and flags; integer powers use exact integer
 information; range-limit results can be decided by representatives; and
 non-integral powers use one composed enclosure.
 
-#### Exact results
 
 If $f(x)$ is a representable decimal and the enclosure
   is not a point, $L < f(x) < U$ round to different neighbours in a directed
@@ -925,7 +924,6 @@ If $f(x)$ is a representable decimal and the enclosure
   midpoint in the half modes — so the search covers exactly those and leaves
   a longer exact value, which lies strictly inside its rounding cell, to the
   enclosure.
-#### Integer powers
 
 Integer powers are not certified; they are rounded once from exact
   integer information. `pow_ctx` with an integral exponent $n$ that does
@@ -951,7 +949,6 @@ Integer powers are not certified; they are rounded once from exact
   below $\tfrac12 10^{E_{\text{tiny}}}$, to zero in the nearest modes and to
   $\pm 10^{E_{\text{tiny}}}$ when the rounding direction is away from zero
   for its sign (IEEE 754-2019 7.5).
-#### Out-of-range results
 
 An enclosure such as $[0, \text{tiny}]$ has
   endpoints that round with different flags. Any value $\ge 10^{e_{\max}+2}$
@@ -980,7 +977,6 @@ An enclosure such as $[0, \text{tiny}]$ has
   on both sides of each threshold and at results just inside and outside the
   range, in all eight rounding directions. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
-#### Enclosure of a non-integral power
 
 For a positive base the Ziv loop
   evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
@@ -997,7 +993,6 @@ For a positive base the Ziv loop
   and $|y| < 10^{\operatorname{adjusted}(y)+1}$), so the first attempt usually
   decides when this bound is sufficient.
 
-### The IEEE 754-2019 9.2 exponential and logarithm extensions
 
 `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, along with the later IEEE 754-2019
 9.2 families, share three range and exact-result rules. An exact result is
@@ -1022,7 +1017,6 @@ few units of the working precision for every legal operand, down to
 $x = 10^{-1\,999\,996}$; no tiny-argument anchor is needed because the slopes
 $\ln b$ and $1/\ln b$ are irrational. Before the loop:
 
-#### Exact cases
 
 $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$
   are irrational for a non-integer rational $r$), and $\log_b(1+x)$ is
@@ -1032,7 +1026,6 @@ $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$
   first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or
   $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0
   (IEEE 754-2019 9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`.
-#### Clusters near one
 
 For an integer $n > 4(p+2)$, $2^n$ has $D \ge p+3$ digits and
   every rounding boundary of a $D$-digit integer is a multiple of the even
@@ -1045,11 +1038,9 @@ For an integer $n > 4(p+2)$, $2^n$ has $D \ge p+3$ digits and
   for $x \le -(p+2)$ (base 10) or $x \le -(4p+8)$ (base 2) the value is
   $-1 + \delta$ with $0 < \delta \le 10^{-(p+2)}$ and rounds like
   $-(1 - 10^{-(p+2)})$, as for `expm1`.
-#### Overflow
 
 $x \ge \lceil 3.322\,(e_{\max}+2) \rceil$ (base 2) or
   $x \ge e_{\max}+2$ (base 10) gives the overflow result of the context.
-#### Results below the subnormal range
 
 For $|x| \le 10^{-5}$ all four satisfy
   $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\text{tiny}}-3}$
@@ -1058,7 +1049,6 @@ For $|x| \le 10^{-5}$ all four satisfy
   for its endpoints. The result is that rounding, decided without converting
   $x$ to binary (the conversion of $10^{-1\,999\,997}$ alone costs about a
   second).
-#### Tiny arguments within range
 
 For $|x| < 10^{-(p+11)}$, write
   $x = m\,10^{q}$; then $f(x) = c\,x\,(1 + d)$ with $c = \ln b$ or $1/\ln b$
@@ -1073,20 +1063,17 @@ For $|x| < 10^{-(p+11)}$, write
   the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14
   (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the
   level of `exp` (13) and `log1p` (18).
-#### Poles and domain
 
 $x = -1$ is $-\infty$ with `division_by_zero` and
   $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an
   operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0$ resolves,
   as for `log1p`.
 
-#### `rSqrt`, `compound` and `powr`
 
 These three operations take their exact results from
 the exact-case path and none of them expands a binary endpoint near an
 extreme power of ten.
 
-##### `rsqrt`
 
 `rsqrt(x)` terminates exactly when
 $x = 2^{2i}5^{2j}$: with
@@ -1101,7 +1088,6 @@ $x = 2^{2i}5^{2j}$: with
   $1/\sqrt{s}$, whose endpoints are moderate, and multiplies them by
   $10^{-k}$ (an exponent shift) before the context rounds them, under the same
   agreement test. An operand $10^{-1\,999\,997}$ costs what $1$ costs.
-##### `compound`
 
 `compound(x,n)` uses the special values of IEEE 754-2019 9.2.1 (with $x < -1$
   invalid also for $n = 0$, Table 9.1). For a tiny $x$,
@@ -1128,7 +1114,6 @@ $x = 2^{2i}5^{2j}$: with
   and [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed).
   Instead, the Ziv loop evaluates $\exp(n\operatorname{log1p}(x))$ without
   forming $1 + x$.
-##### `powr`
 
 `powr(x,y)` follows the invalid pairs listed in IEEE 754-2019 9.2.1: $(\pm 0, \pm 0)$,
   $(+\infty, \pm 0)$, $(1, \pm\infty)$ and $x < 0$, and a NaN result for a NaN
@@ -1141,9 +1126,8 @@ $x = 2^{2i}5^{2j}$: with
   `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its
   odd-integer sign rule).
 
-#### `asinPi`, `acosPi`, `atanPi` and `atan2Pi`
 
-These four functions evaluate
+`asinPi`, `acosPi`, `atanPi` and `atan2Pi` evaluate
 $\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
 $\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$ in the
 existing Ziv driver, with $\pi$ enclosed as $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$
@@ -1153,7 +1137,6 @@ $4\operatorname{atan}(1)$ bit for bit) and the angle
 enclosure divided by it (error: the angle, $\pi$ and the division, about
 4 ulp relative).
 
-##### Exact results
 
 By Niven's theorem a rational $x$ has a rational
   $\operatorname{asin}(x)/\pi$ or $\operatorname{acos}(x)/\pi$ only at
@@ -1166,7 +1149,6 @@ By Niven's theorem a rational $x$ has a rational
   strictly inside a rounding cell and the loop decides them. No Pi function
   is anchored at a tiny argument: $x/\pi$ is irrational and nowhere near a
   representable value.
-##### Clusters near representable values
 
 These are the only inexact
   results that approach a representable value, and the distance does not
@@ -1188,7 +1170,6 @@ These are the only inexact
   the moderate range the enclosure resolves the gap at the working precision.
   The tests compare every anchored result with the plain loop in all eight
   rounding modes, on both sides.
-##### Tiny results
 
 For $|x| \le 10^{-4}$, $\operatorname{asin}(x)/x \in
   [1, 1 + x^2]$ and $\operatorname{atan}(x)/x \in [1 - x^2, 1]$, and the same
