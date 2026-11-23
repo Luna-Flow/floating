@@ -1149,8 +1149,8 @@ By Niven's theorem a rational $x$ has a rational
   is anchored at a tiny argument: $x/\pi$ is irrational and nowhere near a
   representable value.
 
-These are the only inexact results that approach the representable anchors
-$\pm\tfrac12$ and $\pm 1$, and the distance does not
+The clusters near $\pm\tfrac12$ and $\pm 1$ are the only inexact results that
+  approach a representable value. Their distance from the anchor does not
   depend on the digits of the operand, so a $w_0$ that grows with $D$ cannot cover it.
   A bound decides each case on one side of the anchor:
   $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
