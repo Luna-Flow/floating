@@ -6560,7 +6560,9 @@ msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A sel
 msgstr "`case_filter` 是逗号分隔的选择器列表，每个选择器都会被修剪。选择器 `id` 精确匹配该 id。选择器 `first..last` 匹配所有与 `first` 和 `last` 长度相同、且按字符串顺序位于两者之间的 id，因此 `add001..add099` 选择一个编号区段。"
 
 #: manual/api/frontend/gda_expr.md:292
-msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+#, fuzzy
+#| msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value, held flags)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`. The held flags are condition names separated by spaces; with `Some`, the flags of the row are judged against them and not against the conditions of the row, and `None` keeps the conditions of the row. The default is no deviation."
 msgstr "`deviations` 以 `(key, 语料值, 所持值)` 记录语料的偏差，其中 `key` 写作 `file:id`，即不含目录的文件名和行 id。当某一行的结果记号仍是语料值时，按所持值评判该行（记号变化则该行失败并指明该记录），并计为判定种类 `deviation`；默认没有记录。"
 
 #: manual/api/frontend/gda_expr.md:298
