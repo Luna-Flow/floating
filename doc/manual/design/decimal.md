@@ -1070,9 +1070,8 @@ $x = -1$ is $-\infty$ with `division_by_zero` and
   as for `log1p`.
 
 
-These three operations take their exact results from
-the exact-case path and none of them expands a binary endpoint near an
-extreme power of ten.
+`rSqrt`, `compound` and `powr` take their exact results from the exact-case
+path, and none of them expands a binary endpoint near an extreme power of ten.
 
 
 `rsqrt(x)` terminates exactly when
@@ -1150,11 +1149,11 @@ By Niven's theorem a rational $x$ has a rational
   is anchored at a tiny argument: $x/\pi$ is irrational and nowhere near a
   representable value.
 
-These are the only inexact
-  results that approach a representable value, and the distance does not
+These are the only inexact results that approach the representable anchors
+$\pm\tfrac12$ and $\pm 1$, and the distance does not
   depend on the digits of the operand, so a $w_0$ that grows with $D$ cannot cover it.
   A bound decides each case on one side of the anchor:
-  distance, one-sided: $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
+  $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
   $0 < \delta < 1/(\pi|x|) < 10^{-\operatorname{adj}(x)}$ for a large $|x|$;
   $\operatorname{acosPi}(x) = \tfrac12 - \operatorname{asin}(x)/\pi$ with
   distance at most $|x|/2 < 10^{\operatorname{adj}(x)+1}$ for a tiny $|x|$ (the
@@ -1450,7 +1449,8 @@ measurements do not show a crossover.
 
 No behaviour of the current branch contradicts the goals above. A deviation
 found later is listed here, reproduced in the
-[API reference](../api/decimal.md) next to the operation.
+[API reference](../api/decimal.md) next to the operation, and tracked in a
+GitHub issue together with the pull request that proposes a fix.
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel
