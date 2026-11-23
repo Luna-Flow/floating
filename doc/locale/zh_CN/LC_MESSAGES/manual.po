@@ -27036,8 +27036,8 @@ msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result
 msgstr "GDA 1.70 第 30 页（exp）和第 31 页（ln、log10）允许非精确结果与正确舍入结果相差最多 1 ulp；本包返回正确舍入的结果。GDA 1.70 第 39 页（square-root）规定非精确平方根使用半值取偶舍入，本包也返回正确舍入的结果。GDA 1.70 第 35 页（power）允许非整数指数的误差最多为 1 ulp；本包返回正确舍入的结果。"
 
 #: manual/tutorial/decimal_gda.md:243
-msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For a rare argument that sits very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
-msgstr "这里，认证是指一个已知包含函数值的区间落在其舍入单元内。每个函数默认最多细化其包含区间十二次。对于罕见且非常接近舍入边界的参数，`ctx.with_refinement_limit(Some(24))` 允许更多步；`with_refinement_limit(None)` 移除次数限制，此时工作精度会在至少 8,000,000 位的资源界限处停止。使用 `refinement_limit()` 读取当前设置。"
+msgid "Here, certification means that an interval known to contain the function value lies inside its rounding cell. Each function refines its enclosure at most twelve times by default. For an argument very close to a rounding boundary, `ctx.with_refinement_limit(Some(24))` allows more steps; `with_refinement_limit(None)` removes the count, so the working precision stops at a resource bound of at least 8,000,000 bits. Read the current setting with `refinement_limit()`."
+msgstr "这里，认证是指一个已知包含函数值的区间落在其舍入单元内。每个函数默认最多细化其包含区间十二次。对于非常接近舍入边界的参数，`ctx.with_refinement_limit(Some(24))` 允许更多步；`with_refinement_limit(None)` 移除次数限制，此时工作精度会在至少 8,000,000 位的资源界限处停止。使用 `refinement_limit()` 读取当前设置。"
 
 #: manual/tutorial/decimal_gda.md:252
 msgid "Compare and print"
