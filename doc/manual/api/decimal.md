@@ -1394,8 +1394,7 @@ the corresponding `Binary` functions. The removed `compare_ctx` and
 
 ### `Decimal::compare_quiet_equal` and the other comparison predicates
 
-Use these IEEE 754-2019 5.11 predicates for equal, less-than and unordered
-tests.
+The predicates of IEEE 754-2019 Tables 5.1 and 5.2 that `Binary` has.
 
 ```mbti
 pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
@@ -1890,9 +1889,9 @@ preferred exponent $-\lfloor Q(x)/2 \rfloor$ (IEEE 754-2019 9.2.2). In decimal64
 | `compound(x, n)` for $x < -1$, including when $n = 0$ | invalid |
 | `compound(-1, n)` for $n < 0$ | $+\infty$ with `division_by_zero` |
 | `compound(-1, n)` for $n > 0$ | $+0$ |
-| `compound(\pm 0, n)` | 1 |
-| `compound(+\infty, n)` for $n > 0$ | $+\infty$ |
-| `compound(+\infty, n)` for $n < 0$ | $+0$ |
+| `compound(±0, n)` | 1 |
+| `compound(+∞, n)` for $n > 0$ | $+\infty$ |
+| `compound(+∞, n)` for $n < 0$ | $+0$ |
 
 An exact result has preferred exponent $\lfloor n \min(0, Q(x)) \rfloor$
 (IEEE 754-2019 9.2.2). `compound_ctx(0.10, 2)` returns `1.2100`, and
