@@ -6547,7 +6547,7 @@ msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A sel
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:292
-msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value, held flags)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`. The held flags are condition names separated by spaces; with `Some`, the flags of the row are judged against them and not against the conditions of the row, and `None` keeps the conditions of the row. The default is no deviation."
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:298

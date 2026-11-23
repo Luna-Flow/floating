@@ -278,7 +278,7 @@ pub struct RunOptions {
 builds the options.
 
 ```mbti
-pub fn RunOptions::new(shard_count? : Int, shard_index? : Int, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String)]) -> Self
+pub fn RunOptions::new(shard_count? : Int, shard_index? : Int, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String, String?)]) -> Self
 ```
 
 Defaults: one shard, index 0, `strict_supported` off, empty filter (all
@@ -289,11 +289,11 @@ rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`.
 has the same length as `first` and `last` and lies between them in string
 order, so `add001..add099` selects a numbered block.
 
-`deviations` records deviations of the corpus as `(key, corpus value, held value)`
+`deviations` records deviations of the corpus as `(key, corpus value, held value, held flags)`
 with `key` written `file:id`, the file name without its directory and the row id.
 A listed row is judged against the held value when its result token is still the
 corpus value (a changed token fails the row, naming the record) and counts as the
-verdict `deviation`; the default is none.
+verdict `deviation`. The held flags are condition names separated by spaces; with `Some`, the flags of the row are judged against them and not against the conditions of the row, and `None` keeps the conditions of the row. The default is no deviation.
 
 `strict_supported` is stored for callers; `execute_documents` itself does not
 read it. The CLI uses it to turn unsupported rows into a failing exit code.
@@ -307,7 +307,7 @@ pub fn RunOptions::shard_count(Self) -> Int
 pub fn RunOptions::shard_index(Self) -> Int
 pub fn RunOptions::strict_supported(Self) -> Bool
 pub fn RunOptions::case_filter(Self) -> String
-pub fn RunOptions::deviations(Self) -> Array[(String, String, String)]
+pub fn RunOptions::deviations(Self) -> Array[(String, String, String, String?)]
 ```
 
 ## Results
@@ -600,9 +600,9 @@ pub struct RunOptions {
   // private fields
 }
 pub fn RunOptions::case_filter(Self) -> String
-pub fn RunOptions::deviations(Self) -> Array[(String, String, String)]
+pub fn RunOptions::deviations(Self) -> Array[(String, String, String, String?)]
 pub fn RunOptions::equal(Self, Self) -> Bool
-pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String)]) -> Self
+pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String, String?)]) -> Self
 pub fn RunOptions::not_equal(Self, Self) -> Bool
 pub fn RunOptions::shard_count(Self) -> Int32
 pub fn RunOptions::shard_index(Self) -> Int32

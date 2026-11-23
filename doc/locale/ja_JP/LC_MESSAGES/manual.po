@@ -6560,7 +6560,9 @@ msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A sel
 msgstr "`case_filter` はカンマ区切りのセレクタのリストで、各セレクタは前後の空白が除去されます。セレクタ `id` はその id にちょうど一致します。セレクタ `first..last` は、`first` および `last` と同じ長さを持ち、文字列順でその間にあるすべての id に一致します。そのため、`add001..add099` は番号付きのブロックを選択します。"
 
 #: manual/api/frontend/gda_expr.md:292
-msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+#, fuzzy
+#| msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value, held flags)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`. The held flags are condition names separated by spaces; with `Some`, the flags of the row are judged against them and not against the conditions of the row, and `None` keeps the conditions of the row. The default is no deviation."
 msgstr "`deviations` はコーパスの逸脱を `(key, コーパスの値, 保持する値)` として記録します。`key` は `file:id` と書き、ディレクトリを除いたファイル名と行 id です。ある行の結果トークンがまだコーパスの値であれば、その行は保持する値に対して判定され（トークンが変わっていれば、その記録を示して行は失敗します）、判定の種類 `deviation` として数えられます。既定では記録はありません。"
 
 #: manual/api/frontend/gda_expr.md:298
