@@ -9,6 +9,8 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+- The corpus stage reads an optional eighth column of `testdata/decimal_gda/deviations.tsv`, the held flags of a recorded row: the stage then judges the flags of the row against them and not against the conditions of the row (a row with seven columns is judged as before). The tuple of `@gda_expr.RunOptions::new(deviations=...)` and of `RunOptions::deviations` grows by one optional field, `(key, corpus value, held value, held flags)`, with `None` for the former behaviour ([#764](https://github.com/Luna-Flow/floating/issues/764)). Three rows of `rescale0.decTest` use it.
+
 - Names changed in 0.12 ([#438](https://github.com/Luna-Flow/floating/issues/438)): the packages, tools and data that carried the name of the interval type or of `bin_float` follow the renames of the library to `Interval` and `Binary`. One row per item that existed in 0.11.0, sorted by area; the tools and outputs that are new in this release (`tools/interval_diff.py` and its files, `differential/interval_mpfr`, the output tokens `INTERVALDIFF_*` and the row format `interval-diff-v1`, `tools/kernel_units.py`, `tools/verify_mutation.py`) are written with the final names in the entries that introduce them. Not a behaviour change.
 
   | area | before (0.11.0) | after | note |
