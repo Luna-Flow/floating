@@ -315,20 +315,22 @@ pub fn Decimal::from_binary(@binary.Binary, precision~ : Int, mode? : DecimalRou
 pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 ```
 
-`from_binary(x, precision~, mode~)` is exact when the decimal expansion of
-`x` fits in `precision` decimal digits. As with `from_double`, an exact result
-uses the exponent closest to 0. Otherwise, it is rounded once to exactly
-`precision` digits with `mode`, which defaults to `RoundTiesToEven`. The
-required precision counts decimal digits.
+`from_binary(x, precision~, mode~)` is exact whenever the decimal expansion of
+`x` fits in `precision` decimal digits, with the exponent closest to 0 as for
+`from_double`, and is otherwise rounded once to exactly `precision` digits in
+`mode` (default `RoundTiesToEven`, the rounding type of the radix of the result).
+The precision is required and counts digits; it was the number of bits of `x`
+by default, a count of the wrong kind.
 
 A binary zero keeps its sign, so $-0$ converts to $-0$ (IEEE 754-2019 5.4.2
 and 6.3). A NaN becomes a quiet NaN with payload 0.
 
 `to_binary(precision~, mode~)` rounds the exact decimal value once to a
 `Binary` of `precision` bits with `mode`, one of the five rounding-direction
-attributes of IEEE 754-2019 4.3.1. The default is `RoundTiesToEven`. The
-required precision counts bits and must be in `1..=@binary.binary_precision_max`;
-outside that range the call aborts. Most decimal fractions are not dyadic, so
+attributes of IEEE 754-2019 4.3.1 (default `RoundTiesToEven`). The precision is
+required and counts bits, from 1 to `@binary.binary_precision_max`; outside
+that range the call aborts (it was the number of digits of the decimal by
+default). Most decimal fractions are not dyadic, so
 this conversion is usually inexact. Using `RoundTowardNegative` and
 `RoundTowardPositive` gives a binary enclosure of the decimal value. Zeros keep
 their sign; NaN payloads are not kept. The same conversions are available in
@@ -354,10 +356,11 @@ quantum of the source: for conversions between decimal formats, IEEE 754-2019
 and keeps the cohort member. Conversion to a narrower format rounds and can
 overflow or underflow; a large exponent is folded down.
 
-`from_binary_ctx(x, ctx)` converts the value denoted by a binary floating-point
-value under the decimal context and returns the flags from rounding. For an
-exact conversion, the preferred exponent is 0, the exponent closest to 0 that
-holds the digits: `0.5` is `5E-1`, and `96` is `96`. An inexact conversion has
+`from_binary_ctx(x, ctx)` rounds the exact value of a binary float once under
+the decimal context (precision, exponent range, direction) with the flags of
+the rounding. For an exact conversion, the preferred exponent is 0, the
+exponent closest to 0 that holds the digits: `0.5` is `5E-1`, and `96` is `96`.
+An inexact conversion has
 `precision` digits because the preferred exponent is the least possible. A
 value beyond the exponent range, or far below it, overflows or underflows
 without its digits being formed. An in-range value is correctly rounded at any
@@ -559,10 +562,11 @@ IEEE 754-2019 3.7 NOTE 3 recommends $E_{\max}\ge2$. The library accepts 1, the
 least value for which $E_{\min}\le E_{\max}$ under 3.3.
 
 The context's `rounding` attribute applies to finite results, infinities and
-every other use of the context. `rounding()` returns the selected value. The
+every other use of the context; `rounding()` reports exactly the rounding
+direction applied. The
 commercial GDA rounding algorithm `round-half-up` corresponds to
 `RoundTiesToAway`. GDA's `round-half-down`, `round-up` and `round-05up` are not
-attributes of an IEEE 754-2019 decimal format; they are available in
+attributes of an IEEE 754-2019 decimal format and exist only in
 [`decimal_gda`](decimal_gda.md).
 
 A context has no `clamp`, `extended` or `tininess` setting and no unlimited
@@ -821,7 +825,7 @@ This is the set of conditions for which IEEE 754-2019 delivers no usable number:
 invalid operation as having no usefully definable result. A failed `from_string_ctx` raises
 `invalid_operation`, so `has_error` returns true. `has_error` excludes `overflow`, `underflow` and
 `inexact`: those deliver a usable result (IEEE 754-2019 7.4 to 7.6 define it, as 7.3 does for
-division by zero). `division_by_zero` is included so the checked forms of `Luna-Flow/arithmetic`
+division by zero). `division_by_zero` is in the set only so that the checked forms of `Luna-Flow/arithmetic`
 can return `Err` for division by zero.
 
 ```moonbit
@@ -965,7 +969,7 @@ Each function in this group takes a `DecimalContext` and returns
 context's rounding direction, then applies the exponent range. Overflow gives
 the result for that rounding direction; see [overflow](../design/decimal.md#overflow).
 A result whose exact magnitude is below $10^{E_{\min}}$ is rounded directly to
-the subnormal grid $10^{E_{\mathrm{tiny}}}$. A normal result is rounded to $p$
+the subnormal grid $10^{E_{\mathrm{tiny}}}$. A normal result is rounded only to $p$
 digits even when its exact exponent is below $E_{\mathrm{tiny}}$. Large
 exponents are folded down to $E_{\max}-p+1$.
 
@@ -1314,8 +1318,8 @@ pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 subnormals down to $10^{E_{\text{tiny}}}$ and the largest finite value
 $(10^{p}-1)\,10^{E_{\max}-p+1}$. For example, `next_up_ctx(-∞)` returns the
 most negative finite value. Finite results raise no flags. IEEE 754-2019 5.3.1
-defines nextUp and nextDown; GDA 1.70's next-toward operation is
-`decimal_gda::next_toward`. This package has no `next_toward_ctx`.
+defines nextUp and nextDown only: the next-toward operation of GDA 1.70 is
+`next_toward` of `decimal_gda`, and this package has no `next_toward_ctx`.
 
 ```moonbit
 ///|
@@ -1882,24 +1886,24 @@ preferred exponent $-\lfloor Q(x)/2 \rfloor$ (IEEE 754-2019 9.2.2). In decimal64
 
 | Input | Result |
 | --- | --- |
-| `compound_ctx(x, 0)` for $x \ge -1$ or a quiet NaN | 1 |
-| `compound_ctx(x, n)` for $x < -1$, including when $n = 0$ | invalid |
-| `compound_ctx(-1, n)` for $n < 0$ | $+\infty$ with `division_by_zero` |
-| `compound_ctx(-1, n)` for $n > 0$ | $+0$ |
-| `compound_ctx(\pm 0, n)` | 1 |
-| `compound_ctx(+\infty, n)` for $n > 0$ | $+\infty$ |
-| `compound_ctx(+\infty, n)` for $n < 0$ | $+0$ |
+| `compound(x, 0)` for $x \ge -1$ or a quiet NaN | 1 |
+| `compound(x, n)` for $x < -1$, including when $n = 0$ | invalid |
+| `compound(-1, n)` for $n < 0$ | $+\infty$ with `division_by_zero` |
+| `compound(-1, n)` for $n > 0$ | $+0$ |
+| `compound(\pm 0, n)` | 1 |
+| `compound(+\infty, n)` for $n > 0$ | $+\infty$ |
+| `compound(+\infty, n)` for $n < 0$ | $+0$ |
 
 An exact result has preferred exponent $\lfloor n \min(0, Q(x)) \rfloor$
 (IEEE 754-2019 9.2.2). `compound_ctx(0.10, 2)` returns `1.2100`, and
 `compound_ctx(0.00, 3)` returns `1.000000`. Every `Int32` value of $n$ is accepted,
 including the `Int32` minimum $-2^{31}$.
 
-`powr_ctx(x, y)` computes $e^{y \ln x}$, whose domain excludes $x < 0$; that input is
-invalid even when $y$ is a quiet NaN. A NaN operand returns a quiet NaN, including when
-$y = \pm 0$. `powr(\pm 0, \pm 0)`, `powr(+\infty, \pm 0)` and `powr(1, \pm\infty)`
-are invalid. Otherwise, `powr_ctx` matches `pow_ctx` on $|x|$ in result, cohort and flags:
-`powr_ctx(-0, 3)` returns `0`, while `pow_ctx` returns `-0`.
+`powr_ctx(x, y)` is $e^{y \ln x}$, so its domain excludes $x < 0$ (invalid,
+also when $y$ is a quiet NaN). It returns a quiet NaN for a NaN operand even
+when $y = \pm 0$, is invalid for `powr(±0, ±0)`, `powr(+∞, ±0)` and
+`powr(1, ±∞)`, and otherwise equals `pow_ctx` on $|x|$ (results, cohort and
+flags): `powr_ctx(-0, 3)` is `0` where `pow_ctx` gives `-0`.
 
 ```moonbit
 ///|
@@ -2025,8 +2029,8 @@ test "decimal inverse circular functions in half-revolutions" {
 
 ### `Decimal::sinh_ctx`, `cosh_ctx`, `tanh_ctx`, `asinh_ctx`, `acosh_ctx`, `atanh_ctx`, `try_sinh_ctx`, `try_cosh_ctx`, `try_tanh_ctx`, `try_asinh_ctx`, `try_acosh_ctx`, `try_atanh_ctx`
 
-Compute the hyperbolic functions and their inverses. Each function has the `f_ctx` and
-`try_f_ctx` forms described at the start of this section.
+These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described
+at the start of this section.
 
 ```mbti
 pub fn Decimal::sinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2043,8 +2047,7 @@ pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-The table gives the domains, poles and exact cases for the functions from `exp2` through
-`atanh`.
+Domain and special values of the functions in the seven groups above, from `exp2` to `atanh`:
 
 | Function | Invalid (`invalid_operation`) | Pole (`division_by_zero`) | Exact cases |
 | --- | --- | --- | --- |
@@ -2063,14 +2066,14 @@ The table gives the domains, poles and exact cases for the functions from `exp2`
 | `atan` | none | none | $\pm 0$; $\pm\infty \mapsto \pm\pi/2$ (certified) |
 | `asinpi`, `acospi` | $\lvert x\rvert > 1$, $\pm\infty$ | none | $\operatorname{asinPi}(\pm0)=\pm0$, $\operatorname{asinPi}(\pm1)=\pm\tfrac12$, $\operatorname{acosPi}(1)=+0$, $\operatorname{acosPi}(-1)=1$, $\operatorname{acosPi}(\pm0)=\tfrac12$ |
 | `atanpi` | none | none | $\pm 0$; $\pm 1 \mapsto \pm\tfrac14$; $\pm\infty \mapsto \pm\tfrac12$ (no exception) |
-| `atan2pi(y, x)` | none | none | the eleven exact rows of 9.2.1 ($\pm0$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, $\pm1$) and $\lvert y\rvert = \lvert x\rvert \mapsto \pm\tfrac14, \pm\tfrac34$ |
+| `atan2pi(y, x)` | none | none | the eleven exact rows of §9.2.1 ($\pm0$, $\pm\tfrac12$, $\pm\tfrac14$, $\pm\tfrac34$, $\pm1$) and $\lvert y\rvert = \lvert x\rvert \mapsto \pm\tfrac14, \pm\tfrac34$ |
 | `atan2(y, x)` | none | none | $\operatorname{atan2}(\pm 0, x) = \pm 0$ for $x = +0$ or $x > 0$, and $\operatorname{atan2}(y, +\infty) = \pm 0$ for finite $y$; any other zero or infinite operand gives $\pi$, $\pi/2$, $\pi/4$ or $3\pi/4$ with the sign of $y$ (certified) |
 | `sinh`, `tanh`, `asinh` | none | none | $\pm0\mapsto\pm0$; $\sinh$, $\operatorname{asinh}$ keep $\pm\infty$; $\tanh(\pm\infty)=\pm 1$ |
 | `cosh` | none | none | $\cosh(\pm 0) = 1$, $\cosh(\pm\infty)=+\infty$ |
 | `acosh` | $x < 1$, $-\infty$ | none | $1 \mapsto 0$, $+\infty \mapsto +\infty$ |
 | `atanh` | $\lvert x\rvert>1$, $\pm\infty$ | $\pm1 \mapsto \pm\infty$ | $\pm0 \mapsto \pm0$ |
 
-These special values follow IEEE 754-2019 9.2.1: in decimal64,
+These special values follow IEEE 754-2019 §9.2.1: in decimal64,
 `atan2_ctx(-0, -1)` is `-3.141592653589793`, `atan2_ctx(+∞, -∞)` is
 `2.356194490192345` and `atan2_ctx(-1, +∞)` is `-0`.
 
@@ -2143,7 +2146,8 @@ pub fn DecimalInterchangeFormat::context(Self) -> DecimalContext
 
 ### `DecimalInterchangeEncoding`
 
-`DecimalInterchangeEncoding` selects whether an interchange value stores its coefficient in DPD or BID form.
+`DecimalInterchangeEncoding` selects how the coefficient is stored in the
+bits.
 
 ```mbti
 pub(all) enum DecimalInterchangeEncoding {
@@ -2152,9 +2156,9 @@ pub(all) enum DecimalInterchangeEncoding {
 }
 ```
 
-`DPD` stores three decimal digits in each 10-bit declet (densely packed decimal).
-`BID` stores the coefficient as a binary integer. A function without an encoding
-argument uses `DPD`.
+`DPD` stores three decimal digits per 10-bit declet (densely packed decimal);
+`BID` stores the coefficient as a binary integer. Functions without an
+encoding argument use `DPD`.
 
 ### `Decimal::to_interchange_hex`, `to_interchange_hex_with_encoding`
 
@@ -2165,16 +2169,14 @@ pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, D
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 ```
 
-A finite value is rounded by `apply_ctx` under the format context, and the returned
-flags report that rounding. The rounded value is then encoded with its exponent, so
-its cohort is kept when it fits. The text begins with `#` and has 8, 16 or 32
-upper-case hexadecimal digits.
-
-An infinity has a zero trailing field. A NaN keeps its sign and kind. Its payload
-is stored as an integer, independent of the value's precision field (IEEE 754-2019 3.5.2).
-A payload below $10^{p-1}$ is kept; a longer payload keeps its
-low $p-1$ digits in either encoding. In both encodings, `NaN7` becomes
-`#7C00000000000007` in decimal64.
+A finite value is first rounded with `apply_ctx` under the format context
+(its flags are returned), then encoded with its exponent, so the cohort is
+kept when it fits. The text is `#` followed by 8, 16 or 32 upper-case hex
+digits. Infinities are encoded with a zero trailing field. A NaN keeps its
+sign and kind, and its payload is stored as an integer, independent of the
+value's precision field (IEEE 754-2019 §3.5.2): a payload below $10^{p-1}$ is
+kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike.
+`NaN7` encodes to decimal64 as `#7C00000000000007` in both encodings.
 
 ### `Decimal::from_interchange_hex`, `from_interchange_hex_with_encoding`
 
@@ -2185,21 +2187,18 @@ pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Result
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-The text may have surrounding ASCII whitespace and a leading `#`. It must contain
-exactly the number of hexadecimal digits required by the format, in either case.
-An `Err` parse error reports either the wanted and found digit counts (the decimal32
-text `"#A23003D"` has 7 of 8) or the first non-hexadecimal character and its
-position among the digits. The length is checked first.
-
-Every bit pattern of the right length is decoded. Decoding is exact and keeps the
-exponent, sign of zero, NaN kind and payload. IEEE 754 assigns non-canonical
-encodings these values: a non-canonical DPD declet decodes to its digits, a BID
-coefficient $\ge 10^{p}$ decodes to zero, and an out-of-range BID NaN payload
-decodes to 0. Unused exponent bits of infinities and NaNs are ignored. The result
-has the format's precision.
-
-`GdaInterchange::from_hex` in `decimal_gda` accepts and rejects the same texts.
-Its message uses one sentence for both faults.
+The text may have surrounding ASCII whitespace and a leading `#`; it must have
+exactly the format's number of hex digits, in either case. Anything else is an
+`Err` (a parse error) that says what was wrong: the number of digits wanted and
+found (`"#A23003D"` for decimal32 has 7 of 8), or the first character that is
+not a hexadecimal digit and its place among the digits. The length is checked
+first. No bit pattern of the right length is refused: decoding is exact and keeps the exponent, the sign of zero, the NaN
+kind and payload. Non-canonical encodings decode to the value IEEE 754
+assigns them: a non-canonical DPD declet to its digits, a BID coefficient
+$\ge 10^{p}$ to zero, an out-of-range BID NaN payload to 0; the unused
+exponent bits of infinities and NaNs are ignored. The result has the format's
+precision. `GdaInterchange::from_hex` of `decimal_gda` accepts the same texts
+and refuses the same ones, but its message is one sentence for both faults.
 
 ```moonbit
 ///|
@@ -2225,7 +2224,8 @@ test "decimal64 interchange in both encodings" {
 
 ### `DecimalInterchange`, `DecimalInterchange::format`, `encoding`, `to_hex`
 
-Hold the raw bits of one interchange value together with its format and encoding.
+`DecimalInterchange` holds the raw bits of one interchange value together
+with its format and encoding.
 
 ```mbti
 pub struct DecimalInterchange {
@@ -2236,14 +2236,14 @@ pub fn DecimalInterchange::encoding(Self) -> DecimalInterchangeEncoding
 pub fn DecimalInterchange::to_hex(Self) -> String
 ```
 
-Use `DecimalInterchange` to inspect or preserve the bits, including non-canonical
-encodings that a `Decimal` cannot represent. `format` and `encoding` return the
-format and encoding of the bits. `to_hex` writes `#` followed by the full-width,
-upper-case hexadecimal digits.
+Use it when bits must be inspected or kept exactly, including non-canonical
+encodings that a `Decimal` cannot represent. `format` and `encoding` return
+the format and encoding the bits belong to; `to_hex` writes `#` and the
+full-width upper-case hex digits.
 
 ### `DecimalInterchange::from_hex`, `from_hex_with_encoding`, `from_decimal`, `from_decimal_with_encoding`
 
-Build an interchange value from text or from a `Decimal`.
+These functions build an interchange value from text or from a `Decimal`.
 
 ```mbti
 pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2252,38 +2252,38 @@ pub fn DecimalInterchange::from_decimal(Decimal, DecimalInterchangeFormat) -> (S
 pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (Self, DecimalFlags)
 ```
 
-`from_hex` stores the bits unchanged and follows the text and error rules of
-`from_interchange_hex`. `from_decimal` encodes as `to_interchange_hex` does and
-returns the same flags. Forms without an encoding argument use `DPD`.
+`from_hex` stores the bits unchanged (text rules and errors as in
+`from_interchange_hex`). `from_decimal` encodes like `to_interchange_hex` and
+returns the same flags. The forms without an encoding use `DPD`.
 
 ### `DecimalInterchange::to_decimal`, `to_decimal_ctx`
 
-Decode the stored bits.
+These functions decode the stored bits.
 
 ```mbti
 pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 ```
 
-Decoding is exact. `to_decimal_ctx` raises no flag.
+Decoding is exact: `to_decimal_ctx` raises no flag.
 
 ### `DecimalInterchange::canonical`, `is_canonical`
 
-Canonicalize the stored bits or test whether they are canonical.
+These functions canonicalize the stored bits.
 
 ```mbti
 pub fn DecimalInterchange::canonical(Self) -> Self
 pub fn DecimalInterchange::is_canonical(Self) -> Bool
 ```
 
-`canonical` decodes and re-encodes in the same format and encoding. It replaces
-each non-canonical declet, out-of-range BID coefficient and unused bit of an
-infinity or NaN with its canonical form, and is idempotent. `is_canonical` tests
-whether the bits are already canonical.
+`canonical` decodes and re-encodes in the same format and encoding: every
+non-canonical declet, out-of-range BID coefficient, and unused bit of an
+infinity or NaN is replaced by its canonical form. It is idempotent.
+`is_canonical` tests whether the bits are already canonical.
 
 ### `DecimalInterchange::copy`, `copy_abs`, `copy_negate`, `copy_sign`
 
-Change the sign bit of the stored bits.
+These functions change only the sign bit of the stored bits.
 
 ```mbti
 pub fn DecimalInterchange::copy(Self) -> Self
@@ -2292,14 +2292,14 @@ pub fn DecimalInterchange::neg(Self) -> Self
 pub fn DecimalInterchange::copy_sign(Self, Self) -> Self
 ```
 
-All other bits are kept, including non-canonical bits. `copy_sign` aborts unless
-both operands have the same format and encoding.
+All other bits, canonical or not, are kept. `copy_sign` aborts unless both
+operands have the same format and encoding.
 
 ## Trait implementations
 
 ### `Zero`, `One`, `Ring` and the operator traits
 
-`Decimal` implements the Luna-Flow algebra traits and the plain arithmetic
+`Decimal` implements the Luna-Flow algebra traits through the plain
 operators.
 
 ```mbti
@@ -2321,12 +2321,12 @@ pub impl Eq for Decimal
 pub impl Compare for Decimal
 ```
 
-`Zero::zero()` and `One::one()` return `Decimal::zero()` and `Decimal::one()`.
-The ring laws hold exactly for `+`, `-` and `*` when no result is rounded. A sum
-or product is exact when its exact coefficient fits the larger operand precision;
-a rounded result is only approximately associative. See
-[construction](#the-fromnat-and-frominteger-implementations) for `FromNat` and
-`FromInteger`.
+`Zero::zero()` and `One::one()` are `Decimal::zero()` and `Decimal::one()`.
+The ring laws hold exactly for `+`, `-` and `*` as long as no result is rounded
+(a sum or a product whose exact coefficient fits the larger operand precision);
+a rounded result is only approximately associative.
+`FromNat` and `FromInteger` are documented under
+[construction](#the-fromnat-and-frominteger-implementations).
 
 ### `@def.Floating`
 
@@ -2337,12 +2337,12 @@ pub impl @def.Floating for Decimal
 ```
 
 The trait methods are `classify`, `signum`, `precision`, `with_precision` and
-`normalized`; each is documented above. The generic predicates, including
-`@def.is_finite(x)`, work through this implementation.
+`normalized`, all documented above; `@def.is_finite(x)` and the other generic
+predicates work through it.
 
 ### `Decimal::add_contextual`, `sub_contextual`, `mul_contextual`, `div_contextual`, `abs_contextual`, `sqrt_contextual`, `exp_contextual`, `zero_contextual`, `one_contextual`, `epsilon_contextual`, `min_normal_contextual`, `max_finite_contextual`, `classify_contextual`
 
-Implement the contextual traits of
+These functions implement the contextual traits of
 [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/).
 
 ```mbti
@@ -2369,31 +2369,25 @@ pub impl @arithmetic.ExpContextual for Decimal
 pub impl @arithmetic.NumericFormatContextual for Decimal
 ```
 
-Each `*_contextual` operation converts its context with
-`DecimalContext::from_arithmetic_context` and runs the matching `*_ctx` operation.
-It returns `Err(division_by_zero)` when `division_by_zero` is raised, and
-`Err(domain_error)` when another `has_error` flag is raised. Otherwise it returns
-`Ok` with the `inexact`, `overflow` and `underflow` diagnostics copied from the
-flags.
+Each `*_contextual` operation converts the context with
+`DecimalContext::from_arithmetic_context`, runs the matching `*_ctx`
+operation and returns `Err(division_by_zero)` when `division_by_zero` was
+raised, `Err(domain_error)` when another `has_error` flag was raised, and
+otherwise `Ok` with diagnostics `inexact`, `overflow` and
+`underflow` copied from the flags. Because the
+converted context has the default exponent range, which the certified functions
+accept for precisions up to 999, `exp_contextual` works at the default range; an
+explicit `e_max` above 999,999 fails with `certification_failure` (`not_computed`). A result with `invalid_operation` is a `domain_error`; one with `not_computed` is a `certification_failure`; the `try_` forms return `Err` only for the second kind.
 
-The converted context has the default exponent range, which the certified
-functions accept for precisions up to 999. Thus `exp_contextual` works at the
-default range. An explicit `e_max` above 999,999 fails with
-`certification_failure` (`not_computed`). A result with `invalid_operation` is a
-`domain_error`; a result with `not_computed` is a `certification_failure`. The
-`try_` forms return `Err` only for the latter.
-
-`zero_contextual` and `one_contextual` use the context precision.
-`epsilon_contextual` returns $10^{1-p}$, which is `next_up_ctx(1) - 1`.
-`min_normal_contextual` returns $10^{e_{\min}}$ for the converted context. Its
-default $e_{\min}$ is $1 - e_{\max}$, or $-999\,998$ for the default range of
-`new` at precision 34. `max_finite_contextual` returns
-$(10^{p}-1)\,10^{e_{\max}-p+1}$. `classify_contextual` returns the result of
-`classify`.
+`zero_contextual` and `one_contextual` have the context precision.
+`epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).
+`min_normal_contextual` is $10^{e_{\min}}$ of the converted context; its default $e_{\min}$ is $1 - e_{\max}$, that is $-999\,998$ for the default range of `new` (precision 34).
+`max_finite_contextual` is $(10^{p}-1)\,10^{e_{\max}-p+1}$.
+`classify_contextual` is `classify`.
 
 ### `Decimal::parse_checked`, `sqrt_checked`, `pow_nat_checked`, `pow_int_checked`
 
-Implement the checked traits of `Luna-Flow/arithmetic`.
+These functions implement the checked traits of `Luna-Flow/arithmetic`.
 
 ```mbti
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2408,30 +2402,27 @@ pub impl @arithmetic.PowNatChecked for Decimal
 pub impl @arithmetic.PowIntChecked for Decimal
 ```
 
-`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and parses with
-`Decimal::from_string_ctx`. The context's precision, rounding direction and
-exponent range apply. The function returns the converted value; flags such as
-overflow remain available from `from_string_ctx`. Invalid syntax returns
-`Err(parse_error)`.
-
-`DivChecked::div_checked(x, y, ctx)` runs `div_ctx` under the converted context.
-It returns `Err(division_by_zero)` for the division-by-zero flag and
-`Err(domain_error)` for the invalid-operation flag. `sqrt_checked` runs `sqrt_ctx`
-under that context and fails for negative operands.
-
-`pow_nat_checked` and `pow_int_checked` call `pow_ctx` with the integer exponent
-converted exactly, using at least ten digits to hold every accepted exponent.
-Thus, at precision 7, `(-1).pow_int_checked(12345679, ctx)` returns `-1`. Both
-return `Ok(1)` for a zero or quiet-NaN base with exponent zero. A zero base with a
-negative exponent returns `Err(division_by_zero)`. An invalid result, such as one
-from a signaling NaN operand, returns `Err(domain_error)`. `pow_nat_checked`
-returns `Err(unsupported)` for exponents above 999,999,999.
-
-`CompareChecked` is [`compare_checked`](#decimalcompare_checked).
+`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses
+`Decimal::from_string_ctx`, so the context's precision, rounding direction,
+exponent range applies. It returns the converted value; flags
+such as overflow remain available from `from_string_ctx`. Invalid syntax
+returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx`
+under the converted context; it returns `Err(division_by_zero)` for the
+division-by-zero flag and `Err(domain_error)` for the invalid-operation flag.
+`sqrt_checked` is `sqrt_ctx` under the converted context and fails for
+negative operands. `pow_nat_checked` and `pow_int_checked` call `pow_ctx`
+with the integer exponent converted exactly (with at least ten digits, which
+hold every accepted exponent), so at precision 7
+`(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero
+or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with
+a negative exponent, and `Err(domain_error)` for an
+invalid result such as a signaling NaN operand. `pow_nat_checked` returns `Err(unsupported)` for exponents
+above 999,999,999. `CompareChecked` is
+[`compare_checked`](#decimalcompare_checked).
 
 ### `Eq` and `Compare`: `Decimal::equal`, `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`
 
-Implement the operator methods of `Eq` and `Compare`.
+These are the operator methods of `Eq` and `Compare`.
 
 ```mbti
 pub fn Decimal::equal(Self, Self) -> Bool
@@ -2442,15 +2433,15 @@ pub fn Decimal::op_gt(Self, Self) -> Bool
 pub fn Decimal::op_ge(Self, Self) -> Bool
 ```
 
-The operators follow [`compare`](#decimalcompare): `x == y` tests whether
-`compare(x, y) == 0`, `x < y` tests whether `compare(x, y) < 0`, and the other
-operators use the corresponding comparison. Cohort members compare equal
-(`1.0 == 1.00`), $-0 = +0$, and every NaN equals every NaN and is greater than
-every number. Use `total_order_compare` to distinguish representations.
+They are defined by [`compare`](#decimalcompare): `x == y` is
+`compare(x, y) == 0`, `x < y` is `compare(x, y) < 0`, and so on. Cohort
+members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and
+is greater than every number. Use `total_order_compare` to tell representations
+apart.
 
 ### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
 
-These derived `Eq` methods compare contexts, flags and enum values.
+These are the derived `Eq` methods of the context, flag and enum types.
 
 ```mbti
 pub fn DecimalContext::equal(Self, Self) -> Bool
@@ -2467,14 +2458,14 @@ pub fn DecimalInterchangeEncoding::equal(Self, Self) -> Bool
 pub fn DecimalInterchangeEncoding::not_equal(Self, Self) -> Bool
 ```
 
-Contexts compare field by field: precision, rounding, exponent limits and
-refinement limit. Flag sets compare all six fields.
-`DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())`
-compares equal to `DecimalContext::decimal64()`.
+Contexts compare field by field (precision, rounding, exponent
+limits, refinement limit); flag sets compare all six fields.
+`DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is
+equal to `DecimalContext::decimal64()`.
 
 ### `Show` and `Debug`: `Decimal::to_string`, `output`, `to_repr`
 
-`Decimal` implements `Show` and `Debug` for formatting and inspection.
+`Decimal` implements `Show` and `Debug`.
 
 ```mbti
 pub impl Show for Decimal
@@ -2484,11 +2475,11 @@ pub fn Decimal::to_repr(Self) -> @debug.Repr
 ```
 
 `to_string` formats a value in scientific notation without a context. Finite
-values follow the scientific-string rule of
-[`to_sci_string`](#decimalto_sci_string-to_eng_string), which preserves visible
-trailing zeros and the exponent: `1.20`, `1E+3`, `1.2E-7`. Special values use
-lower-case text: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same
-text to a logger. `to_repr` returns the derived structural representation used by
+values use the scientific-string rule of
+[`to_sci_string`](#decimalto_sci_string-to_eng_string), so trailing zeros and
+the exponent are visible: `1.20`, `1E+3`, `1.2E-7`. Special values are written
+in lower case: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same
+text to a logger. `to_repr` is the derived structural representation used by
 `debug_inspect` and `assert_eq`.
 
 ```moonbit
