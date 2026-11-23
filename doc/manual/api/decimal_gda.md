@@ -1071,6 +1071,11 @@ rounded with the rounding of the context (raising `Rounded`, and `Inexact` when
 digits are lost). `rescale(x, n)` does the same with exponent $n$, where $n$
 must be an integer value.
 
+In a subset context a second operand with more than $p$ digits is rounded to $p$
+digits first (raising `LostDigits` when non-zero digits go), and the quantum is
+the rounded operand: at precision 1, `quantize(0, 12)` is `0E+1` and
+`rescale(0, 12)` is `0E+10`.
+
 The result is invalid when
 
 - the target exponent lies outside $[E_{\mathrm{tiny}}, E_{\max}]$
