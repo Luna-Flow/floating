@@ -1343,10 +1343,10 @@ pub fn Decimal::compare(Self, Self) -> Int
 ```
 
 `compare` returns $-1$, 0 or 1 by numeric value. It treats $-0$ and $+0$ as
-equal and treats every member of a cohort as equal. It places every NaN above
-every non-NaN and equates all NaNs, so `Compare` is a total preorder and sorting
-does not abort. `equal` (`==`) follows the same rule, including
-`NaN == NaN` as `true`. For IEEE numeric comparison, use
+equal and treats every member of a cohort as equal. NaN has no numeric order, so
+`Compare` stays a total preorder (sorting never aborts): every NaN compares equal
+to every other NaN and greater than every non-NaN. `equal` (`==`) follows the
+same rule, including `NaN == NaN` as `true`. This is *not* IEEE equality; use
 [`compare_checked`](#decimalcompare_checked), `compare_quiet` or the
 predicates; these leave NaN unordered. The operator methods are listed under
 [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge).
@@ -1612,7 +1612,7 @@ $e_{\min} < -999\,999$, or a finite operand has more than 999,999 digits or an
 adjusted exponent beyond about $\pm 10^6$.
 
 In such a context, cases listed in IEEE 754-2019 9.2.1 or Table 9.1 return
-values; other cases return `not_computed`. The listed cases include a NaN
+values; other cases return `not_computed`. The listed cases are a NaN
 operand; an infinite or zero operand; the exact points
 (`ln_ctx(1)`, `log2_ctx(1)`, `log10_ctx(1)`, `acos_ctx(1)`, `acospi_ctx(1)`,
 `acosh_ctx(1)` are `0`, `atanpi_ctx(+inf)` is `0.5`, `sinpi_ctx(n)` for an
@@ -1686,7 +1686,7 @@ the functions return the context-limit error immediately (`not_computed` in
 the plain form) for an ordinary operand. They do not compute even the
 exponent `0.5`, which would otherwise be a square root at that precision.
 
-The recorded cost is `pow(2, 0.5)` taking about 0.6 s at 100,000 digits,
+The cost is the reason for the limit: `pow(2, 0.5)` takes about 0.6 s at 100,000 digits,
 14.7 s at 1,000,000 digits and more than 300 s at 10,000,000 digits. The
 special cases for `pow` listed in IEEE 754-2019 9.2.1 still return values at
 every context precision. `pown_ctx` applies `pow_ctx` to an integral
