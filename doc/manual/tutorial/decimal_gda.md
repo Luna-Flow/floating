@@ -165,7 +165,7 @@ test "the InvalidOperation trap covers conversion syntax" {
 
 When an operation raises several trapped conditions, the package reports one
 according to a fixed precedence. The [API page](../api/decimal_gda.md#trap-selection)
-lists that precedence.
+lists that precedence, so you never have to invent your own order.
 
 ### Respect the exponent range
 
@@ -240,13 +240,14 @@ an inexact square root, and this package also returns the correctly rounded resu
 GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer
 exponent; this package returns the correctly rounded result.
 
-Here, certification means that the package decides the rounding result before
-returning it. Each function refines its enclosure at most twelve times by
-default. For an argument close to a rounding boundary,
-`ctx.with_refinement_limit(Some(24))` allows 24 steps;
-`with_refinement_limit(None)` removes the count, so the working precision
-stops at a resource bound of at least 8,000,000 bits. Read the current setting
-with `refinement_limit()`.
+Here, certification means that an interval known to contain the function value
+lies inside its rounding cell. Each function refines its enclosure at most
+twelve times by default. For a rare argument that sits very close to a rounding
+boundary,
+`ctx.with_refinement_limit(Some(24))` allows more steps;
+`with_refinement_limit(None)` removes the count, so the working precision stops
+at a resource bound of at least 8,000,000 bits. Read the current setting with
+`refinement_limit()`.
 
 ### Compare and print
 
@@ -302,11 +303,11 @@ test "a checked GDA pipeline" {
 ### Generic code through `Luna-Flow/arithmetic`
 
 `Decimal` implements the contextual traits of
-[`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/). Generic code that
-uses traits such as `AddContextual`, `DivContextual` and `SqrtContextual` can
-therefore use `Decimal`. These adapters use the five IEEE-style rounding
-algorithms of `ArithmeticContext`, return errors as `Err`, and do not support
-traps:
+[`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/), so code written
+against `AddContextual`, `DivContextual`, `SqrtContextual` and friends runs on
+it. These adapters use the five IEEE-style rounding
+algorithms of `ArithmeticContext`, return errors as `Err`, and know nothing
+about traps:
 
 ```moonbit
 ///|
@@ -371,7 +372,7 @@ test "decimal64 interchange round trip" {
 
 - **Reusing the original context.** Flags accumulate only when you pass each
   outcome's `next_context()` to the next operation. Trap settings and flags also
-  travel with contexts derived from the original.
+  travel with every context derived from the original.
 - **Treating `Trapped` as "no value".** A trap changes the outcome variant, not
   the result. Read `value()` before deciding whether to stop.
 - **Expecting constructors to keep zeros.** `Decimal::from_int(100)` and
@@ -379,9 +380,9 @@ test "decimal64 interchange round trip" {
   `Decimal::from_string("100")` or `parse` when the quantum matters.
 - **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context.
   They use a private context with larger operand precision, half-even rounding,
-  no clamp and no traps. They round to that private precision and return the GDA
-  cohort member: `1.10 + 3.50` is `4.60`. Use the package functions when GDA
-  results, flags or traps matter.
+  no clamp and no traps, so they round every result to that private precision,
+  return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use
+  the package functions when GDA results, flags or traps matter.
 - **Equality and NaN.** `==` and `compare` put every NaN equal to every other
   NaN and above every number (a total preorder, so sorting never aborts). Use
   the package `compare`, `compare_signal`, or `Decimal::compare_checked` when
@@ -390,7 +391,7 @@ test "decimal64 interchange round trip" {
   `@decimal.Decimal` have different contracts and types. Convert between them
   through strings or interchange bits.
 - **Expecting elementary functions to follow the context rounding.** `exp`,
-  `ln`, `log10` and `sqrt` round half to even; only `power` follows the
+  `ln`, `log10` and `sqrt` always round half to even; only `power` follows the
   context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions)
   gives the required context range.
 - **Using a default context for elementary functions.** `GdaContext::new()` and
