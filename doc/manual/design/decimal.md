@@ -186,8 +186,7 @@ x \cdot 10^{-t} = c + f, \qquad c \in \mathbb{Z}_{\ge 0},\ 0 \le f < 1 .
 $$
 
 Each rounding direction returns $c$ or $c + 1$ (times $10^{t}$); the choice
-depends on $f$, the last digit of $c$ and the sign. The table shows the choice
-for positive $x$.
+depends on $f$, the last digit of $c$ and the sign.
 
 The kernels implement eight algorithms. A context selects one of the five
 that IEEE 754-2019 4.3 names (public `DecimalRoundingMode`: `RoundTowardZero`
@@ -197,7 +196,7 @@ is `Down`, `RoundTowardPositive` is `Ceiling`, `RoundTowardNegative` is
 the certified functions, the guard digit of division) that no context can
 select. The table uses the kernel names.
 
-| Mode | IEEE name | For positive $x$ with $f > 0$, increment when |
+| Mode | IEEE name | Returns $c+1$ when ($f > 0$) |
 | --- | --- | --- |
 | `Down` | roundTowardZero | never |
 | `Up` | — | always |
@@ -279,7 +278,7 @@ computation uses `DecimalContext::decimal64()`; interchange encoders apply the
 format context before encoding. One representation keeps arithmetic in one
 place and lets a caller work at 50 digits before rounding to decimal64. It also
 matches the General Decimal Arithmetic model. The precision of the value sets
-the precision used by context-free operators and conversions.
+the precision used by context-free operators and conversions only.
 
 ### Round once, in one place
 
@@ -311,8 +310,8 @@ the underflow flag and the fold-down.
 The routine rounds to the subnormal grid only when $t = E_{\text{tiny}} > Q$.
 It tests this condition as $Q + \max(0, D - p) < E_{\text{tiny}}$. Then the
 exact value is below $10^{e_{\min}}$, and $C$ is rounded once with shift
-$E_{\text{tiny}} - Q$. Every other coefficient is rounded once to $p$ digits,
-even when $Q < E_{\text{tiny}}$.
+$E_{\text{tiny}} - Q$. Every other coefficient is rounded once to $p$ digits
+only, even when $Q < E_{\text{tiny}}$.
 
 Rounding a normal result first to the subnormal grid $10^{E_{\text{tiny}}}$ and
 then to $p$ digits can change the answer. The first rounding may land exactly
@@ -407,8 +406,10 @@ routes, in this order.
    factors 2 and 5 of $c_b$). The valuations $a$ and $b$ are read from the
    lowest limb when both are below 9, so for a divisor prime to 10 (the usual
    case) the test is $c_b \mid c_a$, one division of limb arrays. Only a
-   terminating quotient runs the gcd route above. This avoids computing a gcd
-   for a quotient that cannot terminate.
+   terminating quotient runs the gcd route above. A non-terminating one, which
+   is nearly every division of random operands, used to pay a gcd of the two
+   coefficients (quadratic, hundreds of allocations at 34 digits) to learn
+   that it has no exact result.
 3. *Non-terminating quotient.* The result is certainly inexact. Let
    $a_c = \operatorname{adj}(c_a/c_b)$, found exactly by comparing $c_a$ with
    $c_b$ scaled by the right power of ten. Scaling the numerator (or the
@@ -485,7 +486,7 @@ instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and
 3,251, `div_ctx` 13 and 3,840 instead of 38 and 9,212.
 
 The general route defines the behavior; the direct paths must return the same
-result and flags. The white-box test compares both routes on operands of 1 to
+result and flags. The white-box test compares both routes on random operands of 1 to
 130 digits, with mixed signs, cancellations, exponent gaps and carries, for
 every rounding direction, in clamped and unclamped formats with tight and
 storage-wide exponent ranges and operands at both ends of the range.
@@ -640,11 +641,14 @@ Zeros have no digits to pad, so their exponent is simply clamped into
 $[E_{\text{tiny}}, E_{\text{top}}]$.
 
 A zero is the one result `quantize_ctx` can accept with a target exponent above
-$E_{\text{top}}$: its one-digit coefficient allows a target as high as
-$e_{\max}$. Since an IEEE format
-contains only exponents through $E_{\text{top}}$ (IEEE 754-2019 3.3),
+$E_{\text{top}}$: the target may be as high as $e_{\max}$. Since an IEEE
+format contains only exponents through $E_{\text{top}}$ (IEEE 754-2019 3.3),
 `quantize_ctx` folds the zero exponent down to $E_{\text{top}}$, as it does for
-other results.
+other results. The bound follows from the one-digit coefficient,
+$e_{\max} - \operatorname{digits} + 1 = e_{\max}$. The reference
+implementation calls `decFinalize` from `decQuantizeOp` at this bound and
+lowers the exponent in its clamp branch. Until 0.12, the fold in this package
+was controlled by the `with_clamp_fold` option.
 
 ### Flags as returned values
 
@@ -1118,7 +1122,11 @@ $x = 2^{2i}5^{2j}$: with
   `decimal_range_from_log2_bracket` on $n \operatorname{log1p}(x)/\ln 2$
   whenever $|n| \max(\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already
   keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an
-  `Int64`. `pown(1 + x, n)` is not used for this case. The Ziv loop evaluates
+  `Int64`. `pown(1 + x, n)` is not used: when this function was written, its
+  exponents beyond the machine count gave wrong values and some negative ones
+  a spurious `Clamped` for a base near 1 (issues [#348](https://github.com/Luna-Flow/floating/issues/348)
+  and [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed),
+  and the Ziv loop never forms $1 + x$. The Ziv loop evaluates
   $\exp(n\operatorname{log1p}(x))$ and never forms $1+x$.
 ##### `powr`
 
@@ -1424,9 +1432,8 @@ transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for
 multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring —
 and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger
 block lengths. These are dispatch boundaries: they change cost, never results.
-The Newton division path is disabled on native because its measured cost has no
-crossover there. The table lists separate division thresholds for LLVM and
-Wasm-family targets; the square-root path is a different algorithm.
+The native Newton path is implemented and tested but disabled because native
+measurements do not show a crossover.
 
 ## Correctness and invariants
 
@@ -1462,7 +1469,8 @@ Wasm-family targets; the square-root path is a different algorithm.
 
 No behaviour of the current branch contradicts the goals above. A deviation
 found later is listed here, reproduced in the
-[API reference](../api/decimal.md) next to the operation.
+[API reference](../api/decimal.md) next to the operation, and tracked in a
+GitHub issue together with the pull request that proposes a fix.
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel
