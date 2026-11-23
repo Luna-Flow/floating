@@ -44,9 +44,9 @@ For a finite value, $(-1)^s \cdot c \cdot 10^q$ denotes its value, where $s$
 is its sign, $c$ its non-negative integer coefficient and $q$ its exponent.
 The quantum is $10^q$, the unit in the last digit position (IEEE 754-2019
 2.1). The context precision is $p$; its exponent limits
-$E_{\min}$ and $E_{\max}$ bound the adjusted exponent
+$e_{\min}$ and $e_{\max}$ bound the adjusted exponent
 $\hat q = q + \operatorname{digits}(c) - 1$. The smallest exponent of a
-subnormal is $E_{\mathrm{tiny}} = E_{\min} - p + 1$.
+subnormal is $E_{\text{tiny}} = e_{\min} - p + 1$.
 
 ## Values and representation
 
@@ -130,7 +130,7 @@ pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 ```
 
 `classify` returns `Finite`, `Infinity` or `NaN`. `class_of` returns one of the
-ten [`IeeeClass`](def.md#ieeeclass) values. The context's $E_{\min}$ determines
+ten [`IeeeClass`](def.md#ieeeclass) values. The context's $e_{\min}$ determines
 whether a finite nonzero value is normal or subnormal. `IeeeClass` has no text
 form; use `match` on its value.
 
@@ -156,8 +156,8 @@ non-canonical form; non-canonical *encodings* belong to
 [`DecimalInterchange`](#decimalinterchange-decimalinterchangeformat-encoding-to_hex).
 
 Under a context, a finite nonzero value is normal when its adjusted exponent is
-at least $E_{\min}$, and subnormal when its adjusted exponent is below
-$E_{\min}$. Zeros, infinities and NaNs are neither.
+at least $e_{\min}$, and subnormal when its adjusted exponent is below
+$e_{\min}$. Zeros, infinities and NaNs are neither.
 
 ### `Decimal::nan_payload`, `get_payload`, `set_payload`, `set_payload_signaling`
 
@@ -491,12 +491,12 @@ pub struct DecimalContext {
 ```
 
 An IEEE 754-2019 decimal format has precision $p$, maximum adjusted exponent
-$E_{\max}$ and minimum adjusted exponent $E_{\min}=1-E_{\max}$ (3.3). A
+$e_{\max}$ and minimum adjusted exponent $e_{\min}=1-e_{\max}$ (3.3). A
 `DecimalContext` selects one such format and one rounding-direction attribute,
 `rounding`, whose value is a `DecimalRoundingMode`.
 
 For a finite result with exponent $q$, the format requires
-$E_{\min} \le q + p - 1 \le E_{\max}$. Therefore $q \le E_{\max}-p+1$;
+$e_{\min} \le q + p - 1 \le e_{\max}$. Therefore $q \le e_{\max}-p+1$;
 larger exponents are folded down. IEEE 754-2019 7.5 requires decimal formats to
 detect tininess before rounding. The context has no option for these format
 rules. Each context operation receives its context as an argument and reads no
@@ -525,7 +525,7 @@ These are the decNumber `decContext.h` limits.
 `e_max` against `1..=decimal_context_e_max_limit`; the constants used for the
 checks are also the public limits. These values bound contexts only. The
 certified elementary functions have a lower implementation limit:
-$E_{\max} \le 999{,}999$ and $p \le 999{,}999$. See
+$e_{\max} \le 999{,}999$ and $p \le 999{,}999$. See
 [Elementary functions](#elementary-functions).
 
 ### `DecimalContext::new`, `try_new`
@@ -541,12 +541,12 @@ pub fn DecimalContext::try_new(precision? : Int, e_max? : Int, rounding? : Decim
 | Parameter | Default | Meaning |
 | --- | --- | --- |
 | `precision` | 34 | coefficient digits $p$ |
-| `e_max` | $\max(999{,}999, 1000p)$ | The maximum adjusted exponent $E_{\max}$; $E_{\min}=1-E_{\max}$. |
+| `e_max` | $\max(999{,}999, 1000p)$ | The maximum adjusted exponent $e_{\max}$; $e_{\min}=1-e_{\max}$. |
 | `rounding` | `RoundTiesToEven` | The rounding-direction attribute (IEEE 754-2019 4.3). |
 
 `precision` and `e_max` must each be in `1..=999,999,999`. IEEE 754-2019 3.7
 requires a language that supports an extendable format specified by precision
-alone to define $E_{\max}$ as at least $1000p$ when decimal precision is at
+alone to define $e_{\max}$ as at least $1000p$ when decimal precision is at
 least 51 digits. The library sets its default `e_max` to
 $\max(999{,}999,1000p)$; 999,999 is the widest range in which every package
 operation runs.
@@ -558,8 +558,8 @@ because $1000p$ exceeds the limit; pass `e_max`. `try_new` returns
 names it, as `BinaryContext::new` does. Use `try_new` for parameters from
 outside the program.
 
-IEEE 754-2019 3.7 NOTE 3 recommends $E_{\max}\ge2$. The library accepts 1, the
-least value for which $E_{\min}\le E_{\max}$ under 3.3.
+IEEE 754-2019 3.7 NOTE 3 recommends $e_{\max}\ge2$. The library accepts 1, the
+least value for which $e_{\min}\le e_{\max}$ under 3.3.
 
 The context's `rounding` attribute applies to finite results, infinities and
 every other use of the context; `rounding()` reports exactly the rounding
@@ -577,7 +577,7 @@ for the digits. For example, a context with `digits(a) + digits(b)` digits and
 an `e_max` at least the exponent of the product makes `mul_ctx` exact.
 
 > [!NOTE]
-> Certified elementary functions accept contexts with $E_{\max}\le999{,}999$
+> Certified elementary functions accept contexts with $e_{\max}\le999{,}999$
 > and $p\le999{,}999$. For $p\le999$, `DecimalContext::new` defaults to the
 > largest range inside that limit. A larger range, from explicit `e_max` or
 > $p\ge1000$, makes them return NaN with `invalid_operation`.
@@ -771,7 +771,7 @@ does not contain. `DecimalContext::from_arithmetic_context` and the
 `_contextual` forms return `Err` for `AwayFromZero`.
 
 Every context detects tininess before rounding (IEEE 754-2019 7.5). A non-zero
-exact result whose magnitude is below $10^{E_{\min}}$ is tiny, regardless of the
+exact result whose magnitude is below $10^{e_{\min}}$ is tiny, regardless of the
 delivered value. An inexact tiny result raises `underflow`. Contexts have no
 option for the binary after-rounding rule.
 
@@ -791,7 +791,7 @@ pub struct DecimalFlags {
 | --- | --- |
 | `inexact` | the result differs from the exact result |
 | `underflow` | the result is tiny and inexact |
-| `overflow` | the rounded result's adjusted exponent exceeds $E_{\max}$ |
+| `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `division_by_zero` | finite operands produce an exact infinite result ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
 | `invalid_operation` | the result is not usefully definable (signaling NaN, $\infty-\infty$, $0\times\infty$, $0/0$, bad quantize, text that is not a number, a context outside the range an elementary function supports) |
 | `not_computed` | the library cannot compute a result within an implementation limit (a context beyond the elementary kernels, an operand beyond their range, an exact sum with an exponent gap beyond the work bound, or an undecided certification): the value is a NaN, `invalid_operation` is not raised, and the `try_` form returns `Err` of the certification-failure kind |
@@ -968,10 +968,10 @@ Each function in this group takes a `DecimalContext` and returns
 `(result, flags)`. It rounds the exact result once to the context precision in the
 context's rounding direction, then applies the exponent range. Overflow gives
 the result for that rounding direction; see [overflow](../design/decimal.md#overflow).
-A result whose exact magnitude is below $10^{E_{\min}}$ is rounded directly to
-the subnormal grid $10^{E_{\mathrm{tiny}}}$. A normal result is rounded only to $p$
-digits even when its exact exponent is below $E_{\mathrm{tiny}}$. Large
-exponents are folded down to $E_{\max}-p+1$.
+A result whose exact magnitude is below $10^{e_{\min}}$ is rounded directly to
+the subnormal grid $10^{E_{\text{tiny}}}$. A normal result is rounded only to $p$
+digits even when its exact exponent is below $E_{\text{tiny}}$. Large
+exponents are folded down to $e_{\max}-p+1$.
 
 When the exact result fits, the operation uses its *preferred exponent*, so
 cohort information is preserved. NaN operands propagate as a quiet NaN with
@@ -982,7 +982,7 @@ operand raises `invalid_operation`.
 Near the underflow threshold, the single rounding determines the result. In
 decimal32, the exact product `3.000001E-45 * 1.500001E-45` is
 $4.5000045000015\cdot 10^{-90}$. It is a normal number even though its exact
-exponent is below $E_{\mathrm{tiny}}=-101$, and rounds once to seven digits as
+exponent is below $E_{\text{tiny}}=-101$, and rounds once to seven digits as
 `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is
 $5.0000000000005\cdot 10^{-102}$, which is subnormal. Its guarded quotient
 rounds once to the grid $10^{-101}$, giving `1E-101` with `inexact` and
@@ -1003,7 +1003,7 @@ The preferred exponents are $\min(q_a,q_b)$ for addition and subtraction,
 $q_a+q_b$ for multiplication, and $q_a-q_b$ for division. An exact quotient
 uses the cohort member closest to its preferred exponent. An inexact quotient
 has $p$ digits, except a subnormal quotient, whose exponent is
-$E_{\mathrm{tiny}}$. A zero sum is $+0$ except under `Floor`, when it is $-0$
+$E_{\text{tiny}}$. A zero sum is $+0$ except under `Floor`, when it is $-0$
 if either operand is negative, or when both operands are $-0$.
 
 | Operands | Result and flag |
@@ -1013,7 +1013,7 @@ if either operand is negative, or when both operands are $-0$.
 | $\infty/\infty$ | NaN with `invalid_operation` |
 | $0/0$ | NaN with `invalid_operation` |
 | finite non-zero $x/0$ | Signed infinity with `division_by_zero` |
-| finite$/\infty$ | Signed zero with exponent $E_{\mathrm{tiny}}$ |
+| finite$/\infty$ | Signed zero with exponent $E_{\text{tiny}}$ |
 
 When an operand of `add_ctx` or `sub_ctx` lies below every rounding boundary
 of the sum, the operation does not align it digit by digit. It replaces that
@@ -1092,7 +1092,7 @@ pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above
-$E_{\mathrm{top}}=E_{\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero.
+$E_{\mathrm{top}}=e_{\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero.
 `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`.
 
 ### `Decimal::remainder_ctx`
@@ -1165,14 +1165,14 @@ The result is NaN with `invalid_operation` in these cases:
 
 | Condition | Result |
 | --- | --- |
-| The target exponent is outside $[E_{\mathrm{tiny}},E_{\max}]$ | NaN with `invalid_operation` |
+| The target exponent is outside $[E_{\text{tiny}},e_{\max}]$ | NaN with `invalid_operation` |
 | The resulting coefficient needs more than $p$ digits | NaN with `invalid_operation` |
-| The adjusted exponent exceeds $E_{\max}$ | NaN with `invalid_operation` |
+| The adjusted exponent exceeds $e_{\max}$ | NaN with `invalid_operation` |
 | Exactly one operand is infinite | NaN with `invalid_operation` |
 
 Two infinities give the infinity of $x$. The quantum does not silently change to another value
 of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target
-exponent in $(E_{\mathrm{top}},E_{\max}]$ is accepted as the fold-down exception; the result
+exponent in $(E_{\mathrm{top}},e_{\max}]$ is accepted as the fold-down exception; the result
 then has exponent $E_{\mathrm{top}}$, like every other result. For example, quantizing `1E+384`
 to `1E+384` in decimal64 gives `1.000000000000000E+384`.
 
@@ -1269,14 +1269,14 @@ pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 $x \cdot 10^n$. IEEE 754-2019 5.3.3 defines scaleB for integral counts only;
 the language defines behavior for a non-integral second operand, including an
 infinity. This package also requires $n$ to be finite and integral, with
-exponent 0, and $|n| \le 2(E_{\max}+p)$; otherwise it returns NaN and raises
+exponent 0, and $|n| \le 2(e_{\max}+p)$; otherwise it returns NaN and raises
 `invalid_operation`. The count bound follows the GDA `scaleb` rule, while
 `Binary::scaleb_ctx` clamps a larger count.
 
 The scaled value is rounded once as a context result. A coefficient longer
 than $p$ digits is rounded to $p$ digits: scaling
 `12345678901234567890` by 0 in decimal64 gives `1.234567890123457E+19` with
-`inexact`. A subnormal result is rounded to $E_{\mathrm{tiny}}$. Overflow
+`inexact`. A subnormal result is rounded to $E_{\text{tiny}}$. Overflow
 produces the result selected by the context's rounding direction and raises
 `overflow` and `inexact`; with decimal64 and `TowardZero`, scaling `9E+384` by
 1 gives `9.999999999999999E+384`. Large exponents are folded down. A zero keeps
@@ -1316,7 +1316,7 @@ pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 `next_up_ctx` returns the least value in the context greater than `x`;
 `next_down_ctx` returns the greatest value less than `x`. The range includes
 subnormals down to $10^{E_{\text{tiny}}}$ and the largest finite value
-$(10^{p}-1)\,10^{E_{\max}-p+1}$. For example, `next_up_ctx(-∞)` returns the
+$(10^{p}-1)\,10^{e_{\max}-p+1}$. For example, `next_up_ctx(-∞)` returns the
 most negative finite value. Finite results raise no flags. IEEE 754-2019 5.3.1
 defines nextUp and nextDown only: the next-toward operation of GDA 1.70 is
 `next_toward` of `decimal_gda`, and this package has no `next_toward_ctx`.
