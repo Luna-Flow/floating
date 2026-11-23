@@ -1125,9 +1125,9 @@ $x = 2^{2i}5^{2j}$: with
   `Int64`. `pown(1 + x, n)` is not used: when this function was written, its
   exponents beyond the machine count gave wrong values and some negative ones
   a spurious `Clamped` for a base near 1 (issues [#348](https://github.com/Luna-Flow/floating/issues/348)
-  and [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed),
-  and the Ziv loop never forms $1 + x$. The Ziv loop evaluates
-  $\exp(n\operatorname{log1p}(x))$ and never forms $1+x$.
+  and [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed).
+  Instead, the Ziv loop evaluates $\exp(n\operatorname{log1p}(x))$ without
+  forming $1 + x$.
 ##### `powr`
 
 `powr(x,y)` follows the invalid pairs listed in IEEE 754-2019 9.2.1: $(\pm 0, \pm 0)$,
@@ -1469,8 +1469,7 @@ measurements do not show a crossover.
 
 No behaviour of the current branch contradicts the goals above. A deviation
 found later is listed here, reproduced in the
-[API reference](../api/decimal.md) next to the operation, and tracked in a
-GitHub issue together with the pull request that proposes a fix.
+[API reference](../api/decimal.md) next to the operation.
 
 The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the
 overflow table, the fold-down bound, the certification lemma and the kernel
