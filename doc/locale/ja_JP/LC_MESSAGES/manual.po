@@ -11532,7 +11532,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:68
 #: manual/design/decimal.md:1486
-#: manual/design/decimal_checked.md:291
+#: manual/design/decimal_checked.md:294
 #: manual/design/decimal_gda.md:1168
 #: manual/design/decimal_gda_checked.md:262
 #: manual/design/def.md:318
@@ -13028,7 +13028,7 @@ msgstr "`environment` は各実行についてターゲット、プロファイ�
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:53
 #: manual/design/decimal.md:1418
-#: manual/design/decimal_checked.md:204
+#: manual/design/decimal_checked.md:205
 #: manual/design/decimal_gda.md:1115
 #: manual/design/decimal_gda_checked.md:205
 #: manual/design/def.md:187
@@ -13083,7 +13083,7 @@ msgstr "**スケール不変性。** すべてのサンプルに定数 $\\lambda
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:61
 #: manual/design/decimal.md:1465
-#: manual/design/decimal_checked.md:280
+#: manual/design/decimal_checked.md:283
 #: manual/design/decimal_gda.md:1151
 #: manual/design/decimal_gda_checked.md:253
 #: manual/design/def.md:306
@@ -16558,7 +16558,7 @@ msgid "Algorithm"
 msgstr "アルゴリズム"
 
 #: manual/design/decimal.md:1315
-#: manual/design/decimal_checked.md:275
+#: manual/design/decimal_checked.md:278
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:299
 msgid "Cost"
@@ -16924,110 +16924,110 @@ msgid "Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule
 msgstr "丸めの前の極小性検出（IEEE 754-2019 §7.5）が唯一の規則です。したがって、定義済みの `ArithmeticContext::decimal64()` は `DecimalContext::decimal64()` に正確に対応します。"
 
 #: manual/design/decimal_checked.md:157
-msgid "The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their context to decNumber's range: precision (by default, see `DecimalContext::elementary_precision_limit`) and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `not_computed`, and the `try_` forms, which the pipeline calls, return `Err` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `pow` and `pown` with an integral exponent, and `pow` with the exponent $0.5$ (a square root), are the exceptions in the exponent limits: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$; the precision limit applies to them as to the others."
-msgstr "数学関数 `exp`、`ln`、`log10`、`pow` は、コンテキストを decNumber の範囲に制限します。精度（既定では。`DecimalContext::elementary_precision_limit` を参照）と二つの指数の限界は、絶対値が $999\\,999$ 以内でなければならず、そうでなければ結果は `not_computed` 付きの NaN です。パイプラインが呼ぶ `try_` 形式は `Err` を返します（`library/src/decimal` の非公開の検査 `math_context_is_restricted`）。これは意図的な実装上の限界（`DEC_MAX_MATH`）であり、GDA の演算本文の規則ではありません。decTest がそれを要求し（`power.decTest` の powx4001 から powx4005、および `exp`、`ln`、`log10` の対応する行）、GDA の Invalid context 条件がそれを許容します。[^gda] したがって既定の無制限の指数範囲ではこれらは使えなくなり、API ページとチュートリアルがそのことを指摘しています。整数の指数を持つ `pow` と `pown`、および指数が $0.5$（平方根）の `pow` は、指数の限界については例外です。算術演算と同様に、上限 $\\pm 999\\,999\\,999$ までのコンテキストを受け付けます。精度の限界は、他の関数と同じくこれらにも適用されます。"
+msgid "The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their context to decNumber's range: precision (by default, see `DecimalContext::elementary_precision_limit`) and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `not_computed`, and the `try_` forms, which the pipeline calls, return `Err` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] A precision of 1,000 digits or more without an explicit `e_max` (the default range is then beyond 999,999) therefore disables them, which the API page and tutorial point out. `pow` and `pown` with an integral exponent, and `pow` with the exponent $0.5$ (a square root), are the exceptions in the exponent limits: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$; the precision limit applies to them as to the others."
+msgstr "数学関数 `exp`、`ln`、`log10`、`pow` は、コンテキストを decNumber の範囲に制限します。精度（既定では。`DecimalContext::elementary_precision_limit` を参照）と二つの指数の限界は、絶対値が $999\\,999$ 以内でなければならず、そうでなければ結果は `not_computed` 付きの NaN です。パイプラインが呼ぶ `try_` 形式は `Err` を返します（`library/src/decimal` の非公開の検査 `math_context_is_restricted`）。これは意図的な実装上の限界（`DEC_MAX_MATH`）であり、GDA の演算本文の規則ではありません。decTest がそれを要求し（`power.decTest` の powx4001 から powx4005、および `exp`、`ln`、`log10` の対応する行）、GDA の Invalid context 条件がそれを許容します。[^gda] したがって、明示的な `e_max` のない 1,000 桁以上の精度（このとき既定の範囲は 999,999 を超えます）ではこれらは使えなくなり、API ページとチュートリアルがそのことを指摘しています。整数の指数を持つ `pow` と `pown`、および指数が $0.5$（平方根）の `pow` は、指数の限界については例外です。算術演算と同様に、上限 $\\pm 999\\,999\\,999$ までのコンテキストを受け付けます。精度の限界は、他の関数と同じくこれらにも適用されます。"
 
-#: manual/design/decimal_checked.md:173
+#: manual/design/decimal_checked.md:174
 msgid "M. Cowlishaw, *General Decimal Arithmetic Specification*, version 1.70, \"Context\" (the Invalid context condition under \"Exceptional conditions\") and the decTest rows named above."
 msgstr "M. Cowlishaw, *General Decimal Arithmetic Specification*, バージョン 1.70, 「Context」（「Exceptional conditions」の Invalid context 条件）および上に挙げた decTest の行。"
 
-#: manual/design/decimal_checked.md:177
+#: manual/design/decimal_checked.md:178
 msgid "From flags to arithmetic diagnostics"
 msgstr "フラグから算術の診断情報へ"
 
-#: manual/design/decimal_checked.md:179
+#: manual/design/decimal_checked.md:180
 msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the three shared coordinates (`inexact`, `overflow`, `underflow`) and leaving the other three false; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
 msgstr "Luna-Flow/arithmetic における `Decimal` のコンテキスト付きトレイト実装は `ArithmeticDiagnostics` を報告します。これは 6 個のブール値で、`ArithmeticDiagnostics::combine`（やはりフィールドごとの OR）で組み合わされます。`library/src/decimal/traits.mbt` のプライベートなヘルパー `contextual_diagnostics` は、共通する 3 つの座標（`inexact`、`overflow`、`underflow`）を残し、ほかの 3 つを偽にすることで、フラグを診断情報に対応付けます。この射影を $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$ と呼びます。座標射影はフィールドごとの OR と可換です。"
 
-#: manual/design/decimal_checked.md:192
+#: manual/design/decimal_checked.md:193
 msgid "so $\\pi$ is a monoid homomorphism, and by induction"
 msgstr "したがって $\\pi$ はモノイド準同型であり、帰納法により"
 
-#: manual/design/decimal_checked.md:198
+#: manual/design/decimal_checked.md:199
 msgid "Converting the accumulated flags of a pipeline once at the end gives the same diagnostics as converting each step and combining. The conditions that the trait implementation turns into an `ArithmeticError` (division by zero and the invalid-operation family tested by `DecimalFlags::has_error`) are not among the coordinates kept by $\\pi$; the pipeline keeps them as flags instead."
 msgstr "パイプラインの蓄積されたフラグを最後に 1 回変換しても、各ステップを変換して組み合わせても、同じ診断情報が得られます。トレイト実装が `ArithmeticError` に変える条件（ゼロ除算と、`DecimalFlags::has_error` で判定される無効演算の系統）は $\\pi$ が残す座標には含まれません。パイプラインはそれらを代わりにフラグとして保持します。"
 
-#: manual/design/decimal_checked.md:206
+#: manual/design/decimal_checked.md:207
 msgid "Accumulated flags are the union of per-step flags"
 msgstr "蓄積されたフラグはステップごとのフラグの和集合である"
 
-#: manual/design/decimal_checked.md:208
-msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then"
-msgstr "**定理。** パイプラインがフラグ $r_0$ で構築され（`from_decimal`、`parse`、または数値コンストラクタ由来）、その後に成功するステップ $1, \\dots, n$ を経て、上がったフラグが $r_1, \\dots, r_n$ であるとします（`with_context` と `apply` を含み、途中に `clear_flags` はなく、普通のステップのみとします。右オペランドがパイプラインであるステップはそのパイプラインのフラグも合流させ、`raised` はその `raised` を、`flags` はその `flags` を取り込むので、以下の等式はそれらを $r_k$ と $F_k$ に加えても成り立ちます）。このとき"
+#: manual/design/decimal_checked.md:209
+msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`; the `flags` of an operand can exceed its `raised`, so the equation below then holds only with the `flags` of those operands also joined on the right side). Then"
+msgstr "**定理。** パイプラインがフラグ $r_0$ で構築され（`from_decimal`、`parse`、または数値コンストラクタ由来）、その後に成功するステップ $1, \\dots, n$ を経て、上がったフラグが $r_1, \\dots, r_n$ であるとします（`with_context` と `apply` を含み、途中に `clear_flags` はなく、普通のステップのみとします。右オペランドがパイプラインであるステップはそのパイプラインのフラグも合流させ、`raised` はその `raised` を、`flags` はその `flags` を取り込みます。オペランドの `flags` はその `raised` を超えうるので、以下の等式は、右辺にもそれらのオペランドの `flags` を合流させたときに限り成り立ちます）。このとき"
 
-#: manual/design/decimal_checked.md:220
+#: manual/design/decimal_checked.md:223
 msgid "*Proof.* Every constructor sets $r = F = r_0$, which is the case $n = 0$. If $F_{k} = \\bigvee_{i \\le k} r_i$, a successful step $k+1$ goes through `record` (or the identical update in `with_context`) and sets $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ by associativity, and $r = r_{k+1}$. $\\square$"
 msgstr "*証明。* すべてのコンストラクタは $r = F = r_0$ と設定し、これが $n = 0$ の場合です。$F_{k} = \\bigvee_{i \\le k} r_i$ ならば、成功したステップ $k+1$ は `record`（または `with_context` 内の同一の更新）を通り、結合則により $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ と $r = r_{k+1}$ を設定します。$\\square$"
 
-#: manual/design/decimal_checked.md:226
+#: manual/design/decimal_checked.md:229
 msgid "By commutativity and idempotence of $\\lor$, $F_n$ does not depend on the order of the steps or on how often a signal was raised, and by the homomorphism property of `contains`,"
 msgstr "$\\lor$ の可換性と冪等性により、$F_n$ はステップの順序やシグナルが何回立てられたかに依存しません。また `contains` の準同型性により、"
 
-#: manual/design/decimal_checked.md:234
+#: manual/design/decimal_checked.md:237
 msgid "The following test checks the theorem on a three-step pipeline: the accumulated flags equal the OR of the raised flags of the steps, in either order of combination."
 msgstr "次のテストは 3 ステップのパイプラインでこの定理を確かめます。蓄積されたフラグは、各ステップで立てられたフラグの OR に、組み合わせの順序によらず等しくなります。"
 
-#: manual/design/decimal_checked.md:255
+#: manual/design/decimal_checked.md:258
 msgid "After `clear_flags`, the theorem holds again with $r_0 = \\mathbf{0}$ from that point. $F$ is monotone along a pipeline: $F_k \\subseteq F_{k+1}$."
 msgstr "`clear_flags` の後は、その時点から $r_0 = \\mathbf{0}$ として定理が再び成り立ちます。$F$ はパイプラインに沿って単調です：$F_k \\subseteq F_{k+1}$。"
 
-#: manual/design/decimal_checked.md:258
+#: manual/design/decimal_checked.md:261
 msgid "Errors are absorbing"
 msgstr "エラーは吸収的である"
 
-#: manual/design/decimal_checked.md:260
+#: manual/design/decimal_checked.md:263
 msgid "**Theorem.** If a state has $\\varepsilon = \\mathrm{Some}(e)$, every operation except `clear_flags` returns it unchanged, and `clear_flags` changes only $r$ and $F$."
 msgstr "**定理。** 状態が $\\varepsilon = \\mathrm{Some}(e)$ を持つとき、`clear_flags` 以外のすべての演算はその状態をそのまま返し、`clear_flags` は $r$ と $F$ だけを変更します。"
 
-#: manual/design/decimal_checked.md:264
+#: manual/design/decimal_checked.md:267
 msgid "*Proof.* `record`, `record_result` and `with_context` start with the guard `self.error_ is None` and return `self` otherwise; every arithmetic method goes through `record` or `record_result`. `clear_flags` updates only the two flag fields. $\\square$"
 msgstr "*証明。* `record`、`record_result`、`with_context` はガード `self.error_ is None` で始まり、そうでなければ `self` を返します。すべての算術メソッドは `record` または `record_result` を通ります。`clear_flags` は 2 つのフラグフィールドだけを更新します。$\\square$"
 
-#: manual/design/decimal_checked.md:269
+#: manual/design/decimal_checked.md:272
 msgid "Hence the first error is the one reported, the value remains that before the failing step (and the flags too, except that a step with a pipeline operand joins the flags of the operand), and `result()` returns $\\mathrm{Err}(e)$. On a pipeline without error, `result()` is $\\mathrm{Ok}((v, F))$, the writer monad's output."
 msgstr "したがって報告されるのは最初のエラーであり、値は失敗したステップの前のまま残り（フラグも同様ですが、パイプラインのオペランドを持つステップはそのオペランドのフラグを取り込みます）、`result()` は $\\mathrm{Err}(e)$ を返します。エラーのないパイプラインでは、`result()` は writer モナドの出力 $\\mathrm{Ok}((v, F))$ です。"
 
-#: manual/design/decimal_checked.md:277
+#: manual/design/decimal_checked.md:280
 msgid "A step costs the delegated decimal operation plus one 6-field OR and a constant-size state copy."
 msgstr "各ステップのコストは、委譲される十進演算に、6 フィールドの OR 一回と定数サイズの状態コピーを加えたものです。"
 
-#: manual/design/decimal_checked.md:282
+#: manual/design/decimal_checked.md:285
 msgid "**Errors for IEEE exceptions.** Contradicts IEEE default exception handling and the purpose of the package; the contextual traits already offer that model for single operations."
 msgstr "**IEEE の例外をエラーにすること。** IEEE のデフォルトの例外処理とこのパッケージの目的に反します。コンテキスト付きトレイトが、単一の演算についてはすでにそのモデルを提供しています。"
 
-#: manual/design/decimal_checked.md:285
+#: manual/design/decimal_checked.md:288
 msgid "**Merging pipelines.** No canonical rule for two contexts; see above."
 msgstr "**パイプラインの統合。** 2 つのコンテキストに対する標準的な規則がありません。上記を参照してください。"
 
-#: manual/design/decimal_checked.md:286
+#: manual/design/decimal_checked.md:289
 msgid "**Mutable flags.** Luna-Flow keeps context and status as values; an immutable state can be forked and compared."
 msgstr "**可変なフラグ。** Luna-Flow はコンテキストとステータスを値として保持します。不変な状態は分岐させたり比較したりできます。"
 
-#: manual/design/decimal_checked.md:288
+#: manual/design/decimal_checked.md:291
 msgid "**Storing the per-step history.** The union answers the audit question at constant size; callers who need a history keep the states they care about."
 msgstr "**ステップごとの履歴の保存。** 和集合は監査の問いに定数サイズで答えます。履歴が必要な呼び出し側は、関心のある状態を自分で保持します。"
 
-#: manual/design/decimal_checked.md:293
+#: manual/design/decimal_checked.md:296
 msgid "No arithmetic of its own; every result comes from `decimal`."
 msgstr "独自の算術はありません。すべての結果は `decimal` から得られます。"
 
-#: manual/design/decimal_checked.md:294
+#: manual/design/decimal_checked.md:297
 msgid "No traps or alternate exception handling: IEEE flags never stop the pipeline. Trap-driven control flow is the [`decimal_gda_checked`](decimal_gda_checked.md) contract."
 msgstr "トラップや代替の例外処理はありません。IEEE のフラグがパイプラインを停止させることはありません。トラップ駆動の制御フローは [`decimal_gda_checked`](decimal_gda_checked.md) の契約です。"
 
-#: manual/design/decimal_checked.md:297
+#: manual/design/decimal_checked.md:300
 msgid "No operators, no operation that combines two contexts (the context of the left pipeline wins), no implicit context changes."
 msgstr "演算子はなく、二つのコンテキストを組み合わせる演算もなく（左側のパイプラインのコンテキストが優先されます）、暗黙のコンテキスト変更もありません。"
 
-#: manual/design/decimal_checked.md:299
+#: manual/design/decimal_checked.md:302
 msgid "Only certification failures of elementary functions become errors. A delegated operation that aborted would abort the pipeline too; the state model cannot turn an abort into an error."
 msgstr "エラーになるのは初等関数の認証失敗だけです。委譲先の演算が中断した場合は、パイプラインも中断します。状態モデルは中断をエラーに変えることができません。"
 
-#: manual/design/decimal_checked.md:302
+#: manual/design/decimal_checked.md:305
 msgid "No accuracy of its own: the flags describe exactly what `decimal` reported."
 msgstr "それ自体の精度は持ちません。フラグは `decimal` が報告した内容をそのまま表します。"
 
-#: manual/design/decimal_checked.md:303
+#: manual/design/decimal_checked.md:306
 msgid "The context is the IEEE decimal context of `decimal`; GDA contexts with sticky status belong to `decimal_gda`."
 msgstr "コンテキストは `decimal` の IEEE 10 進コンテキストです。スティッキーなステータスを持つ GDA コンテキストは `decimal_gda` に属します。"
 
