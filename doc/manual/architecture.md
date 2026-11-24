@@ -23,9 +23,9 @@ invariants every layer keeps.
 
 Package boundaries come from `moon.pkg`; files inside a package organize the
 implementation but do not create namespaces. Dependencies point downward: every
-numeric package depends on `def` and `internal`, `interval` builds on
-`binary`, `decimal` and `decimal_gda` use `binary` and `interval` for
-their certified elementary functions, the checked packages wrap their domain,
+numeric package depends on `def`; `binary`, `decimal` and `decimal_gda` also
+depend on `internal`; `interval` builds on `binary`; `decimal` and
+`decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain,
 and nothing numerical depends on a frontend, a CLI or a benchmark.
 
 ## Two modules
@@ -84,7 +84,7 @@ Finalization is the semantic firewall. Kernels may compute exact sums,
 products, quotients, roots or guard and sticky bits, but only the finalizer
 decides the rounded value, the cohort, the flags, the traps, the decorations
 and the direction of interval endpoints. It also enforces the binary
-implementation exponent range $[1 - 2^{30},\ 2^{30} - 1]$ for the leading bit:
+implementation exponent range $[2 - 2^{30},\ 2^{30} - 1]$ for the leading bit:
 a result outside it is classified as an overflow or an underflow according to
 the rounding direction instead of being stored with a saturated exponent.
 
@@ -207,7 +207,7 @@ No numerical package relies on an ambient rounding mode.
 
 - Binary and IEEE decimal contexts are immutable inputs; flags are explicit
   outputs that callers `combine`.
-- `decimal_gda` returns a new context whose status includes the raised flags,
+- `decimal_gda` returns a new context whose accumulated flags include the raised ones,
   then selects at most one trap by fixed precedence.
 - `IntervalContext` fixes the endpoint precision and exponent bounds and returns
   `IntervalFlags`.
