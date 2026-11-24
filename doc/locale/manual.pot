@@ -11499,7 +11499,7 @@ msgstr ""
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:68
 #: manual/design/decimal.md:1486
-#: manual/design/decimal_checked.md:291
+#: manual/design/decimal_checked.md:294
 #: manual/design/decimal_gda.md:1168
 #: manual/design/decimal_gda_checked.md:262
 #: manual/design/def.md:318
@@ -12993,7 +12993,7 @@ msgstr ""
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:53
 #: manual/design/decimal.md:1418
-#: manual/design/decimal_checked.md:204
+#: manual/design/decimal_checked.md:205
 #: manual/design/decimal_gda.md:1115
 #: manual/design/decimal_gda_checked.md:205
 #: manual/design/def.md:187
@@ -13048,7 +13048,7 @@ msgstr ""
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:61
 #: manual/design/decimal.md:1465
-#: manual/design/decimal_checked.md:280
+#: manual/design/decimal_checked.md:283
 #: manual/design/decimal_gda.md:1151
 #: manual/design/decimal_gda_checked.md:253
 #: manual/design/def.md:306
@@ -16458,7 +16458,7 @@ msgid "Algorithm"
 msgstr ""
 
 #: manual/design/decimal.md:1315
-#: manual/design/decimal_checked.md:275
+#: manual/design/decimal_checked.md:278
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:299
 msgid "Cost"
@@ -16824,110 +16824,110 @@ msgid "Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule
 msgstr ""
 
 #: manual/design/decimal_checked.md:157
-msgid "The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their context to decNumber's range: precision (by default, see `DecimalContext::elementary_precision_limit`) and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `not_computed`, and the `try_` forms, which the pipeline calls, return `Err` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `pow` and `pown` with an integral exponent, and `pow` with the exponent $0.5$ (a square root), are the exceptions in the exponent limits: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$; the precision limit applies to them as to the others."
+msgid "The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their context to decNumber's range: precision (by default, see `DecimalContext::elementary_precision_limit`) and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `not_computed`, and the `try_` forms, which the pipeline calls, return `Err` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] A precision of 1,000 digits or more without an explicit `e_max` (the default range is then beyond 999,999) therefore disables them, which the API page and tutorial point out. `pow` and `pown` with an integral exponent, and `pow` with the exponent $0.5$ (a square root), are the exceptions in the exponent limits: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$; the precision limit applies to them as to the others."
 msgstr ""
 
-#: manual/design/decimal_checked.md:173
+#: manual/design/decimal_checked.md:174
 msgid "M. Cowlishaw, *General Decimal Arithmetic Specification*, version 1.70, \"Context\" (the Invalid context condition under \"Exceptional conditions\") and the decTest rows named above."
 msgstr ""
 
-#: manual/design/decimal_checked.md:177
+#: manual/design/decimal_checked.md:178
 msgid "From flags to arithmetic diagnostics"
 msgstr ""
 
-#: manual/design/decimal_checked.md:179
+#: manual/design/decimal_checked.md:180
 msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the three shared coordinates (`inexact`, `overflow`, `underflow`) and leaving the other three false; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
 msgstr ""
 
-#: manual/design/decimal_checked.md:192
+#: manual/design/decimal_checked.md:193
 msgid "so $\\pi$ is a monoid homomorphism, and by induction"
 msgstr ""
 
-#: manual/design/decimal_checked.md:198
+#: manual/design/decimal_checked.md:199
 msgid "Converting the accumulated flags of a pipeline once at the end gives the same diagnostics as converting each step and combining. The conditions that the trait implementation turns into an `ArithmeticError` (division by zero and the invalid-operation family tested by `DecimalFlags::has_error`) are not among the coordinates kept by $\\pi$; the pipeline keeps them as flags instead."
 msgstr ""
 
-#: manual/design/decimal_checked.md:206
+#: manual/design/decimal_checked.md:207
 msgid "Accumulated flags are the union of per-step flags"
 msgstr ""
 
-#: manual/design/decimal_checked.md:208
-msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then"
+#: manual/design/decimal_checked.md:209
+msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`; the `flags` of an operand can exceed its `raised`, so the equation below then holds only with the `flags` of those operands also joined on the right side). Then"
 msgstr ""
 
-#: manual/design/decimal_checked.md:220
+#: manual/design/decimal_checked.md:223
 msgid "*Proof.* Every constructor sets $r = F = r_0$, which is the case $n = 0$. If $F_{k} = \\bigvee_{i \\le k} r_i$, a successful step $k+1$ goes through `record` (or the identical update in `with_context`) and sets $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ by associativity, and $r = r_{k+1}$. $\\square$"
 msgstr ""
 
-#: manual/design/decimal_checked.md:226
+#: manual/design/decimal_checked.md:229
 msgid "By commutativity and idempotence of $\\lor$, $F_n$ does not depend on the order of the steps or on how often a signal was raised, and by the homomorphism property of `contains`,"
 msgstr ""
 
-#: manual/design/decimal_checked.md:234
+#: manual/design/decimal_checked.md:237
 msgid "The following test checks the theorem on a three-step pipeline: the accumulated flags equal the OR of the raised flags of the steps, in either order of combination."
 msgstr ""
 
-#: manual/design/decimal_checked.md:255
+#: manual/design/decimal_checked.md:258
 msgid "After `clear_flags`, the theorem holds again with $r_0 = \\mathbf{0}$ from that point. $F$ is monotone along a pipeline: $F_k \\subseteq F_{k+1}$."
 msgstr ""
 
-#: manual/design/decimal_checked.md:258
+#: manual/design/decimal_checked.md:261
 msgid "Errors are absorbing"
 msgstr ""
 
-#: manual/design/decimal_checked.md:260
+#: manual/design/decimal_checked.md:263
 msgid "**Theorem.** If a state has $\\varepsilon = \\mathrm{Some}(e)$, every operation except `clear_flags` returns it unchanged, and `clear_flags` changes only $r$ and $F$."
 msgstr ""
 
-#: manual/design/decimal_checked.md:264
+#: manual/design/decimal_checked.md:267
 msgid "*Proof.* `record`, `record_result` and `with_context` start with the guard `self.error_ is None` and return `self` otherwise; every arithmetic method goes through `record` or `record_result`. `clear_flags` updates only the two flag fields. $\\square$"
 msgstr ""
 
-#: manual/design/decimal_checked.md:269
+#: manual/design/decimal_checked.md:272
 msgid "Hence the first error is the one reported, the value remains that before the failing step (and the flags too, except that a step with a pipeline operand joins the flags of the operand), and `result()` returns $\\mathrm{Err}(e)$. On a pipeline without error, `result()` is $\\mathrm{Ok}((v, F))$, the writer monad's output."
 msgstr ""
 
-#: manual/design/decimal_checked.md:277
+#: manual/design/decimal_checked.md:280
 msgid "A step costs the delegated decimal operation plus one 6-field OR and a constant-size state copy."
 msgstr ""
 
-#: manual/design/decimal_checked.md:282
+#: manual/design/decimal_checked.md:285
 msgid "**Errors for IEEE exceptions.** Contradicts IEEE default exception handling and the purpose of the package; the contextual traits already offer that model for single operations."
 msgstr ""
 
-#: manual/design/decimal_checked.md:285
+#: manual/design/decimal_checked.md:288
 msgid "**Merging pipelines.** No canonical rule for two contexts; see above."
 msgstr ""
 
-#: manual/design/decimal_checked.md:286
+#: manual/design/decimal_checked.md:289
 msgid "**Mutable flags.** Luna-Flow keeps context and status as values; an immutable state can be forked and compared."
 msgstr ""
 
-#: manual/design/decimal_checked.md:288
+#: manual/design/decimal_checked.md:291
 msgid "**Storing the per-step history.** The union answers the audit question at constant size; callers who need a history keep the states they care about."
 msgstr ""
 
-#: manual/design/decimal_checked.md:293
+#: manual/design/decimal_checked.md:296
 msgid "No arithmetic of its own; every result comes from `decimal`."
 msgstr ""
 
-#: manual/design/decimal_checked.md:294
+#: manual/design/decimal_checked.md:297
 msgid "No traps or alternate exception handling: IEEE flags never stop the pipeline. Trap-driven control flow is the [`decimal_gda_checked`](decimal_gda_checked.md) contract."
 msgstr ""
 
-#: manual/design/decimal_checked.md:297
+#: manual/design/decimal_checked.md:300
 msgid "No operators, no operation that combines two contexts (the context of the left pipeline wins), no implicit context changes."
 msgstr ""
 
-#: manual/design/decimal_checked.md:299
+#: manual/design/decimal_checked.md:302
 msgid "Only certification failures of elementary functions become errors. A delegated operation that aborted would abort the pipeline too; the state model cannot turn an abort into an error."
 msgstr ""
 
-#: manual/design/decimal_checked.md:302
+#: manual/design/decimal_checked.md:305
 msgid "No accuracy of its own: the flags describe exactly what `decimal` reported."
 msgstr ""
 
-#: manual/design/decimal_checked.md:303
+#: manual/design/decimal_checked.md:306
 msgid "The context is the IEEE decimal context of `decimal`; GDA contexts with sticky status belong to `decimal_gda`."
 msgstr ""
 
