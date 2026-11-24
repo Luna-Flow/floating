@@ -154,18 +154,21 @@ Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule. So th
 predefined `ArithmeticContext::decimal64()` maps exactly to
 `DecimalContext::decimal64()`.
 
-The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
-context to decNumber's range: precision and both exponent limits must lie
+The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their
+context to decNumber's range: precision (by default, see
+`DecimalContext::elementary_precision_limit`) and both exponent limits must lie
 within $999\,999$ in magnitude, otherwise the result is NaN with
-`invalid_operation` (private check `math_context_is_restricted` in
+`not_computed`, and the `try_` forms, which the pipeline calls, return `Err`
+(private check `math_context_is_restricted` in
 `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
 a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001
 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid
 context condition permits it.[^gda] The default unbounded exponent range therefore
-disables them, which the API page and tutorial point out. `power` and `pown`
-with an integral exponent, and `power` with the exponent $0.5$ (a square
-root), are the exceptions: like the arithmetic operations they accept
-contexts up to $\pm 999\,999\,999$.
+disables them, which the API page and tutorial point out. `pow` and `pown`
+with an integral exponent, and `pow` with the exponent $0.5$ (a square
+root), are the exceptions in the exponent limits: like the arithmetic
+operations they accept contexts up to $\pm 999\,999\,999$; the precision limit
+applies to them as to the others.
 
 [^gda]: M. Cowlishaw, *General Decimal Arithmetic Specification*, version
     1.70, "Context" (the Invalid context condition under "Exceptional
@@ -177,7 +180,7 @@ The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic
 report `ArithmeticDiagnostics`, six Booleans combined by
 `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper
 `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics
-by keeping the six shared coordinates; call this projection
+by keeping the three shared coordinates (`inexact`, `overflow`, `underflow`) and leaving the other three false; call this projection
 $\pi : \mathbb{F} \to \{0,1\}^{6}$. A coordinate projection commutes with a
 field-wise OR:
 
@@ -263,8 +266,9 @@ and $F$.
 through `record` or `record_result`. `clear_flags` updates only the two flag
 fields. $\square$
 
-Hence the first error is the one reported, the value and flags remain those
-before the failing step, and `result()` returns $\mathrm{Err}(e)$. On a
+Hence the first error is the one reported, the value remains that before the
+failing step (and the flags too, except that a step with a pipeline operand
+joins the flags of the operand), and `result()` returns $\mathrm{Err}(e)$. On a
 pipeline without error, `result()` is $\mathrm{Ok}((v, F))$, the writer
 monad's output.
 
@@ -290,13 +294,11 @@ constant-size state copy.
 - No traps or alternate exception handling: IEEE flags never stop the pipeline.
   Trap-driven control flow is the [`decimal_gda_checked`](decimal_gda_checked.md)
   contract.
-- No operators, no pipeline-to-pipeline operations, no implicit context
-  changes.
+- No operators, no operation that combines two contexts (the context of the left
+  pipeline wins), no implicit context changes.
 - Only certification failures of elementary functions become errors. A
   delegated operation that aborted would abort the pipeline too; the state
   model cannot turn an abort into an error.
-- No accuracy of its own: the flags describe exactly what `decimal` reported,
-  including its documented deviations (for example `inexact` on the exact
-  power $0.0016^{0.25} = 0.2$).
+- No accuracy of its own: the flags describe exactly what `decimal` reported.
 - The context is the IEEE decimal context of `decimal`; GDA contexts with
   sticky status belong to `decimal_gda`.

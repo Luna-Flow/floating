@@ -66,6 +66,7 @@ fn flags(f : @decimal.DecimalFlags) -> String {
     ("division_by_zero", f.division_by_zero()),
     ("overflow", f.overflow()),
     ("underflow", f.underflow()),
+    ("not_computed", f.not_computed()),
   ]
   [ for p in named if p.1 => p.0 ].join(",")
 }
@@ -163,8 +164,8 @@ the second phase reports no flags although the first one was inexact.
 Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …)
 follow the General Decimal Arithmetic restriction to precision and exponent
 limits within $\pm 999\,999$. Use one of the interchange contexts or explicit
-bounds; with a range above 999,999 they return NaN with
-`invalid_operation`:
+bounds; with a range above 999,999 they record an error (a certification
+failure) in the pipeline:
 
 ```moonbit
 ///|

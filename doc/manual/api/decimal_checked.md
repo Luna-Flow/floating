@@ -38,6 +38,7 @@ fn flags(f : @decimal.DecimalFlags) -> String {
     ("division_by_zero", f.division_by_zero()),
     ("overflow", f.overflow()),
     ("underflow", f.underflow()),
+    ("not_computed", f.not_computed()),
   ]
   [ for p in named if p.1 => p.0 ].join(",")
 }
@@ -111,8 +112,7 @@ the exact `0.1000000000000000055511151231257827`, and its flags describe only
 the second rounding. With a precision below 17 the half modes can round twice
 (a 17-digit midpoint created by the first rounding). For the exact binary
 value use `from_decimal(Decimal::from_double(x, precision=p), context)` with
-`p` at least the context precision plus one, or with `p = 767`, which holds
-every `Double` exactly.
+`p = 767`, which holds every `Double` exactly.
 
 ```moonbit
 ///|
@@ -151,8 +151,11 @@ pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
 
 `raised()` is $r$, the flags of the latest successful step only. `flags()` is
 $F$, the bitwise OR of the flags of every successful step since construction
-or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep
-the state reached before the failing step.
+or the last `clear_flags`. After an error, `value` keeps the value reached
+before the failing step. So do `raised` and `flags` for a method without a
+pipeline operand. A method with pipeline operands (the binary methods and
+`fma`) also takes their flags: `flags` gains theirs, and `raised` is theirs when
+an operand holds the error, otherwise the earlier `raised` joined with theirs.
 
 ### `DecimalChecked::result`
 
@@ -236,8 +239,8 @@ test "raised versus accumulated flags" {
 ### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `quantum`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`
 
 These methods apply the corresponding IEEE decimal operation to the current
-value and a pipeline operand under the stored context of the left pipeline.
-The right operand is a `DecimalChecked`: an error of the left pipeline stays,
+value, and to the pipeline operands of the methods that take them, under the
+stored context of the left pipeline. A right operand is a `DecimalChecked`: an error of the left pipeline stays,
 an error of the right one is taken before the operation runs (the value of the
 left pipeline is kept), and the conditions of the right pipeline join
 `raised` and `flags`.
@@ -287,7 +290,10 @@ The General Decimal Arithmetic `min` and `max` operations are in
 
 An operation on a state with an error returns it unchanged. Otherwise the
 context operation produces $(v', r') = \mathrm{op}(v, c)$ and the new state is
-$(v', c, r', F \lor r', \text{none})$. An invalid operation returns NaN
+$(v', c, r', F \lor r', \text{none})$ for a method without a pipeline operand.
+For the binary methods and `fma`, whose operands have raised flags $r_o$ and
+accumulated flags $F_o$ (joined over the operands of `fma`), it is
+$(v', c, r' \lor r_o, F \lor r' \lor F_o, \text{none})$. An invalid operation returns NaN
 with `invalid_operation`; division by zero returns an infinity with
 `division_by_zero`; overflow returns an infinity or the largest finite value
 with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic.
@@ -373,18 +379,23 @@ These methods record an error only when `try_*_ctx` returns `Err` with a
 `CertificationFailure`, meaning the correctly rounded result could not be
 certified within the refinement budget. In that case the new state is
 $(v, c, r, F, \mathrm{Some}(e))$; the value and flags from before the step
-remain.
+remain. For `powr`, `pow`, `hypot`, `atan2` and `atan2pi`, which take a
+pipeline operand, the flags of the operand still join `raised` and `flags` as
+described under Observation.
 
 > [!IMPORTANT]
 > As an implementation limit (`DEC_MAX_MATH` in decNumber, required by the
 > decTest suite and permitted by the GDA Invalid context condition), these
-> operations require context precision and exponent limits within 999,999. A
+> operations require, by default, context precision and exponent limits within
+> 999,999. A
 > context with `e_max` above 999,999, or with precision of 1,000 digits or more
 > and no explicit `e_max`, returns NaN with `not_computed`; the `try_` forms
 > return `Err` with a certification failure.
 > Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` no
 > greater than 999,999. `pow` and `pown` with an integral exponent, and `pow`
-> with exponent `0.5`, are not restricted.
+> with exponent `0.5`, are not restricted in `e_max`, but like the others they
+> are held to the context's `elementary_precision_limit` (999,999 digits by
+> default; `with_elementary_precision_limit(None)` removes it).
 
 ```moonbit
 ///|
