@@ -48,7 +48,7 @@ IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Stat
 | §5.2 preferred exponents | required | every `*_ctx` operation, `pow_ctx`, `pown_ctx` | `library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`, `library/src/decimal/preferred_cohort_issue150_wbtest.mbt` | conforming; `pow(1, ±inf)` has no defined exponent and returns `1` |
 | §5.3.1 addition, subtraction, multiplication, division, squareRoot | required | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx` | IEEE decimal corpus (authoritative operations); `library/src/decimal/exponent_limits_issue187_wbtest.mbt` | conforming |
 | §5.3.1 fusedMultiplyAdd | required | `fma_ctx` | IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest.mbt` | conforming |
-| §5.3.1 remainder | required | `remainder_ctx` (IEEE remainder; the truncating form is `remainder` of `decimal_gda`) | `library/src/decimal/remainder_wbtest.mbt` (no external corpus) | conforming |
+| §5.3.1 remainder | required | `remainder_ctx` (IEEE remainder; the truncating form is the GDA `remainder`) | `library/src/decimal/remainder_wbtest.mbt` (no external corpus) | conforming |
 | §5.3.1 roundToIntegral (all five, exact) | required | `to_integral_value_ctx`, `to_integral_exact_ctx` | `library/src/decimal/to_integral_wbtest.mbt` | conforming |
 | §5.3.1 nextUp, nextDown | required | `next_up_ctx`, `next_down_ctx` | `library/src/decimal/exponent_int_limits_wbtest.mbt` | conforming |
 | §5.3.1 scaleB, logB | required | `scaleb_ctx`, `logb_ctx` | `library/src/decimal/scaleb_rounding_wbtest.mbt`; `tooling/src/consistency/core_wbtest.mbt` | conforming |
