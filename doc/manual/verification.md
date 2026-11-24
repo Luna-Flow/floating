@@ -48,7 +48,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
   (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and
   in the default state; `tools/check_limbs_tier.py` fails the job when the runner
   is not arm64, a state reports another tier than expected, or the switch
-  did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is
+  did not take (`override=1` in the portable and C states, `override=0` in the default state). The Linux runner is
   x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole
   workspace except what needs `moonbitlang/async`, which has no wasm-gc
   runtime (its module initialiser is rejected by the runtime at validation); the
@@ -62,7 +62,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
 of the repository. The quick gate (`just pr`, the native test stage of CI)
 compiles all 9,691 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
-(2.2 MB of source), and the same rows are data
+(1.1 MB of source), and the same rows are data
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v2` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
 release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare
@@ -71,8 +71,8 @@ value, cohort (`total_order_compare`) and all flags exactly.
 This was not always so. While about 50 `atan2pi` rows with an operand of
 `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a
 deterministic sample. After the `atan2pi` path for tiny operands was fixed the
-full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and
-adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the
+full table of 19,134 rows (the table before the 0.12 context restriction, 2.2 MB of source) ran in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and
+added about 1.4 s to the build, under the 5 s the quick gate allows it, so the
 sample was dropped. The mechanism stays in the generator
 (`tools/generate_decimal_pi_inverse_rows.py`) as an option:
 `--sample-step N` compiles every row that is not the rounding of an MPFR
@@ -456,7 +456,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring
   `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity
   without flags ([#275](https://github.com/Luna-Flow/floating/issues/275),
-  open): the random generator does not draw such operands and the sweep does
+  fixed in 0.11.0): the random generator does not draw such operands and the sweep does
   not include that function.
 - *`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000
   native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with
@@ -909,14 +909,14 @@ cite them.
 
 | Clause | Choice left open | Choice made |
 | --- | --- | --- |
-| IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option. |
-| IEEE 754 §6.2 | Which NaN payload a NaN result carries | `binary`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field). |
+| IEEE 754 §7.5 | Tininess detection for binary formats | `BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `decimal` always detects tininess before rounding; `DecimalContext` has no tininess option. |
+| IEEE 754 §6.2 | Which NaN payload a NaN result carries | `binary`: the sign of the selected NaN operand is kept, its payload keeps the low `p - 2` bits under a context, and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p - 1` digits (the width of the interchange payload field; a `DecimalContext` is always clamped). |
 | IEEE 754 §9.7 | Admissible payloads of `setPayload` | `decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `binary` has no setPayload. |
 | IEEE 754 §3.7 | Exponent range and precision of an extendable format | `binary`: leading-bit exponents in `[2 - 2^30, 2^30 - 1]` (`e_min = 1 - e_max`), precision at most `2^28` bits. `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`. |
 | IEEE 754 §4.3 | Rounding directions beyond the five required | none in `binary` and `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`). |
 | IEEE 754 §4.1, §9.3 | How attributes are specified | Static: a context value passed to each operation; there are no dynamic modes and no global state. |
 | IEEE 754 §7 | How flags are exposed | Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages. |
-| IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`. |
+| IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; for decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude the functions return NaN with `not_computed`. |
 | IEEE 754 §9.2.2 | Preferred exponent when undefined (infinite or NaN `y` in `pow`) | `decimal`: `pow(+1, y)` is the plain `1`. |
 | IEEE 754 §5.12 | Character sequences accepted and produced (`binary`) | Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`. |
 | IEEE 754 §6.3 | Sign of a zero `remainder` result (`decimal`) | The sign of the dividend, kept in extended contexts. |
@@ -933,8 +933,7 @@ or the page that documents the decision.
 
 | Standard | Gap | Tracking |
 | --- | --- | --- |
-| IEEE 754-2019 §7.5 | `decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires) | none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217) |
-| IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
+| IEEE 754-2019 §7.5 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `binary` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `binary` | [#239](https://github.com/Luna-Flow/floating/issues/239) |

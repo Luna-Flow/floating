@@ -76,7 +76,7 @@ exact`, `external validation compares text: the sign of zero, the cohort and a
 wrong value fail`, `canonical binary text: the formats of MPFR and of to_hex
 agree on one value`, `canonical decimal text: one value, the cohort and the
 sign of zero are kept`). The performance test `external baseline floating` is marked
-`#skip("performance benchmark")` and builds on native only; the runner prints
+`#skip("performance benchmark")` and builds on native, wasm and js; the runner prints
 a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size
 round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end.
 

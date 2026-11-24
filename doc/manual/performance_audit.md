@@ -99,7 +99,7 @@ $x \mapsto x^{n}$:
 The implementation selects the mathematical endpoint first and then applies
 the direction its role requires. For an interval across zero with even
 $n > 0$, both finite extremum candidates are rounded upward for the upper
-bound. `quantize_interval` then rounds once more outward. The proof is local to
+bound. The storage of the interval then rounds each bound once more outward. The proof is local to
 the declared operation and precision contract and makes no claim about the
 unsupported reverse operations.
 
