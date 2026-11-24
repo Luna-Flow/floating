@@ -269,9 +269,9 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/binary_kernel.md:81
+#: manual/api/internal/binary_kernel.md:82
 #: manual/api/internal/conformance.md:359
-#: manual/api/internal/decimal_kernel.md:92
+#: manual/api/internal/decimal_kernel.md:91
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/interval.md:2250
 #: manual/api/interval_checked.md:528
@@ -4491,9 +4491,9 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/binary_kernel.md:83
+#: manual/api/internal/binary_kernel.md:84
 #: manual/api/internal/conformance.md:361
-#: manual/api/internal/decimal_kernel.md:94
+#: manual/api/internal/decimal_kernel.md:93
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/interval.md:2252
 #: manual/api/numeric_expr.md:341
@@ -6849,7 +6849,7 @@ msgstr ""
 
 #: manual/api/doc_examples.md:38
 #: manual/api/interval.md:274
-#: manual/conventions.md:179
+#: manual/conventions.md:180
 msgid "Examples"
 msgstr ""
 
@@ -7754,7 +7754,7 @@ msgid "internal API"
 msgstr ""
 
 #: manual/api/internal.md:5
-msgid "`internal` holds exact integer and rational helpers for the numeric cores: powers of 2, 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, reduced rationals, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
+msgid "`internal` holds exact integer and dyadic helpers for the numeric cores: powers of 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
 msgstr ""
 
 #: manual/api/internal.md:15
@@ -7771,7 +7771,7 @@ msgid "Helpers it uses"
 msgstr ""
 
 #: manual/api/internal.md:23
-msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package and of the cores only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
+msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`split_decimal_string`, `round_positive_div`, `round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
 msgstr ""
 
 #: manual/api/internal.md:30
@@ -7795,7 +7795,7 @@ msgid "Inside the module, add the package to `moon.pkg`:"
 msgstr ""
 
 #: manual/api/internal.md:66
-msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`) and uses `@def.Sign`."
+msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`)."
 msgstr ""
 
 #: manual/api/internal.md:71
@@ -8038,22 +8038,22 @@ msgid "Function families"
 msgstr ""
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Family"
 msgstr ""
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Functions"
 msgstr ""
 
 #: manual/api/internal/binary_kernel.md:65
-#: manual/api/internal/decimal_kernel.md:75
+#: manual/api/internal/decimal_kernel.md:74
 msgid "build and convert"
 msgstr ""
 
 #: manual/api/internal/binary_kernel.md:66
-#: manual/api/internal/decimal_kernel.md:76
+#: manual/api/internal/decimal_kernel.md:75
 msgid "shape"
 msgstr ""
 
@@ -8086,7 +8086,7 @@ msgid "machine words"
 msgstr ""
 
 #: manual/api/internal/binary_kernel.md:75
-msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a radix of `to_radix_string` outside `2..=36`): they are programmer errors of the caller, never conditions of an operation. `Coeff::div_rem_checked` returns an `Err` for a zero divisor, and `Coeff::parse` for a radix outside `2..=36`."
 msgstr ""
 
 #: manual/api/internal/conformance.md:1
@@ -8094,7 +8094,7 @@ msgid "internal/conformance API"
 msgstr ""
 
 #: manual/api/internal/conformance.md:5
-msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
+msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating-tools` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
 msgstr ""
 
 #: manual/api/internal/conformance.md:25
@@ -8271,54 +8271,54 @@ msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate valu
 msgstr ""
 
 #: manual/api/internal/decimal_kernel.md:69
-msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
+msgid "Most functions are named `dec_coeff_*`; the table gives the others by their full names."
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:77
+#: manual/api/internal/decimal_kernel.md:76
 msgid "add, subtract, compare"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:78
+#: manual/api/internal/decimal_kernel.md:77
 msgid "powers of ten and trimming"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:79
+#: manual/api/internal/decimal_kernel.md:78
 msgid "multiply"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:80
+#: manual/api/internal/decimal_kernel.md:79
 msgid "divide"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:81
+#: manual/api/internal/decimal_kernel.md:80
 msgid "number theory"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:82
+#: manual/api/internal/decimal_kernel.md:81
 msgid "rounding decisions"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:83
+#: manual/api/internal/decimal_kernel.md:82
 msgid "exact helpers"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:84
+#: manual/api/internal/decimal_kernel.md:83
 msgid "digit-wise logic"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:85
+#: manual/api/internal/decimal_kernel.md:84
 msgid "signed values"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "thresholds and constants"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "`dec_coeff_base`, `dec_coeff_burnikel_ziegler_threshold`, `dec_coeff_burnikel_ziegler_threshold_16k`, `dec_coeff_burnikel_ziegler_threshold_8k`, `dec_coeff_burnikel_ziegler_threshold_large`, `dec_coeff_dpun`, `dec_coeff_karatsuba_square_threshold`, `dec_coeff_karatsuba_threshold`, `dec_coeff_newton_enabled`, `dec_coeff_newton_threshold`, `dec_coeff_ntt_mul_threshold`, `dec_coeff_ntt_mul_threshold_16k`, `dec_coeff_ntt_mul_threshold_32k`, `dec_coeff_ntt_mul_threshold_64k`, `dec_coeff_ntt_mul_threshold_large`, `dec_coeff_ntt_square_threshold`, `dec_coeff_ntt_square_threshold_16k`, `dec_coeff_ntt_square_threshold_32k`, `dec_coeff_ntt_square_threshold_64k`, `dec_coeff_ntt_square_threshold_8k`, `dec_coeff_ntt_square_threshold_large`, `dec_coeff_ntt_square_toom3_threshold`, `dec_coeff_ntt_square_toom3_threshold_16k`, `dec_coeff_ntt_square_toom3_threshold_32k`, `dec_coeff_ntt_square_toom3_threshold_64k`, `dec_coeff_ntt_square_toom3_threshold_8k`, `dec_coeff_ntt_square_toom3_threshold_large`, `dec_coeff_small_limit`, `dec_coeff_small_powers10`, `dec_coeff_toom3_threshold`, chosen per target in `coeff_thresholds_<target>.mbt` where they differ"
 msgstr ""
 
-#: manual/api/internal/decimal_kernel.md:88
+#: manual/api/internal/decimal_kernel.md:87
 msgid "Preconditions are checked with `abort` (a negative shift, a zero divisor, a subtraction that would go below zero, a unit divisor outside $[1, 10^9)$): they are programmer errors of the caller, never conditions of an operation."
 msgstr ""
 
@@ -10161,7 +10161,7 @@ msgid "cross-package laws, documentation examples, benchmarks, conformance orche
 msgstr ""
 
 #: manual/architecture.md:24
-msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def` and `internal`, `interval` builds on `binary`, `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
+msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def`; `binary`, `decimal` and `decimal_gda` also depend on `internal`; `interval` builds on `binary`; `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
 msgstr ""
 
 #: manual/architecture.md:31
@@ -10242,7 +10242,7 @@ msgid "`Binary` stores a class, a sign, a non-negative binary coefficient with n
 msgstr ""
 
 #: manual/architecture.md:83
-msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[1 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
+msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[2 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
 msgstr ""
 
 #: manual/architecture.md:91
@@ -10328,7 +10328,7 @@ msgid "Binary and IEEE decimal contexts are immutable inputs; flags are explicit
 msgstr ""
 
 #: manual/architecture.md:210
-msgid "`decimal_gda` returns a new context whose status includes the raised flags, then selects at most one trap by fixed precedence."
+msgid "`decimal_gda` returns a new context whose accumulated flags include the raised ones, then selects at most one trap by fixed precedence."
 msgstr ""
 
 #: manual/architecture.md:212
@@ -11460,7 +11460,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:166
-#: manual/design/internal.md:211
+#: manual/design/internal.md:212
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/interval.md:1179
@@ -12449,167 +12449,167 @@ msgid "Package pages"
 msgstr ""
 
 #: manual/conventions.md:50
-msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
+msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` or `tooling/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
 msgstr ""
 
-#: manual/conventions.md:53
+#: manual/conventions.md:54
 msgid "Give every package all three pages. Packages without an application API (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`) still document their generated interface, maintainer workflow and stability boundary."
 msgstr ""
 
-#: manual/conventions.md:57
-msgid "Every package also keeps a `library/src/<path>/README.mbt.md`."
+#: manual/conventions.md:58
+msgid "Every package also keeps a `README.mbt.md` in its directory."
 msgstr ""
 
-#: manual/conventions.md:58
+#: manual/conventions.md:59
 msgid "`pkg.generated.mbti` is the public-surface inventory; source and tests define behaviour. A method is documented as callable with dot syntax only if the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are not promoted implicitly and must be declared with `pub extend`."
 msgstr ""
 
-#: manual/conventions.md:62
+#: manual/conventions.md:63
 msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `library/CHANGELOG.md`."
 msgstr ""
 
-#: manual/conventions.md:65
+#: manual/conventions.md:66
 msgid "Pages name only the current release. A page may mention an older release only when it carries a `<!-- historical-performance-baseline: X.Y.Z -->` marker for that version; `tools/doc_quality.py` rejects any other historical version."
 msgstr ""
 
-#: manual/conventions.md:70
+#: manual/conventions.md:71
 msgid "Naming"
 msgstr ""
 
-#: manual/conventions.md:72
+#: manual/conventions.md:73
 msgid "An operation is named after the standard of its package, in snake_case: IEEE 754-2019 for `binary` and `decimal` and their checked tiers, and the General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and its checked tier. A package has one spelling per operation: it carries no alias and never the name of the other standard for the same thing. For example, `decimal` names the IEEE `remainder` as `remainder_ctx`, and `decimal_gda` names the GDA `remainder-near` as `remainder_near`."
 msgstr ""
 
-#: manual/conventions.md:80
+#: manual/conventions.md:81
 msgid "**Case.** `camelCase` names split at each capital (`minimumMagnitudeNumber` is `minimum_magnitude_number`) and hyphens become underscores (`round-to-integral-exact` is `round_to_integral_exact`). Digits and the standard's own abbreviations stay attached to their word: `exp2m1`, `log2p1`, `atan2`, `sinpi`."
 msgstr ""
 
-#: manual/conventions.md:85
+#: manual/conventions.md:86
 msgid "**Suffixes.** `_ctx` marks a method that takes a context and returns the value with its flags. `try_` marks the form that returns a `Result` for a certification failure. `_checked` and `_contextual` are the forms of the `Luna-Flow/arithmetic` traits. The checked tiers (`binary_checked`, `decimal_checked`, `decimal_gda_checked`) keep the bare names."
 msgstr ""
 
-#: manual/conventions.md:90
+#: manual/conventions.md:91
 msgid "**No standard name.** Where the standard has no name for something, such as a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
 msgstr ""
 
-#: manual/conventions.md:93
+#: manual/conventions.md:94
 msgid "**Documented exceptions.** These names are kept as they are, although the rule would spell them otherwise:"
 msgstr ""
 
-#: manual/conventions.md:99
+#: manual/conventions.md:100
 msgid "`sinpi` and its family;"
 msgstr ""
 
-#: manual/conventions.md:100
+#: manual/conventions.md:101
 msgid "the flag name `division_by_zero`;"
 msgstr ""
 
-#: manual/conventions.md:102
+#: manual/conventions.md:103
 msgid "`to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;"
 msgstr ""
 
-#: manual/conventions.md:103
+#: manual/conventions.md:104
 msgid "in `decimal_gda`, also `rescale`, `apply` and `trim` (decNumber operations that GDA 1.70 does not define), `class_name`, and the `logical_` prefix."
 msgstr ""
 
-#: manual/conventions.md:105
+#: manual/conventions.md:106
 msgid "**Context in `decimal_gda`.** An operation that takes the context is a free function named after the GDA operation, taking a `GdaContext` last and returning a `GdaOutcome`; a quiet operation that GDA 1.70 says is unaffected by context is a method of `Decimal` (`copy`, `copy_sign`, `same_quantum`, the `is_*` predicates). `compare_total` and `compare_total_magnitude` are free functions although the total order itself uses no context: in a subset context (`extended=false`) the operands are first rounded to the precision (GDA 1.70, Appendix A), which the `Decimal` methods of the same names do not do. The design of 0.12 first took them to be context-free and quiet; the 32 `comparetotal` rows of the subset corpus `dectest0` showed that this holds only in extended contexts."
 msgstr ""
 
-#: manual/conventions.md:116
+#: manual/conventions.md:117
 msgid "**Kept names with the standard's term.** These names differ from the word of the standard and are kept on purpose; the API page of each says so:"
 msgstr ""
 
-#: manual/conventions.md:118
+#: manual/conventions.md:119
 msgid "`coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component the significand (an integer when the exponent is $q$), and the standard does not use the word coefficient. The General Decimal Arithmetic Specification does (\"coefficient – an integer which is zero or positive\"), and one word for the integer view is used in all four packages;"
 msgstr ""
 
-#: manual/conventions.md:123
+#: manual/conventions.md:124
 msgid "the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;"
 msgstr ""
 
-#: manual/conventions.md:124
+#: manual/conventions.md:125
 msgid "`is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has isSignaling and `class(x)`;"
 msgstr ""
 
-#: manual/conventions.md:126
+#: manual/conventions.md:127
 msgid "`DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the binary encoding of the significand (a declet is three decimal digits in ten bits, 2.1); the abbreviations are the usual names of the two encodings;"
 msgstr ""
 
-#: manual/conventions.md:129
+#: manual/conventions.md:130
 msgid "`normalized`: it returns the canonical representation of a value, not the normal number of 754-2019 2.1 (a finite non-zero number of at least the smallest normal magnitude);"
 msgstr ""
 
-#: manual/conventions.md:132
+#: manual/conventions.md:133
 msgid "`exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$ according to the view of the significand, so the suffix says the radix of the integer power."
 msgstr ""
 
-#: manual/conventions.md:135
+#: manual/conventions.md:136
 msgid "**Names of this release that are not the standard's.** `min_num` and `max_num` (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which 754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name says which operation it is. `signum` is the three-valued classification of the sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2)."
 msgstr ""
 
-#: manual/conventions.md:141
+#: manual/conventions.md:142
 msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr ""
 
-#: manual/conventions.md:146
+#: manual/conventions.md:147
 msgid "API snapshots"
 msgstr ""
 
-#: manual/conventions.md:148
+#: manual/conventions.md:149
 msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr ""
 
-#: manual/conventions.md:156
+#: manual/conventions.md:157
 msgid "Numeric documentation rules"
 msgstr ""
 
-#: manual/conventions.md:158
+#: manual/conventions.md:159
 msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr ""
 
-#: manual/conventions.md:161
+#: manual/conventions.md:162
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr ""
 
-#: manual/conventions.md:163
+#: manual/conventions.md:164
 msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
 msgstr ""
 
-#: manual/conventions.md:165
+#: manual/conventions.md:166
 msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
 msgstr ""
 
-#: manual/conventions.md:169
+#: manual/conventions.md:170
 msgid "For `*_ctx` APIs, document both the returned value and the flags."
 msgstr ""
 
-#: manual/conventions.md:170
+#: manual/conventions.md:171
 msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr ""
 
-#: manual/conventions.md:173
+#: manual/conventions.md:174
 msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr ""
 
-#: manual/conventions.md:176
+#: manual/conventions.md:177
 msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr ""
 
-#: manual/conventions.md:181
+#: manual/conventions.md:182
 msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr ""
 
-#: manual/conventions.md:184
+#: manual/conventions.md:185
 msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr ""
 
-#: manual/conventions.md:189
+#: manual/conventions.md:190
 msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
 msgstr ""
 
-#: manual/conventions.md:192
-msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
+#: manual/conventions.md:193
+msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` method; use `to_shortest_string`."
 msgstr ""
 
 #: manual/conventions.md:196
@@ -12957,7 +12957,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:138
-#: manual/design/internal.md:138
+#: manual/design/internal.md:139
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
@@ -13012,7 +13012,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:156
-#: manual/design/internal.md:199
+#: manual/design/internal.md:200
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/interval.md:1160
@@ -19251,7 +19251,7 @@ msgid "The binary, decimal and interval cores all reduce their hard steps to exa
 msgstr ""
 
 #: manual/design/internal.md:13
-msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
+msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, the power caches and `digits10`; `binary` and the two decimal packages use the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
 msgstr ""
 
 #: manual/design/internal.md:26
@@ -19312,86 +19312,86 @@ msgid "Wide exponent parsing"
 msgstr ""
 
 #: manual/design/internal.md:92
-msgid "A decimal context may set $e_{\\max}$ anywhere in `Int`, and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
+msgid "A stored decimal value may have an exponent up to `decimal_value_e_max` (near the top of `Int`), and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
 msgstr ""
 
-#: manual/design/internal.md:105
+#: manual/design/internal.md:106
 msgid "Ziv-style refinement budget"
 msgstr ""
 
-#: manual/design/internal.md:107
+#: manual/design/internal.md:108
 msgid "The certified elementary functions evaluate an enclosure at a working precision $p_k$ and accept the result when both ends round to the same target number (Ziv's strategy[^ziv]); otherwise they retry at a higher precision. The budget fixes the schedule"
 msgstr ""
 
-#: manual/design/internal.md:116
+#: manual/design/internal.md:117
 msgid "with $L = 12$ refinements by default. For $p_k \\ge 64$ this is $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$, geometric growth with ratio $3/2$ up to the floor, so $p_L \\approx p_0 (3/2)^{L}$ (about $130\\,p_0$ for $L = 12$ and $p_0 \\ge 64$). For $p_k < 64$ the step is $32$ and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to the floor) at every step. If one attempt at precision $p$ costs $C(p) \\ge c\\,p$ (at least linear), the total cost of all attempts is dominated by the last one:"
 msgstr ""
 
-#: manual/design/internal.md:130
+#: manual/design/internal.md:131
 msgid "which holds, up to the floors in the schedule, for $C(p) = c\\,p^{\\alpha}$ with $\\alpha \\ge 1$ in the geometric phase. Exhaustion is reported with `certified_failure`, which records the target and final working precision, instead of returning a value that is not certified."
 msgstr ""
 
-#: manual/design/internal.md:135
+#: manual/design/internal.md:136
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 msgstr ""
 
-#: manual/design/internal.md:140
+#: manual/design/internal.md:141
 msgid "**Rounding table.** Let $n = qd + r$ with $0 \\le r < d$ and $x = (-1)^{\\sigma} n/d$. Then $|\\circ(x)| \\in \\{q, q+1\\}$, with $q + 1$ only if $r > 0$, and `round_positive_div` returns $|\\circ(x)|$:"
 msgstr ""
 
-#: manual/design/internal.md:154
+#: manual/design/internal.md:155
 msgid "*Proof.* $|x| = q + r/d$ lies in $[q, q+1)$. Toward zero takes the smaller magnitude. Toward $+\\infty$ takes the larger magnitude for a positive non-integer and the smaller for a negative one; toward $-\\infty$ is the mirror image. Away from zero takes the larger magnitude for any non-integer. For nearest, the distance to $q$ is $r/d$ and to $q+1$ is $1 - r/d$, so $q + 1$ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of $q, q+1$, which is $q + 1$ iff $q$ is odd. $\\square$"
 msgstr ""
 
-#: manual/design/internal.md:162
+#: manual/design/internal.md:163
 msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The tests of this package check both functions against these formulas on ties and directed cases."
 msgstr ""
 
-#: manual/design/internal.md:170
+#: manual/design/internal.md:171
 msgid "**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros` preserve $c \\cdot 10^{e}$, removing one factor of 10 per step; the latter stops after `max_drop` steps."
 msgstr ""
 
-#: manual/design/internal.md:174
+#: manual/design/internal.md:175
 msgid "**Enclosure.** `certified_dyadic_fraction(n, d, s)` returns $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ and $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$; from $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ with $y = n 2^{s}/d$ we get $\\ell \\le n/d \\le u$ and $u - \\ell \\le 2^{-s}$, with equality $\\ell = u$ iff $y \\in \\mathbb{Z}$. The floor of a negative ratio is computed as $-\\lceil |n| / d \\rceil$, so the enclosure is correct for both signs. `certified_dyadic_div` rewrites $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ with the sign moved to the numerator, so it inherits the same bound. `round_down` and `round_up` are the same floor and ceiling at a smaller scale, so $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$."
 msgstr ""
 
-#: manual/design/internal.md:187
+#: manual/design/internal.md:188
 msgid "**Budget.** The precision sequence is strictly increasing (each step adds at least 32 bits) and at most `limit` refinements are made, so every refinement loop that checks `available()` terminates."
 msgstr ""
 
-#: manual/design/internal.md:191
+#: manual/design/internal.md:192
 msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
 msgstr ""
 
-#: manual/design/internal.md:201
+#: manual/design/internal.md:202
 msgid "**Rounding via floating point.** Converting to `Double` to round a ratio loses exactness beyond 53 bits; all helpers stay in `BigInt`."
 msgstr ""
 
-#: manual/design/internal.md:203
+#: manual/design/internal.md:204
 msgid "**Signed division with remainder.** Truncating and flooring division differ for negative operands; sign-magnitude avoids the ambiguity."
 msgstr ""
 
-#: manual/design/internal.md:205
+#: manual/design/internal.md:206
 msgid "**A normalized `CertifiedDyadic`.** Normalizing after every operation costs a trailing-zero scan; enclosures are compared with `compare`, which does not need canonical forms."
 msgstr ""
 
-#: manual/design/internal.md:208
+#: manual/design/internal.md:209
 msgid "**An unbounded power cache.** Pathological exponents would retain huge `BigInt` values for the life of the process."
 msgstr ""
 
-#: manual/design/internal.md:213
+#: manual/design/internal.md:214
 msgid "No floating-point formats, contexts or flags: the cores build them on these helpers."
 msgstr ""
 
-#: manual/design/internal.md:215
+#: manual/design/internal.md:216
 msgid "No decimal string formatting and no special values (`inf`, `nan`) in `split_decimal_string`."
 msgstr ""
 
-#: manual/design/internal.md:217
+#: manual/design/internal.md:218
 msgid "No public stability: the package is importable only inside `Luna-Flow/floating`."
 msgstr ""
 
-#: manual/design/internal.md:219
+#: manual/design/internal.md:220
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr ""
 
@@ -19579,7 +19579,7 @@ msgid "`Inline64` and `Inline128` are the only representations of values below $
 msgstr ""
 
 #: manual/design/internal/binary_kernel.md:109
-msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
+msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
 msgstr ""
 
 #: manual/design/internal/conformance.md:1
@@ -19692,8 +19692,7 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr ""
 
 #: manual/design/internal/conformance.md:135
-#: manual/design/internal/runner_cli.md:88
-msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
+msgid "Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise."
 msgstr ""
 
 #: manual/design/internal/decimal_kernel.md:1
@@ -19964,6 +19963,10 @@ msgstr ""
 
 #: manual/design/internal/runner_cli.md:87
 msgid "No recursive file search, globbing or encoding detection."
+msgstr ""
+
+#: manual/design/internal/runner_cli.md:88
+msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
 msgstr ""
 
 #: manual/design/interval.md:1
@@ -21633,98 +21636,98 @@ msgid "`Binary` prints in the exact form `<coefficient>p<exponent>`; use `to_sho
 msgstr ""
 
 #: manual/getting_started.md:99
-msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` defaults to 53 bits, as the other constructors."
+msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` requires it."
 msgstr ""
 
-#: manual/getting_started.md:106
+#: manual/getting_started.md:105
 msgid "Choose a context"
 msgstr ""
 
-#: manual/getting_started.md:108
+#: manual/getting_started.md:107
 msgid "The plain operators (`+`, `-`, `*`, `/` and `add`, `mul`, …) work at the operands' precision with round-to-nearest-even and an effectively unbounded exponent range, and they discard status. When precision, exponent range, rounding direction, tininess or the status flags are part of your result, use the `*_ctx` form with an explicit context:"
 msgstr ""
 
-#: manual/getting_started.md:141
-msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose status accumulates the flags."
+#: manual/getting_started.md:140
+msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose flags accumulate."
 msgstr ""
 
-#: manual/getting_started.md:146
+#: manual/getting_started.md:145
 msgid "Choose a failure model"
 msgstr ""
 
-#: manual/getting_started.md:148
+#: manual/getting_started.md:147
 msgid "The library exposes several failure channels on purpose. Pick the one that matches what your caller must observe:"
 msgstr ""
 
-#: manual/getting_started.md:151
-msgid "`Option` from simple constructors such as `Decimal::from_string`, when bad input needs no diagnostic."
+#: manual/getting_started.md:150
+msgid "`Option` from simple constructors such as `BinaryInterchange::from_hex`, when bad input needs no diagnostic."
 msgstr ""
 
-#: manual/getting_started.md:153
-msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
+#: manual/getting_started.md:152
+msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt_checked`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
 msgstr ""
 
-#: manual/getting_started.md:156
+#: manual/getting_started.md:155
 msgid "`BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result."
 msgstr ""
 
-#: manual/getting_started.md:157
+#: manual/getting_started.md:156
 msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires."
 msgstr ""
 
-#: manual/getting_started.md:158
+#: manual/getting_started.md:157
 msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
 msgstr ""
 
-#: manual/getting_started.md:162
+#: manual/getting_started.md:161
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr ""
 
-#: manual/getting_started.md:181
+#: manual/getting_started.md:180
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr ""
 
-#: manual/getting_started.md:184
+#: manual/getting_started.md:183
 msgid "Read results correctly"
 msgstr ""
 
-#: manual/getting_started.md:186
+#: manual/getting_started.md:185
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr ""
 
-#: manual/getting_started.md:188
+#: manual/getting_started.md:187
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `binary`, or the `total_order*` functions."
 msgstr ""
 
-#: manual/getting_started.md:192
+#: manual/getting_started.md:191
 msgid "`==` agrees with `compare` in the number types: on `Binary` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `Binary`. See [numeric semantics](./numeric_semantics.md)."
 msgstr ""
 
-#: manual/getting_started.md:197
-msgid "An `Interval` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
+#: manual/getting_started.md:196
+msgid "An `Interval` has containment and set relations (`contains`, `subset`, `strict_less`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr ""
 
-#: manual/getting_started.md:200
+#: manual/getting_started.md:199
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, exponent, signed zero, payloads, decorations and flags."
 msgstr ""
 
-#: manual/getting_started.md:203
+#: manual/getting_started.md:202
 msgid "Continue reading"
 msgstr ""
 
-#: manual/getting_started.md:205
+#: manual/getting_started.md:204
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, exponent, signed zero, NaN and enclosures with their derivations."
 msgstr ""
 
-#: manual/getting_started.md:207
+#: manual/getting_started.md:206
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr ""
 
-#: manual/getting_started.md:209
+#: manual/getting_started.md:208
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr ""
 
-#: manual/getting_started.md:211
+#: manual/getting_started.md:210
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`binary` tutorial](./tutorial/binary.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr ""
 
@@ -22220,7 +22223,7 @@ msgid "Library infrastructure"
 msgstr ""
 
 #: manual/index.md:114
-msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
+msgid "`internal`: big-integer, parsing, normalization and rounding helpers, dyadic enclosures"
 msgstr ""
 
 #: manual/index.md:114
@@ -28737,7 +28740,7 @@ msgid "The certified elementary functions follow Ziv's strategy: compute an encl
 msgstr ""
 
 #: manual/tutorial/internal.md:167
-msgid "`binary`, `decimal`, `decimal_gda` and `interval` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
+msgid "`binary`, `decimal` and `decimal_gda` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
 msgstr ""
 
 #: manual/tutorial/internal.md:172
@@ -28839,7 +28842,7 @@ msgid "`binary` imports the kernel and brings the names it uses into scope with 
 msgstr ""
 
 #: manual/tutorial/internal/binary_kernel.md:28
-msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
+msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.to_kernel()` unwraps it and `BinCoeff::from_kernel(c)` wraps a result), so the kernel types show in a public interface only in those two functions and in `Binary`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
 msgstr ""
 
 #: manual/tutorial/internal/binary_kernel.md:44
@@ -28895,7 +28898,7 @@ msgid "internal/conformance tutorial"
 msgstr ""
 
 #: manual/tutorial/internal/conformance.md:3
-msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating`, so the examples are written for code inside the module and are not compiled by the manual checker."
+msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating-tools`, so the examples are written for code inside the module and are not compiled by the manual checker."
 msgstr ""
 
 #: manual/tutorial/internal/conformance.md:12

@@ -269,9 +269,9 @@ msgstr "各候補について、当該ケースとデータセットの有効な
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/binary_kernel.md:81
+#: manual/api/internal/binary_kernel.md:82
 #: manual/api/internal/conformance.md:359
-#: manual/api/internal/decimal_kernel.md:92
+#: manual/api/internal/decimal_kernel.md:91
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/interval.md:2250
 #: manual/api/interval_checked.md:528
@@ -4502,9 +4502,9 @@ msgstr "`to_string` はコンテキストなしで値を科学表記で書式化
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/binary_kernel.md:83
+#: manual/api/internal/binary_kernel.md:84
 #: manual/api/internal/conformance.md:361
-#: manual/api/internal/decimal_kernel.md:94
+#: manual/api/internal/decimal_kernel.md:93
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/interval.md:2252
 #: manual/api/numeric_expr.md:341
@@ -6860,7 +6860,7 @@ msgstr "`doc_examples` からインポートできるものはありません。
 
 #: manual/api/doc_examples.md:38
 #: manual/api/interval.md:274
-#: manual/conventions.md:179
+#: manual/conventions.md:180
 msgid "Examples"
 msgstr "例"
 
@@ -7769,8 +7769,8 @@ msgid "internal API"
 msgstr "internal API"
 
 #: manual/api/internal.md:5
-msgid "`internal` holds exact integer and rational helpers for the numeric cores: powers of 2, 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, reduced rationals, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
-msgstr "`internal` は数値コアのための厳密な整数・有理数のヘルパーを収めています。内容は、2・5・10 のべき、桁数の計算、末尾の因数の除去、明示的な丸めモードによる整数除算、10 進文字列の分割器、既約有理数、2 進有理数（dyadic）による包含区間、および認証付き初等関数の精緻化予算です。これは内部パッケージであり、`Luna-Flow/floating` の外部からはインポートできず、インターフェースは予告なく変更される可能性があります。丸めと包含の不変条件は[設計ページ](../design/internal.md)で証明し、ヘルパーの組み合わせ方は[チュートリアル](../tutorial/internal.md)で示します。"
+msgid "`internal` holds exact integer and dyadic helpers for the numeric cores: powers of 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
+msgstr "`internal` は数値コアのための厳密な整数・2 進有理数（dyadic）のヘルパーを収めています。内容は、5・10 のべき、桁数の計算、末尾の因数の除去、明示的な丸めモードによる整数除算、10 進文字列の分割器、2 進有理数による包含区間、および認証付き初等関数の精緻化予算です。これは内部パッケージであり、`Luna-Flow/floating` の外部からはインポートできず、インターフェースは予告なく変更される可能性があります。丸めと包含の不変条件は[設計ページ](../design/internal.md)で証明し、ヘルパーの組み合わせ方は[チュートリアル](../tutorial/internal.md)で示します。"
 
 #: manual/api/internal.md:15
 msgid "Not every helper is used by every core. On the current branch the library code uses:"
@@ -7786,8 +7786,8 @@ msgid "Helpers it uses"
 msgstr "使用するヘルパー"
 
 #: manual/api/internal.md:23
-msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package and of the cores only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
-msgstr "二進・十進のコアは、それぞれ自分の係数を自前のカーネルで丸めます。残りの補助関数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs`、`CertifiedDyadic` ファミリー）は、このパッケージのテストと各コアのテストからのみ使われます。`semantic` はもう `internal` を使いません。精密有理数（`ExactRational`）とその正規化を自前で持ちます。"
+msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`split_decimal_string`, `round_positive_div`, `round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
+msgstr "二進・十進のコアは、それぞれ自分の係数を自前のカーネルで丸めます。残りの補助関数（`split_decimal_string`、`round_positive_div`、`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs`、`CertifiedDyadic` ファミリー）は、このパッケージのテストからのみ使われます。`semantic` はもう `internal` を使いません。精密有理数（`ExactRational`）とその正規化を自前で持ちます。"
 
 #: manual/api/internal.md:30
 msgid "Decimal exponent bounds"
@@ -7810,8 +7810,8 @@ msgid "Inside the module, add the package to `moon.pkg`:"
 msgstr "モジュール内では、`moon.pkg` にパッケージを追加します。"
 
 #: manual/api/internal.md:66
-msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`) and uses `@def.Sign`."
-msgstr "例ではパッケージを `@internal.`、`Luna-Flow/arithmetic` を `@lf_arith.` として呼び出します。`BigInt` リテラルは `12N` と書きます。インターフェースは `Luna-Flow/arithmetic` を `@arithmetic`（`RoundingMode`、`ArithmeticError`、`CertificationStage`、`CertificationFailureReason`）として表示し、`@def.Sign` を使います。"
+msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`)."
+msgstr "例ではパッケージを `@internal.`、`Luna-Flow/arithmetic` を `@lf_arith.` として呼び出します。`BigInt` リテラルは `12N` と書きます。インターフェースは `Luna-Flow/arithmetic` を `@arithmetic`（`RoundingMode`、`ArithmeticError`、`CertificationStage`、`CertificationFailureReason`）として表示します。"
 
 #: manual/api/internal.md:71
 msgid "Integer basics"
@@ -8055,22 +8055,22 @@ msgid "Function families"
 msgstr "関数のグループ"
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Family"
 msgstr "グループ"
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Functions"
 msgstr "関数"
 
 #: manual/api/internal/binary_kernel.md:65
-#: manual/api/internal/decimal_kernel.md:75
+#: manual/api/internal/decimal_kernel.md:74
 msgid "build and convert"
 msgstr "構築と変換"
 
 #: manual/api/internal/binary_kernel.md:66
-#: manual/api/internal/decimal_kernel.md:76
+#: manual/api/internal/decimal_kernel.md:75
 msgid "shape"
 msgstr "形状の問い合わせ"
 
@@ -8103,16 +8103,16 @@ msgid "machine words"
 msgstr "マシンワード"
 
 #: manual/api/internal/binary_kernel.md:75
-msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
-msgstr "ターゲット別のしきい値（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）は非公開です。`coeff_thresholds_<target>.mbt` にあり、`moon.pkg` が選びます。前提条件は `abort` で検査されます（負のシフト量、ゼロ除数）。これらは呼び出し側のプログラミング誤りであり、演算の状態ではありません。"
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a radix of `to_radix_string` outside `2..=36`): they are programmer errors of the caller, never conditions of an operation. `Coeff::div_rem_checked` returns an `Err` for a zero divisor, and `Coeff::parse` for a radix outside `2..=36`."
+msgstr "ターゲット別のしきい値（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）は非公開です。`coeff_thresholds_<target>.mbt` にあり、`moon.pkg` が選びます。前提条件は `abort` で検査されます（負のシフト量、`to_radix_string` の基数が `2..=36` の範囲外）。これらは呼び出し側のプログラミング誤りであり、演算の状態ではありません。`Coeff::div_rem_checked` はゼロ除数に対して `Err` を返し、`Coeff::parse` は `2..=36` の範囲外の基数に対して同様に振る舞います。"
 
 #: manual/api/internal/conformance.md:1
 msgid "internal/conformance API"
 msgstr "internal/conformance API"
 
 #: manual/api/internal/conformance.md:5
-msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
-msgstr "`internal/conformance` は適合性フロントエンドが共有する結果モデルです。ソース位置、処置（disposition）付きのケースごとの結果、固定された集計規則に基づく実行サマリ、決定的なシャード選択を提供します。`frontend/gda_expr`、`frontend/itl_expr`、`frontend/mpfr_expr`、`frontend/testfloat_expr` および `internal/runner_cli` はこれを基盤とし、その型をそれぞれ独自の公開型でラップしています。これは内部パッケージです。`Luna-Flow/floating` モジュール外のコードからはインポートできず、インターフェースは予告なく変更される可能性があります。[チュートリアル](../../tutorial/internal/conformance.md)と[設計ページ](../../design/internal/conformance.md)も参照してください。"
+msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating-tools` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
+msgstr "`internal/conformance` は適合性フロントエンドが共有する結果モデルです。ソース位置、処置（disposition）付きのケースごとの結果、固定された集計規則に基づく実行サマリ、決定的なシャード選択を提供します。`frontend/gda_expr`、`frontend/itl_expr`、`frontend/mpfr_expr`、`frontend/testfloat_expr` および `internal/runner_cli` はこれを基盤とし、その型をそれぞれ独自の公開型でラップしています。これは内部パッケージです。`Luna-Flow/floating-tools` モジュール外のコードからはインポートできず、インターフェースは予告なく変更される可能性があります。[チュートリアル](../../tutorial/internal/conformance.md)と[設計ページ](../../design/internal/conformance.md)も参照してください。"
 
 #: manual/api/internal/conformance.md:25
 msgid "The examples call the package as `@conformance.`. The manual's example checker has no alias for internal subpackages, so they are marked `nocheck`; each one is a copy of behaviour checked by the package's own tests or verified by hand against the source."
@@ -8288,54 +8288,54 @@ msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate valu
 msgstr "符号と `DecCoeff` の大きさの組で、中間値が負になりうるアルゴリズム（Toom-3、Newton 逆数）に使います。ゼロは決して負になりません。この型は `pub` で、フィールドは読めますが、値を作れるのはこのパッケージだけです。"
 
 #: manual/api/internal/decimal_kernel.md:69
-msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
-msgstr "関数はすべて `dec_coeff_*` という名前です。この接頭辞がないのは `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr`、`trim_trailing_decimal_zeros_repr` です。"
+msgid "Most functions are named `dec_coeff_*`; the table gives the others by their full names."
+msgstr "大半の関数は `dec_coeff_*` という名前です。それ以外の関数は、表に完全な名前で挙げています。"
 
-#: manual/api/internal/decimal_kernel.md:77
+#: manual/api/internal/decimal_kernel.md:76
 msgid "add, subtract, compare"
 msgstr "加算・減算・比較"
 
-#: manual/api/internal/decimal_kernel.md:78
+#: manual/api/internal/decimal_kernel.md:77
 msgid "powers of ten and trimming"
 msgstr "10 のべきと末尾ゼロの除去"
 
-#: manual/api/internal/decimal_kernel.md:79
+#: manual/api/internal/decimal_kernel.md:78
 msgid "multiply"
 msgstr "乗算"
 
-#: manual/api/internal/decimal_kernel.md:80
+#: manual/api/internal/decimal_kernel.md:79
 msgid "divide"
 msgstr "除算"
 
-#: manual/api/internal/decimal_kernel.md:81
+#: manual/api/internal/decimal_kernel.md:80
 msgid "number theory"
 msgstr "整数論"
 
-#: manual/api/internal/decimal_kernel.md:82
+#: manual/api/internal/decimal_kernel.md:81
 msgid "rounding decisions"
 msgstr "丸めの判断"
 
-#: manual/api/internal/decimal_kernel.md:83
+#: manual/api/internal/decimal_kernel.md:82
 msgid "exact helpers"
 msgstr "厳密なヘルパー"
 
-#: manual/api/internal/decimal_kernel.md:84
+#: manual/api/internal/decimal_kernel.md:83
 msgid "digit-wise logic"
 msgstr "桁ごとの論理演算"
 
-#: manual/api/internal/decimal_kernel.md:85
+#: manual/api/internal/decimal_kernel.md:84
 msgid "signed values"
 msgstr "符号付きの値"
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "thresholds and constants"
 msgstr "しきい値と定数"
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "`dec_coeff_base`, `dec_coeff_burnikel_ziegler_threshold`, `dec_coeff_burnikel_ziegler_threshold_16k`, `dec_coeff_burnikel_ziegler_threshold_8k`, `dec_coeff_burnikel_ziegler_threshold_large`, `dec_coeff_dpun`, `dec_coeff_karatsuba_square_threshold`, `dec_coeff_karatsuba_threshold`, `dec_coeff_newton_enabled`, `dec_coeff_newton_threshold`, `dec_coeff_ntt_mul_threshold`, `dec_coeff_ntt_mul_threshold_16k`, `dec_coeff_ntt_mul_threshold_32k`, `dec_coeff_ntt_mul_threshold_64k`, `dec_coeff_ntt_mul_threshold_large`, `dec_coeff_ntt_square_threshold`, `dec_coeff_ntt_square_threshold_16k`, `dec_coeff_ntt_square_threshold_32k`, `dec_coeff_ntt_square_threshold_64k`, `dec_coeff_ntt_square_threshold_8k`, `dec_coeff_ntt_square_threshold_large`, `dec_coeff_ntt_square_toom3_threshold`, `dec_coeff_ntt_square_toom3_threshold_16k`, `dec_coeff_ntt_square_toom3_threshold_32k`, `dec_coeff_ntt_square_toom3_threshold_64k`, `dec_coeff_ntt_square_toom3_threshold_8k`, `dec_coeff_ntt_square_toom3_threshold_large`, `dec_coeff_small_limit`, `dec_coeff_small_powers10`, `dec_coeff_toom3_threshold`, chosen per target in `coeff_thresholds_<target>.mbt` where they differ"
 msgstr "`dec_coeff_base`, `dec_coeff_burnikel_ziegler_threshold`, `dec_coeff_burnikel_ziegler_threshold_16k`, `dec_coeff_burnikel_ziegler_threshold_8k`, `dec_coeff_burnikel_ziegler_threshold_large`, `dec_coeff_dpun`, `dec_coeff_karatsuba_square_threshold`, `dec_coeff_karatsuba_threshold`, `dec_coeff_newton_enabled`, `dec_coeff_newton_threshold`, `dec_coeff_ntt_mul_threshold`, `dec_coeff_ntt_mul_threshold_16k`, `dec_coeff_ntt_mul_threshold_32k`, `dec_coeff_ntt_mul_threshold_64k`, `dec_coeff_ntt_mul_threshold_large`, `dec_coeff_ntt_square_threshold`, `dec_coeff_ntt_square_threshold_16k`, `dec_coeff_ntt_square_threshold_32k`, `dec_coeff_ntt_square_threshold_64k`, `dec_coeff_ntt_square_threshold_8k`, `dec_coeff_ntt_square_threshold_large`, `dec_coeff_ntt_square_toom3_threshold`, `dec_coeff_ntt_square_toom3_threshold_16k`, `dec_coeff_ntt_square_toom3_threshold_32k`, `dec_coeff_ntt_square_toom3_threshold_64k`, `dec_coeff_ntt_square_toom3_threshold_8k`, `dec_coeff_ntt_square_toom3_threshold_large`, `dec_coeff_small_limit`, `dec_coeff_small_powers10`, `dec_coeff_toom3_threshold`。目標ごとに異なるものは `coeff_thresholds_<target>.mbt` で選ばれます"
 
-#: manual/api/internal/decimal_kernel.md:88
+#: manual/api/internal/decimal_kernel.md:87
 msgid "Preconditions are checked with `abort` (a negative shift, a zero divisor, a subtraction that would go below zero, a unit divisor outside $[1, 10^9)$): they are programmer errors of the caller, never conditions of an operation."
 msgstr "事前条件は `abort` で検査します（負のシフト量、ゼロの除数、ゼロを下回る減算、$[1, 10^9)$ の外にある 1 リムの除数）。これらは呼び出し側のプログラミング上の誤りであり、演算の条件ではありません。"
 
@@ -10191,8 +10191,8 @@ msgid "cross-package laws, documentation examples, benchmarks, conformance orche
 msgstr "パッケージ横断の法則、ドキュメントの例、ベンチマーク、適合性検証のオーケストレーション"
 
 #: manual/architecture.md:24
-msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def` and `internal`, `interval` builds on `binary`, `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
-msgstr "パッケージ境界は `moon.pkg` によって決まります。パッケージ内のファイルは実装を整理するものであり、名前空間を作りません。依存関係は下向きです。すべての数値パッケージは `def` と `internal` に依存し、`interval` は `binary` の上に構築され、`decimal` と `decimal_gda` は認証付き初等関数のために `binary` と `interval` を利用し、checked パッケージはそれぞれのドメインをラップします。数値的なものがフロントエンド、CLI、ベンチマークに依存することはありません。"
+msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def`; `binary`, `decimal` and `decimal_gda` also depend on `internal`; `interval` builds on `binary`; `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
+msgstr "パッケージ境界は `moon.pkg` によって決まります。パッケージ内のファイルは実装を整理するものであり、名前空間を作りません。依存関係は下向きです。すべての数値パッケージは `def` に依存します。`binary`、`decimal`、`decimal_gda` は `internal` にも依存します。`interval` は `binary` の上に構築されます。`decimal` と `decimal_gda` は認証付き初等関数のために `binary` と `interval` を利用し、checked パッケージはそれぞれのドメインをラップします。数値的なものがフロントエンド、CLI、ベンチマークに依存することはありません。"
 
 #: manual/architecture.md:31
 msgid "Two modules"
@@ -10272,8 +10272,8 @@ msgid "`Binary` stores a class, a sign, a non-negative binary coefficient with n
 msgstr "`Binary` は、クラス、符号、末尾に 0 ビットを持たない非負の二進係数、指数、精度、および NaN の状態（signaling ビットとペイロード）を保持します。`Decimal` と GDA の `Decimal` は、それぞれ符号、パッケージが所有する基数 $10^9$ の係数、量子（quantum）を表す指数、精度、および特殊状態を保持します。`Interval` は二つの `Binary` 端点、精度、Empty マーカーを保持し、`DecoratedInterval` は bare 表現を変えずに装飾を追加します。"
 
 #: manual/architecture.md:83
-msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[1 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
-msgstr "最終化（finalization）は意味論上のファイアウォールです。カーネルは厳密な和、積、商、根、あるいはガードビットやスティッキービットを計算できますが、丸められた値、コホート、フラグ、トラップ、装飾、区間端点の方向を決めるのはファイナライザだけです。ファイナライザはまた、先頭ビットについて二進実装の指数範囲 $[1 - 2^{30},\\ 2^{30} - 1]$ を強制します。この範囲外の結果は、飽和した指数で格納されるのではなく、丸め方向に応じてオーバーフローまたはアンダーフローとして分類されます。"
+msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[2 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
+msgstr "最終化（finalization）は意味論上のファイアウォールです。カーネルは厳密な和、積、商、根、あるいはガードビットやスティッキービットを計算できますが、丸められた値、コホート、フラグ、トラップ、装飾、区間端点の方向を決めるのはファイナライザだけです。ファイナライザはまた、先頭ビットについて二進実装の指数範囲 $[2 - 2^{30},\\ 2^{30} - 1]$ を強制します。この範囲外の結果は、飽和した指数で格納されるのではなく、丸め方向に応じてオーバーフローまたはアンダーフローとして分類されます。"
 
 #: manual/architecture.md:91
 msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums are the directed `add_ctx` of the binary layer, which does the same. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
@@ -10358,8 +10358,8 @@ msgid "Binary and IEEE decimal contexts are immutable inputs; flags are explicit
 msgstr "二進および IEEE 十進のコンテキストは不変の入力であり、フラグは呼び出し側が `combine` する明示的な出力です。"
 
 #: manual/architecture.md:210
-msgid "`decimal_gda` returns a new context whose status includes the raised flags, then selects at most one trap by fixed precedence."
-msgstr "`decimal_gda` は、発生したフラグをステータスに含む新しいコンテキストを返し、固定の優先順位によって最大一つのトラップを選択します。"
+msgid "`decimal_gda` returns a new context whose accumulated flags include the raised ones, then selects at most one trap by fixed precedence."
+msgstr "`decimal_gda` は、発生したフラグを累積フラグに含む新しいコンテキストを返し、固定の優先順位によって最大一つのトラップを選択します。"
 
 #: manual/architecture.md:212
 msgid "`IntervalContext` fixes the endpoint precision and exponent bounds and returns `IntervalFlags`."
@@ -11490,7 +11490,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:166
-#: manual/design/internal.md:211
+#: manual/design/internal.md:212
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/interval.md:1179
@@ -12479,168 +12479,168 @@ msgid "Package pages"
 msgstr "パッケージページ"
 
 #: manual/conventions.md:50
-msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
-msgstr "すべての `moon.pkg` を反映させます。`library/src/<path>/moon.pkg` のパッケージは `api/<path>.md`、`tutorial/<path>.md`、`design/<path>.md` で説明します。ファイルはパッケージを作らず、`moon.pkg` の境界がパッケージを作ります。"
+msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` or `tooling/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
+msgstr "すべての `moon.pkg` を反映させます。`library/src/<path>/moon.pkg` または `tooling/src/<path>/moon.pkg` のパッケージは `api/<path>.md`、`tutorial/<path>.md`、`design/<path>.md` で説明します。ファイルはパッケージを作らず、`moon.pkg` の境界がパッケージを作ります。"
 
-#: manual/conventions.md:53
+#: manual/conventions.md:54
 msgid "Give every package all three pages. Packages without an application API (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`) still document their generated interface, maintainer workflow and stability boundary."
 msgstr "すべてのパッケージに三つのページすべてを用意します。アプリケーション API を持たないパッケージ（フロントエンド、CLI、`internal/*`、`bench/*`、`consistency`、`doc_examples`）も、生成されたインターフェース、メンテナー向けのワークフロー、安定性の境界を文書化します。"
 
-#: manual/conventions.md:57
-msgid "Every package also keeps a `library/src/<path>/README.mbt.md`."
-msgstr "各パッケージは `library/src/<path>/README.mbt.md` も持ちます。"
-
 #: manual/conventions.md:58
+msgid "Every package also keeps a `README.mbt.md` in its directory."
+msgstr "各パッケージは、そのディレクトリに `README.mbt.md` も持ちます。"
+
+#: manual/conventions.md:59
 msgid "`pkg.generated.mbti` is the public-surface inventory; source and tests define behaviour. A method is documented as callable with dot syntax only if the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are not promoted implicitly and must be declared with `pub extend`."
 msgstr "`pkg.generated.mbti` は公開面の一覧であり、振る舞いはソースとテストが定義します。メソッドをドット構文で呼び出せると文書化してよいのは、`.mbti` がそれを `pub fn Type::name` として記載している場合だけです。トレイト実装のメソッドは暗黙には昇格されず、`pub extend` で宣言する必要があります。"
 
-#: manual/conventions.md:62
+#: manual/conventions.md:63
 msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `library/CHANGELOG.md`."
 msgstr "計画中の API を既存のものとして文書化しないでください。また、研究メモを独立したページとして残さないでください。永続的な結論は設計・適合性・性能のページに昇格させ、置き換えられた履歴は `library/CHANGELOG.md` に移してください。"
 
-#: manual/conventions.md:65
+#: manual/conventions.md:66
 msgid "Pages name only the current release. A page may mention an older release only when it carries a `<!-- historical-performance-baseline: X.Y.Z -->` marker for that version; `tools/doc_quality.py` rejects any other historical version."
 msgstr "ページで名前を挙げるのは現在のリリースだけです。古いリリースに言及してよいのは、そのバージョンに対する `<!-- historical-performance-baseline: X.Y.Z -->` マーカーを持つページに限られます。`tools/doc_quality.py` はそれ以外の過去のバージョンを拒否します。"
 
-#: manual/conventions.md:70
+#: manual/conventions.md:71
 msgid "Naming"
 msgstr "命名"
 
-#: manual/conventions.md:72
+#: manual/conventions.md:73
 msgid "An operation is named after the standard of its package, in snake_case: IEEE 754-2019 for `binary` and `decimal` and their checked tiers, and the General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and its checked tier. A package has one spelling per operation: it carries no alias and never the name of the other standard for the same thing. For example, `decimal` names the IEEE `remainder` as `remainder_ctx`, and `decimal_gda` names the GDA `remainder-near` as `remainder_near`."
 msgstr "操作は、そのパッケージの標準に従って snake_case で命名します。`binary` と `decimal` およびそのチェック層は IEEE 754-2019、`decimal_gda` とそのチェック層は General Decimal Arithmetic Specification 1.70 に従います。パッケージは一つの操作に一つの綴りだけを持ち、別名はなく、同じものに対して他方の標準の名前も使いません。たとえば `decimal` は IEEE の `remainder` を `remainder_ctx` と呼び、`decimal_gda` は GDA の `remainder-near` を `remainder_near` と呼びます。"
 
-#: manual/conventions.md:80
+#: manual/conventions.md:81
 msgid "**Case.** `camelCase` names split at each capital (`minimumMagnitudeNumber` is `minimum_magnitude_number`) and hyphens become underscores (`round-to-integral-exact` is `round_to_integral_exact`). Digits and the standard's own abbreviations stay attached to their word: `exp2m1`, `log2p1`, `atan2`, `sinpi`."
 msgstr "**大文字小文字。** `camelCase` の名前は大文字の位置で区切り（`minimumMagnitudeNumber` は `minimum_magnitude_number`）、ハイフンはアンダースコアにします（`round-to-integral-exact` は `round_to_integral_exact`）。数字と標準自身の略語は、直前の語につなげたままにします：`exp2m1`、`log2p1`、`atan2`、`sinpi`。"
 
-#: manual/conventions.md:85
+#: manual/conventions.md:86
 msgid "**Suffixes.** `_ctx` marks a method that takes a context and returns the value with its flags. `try_` marks the form that returns a `Result` for a certification failure. `_checked` and `_contextual` are the forms of the `Luna-Flow/arithmetic` traits. The checked tiers (`binary_checked`, `decimal_checked`, `decimal_gda_checked`) keep the bare names."
 msgstr "**接尾辞。** `_ctx` は、文脈を受け取り値とそのフラグを返すメソッドを示します。`try_` は認証失敗を `Result` で返す形式を示します。`_checked` と `_contextual` は `Luna-Flow/arithmetic` のトレイトの形式です。チェック層（`binary_checked`、`decimal_checked`、`decimal_gda_checked`）は接尾辞のない名前を保ちます。"
 
-#: manual/conventions.md:90
+#: manual/conventions.md:91
 msgid "**No standard name.** Where the standard has no name for something, such as a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
 msgstr "**標準に名前がないもの。** 標準が名前を与えていないもの、たとえばコンストラクタ（`from_bigint`）や符号化の補助関数では、最も多く使われている綴りを残し、API ページに記録します。"
 
-#: manual/conventions.md:93
+#: manual/conventions.md:94
 msgid "**Documented exceptions.** These names are kept as they are, although the rule would spell them otherwise:"
 msgstr "**記録された例外。** 次の名前は、規則に従えば別の綴りになるものの、そのまま残します。"
 
-#: manual/conventions.md:99
+#: manual/conventions.md:100
 msgid "`sinpi` and its family;"
 msgstr "`sinpi` とそのファミリー；"
 
-#: manual/conventions.md:100
+#: manual/conventions.md:101
 msgid "the flag name `division_by_zero`;"
 msgstr "フラグ名 `division_by_zero`；"
 
-#: manual/conventions.md:102
+#: manual/conventions.md:103
 msgid "`to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;"
 msgstr "`to_hex`、`from_hex`、`to_interchange_hex`、`from_interchange_hex`；"
 
-#: manual/conventions.md:103
+#: manual/conventions.md:104
 msgid "in `decimal_gda`, also `rescale`, `apply` and `trim` (decNumber operations that GDA 1.70 does not define), `class_name`, and the `logical_` prefix."
 msgstr "`decimal_gda` では、`rescale`、`apply`、`trim`（GDA 1.70 が定義しない decNumber の演算）、`class_name`、および `logical_` 接頭辞も例外です。"
 
-#: manual/conventions.md:105
+#: manual/conventions.md:106
 msgid "**Context in `decimal_gda`.** An operation that takes the context is a free function named after the GDA operation, taking a `GdaContext` last and returning a `GdaOutcome`; a quiet operation that GDA 1.70 says is unaffected by context is a method of `Decimal` (`copy`, `copy_sign`, `same_quantum`, the `is_*` predicates). `compare_total` and `compare_total_magnitude` are free functions although the total order itself uses no context: in a subset context (`extended=false`) the operands are first rounded to the precision (GDA 1.70, Appendix A), which the `Decimal` methods of the same names do not do. The design of 0.12 first took them to be context-free and quiet; the 32 `comparetotal` rows of the subset corpus `dectest0` showed that this holds only in extended contexts."
 msgstr "**`decimal_gda` でのコンテキスト。** コンテキストを取る演算は、GDA の演算にちなんだ名前の自由関数で、`GdaContext` を最後に取り、`GdaOutcome` を返します。GDA 1.70 がコンテキストの影響を受けないとする静かな演算は `Decimal` のメソッドです（`copy`、`copy_sign`、`same_quantum`、`is_*` 述語）。`compare_total` と `compare_total_magnitude` は、全順序そのものはコンテキストを使わないにもかかわらず自由関数です。サブセットコンテキスト（`extended=false`）ではオペランドがまずその精度に丸められ（GDA 1.70 付録 A）、同名の `Decimal` のメソッドはそうしないためです。0.12 の設計は当初これらをコンテキストなしで静かなものと見ましたが、サブセットコーパス `dectest0` の 32 行の `comparetotal` により、それは拡張コンテキストでしか成り立たないとわかりました。"
 
-#: manual/conventions.md:116
+#: manual/conventions.md:117
 msgid "**Kept names with the standard's term.** These names differ from the word of the standard and are kept on purpose; the API page of each says so:"
 msgstr "**標準の用語とともに残す名前。** 次の名前は標準の語と異なりますが、意図的に残しています。各 API ページがそのことを述べます。"
 
-#: manual/conventions.md:118
+#: manual/conventions.md:119
 msgid "`coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component the significand (an integer when the exponent is $q$), and the standard does not use the word coefficient. The General Decimal Arithmetic Specification does (\"coefficient – an integer which is zero or positive\"), and one word for the integer view is used in all four packages;"
 msgstr "`coefficient` と `BinCoeff`：IEEE 754-2019 の 2.1 と 3.3 はこの成分を仮数（significand。指数が $q$ のときは整数として扱う）と呼び、coefficient という語は使いません。General Decimal Arithmetic 仕様は使っており（「coefficient – an integer which is zero or positive」）、整数としての見方には 4 つのパッケージすべてでこの 1 語を使います。"
 
-#: manual/conventions.md:123
+#: manual/conventions.md:124
 msgid "the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;"
 msgstr "`*RoundingMode` 型：754-2019 の 4.3 は丸め方向属性（rounding-direction attribute）と呼びます。"
 
-#: manual/conventions.md:124
+#: manual/conventions.md:125
 msgid "`is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has isSignaling and `class(x)`;"
 msgstr "`is_signaling_nan`、`is_quiet_nan`、`class_of`：754-2019 の 5.7.2 には isSignaling と `class(x)` があります。"
 
-#: manual/conventions.md:126
+#: manual/conventions.md:127
 msgid "`DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the binary encoding of the significand (a declet is three decimal digits in ten bits, 2.1); the abbreviations are the usual names of the two encodings;"
 msgstr "`DPD` と `BID`：754-2019 の 3.5.2 は仮数の十進符号化と二進符号化を述べます（declet は 10 ビットに入る 3 桁の十進数字、2.1）。この 2 つの略称は 2 つの符号化の通称です。"
 
-#: manual/conventions.md:129
+#: manual/conventions.md:130
 msgid "`normalized`: it returns the canonical representation of a value, not the normal number of 754-2019 2.1 (a finite non-zero number of at least the smallest normal magnitude);"
 msgstr "`normalized`：値の正準表現を返すもので、754-2019 の 2.1 の正規数（大きさが最小の正規の大きさ以上の有限の非零数）ではありません。"
 
-#: manual/conventions.md:132
+#: manual/conventions.md:133
 msgid "`exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$ according to the view of the significand, so the suffix says the radix of the integer power."
 msgstr "`exponent2` と `exponent10`：754-2019 の 2.1 の指数は仮数の見方に応じて $e$ または $q$ なので、接尾辞で整数冪の基数を示します。"
 
-#: manual/conventions.md:135
+#: manual/conventions.md:136
 msgid "**Names of this release that are not the standard's.** `min_num` and `max_num` (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which 754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name says which operation it is. `signum` is the three-valued classification of the sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2)."
 msgstr "**このリリースの、標準の語ではない名前。** `min_num` と `max_num`（binary、`decimal`）は IEEE 754-2008 の minNum と maxNum で、754-2019 は 9.6 の演算でそれらを置き換えました（5.3.1 の NOTE を参照）。名前でどの演算かを示します。`signum` はスカラーの符号の三値の分類（`Negative`、`Zero`、`Positive`。2 つの零と NaN は `Zero`）で、754-2019 の符号はビットであり `is_sign_minus` です（5.7.2）。"
 
-#: manual/conventions.md:141
+#: manual/conventions.md:142
 msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr "**旧名。** 改名または削除された操作に別名は残りません。ある意味を持っていた名前は、同じリリースの中で別の意味に再利用されません。操作を改名または削除するリリースは、`library/CHANGELOG.md` の **Breaking** に旧名と代替を列挙します。"
 
-#: manual/conventions.md:146
+#: manual/conventions.md:147
 msgid "API snapshots"
 msgstr "API スナップショット"
 
-#: manual/conventions.md:148
+#: manual/conventions.md:149
 msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr "すべての API ページは `## Complete public interface` で終わり、その本文はマーカー `<!-- generated-api-start -->` と `<!-- generated-api-end -->` の間に置かれた、パッケージの `pkg.generated.mbti` の正確なコピーで、`mbti` としてフェンスされます。ページ本文中の個々のシグネチャも `mbti` ブロックです。`tools/doc_quality.py` はスナップショットを生成ファイルと比較する（古い `moonbit` フェンスも受け付けます）ので、`moon info` がインターフェースを変更したときは必ず再生成してください。"
 
-#: manual/conventions.md:156
+#: manual/conventions.md:157
 msgid "Numeric documentation rules"
 msgstr "数値文書の規則"
 
-#: manual/conventions.md:158
+#: manual/conventions.md:159
 msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr "`precision`、`rounding`、`classify`、`signum`、`normalized`、`exponent`、`context`、`flags` は[数値意味論](./numeric_semantics.md)で定義されたとおりに使用してください。"
 
-#: manual/conventions.md:161
+#: manual/conventions.md:162
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr "格納表現、厳密値、丸められた結果、ステータスフラグ、checked エラー、区間の包含区間を区別してください。"
 
-#: manual/conventions.md:163
+#: manual/conventions.md:164
 msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
 msgstr "パースが指数を保持する場合と、正規化が値を変えずにコホートを変える場合を明記してください。"
 
-#: manual/conventions.md:165
+#: manual/conventions.md:166
 msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
 msgstr "API が用いる順序を明示してください。`compare`、`<`、ソートは、すべての NaN をすべての数より上に置く全前順序です。IEEE の半順序（*unordered* を含む）と `totalOrder` は別の API です。区間値にスカラーの順序があるかのように示唆してはなりません。"
 
-#: manual/conventions.md:169
+#: manual/conventions.md:170
 msgid "For `*_ctx` APIs, document both the returned value and the flags."
 msgstr "`*_ctx` API では、返される値とフラグの両方を文書化してください。"
 
-#: manual/conventions.md:170
+#: manual/conventions.md:171
 msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr "checked API とラッパーでは、ドメイン固有の遷移、すなわち結果のエラー、IEEE フラグの蓄積、あるいは GDA トラップによる短絡とその回復を文書化してください。"
 
-#: manual/conventions.md:173
+#: manual/conventions.md:174
 msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr "`decimal` と `decimal_gda` は別 contract として説明します。IEEE operation は per-operation flags を返し、GDA operation は `GdaOutcome` で sticky status と trap を thread します。"
 
-#: manual/conventions.md:176
+#: manual/conventions.md:177
 msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr "数式は TeX（`$…$`、`$$…$$`）で書き、導出が依拠する標準の条項や古典的な結果を引用してください。"
 
-#: manual/conventions.md:181
+#: manual/conventions.md:182
 msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr "実行可能な例は完全なトップレベル項目（通常は `test` ブロック）で、`moonbit` としてフェンスし、出力を `inspect` で示します。これらは現在のブランチに対してコンパイルされ、パスしなければなりません。"
 
-#: manual/conventions.md:184
+#: manual/conventions.md:185
 msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr "部分的なスニペット、本文中のシグネチャ、実行可能パッケージのコード、モジュール外からインポートできない `internal/*` のコード、および `moon.pkg` のスニペットは `moonbit nocheck` としてフェンスし、シェルコマンドは `bash` としてフェンスします。`just docs` が実行する `tools/check_doc_examples.py` は、マニュアルのそれ以外のすべての `moonbit` ブロックをコンパイルして実行します。"
 
-#: manual/conventions.md:189
+#: manual/conventions.md:190
 msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
 msgstr "インポートのエイリアス: `Luna-Flow/luna-generic` は `@lf_alg`、`Luna-Flow/arithmetic` は `@lf_arith` とします。floating のパッケージはデフォルトのエイリアス（`@binary`、`@decimal`、…）を使用します。"
 
-#: manual/conventions.md:192
-msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
-msgstr "`.mbti` に記載されているものだけを呼び出してください。たとえば `Binary` には `to_double` や `is_finite` メソッドはありません。`to_shortest_string` と `@def.is_finite(x)` を使用してください。"
+#: manual/conventions.md:193
+msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` method; use `to_shortest_string`."
+msgstr "`.mbti` に記載されているものだけを呼び出してください。たとえば `Binary` には `to_double` メソッドはありません。`to_shortest_string` を使用してください。"
 
 #: manual/conventions.md:196
 msgid "Translations"
@@ -12989,7 +12989,7 @@ msgstr "`environment` は各実行についてターゲット、プロファイ�
 #: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:138
-#: manual/design/internal.md:138
+#: manual/design/internal.md:139
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
@@ -13044,7 +13044,7 @@ msgstr "**スケール不変性。** すべてのサンプルに定数 $\\lambda
 #: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:156
-#: manual/design/internal.md:199
+#: manual/design/internal.md:200
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/interval.md:1160
@@ -19363,8 +19363,8 @@ msgid "The binary, decimal and interval cores all reduce their hard steps to exa
 msgstr "2 進・10 進・区間の各コアは、いずれも難しいステップを正確な整数演算に帰着させます。指数の整列、末尾のゼロの除去、丸めモード付きの除算、2 つの 2 進有理数（dyadic）の間への比の包含です。`internal` はこれらのステップを、不変条件が証明された小さな `BigInt` 関数として表し、このパッケージのテストでそれぞれをオラクルに対して検査でき、コア同士が共通部分を共有できるようにします。internal であるため、コアは公開互換性の約束なしにヘルパーをまとめて変更できます。"
 
 #: manual/design/internal.md:13
-msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
-msgstr "現在のブランチでは、共有は部分的です。10 進のコアは文字列分割器、`round_positive_div`、べき乗のキャッシュ、`digits10` を使い、すべてのコアが精密化の予算と `certified_failure` を使います。`binary` と 2 つの 10 進パッケージのホットパスは独自のリムのカーネルで丸めます（`BinCoeff` と、サブパッケージ `internal/decimal_kernel` の `DecCoeff`。後者は `decimal` と `decimal_gda` が共有します）。これらは `round_positive_div` と同じ丸めの表を実装していますが、それを基にしてはいません。また、いくつかのヘルパー（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系）はテストでしか使われていません。[API ページ](../api/internal.md#purpose)の表に、各ヘルパーの利用者を挙げています。"
+msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, the power caches and `digits10`; `binary` and the two decimal packages use the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
+msgstr "現在のブランチでは、共有は部分的です。10 進のコアは文字列分割器、べき乗のキャッシュ、`digits10` を使い、`binary` と 2 つの 10 進パッケージが精密化の予算と `certified_failure` を使います。`binary` と 2 つの 10 進パッケージのホットパスは独自のリムのカーネルで丸めます（`BinCoeff` と、サブパッケージ `internal/decimal_kernel` の `DecCoeff`。後者は `decimal` と `decimal_gda` が共有します）。これらは `round_positive_div` と同じ丸めの表を実装していますが、それを基にしてはいません。また、いくつかのヘルパー（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系）はテストでしか使われていません。[API ページ](../api/internal.md#purpose)の表に、各ヘルパーの利用者を挙げています。"
 
 #: manual/design/internal.md:26
 msgid "Integer division with remainder"
@@ -19424,86 +19424,86 @@ msgid "Wide exponent parsing"
 msgstr "幅広い指数の解析"
 
 #: manual/design/internal.md:92
-msgid "A decimal context may set $e_{\\max}$ anywhere in `Int`, and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
-msgstr "10 進コンテキストは $e_{\\max}$ を `Int` の任意の値に設定でき、コンテキストなしの `parse` は指数範囲をまったく適用しないため、`Int` の内側に上限を設けるのは安全ではありません。より小さい値にクランプされたリテラルの指数がなお範囲内に収まり、数値が黙って変わってしまうからです。そのため `split_decimal_string_wide` は指数 $q$ を `Int64` で返します。記述された指数は $10^{18}$ まで正確に読み取られ、そこで飽和します。小数部の桁数は高々 $2^{31}$ なので $|q| < 10^{18} + 2^{31}$ となり、減算で `Int64` がオーバーフローすることはありません。飽和した $q$ は `Int` のはるか外側、つまり値やコンテキストが保持できるどの指数よりも外側にあるため、$q$（と桁数）を `Int` や自身のコンテキストと比較する呼び出し側は、正確な指数の場合と同じオーバーフローまたはアンダーフローを得ます。`split_decimal_string` は `Int` のシグネチャを保ち、$q$ が `Int` に収まらないときは別の指数ではなく `None` を返します。"
+msgid "A stored decimal value may have an exponent up to `decimal_value_e_max` (near the top of `Int`), and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
+msgstr "格納された 10 進値の指数は `decimal_value_e_max`（`Int` の上限に近い値）まで取ることができ、コンテキストなしの `parse` は指数範囲をまったく適用しないため、`Int` の内側に上限を設けるのは安全ではありません。より小さい値にクランプされたリテラルの指数がなお範囲内に収まり、数値が黙って変わってしまうからです。そのため `split_decimal_string_wide` は指数 $q$ を `Int64` で返します。記述された指数は $10^{18}$ まで厳密に読み取られ、そこで飽和します。小数部の桁数は高々 $2^{31}$ なので $|q| < 10^{18} + 2^{31}$ となり、減算で `Int64` がオーバーフローすることはありません。飽和した $q$ は `Int` のはるか外側、つまり値やコンテキストが保持できるどの指数よりも外側にあるため、$q$（と桁数）を `Int` や自身のコンテキストと比較する呼び出し側は、厳密な指数の場合と同じオーバーフローまたはアンダーフローを得ます。`split_decimal_string` は `Int` のシグネチャを保ち、$q$ が `Int` に収まらないときは別の指数ではなく `None` を返します。"
 
-#: manual/design/internal.md:105
+#: manual/design/internal.md:106
 msgid "Ziv-style refinement budget"
 msgstr "Ziv 方式の精密化の予算"
 
-#: manual/design/internal.md:107
+#: manual/design/internal.md:108
 msgid "The certified elementary functions evaluate an enclosure at a working precision $p_k$ and accept the result when both ends round to the same target number (Ziv's strategy[^ziv]); otherwise they retry at a higher precision. The budget fixes the schedule"
 msgstr "認証付き初等関数は、作業精度 $p_k$ で包含区間を評価し、両端が同じ目標の数に丸められる場合に結果を受け入れます（Ziv の戦略[^ziv]）。そうでなければ、より高い精度で再試行します。予算は次のスケジュールを定めます。"
 
-#: manual/design/internal.md:116
+#: manual/design/internal.md:117
 msgid "with $L = 12$ refinements by default. For $p_k \\ge 64$ this is $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$, geometric growth with ratio $3/2$ up to the floor, so $p_L \\approx p_0 (3/2)^{L}$ (about $130\\,p_0$ for $L = 12$ and $p_0 \\ge 64$). For $p_k < 64$ the step is $32$ and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to the floor) at every step. If one attempt at precision $p$ costs $C(p) \\ge c\\,p$ (at least linear), the total cost of all attempts is dominated by the last one:"
 msgstr "既定では精密化の回数は $L = 12$ です。$p_k \\ge 64$ ではこれは $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$ であり、（床関数を除けば）比 $3/2$ の幾何級数的な増加なので、$p_L \\approx p_0 (3/2)^{L}$ となります（$L = 12$ かつ $p_0 \\ge 64$ では約 $130\\,p_0$）。$p_k < 64$ ではステップは $32$ で、$p_{k+1}/p_k = 1 + 32/p_k > 3/2$ なので、どのステップでも比は（床関数を除けば）少なくとも $3/2$ です。精度 $p$ での 1 回の試行のコストが $C(p) \\ge c\\,p$（少なくとも線形）であれば、全試行の総コストは最後の試行によって支配されます。"
 
-#: manual/design/internal.md:130
+#: manual/design/internal.md:131
 msgid "which holds, up to the floors in the schedule, for $C(p) = c\\,p^{\\alpha}$ with $\\alpha \\ge 1$ in the geometric phase. Exhaustion is reported with `certified_failure`, which records the target and final working precision, instead of returning a value that is not certified."
 msgstr "これは、幾何級数的な段階において $\\alpha \\ge 1$ の $C(p) = c\\,p^{\\alpha}$ に対し、スケジュール中の床関数の分を除いて成り立ちます。予算の枯渇は、認証されていない値を返す代わりに、目標精度と最終的な作業精度を記録する `certified_failure` によって報告されます。"
 
-#: manual/design/internal.md:135
+#: manual/design/internal.md:136
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 
-#: manual/design/internal.md:140
+#: manual/design/internal.md:141
 msgid "**Rounding table.** Let $n = qd + r$ with $0 \\le r < d$ and $x = (-1)^{\\sigma} n/d$. Then $|\\circ(x)| \\in \\{q, q+1\\}$, with $q + 1$ only if $r > 0$, and `round_positive_div` returns $|\\circ(x)|$:"
 msgstr "**丸め表。** $n = qd + r$、$0 \\le r < d$、$x = (-1)^{\\sigma} n/d$ とします。このとき $|\\circ(x)| \\in \\{q, q+1\\}$ であり、$q + 1$ となるのは $r > 0$ の場合に限られます。`round_positive_div` は $|\\circ(x)|$ を返します。"
 
-#: manual/design/internal.md:154
+#: manual/design/internal.md:155
 msgid "*Proof.* $|x| = q + r/d$ lies in $[q, q+1)$. Toward zero takes the smaller magnitude. Toward $+\\infty$ takes the larger magnitude for a positive non-integer and the smaller for a negative one; toward $-\\infty$ is the mirror image. Away from zero takes the larger magnitude for any non-integer. For nearest, the distance to $q$ is $r/d$ and to $q+1$ is $1 - r/d$, so $q + 1$ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of $q, q+1$, which is $q + 1$ iff $q$ is odd. $\\square$"
 msgstr "*証明。* $|x| = q + r/d$ は $[q, q+1)$ にあります。ゼロ方向は小さい方の絶対値をとります。$+\\infty$ 方向は、正の非整数では大きい方の絶対値を、負の非整数では小さい方をとります。$-\\infty$ 方向はその鏡像です。ゼロから離れる方向は、任意の非整数で大きい方の絶対値をとります。最近接では、$q$ までの距離は $r/d$、$q+1$ までの距離は $1 - r/d$ なので、$q + 1$ の方が近いのは $2r > d$ のときかつそのときに限り、$2r = d$ がタイです。タイは $q, q+1$ のうち偶数の方に解決され、それが $q + 1$ になるのは $q$ が奇数のときかつそのときに限ります。$\\square$"
 
-#: manual/design/internal.md:162
+#: manual/design/internal.md:163
 msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The tests of this package check both functions against these formulas on ties and directed cases."
 msgstr "`round_shift(m, s, …)` は $d = 2^{s}$、$q = m \\gg s$、$r = m - (q \\ll s)$ の場合であり、$m \\ge 0$ では同じ表が当てはまります。$m < 0$ では算術シフトにより $q = \\lfloor m/2^{s} \\rfloor < 0$ かつ $0 \\le r < 2^{s}$ となり、「絶対値」の表が負の $q$ に適用されます。結果は $\\pm|\\circ(x)|$ にはなりません（たとえば $m = -5$、$s = 1$ で `TowardZero` は $-3$ を返します）。この関数は符号を検査しないので、呼び出し側は絶対値を渡さなければなりません。このパッケージのテストは、タイと方向付きのケースについて両方の関数をこれらの式と照合します。"
 
-#: manual/design/internal.md:170
+#: manual/design/internal.md:171
 msgid "**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros` preserve $c \\cdot 10^{e}$, removing one factor of 10 per step; the latter stops after `max_drop` steps."
 msgstr "**因子の除去。** `remove_factor10` と `trim_trailing_decimal_zeros` は $c \\cdot 10^{e}$ を保ち、1 ステップごとに 10 の因子を 1 つ取り除きます。後者は `max_drop` ステップで止まります。"
 
-#: manual/design/internal.md:174
+#: manual/design/internal.md:175
 msgid "**Enclosure.** `certified_dyadic_fraction(n, d, s)` returns $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ and $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$; from $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ with $y = n 2^{s}/d$ we get $\\ell \\le n/d \\le u$ and $u - \\ell \\le 2^{-s}$, with equality $\\ell = u$ iff $y \\in \\mathbb{Z}$. The floor of a negative ratio is computed as $-\\lceil |n| / d \\rceil$, so the enclosure is correct for both signs. `certified_dyadic_div` rewrites $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ with the sign moved to the numerator, so it inherits the same bound. `round_down` and `round_up` are the same floor and ceiling at a smaller scale, so $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$."
 msgstr "**包含。** `certified_dyadic_fraction(n, d, s)` は $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ と $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$ を返します。$y = n 2^{s}/d$ に対する $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ から $\\ell \\le n/d \\le u$ と $u - \\ell \\le 2^{-s}$ が得られ、$\\ell = u$ となるのは $y \\in \\mathbb{Z}$ のときかつそのときに限ります。負の比の床関数は $-\\lceil |n| / d \\rceil$ として計算されるため、包含はどちらの符号でも正しくなります。`certified_dyadic_div` は符号を分子に移して $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ と書き換えるので、同じ限界を継承します。`round_down` と `round_up` はより小さいスケールでの同じ床関数と天井関数なので、$\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$ が成り立ちます。"
 
-#: manual/design/internal.md:187
+#: manual/design/internal.md:188
 msgid "**Budget.** The precision sequence is strictly increasing (each step adds at least 32 bits) and at most `limit` refinements are made, so every refinement loop that checks `available()` terminates."
 msgstr "**予算。** 精度の列は狭義単調増加であり（各ステップで少なくとも 32 ビット増える）、精密化は高々 `limit` 回しか行われないため、`available()` を検査するすべての精密化ループは停止します。"
 
-#: manual/design/internal.md:191
+#: manual/design/internal.md:192
 msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
 msgstr "**中止の約束。** 負の指数での `pow5`、`pow10`、$n < 0$ または $d \\le 0$ での `round_positive_div`、負のシフトかつ非零の係数での `exact_divide_by_power_of_ten`、負のスケールでの二進有理数のコンストラクタと丸めは中止します。これらはコア内部のプログラミングエラーで、ユーザー入力からは決して到達しません。`round_shift` は大きさが負でも中止せず、上で述べた値を返します。"
 
-#: manual/design/internal.md:201
+#: manual/design/internal.md:202
 msgid "**Rounding via floating point.** Converting to `Double` to round a ratio loses exactness beyond 53 bits; all helpers stay in `BigInt`."
 msgstr "**浮動小数点による丸め。** 比を丸めるために `Double` に変換すると、53 ビットを超える正確性が失われます。すべてのヘルパーは `BigInt` の範囲にとどまります。"
 
-#: manual/design/internal.md:203
+#: manual/design/internal.md:204
 msgid "**Signed division with remainder.** Truncating and flooring division differ for negative operands; sign-magnitude avoids the ambiguity."
 msgstr "**符号付きの剰余付き除算。** 切り捨て除算と床除算は負のオペランドで異なります。符号と絶対値の表現はこの曖昧さを避けます。"
 
-#: manual/design/internal.md:205
+#: manual/design/internal.md:206
 msgid "**A normalized `CertifiedDyadic`.** Normalizing after every operation costs a trailing-zero scan; enclosures are compared with `compare`, which does not need canonical forms."
 msgstr "**正規化された `CertifiedDyadic`。** 演算のたびに正規化すると末尾ゼロの走査のコストがかかります。包含区間は `compare` で比較され、これは正準形を必要としません。"
 
-#: manual/design/internal.md:208
+#: manual/design/internal.md:209
 msgid "**An unbounded power cache.** Pathological exponents would retain huge `BigInt` values for the life of the process."
 msgstr "**非有界なべき乗キャッシュ。** 病的な指数によって、巨大な `BigInt` 値がプロセスの存続期間中保持されてしまいます。"
 
-#: manual/design/internal.md:213
+#: manual/design/internal.md:214
 msgid "No floating-point formats, contexts or flags: the cores build them on these helpers."
 msgstr "浮動小数点形式、コンテキスト、フラグはありません。コアがこれらのヘルパーの上にそれらを構築します。"
 
-#: manual/design/internal.md:215
+#: manual/design/internal.md:216
 msgid "No decimal string formatting and no special values (`inf`, `nan`) in `split_decimal_string`."
 msgstr "`split_decimal_string` には 10 進文字列の整形も特殊値（`inf`、`nan`）もありません。"
 
-#: manual/design/internal.md:217
+#: manual/design/internal.md:218
 msgid "No public stability: the package is importable only inside `Luna-Flow/floating`."
 msgstr "公開の安定性はありません。このパッケージは `Luna-Flow/floating` の内部からのみインポートできます。"
 
-#: manual/design/internal.md:219
+#: manual/design/internal.md:220
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "べき乗キャッシュはプロセス全体の可変状態であり、パッケージ内の唯一の状態です。これが結果を変えることはありません。"
 
@@ -19693,8 +19693,8 @@ msgid "`Inline64` and `Inline128` are the only representations of values below $
 msgstr "`Inline64` と `Inline128` は $2^{128}$ 未満の値の唯一の表現であり、`bin_coeff_from_words` が正規化します。"
 
 #: manual/design/internal/binary_kernel.md:109
-msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
-msgstr "前提条件の違反（ゼロ除数、負のシフト）を除き、abort する関数はありません。"
+msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
+msgstr "前提条件の違反（負のシフト、`to_radix_string` の基数が `2..=36` の範囲外）を除き、abort する関数はありません。"
 
 #: manual/design/internal/conformance.md:1
 msgid "internal/conformance design"
@@ -19806,9 +19806,8 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr "結果の `passed` ビットがその処理区分と一致しているかは検査しません。"
 
 #: manual/design/internal/conformance.md:135
-#: manual/design/internal/runner_cli.md:88
-msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
-msgstr "内部用です。`Luna-Flow/floating` の外部からはインポートできず、安定性の約束もありません。"
+msgid "Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise."
+msgstr "内部パッケージ：`Luna-Flow/floating-tools` の外部からはインポートできず、安定性の保証はありません。"
 
 #: manual/design/internal/decimal_kernel.md:1
 msgid "internal/decimal_kernel design"
@@ -20081,6 +20080,10 @@ msgstr "プロセスを終了しません。ランナーは終了コードを返
 #: manual/design/internal/runner_cli.md:87
 msgid "No recursive file search, globbing or encoding detection."
 msgstr "再帰的なファイル検索、グロブ展開、エンコーディングの検出は行いません。"
+
+#: manual/design/internal/runner_cli.md:88
+msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
+msgstr "内部用です。`Luna-Flow/floating` の外部からはインポートできず、安定性の約束もありません。"
 
 #: manual/design/interval.md:1
 msgid "interval design"
@@ -21785,98 +21788,98 @@ msgid "`Binary` prints in the exact form `<coefficient>p<exponent>`; use `to_sho
 msgstr "`Binary` は厳密な形式 `<coefficient>p<exponent>` で出力されます。十進テキストには `to_shortest_string` または `to_decimal_string_ctx` を使用してください。十進数に対して `normalized()` を呼ぶのは、そのコホートを捨てたい場合だけにしてください。"
 
 #: manual/getting_started.md:99
-msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` defaults to 53 bits, as the other constructors."
-msgstr "その他のコンストラクタ: `Binary::from_int`、`from_double`、`from_string` と `from_string_ctx`（正しく丸められた十進パース）、`from_hex`。`Decimal::from_int`、`from_string`、`from_string_ctx`。`Interval::from_int`、`from_double`、`exact`、`from_bounds`。コンストラクタはオプションの `precision` を取ります。`Interval::from_int` のデフォルトは、他のコンストラクタと同じ 53 ビットです。"
+msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` requires it."
+msgstr "その他のコンストラクタ: `Binary::from_int`、`from_double`、`from_string` と `from_string_ctx`（正しく丸められた十進パース）、`from_hex`。`Decimal::from_int`、`from_string`、`from_string_ctx`。`Interval::from_int`、`from_double`、`exact`、`from_bounds`。コンストラクタはオプションの `precision` を取ります。`Interval::from_int` では必須です。"
 
-#: manual/getting_started.md:106
+#: manual/getting_started.md:105
 msgid "Choose a context"
 msgstr "コンテキストを選ぶ"
 
-#: manual/getting_started.md:108
+#: manual/getting_started.md:107
 msgid "The plain operators (`+`, `-`, `*`, `/` and `add`, `mul`, …) work at the operands' precision with round-to-nearest-even and an effectively unbounded exponent range, and they discard status. When precision, exponent range, rounding direction, tininess or the status flags are part of your result, use the `*_ctx` form with an explicit context:"
 msgstr "通常の演算子（`+`、`-`、`*`、`/` および `add`、`mul`、…）は、オペランドの精度で最近接偶数丸めを行い、実質的に無制限の指数範囲で動作し、ステータスを破棄します。精度、指数範囲、丸め方向、極小性、ステータスフラグが結果の一部となる場合は、明示的なコンテキストとともに `*_ctx` 形式を使用してください。"
 
-#: manual/getting_started.md:141
-msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose status accumulates the flags."
-msgstr "コンテキストは不変の値であり、ライブラリ内でグローバルな丸めモードを読むものはありません。IEEE のコンテキストは一つの演算のフラグを返し、それを自分で `combine` します。一方、GDA のコンテキストは結果とともに受け渡されます。すべての `GdaOutcome` は次のコンテキストを返し、そのステータスにフラグが蓄積されます。"
+#: manual/getting_started.md:140
+msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose flags accumulate."
+msgstr "コンテキストは不変の値であり、ライブラリ内でグローバルな丸めモードを読むものはありません。IEEE のコンテキストは一つの演算のフラグを返し、それを自分で `combine` します。一方、GDA のコンテキストは結果とともに受け渡されます。すべての `GdaOutcome` は次のコンテキストを返し、そのフラグが蓄積されます。"
 
-#: manual/getting_started.md:146
+#: manual/getting_started.md:145
 msgid "Choose a failure model"
 msgstr "失敗モデルを選ぶ"
 
-#: manual/getting_started.md:148
+#: manual/getting_started.md:147
 msgid "The library exposes several failure channels on purpose. Pick the one that matches what your caller must observe:"
 msgstr "ライブラリは意図的に複数の失敗チャネルを公開しています。呼び出し側が観測すべき内容に合うものを選んでください。"
 
-#: manual/getting_started.md:151
-msgid "`Option` from simple constructors such as `Decimal::from_string`, when bad input needs no diagnostic."
-msgstr "`Decimal::from_string` のような単純なコンストラクタからの `Option`。不正な入力に診断情報が不要な場合に使います。"
+#: manual/getting_started.md:150
+msgid "`Option` from simple constructors such as `BinaryInterchange::from_hex`, when bad input needs no diagnostic."
+msgstr "`BinaryInterchange::from_hex` のような単純なコンストラクタからの `Option`。不正な入力に診断情報が不要な場合に使います。"
 
-#: manual/getting_started.md:153
-msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
-msgstr "checked 演算（`div_checked`、`sqrt`、`compare_checked`、`from_string`、`try_*_ctx` 初等関数）からの `Result[T, ArithmeticError]`。"
+#: manual/getting_started.md:152
+msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt_checked`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
+msgstr "checked 演算（`div_checked`、`sqrt_checked`、`compare_checked`、`from_string`、`try_*_ctx` 初等関数）からの `Result[T, ArithmeticError]`。"
 
-#: manual/getting_started.md:156
+#: manual/getting_started.md:155
 msgid "`BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result."
 msgstr "定義済みの結果に付随する `BinaryFlags`、`DecimalFlags`、`IntervalFlags`。"
 
-#: manual/getting_started.md:157
+#: manual/getting_started.md:156
 msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires."
 msgstr "トラップが発火しても GDA で定義された結果を保持する `GdaOutcome[T]`。"
 
-#: manual/getting_started.md:158
+#: manual/getting_started.md:157
 msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
 msgstr "パイプラインのラッパー: `BinaryChecked` と `IntervalChecked` は最初のエラーで停止します。`DecimalChecked` は定義済みの NaN と無限大の結果を保持し、フラグを蓄積します。`GdaDecimalChecked` はトラップで停止し、その結果を保持します。"
 
-#: manual/getting_started.md:162
+#: manual/getting_started.md:161
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr "Empty、Entire、NaI。これらはエラーではなく区間の値です。"
 
-#: manual/getting_started.md:181
+#: manual/getting_started.md:180
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr "これらのチャネルを一つの例外型や一つの `Result` にまとめないでください。標準が観測可能にしている意味論が失われます。"
 
-#: manual/getting_started.md:184
+#: manual/getting_started.md:183
 msgid "Read results correctly"
 msgstr "結果を正しく読む"
 
-#: manual/getting_started.md:186
+#: manual/getting_started.md:185
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr "符号付きゼロ、無限大、quiet NaN と signaling NaN、NaN のペイロードはスカラーで観測可能です。"
 
-#: manual/getting_started.md:188
+#: manual/getting_started.md:187
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `binary`, or the `total_order*` functions."
 msgstr "`compare`、`<`、ソートは全前順序を用います。そこではすべての NaN が互いに等しく、すべての数より上にあり、$-0 = +0$ です。IEEE の意味論が必要な場合は、`compare_checked`、`binary` の quiet / signaling 述語、または `total_order*` 関数を使用してください。"
 
-#: manual/getting_started.md:192
+#: manual/getting_started.md:191
 msgid "`==` agrees with `compare` in the number types: on `Binary` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `Binary`. See [numeric semantics](./numeric_semantics.md)."
 msgstr "`==` はどの数値型でも `compare` と一致します。`Binary` の `==` はゼロの符号と精度を無視し（`-0 == +0`）、二つの NaN を等しいとみなします。`Decimal` の `==` は値を比較します。`Interval` の `==` は端点を値で比較します（空の区間どうしは等しい）。`a.identical(b)` は `Binary` のすべてのフィールドを比較します。[数値意味論](./numeric_semantics.md)を参照してください。"
 
-#: manual/getting_started.md:197
-msgid "An `Interval` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
-msgstr "`Interval` にはスカラーの順序ではなく、包含関係と集合の関係（`contains`、`subset`、`definitely_lt`、…）があります。結果が正しいとは、それが厳密な結果を包含することです。区間の狭さは別の品質です。"
+#: manual/getting_started.md:196
+msgid "An `Interval` has containment and set relations (`contains`, `subset`, `strict_less`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
+msgstr "`Interval` にはスカラーの順序ではなく、包含関係と集合の関係（`contains`、`subset`、`strict_less`、…）があります。結果が正しいとは、それが厳密な結果を包含することです。区間の狭さは別の品質です。"
 
-#: manual/getting_started.md:200
+#: manual/getting_started.md:199
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, exponent, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` はパッケージをまたいで数学的な値を比較し、精度、指数、符号付きゼロ、ペイロード、装飾、フラグを捨てます。"
 
-#: manual/getting_started.md:203
+#: manual/getting_started.md:202
 msgid "Continue reading"
 msgstr "次に読むもの"
 
-#: manual/getting_started.md:205
+#: manual/getting_started.md:204
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, exponent, signed zero, NaN and enclosures with their derivations."
 msgstr "[数値意味論](./numeric_semantics.md)では、丸め、ulp、フラグ、指数、符号付きゼロ、NaN、包含区間を、その導出とともに定義しています。"
 
-#: manual/getting_started.md:207
+#: manual/getting_started.md:206
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[アーキテクチャ](./architecture.md)では、パッケージのレイヤーと認証付き初等関数を説明しています。"
 
-#: manual/getting_started.md:209
+#: manual/getting_started.md:208
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[検証](./verification.md)では、ゲートと各適合性の主張の正確な範囲を示しています。"
 
-#: manual/getting_started.md:211
+#: manual/getting_started.md:210
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`binary` tutorial](./tutorial/binary.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr "各パッケージにはチュートリアル、API リファレンス、設計ページがあります。まずは [`binary` チュートリアル](./tutorial/binary.md)、[`decimal` チュートリアル](./tutorial/decimal.md)、または [`interval` チュートリアル](./tutorial/interval.md)から始めてください。"
 
@@ -22372,8 +22375,8 @@ msgid "Library infrastructure"
 msgstr "ライブラリのインフラ"
 
 #: manual/index.md:114
-msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
-msgstr "`internal`：厳密有理数、多倍長整数、パース、正規化、丸めのヘルパー"
+msgid "`internal`: big-integer, parsing, normalization and rounding helpers, dyadic enclosures"
+msgstr "`internal`：多倍長整数、パース、正規化、丸めのヘルパー、2 進有理数による包含区間"
 
 #: manual/index.md:114
 msgid "[tutorial](tutorial/internal.md)"
@@ -28889,8 +28892,8 @@ msgid "The certified elementary functions follow Ziv's strategy: compute an encl
 msgstr "認証付き初等関数は Ziv の戦略に従います。ある作業精度で包含区間を計算し、包含区間の両端が同じ数に丸められる場合にのみ丸められた結果を受け入れ、そうでなければ精度を上げます。予算がループの回数を制限します。ここでの「関数」は厳密な比 $n/d$ で、小数部 `target` ビットに切り下げて丸めます。"
 
 #: manual/tutorial/internal.md:167
-msgid "`binary`, `decimal`, `decimal_gda` and `interval` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
-msgstr "`binary`、`decimal`、`decimal_gda`、`interval` は、目標精度にガードマージンを加えた精度で精緻化の予算を作成し、予算を使い切ると `certified_failure` を報告します。認証付き初等関数については [binary 設計](../design/binary.md) を参照してください。"
+msgid "`binary`, `decimal` and `decimal_gda` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
+msgstr "`binary`、`decimal`、`decimal_gda` は、目標精度にガードマージンを加えた精度で精緻化の予算を作成し、予算を使い切ると `certified_failure` を報告します。認証付き初等関数については [binary 設計](../design/binary.md) を参照してください。"
 
 #: manual/tutorial/internal.md:172
 msgid "The white-box tests of this package check these helpers against `BigInt` oracles."
@@ -28991,8 +28994,8 @@ msgid "`binary` imports the kernel and brings the names it uses into scope with 
 msgstr "`binary` はカーネルをインポートし、使う名前を `using` でスコープに入れます（`kernel_imports.mbt` にあり、係数が 64 ビットリムを持つ場合にだけ存在する名前は `kernel_imports_nonjs.mbt` にあります）。"
 
 #: manual/tutorial/internal/binary_kernel.md:28
-msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
-msgstr "`Binary` は係数を非公開の `Coeff` フィールドとして保持します。公開型 `BinCoeff` はその上の newtype（`value.0` で取り出し、`BinCoeff(c)` で結果を包む）なので、カーネル型が公開インターフェースに現れるのは `BinCoeff` のフィールドとしてだけで、それはモジュールの外では不透明であり、ラップは確保も呼び出しも増やしません。典型的な使い方は、厳密な商と剰余を計算し、丸めは `binary` に任せるものです。"
+msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.to_kernel()` unwraps it and `BinCoeff::from_kernel(c)` wraps a result), so the kernel types show in a public interface only in those two functions and in `Binary`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
+msgstr "`Binary` は係数を非公開の `Coeff` フィールドとして保持します。公開型 `BinCoeff` はその上の newtype（`value.to_kernel()` で取り出し、`BinCoeff::from_kernel(c)` で結果を包む）なので、カーネル型が公開インターフェースに現れるのはこの 2 つの関数と、モジュールの外では不透明な `Binary` だけで、ラップは確保も呼び出しも増やしません。典型的な使い方は、厳密な商と剰余を計算し、丸めは `binary` に任せるものです。"
 
 #: manual/tutorial/internal/binary_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
@@ -29047,8 +29050,8 @@ msgid "internal/conformance tutorial"
 msgstr "internal/conformance チュートリアル"
 
 #: manual/tutorial/internal/conformance.md:3
-msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating`, so the examples are written for code inside the module and are not compiled by the manual checker."
-msgstr "このページの目的は、適合性フロントエンドを追加・変更するメンテナを支援することです。`internal/conformance` の共有モデルを使って、フロントエンドがケースごとの結果を記録し、実行を要約し、シャードに分割し、シャードを再び統合する方法を示します。このパッケージは `Luna-Flow/floating` の内部パッケージなので、例はモジュール内部のコード向けに書かれており、マニュアルチェッカーではコンパイルされません。"
+msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating-tools`, so the examples are written for code inside the module and are not compiled by the manual checker."
+msgstr "このページの目的は、適合性フロントエンドを追加・変更するメンテナを支援することです。`internal/conformance` の共有モデルを使って、フロントエンドがケースごとの結果を記録し、実行を要約し、シャードに分割し、シャードを再び統合する方法を示します。このパッケージは `Luna-Flow/floating-tools` の内部パッケージなので、例はモジュール内部のコード向けに書かれており、マニュアルチェッカーではコンパイルされません。"
 
 #: manual/tutorial/internal/conformance.md:12
 msgid "record the outcome of one case"
@@ -31417,6 +31420,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:945
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
+#~ msgstr "関数はすべて `dec_coeff_*` という名前です。この接頭辞がないのは `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr`、`trim_trailing_decimal_zeros_repr` です。"
 
 #~ msgid "where RA (round the magnitude up) is not an IEEE attribute: it is the GDA \"round-up\" mode that `@lf_arith.RoundingMode` shares with the decimal cores, and `BinaryRoundingMode` has no such variant. Two properties of every $\\circ$ above carry most of the proofs on this page:"
 #~ msgstr "ここで RA（大きさを切り上げる丸め）は IEEE の属性ではありません。これは `@lf_arith.RoundingMode` が 10 進のコアと共有している GDA の「round-up」モードであり、`BinaryRoundingMode` にはそのようなバリアントはありません。上記のすべての $\\circ$ が持つ 2 つの性質が、このページの証明の大部分を支えます。"
