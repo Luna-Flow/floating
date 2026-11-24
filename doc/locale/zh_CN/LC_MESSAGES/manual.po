@@ -11468,7 +11468,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:317
 #: manual/design/bench/interval.md:67
-#: manual/design/binary.md:2185
+#: manual/design/binary.md:2186
 #: manual/design/binary_checked.md:331
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -12967,7 +12967,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:297
 #: manual/design/bench/interval.md:51
-#: manual/design/binary.md:2112
+#: manual/design/binary.md:2113
 #: manual/design/binary_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -13022,7 +13022,7 @@ msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:307
 #: manual/design/bench/interval.md:60
-#: manual/design/binary.md:2160
+#: manual/design/binary.md:2161
 #: manual/design/binary_checked.md:318
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -13589,8 +13589,8 @@ msgid "`binary` implements IEEE 754 binary floating-point arithmetic at any prec
 msgstr "`binary` 实现任意精度的 IEEE 754 二进制浮点算术。本页解释其背后的数学：值集、舍入函数及其满足的误差模型，各运算如何由精确的整数数据确定正确舍入的结果，如何处理指数范围、微小性和状态标志，为何 IEEE 余数是精确的，十进制转换与初等函数如何认证，以及为何快速整数内核不会改变结果。[API 参考](../api/binary.md) 列出了可调用接口，[教程](../tutorial/binary.md) 展示了其用法。"
 
 #: manual/design/binary.md:16
-msgid "Every operation of `binary` returns the value that IEEE 754-2019 requires of a correctly rounded operation, $\\circ(f(x))$ for the exact real $f(x)$, together with exactly the IEEE status flags, for every precision $p$ from 1 to $2^{28}$ bits and every exponent range up to $\\pm(2^{30}-1)$. The same code serves two audiences: arbitrary-precision numerics that need dyadic values far beyond `Double`, and bit-exact emulation of binary16, binary32, binary64 and binary128 including subnormals, the five rounding directions and both tininess rules. There is no hidden state: precision, rounding and range travel in an immutable `BinaryContext`, and flags travel back as a value. The basic operations, conversions and `pown` meet this goal unconditionally; the certified elementary functions meet it for every value they return, with the budget failures and the one undetected family of exact results described under [Certified elementary functions](#certified-elementary-functions)."
-msgstr "对 $p$ 从 1 到 $2^{28}$ 位的每种精度以及至多 $\\pm(2^{30}-1)$ 的每种指数范围，`binary` 的每个运算都返回 IEEE 754-2019 对正确舍入运算所要求的值——即对精确实数 $f(x)$ 取 $\\circ(f(x))$——并恰好给出相应的 IEEE 状态标志。同一套代码服务于两类用户：需要远超 `Double` 的二进有理值的任意精度数值计算，以及对 binary16、binary32、binary64 和 binary128 的逐位精确模拟（包括次正规数、五种舍入方向和两种微小性规则）。没有隐藏状态：精度、舍入和范围存放在不可变的 `BinaryContext` 中传入，标志则作为值传回。基本运算、转换和 `pown` 无条件地达到这一目标；经认证的初等函数对其返回的每个值都达到这一目标，预算失败以及唯一一类未被检测到的精确结果见[经认证的初等函数](#certified-elementary-functions)中的说明。"
+msgid "Every operation of `binary` returns the value that IEEE 754-2019 requires of a correctly rounded operation, $\\circ(f(x))$ for the exact real $f(x)$, together with exactly the IEEE status flags, for every precision $p$ from 1 to $2^{28}$ bits and every exponent range with $e_{\\max}$ up to $2^{30}-1$ and $e_{\\min} = 1 - e_{\\max}$. The same code serves two audiences: arbitrary-precision numerics that need dyadic values far beyond `Double`, and bit-exact emulation of binary16, binary32, binary64 and binary128 including subnormals, the five rounding directions and both tininess rules. There is no hidden state: precision, rounding and range travel in an immutable `BinaryContext`, and flags travel back as a value. The basic operations, conversions and `pown` meet this goal unconditionally; the certified elementary functions meet it for every value they return, with the budget failures and the one undetected family of exact results described under [Certified elementary functions](#certified-elementary-functions)."
+msgstr "对 $p$ 从 1 到 $2^{28}$ 位的每种精度以及$e_{\\max}$ 至多为 $2^{30}-1$ 且 $e_{\\min} = 1 - e_{\\max}$ 的每种指数范围，`binary` 的每个运算都返回 IEEE 754-2019 对正确舍入运算所要求的值——即对精确实数 $f(x)$ 取 $\\circ(f(x))$——并恰好给出相应的 IEEE 状态标志。同一套代码服务于两类用户：需要远超 `Double` 的二进有理值的任意精度数值计算，以及对 binary16、binary32、binary64 和 binary128 的逐位精确模拟（包括次正规数、五种舍入方向和两种微小性规则）。没有隐藏状态：精度、舍入和范围存放在不可变的 `BinaryContext` 中传入，标志则作为值传回。基本运算、转换和 `pown` 无条件地达到这一目标；经认证的初等函数对其返回的每个值都达到这一目标，预算失败以及唯一一类未被检测到的精确结果见[经认证的初等函数](#certified-elementary-functions)中的说明。"
 
 #: manual/design/binary.md:33
 msgid "Dyadic values and the stored triple"
@@ -14249,8 +14249,8 @@ msgid "Second, the enclosure must shrink onto $f(x)$ fast enough. The series sto
 msgstr "第二，包络必须足够快地收缩到 $f(x)$ 上。当下一项的*绝对*值低于 $2^{-(w+8)}$ 或 $2^{-(w+12)}$ 时级数停止，这对中等大小的参数没有问题；此时宽度相对于 $f(x)$ 为 $O(2^{-w})$，非断点到每个断点都有正的距离，因此某个 $w$ 能完成认证。微小参数需要下文*微小参数*中的两项措施。$w$ 必须多大，就是制表者困境：对任意 $p$ 都没有已知有用的先验界，因此预算是资源限制，而不是正确性条件。预算耗尽时，`try_*` 形式报告一个 `CertificationFailure`，包含阶段、原因和最后的 $w$，全函数形式则返回带 `invalid_operation` 的静默 NaN；两者都不会返回未经认证的值。固定的 MPFR 语料从未耗尽预算。"
 
 #: manual/design/binary.md:936
-msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exact_dyadic` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
-msgstr "**精确幂与根。** $|y| < 2^{31}$ 的整数指数交给 `pown` 处理。更大的整数 $y$ 无需过滤：对 $x = c \\cdot 2^e$（$c > 1$ 为奇数），$c^{|y|}$ 多于 $2^{31} > p + 1$ 位，而 2 的幂 $2^{ey}$ 位于任何指数范围之外，因此两者都不是断点。其余每个指数都可写成 $y = m / 2^k$，其中 $m$ 为奇数且 $k \\ge 1$。若 $x^y$ 是有理数，则 $q = x^{|y|}$ 也是，并且 $x^{|m|} = q^{2^k}$；比较 $2$ 及每个奇素数的指数可得 $q = a \\cdot 2^f$，其中 $a$ 为奇数，$e|m| = f \\cdot 2^k$ 且 $c^{|m|} = a^{2^k}$。由于 $|m|$ 是奇数，$2^k \\mid e$，且 $c$ 的每个素数指数都能被 $2^k$ 整除，因此 $c = r^{2^k}$ 且 $q = r^{|m|} \\cdot 2^{e|m|/2^k}$。反之，这些值都是精确的。所以有理的 `pow` 结果恰在这两个整除条件下存在；当 $m > 0$ 时它是二进有理数 $q$，当 $m < 0$ 时它是 $1/q$，后者仅在 $r = 1$ 时是二进有理数。其余每个 `pow` 结果都是无理数。`binary_pow_exact_dyadic` 计算这些二进有理结果并只舍入一次，除非奇数部分 $r^m$ 需要多于 $2p + 64$ 位（此时它有多于 $p + 1$ 个有效位，不是断点）。用 $1/|n|$ 代替 $|y|$ 作同样的论证可知，$\\operatorname{rootn}(x, n)$ 恰在 $|n| \\mid e$ 且 $c = r^{|n|}$ 时是有理数；对 $n > 0$，`rootn` 返回只舍入一次的 $\\pm r \\cdot 2^{e/|n|}$，对 $n < 0$ 则返回正确舍入的商 $1 / (\\pm r \\cdot 2^{e/|n|})$——该商未必是二进有理数，但除法会以正确的 `inexact` 标志判定它。完全幂检测没有大小限制。它先对次数中的每个因子 $2$ 求带余数的平方根，遇到第一个非零余数即停止，然后求剩余奇数次根的下取整：根至多 64 位时用二分法，否则用从略高于根处开始的整数牛顿迭代 $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$，它单调递减到 $\\lfloor c^{1/d} \\rfloor$；随后由一次幂运算 $r^d$ 判定是否精确。除 $1$ 之外至多 $d$ 位的系数会被立即拒绝，因为 $r \\ge 2$ 给出 $r^d \\ge 2^d$。"
+msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exactness` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
+msgstr "**精确幂与根。** $|y| < 2^{31}$ 的整数指数交给 `pown` 处理。更大的整数 $y$ 无需过滤：对 $x = c \\cdot 2^e$（$c > 1$ 为奇数），$c^{|y|}$ 多于 $2^{31} > p + 1$ 位，而 2 的幂 $2^{ey}$ 位于任何指数范围之外，因此两者都不是断点。其余每个指数都可写成 $y = m / 2^k$，其中 $m$ 为奇数且 $k \\ge 1$。若 $x^y$ 是有理数，则 $q = x^{|y|}$ 也是，并且 $x^{|m|} = q^{2^k}$；比较 $2$ 及每个奇素数的指数可得 $q = a \\cdot 2^f$，其中 $a$ 为奇数，$e|m| = f \\cdot 2^k$ 且 $c^{|m|} = a^{2^k}$。由于 $|m|$ 是奇数，$2^k \\mid e$，且 $c$ 的每个素数指数都能被 $2^k$ 整除，因此 $c = r^{2^k}$ 且 $q = r^{|m|} \\cdot 2^{e|m|/2^k}$。反之，这些值都是精确的。所以有理的 `pow` 结果恰在这两个整除条件下存在；当 $m > 0$ 时它是二进有理数 $q$，当 $m < 0$ 时它是 $1/q$，后者仅在 $r = 1$ 时是二进有理数。其余每个 `pow` 结果都是无理数。`binary_pow_exactness` 计算这些二进有理结果并只舍入一次，除非奇数部分 $r^m$ 需要多于 $2p + 64$ 位（此时它有多于 $p + 1$ 个有效位，不是断点）。用 $1/|n|$ 代替 $|y|$ 作同样的论证可知，$\\operatorname{rootn}(x, n)$ 恰在 $|n| \\mid e$ 且 $c = r^{|n|}$ 时是有理数；对 $n > 0$，`rootn` 返回只舍入一次的 $\\pm r \\cdot 2^{e/|n|}$，对 $n < 0$ 则返回正确舍入的商 $1 / (\\pm r \\cdot 2^{e/|n|})$——该商未必是二进有理数，但除法会以正确的 `inexact` 标志判定它。完全幂检测没有大小限制。它先对次数中的每个因子 $2$ 求带余数的平方根，遇到第一个非零余数即停止，然后求剩余奇数次根的下取整：根至多 64 位时用二分法，否则用从略高于根处开始的整数牛顿迭代 $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$，它单调递减到 $\\lfloor c^{1/d} \\rfloor$；随后由一次幂运算 $r^d$ 判定是否精确。除 $1$ 之外至多 $d$ 位的系数会被立即拒绝，因为 $r \\ge 2$ 给出 $r^d \\ge 2^d$。"
 
 #: manual/design/binary.md:966
 msgid "A negative base with an integral exponent beyond the `pown` range is evaluated as $\\pm|x|^y$. Negation is an exact symmetry of $\\circ$ that swaps the two directed modes, $\\circ_{\\mathrm{RD}}(-v) = -\\circ_{\\mathrm{RU}}(v)$, so for an odd $y$ the code rounds $|x|^y$ with RD and RU exchanged and negates."
@@ -14525,8 +14525,8 @@ msgid "**Choice.** Keep the Ziv loop, its working precisions and the exact cases
 msgstr "**选择。** Ziv 循环、它的工作精度和精确情形都保持不变（见 [Certified elementary functions](#certified-elementary-functions)）。只替换在给定 $w$ 时产生包络 $[L, U]$ 的那个函数，并且只在达到每个目标各自的精度阈值之后。每个新内核都是纯函数 $(x, w) \\mapsto [L, U]$，类型恰好是循环已经在使用的那种（`binary_exp_bounds`、`binary_ln_bounds`、`binary_trigonometric_bounds` 以及常数），因此 `exp2`、`exp10`、`sinh`、`cosh`、`pow`、`rootn` 和对数族都会继承这一加速，[#235](https://github.com/Luna-Flow/floating/issues/235) 中推荐的函数（`compound`、`powr`、`exp2m1`、`exp10m1`、`log2p1`、`log10p1`、`rSqrt`，以及按 $\\pi$ 缩放的反函数）也写在同一层之上。内核遇到无法验证的前置条件就返回 `None`，调用方随后走现有路径，所以正确性从不依赖新代码覆盖了某个情形。"
 
 #: manual/design/binary.md:1254
-msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `Coeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `Binary::make(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is what the existing fixed-point series already does."
-msgstr "*整数包络。* 所有新内核都用非负整数，单位为 $2^{-F}$，其中 $F = w + g$，只使用 `Coeff` 的操作（`mul`、`add`、`sub_checked`、移位、`div_rem_checked`、`compare`、`bit_length`），这些操作在每个目标上都有，所以同一份源码可在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上运行。一个量 $E$ 用一对整数 $(\\ell, u)$ 表示，满足不变式 $\\ell \\le E \\cdot 2^{F} \\le u$。每一步都通过对非负数的单调运算由旧的一对得到新的一对，因此不变式是逐步证明的，最终宽度 $u - \\ell$ 是算出来的整数，而不是估计值。最后一步转换为 `Binary::make(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`，这正是现有定点级数已经在做的事。"
+msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `Coeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `Binary::make_coeff(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is what the existing fixed-point series already does."
+msgstr "*整数包络。* 所有新内核都用非负整数，单位为 $2^{-F}$，其中 $F = w + g$，只使用 `Coeff` 的操作（`mul`、`add`、`sub_checked`、移位、`div_rem_checked`、`compare`、`bit_length`），这些操作在每个目标上都有，所以同一份源码可在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上运行。一个量 $E$ 用一对整数 $(\\ell, u)$ 表示，满足不变式 $\\ell \\le E \\cdot 2^{F} \\le u$。每一步都通过对非负数的单调运算由旧的一对得到新的一对，因此不变式是逐步证明的，最终宽度 $u - \\ell$ 是算出来的整数，而不是估计值。最后一步转换为 `Binary::make_coeff(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`，这正是现有定点级数已经在做的事。"
 
 #: manual/design/binary.md:1267
 msgid "**The `ln` series loop on limb arrays.** The fixed-point series of `ln` ($\\ln v = 2 \\sum_k P(k) / (2k + 1)$ with $P(0) = Z$, $P(k) = \\lfloor P(k-1) Q / 2^F \\rfloor$, the terms $T(k) = \\lfloor P(k) / (2k + 1) \\rfloor$ and the stop at $P(k) < 2^6$) computed each term with four `Coeff` operations that each allocate a result (the product, the shift, the quotient with its remainder, the sum): about four allocations and 3,700 instructions per term at 576 working bits. On the targets with limb rows the loop keeps `P`, `Q`, the product, the quotient and the sum in five limb arrays allocated once per call. A term is the exact product by `bin_limbs_mul_1` and `bin_limbs_addmul_1` (so the same integer as `P(k-1) Q`), the floor by $2^F$ as one copy pass with the shift $F = 64 w + r$ (limb offset $w$, bit offset $r$, the case $r = 0$ apart), the quotient by the odd divisor in place from the top limb, and the sum with a carry. The divisor is at most $20001$ (the loop stops after 10000 terms), so the running remainder $\\rho < 2^{15}$ and $\\rho \\cdot 2^{32} + h < 2^{47}$ for a half limb $h$: a limb divides by two hardware divisions of its 32-bit halves, no 128-bit helper. Every integer equals the `Coeff` form's, so the bounds and their error analysis (above) are unchanged bit for bit; the JavaScript target keeps the `Coeff` form, since a host `BigInt` has no limb rows. The tests keep the `Coeff` loop as the reference and compare the sum and the term count for every $F$ from 60 to 700 (so every residue of $F$ modulo 64, in particular $F + 1$ a multiple of 64 and one below and above it, at one to eleven limbs), for terms whose product has a zero top limb, and the bounds of the whole function on exact values at 380 working precisions."
@@ -14625,8 +14625,8 @@ msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size p
 msgstr "*上限。* 在 8192 位下，内核耗时相当于 35 到 45 次完整乘法（每次 43 µs），大部分时间花在 $w$ 位数的乘法和除法上。若乘法与除法内核快三倍而其余不变，初步估计（未实测）8192 位下为 0.6 到 0.8 ms，2048 位下为 60 到 80 µs，约为 MPFR 参考（213 µs 和 17 µs）的 3 到 4 倍。剩下的差距来自内存分配和定点阶段中的小整数步骤。"
 
 #: manual/design/binary.md:1501
-msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
-msgstr "**`exp`：表与矩形拆分（中等精度）。** 在每个目标各自的工作精度以下（1536 到 3072 位，见下文），$e^x$ 的包围由 `binary_exp_bounds_table`（`elementary_table_exp.mbt`）给出，方案来自 Johansson，*Efficient implementation of elementary functions in the medium-precision range*，ARITH 22（2015），arXiv:1410.7176，运算建立在 `BinCoeff` 的整数算术上。令 $F = w + g$ 向上取整到 64 的倍数（$\\ge 128$；1024 以上取 256 的倍数），故 $g \\ge 16$。到 $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ 的约化以及余因子 $e^{\\delta}$ 与上面的 bit-burst 内核相同（以 $2^{-F}$ 为单位，下界 3、上界 6，因为 $e^{R_t} < 3$），用的正是 `fixed_exp_reduce` 与 `fixed_exp_finish` 的代码（工具箱部件 6）。余项的泰勒级数是工具箱部件 5 的矩形拆分，系数取 $N!/i!$；其误差界在那里陈述，下面不再重复。于是，取 $K = k_1 + k_2$（$(k_1,k_2) = (7,7)$ 用于 $F \\le 256$，$(6,6)$ 用到 1024，其上为 $(6,5)$），"
+msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `Coeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
+msgstr "**`exp`：表与矩形拆分（中等精度）。** 在每个目标各自的工作精度以下（1536 到 3072 位，见下文），$e^x$ 的包围由 `binary_exp_bounds_table`（`elementary_table_exp.mbt`）给出，方案来自 Johansson，*Efficient implementation of elementary functions in the medium-precision range*，ARITH 22（2015），arXiv:1410.7176，运算建立在 `Coeff` 的整数算术上。令 $F = w + g$ 向上取整到 64 的倍数（$\\ge 128$；1024 以上取 256 的倍数），故 $g \\ge 16$。到 $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ 的约化以及余因子 $e^{\\delta}$ 与上面的 bit-burst 内核相同（以 $2^{-F}$ 为单位，下界 3、上界 6，因为 $e^{R_t} < 3$），用的正是 `fixed_exp_reduce` 与 `fixed_exp_finish` 的代码（工具箱部件 6）。余项的泰勒级数是工具箱部件 5 的矩形拆分，系数取 $N!/i!$；其误差界在那里陈述，下面不再重复。于是，取 $K = k_1 + k_2$（$(k_1,k_2) = (7,7)$ 用于 $F \\le 256$，$(6,6)$ 用到 1024，其上为 $(6,5)$），"
 
 #: manual/design/binary.md:1524
 msgid "all three parts exact multiples of $2^{-F}$, so $e^{R_t} = T_1[j_1]\\, T_2[j_2]\\, e^{r}$ with $T_1[j] = e^{j/2^{k_1}}$ ($j \\le \\lfloor 2^{k_1} \\ln 2 \\rfloor$) and $T_2[j] = e^{j/2^{K}}$ ($j < 2^{k_2}$)."
@@ -14657,8 +14657,8 @@ msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series 
 msgstr "*证据。* `elementary_table_exp_wbtest.mbt`：对工作精度 53 到 1000、正负号皆有、$2^{-60}$ 到 $2^{30}$ 的至多 256 个参数，精度 $w + 256$ 的级数包围被包含；参数等于表节点 $j/2^{k_1}$、$j/2^K$ 及其上下各偏一个单位（余数恰在或略偏离表边界）；$\\ln 2$ 的倍数直到 $n = 10^6$；对 $a \\in \\{0, 1, 2, 2^{F-K} - 1, 2^{F-K-1}, \\text{随机}\\}$ 的泰勒阶段，$F$ 从 80 到 2100，其宽度至多 10 个单位；两套表的每个条目；被拒绝的参数。"
 
 #: manual/design/binary.md:1595
-msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
-msgstr "*实测（release，本机，仅内核，$x \\approx 0.7$）。* Native：53 位 7 µs，级数 10 µs；100 位 2.5 对 5.6；300 位 4.9 对 12.6（bit-burst 24）；1000 位 20 对 42（burst 69）；2000 位 94 对 111（burst 143）；3000 位 245 对 208。交叉点（表内核优先，Native 与 LLVM 到 1792 位，Wasm 到 2048，Wasm-GC 到 1536，JavaScript 到 3072）是放在 bit-burst 阈值旁的各目标常数。超过它们时，bit-burst 内核（从其自身的阈值起）与级数不变。表内核的代价主要是几十次 `BinCoeff` 运算（这些规模下每次 100 到 250 ns），以及 2000 位以上整数系数 $N'!/i!$ 的大小，这也是它在那里变慢的原因。"
+msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `Coeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
+msgstr "*实测（release，本机，仅内核，$x \\approx 0.7$）。* Native：53 位 7 µs，级数 10 µs；100 位 2.5 对 5.6；300 位 4.9 对 12.6（bit-burst 24）；1000 位 20 对 42（burst 69）；2000 位 94 对 111（burst 143）；3000 位 245 对 208。交叉点（表内核优先，Native 与 LLVM 到 1792 位，Wasm 到 2048，Wasm-GC 到 1536，JavaScript 到 3072）是放在 bit-burst 阈值旁的各目标常数。超过它们时，bit-burst 内核（从其自身的阈值起）与级数不变。表内核的代价主要是几十次 `Coeff` 运算（这些规模下每次 100 到 250 ns），以及 2000 位以上整数系数 $N'!/i!$ 的大小，这也是它在那里变慢的原因。"
 
 #: manual/design/binary.md:1607
 msgid "**`ln`, by verified Newton step.** Write $v = m\\, 2^{k}$ with $m \\in [2^{-1/2}, 2^{1/2})$, so $\\ln v = k \\ln 2 + \\ln m$. Take any dyadic $y_0$ with about $w/2 + 16$ bits (from the same function at half the precision, recursively, down to the existing series). Correctness does not depend on how good $y_0$ is, only the speed does. Let $[E_\\ell, E_u]$ be the enclosure of $e^{y_0}$ from the kernel above and $q_\\ell = m / E_u$, $q_u = m / E_\\ell$ (directed divisions). Since $\\ln$ is monotone, $\\ln m = y_0 + \\ln(m / e^{y_0}) \\in y_0 + [\\ln q_\\ell, \\ln q_u]$, and for $|u| \\le 1/2$ one has $u - u^2 \\le \\ln(1 + u) \\le u$, so"
@@ -14777,8 +14777,8 @@ msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 
 msgstr "其中 $(P, Q, T)$ 来自 Chudnovsky 级数（交错，每项约 46 位），并且 $\\operatorname{artanh}(1/k) = \\sum_j 1/((2j+1)k^{2j+1})$。"
 
 #: manual/design/binary.md:1844
-msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
-msgstr "*实现（`elementary_constants_split.mbt`）。* 一个级数在某个下标区间上的状态为 $(p, q, t)$，其中 $p = \\prod p(k)$、$q = \\prod q(k)$ 以及 $t = q \\cdot (\\text{partial sum})$，合并为 $t = q_R t_L + p_L t_R$；`artanh` 级数有 $p(j) = 2j - 1$ 和 $q(j) = (2j + 1) k^2$，它们逐项约去后得到 $1/((2j+1) k^{2j})$，而 Chudnovsky 级数有 $p(k) = (6k-5)(2k-1)(6k-1)$、$q(k) = k^3\\, 640320^3 / 24$，叶子为 $t = \\pm p(k)(A + Bk)$。只有 Chudnovsky 的 $t$ 带符号，所以在无符号的 `BinCoeff` 之上套一个符号加幅值的包装就够了，代码在所有目标上相同。部分和 $t/q$ 是精确的；仅有的舍入是最后的方向除法和 $\\sqrt{10005}$（方向 `sqrt_ctx`），在 $w + 16$ 位下完成，结果再向外舍入到 $w$ 位。"
+msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `Coeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
+msgstr "*实现（`elementary_constants_split.mbt`）。* 一个级数在某个下标区间上的状态为 $(p, q, t)$，其中 $p = \\prod p(k)$、$q = \\prod q(k)$ 以及 $t = q \\cdot (\\text{partial sum})$，合并为 $t = q_R t_L + p_L t_R$；`artanh` 级数有 $p(j) = 2j - 1$ 和 $q(j) = (2j + 1) k^2$，它们逐项约去后得到 $1/((2j+1) k^{2j})$，而 Chudnovsky 级数有 $p(k) = (6k-5)(2k-1)(6k-1)$、$q(k) = k^3\\, 640320^3 / 24$，叶子为 $t = \\pm p(k)(A + Bk)$。只有 Chudnovsky 的 $t$ 带符号，所以在无符号的 `Coeff` 之上套一个符号加幅值的包装就够了，代码在所有目标上相同。部分和 $t/q$ 是精确的；仅有的舍入是最后的方向除法和 $\\sqrt{10005}$（方向 `sqrt_ctx`），在 $w + 16$ 位下完成，结果再向外舍入到 $w$ 位。"
 
 #: manual/design/binary.md:1857
 msgid "*Tail bounds.* For $\\operatorname{artanh}(1/k)$ with $K = k^2$ take $N$ terms with $K^N \\ge 2^{F+9}$, $F = w + 16$ (using $\\lfloor \\log_2 K \\rfloor$): the first omitted term is at most $2^{-(F+9)}$ and the omitted terms are positive and shrink by at least $1/K \\le 1/4$, so they sum to less than $2^{-(F+8)}$, which is added to the upper end. For Chudnovsky the ratio of the factorial parts of consecutive terms is $8(6k+1)(6k+3)(6k+5)/(k+1)^3 \\le 1728$, the linear factor grows by at most 41.11 from $k = 0$ to $1$ and by less than 2 after that, and $640320^3 > 2^{57.8}$, so the ratios are below $2^{-41.7}$ and then $2^{-46.1}$, the terms decrease in size, alternate in sign, and the first is below $2^{24}$. The omitted sum from index $N$ is therefore at most the size of term $N$, below $2^{-17 - 46(N-1)}$, which is at most $2^{-(F+4)}$ for $N = \\lfloor F/46 \\rfloor + 3$. Then $S \\in [(t - e)/q, (t + e)/q]$ for the integer $e = \\lfloor q / 2^{F+4} \\rfloor + 1$, and $\\pi$ is enclosed by dividing $426880 \\sqrt{10005}\\, q$ by $t \\pm e$ with directed rounding. The identities were checked numerically to 60 digits."
@@ -14801,8 +14801,8 @@ msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $
 msgstr "**工作精度进度表与 Ziv 循环。** 各次尝试的精度 $w_0 = p + 64$、$w_{i+1} = w_i + \\max(32, \\lfloor w_i/2 \\rfloor)$ 以及 12 次尝试的预算都保持不变。每次尝试通过比较 $w$ 与每个目标各自的常数来选择旧内核还是新内核，对 `ln` 和正弦还要依据参数（上文接近 1 和极小参数的情形）；内核返回 `None`，或者包络比旧级数的更宽时，就在同一个 $w$ 下退回旧内核。所以一次尝试能认证的结果不会比以前少，精确情形、极小参数的处理、内端点舍入以及循环的标志论证都不受影响。只要任一路径认证成功，调用结果就是正确舍入的值，因而与当前结果相同；两者只可能在哪些输入耗尽预算上有差别，下面的语料对比会统计这一点。更快的尝试使更长的预算变得负担得起，这正是 [#15](https://github.com/Luna-Flow/floating/issues/15) 的要点：这个上限是循环的策略，与内核无关。"
 
 #: manual/design/binary.md:1923
-msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). The `ln` series loop already runs on limb arrays on the non-JavaScript targets (see \"The `ln` series loop on limb arrays\"). A fused in-place multiply-shift-divide loop on a mutable limb array for the other stages, which still allocate per term, would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
-msgstr "**分配与目标。** `BinCoeff` 的值是不可变的，所以定点阶段的每一项会分配四个最长 $w/32$ 个 limb 的数组（乘积、移位、商、和）；在原生上，这些已包含在上面的实测单位成本中（8192 位下移位 0.2 µs，单字除法 1.5 µs，加法 0.3 µs）。`ln` 的级数循环在非 JavaScript 目标上已经在 limb 数组上运行（见“`ln` 级数循环用肢数组”）。对其他仍按项分配的阶段，在可变 limb 数组上做融合的原地乘-移-除循环可以去掉其中大部分开销，适用于非 JavaScript 目标，这是同一函数背后以后的优化，不属于本设计。在 JavaScript 上 `BinCoeff` 是 `bigint`：乘法、移位和除法由引擎完成，每次操作的常数较大，但乘法渐近更快，所以阶段边界和所有阈值都要在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上分别测量，并与系数内核的阈值放在一起。内核的源码是共享的；只有常数不同。"
+msgid "**Allocation and targets.** `Coeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). The `ln` series loop already runs on limb arrays on the non-JavaScript targets (see \"The `ln` series loop on limb arrays\"). A fused in-place multiply-shift-divide loop on a mutable limb array for the other stages, which still allocate per term, would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `Coeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
+msgstr "**分配与目标。** `Coeff` 的值是不可变的，所以定点阶段的每一项会分配四个最长 $w/32$ 个 limb 的数组（乘积、移位、商、和）；在原生上，这些已包含在上面的实测单位成本中（8192 位下移位 0.2 µs，单字除法 1.5 µs，加法 0.3 µs）。`ln` 的级数循环在非 JavaScript 目标上已经在 limb 数组上运行（见“`ln` 级数循环用肢数组”）。对其他仍按项分配的阶段，在可变 limb 数组上做融合的原地乘-移-除循环可以去掉其中大部分开销，适用于非 JavaScript 目标，这是同一函数背后以后的优化，不属于本设计。在 JavaScript 上 `Coeff` 是 `bigint`：乘法、移位和除法由引擎完成，每次操作的常数较大，但乘法渐近更快，所以阶段边界和所有阈值都要在原生、LLVM、Wasm、Wasm-GC 和 JavaScript 上分别测量，并与系数内核的阈值放在一起。内核的源码是共享的；只有常数不同。"
 
 #: manual/design/binary.md:1939
 msgid "**Evidence the new path must produce.** Each kernel carries its own invariant tests: containment of the enclosure of the old path at $w + 256$ bits in the new enclosure at $w$ (an independent computation), the width bound, and boundary cases (arguments at chunk boundaries, $R$ near $0$ and $1$, the corrections of $n$, huge $|n|$, tiny and near-1 arguments). The end-to-end check compares every result bit for bit with the old path and with MPFR on a seeded random corpus plus the existing boundary corpus on all four targets, and a deliberately biased kernel (one unit too narrow) must make the tests fail."
@@ -14922,18 +14922,18 @@ msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of dat
 msgstr "**可选方案。** (1) 遇到 NaN 时中止，早期版本即是如此；这样一来，对任何可能含有 NaN 的数据排序都会崩溃。(2) 使用 IEEE `totalOrder`，它是全序，但区分 $-0 < +0$，并把负 NaN 排在 $-\\infty$ 之下，因此 `compare` 在零上会与数值相等不一致。(3) 在数上保持数值顺序，并将所有 NaN 归为位于其上方的同一类。"
 
 #: manual/design/binary.md:2099
-msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
-msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。结构性的 `==` 仍是派生的 `Eq`，因为它是对每个方法（包括精度和载荷）都构成同余关系的唯一相等。"
+msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. `==` is `Eq`, which is `compare(x, y) == 0`, so it ignores the sign of a zero, the precision and the payload of a NaN; the structural equality, the only one that is a congruence for every method (precision and payload included), is `identical`."
+msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。`==` 是 `Eq`，即 `compare(x, y) == 0`，所以它忽略零的符号、精度和 NaN 的载荷；对每个方法（包括精度和载荷）都构成同余关系的唯一相等是结构相等 `identical`。"
 
-#: manual/design/binary.md:2114
+#: manual/design/binary.md:2115
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**规范形式。** API 产生的每个有限值都满足 $c$ 为奇数或 $c = 0, e = 0$，且 $\\operatorname{bits}(c) \\le$ 为其精度；存储的指数从不饱和（饱和的指数会先被归类为上溢或下溢）。"
 
-#: manual/design/binary.md:2118
+#: manual/design/binary.md:2119
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `apply_ctx` is idempotent."
 msgstr "**正确舍入。** 对每个算术运算、转换和初等函数以及每个上下文，返回的有限值都等于精确实数结果 $r$ 的 $\\circ(r)$，并遵循上述范围规则。由 (R1)，每当 $r \\in F$ 时有 $\\circ(r) = r$ 且不引发任何标志；`apply_ctx` 是幂等的。"
 
-#: manual/design/binary.md:2123
+#: manual/design/binary.md:2124
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min_num` and `max_num` return a value and no flags; $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ return $1$ for a quiet NaN operand without the flag (a signaling NaN operand raises it). `combine` is associative, commutative and idempotent."
@@ -14941,83 +14941,83 @@ msgstr ""
 "**标志。** `inexact` 当且仅当 $\\circ(r) \\n"
 "e r$；`overflow` 蕴含 `inexact`；`underflow` 当且仅当结果微小（按上下文规则）且不精确；`division_by_zero` 仅用于有限操作数产生精确无穷结果的情形；`invalid_operation` 当且仅当由非 NaN 操作数产生了静默 NaN，或消耗了信号 NaN。最后一条规则的例外：`min_num` 和 `max_num` 返回一个值而不返回标志；$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$ 和 $\\operatorname{pow}(1, y)$ 对静默 NaN 操作数返回 $1$ 而不设置该标志（信号 NaN 操作数会设置它）。`combine` 满足结合律、交换律和幂等律。"
 
-#: manual/design/binary.md:2133
+#: manual/design/binary.md:2134
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**误差模型。** 因此，在正规范围内，就近舍入有 $|\\circ(r) - r| \\le u|r|$，定向舍入有 $< 2u|r|$，在 $2^{e_{\\min}}$ 以下另有绝对项 $\\eta/2$（相应地 $\\eta$），而次正规的和与差是精确的。"
 
-#: manual/design/binary.md:2137
+#: manual/design/binary.md:2138
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `interval` and the directed square roots of `sqrt_ctx` rely on."
 msgstr "**单调性。** 只要实函数在某个参数上单调，相应运算在该参数上也单调，因为它是 $\\circ \\circ f$ 且 $\\circ$ 单调；特别地，RD 和 RU 的结果夹住精确值，`interval` 和 `sqrt_ctx` 的定向平方根正依赖于这一点。"
 
-#: manual/design/binary.md:2141
+#: manual/design/binary.md:2142
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**精确性定理。** `remainder`、正规范围内的 `scaleb`、`copy_sign`、`neg`、`abs`、`logb` 以及解码都是精确的；取整运算从不需要第二次舍入；`fma(a, b, -RN(ab))` 在无下溢时是精确的。"
 
-#: manual/design/binary.md:2145
+#: manual/design/binary.md:2146
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**复杂度。** 加法与操作数长度呈线性关系（且由远距操作数规则，与指数差无关）；乘法遵循内核表格，从 $O(n^2)$ 到 $O(n \\log n)$；在较大的 $n$ 下，除法和平方根的代价为常数次同等规模的乘法；`remainder` 的代价为 $O(\\log(q_x - q_y))$ 次模乘；初等函数在工作精度 $w$ 下对其级数求值，且由于 $w$ 按几何级数增长，所有尝试的总代价不超过最后一次尝试的常数倍。"
 
-#: manual/design/binary.md:2154
+#: manual/design/binary.md:2155
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "较长的证明（远距操作数加法规则、`nextUp`、余数约简、Ziv 接受测试以及 NTT 界）收录于附件中。"
 
-#: manual/design/binary.md:2158
+#: manual/design/binary.md:2159
 msgid "[Rounding and exactness proofs for the binary package](../../attachments/design_binary_rounding_proofs.typ)"
 msgstr "[binary 的舍入与精确性证明](../../attachments/design_binary_rounding_proofs.typ)"
 
-#: manual/design/binary.md:2162
+#: manual/design/binary.md:2163
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**对 `from_double` 以外的格式使用宿主 `Double`。** 让 binary16、binary32 或 binary128 经由 `Double` 会导致双重舍入，在某些目标上丢失信号 NaN，而且根本无法表示 binary128。因此交换编码改为在 `BinCoeff` 位模式上完成。"
 
-#: manual/design/binary.md:2166
+#: manual/design/binary.md:2167
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数量的保护位。** 三个保护位足以完成两个 $p$ 位操作数的加法，但不足以应对除法、平方根、从十进制的转换或宽于上下文的操作数。依据精确的整数数据（舍入位、粘滞位、余数符号、中点比较）进行判定，则可以用一个终结器处理所有这些情形。"
 
-#: manual/design/binary.md:2171
+#: manual/design/binary.md:2172
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**先舍入到 $p$ 位，再舍入到次正规网格。** 这种双重舍入会产生错误的次正规结果；终结器只做一次移位，移到两个位置中较粗的那个。"
 
-#: manual/design/binary.md:2174
+#: manual/design/binary.md:2175
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**使用估计误差界的 Ziv 方法。** 它需要对每个函数和每种约简单独做误差分析，而其中的错误会悄无声息地返回错误的最后一位。向外舍入的包络使误差界成为计算得出的量，代价是每个运算都要求值两次。"
 
-#: manual/design/binary.md:2178
+#: manual/design/binary.md:2179
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**全局标志与舍入状态。** IEEE 754 将标志描述为粘滞的全局状态。返回的 `BinaryFlags` 值可以与纯代码、并发代码以及 `@lf_arith` 的 `Result` 风格组合，而 `combine` 可在需要时恢复粘滞行为。"
 
-#: manual/design/binary.md:2182
+#: manual/design/binary.md:2183
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**`compare` 遇到 NaN 时中止，或以 `compare` 作为 `totalOrder`。** 参见[`compare` 中 NaN 的排序](#ordering-nan-in-compare)。"
 
-#: manual/design/binary.md:2187
+#: manual/design/binary.md:2188
 msgid "`binary` deliberately does not:"
 msgstr "`binary` 有意不做以下事情："
 
-#: manual/design/binary.md:2189
+#: manual/design/binary.md:2190
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `interval` builds inf-sup interval arithmetic (a lower bound and an upper bound) on top of `Binary`;"
 msgstr "提供区间或球算术：包络只在认证循环内部使用；`interval` 在 `Binary` 之上构建 inf-sup 区间算术（下界与上界）；"
 
-#: manual/design/binary.md:2192
+#: manual/design/binary.md:2193
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "实现 IEEE 754 替代异常处理（陷阱、替换）或粘滞的全局标志：标志是返回值；"
 
-#: manual/design/binary.md:2194
+#: manual/design/binary.md:2195
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "实现十进制浮点（`decimal`、`decimal_gda`）或其上的非二进制 IEEE 运算；"
 
-#: manual/design/binary.md:2196
+#: manual/design/binary.md:2197
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "为新生成的 NaN 承诺任何特定的 NaN 载荷（它使用载荷 0），或传播多于一个输入的载荷；"
 
-#: manual/design/binary.md:2198
+#: manual/design/binary.md:2199
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "保证初等函数对每个输入都能在一定时间内完成：认证有预算，预算耗尽会被报告，而不会被隐藏；"
 
-#: manual/design/binary.md:2201
+#: manual/design/binary.md:2202
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "暴露 limb 布局、阈值或变换参数：只要每个结果、标志和编码保持不变，它们可能随时更改而不另行通知；"
 
-#: manual/design/binary.md:2203
+#: manual/design/binary.md:2204
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/binary.md)."
 msgstr "声称超出[符合性](../conformance/binary.md)中所记录的有限语料之外的符合性。"
 
