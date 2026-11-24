@@ -2,10 +2,10 @@
 
 ## Purpose
 
-`internal` holds exact integer and rational helpers for the numeric cores:
-powers of 2, 5 and 10, digit counting, removal of trailing factors, integer
-division with an explicit rounding mode, a decimal string splitter, reduced
-rationals, dyadic enclosures and the refinement budget of the certified
+`internal` holds exact integer and dyadic helpers for the numeric cores:
+powers of 5 and 10, digit counting, removal of trailing factors, integer
+division with an explicit rounding mode, a decimal string splitter, dyadic
+enclosures and the refinement budget of the certified
 elementary functions. It is an internal package: it cannot be imported from
 outside `Luna-Flow/floating`, and its interface may change without notice. The
 [design page](../design/internal.md) proves the rounding and enclosure
@@ -17,14 +17,14 @@ code uses:
 
 | Package | Helpers it uses |
 | --- | --- |
-| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `decimal_exponent_limit`, `CertifiedRefinementBudget`, `certified_failure` |
-| `binary`, `interval` | `CertifiedRefinementBudget`, `certified_failure` |
+| `decimal`, `decimal_gda` | `split_decimal_string_wide`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `decimal_exponent_limit`, `CertifiedRefinementBudget`, `certified_failure` |
+| `binary` | `CertifiedRefinementBudget`, `certified_failure`, `certified_refinement_continues` |
 
 The binary and decimal cores round their own coefficients with their own
-kernels. The remaining helpers (`round_shift`, `remove_factor10`,
-`trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs`
-and the `CertifiedDyadic` family) are exercised by the tests of this package
-and of the cores only. `semantic` no longer uses `internal`: it owns its exact
+kernels. The remaining helpers (`split_decimal_string`, `round_positive_div`,
+`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`,
+`exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic`
+family) are exercised by the tests of this package only. `semantic` no longer uses `internal`: it owns its exact
 rational (`ExactRational`) and its normalization.
 
 ## Decimal exponent bounds
@@ -66,7 +66,7 @@ import {
 The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as
 `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints
 `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`,
-`CertificationStage`, `CertificationFailureReason`) and uses `@def.Sign`.
+`CertificationStage`, `CertificationFailureReason`).
 
 ## Integer basics
 

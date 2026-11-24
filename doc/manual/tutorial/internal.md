@@ -164,7 +164,7 @@ test "certified floor of 1/3" {
 
 ## Going further
 
-- `binary`, `decimal`, `decimal_gda` and `interval` create their
+- `binary`, `decimal` and `decimal_gda` create their
   refinement budgets at the target precision plus a guard margin and report
   `certified_failure` when the budget runs out; see the
   [binary design](../design/binary.md) for the certified elementary
