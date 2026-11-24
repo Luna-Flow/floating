@@ -221,8 +221,7 @@ def build() -> Rows:
 
 
 # The table compiled into `library/src/decimal` runs in the quick gate. By default it is
-# the full table (`SAMPLE_STEP = 1`: 19,134 rows run in about 2.4 s under the
-# debug native build, source 2.2 MB, about 1.4 s more to build). Above about 5 s
+# the full table (`SAMPLE_STEP = 1`: 9,691 rows, source 1.1 MB). Above about 5 s
 # set a larger step and the generator keeps every exact row and one certified
 # MPFR row in `step` per (operation, rounding) stratum
 # (`--sample-step N`, see doc/manual/verification.md for when to do so). The
@@ -296,11 +295,25 @@ def sampled_tokens(text: str) -> set[tuple[str, ...]]:
 
 
 def full_tokens(text: str) -> set[tuple[str, ...]]:
+    """The compiled-tuple form of every row of `mpfr-decimal-random-v2` text.
+
+    The file has `id op rounding precision emax a b n expected flags`; the
+    tuple also has `e_min`, `clamp`, `tininess`, which the file leaves to the
+    IEEE 754-2019 decimal format of `precision` and `emax`: `e_min = 1 - emax`,
+    clamp on, tininess before rounding (as `decimal_row_table.py` documents and
+    the conformance CLI reads them). `n` is not in the tuple.
+    """
     out = set()
     for line in table.data_lines(text):
         t = line.split()
-        out.add((t[1], t[2], t[3], t[4], t[5], "true" if t[6] == "1" else "false", t[7], t[8], t[9], t[11], t[12]))
+        emax = int(t[4])
+        out.add((t[1], t[2], t[3], str(1 - emax), t[4], "true", "b", t[5], t[6], t[8], t[9]))
     return out
+
+
+def rows_not_in_full(sampled: set[tuple[str, ...]], full: set[tuple[str, ...]]) -> list[tuple[str, ...]]:
+    """The compiled tuples that no row of the full table matches, sorted."""
+    return sorted(sampled - full)
 
 
 def print_strata(rows: Rows) -> None:
@@ -336,11 +349,19 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{OUTPUT} is stale", file=sys.stderr)
             status = 1
         # `moon fmt` re-wraps long tuples; compare the tokens, not the layout.
-        if not SAMPLED_OUTPUT.is_file() or pm1.normalized(SAMPLED_OUTPUT.read_text(encoding="utf-8")) != pm1.normalized(sampled):
+        if not SAMPLED_OUTPUT.is_file():
+            print(f"{SAMPLED_OUTPUT} is missing", file=sys.stderr)
+            return 1
+        compiled = SAMPLED_OUTPUT.read_text(encoding="utf-8")
+        if pm1.normalized(compiled) != pm1.normalized(sampled):
             print(f"{SAMPLED_OUTPUT} is stale", file=sys.stderr)
             status = 1
-        elif not sampled_tokens(SAMPLED_OUTPUT.read_text(encoding="utf-8")) <= full_tokens(OUTPUT.read_text(encoding="utf-8")):
-            print("the sampled table is not a subset of the full table", file=sys.stderr)
+        # Name the compiled rows that the data file does not have (a hand edit of either side).
+        missing = rows_not_in_full(sampled_tokens(compiled), full_tokens(OUTPUT.read_text(encoding="utf-8")))
+        if missing:
+            print(f"{len(missing)} compiled rows are not in {OUTPUT}, first:", file=sys.stderr)
+            for row in missing[:10]:
+                print("  " + " ".join(row), file=sys.stderr)
             status = 1
         return status
     OUTPUT.write_text(text, encoding="utf-8")
