@@ -194,13 +194,13 @@ pub fn tune_dataset(Array[@model.Observation], String, Int, Array[String], Doubl
 ```
 
 For every candidate it takes the valid confirmatory observations of the case
-and dataset, and scores the candidate by the median of the finite,
-non-negative samples. Candidates without such samples are invalid. The result
-is the valid candidate with the smallest median, ties broken by the smaller
-candidate id; `None` when no candidate is valid. Because the score is used as
-both the primary and the secondary criterion of `@tune.select_best`,
-`practical_delta_pct` does not change the choice. Which secondary criterion
-is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60).
+and dataset, and scores the candidate by the median and the interquartile
+range of the finite, non-negative samples. Candidates without such samples are
+invalid. The fastest valid candidate is the one with the smallest median; every
+valid candidate whose median is within `practical_delta_pct` percent of it is
+practically tied with it, and among these the result is the one with the
+smaller interquartile range, then the smaller candidate id. `None` when no
+candidate is valid.
 
 ```moonbit
 ///|

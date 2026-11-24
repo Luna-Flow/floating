@@ -35,7 +35,7 @@ import {
 | `binary/elementary/OP` for 28 functions (`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sqrt`, `rootn`, `pow`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`) | 53, 128, 512 bits of precision | `core/binary` (aborting methods), `full/checked` (`BinaryChecked`) | `Development` |
 
 Every specification has a plan test that runs in normal test runs and checks
-that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked
+that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`), and a performance test marked
 `#skip("performance benchmark")` that only `tools/benchmark.py` runs. In the
 reported lines `DATASET` is the 0-based index into the datasets column. The
 performance tests stream every observation as a `MAREMARK_JSONL=` line and

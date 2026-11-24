@@ -21,7 +21,7 @@ runtime:
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating/binary" @binary,
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal_gda" @gda,
   "Luna-Flow/mare_mark/env_detect",
   "Luna-Flow/mare_mark/event",
@@ -39,7 +39,7 @@ import {
 | Case | Scale | Implementation | Oracle |
 | --- | --- | --- | --- |
 | `external/binary/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin` | 53, 128, 512, 2048, 8192 bits | `floating` (`Binary` methods at the scale as precision, round to nearest even) | the MPFR result for each operand, bit for bit |
-| `external/decimal_gda/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln` | 16, 34, 100, 1000 digits | `floating` (`decimal_gda` functions in a context of the scale as precision, `HalfEven`, exponent range ±999999) | the libmpdec result for each operand, value for value |
+| `external/decimal_gda/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln` | 16, 34, 100, 1000 digits | `floating` (`decimal_gda` functions in a context of the scale as precision, `HalfEven`, exponent range ±999999) | the libmpdec result for each operand, as text (sign, coefficient, exponent: the cohort included) |
 
 Every case has a second implementation, `null`, next to `floating`: the same
 closure call and result store with the library call removed. Maremark runs the
@@ -70,9 +70,12 @@ node), which is how the runner measures the floating side on those runtimes
 runtime at validation there. The environment variables and the files are read the
 same way on the three targets.
 
-Three plan tests run in normal test runs (`external input rows group by case`,
+Six plan tests run in normal test runs (`external input rows group by case`,
 `external binary and decimal_gda plans compile`, `external operand parsing is
-exact`). The performance test `external baseline floating` is marked
+exact`, `external validation compares text: the sign of zero, the cohort and a
+wrong value fail`, `canonical binary text: the formats of MPFR and of to_hex
+agree on one value`, `canonical decimal text: one value, the cohort and the
+sign of zero are kept`). The performance test `external baseline floating` is marked
 `#skip("performance benchmark")` and builds on native only; the runner prints
 a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size
 round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end.

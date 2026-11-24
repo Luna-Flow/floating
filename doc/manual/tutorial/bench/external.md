@@ -243,7 +243,7 @@ the dispersion thresholds on the performance page.
 - A validation failure is reported but does not stop the timing: look for
   `WARNING` lines and `validation_failed_cases` in `results.json`.
 - Do not run other heavy work during a measurement; the load average is
-  recorded at the start only.
+  recorded at the start and at the end only.
 
 ## Next steps
 
