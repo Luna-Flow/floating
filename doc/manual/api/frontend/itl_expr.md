@@ -141,8 +141,8 @@ Dispositions:
   expected value, a binary-dispatch case whose expected value is not an
   interval (for example one followed by a `signal` annotation), a
   binary-dispatch case with other than two operands, or a boolean predicate
-  other than the five unary ones whose second operand is missing or
-  unreadable, or a boolean case whose operation is not a boolean predicate
+  other than the five unary ones that does not have exactly two operands
+  or whose second operand is unreadable, or a boolean case whose operation is not a boolean predicate
   (`unsupported boolean operation`);
 - `Diagnostic(reason)` when the first operand of a boolean case, an operand of
   `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric,
