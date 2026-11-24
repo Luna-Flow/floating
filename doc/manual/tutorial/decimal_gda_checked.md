@@ -14,7 +14,7 @@ the [API reference](../api/decimal_gda_checked.md) lists every method.
 | --- | --- |
 | Start a pipeline from text or a value | [`GdaDecimalChecked::to_number`, `from_decimal`](#quick-start) |
 | Decide which conditions stop the calculation | [`GdaContext::trap`](#choose-the-traps) |
-| See what the latest step raised and what happened so far | [`raised()`, `status()`](#read-the-sticky-flags) |
+| See what the latest step raised and what happened so far | [`raised()`, `flags()`](#read-the-sticky-flags) |
 | Find the step that trapped | [`is_err()`, `error()`, `result()`](#nothing-runs-after-a-trap) |
 | Continue with the defined result after a trap | [`resume_defined()`](#resume-deliberately) |
 | Run a function that returns no number, or a `try_` form | [`value()` and `context()`, `from_outcome`](#combine-with-the-plain-gda-functions) |
@@ -108,7 +108,7 @@ test "trap inexact results" {
 
 ### Read the sticky flags
 
-`raised()` holds the signals of the latest operation, `status()` every signal
+`raised()` holds the signals of the latest operation, `flags()` every signal
 since the context was created or its flags was last cleared:
 
 ```moonbit
@@ -203,7 +203,7 @@ test "a malformed literal" {
 `exp`, `ln`, `log10` and `power` keep decNumber's restriction (an implementation
 limit that decTest requires) to precision and
 exponent limits within $\pm 999\,999$. The interchange contexts satisfy it;
-`GdaContext::new` with its default unbounded range does not, and the functions
+`GdaContext::new` with its default range of $\pm 999\,999\,999$ does not, and the functions
 return NaN with `invalid_context` (which traps under `InvalidOperation`):
 
 ```moonbit
@@ -254,7 +254,7 @@ the previous state.
 ## Common pitfalls
 
 - **`basic_default()` traps, `new()` does not.** Choose the context deliberately.
-- **`raised()` versus `status()`.** The first is the latest step, the second
+- **`raised()` versus `flags()`.** The first is the latest step, the second
   the sticky history.
 - **`resume_defined` keeps the flags and the traps.** It clears only the
   trap marker and `raised()`. Clear the flags with

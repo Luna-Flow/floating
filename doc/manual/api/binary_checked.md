@@ -94,9 +94,9 @@ pub fn BinaryChecked::from_float(Float, precision? : Int) -> Self
 | `from_double` | 53 | `Binary::from_double` |
 | `from_float` | 24 | `Binary::from_float` |
 
-They never produce an error: NaN and infinity inputs become successful NaN or
-infinite values, and a value that does not fit `precision` is rounded to
-nearest-even as by the delegated constructor. `from_float` widens through a
+A `precision` outside `1..=binary_precision_max` gives a `DomainError`. NaN and
+infinity inputs become successful NaN or infinite values, and a value that does
+not fit `precision` is rounded to nearest-even as by the delegated constructor. `from_float` widens through a
 host `Double`, so a signaling `Float` NaN may arrive quiet (see
 [`Binary::from_float`](binary.md#binaryfrom_double-binaryfrom_float)).
 
@@ -179,8 +179,8 @@ pub fn BinaryChecked::normalized(Self) -> Self
 pub fn BinaryChecked::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 ```
 
-`with_precision(p, mode)` rounds to $\max(1,p)$ bits in direction `mode` with
-an unbounded exponent; `ulp` is the unit in the last place at the value's
+`with_precision(p, mode)` rounds to $p$ bits in direction `mode` with
+an unbounded exponent, and aborts for $p$ outside `1..=binary_precision_max`; `ulp` is the unit in the last place at the value's
 precision (NaN for non-finite values).
 
 ## Arithmetic
@@ -345,7 +345,7 @@ pub fn BinaryChecked::rootn(Self, Int) -> Self
 pub fn BinaryChecked::rootn_ctx(Self, Int, @binary.BinaryContext) -> Self
 ```
 
-`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the
+`rootn` uses `BinaryContext::new(precision=p)` at the operand's precision; `rootn_ctx` the
 given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, "n = 0: invalid operation"), for an even root
 of a negative number ($-\infty$ included) and for a signaling NaN, a
 `DivisionByZero` error for $\operatorname{rootn}(\pm 0, n)$ with $n < 0$
@@ -362,7 +362,7 @@ pub fn BinaryChecked::pow(Self, Self) -> Self
 pub fn BinaryChecked::pow_ctx(Self, Self, @binary.BinaryContext) -> Self
 ```
 
-`pow` uses an unbounded context at the larger operand precision. Errors of the
+`pow` uses `BinaryContext::new(precision=p)` at the larger operand precision. Errors of the
 operands come first (base, then exponent); the operation itself reports a
 `DomainError` for a negative finite base with a non-integer exponent (for
 example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero`
@@ -469,7 +469,7 @@ pub fn BinaryChecked::hypot(Self, Self) -> Self
 pub fn BinaryChecked::hypot_ctx(Self, Self, @binary.BinaryContext) -> Self
 ```
 
-`hypot` uses an unbounded context at the larger operand precision. A
+`hypot` uses `BinaryContext::new(precision=p)` at the larger operand precision. A
 signaling NaN operand is a `DomainError`; `hypot` raises no other exception
 (overflow and underflow are values).
 
@@ -491,8 +491,8 @@ test "powers and roots" {
 
 Each unary elementary function `name` has two wrapper methods. `name()` is
 `bind` of `Binary::try_name_ctx` under `BinaryContext::new(precision=x.precision())`,
-that is nearest-even rounding to the operand's precision with no exponent
-limit; `name_ctx(ctx)` uses the given context instead. A success is the
+that is nearest-even rounding to the operand's precision with the exponent
+range `binary_value_e_max` of the extendable format; `name_ctx(ctx)` uses the given context instead. A success is the
 correctly rounded value of `binary`. The flags of the step are mapped as
 for `div`: the invalid operation exception (a signaling NaN operand, or an
 argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`,

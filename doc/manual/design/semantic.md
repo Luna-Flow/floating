@@ -198,7 +198,7 @@ projection for every pipeline.
 - **Reduced form.** Every `ExactRational` satisfies $d > 0$,
   $\gcd(|n|, d) = 1$ and $n = 0 \Rightarrow d = 1$; `new` aborts on $d = 0$.
 - **Exactness.** For finite $x$,
-  $\texttt{from\_bin\_float}(x) = \texttt{Rational}([\![x]\!])$ and
+  $\texttt{from\_binary}(x) = \texttt{Rational}([\![x]\!])$ and
   $\texttt{from\_decimal}(x) = \texttt{Rational}([\![x]\!])$; nothing is
   rounded.
 - **Soundness and completeness of equality.** For finite $x$, $y$ of any of

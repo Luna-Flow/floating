@@ -104,8 +104,8 @@ test "decimal64 pipeline with flags" {
 
 `inexact` tells you that $100/3 \cdot 3$ was not computed exactly; it is not
 an error, so `has_error()` stays false. `has_error()` reports invalid
-operations, unparsable text, division by zero, impossible divisions and
-invalid contexts.
+operations, division by zero and results the library could not compute
+(`not_computed`).
 Check the individual flags (`overflow`, `underflow`, `inexact`) when your
 application cares about them.
 

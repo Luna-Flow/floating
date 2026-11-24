@@ -104,7 +104,7 @@ Each of the three plain-operation fast paths of the [design page](../design/deci
 
 | Fast path | Operands | Parameters |
 | --- | --- | --- |
-| plain sums (`add`, `subtract`) | random, 1 to 120 digits, mixed signs, cancellations and exponent gaps | nine precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
+| plain sums (`add`, `subtract`) | random, 1 to 120 digits, mixed signs, cancellations and exponent gaps | ten precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
 | plain products and quotients (`multiply`, `divide`) | random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$ | chained contexts, all eight rounding algorithms |
 | plain square roots (`sqrt`) | random, 1 to 130 digits; squares; near squares ($s^2 \pm 1$, $s^2 \pm s$); the comparison is at the public level: value, every condition and the flags of the context | all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
 
@@ -128,7 +128,7 @@ tolerance of the mathematical functions: decNumber's mathematical
 functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the
 specification says that an inexact result "will be rounded using the round-half-even
 algorithm" and "should be correctly rounded, but may be up to 1 ulp ... in error"
-(GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both
+(GDA 1.70, pages 30 and 31). The library returns the correctly rounded value in both
 arithmetics. Where a row of the corpus holds the other value, one unit in the last
 place away and inside the tolerance, the row is recorded with the corpus value, the
 held value, the value of decNumber 3.68 and what the held value rests on: the corpus

@@ -288,7 +288,7 @@ ambient rounding mode; the context is an ordinary immutable argument.
   $2^{\,e_{\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64`
   and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision
   format of IEEE 754-2019 3.7 and has the implementation range
-  $[\texttt{binary\_implementation\_e\_min}, \texttt{binary\_implementation\_e\_max}] = [2 - 2^{30},\ 2^{30} - 1]$,
+  $[\texttt{binary\_value\_e\_min}, \texttt{binary\_value\_e\_max}] = [2 - 2^{30},\ 2^{30} - 1]$,
   so $e_{\min} = 1 - e_{\max}$ as in every context (3.3),
   and every precision is capped at $\texttt{binary\_precision\_max} = 2^{28}$
   bits. A result beyond the implementation range is classified (overflow to
@@ -383,13 +383,12 @@ test "flags report conditions beside a defined value" {
 
 `decimal_gda` follows the General Decimal Arithmetic model. Each operation
 returns a `GdaOutcome` that holds the defined result, the **next context** and
-the **raised** flags of this operation. The next context's `status()` is the
+the **raised** flags of this operation. The next context's `flags()` is the
 sticky union of everything raised so far. When a raised condition is enabled in
 the context's trap set the outcome is `Trapped(signal, value, context, raised)`
 instead of `Completed(value, context, raised)`; the defined result is still
 there. If several enabled conditions are raised at once the trapped signal is
-the first in this precedence: invalid operation, division by zero, division
-undefined, division impossible, invalid context, conversion syntax, overflow,
+the first in this precedence: invalid operation, division by zero, overflow,
 underflow, subnormal, inexact, rounded, clamped, lost digits.
 
 ```moonbit

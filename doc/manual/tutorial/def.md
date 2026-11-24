@@ -209,7 +209,8 @@ test "handle a checked result through def" {
   `Binary` still overflows at its implementation range of about
   $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
   of the concrete package.
-- `with_precision(x, 0)` is not an error: the precision is clamped to 1.
+- `with_precision(x, 0)` is an error for `Binary` and `@decimal.Decimal`: they
+  abort. Only `@decimal_gda.Decimal` clamps the precision to 1.
 
 ## Next steps
 
