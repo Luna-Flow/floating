@@ -1741,7 +1741,7 @@ digits and correctly rounded otherwise. In decimal32,
 `pow_ctx(3.339434, 3)` returns `37.24077`; the exact cube is
 $37.240765000\ldots$. The operation treats $x^{0.5}$ as `sqrt_ctx`. It
 certifies positive non-integer powers and treats a negative base with a finite
-non-integer exponent as invalid. These IEEE rules differ from
+non-integer exponent as invalid. These IEEE rules intentionally differ from
 [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic,
 including its invalid result for $0^0$ and the `powx2015` vector rounded to
 `1.00`.

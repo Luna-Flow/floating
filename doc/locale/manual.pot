@@ -4024,7 +4024,7 @@ msgid "For large integer exponents, the implementation decides zero and infinity
 msgstr ""
 
 #: manual/api/decimal.md:1739
-msgid "For other integral exponents, the result is exact when the power fits in $p$ digits and correctly rounded otherwise. In decimal32, `pow_ctx(3.339434, 3)` returns `37.24077`; the exact cube is $37.240765000\\ldots$. The operation treats $x^{0.5}$ as `sqrt_ctx`. It certifies positive non-integer powers and treats a negative base with a finite non-integer exponent as invalid. These IEEE rules differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic, including its invalid result for $0^0$ and the `powx2015` vector rounded to `1.00`."
+msgid "For other integral exponents, the result is exact when the power fits in $p$ digits and correctly rounded otherwise. In decimal32, `pow_ctx(3.339434, 3)` returns `37.24077`; the exact cube is $37.240765000\\ldots$. The operation treats $x^{0.5}$ as `sqrt_ctx`. It certifies positive non-integer powers and treats a negative base with a finite non-integer exponent as invalid. These IEEE rules intentionally differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic, including its invalid result for $0^0$ and the `powx2015` vector rounded to `1.00`."
 msgstr ""
 
 #: manual/api/decimal.md:1749
