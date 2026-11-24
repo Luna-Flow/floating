@@ -81,9 +81,9 @@ it is a number of that format.
 ### Execute against the public `interval` API
 
 Each ITL operation maps to one public method of
-`@interval.DecoratedInterval` (for example `add` to `+`, `sqrt` to
+`@interval.DecoratedInterval` or, for the numeric functions, of `Interval` (for example `add` to `+`, `sqrt` to
 `sqrt`, `pown` to `pown`, `overlap` to `overlap`), and
-results are rounded with `IntervalContext::new(precision=p, e_max=1023)`, the format
+interval results (except those of `intersection`, `convexHull`, `pow` and `atan2`) are rounded with `IntervalContext::new(precision=p, e_max=1023)`, the format
 the bounds were read in (binary64 for the default $p = 53$). Testing through the
 public API means the corpus checks exactly what users call, including the
 decoration logic.
@@ -112,7 +112,7 @@ the implementation attaches.
 
 ### Three dispositions and a strict summary
 
-`Unsupported` marks cases the library does not implement (unknown operations
+`Unsupported` marks cases this package does not execute (unknown operations
 such as `rsqrt`, or, in the binary dispatch, an
 expectation with a `signal` annotation). `Diagnostic` marks cases whose data
 cannot be read. Support is decided from the operation name before any operand

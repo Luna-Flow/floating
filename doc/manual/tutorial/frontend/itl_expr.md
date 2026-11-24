@@ -158,7 +158,7 @@ test "dispositions" {
   cases of that operation; in code, filter `cases` by `operation()` before
   executing.
 - **Precision.** `execute_case(case, precision=p)` reads bounds and rounds
-  results at `p` bits, with the binary64 exponent range. The ITF1788 data is
+  results (of the operations that round) at `p` bits, with the binary64 exponent range. The ITF1788 data is
   written for binary64, so keep the default `53` for corpus runs.
 
 ## Common pitfalls

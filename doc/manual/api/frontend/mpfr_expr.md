@@ -3,7 +3,7 @@
 ## Purpose
 
 `frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes
-it against `binary`. Seven formats are supported: MPFR's square-root
+it against `binary` (the `mpfr-decimal-random-v2` rows against `decimal`). Seven formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
 exception flags, two corpora for decimal character conversion
 (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
@@ -325,7 +325,9 @@ Parses the text (the first argument names the source). Blank lines and lines
 starting with `#` are skipped. Every other line must have thirteen fields, a
 known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of
 the elementary names), a rounding of `n na z u d`, a positive precision, an
-exponent range that is either `- - -` or two integers and `a`/`b`, exact
+exponent range that is either `- - -` or `emin emax` with `emin = 1 - emax` and
+an `emax` that `BinaryContext::try_new` accepts for the precision, then `a`
+(tininess after rounding) or `b` (before rounding), exact
 operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to
 `-` or a subset of `xouvz`. Operands and results are read at least at the row's
 precision, because reading a value below the smallest subnormal of a lower
@@ -469,8 +471,9 @@ pub fn CaseResult::passed(Self) -> Bool
 pub fn CaseResult::message(Self) -> String
 ```
 
-The message is empty for a pass and otherwise shows expected and actual values
-in hexadecimal (and the compared flags for power and elementary rows).
+The message is empty for a pass and otherwise shows the expected and the actual
+value (hexadecimal for the binary formats, decimal text for the decimal
+formats) and the compared flags where the format compares flags.
 
 ### `RunSummary`
 

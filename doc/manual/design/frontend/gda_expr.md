@@ -186,7 +186,8 @@ $$
 $$
 
 **Shard independence.** The disposition and result of a row depend only on
-the row (its tokens and its directive record): parsing fixes the record
+the row (its tokens and its directive record), on the deviation records of the
+options and on the source name of its document: parsing fixes the record
 per row, and the context cache memoizes a pure function. Hence the result of
 row $k$ is the same in every shard that contains it and in the serial run, and
 

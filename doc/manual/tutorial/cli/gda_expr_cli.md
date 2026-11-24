@@ -75,7 +75,7 @@ instead of exiting.
 
 ```bash
 gda path/to/add.decTest path/to/multiply.decTest
-gda .tmp/decimal/official          # every *.decTest directly in the directory
+gda testdata/decimal_gda/official          # every *.decTest directly in the directory
 ```
 
 Files are sorted by path and executed as one run; a file named twice runs
@@ -93,8 +93,8 @@ A range matches ids of the same length that sort between its bounds.
 ### Shard a run
 
 ```bash
-gda --json --shard-count 4 --shard-index 0 .tmp/decimal/official
-gda --json --shard-count 4 --shard-index 1 .tmp/decimal/official
+gda --json --shard-count 4 --shard-index 0 testdata/decimal_gda/official
+gda --json --shard-count 4 --shard-index 1 testdata/decimal_gda/official
 ```
 
 Shard `i` runs the rows whose position (after the `--cases` filter, across all
@@ -113,7 +113,7 @@ unsupported or legacy, even when all executed rows pass.
 
 ## Going further
 
-- `just conformance run decimal_gda` fetches the pinned official corpora,
+- `just conformance run decimal_gda` fetches the pinned official corpora when they are not installed,
   splits them into the phases of `testdata/decimal_gda/interpreter_stages.json`
   and runs the shards in parallel with this runner.
 - [gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and

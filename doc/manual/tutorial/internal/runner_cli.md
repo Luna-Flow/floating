@@ -117,7 +117,7 @@ All runners in `cli/` use the same codes, which `tools/*.py` relies on:
 | Code | Meaning |
 | --- | --- |
 | `0` | every executed case passed (and, in strict mode, nothing was unsupported) |
-| `1` | at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows) |
+| `1` | at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows; `itl` also counts diagnostic cases) |
 | `2` | usage error, unreadable file, or parse diagnostic |
 
 ### Add a runner-specific option

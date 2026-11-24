@@ -91,7 +91,8 @@ pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 
 `precision` (default `53`, must be positive) is the significand precision of
 the interval format the case runs in: bounds are read at `precision` bits and
-interval and number results are rounded with
+interval results (except those of `intersection`, `convexHull`, `pow` and
+`atan2`) and `mid` are rounded with
 `@interval.IntervalContext::new(precision=precision, e_max=1023)`, which has the
 binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the
 ITF1788 data.
@@ -99,7 +100,7 @@ ITF1788 data.
 Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
 `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`).
-A bound is `inf`/`infinity` with an optional sign, a hexadecimal float
+A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float
 `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to
 nearest-even at `precision` bits, the lower bound as well as the upper one.
 This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup
@@ -141,8 +142,8 @@ Dispositions:
   other than the five unary ones whose second operand is missing or
   unreadable;
 - `Diagnostic(reason)` when the first operand of a boolean case, an operand of
-  `isMember`, or an operand or the expected value of the overlap, numeric,
-  unary, ternary, integer-power or reverse dispatch, cannot be read, or an operand of
+  `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric,
+  unary, ternary, integer-power or reverse dispatch, cannot be read or is missing, or an operand of
   the binary dispatch is not an interval literal.
 
 Support is decided from the operation name before any operand is read, so
@@ -189,7 +190,7 @@ pub struct ItlResult {
 
 These methods return the case id, the disposition, whether the case passed,
 and a message: empty on success, `"expected E, got A"` on a mismatch (intervals
-printed by `DecoratedInterval::to_string`), and a short reason or the
+printed by `DecoratedInterval::to_string`; `"output N: expected E, got A; "` for each wrong result of `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2`), and a short reason or the
 offending text otherwise.
 
 ```mbti

@@ -71,7 +71,7 @@ is always 0 with the current frontend.
 
 Return value: `2` for usage, file or parse errors; `1` when a row failed, or
 with `--strict-supported` when any legacy or unsupported row was selected;
-`0` otherwise. Diagnostic rows (`#` and `?` placeholders) never change the
+`0` otherwise. Diagnostic rows (`#` and `?` placeholders, rows under an invalid context) never change the
 exit status, even with `--strict-supported`.
 
 ```moonbit
