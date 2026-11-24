@@ -456,7 +456,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring
   `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity
   without flags ([#275](https://github.com/Luna-Flow/floating/issues/275),
-  fixed in 0.11.0): the random generator does not draw such operands and the sweep does
+  fixed): the random generator does not draw such operands and the sweep does
   not include that function.
 - *`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000
   native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with
