@@ -256,7 +256,7 @@ msgstr ""
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2495
-#: manual/api/decimal_checked.md:408
+#: manual/api/decimal_checked.md:406
 #: manual/api/decimal_gda.md:1955
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
@@ -604,7 +604,7 @@ msgstr ""
 #: manual/api/decimal.md:1111
 #: manual/api/decimal.md:1166
 #: manual/api/decimal.md:1886
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 #: manual/api/decimal_gda.md:103
 #: manual/api/decimal_gda.md:164
 #: manual/api/decimal_gda.md:198
@@ -2140,7 +2140,7 @@ msgid "Default `precision`"
 msgstr ""
 
 #: manual/api/binary_checked.md:90
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 msgid "Delegates to"
 msgstr ""
 
@@ -2538,7 +2538,7 @@ msgid "Deprecated"
 msgstr ""
 
 #: manual/api/binary_checked.md:843
-#: manual/api/decimal_checked.md:410
+#: manual/api/decimal_checked.md:408
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
 #: manual/api/interval_checked.md:530
@@ -4606,84 +4606,80 @@ msgid "Operations that cannot fail"
 msgstr ""
 
 #: manual/api/decimal_checked.md:236
-msgid "Use the left pipeline's context to apply the corresponding IEEE decimal operation to its current value and the right operand."
+msgid "These methods apply the corresponding IEEE decimal operation to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`."
 msgstr ""
 
-#: manual/api/decimal_checked.md:239
-msgid "The right operand is another `DecimalChecked`. If the left state already has an error, the method returns it unchanged. Otherwise, an error in the right operand stops the operation and keeps the left value. The right operand's flags join the left state's `raised` and accumulated `flags` before the operation runs."
-msgstr ""
-
-#: manual/api/decimal_checked.md:245
+#: manual/api/decimal_checked.md:243
 msgid "`DecimalChecked::from_decimal(x, ctx)` lifts a plain value by applying the context. A signaling NaN is quieted and raises `invalid_operation` during this lift. To use the operand exactly, lift it in a context wide enough to hold it, such as `decimal128`, as IEEE 754-2019 5.1 requires for operands. Lifting it in the left pipeline's context rounds the operand first and rounds the operation's result again. With three-digit precision and half-even rounding, `1.00 + 0.24500001` gives `1.25` when lifted in a wide context and `1.24` when lifted at three digits: the operand becomes `0.245` with `inexact`, and the sum `1.00 + 0.245` is a tie rounded to even. Both results match the chosen operand conversion."
 msgstr ""
 
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 #: manual/api/decimal_gda.md:680
 #: manual/api/decimal_gda.md:1846
 msgid "Method"
 msgstr ""
 
-#: manual/api/decimal_checked.md:275
+#: manual/api/decimal_checked.md:273
 msgid "$\\lvert v\\rvert$ rounded into the context"
 msgstr ""
 
-#: manual/api/decimal_checked.md:276
+#: manual/api/decimal_checked.md:274
 msgid "$v \\circ y$ correctly rounded"
 msgstr ""
 
-#: manual/api/decimal_checked.md:277
+#: manual/api/decimal_checked.md:275
 msgid "$v \\cdot m + a$ with one rounding"
 msgstr ""
 
-#: manual/api/decimal_checked.md:278
+#: manual/api/decimal_checked.md:276
 msgid "$\\sqrt{v}$ correctly rounded"
 msgstr ""
 
-#: manual/api/decimal_checked.md:279
+#: manual/api/decimal_checked.md:277
 msgid "$v$ rounded to the exponent of `q`"
 msgstr ""
 
-#: manual/api/decimal_checked.md:280
+#: manual/api/decimal_checked.md:278
 msgid "the number $10^q$ for the exponent $q$ of $v$ (IEEE 754-2019 5.3.2)"
 msgstr ""
 
-#: manual/api/decimal_checked.md:281
+#: manual/api/decimal_checked.md:279
 msgid "IEEE remainder $v - d \\cdot n$, $n$ = $v/d$ rounded to nearest, ties to even"
 msgstr ""
 
-#: manual/api/decimal_checked.md:282
+#: manual/api/decimal_checked.md:280
 msgid "IEEE 754-2019 9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number; a signaling NaN gives the number and raises `invalid_operation`"
 msgstr ""
 
-#: manual/api/decimal_checked.md:283
+#: manual/api/decimal_checked.md:281
 msgid "adjacent representable value"
 msgstr ""
 
-#: manual/api/decimal_checked.md:285
+#: manual/api/decimal_checked.md:283
 msgid "The General Decimal Arithmetic `min` and `max` operations are in `decimal_gda`, not this IEEE wrapper."
 msgstr ""
 
-#: manual/api/decimal_checked.md:288
+#: manual/api/decimal_checked.md:286
 msgid "An operation on a state with an error returns it unchanged. Otherwise the context operation produces $(v', r') = \\mathrm{op}(v, c)$ and the new state is $(v', c, r', F \\lor r', \\text{none})$. An invalid operation returns NaN with `invalid_operation`; division by zero returns an infinity with `division_by_zero`; overflow returns an infinity or the largest finite value with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
 msgstr ""
 
-#: manual/api/decimal_checked.md:315
+#: manual/api/decimal_checked.md:313
 msgid "Operations that can record an error"
 msgstr ""
 
-#: manual/api/decimal_checked.md:319
+#: manual/api/decimal_checked.md:317
 msgid "Apply the certified `Decimal::try_*_ctx` function with the same name."
 msgstr ""
 
-#: manual/api/decimal_checked.md:363
+#: manual/api/decimal_checked.md:361
 msgid "The results follow `decimal`, including its exact result for some non-integral powers before refinement; see [elementary functions](decimal.md#elementary-functions). For example, $0.0016^{0.25} = 0.2$ is exact. `atan2` with zero or infinite operands returns IEEE values; an `atan2` of $+\\infty$ and 1 returns $\\pi/2$, inexact. Domain violations also return IEEE values with flags: `ln` of a negative number returns NaN with `invalid_operation`, and `tanpi(0.5)` returns an infinity with `division_by_zero`."
 msgstr ""
 
-#: manual/api/decimal_checked.md:372
+#: manual/api/decimal_checked.md:370
 msgid "These methods record an error only when `try_*_ctx` returns `Err` with a `CertificationFailure`, meaning the correctly rounded result could not be certified within the refinement budget. In that case the new state is $(v, c, r, F, \\mathrm{Some}(e))$; the value and flags from before the step remain."
 msgstr ""
 
-#: manual/api/decimal_checked.md:378
+#: manual/api/decimal_checked.md:376
 msgid "[!IMPORTANT] As an implementation limit (`DEC_MAX_MATH` in decNumber, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require context precision and exponent limits within 999,999. A context with `e_max` above 999,999, or with precision of 1,000 digits or more and no explicit `e_max`, returns NaN with `not_computed`; the `try_` forms return `Err` with a certification failure. Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` no greater than 999,999. `pow` and `pown` with an integral exponent, and `pow` with exponent `0.5`, are not restricted."
 msgstr ""
 

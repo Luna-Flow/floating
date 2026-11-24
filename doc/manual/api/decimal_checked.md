@@ -233,14 +233,12 @@ test "raised versus accumulated flags" {
 
 ### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `quantum`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`
 
-Use the left pipeline's context to apply the corresponding IEEE decimal
-operation to its current value and the right operand.
-
-The right operand is another `DecimalChecked`. If the left state already has
-an error, the method returns it unchanged. Otherwise, an error in the right
-operand stops the operation and keeps the left value. The right operand's
-flags join the left state's `raised` and accumulated `flags` before the
-operation runs.
+These methods apply the corresponding IEEE decimal operation to the current
+value and a pipeline operand under the stored context of the left pipeline.
+The right operand is a `DecimalChecked`: an error of the left pipeline stays,
+an error of the right one is taken before the operation runs (the value of the
+left pipeline is kept), and the conditions of the right pipeline join
+`raised` and `flags`.
 
 `DecimalChecked::from_decimal(x, ctx)` lifts a plain value by applying the context. A
 signaling NaN is quieted and raises `invalid_operation` during this lift. To
@@ -273,7 +271,7 @@ pub fn DecimalChecked::next_up(Self) -> Self
 | Method | Delegates to | Result |
 | --- | --- | --- |
 | `abs` | `abs_ctx` | $\lvert v\rvert$ rounded into the context |
-| `add`, `sub`, `mul`, `div` | `add_ctx`, … | $v \circ y$ correctly rounded |
+| `add`, `sub`, `mul`, `div` | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx` | $v \circ y$ correctly rounded |
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
 | `quantize(q)` | `quantize_ctx` | $v$ rounded to the exponent of `q` |

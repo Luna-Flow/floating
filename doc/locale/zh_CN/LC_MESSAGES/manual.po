@@ -256,7 +256,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2495
-#: manual/api/decimal_checked.md:408
+#: manual/api/decimal_checked.md:406
 #: manual/api/decimal_gda.md:1955
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
@@ -604,7 +604,7 @@ msgstr "上下文"
 #: manual/api/decimal.md:1111
 #: manual/api/decimal.md:1166
 #: manual/api/decimal.md:1886
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 #: manual/api/decimal_gda.md:103
 #: manual/api/decimal_gda.md:164
 #: manual/api/decimal_gda.md:198
@@ -2149,7 +2149,7 @@ msgid "Default `precision`"
 msgstr "默认 `precision`"
 
 #: manual/api/binary_checked.md:90
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 msgid "Delegates to"
 msgstr "委托给"
 
@@ -2547,7 +2547,7 @@ msgid "Deprecated"
 msgstr "已弃用"
 
 #: manual/api/binary_checked.md:843
-#: manual/api/decimal_checked.md:410
+#: manual/api/decimal_checked.md:408
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
 #: manual/api/interval_checked.md:530
@@ -4617,84 +4617,80 @@ msgid "Operations that cannot fail"
 msgstr "不会失败的运算"
 
 #: manual/api/decimal_checked.md:236
-msgid "Use the left pipeline's context to apply the corresponding IEEE decimal operation to its current value and the right operand."
-msgstr "使用左侧流水线的上下文，对其当前值和右操作数应用对应的 IEEE 十进制运算。"
+msgid "These methods apply the corresponding IEEE decimal operation to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`."
+msgstr "这些方法在左侧流水线所存储的上下文下，对当前值和一个流水线操作数应用对应的 IEEE 十进制运算。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。"
 
-#: manual/api/decimal_checked.md:239
-msgid "The right operand is another `DecimalChecked`. If the left state already has an error, the method returns it unchanged. Otherwise, an error in the right operand stops the operation and keeps the left value. The right operand's flags join the left state's `raised` and accumulated `flags` before the operation runs."
-msgstr "右操作数是另一个 `DecimalChecked`。如果左侧状态已有错误，该方法会原样返回它。否则，右操作数中的错误会在运算前停止操作，并保留左侧的值。运算前，右操作数的标志会并入左侧状态的 `raised` 和累积 `flags`。"
-
-#: manual/api/decimal_checked.md:245
+#: manual/api/decimal_checked.md:243
 msgid "`DecimalChecked::from_decimal(x, ctx)` lifts a plain value by applying the context. A signaling NaN is quieted and raises `invalid_operation` during this lift. To use the operand exactly, lift it in a context wide enough to hold it, such as `decimal128`, as IEEE 754-2019 5.1 requires for operands. Lifting it in the left pipeline's context rounds the operand first and rounds the operation's result again. With three-digit precision and half-even rounding, `1.00 + 0.24500001` gives `1.25` when lifted in a wide context and `1.24` when lifted at three digits: the operand becomes `0.245` with `inexact`, and the sum `1.00 + 0.245` is a tie rounded to even. Both results match the chosen operand conversion."
 msgstr "`DecimalChecked::from_decimal(x, ctx)` 通过应用上下文来提升普通值。提升时，信号 NaN 会变为静默 NaN 并设置 `invalid_operation`。要精确使用操作数，应在足以容纳它的上下文（例如 `decimal128`）中提升；IEEE 754-2019 5.1 要求运算操作数精确。若使用左侧流水线的上下文，操作数会先舍入，运算结果随后再次舍入。精度为三位并采用半值取偶舍入时，宽上下文中的 `1.00 + 0.24500001` 得到 `1.25`；在三位精度下提升则得到 `1.24`：操作数变为带有 `inexact` 的 `0.245`，而 `1.00 + 0.245` 是舍入到偶数的中点。两个结果都符合所选择的操作数转换方式。"
 
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:271
 #: manual/api/decimal_gda.md:680
 #: manual/api/decimal_gda.md:1846
 msgid "Method"
 msgstr "方法"
 
-#: manual/api/decimal_checked.md:275
+#: manual/api/decimal_checked.md:273
 msgid "$\\lvert v\\rvert$ rounded into the context"
 msgstr "舍入到上下文的 $\\lvert v\\rvert$"
 
-#: manual/api/decimal_checked.md:276
+#: manual/api/decimal_checked.md:274
 msgid "$v \\circ y$ correctly rounded"
 msgstr "正确舍入的 $v \\circ y$"
 
-#: manual/api/decimal_checked.md:277
+#: manual/api/decimal_checked.md:275
 msgid "$v \\cdot m + a$ with one rounding"
 msgstr "只舍入一次的 $v \\cdot m + a$"
 
-#: manual/api/decimal_checked.md:278
+#: manual/api/decimal_checked.md:276
 msgid "$\\sqrt{v}$ correctly rounded"
 msgstr "正确舍入的 $\\sqrt{v}$"
 
-#: manual/api/decimal_checked.md:279
+#: manual/api/decimal_checked.md:277
 msgid "$v$ rounded to the exponent of `q`"
 msgstr "舍入到 `q` 的指数的 $v$"
 
-#: manual/api/decimal_checked.md:280
+#: manual/api/decimal_checked.md:278
 msgid "the number $10^q$ for the exponent $q$ of $v$ (IEEE 754-2019 5.3.2)"
 msgstr "$v$ 的指数 $q$ 对应的数 $10^q$（IEEE 754-2019 §5.3.2）"
 
-#: manual/api/decimal_checked.md:281
+#: manual/api/decimal_checked.md:279
 msgid "IEEE remainder $v - d \\cdot n$, $n$ = $v/d$ rounded to nearest, ties to even"
 msgstr "IEEE 余数 $v - d \\cdot n$，$n$ = $v/d$ 舍入到最近（平局取偶）"
 
-#: manual/api/decimal_checked.md:282
+#: manual/api/decimal_checked.md:280
 msgid "IEEE 754-2019 9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number; a signaling NaN gives the number and raises `invalid_operation`"
 msgstr "IEEE 754-2019 9.6 `minimumNumber`/`maximumNumber`：静默 NaN 小于数值；信号 NaN 返回该数值并设置 `invalid_operation`"
 
-#: manual/api/decimal_checked.md:283
+#: manual/api/decimal_checked.md:281
 msgid "adjacent representable value"
 msgstr "相邻的可表示值"
 
-#: manual/api/decimal_checked.md:285
+#: manual/api/decimal_checked.md:283
 msgid "The General Decimal Arithmetic `min` and `max` operations are in `decimal_gda`, not this IEEE wrapper."
 msgstr "General Decimal Arithmetic 的 `min` 和 `max` 运算位于 `decimal_gda`，不属于这个 IEEE 包装器。"
 
-#: manual/api/decimal_checked.md:288
+#: manual/api/decimal_checked.md:286
 msgid "An operation on a state with an error returns it unchanged. Otherwise the context operation produces $(v', r') = \\mathrm{op}(v, c)$ and the new state is $(v', c, r', F \\lor r', \\text{none})$. An invalid operation returns NaN with `invalid_operation`; division by zero returns an infinity with `division_by_zero`; overflow returns an infinity or the largest finite value with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
 msgstr "对带有错误的状态执行运算时，原状态保持不变。否则，上下文运算产生 $(v', r') = \\mathrm{op}(v, c)$，新状态为 $(v', c, r', F \\lor r', \\text{none})$。无效运算返回带有 `invalid_operation` 的 NaN；除以零返回带有 `division_by_zero` 的无穷；上溢返回无穷或最大有限值，并设置 `overflow` 和 `inexact`，这符合 IEEE 754 十进制算术。"
 
-#: manual/api/decimal_checked.md:315
+#: manual/api/decimal_checked.md:313
 msgid "Operations that can record an error"
 msgstr "可能记录错误的运算"
 
-#: manual/api/decimal_checked.md:319
+#: manual/api/decimal_checked.md:317
 msgid "Apply the certified `Decimal::try_*_ctx` function with the same name."
 msgstr "应用同名且带认证的 `Decimal::try_*_ctx` 函数。"
 
-#: manual/api/decimal_checked.md:363
+#: manual/api/decimal_checked.md:361
 msgid "The results follow `decimal`, including its exact result for some non-integral powers before refinement; see [elementary functions](decimal.md#elementary-functions). For example, $0.0016^{0.25} = 0.2$ is exact. `atan2` with zero or infinite operands returns IEEE values; an `atan2` of $+\\infty$ and 1 returns $\\pi/2$, inexact. Domain violations also return IEEE values with flags: `ln` of a negative number returns NaN with `invalid_operation`, and `tanpi(0.5)` returns an infinity with `division_by_zero`."
 msgstr "结果遵循 `decimal` 的行为，包括在细化前确定某些非整数幂的精确结果；参见[初等函数](decimal.md#elementary-functions)。例如，$0.0016^{0.25} = 0.2$ 是精确结果。`atan2` 的零和无穷操作数返回 IEEE 值；`atan2` 的参数为 $+\\infty$ 和 1 时，结果为 $\\pi/2$，且不精确。定义域违规也会返回带标志的 IEEE 值：负数的 `ln` 返回带有 `invalid_operation` 的 NaN，`tanpi(0.5)` 返回带有 `division_by_zero` 的无穷。"
 
-#: manual/api/decimal_checked.md:372
+#: manual/api/decimal_checked.md:370
 msgid "These methods record an error only when `try_*_ctx` returns `Err` with a `CertificationFailure`, meaning the correctly rounded result could not be certified within the refinement budget. In that case the new state is $(v, c, r, F, \\mathrm{Some}(e))$; the value and flags from before the step remain."
 msgstr "只有当 `try_*_ctx` 返回带有 `CertificationFailure` 的 `Err` 时，这些方法才会记录错误；这表示在细化预算内无法认证正确舍入的结果。此时新状态为 $(v, c, r, F, \\mathrm{Some}(e))$；步骤之前的值和标志保持不变。"
 
-#: manual/api/decimal_checked.md:378
+#: manual/api/decimal_checked.md:376
 msgid "[!IMPORTANT] As an implementation limit (`DEC_MAX_MATH` in decNumber, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require context precision and exponent limits within 999,999. A context with `e_max` above 999,999, or with precision of 1,000 digits or more and no explicit `e_max`, returns NaN with `not_computed`; the `try_` forms return `Err` with a certification failure. Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` no greater than 999,999. `pow` and `pown` with an integral exponent, and `pow` with exponent `0.5`, are not restricted."
 msgstr "[!IMPORTANT] 作为实现限制（decNumber 中的 `DEC_MAX_MATH`，由 decTest 套件要求，并为 GDA Invalid context 条件所允许），这些运算要求上下文精度和指数限制均不超过 999,999。当 `e_max` 大于 999,999，或精度至少为 1,000 位且未显式指定 `e_max` 时，运算返回带有 `not_computed` 的 NaN；对应的 `try_` 形式返回带有认证失败的 `Err`。请使用 `decimal32()`、`decimal64()`、`decimal128()`，或显式指定不大于 999,999 的 `e_max`。整数指数下的 `pow` 和 `pown`，以及指数为 `0.5` 的 `pow` 不受此限制。"
 
@@ -31437,6 +31433,18 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:945
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Use the left pipeline's context to apply the corresponding IEEE decimal operation. The unary methods use the current value alone. The binary methods `add`, `sub`, `mul`, `div`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_down` and `next_up` take one right pipeline operand; `fma` takes two pipeline operands."
+#~ msgstr "使用左侧流水线的上下文应用对应的 IEEE 十进制运算。 一元方法只使用当前值。二元方法 `add`、`sub`、`mul`、`div`、`quantize`、`remainder`、`minimum_number`、`maximum_number`、`next_down` 和 `next_up` 各接收一个右侧流水线操作数；`fma` 接收两个流水线操作数。"
+
+#~ msgid "For methods with pipeline operands, an error in the left pipeline remains an error; an error in a right pipeline is taken before the operation runs and the left value is kept. The right pipeline's conditions join `raised` and `flags`."
+#~ msgstr "对于带有流水线操作数的方法，左侧流水线中的错误仍是错误；右侧流水线中的错误会在运算执行前被采用，并保留左侧的值。右侧流水线的条件会并入 `raised` 和 `flags`。"
+
+#~ msgid "Use the left pipeline's context to apply the corresponding IEEE decimal operation to its current value and the right operand."
+#~ msgstr "使用左侧流水线的上下文，对其当前值和右操作数应用对应的 IEEE 十进制运算。"
+
+#~ msgid "The right operand is another `DecimalChecked`. If the left state already has an error, the method returns it unchanged. Otherwise, an error in the right operand stops the operation and keeps the left value. The right operand's flags join the left state's `raised` and accumulated `flags` before the operation runs."
+#~ msgstr "右操作数是另一个 `DecimalChecked`。如果左侧状态已有错误，该方法会原样返回它。否则，右操作数中的错误会在运算前停止操作，并保留左侧的值。运算前，右操作数的标志会并入左侧状态的 `raised` 和累积 `flags`。"
 
 #~ msgid "their corresponding `_ctx` operations"
 #~ msgstr "各自对应的 `_ctx` 操作"
