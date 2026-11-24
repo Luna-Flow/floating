@@ -8,10 +8,12 @@ current value, one `DecimalContext`, the flags raised by the latest step, the
 flags accumulated over all steps, and an optional `ArithmeticError`. Each
 operation applies the matching `Decimal::*_ctx` operation under the stored
 context. IEEE exceptional results (infinities, NaNs, rounded values) remain
-values and set flags; only failure to certify an elementary function records
+values and only set flags; only failure to certify an elementary function records
 an error and stops the pipeline. The
 [tutorial](../tutorial/decimal_checked.md) shows typical pipelines; the
-[design page](../design/decimal_checked.md) proves the flag accumulation rule.
+[design page](../design/decimal_checked.md) models the state as a writer monad
+over the flag monoid and proves that the accumulated flags are the union of the
+per-step flags.
 
 ## Importing
 
@@ -242,14 +244,14 @@ left pipeline is kept), and the conditions of the right pipeline join
 
 `DecimalChecked::from_decimal(x, ctx)` lifts a plain value by applying the context. A
 signaling NaN is quieted and raises `invalid_operation` during this lift. To
-use the operand exactly, lift it in a context wide enough to hold it, such as
-`decimal128`, as IEEE 754-2019 5.1 requires for operands. Lifting it in the
-left pipeline's context rounds the operand first and rounds the operation's
-result again. With three-digit precision and half-even rounding,
-`1.00 + 0.24500001` gives `1.25` when lifted in a wide context and `1.24` when
-lifted at three digits: the operand becomes `0.245` with `inexact`, and the
-sum `1.00 + 0.245` is a tie rounded to even. Both results match the chosen
-operand conversion.
+use the operand exactly, as IEEE 754-2019 5.1 does (operands exact, one
+rounding of the result), lift it in a context wide enough to hold it, for
+example `decimal128`; lifting it in the context of the left pipeline rounds it
+first and then the result, two roundings. At three digits, half-even,
+`1.00 + 0.24500001` is `1.25` with the operand lifted in a wide context, and
+`1.24` with the operand lifted at three digits (it becomes `0.245` with
+`inexact`, and `1.00 + 0.245` is a tie that rounds to even); each is right for
+what was asked.
 
 ```mbti
 pub fn DecimalChecked::abs(Self) -> Self
