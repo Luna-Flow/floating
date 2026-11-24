@@ -11438,7 +11438,7 @@ msgstr ""
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:317
 #: manual/design/bench/interval.md:67
-#: manual/design/binary.md:2185
+#: manual/design/binary.md:2186
 #: manual/design/binary_checked.md:331
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -12935,7 +12935,7 @@ msgstr ""
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:297
 #: manual/design/bench/interval.md:51
-#: manual/design/binary.md:2112
+#: manual/design/binary.md:2113
 #: manual/design/binary_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -12990,7 +12990,7 @@ msgstr ""
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:307
 #: manual/design/bench/interval.md:60
-#: manual/design/binary.md:2160
+#: manual/design/binary.md:2161
 #: manual/design/binary_checked.md:318
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -13540,7 +13540,7 @@ msgid "`binary` implements IEEE 754 binary floating-point arithmetic at any prec
 msgstr ""
 
 #: manual/design/binary.md:16
-msgid "Every operation of `binary` returns the value that IEEE 754-2019 requires of a correctly rounded operation, $\\circ(f(x))$ for the exact real $f(x)$, together with exactly the IEEE status flags, for every precision $p$ from 1 to $2^{28}$ bits and every exponent range up to $\\pm(2^{30}-1)$. The same code serves two audiences: arbitrary-precision numerics that need dyadic values far beyond `Double`, and bit-exact emulation of binary16, binary32, binary64 and binary128 including subnormals, the five rounding directions and both tininess rules. There is no hidden state: precision, rounding and range travel in an immutable `BinaryContext`, and flags travel back as a value. The basic operations, conversions and `pown` meet this goal unconditionally; the certified elementary functions meet it for every value they return, with the budget failures and the one undetected family of exact results described under [Certified elementary functions](#certified-elementary-functions)."
+msgid "Every operation of `binary` returns the value that IEEE 754-2019 requires of a correctly rounded operation, $\\circ(f(x))$ for the exact real $f(x)$, together with exactly the IEEE status flags, for every precision $p$ from 1 to $2^{28}$ bits and every exponent range with $e_{\\max}$ up to $2^{30}-1$ and $e_{\\min} = 1 - e_{\\max}$. The same code serves two audiences: arbitrary-precision numerics that need dyadic values far beyond `Double`, and bit-exact emulation of binary16, binary32, binary64 and binary128 including subnormals, the five rounding directions and both tininess rules. There is no hidden state: precision, rounding and range travel in an immutable `BinaryContext`, and flags travel back as a value. The basic operations, conversions and `pown` meet this goal unconditionally; the certified elementary functions meet it for every value they return, with the budget failures and the one undetected family of exact results described under [Certified elementary functions](#certified-elementary-functions)."
 msgstr ""
 
 #: manual/design/binary.md:33
@@ -14180,7 +14180,7 @@ msgid "Second, the enclosure must shrink onto $f(x)$ fast enough. The series sto
 msgstr ""
 
 #: manual/design/binary.md:936
-msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exact_dyadic` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
+msgid "**Exact powers and roots.** An integral exponent with $|y| < 2^{31}$ goes to `pown`. A larger integral $y$ needs no filter: for $x = c \\cdot 2^e$ with $c > 1$ odd, $c^{|y|}$ has more than $2^{31} > p + 1$ bits, and a power of two $2^{ey}$ lies outside every exponent range, so neither is a breakpoint. Every other exponent is $y = m / 2^k$ with $m$ odd and $k \\ge 1$. If $x^y$ is rational, so is $q = x^{|y|}$, and $x^{|m|} = q^{2^k}$; comparing the exponents of $2$ and of each odd prime gives $q = a \\cdot 2^f$ with $a$ odd, $e|m| = f \\cdot 2^k$ and $c^{|m|} = a^{2^k}$. Since $|m|$ is odd, $2^k \\mid e$ and every prime exponent of $c$ is divisible by $2^k$, so $c = r^{2^k}$ and $q = r^{|m|} \\cdot 2^{e|m|/2^k}$. Conversely these values are exact. So a rational `pow` result exists exactly under these two divisibility conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$, which is dyadic only when $r = 1$. Every other `pow` result is irrational. `binary_pow_exactness` computes the dyadic results and rounds them once, unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has more than $p + 1$ significant bits and is not a breakpoint). The same argument with $1/|n|$ in place of $|y|$ shows that $\\operatorname{rootn}(x, n)$ is rational exactly when $|n| \\mid e$ and $c = r^{|n|}$; `rootn` returns $\\pm r \\cdot 2^{e/|n|}$ rounded once for $n > 0$, and for $n < 0$ the correctly rounded quotient $1 / (\\pm r \\cdot 2^{e/|n|})$, which division decides with the right `inexact` flag although it need not be dyadic. The perfect-power test has no size limit. It first takes square roots with remainder for every factor $2$ of the degree, stopping at the first nonzero remainder, and then the floor of the remaining odd root: by bisection while the root has at most 64 bits, otherwise by integer Newton steps $r \\leftarrow \\lfloor ((d-1) r + \\lfloor c / r^{d-1} \\rfloor) / d \\rfloor$ started just above the root, which decrease monotonically to $\\lfloor c^{1/d} \\rfloor$; one power $r^d$ then decides exactness. A coefficient with at most $d$ bits other than $1$ is rejected at once, because $r \\ge 2$ gives $r^d \\ge 2^d$."
 msgstr ""
 
 #: manual/design/binary.md:966
@@ -14448,7 +14448,7 @@ msgid "**Choice.** Keep the Ziv loop, its working precisions and the exact cases
 msgstr ""
 
 #: manual/design/binary.md:1254
-msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `Coeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `Binary::make(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is what the existing fixed-point series already does."
+msgid "*Integer enclosures.* All new kernels work on non-negative integers in units of $2^{-F}$ with $F = w + g$, using only `Coeff` operations (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`, `bit_length`), which exist on every target, so the same source runs on native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a pair $(\\ell, u)$ of integers with the invariant $\\ell \\le E \\cdot 2^{F} \\le u$. Every step produces a new pair from the old ones by monotone operations on non-negative numbers, so the invariant is proved step by step, and the final width $u - \\ell$ is a computed integer, not an estimate. The last step converts to `Binary::make_coeff(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is what the existing fixed-point series already does."
 msgstr ""
 
 #: manual/design/binary.md:1267
@@ -14546,7 +14546,7 @@ msgid "*Ceiling.* At 8192 bits the kernel takes the time of 35 to 45 full-size p
 msgstr ""
 
 #: manual/design/binary.md:1501
-msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
+msgid "**`exp`, by tables and rectangular splitting (medium precision).** Below a per-target working precision (1536 to 3072 bits, see below) the enclosure of $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the scheme of Johansson, *Efficient implementation of elementary functions in the medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer arithmetic of `Coeff`. Let $F = w + g$ rounded up to a multiple of 64 ($\\ge 128$; multiples of 256 above 1024), so $g \\ge 16$. The reduction to $R_t = \\lfloor 2^F R \\rfloor / 2^F \\in [0, \\ln 2)$ and the residual factor $e^{\\delta}$ are those of the bit-burst kernel above (3 units below, 6 above in units of $2^{-F}$, valid because $e^{R_t} < 3$), the very code of `fixed_exp_reduce` and `fixed_exp_finish` (toolkit piece 6). The Taylor series of the remainder is the rectangular splitting of toolkit piece 5 with the coefficients $N!/i!$; its error bound is stated there and not repeated below. Then, with $K = k_1 + k_2$ ($(k_1,k_2) = (7,7)$ for $F \\le 256$, $(6,6)$ up to 1024, $(6,5)$ above),"
 msgstr ""
 
 #: manual/design/binary.md:1524
@@ -14578,7 +14578,7 @@ msgid "*Evidence.* `elementary_table_exp_wbtest.mbt`: containment of the series 
 msgstr ""
 
 #: manual/design/binary.md:1595
-msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
+msgid "*Measured (release, this machine, kernel only, $x \\approx 0.7$).* Native: 53 bits 7 µs against 10 µs for the series; 100 bits 2.5 against 5.6; 300 bits 4.9 against 12.6 (bit-burst 24); 1000 bits 20 against 42 (burst 69); 2000 bits 94 against 111 (burst 143); 3000 bits 245 against 208. The crossovers (table kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC, 3072 on JavaScript) are per-target constants beside the bit-burst threshold. Above them the bit-burst kernel (from its own threshold) and the series are unchanged. The cost of the table kernel is dominated by a few dozen `Coeff` operations of 100 to 250 ns each at these sizes, and by the size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it loses there."
 msgstr ""
 
 #: manual/design/binary.md:1607
@@ -14698,7 +14698,7 @@ msgid "where $(P, Q, T)$ come from the Chudnovsky series (alternating, about 46 
 msgstr ""
 
 #: manual/design/binary.md:1844
-msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `BinCoeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
+msgid "*Implementation (`elementary_constants_split.mbt`).* The state of a series on an index range is $(p, q, t)$ with $p = \\prod p(k)$, $q = \\prod q(k)$ and $t = q \\cdot (\\text{partial sum})$, combined as $t = q_R t_L + p_L t_R$; the `artanh` series has $p(j) = 2j - 1$ and $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$, $q(k) = k^3\\, 640320^3 / 24$ and the leaf $t = \\pm p(k)(A + Bk)$. Only the Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned `Coeff` suffices and the code is the same on every target. The partial sum $t/q$ is exact; the only roundings are the final directed divisions and $\\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is rounded outward to $w$ bits."
 msgstr ""
 
 #: manual/design/binary.md:1857
@@ -14722,7 +14722,7 @@ msgid "**Working-precision schedule and the Ziv loop.** The attempt precisions $
 msgstr ""
 
 #: manual/design/binary.md:1923
-msgid "**Allocation and targets.** `BinCoeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). The `ln` series loop already runs on limb arrays on the non-JavaScript targets (see \"The `ln` series loop on limb arrays\"). A fused in-place multiply-shift-divide loop on a mutable limb array for the other stages, which still allocate per term, would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `BinCoeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
+msgid "**Allocation and targets.** `Coeff` values are immutable, so each term of a fixed-point stage allocates four arrays of up to $w/32$ limbs (product, shift, quotient, sum); on native these are included in the measured unit costs above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits). The `ln` series loop already runs on limb arrays on the non-JavaScript targets (see \"The `ln` series loop on limb arrays\"). A fused in-place multiply-shift-divide loop on a mutable limb array for the other stages, which still allocate per term, would remove most of that for the non-JavaScript targets, and is a later optimization behind the same function, not part of the design. On JavaScript `Coeff` is a `bigint`: products, shifts and divisions are the engine's, with a larger constant per operation and an asymptotically faster product, so the stage boundaries and every threshold are measured separately on native, LLVM, Wasm, Wasm-GC and JavaScript and kept next to the coefficient-kernel thresholds. The source of the kernels is shared; only the constants differ."
 msgstr ""
 
 #: manual/design/binary.md:1939
@@ -14843,100 +14843,100 @@ msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of dat
 msgstr ""
 
 #: manual/design/binary.md:2099
-msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
+msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. `==` is `Eq`, which is `compare(x, y) == 0`, so it ignores the sign of a zero, the precision and the payload of a NaN; the structural equality, the only one that is a congruence for every method (precision and payload included), is `identical`."
 msgstr ""
 
-#: manual/design/binary.md:2114
+#: manual/design/binary.md:2115
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr ""
 
-#: manual/design/binary.md:2118
+#: manual/design/binary.md:2119
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `apply_ctx` is idempotent."
 msgstr ""
 
-#: manual/design/binary.md:2123
+#: manual/design/binary.md:2124
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min_num` and `max_num` return a value and no flags; $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ return $1$ for a quiet NaN operand without the flag (a signaling NaN operand raises it). `combine` is associative, commutative and idempotent."
 msgstr ""
 
-#: manual/design/binary.md:2133
+#: manual/design/binary.md:2134
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr ""
 
-#: manual/design/binary.md:2137
+#: manual/design/binary.md:2138
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `interval` and the directed square roots of `sqrt_ctx` rely on."
 msgstr ""
 
-#: manual/design/binary.md:2141
+#: manual/design/binary.md:2142
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr ""
 
-#: manual/design/binary.md:2145
+#: manual/design/binary.md:2146
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr ""
 
-#: manual/design/binary.md:2154
+#: manual/design/binary.md:2155
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr ""
 
-#: manual/design/binary.md:2158
+#: manual/design/binary.md:2159
 msgid "[Rounding and exactness proofs for the binary package](../../attachments/design_binary_rounding_proofs.typ)"
 msgstr ""
 
-#: manual/design/binary.md:2162
+#: manual/design/binary.md:2163
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr ""
 
-#: manual/design/binary.md:2166
+#: manual/design/binary.md:2167
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr ""
 
-#: manual/design/binary.md:2171
+#: manual/design/binary.md:2172
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr ""
 
-#: manual/design/binary.md:2174
+#: manual/design/binary.md:2175
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr ""
 
-#: manual/design/binary.md:2178
+#: manual/design/binary.md:2179
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr ""
 
-#: manual/design/binary.md:2182
+#: manual/design/binary.md:2183
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr ""
 
-#: manual/design/binary.md:2187
+#: manual/design/binary.md:2188
 msgid "`binary` deliberately does not:"
 msgstr ""
 
-#: manual/design/binary.md:2189
+#: manual/design/binary.md:2190
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `interval` builds inf-sup interval arithmetic (a lower bound and an upper bound) on top of `Binary`;"
 msgstr ""
 
-#: manual/design/binary.md:2192
+#: manual/design/binary.md:2193
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr ""
 
-#: manual/design/binary.md:2194
+#: manual/design/binary.md:2195
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr ""
 
-#: manual/design/binary.md:2196
+#: manual/design/binary.md:2197
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr ""
 
-#: manual/design/binary.md:2198
+#: manual/design/binary.md:2199
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr ""
 
-#: manual/design/binary.md:2201
+#: manual/design/binary.md:2202
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr ""
 
-#: manual/design/binary.md:2203
+#: manual/design/binary.md:2204
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/binary.md)."
 msgstr ""
 
