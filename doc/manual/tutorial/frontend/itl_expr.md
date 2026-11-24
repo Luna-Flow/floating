@@ -77,7 +77,7 @@ hexadecimal (`0x1.8p1`) text, and the literals `[empty]`, `[entire]` and
 
 A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected
 value makes the decoration part of the test. Without a suffix only the set is
-compared. Failure messages print intervals in midpoint-radius form:
+compared. Failure messages print intervals in inf-sup form:
 
 ```moonbit
 ///|

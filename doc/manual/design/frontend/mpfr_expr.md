@@ -47,11 +47,11 @@ and checks:
 
 | Format | Value check | Flag check |
 | --- | --- | --- |
-| square root | $\hat y = y$ as `Binary` values (`==`) | none |
-| integer power $x^n$ | $\hat y = y$ (`==`) | inexact equal; no underflow, overflow, division by zero, invalid |
+| square root | $\hat y = y$ as `Binary` values (`identical`) | none |
+| integer power $x^n$ | $\hat y = y$ (`identical`) | inexact equal; no underflow, overflow, division by zero, invalid |
 | elementary | $\hat y \simeq y$ (`compare == 0`, zeros with their sign) | inexact, invalid, division by zero equal; no underflow, overflow |
 
-`==` on `Binary` compares the stored representation, which is canonical for
+`identical` on `Binary` compares the stored representation, which is canonical for
 a given value and precision, so it distinguishes $+0$ from $-0$ and NaN
 payloads. `compare == 0` is numeric equality extended so that every NaN
 compares equal to every NaN and $+0 = -0$.
@@ -71,10 +71,12 @@ a failure: it can only come from a defect.
 ### Inputs read at 512 bits
 
 Inputs are written in hexadecimal and are exact binary numbers. Reading
-elementary and power inputs at 512 bits keeps every input of up to 512
+power inputs at 512 bits keeps every input of up to 512
 significant bits exact, so the check concerns $f$, not the parsing of $x$. A
-longer input significand would be rounded to nearest-even at 512 bits and the
-row would then test $f$ at a different point. Every input of the committed
+longer power input significand would be rounded to nearest-even at 512 bits and the
+row would then test $f$ at a different point. Elementary inputs are read at 512
+bits or at four bits per character of the token when that is more, so they are
+never rounded. Every input of the committed
 elementary matrix has far fewer significant bits than 512. The
 square-root format carries its own input precision and is read at it.
 
@@ -135,7 +137,7 @@ execution never meets a missing operand.
 - Square-root rows check values only, not flags.
 - Elementary rows do not check NaN payloads.
 - No exponent range, subnormals or overflow handling are exercised.
-- Only the three formats above are understood; there is no general MPFR test
-  file reader.
+- Only the seven formats of the [API page](../../api/frontend/mpfr_expr.md) are
+  understood; there is no general MPFR test file reader.
 - File reading, format detection and exit codes are in
   [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md).

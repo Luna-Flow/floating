@@ -36,7 +36,7 @@ pub fn run(Array[String]) -> Int
 `--json` and exactly one path. After `--json` is removed, any other number of
 arguments (none, or two or more, including shard options, which are disabled
 for this runner) prints
-`usage: mpfr-expr [--json] <MPFR sqrt, pow, or elementary corpus>`. A single
+`usage: mpfr-expr [--json] <MPFR sqrt, pow, elementary, strtofr, or decimal output corpus>`. A single
 remaining argument is always taken as the path, even when it starts with `-`:
 `--help` or a mistyped option is reported as `cannot read file: --help`. Both
 cases return `2`.
@@ -47,14 +47,16 @@ The format is chosen from the file content:
 | --- | --- | --- | --- |
 | `mpfr-decimal-random-v2` | seeded random decimal differential rows | `parse_decimal_random_data`, `execute_decimal_random_data` | `mpfr-4.2.2-decimal-random` |
 | `mpfr-random-v1` | seeded random differential rows | `parse_random_data`, `execute_random_data` | `mpfr-4.2.2-random` |
+| `mpfr-strtofr-v1` (and not the above) | decimal text to binary conversion | `parse_strtofr_data`, `execute_strtofr_data` | `mpfr-4.2.2-strtofr` |
+| `mpfr-decimal-output-v1` (and not the above) | binary to decimal digits conversion | `parse_decimal_output_data`, `execute_decimal_output_data` | `mpfr-4.2.2-decimal-output` |
 | `mpfr-elementary-v1` | elementary matrix | `parse_elementary_data`, `execute_elementary_data` | `mpfr-4.2.2-elementary` |
 | `input_coefficient_hex` (and not the above) | integer powers | `parse_pow_data`, `execute_pow_data` | `mpfr-4.2.2-pow-si` |
-| neither | square-root `data_check` | `parse_sqrt_data`, `execute_sqrt_data` | `mpfr-4.2.2-sqrt` |
+| none of these | square-root `data_check` | `parse_sqrt_data`, `execute_sqrt_data` | `mpfr-4.2.2-sqrt` |
 
 On a parse error the first diagnostic is printed as `source:line:1: message`.
 Text output prints a title, `cases`, `passed cases`, `failed cases` and one
 `failed ID: MESSAGE` line per failure. JSON output has the keys `corpus`,
-`totalCases`, `passedCases`, `failedCases` and `failedIds`.
+`frontend` (always `mpfr`), `totalCases`, `passedCases`, `failedCases` and `failedIds`.
 
 Return value: `2` for usage, file or parse errors (including an elementary
 `pow`, `hypot` or `atan2` row whose second operand is `-`, see

@@ -244,9 +244,10 @@ numbered $0, 1, 2, \dots$ and row $k$ is executed when
 $k \bmod n = i$ for shard count $n$ and shard index $i$. Each executed row
 first gets a disposition:
 
-- `Diagnostic` if the context is invalid (precision not positive, or
-  `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the
-  expected result is exactly `#`;
+- `Diagnostic` if the context is invalid (precision not positive or above
+  $999999999$, `minexponent` outside $-999999999$ to $0$, `maxexponent` outside
+  $0$ to $999999999$, or the magnitudes of the two differing by more than one),
+  an operand is exactly `#` or `?`, or the expected result is exactly `#`;
 - `Unsupported` if a condition is not one of the thirteen GDA conditions,
   the operation is not implemented, or the rounding directive is not
   recognized;
@@ -343,11 +344,14 @@ pub struct CaseResult {
 ### `CaseResult::id`, `CaseResult::disposition`, `CaseResult::passed`, `CaseResult::message`
 
 These methods return the row id, its disposition, whether it passed, and a
-message: empty for a pass, `"skipped"` for a non-executable row,
-`"evaluation failed"` when an operand could not be decoded or the operation
-rejected its operands, and otherwise a
+message: the kind of verdict for a pass (`"text"`, `"hex"`,
+`"format-prefixed"`, `"value-not-checked"` or `"deviation"`), `"skipped"` for a
+non-executable row, `"evaluation failed"` when an operand could not be decoded
+or the operation rejected its operands, and otherwise a
 `"result mismatch: expected …, actual …"` or
-`"status flags mismatch: expected …, actual …"` text.
+`"status flags mismatch: expected …, actual …"` text, or, for a deviation record
+that does not match its row, `"deviation of … records the corpus value …, the
+row has …"`.
 
 ```mbti
 pub fn CaseResult::id(Self) -> String
@@ -492,8 +496,8 @@ pub fn ParseDiagnostic::to_repr(Self) -> @debug.Repr
 
 ### `RunOptions::equal`, `RunOptions::not_equal`, `RunOptions::to_repr`
 
-`equal` compares the shard, the strict flag and the filter text; `to_repr`
-renders them.
+`equal` compares the shard, the strict flag, the filter text and the
+deviations; `to_repr` renders them.
 
 ```mbti
 pub fn RunOptions::equal(Self, Self) -> Bool

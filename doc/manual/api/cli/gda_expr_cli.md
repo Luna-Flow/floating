@@ -42,6 +42,7 @@ pub fn run(Array[String]) -> Int
 | `--shard-count N`, `--shard-index I` (also `=` forms) | run shard `I` of `N` (default `1`, `0`) |
 | `--strict-supported` | also fail when a selected row is unsupported or legacy |
 | `--cases SPEC`, `--cases=SPEC` | row filter: comma-separated ids or `first..last` ranges (see `RunOptions::new`) |
+| `--deviations FILE` | judge the rows recorded in the tab-separated `FILE` against their held values: at least five fields per line (corpus, file, id, corpus value, held value), the eighth is the held flags, and blank lines and lines starting with `#` are skipped (see `RunOptions::new`) |
 | `--help`, `-h` | print the usage line and return `2` |
 | `PATH …` | `.decTest` files or directories (direct file entries ending in `.decTest`); default `testdata/decimal_gda/smoke.decTest` |
 
@@ -55,12 +56,14 @@ each file is run once even if named twice, parsed in order (the first parse diag
 ordinals and shards span all files.
 
 Text output lists the counts (`cases`, `selected cases`, `executable cases`,
-`passed cases`, `failed cases`, `skipped cases`), the shard, and one
-`failed ID: MESSAGE` line per failing row. JSON output has the keys
+`passed cases`, `failed cases`, `skipped cases`), one `verdict KIND: N` line per
+kind of verdict (`text`, `hex`, `format-prefixed`, `value-not-checked`,
+`deviation`), the shard, and one `failed ID: MESSAGE` line per failing row. JSON output has the keys
 `totalCases`, `supportedCases` (executable rows), `diagnosticCases`,
 `legacyConditionCases`, `unsupportedCases` and an `execution` object with
 `executableCases`, `passedCases`, `failedCases`, `skippedCases`, `failedIds`,
-`shardCount`, `shardIndex`. `totalCases` counts the rows that match
+`verdictKinds` (an object with the count of each kind of verdict), `shardCount`,
+`shardIndex`. `totalCases` counts the rows that match
 `--cases` in all shards; every other counter, including the top-level
 `supportedCases`, `diagnosticCases`, `legacyConditionCases` and
 `unsupportedCases`, counts only the rows of this shard. `legacyConditionCases`

@@ -72,10 +72,10 @@ just conformance build decimal_gda    # or binary, interval
 sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help
 ```
 
-`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into
-`_build/conformance/<backend>/` and copies it to
-`<backend>-conformance.exe`, so parallel builds for different backends do not
-share a target directory.
+`tools/conformance_cli.py` builds `tooling/src/cli` into one shared target
+directory, `_build/conformance/cli/`, and copies the executable to
+`_build/conformance/<backend>/native/release/build/<backend>-conformance.exe`
+for each backend.
 
 ## Complete public interface
 

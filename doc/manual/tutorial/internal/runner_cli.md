@@ -4,8 +4,9 @@ The goal of this page is to show maintainers how to write a conformance runner
 in `cli/` with the shared helpers of `internal/runner_cli`: parse the common
 options, collect and read corpus files, report diagnostics, print a JSON
 summary and choose the exit code. The package is internal to
-`Luna-Flow/floating`; the examples are written for code inside the module and
-are not compiled by the manual checker.
+`Luna-Flow/floating-tools`; the examples are written for code inside the module
+and, except the `nocheck` import block, are compiled by the manual checker in
+the tools module.
 
 | I want to | Use |
 | --- | --- |

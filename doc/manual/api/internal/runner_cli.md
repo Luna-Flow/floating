@@ -7,7 +7,7 @@ conformance runners in `cli/`: parsing of the common options, reading files,
 collecting corpus files from directories, formatting diagnostics and building
 JSON output. It depends on `moonbitlang/x/fs`, so file access works on the
 targets that package supports (the runners are built for native). It is an
-internal package: code outside `Luna-Flow/floating` cannot import it. See the
+internal package: code outside `Luna-Flow/floating-tools` cannot import it. See the
 [tutorial](../../tutorial/internal/runner_cli.md) and the
 [design page](../../design/internal/runner_cli.md).
 
@@ -21,9 +21,8 @@ import {
 }
 ```
 
-The examples call the package as `@runner_cli.`. The manual's example checker
-has no alias for internal subpackages, so they are marked `nocheck`; their
-outputs were checked against the current source.
+The examples call the package as `@runner_cli.`. They are marked `nocheck`;
+their outputs were checked against the current source.
 
 ## Command-line options
 

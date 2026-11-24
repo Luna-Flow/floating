@@ -81,9 +81,9 @@ Shard `i` runs the vectors whose index is `i` modulo the shard count.
 
 ### JSON for scripts
 
-`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`,
-`selectedCases`, `passedCases`, `failedCases` and `failedIds`
-(`FUNCTION:LINE`).
+`--json` prints `frontend`, `function`, `rounding`, `tininess`, `exact`,
+`totalCases`, `selectedCases`, `passedCases`, `failedCases`, `failedIds`
+(`FUNCTION:LINE`) and `arms`.
 
 ## Going further
 

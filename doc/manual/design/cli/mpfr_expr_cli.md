@@ -5,7 +5,7 @@
 Run one MPFR reference file through
 [`frontend/mpfr_expr`](../frontend/mpfr_expr.md) with a single command, so
 that the binary conformance tooling can add MPFR evidence next to the
-TestFloat matrix without knowing the three file formats.
+TestFloat matrix without knowing the seven file formats.
 
 ## Mathematical background
 
@@ -51,4 +51,4 @@ data was produced with, so aggregated reports state their evidence source.
 ## Boundaries
 
 - No sharding, no filtering of rows.
-- Only the three formats of `frontend/mpfr_expr`.
+- Only the seven formats of `frontend/mpfr_expr`.

@@ -38,7 +38,7 @@ The frontend's `success()` already fails on diagnostic cases; the runner adds
 only the strict check on unsupported cases. Unreadable data in a pinned corpus
 is never an acceptable exclusion. The frontend classifies every unknown
 operation as unsupported whatever its operands, so a phase that runs a whole
-file without `--operation` (`sets`, `relations` and `reverse` in
+file without `--operation` (`sets` and `relations` in
 `interpreter_stages.json`) fails only on cases of operations it executes, and
 the unknown ones count against it only under `--strict-supported`.
 
@@ -59,6 +59,5 @@ the unknown ones count against it only under `--strict-supported`.
 ## Boundaries
 
 - Precision is fixed at the frontend default (53 bits).
-- No reverse operations, string conversions or signals (frontend
-  boundaries apply).
+- No string conversions or signals (frontend boundaries apply).
 - No text output mode.

@@ -92,8 +92,8 @@ pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 `precision` (default `53`, must be positive) is the significand precision of
 the interval format the case runs in: bounds are read at `precision` bits and
 interval and number results are rounded with
-`@interval.IntervalContext::new(precision=precision)`, which has the binary64
-exponent range. The default `53` is `IntervalContext::binary64()`, the format of the
+`@interval.IntervalContext::new(precision=precision, e_max=1023)`, which has the
+binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the
 ITF1788 data.
 
 Operands and expected values are read as follows. An interval literal is
@@ -106,9 +106,9 @@ This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup
 constructor of the target type as two floating constants, so a bound is the
 nearest number of the format, not the outward rounding that IEEE 1788
 `textToInterval` applies to an interval literal string; the corpus relies on
-it (`isSingleton [17.1, 17.1] = true`). A decimal bound is first read as a
-decimal of $2p + 16$ significant digits; a literal with more digits is rounded
-twice.
+it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by
+`Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so
+a literal of any length is rounded once.
 
 The case is dispatched on its operation and expected value:
 
@@ -117,14 +117,18 @@ The case is dispatched on its operation and expected value:
 | boolean | `isEmpty`, `isEntire`, `isNaI`, `isCommonInterval`, `isSingleton`, `equal`, `subset`, `interior`, `disjoint`, `precedes`, `strictPrecedes`, `less`, `strictLess`, `isMember` | `true` or `false` | equal booleans |
 | overlap | `overlap` | an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`) | equal names |
 | numeric | `inf`, `sup`, `mid`, `rad`, `wid`, `mag`, `mig` | a bound | equal numbers |
-| unary | `pos`, `neg`, `abs`, `recip`, `sqr`, `sqrt`, `exp`, `exp2`, `exp10`, `log`, `log2`, `log10`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | interval | equal sets |
+| unary | `pos`, `neg`, `abs`, `recip`, `sqr`, `sqrt`, `sign`, `ceil`, `floor`, `trunc`, `roundTiesToEven`, `roundTiesToAway`, `exp`, `exp2`, `exp10`, `log`, `log2`, `log10`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | interval | equal sets |
 | ternary | `fma` | interval | equal sets |
 | integer power | `pown` (second operand an integer) | interval | equal sets |
+| reverse | `sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, each also as `…Bin` (the prior interval comes before the integer power of `pownRev`) | interval | equal sets |
+| reverse, three operands or two results | `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` | interval (two for `mulRevToPair`) | equal sets |
 | binary | `add`, `sub`, `mul`, `div`, `pow`, `atan2`, `min`, `max`, `intersection`, `convexHull`, `cancelPlus`, `cancelMinus` | interval | equal sets |
 
 "Equal sets" means: both NaI, or both empty, or equal lower bounds and equal
 upper bounds (compared numerically, so $-0 = +0$). When the expected text
-contains `_`, the decorations must also be equal. The boolean dispatch is
+contains `_`, the decorations must also be equal. The bounds of the actual
+interval must also carry the labels that the representation requires: a bound
+has the precision of the interval exactly when it is a number of that format. The boolean dispatch is
 chosen whenever the expected text is `true` or `false`.
 
 Dispositions:
@@ -138,11 +142,11 @@ Dispositions:
   unreadable;
 - `Diagnostic(reason)` when the first operand of a boolean case, an operand of
   `isMember`, or an operand or the expected value of the overlap, numeric,
-  unary, ternary or integer-power dispatch, cannot be read, or an operand of
+  unary, ternary, integer-power or reverse dispatch, cannot be read, or an operand of
   the binary dispatch is not an interval literal.
 
 Support is decided from the operation name before any operand is read, so
-`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are
+`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `rsqrt [1.0,4.0]` are
 unsupported and do not count against `RunSummary::success`.
 
 `execute_case` does not abort on case content.

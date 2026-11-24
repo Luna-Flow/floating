@@ -3,7 +3,7 @@
 ## Purpose
 
 `frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes
-it against `binary`. Six formats are supported: MPFR's square-root
+it against `binary`. Seven formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
 exception flags, two corpora for decimal character conversion
 (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
@@ -27,9 +27,9 @@ text, so `binary` does not need to be imported.
 
 ## Common row syntax
 
-All five parsers split the text at `\n`, trim each line, and skip empty lines
+All seven parsers split the text at `\n`, trim each line, and skip empty lines
 and lines starting with `#`. Fields are separated by spaces, tabs or carriage
-returns. Line numbers start at 1. A rounding field is one of
+returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of
 
 | Field | `BinaryRoundingMode` |
 | --- | --- |
@@ -38,7 +38,6 @@ returns. Line numbers start at 1. A rounding field is one of
 | `z` | `RoundTowardZero` |
 | `u` | `RoundTowardPositive` |
 | `d` | `RoundTowardNegative` |
-| `a` | `RoundAwayFromZero` |
 
 and a number is read by `@binary.Binary::from_hex` (`0x…p…` with an
 integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the
@@ -69,7 +68,7 @@ where `ctx` is `BinaryContext::new(precision=output_precision, rounding~)`.
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 ```
 
-A row passes when the result is equal (`==`) to the expected `Binary`.
+A row passes when the result is identical (`Binary::identical`) to the expected `Binary`.
 Flags are not compared.
 
 ### `MpfrDocument`, `MpfrCase`
@@ -125,7 +124,7 @@ parser builds `0xCOEFFpEXP` from them.
 pub fn execute_pow_data(MpfrPowDocument) -> RunSummary
 ```
 
-A row passes when the result is equal (`==`) to the expected value, the
+A row passes when the result is identical (`Binary::identical`) to the expected value, the
 inexact flag equals the row's flag, and no underflow, overflow, division by
 zero or invalid flag is raised.
 
@@ -171,8 +170,8 @@ pub fn parse_elementary_data(String, String) -> Result[MpfrElementaryDocument, A
 `hypot`, `sin`, `cos`, `tan`,
 `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`,
 `atanpi`, `atan2pi`, `sinh`, `cosh`,
-`tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits
-(`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`,
+`tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits, or at four
+bits per character of the token when that is more (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`,
 `expected` is read at `precision` bits, and the last three fields are `0` or
 `1`. Row ids are `op:LINE`.
 
@@ -307,7 +306,7 @@ pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
 ## Seeded random rows
 
 `mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row
-per case, with precisions up to 10,000, six rounding directions, an optional
+per case, with precisions up to 10,000, five rounding directions, an optional
 exponent range with its tininess rule, up to three exact operands and the MPFR
 result with its flags. The full field list is in
 [`testdata/binary/README.md`](../../../../testdata/binary/README.md).
@@ -325,7 +324,7 @@ pub fn parse_random_data(String, String) -> Result[MpfrRandomDocument, Array[Par
 Parses the text (the first argument names the source). Blank lines and lines
 starting with `#` are skipped. Every other line must have thirteen fields, a
 known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of
-the elementary names), a rounding of `n na z u d a`, a positive precision, an
+the elementary names), a rounding of `n na z u d`, a positive precision, an
 exponent range that is either `- - -` or two integers and `a`/`b`, exact
 operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to
 `-` or a subset of `xouvz`. Operands and results are read at least at the row's
@@ -350,8 +349,8 @@ is the first field of the row.
 
 `mpfr-decimal-random-v2` rows come from `tools/generate_mpfr_decimal_random.py`:
 one row per case for the IEEE decimal elementary functions (`exp exp2 exp10
-expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh
-tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context
+expm1 exp2m1 exp10m1 ln log2 log10 log1p log2p1 log10p1 rsqrt sin cos tan sinpi cospi tanpi asin acos atan asinpi acospi atanpi sinh cosh
+tanh asinh acosh atanh pow powr hypot atan2 atan2pi rootn pown compound`), with a decimal context
 (precision and exponent range of an IEEE format, one of the five IEEE rounding
 directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The
 expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one
@@ -376,7 +375,7 @@ known operation, a rounding of `half_even half_up down ceiling floor`
 precision, an integer `emax` that forms a valid `DecimalContext` (the IEEE
 format of the precision and `emax`: `emin = 1 - emax`, tininess before
 rounding), one operand, a second operand or `-` (required by `pow`,
-`hypot` and `atan2`), an integer (`rootn` and `pown`; `0` otherwise), the
+`powr`, `hypot`, `atan2` and `atan2pi`), an integer (`rootn`, `pown` and `compound`; `0` otherwise), the
 expected value and `flags` equal to `-` or a subset of `xouvz` (inexact,
 overflow, underflow, invalid operation, division by
 zero) in that order. Every digit written in an operand or the expected value is

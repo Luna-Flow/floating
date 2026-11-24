@@ -71,7 +71,10 @@ nonempty with $\inf A = \inf E$ and $\sup A = \sup E$, comparing bounds
 numerically (`Binary::compare == 0`, so $-0 = +0$, as in IEEE 1788 where
 intervals are sets of reals). A number-valued case passes when the actual
 number compares equal to the expected bound; a boolean case when the booleans
-are equal; an overlap case when the state names are equal.
+are equal; an overlap case when the state names are equal. An interval-valued
+case also requires that the bounds of the actual interval carry the labels the
+representation requires: a bound has the precision of the interval exactly when
+it is a number of that format.
 
 ## Design decisions
 
@@ -89,15 +92,9 @@ decoration logic.
 
 Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a
 binary exponent, then rounded to the working precision. Decimal bounds are
-parsed as a decimal with $2p + 16$ digits and converted to binary with one
-rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$
-significant digits the decimal parse is exact, so the bound is rounded once.
-A longer literal is rounded twice, and the second rounding can then land on
-the wrong side of a binary midpoint; the decimal expansion of a binary64
-midpoint can have hundreds of digits, so this needs a literal with more than
-$2p + 16 = 122$ significant digits, which ITF1788 data does not use.
-Rounding to nearest rather than outward is the ITF1788 convention, not an
-IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup
+read by `Binary::from_string_ctx`, which rounds the exact decimal value once to
+nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the
+ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup
 constructor of the target type applied to two floating constants of that type,
 so a decimal bound denotes the nearest number of the format. The corpus relies
 on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with
@@ -116,7 +113,7 @@ the implementation attaches.
 ### Three dispositions and a strict summary
 
 `Unsupported` marks cases the library does not implement (unknown operations
-such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an
+such as `rsqrt`, or, in the binary dispatch, an
 expectation with a `signal` annotation). `Diagnostic` marks cases whose data
 cannot be read. Support is decided from the operation name before any operand
 is read, so an unknown operation is `Unsupported` whatever its operands
@@ -165,8 +162,7 @@ not merge the statement with the next one.
 
 ## Boundaries
 
-- Reverse operations, `mulRevToPair`, string conversions and exception
-  signals are not executed.
+- String conversions and exception signals are not executed.
 - Decimal bounds are rounded to nearest, as ITF1788 floating constants; an
   `[l,u]` in ITL is not an IEEE 1788 interval literal.
 - The result format for `precision = p` has the binary64 exponent range for
