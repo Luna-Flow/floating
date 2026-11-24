@@ -38,8 +38,9 @@ arguments (none, or two or more, including shard options, which are disabled
 for this runner) prints
 `usage: mpfr-expr [--json] <MPFR sqrt, pow, elementary, strtofr, or decimal output corpus>`. A single
 remaining argument is always taken as the path, even when it starts with `-`:
-`--help` or a mistyped option is reported as `cannot read file: --help`. Both
-cases return `2`.
+`--help` or a mistyped option is reported as `cannot read file: --help`
+(through `floating-conformance` the dispatcher answers `--help` itself, exit
+`0`). Both cases return `2`.
 
 The format is chosen from the file content:
 

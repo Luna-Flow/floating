@@ -386,8 +386,8 @@ filter are counted nowhere.
 
 ### `RunSummary::executable_cases`, `RunSummary::passed_cases`, `RunSummary::failed_cases`
 
-These methods return the number of selected rows that were evaluated, and how
-many of them passed and failed.
+These methods return the number of selected rows with the disposition `Executable`,
+and how many of them passed and failed.
 
 ```mbti
 pub fn RunSummary::executable_cases(Self) -> Int

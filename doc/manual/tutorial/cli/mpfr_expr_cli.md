@@ -1,7 +1,7 @@
 # cli/mpfr_expr_cli tutorial
 
-This tutorial shows how to check `binary` against an MPFR data file from
-the command line. The runner is reached as
+This tutorial shows how to check `binary` against an MPFR data file (the
+`mpfr-decimal-random-v2` rows, `decimal`) from the command line. The runner is reached as
 `floating-conformance --backend mpfr`; below, `mpfr` abbreviates that command.
 
 | I want to | Use |
@@ -78,10 +78,12 @@ prints one object with `corpus`, `frontend`, `totalCases`, `passedCases`,
 
 ## Common pitfalls
 
-- **One file per invocation.** Extra paths, missing paths, and the shard
-  options all print the usage line and exit with `2`.
-- **A lone option is read as a path.** `mpfr --help` reports
-  `cannot read file: --help`, not the usage line.
+- **One file per invocation.** Extra paths and a missing path print the
+  usage line and exit with `2`; a shard option counts as an extra argument, so
+  it prints the usage line when a path is given too.
+- **A lone option is read as a path.** `mpfr --verbose` reports
+  `cannot read file: --verbose`, not the usage line; `--help` and `-h` are
+  answered by the dispatcher, which prints its own usage and exits with `0`.
 - **Format detection is textual.** A square-root file that happens to contain
   `input_coefficient_hex` in a comment is parsed as power data.
 

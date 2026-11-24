@@ -83,7 +83,7 @@ not change the exit status; diagnostic cases always do.
 
 ## Common pitfalls
 
-- **No `--json` option.** The output is always JSON; passing `--json` is an
+- **No `--json` option.** The output of a run that completes is always JSON; passing `--json` is an
   unknown option (exit `2`).
 - **No sharding.** ITL files are small; the tooling parallelizes by phase.
 - **All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops,

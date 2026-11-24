@@ -319,7 +319,8 @@ pub fn CaseResult::passed(Self) -> Bool
 pub fn CaseResult::message(Self) -> String
 ```
 
-Messages: empty for a pass; `"value mismatch: expected HEX, actual HEX"`,
+Messages: empty for a pass; `"value mismatch: expected HEX, actual HEX"` (`expected a NaN` instead of the
+first HEX when the column is a NaN),
 `"integer mismatch: …"`, `"comparison mismatch: …"`,
 `"result not in the format: …"`, or
 `"flags mismatch: expected M, actual M"` (masks in decimal).

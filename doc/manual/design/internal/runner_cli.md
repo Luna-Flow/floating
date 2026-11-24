@@ -7,8 +7,9 @@ parallel shards, and their output is parsed by scripts. They must therefore
 agree on option syntax, exit codes, diagnostic format and JSON shape, and
 produce the same output for the same input on any machine.
 `internal/runner_cli` is the single place where these conventions are
-implemented, so each runner in `cli/` only adds its own options and calls a
-frontend.
+implemented, so the runners that use it (`gda`, `testfloat`, `mpfr`) only add their own
+options and call a frontend; `itl` reads its own options and uses only
+`read_source` and the JSON helpers.
 
 ## Mathematical background
 
@@ -73,7 +74,7 @@ order so reports are stable and diff-friendly.
 
 ## Alternatives rejected
 
-- **A generic argument-parsing library.** The runners need four options; a
+- **A generic argument-parsing library.** The runners need a handful of options; a
   dependency would add more surface than it removes.
 - **Recursive directory walks.** They would pull in unrelated files placed in
   subdirectories and make the selected corpus implicit.

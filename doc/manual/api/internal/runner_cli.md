@@ -28,7 +28,8 @@ their outputs were checked against the current source.
 
 ### `CommonOptions`
 
-`CommonOptions` holds the options every runner understands and the arguments
+`CommonOptions` holds the options the runners share (`--json` and the shard
+options; `itl` does not use them, `mpfr` takes only `--json`) and the arguments
 it did not consume.
 
 ```mbti

@@ -68,7 +68,7 @@ To add a backend, write a runner package `run(arguments) -> Int32`, import it in
 - **Index 0 is skipped.** Pass a program name even when a test has none.
 - **`--help` wins.** `["cli", "--backend", "gda", "--help"]` prints the usage
   line and returns `0` without running a runner.
-- **Relative paths.** The runners read their default corpora relative to the
+- **Relative paths.** The `gda` and `itl` runners read their default corpora relative to the
   working directory; the tests of the module run in `tooling/`.
 
 ## Next steps

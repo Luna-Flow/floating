@@ -49,7 +49,7 @@ file is parsed completely before the operation filter is applied, so a parse
 error in a statement of an unselected operation still ends the run: every
 diagnostic of that file is printed as `PATH: MESSAGE`.
 
-The output is always one JSON object with the keys `schemaVersion` (`1`),
+When the run completes, the output is one JSON object with the keys `schemaVersion` (`1`),
 `runner` (`"itl-expression-interpreter"`), `totalCases`, `executableCases`,
 `passedCases`, `failedCases`, `unsupportedCases`, `diagnosticCases`,
 `failedIds`, `failedMessages` (`ID: MESSAGE`), `unsupportedIds` and

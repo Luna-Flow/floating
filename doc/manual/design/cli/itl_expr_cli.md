@@ -53,8 +53,8 @@ the unknown ones count against it only under `--strict-supported`.
 ## Alternatives rejected
 
 - **Sharding.** Not needed for a corpus of a few thousand cases.
-- **Directory expansion.** Phases name files explicitly
-  (`interpreter_stages.json`), which keeps the claim precise.
+- **Directory expansion.** Phases name their files by pattern
+  (`interpreter_stages.json`) and the tooling passes the runner explicit paths, which keeps the claim precise.
 
 ## Boundaries
 

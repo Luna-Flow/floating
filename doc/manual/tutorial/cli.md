@@ -83,8 +83,9 @@ and, with `--json`, parse the single JSON object on standard output.
 
 - **`--help` is the dispatcher's.** `--backend gda --help` prints the
   dispatcher usage and exits with `0`; it does not show the runner's options.
-- **Relative default paths.** Runners default to files under `testdata/`;
-  run them from the repository root.
+- **Relative default paths.** The `gda` and `itl` runners default to files under
+  `testdata/`; run them from the repository root. `mpfr` and `testfloat` need a
+  path.
 - **One backend per invocation.** `--backend` may be given only once.
 - **An empty directory is not an error.** The `gda` runner rejects a named
   file without the `.decTest` suffix (`not a .decTest file: PATH`, exit `2`),

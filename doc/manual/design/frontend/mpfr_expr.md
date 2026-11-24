@@ -4,7 +4,8 @@
 
 GNU MPFR computes correctly rounded results of elementary functions at any
 precision and in every rounding direction.[^mpfr] This package turns MPFR
-output into executable checks for `binary`: a passing row shows that
+output into executable checks for `binary` (the `mpfr-decimal-random-v2` rows for
+`decimal`): a passing row shows that
 `binary` returns the correctly rounded result (and the right exception
 flags) for that input, precision and rounding mode. It is a pure library; the
 data files and their provenance live in `testdata/binary/` and the
@@ -136,7 +137,8 @@ execution never meets a missing operand.
 
 - Square-root rows check values only, not flags.
 - Elementary rows do not check NaN payloads.
-- No exponent range, subnormals or overflow handling are exercised.
+- No exponent range, subnormals or overflow handling are exercised by the
+  square-root, power and elementary formats; the two random formats do.
 - Only the seven formats of the [API page](../../api/frontend/mpfr_expr.md) are
   understood; there is no general MPFR test file reader.
 - File reading, format detection and exit codes are in

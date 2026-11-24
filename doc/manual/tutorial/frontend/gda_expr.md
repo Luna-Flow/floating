@@ -233,7 +233,7 @@ test "parsed rows" {
   [`numeric_expr`](../numeric_expr.md) tree, so you can evaluate the same rows
   with your own callbacks, for example against another decimal library.
 - **Whole corpora.** `just conformance run decimal_gda` downloads the pinned
-  official corpus, builds the native runner and executes all phases; see
+  official corpus when it is not installed, builds the native runner and executes all phases; see
   [verification](../../verification.md).
 
 ## Common pitfalls

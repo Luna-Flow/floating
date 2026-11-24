@@ -32,7 +32,8 @@ get balanced shards even when one file dominates the corpus.
 summary has failed rows, or, in strict mode, any legacy or unsupported row.
 The frontend summary itself stays neutral, so in-process callers can apply
 their own policy. Diagnostic rows are excluded even in strict mode: they are
-placeholders without a scalar meaning, not features the library lacks.
+placeholders or rows under an invalid context, without a scalar meaning, not
+features the library lacks.
 
 ### Stable JSON keys
 
