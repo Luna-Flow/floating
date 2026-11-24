@@ -132,4 +132,4 @@ differs (grouped by shard).
   frontends and [internal/runner_cli](runner_cli.md).
 - No timing or performance data.
 - No check that a result's `passed` bit agrees with its disposition.
-- Internal: not importable outside `Luna-Flow/floating`, no stability promise.
+- Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise.

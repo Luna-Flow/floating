@@ -3,7 +3,7 @@
 The goal of this page is to help maintainers who add or change a conformance
 frontend: it shows how a frontend records per-case results, summarizes a run,
 splits it into shards and merges the shards back, using the shared model of
-`internal/conformance`. The package is internal to `Luna-Flow/floating`, so
+`internal/conformance`. The package is internal to `Luna-Flow/floating-tools`, so
 the examples are written for code inside the module and are not compiled by
 the manual checker.
 
