@@ -269,9 +269,9 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/binary_kernel.md:81
+#: manual/api/internal/binary_kernel.md:82
 #: manual/api/internal/conformance.md:359
-#: manual/api/internal/decimal_kernel.md:92
+#: manual/api/internal/decimal_kernel.md:91
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/interval.md:2250
 #: manual/api/interval_checked.md:528
@@ -4502,9 +4502,9 @@ msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/binary_kernel.md:83
+#: manual/api/internal/binary_kernel.md:84
 #: manual/api/internal/conformance.md:361
-#: manual/api/internal/decimal_kernel.md:94
+#: manual/api/internal/decimal_kernel.md:93
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/interval.md:2252
 #: manual/api/numeric_expr.md:341
@@ -6860,7 +6860,7 @@ msgstr "无法从 `doc_examples` 导入任何内容。它的 `moon.pkg` 导入�
 
 #: manual/api/doc_examples.md:38
 #: manual/api/interval.md:274
-#: manual/conventions.md:179
+#: manual/conventions.md:180
 msgid "Examples"
 msgstr "示例"
 
@@ -7769,8 +7769,8 @@ msgid "internal API"
 msgstr "internal API"
 
 #: manual/api/internal.md:5
-msgid "`internal` holds exact integer and rational helpers for the numeric cores: powers of 2, 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, reduced rationals, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
-msgstr "`internal` 包含供各数值核心使用的精确整数与有理数辅助函数：2、5 和 10 的幂，数字位数计数，去除尾部因子，带显式舍入模式的整数除法，十进制字符串拆分器，最简有理数，二进有理数包络，以及经认证初等函数的细化预算。它是一个内部包：无法从 `Luna-Flow/floating` 之外导入，其接口可能在不另行通知的情况下变更。[设计页面](../design/internal.md)证明舍入与包络不变式；[教程](../tutorial/internal.md)展示这些辅助函数如何组合使用。"
+msgid "`internal` holds exact integer and dyadic helpers for the numeric cores: powers of 5 and 10, digit counting, removal of trailing factors, integer division with an explicit rounding mode, a decimal string splitter, dyadic enclosures and the refinement budget of the certified elementary functions. It is an internal package: it cannot be imported from outside `Luna-Flow/floating`, and its interface may change without notice. The [design page](../design/internal.md) proves the rounding and enclosure invariants; the [tutorial](../tutorial/internal.md) shows how the helpers combine."
+msgstr "`internal` 包含供各数值核心使用的精确整数与二进有理数辅助函数：5 和 10 的幂，数字位数计数，去除尾部因子，带显式舍入模式的整数除法，十进制字符串拆分器，二进有理数包含区间，以及经认证初等函数的细化预算。它是一个内部包：无法从 `Luna-Flow/floating` 之外导入，其接口可能在不另行通知的情况下变更。[设计页面](../design/internal.md)证明舍入与包含的不变式；[教程](../tutorial/internal.md)展示这些辅助函数如何组合使用。"
 
 #: manual/api/internal.md:15
 msgid "Not every helper is used by every core. On the current branch the library code uses:"
@@ -7786,8 +7786,8 @@ msgid "Helpers it uses"
 msgstr "所用的辅助函数"
 
 #: manual/api/internal.md:23
-msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package and of the cores only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
-msgstr "二进制和十进制核心使用各自的内核来舍入自己的系数。其余的辅助函数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs` 以及 `CertifiedDyadic` 系列）仅由本包的测试和各核心的测试使用。`semantic` 不再使用 `internal`：它自己拥有精确有理数（`ExactRational`）及其规范化。"
+msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`split_decimal_string`, `round_positive_div`, `round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
+msgstr "二进制和十进制核心使用各自的内核来舍入自己的系数。其余的辅助函数（`split_decimal_string`、`round_positive_div`、`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs` 以及 `CertifiedDyadic` 系列）仅由本包的测试使用。`semantic` 不再使用 `internal`：它自己拥有精确有理数（`ExactRational`）及其规范化。"
 
 #: manual/api/internal.md:30
 msgid "Decimal exponent bounds"
@@ -7810,8 +7810,8 @@ msgid "Inside the module, add the package to `moon.pkg`:"
 msgstr "在模块内部，将该包添加到 `moon.pkg` 中："
 
 #: manual/api/internal.md:66
-msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`) and uses `@def.Sign`."
-msgstr "示例以 `@internal.` 调用该包，以 `@lf_arith.` 调用 `Luna-Flow/arithmetic`；`BigInt` 字面量写作 `12N`。接口将 `Luna-Flow/arithmetic` 显示为 `@arithmetic`（`RoundingMode`、`ArithmeticError`、`CertificationStage`、`CertificationFailureReason`），并使用 `@def.Sign`。"
+msgid "The examples call the package as `@internal.` and `Luna-Flow/arithmetic` as `@lf_arith.`; `BigInt` literals are written `12N`. The interface prints `Luna-Flow/arithmetic` as `@arithmetic` (`RoundingMode`, `ArithmeticError`, `CertificationStage`, `CertificationFailureReason`)."
+msgstr "示例以 `@internal.` 调用该包，以 `@lf_arith.` 调用 `Luna-Flow/arithmetic`；`BigInt` 字面量写作 `12N`。接口将 `Luna-Flow/arithmetic` 显示为 `@arithmetic`（`RoundingMode`、`ArithmeticError`、`CertificationStage`、`CertificationFailureReason`）。"
 
 #: manual/api/internal.md:71
 msgid "Integer basics"
@@ -8055,22 +8055,22 @@ msgid "Function families"
 msgstr "函数族"
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Family"
 msgstr "族"
 
 #: manual/api/internal/binary_kernel.md:63
-#: manual/api/internal/decimal_kernel.md:73
+#: manual/api/internal/decimal_kernel.md:72
 msgid "Functions"
 msgstr "函数"
 
 #: manual/api/internal/binary_kernel.md:65
-#: manual/api/internal/decimal_kernel.md:75
+#: manual/api/internal/decimal_kernel.md:74
 msgid "build and convert"
 msgstr "构造与转换"
 
 #: manual/api/internal/binary_kernel.md:66
-#: manual/api/internal/decimal_kernel.md:76
+#: manual/api/internal/decimal_kernel.md:75
 msgid "shape"
 msgstr "形态查询"
 
@@ -8103,16 +8103,16 @@ msgid "machine words"
 msgstr "机器字"
 
 #: manual/api/internal/binary_kernel.md:75
-msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
-msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、零除数）：它们是调用者的编程错误，而不是运算的状况。"
+msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a radix of `to_radix_string` outside `2..=36`): they are programmer errors of the caller, never conditions of an operation. `Coeff::div_rem_checked` returns an `Err` for a zero divisor, and `Coeff::parse` for a radix outside `2..=36`."
+msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、`to_radix_string` 的基数超出 `2..=36`）：它们是调用者的编程错误，而不是运算的状况。`Coeff::div_rem_checked` 对零除数返回 `Err`，`Coeff::parse` 对超出 `2..=36` 的基数同样如此。"
 
 #: manual/api/internal/conformance.md:1
 msgid "internal/conformance API"
 msgstr "internal/conformance API"
 
 #: manual/api/internal/conformance.md:5
-msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
-msgstr "`internal/conformance` 是各符合性前端共享的结果模型：源位置、带处置类别的逐用例结果、采用固定计数规则的运行汇总，以及确定性的分片选择。`frontend/gda_expr`、`frontend/itl_expr`、`frontend/mpfr_expr`、`frontend/testfloat_expr` 和 `internal/runner_cli` 都建立在它之上，并用各自的公共类型包装它的类型。它是一个内部包：`Luna-Flow/floating` 模块之外的代码无法导入它，其接口也可能在不另行通知的情况下变更。参见[教程](../../tutorial/internal/conformance.md)和[设计页](../../design/internal/conformance.md)。"
+msgid "`internal/conformance` is the shared result model of the conformance frontends: source locations, per-case results with a disposition, run summaries with fixed counting rules, and deterministic shard selection. `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its types in their own public types. It is an internal package: code outside the `Luna-Flow/floating-tools` module cannot import it, and its interface may change without notice. See the [tutorial](../../tutorial/internal/conformance.md) and the [design page](../../design/internal/conformance.md)."
+msgstr "`internal/conformance` 是各符合性前端共享的结果模型：源位置、带处置类别的逐用例结果、采用固定计数规则的运行汇总，以及确定性的分片选择。`frontend/gda_expr`、`frontend/itl_expr`、`frontend/mpfr_expr`、`frontend/testfloat_expr` 和 `internal/runner_cli` 都建立在它之上，并用各自的公共类型包装它的类型。它是一个内部包：`Luna-Flow/floating-tools` 模块之外的代码无法导入它，其接口也可能在不另行通知的情况下变更。参见[教程](../../tutorial/internal/conformance.md)和[设计页](../../design/internal/conformance.md)。"
 
 #: manual/api/internal/conformance.md:25
 msgid "The examples call the package as `@conformance.`. The manual's example checker has no alias for internal subpackages, so they are marked `nocheck`; each one is a copy of behaviour checked by the package's own tests or verified by hand against the source."
@@ -8288,54 +8288,54 @@ msgid "A sign and a `DecCoeff` magnitude, for algorithms whose intermediate valu
 msgstr "符号加一个 `DecCoeff` 绝对值，用于中间值可能为负的算法（Toom-3、Newton 倒数）。零永远不是负的。该类型是 `pub`：字段可以读取，但值只能由本包构造。"
 
 #: manual/api/internal/decimal_kernel.md:69
-msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
-msgstr "所有函数都以 `dec_coeff_*` 命名；没有这个前缀的是 `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr` 和 `trim_trailing_decimal_zeros_repr`。"
+msgid "Most functions are named `dec_coeff_*`; the table gives the others by their full names."
+msgstr "大多数函数以 `dec_coeff_*` 命名；表中给出其余函数的完整名称。"
 
-#: manual/api/internal/decimal_kernel.md:77
+#: manual/api/internal/decimal_kernel.md:76
 msgid "add, subtract, compare"
 msgstr "加、减、比较"
 
-#: manual/api/internal/decimal_kernel.md:78
+#: manual/api/internal/decimal_kernel.md:77
 msgid "powers of ten and trimming"
 msgstr "十的幂与去零"
 
-#: manual/api/internal/decimal_kernel.md:79
+#: manual/api/internal/decimal_kernel.md:78
 msgid "multiply"
 msgstr "乘法"
 
-#: manual/api/internal/decimal_kernel.md:80
+#: manual/api/internal/decimal_kernel.md:79
 msgid "divide"
 msgstr "除法"
 
-#: manual/api/internal/decimal_kernel.md:81
+#: manual/api/internal/decimal_kernel.md:80
 msgid "number theory"
 msgstr "数论"
 
-#: manual/api/internal/decimal_kernel.md:82
+#: manual/api/internal/decimal_kernel.md:81
 msgid "rounding decisions"
 msgstr "舍入决策"
 
-#: manual/api/internal/decimal_kernel.md:83
+#: manual/api/internal/decimal_kernel.md:82
 msgid "exact helpers"
 msgstr "精确辅助函数"
 
-#: manual/api/internal/decimal_kernel.md:84
+#: manual/api/internal/decimal_kernel.md:83
 msgid "digit-wise logic"
 msgstr "逐位逻辑运算"
 
-#: manual/api/internal/decimal_kernel.md:85
+#: manual/api/internal/decimal_kernel.md:84
 msgid "signed values"
 msgstr "带符号值"
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "thresholds and constants"
 msgstr "阈值与常量"
 
-#: manual/api/internal/decimal_kernel.md:86
+#: manual/api/internal/decimal_kernel.md:85
 msgid "`dec_coeff_base`, `dec_coeff_burnikel_ziegler_threshold`, `dec_coeff_burnikel_ziegler_threshold_16k`, `dec_coeff_burnikel_ziegler_threshold_8k`, `dec_coeff_burnikel_ziegler_threshold_large`, `dec_coeff_dpun`, `dec_coeff_karatsuba_square_threshold`, `dec_coeff_karatsuba_threshold`, `dec_coeff_newton_enabled`, `dec_coeff_newton_threshold`, `dec_coeff_ntt_mul_threshold`, `dec_coeff_ntt_mul_threshold_16k`, `dec_coeff_ntt_mul_threshold_32k`, `dec_coeff_ntt_mul_threshold_64k`, `dec_coeff_ntt_mul_threshold_large`, `dec_coeff_ntt_square_threshold`, `dec_coeff_ntt_square_threshold_16k`, `dec_coeff_ntt_square_threshold_32k`, `dec_coeff_ntt_square_threshold_64k`, `dec_coeff_ntt_square_threshold_8k`, `dec_coeff_ntt_square_threshold_large`, `dec_coeff_ntt_square_toom3_threshold`, `dec_coeff_ntt_square_toom3_threshold_16k`, `dec_coeff_ntt_square_toom3_threshold_32k`, `dec_coeff_ntt_square_toom3_threshold_64k`, `dec_coeff_ntt_square_toom3_threshold_8k`, `dec_coeff_ntt_square_toom3_threshold_large`, `dec_coeff_small_limit`, `dec_coeff_small_powers10`, `dec_coeff_toom3_threshold`, chosen per target in `coeff_thresholds_<target>.mbt` where they differ"
 msgstr "`dec_coeff_base`, `dec_coeff_burnikel_ziegler_threshold`, `dec_coeff_burnikel_ziegler_threshold_16k`, `dec_coeff_burnikel_ziegler_threshold_8k`, `dec_coeff_burnikel_ziegler_threshold_large`, `dec_coeff_dpun`, `dec_coeff_karatsuba_square_threshold`, `dec_coeff_karatsuba_threshold`, `dec_coeff_newton_enabled`, `dec_coeff_newton_threshold`, `dec_coeff_ntt_mul_threshold`, `dec_coeff_ntt_mul_threshold_16k`, `dec_coeff_ntt_mul_threshold_32k`, `dec_coeff_ntt_mul_threshold_64k`, `dec_coeff_ntt_mul_threshold_large`, `dec_coeff_ntt_square_threshold`, `dec_coeff_ntt_square_threshold_16k`, `dec_coeff_ntt_square_threshold_32k`, `dec_coeff_ntt_square_threshold_64k`, `dec_coeff_ntt_square_threshold_8k`, `dec_coeff_ntt_square_threshold_large`, `dec_coeff_ntt_square_toom3_threshold`, `dec_coeff_ntt_square_toom3_threshold_16k`, `dec_coeff_ntt_square_toom3_threshold_32k`, `dec_coeff_ntt_square_toom3_threshold_64k`, `dec_coeff_ntt_square_toom3_threshold_8k`, `dec_coeff_ntt_square_toom3_threshold_large`, `dec_coeff_small_limit`, `dec_coeff_small_powers10`, `dec_coeff_toom3_threshold`，在各目标之间不同的值按目标选取，见 `coeff_thresholds_<target>.mbt`"
 
-#: manual/api/internal/decimal_kernel.md:88
+#: manual/api/internal/decimal_kernel.md:87
 msgid "Preconditions are checked with `abort` (a negative shift, a zero divisor, a subtraction that would go below zero, a unit divisor outside $[1, 10^9)$): they are programmer errors of the caller, never conditions of an operation."
 msgstr "前置条件用 `abort` 检查（负的移位量、零除数、会降到零以下的减法、超出 $[1, 10^9)$ 的单 limb 除数）：它们是调用者的编程错误，绝不是某个运算的条件。"
 
@@ -10191,8 +10191,8 @@ msgid "cross-package laws, documentation examples, benchmarks, conformance orche
 msgstr "跨包定律、文档示例、基准测试、符合性测试编排"
 
 #: manual/architecture.md:24
-msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def` and `internal`, `interval` builds on `binary`, `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
-msgstr "包边界由 `moon.pkg` 决定；包内的文件只用于组织实现，不会创建命名空间。依赖关系自上而下：每个数值包都依赖 `def` 和 `internal`，`interval` 构建在 `binary` 之上，`decimal` 和 `decimal_gda` 借助 `binary` 与 `interval` 实现其经认证的初等函数，checked 包封装各自的数值域，而任何数值部分都不依赖前端、CLI 或基准测试。"
+msgid "Package boundaries come from `moon.pkg`; files inside a package organize the implementation but do not create namespaces. Dependencies point downward: every numeric package depends on `def`; `binary`, `decimal` and `decimal_gda` also depend on `internal`; `interval` builds on `binary`; `decimal` and `decimal_gda` use `binary` and `interval` for their certified elementary functions, the checked packages wrap their domain, and nothing numerical depends on a frontend, a CLI or a benchmark."
+msgstr "包边界由 `moon.pkg` 决定；包内的文件只用于组织实现，不会创建命名空间。依赖关系自上而下：每个数值包都依赖 `def`；`binary`、`decimal` 和 `decimal_gda` 还依赖 `internal`；`interval` 构建在 `binary` 之上；`decimal` 和 `decimal_gda` 借助 `binary` 与 `interval` 实现其经认证的初等函数，checked 包封装各自的数值域，而任何数值部分都不依赖前端、CLI 或基准测试。"
 
 #: manual/architecture.md:31
 msgid "Two modules"
@@ -10272,8 +10272,8 @@ msgid "`Binary` stores a class, a sign, a non-negative binary coefficient with n
 msgstr "`Binary` 存储类别、符号、不含末尾零比特的非负二进制系数、指数、精度以及 NaN 状态（signaling 位与 payload）。`Decimal` 与 GDA `Decimal` 各自存储符号、由包自身管理的以 $10^9$ 为基数的系数、作为量子（quantum）的指数、精度以及特殊状态。`Interval` 存储两个 `Binary` 端点、精度以及 Empty 标记；`DecoratedInterval` 在此基础上增加装饰，但不改变裸区间的表示。"
 
 #: manual/architecture.md:83
-msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[1 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
-msgstr "最终化（finalization）是语义防火墙。计算内核可以计算精确的和、积、商、根或保护位与粘滞位，但只有最终化器决定舍入后的值、同值类（cohort）、标志、陷阱、装饰以及区间端点的方向。它还对首位比特强制实施二进制实现的指数范围 $[1 - 2^{30},\\ 2^{30} - 1]$：超出该范围的结果会按舍入方向被归类为上溢或下溢，而不是以饱和指数存储。"
+msgid "Finalization is the semantic firewall. Kernels may compute exact sums, products, quotients, roots or guard and sticky bits, but only the finalizer decides the rounded value, the cohort, the flags, the traps, the decorations and the direction of interval endpoints. It also enforces the binary implementation exponent range $[2 - 2^{30},\\ 2^{30} - 1]$ for the leading bit: a result outside it is classified as an overflow or an underflow according to the rounding direction instead of being stored with a saturated exponent."
+msgstr "最终化（finalization）是语义防火墙。计算内核可以计算精确的和、积、商、根或保护位与粘滞位，但只有最终化器决定舍入后的值、同值类（cohort）、标志、陷阱、装饰以及区间端点的方向。它还对首位比特强制实施二进制实现的指数范围 $[2 - 2^{30},\\ 2^{30} - 1]$：超出该范围的结果会按舍入方向被归类为上溢或下溢，而不是以饱和指数存储。"
 
 #: manual/architecture.md:91
 msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums are the directed `add_ctx` of the binary layer, which does the same. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
@@ -10358,8 +10358,8 @@ msgid "Binary and IEEE decimal contexts are immutable inputs; flags are explicit
 msgstr "二进制和 IEEE 十进制上下文是不可变的输入；标志是显式输出，由调用者自行 `combine`。"
 
 #: manual/architecture.md:210
-msgid "`decimal_gda` returns a new context whose status includes the raised flags, then selects at most one trap by fixed precedence."
-msgstr "`decimal_gda` 返回一个新的上下文，其状态包含已触发的标志，然后按固定优先级至多选择一个陷阱。"
+msgid "`decimal_gda` returns a new context whose accumulated flags include the raised ones, then selects at most one trap by fixed precedence."
+msgstr "`decimal_gda` 返回一个新的上下文，其累积的标志包含已引发的标志，然后按固定优先级至多选择一个陷阱。"
 
 #: manual/architecture.md:212
 msgid "`IntervalContext` fixes the endpoint precision and exponent bounds and returns `IntervalFlags`."
@@ -11490,7 +11490,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:166
-#: manual/design/internal.md:211
+#: manual/design/internal.md:212
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/interval.md:1179
@@ -12479,168 +12479,168 @@ msgid "Package pages"
 msgstr "包页面"
 
 #: manual/conventions.md:50
-msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
-msgstr "镜像每个 `moon.pkg`：`library/src/<path>/moon.pkg` 中的包由 `api/<path>.md`、`tutorial/<path>.md` 和 `design/<path>.md` 记录。文件不会创建包，`moon.pkg` 边界才会。"
+msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` or `tooling/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
+msgstr "镜像每个 `moon.pkg`：`library/src/<path>/moon.pkg` 或 `tooling/src/<path>/moon.pkg` 中的包由 `api/<path>.md`、`tutorial/<path>.md` 和 `design/<path>.md` 记录。文件不会创建包，`moon.pkg` 边界才会。"
 
-#: manual/conventions.md:53
+#: manual/conventions.md:54
 msgid "Give every package all three pages. Packages without an application API (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`) still document their generated interface, maintainer workflow and stability boundary."
 msgstr "为每个包提供全部三类页面。没有应用 API 的包（前端、CLI、`internal/*`、`bench/*`、`consistency`、`doc_examples`）仍需记录其生成接口、维护流程和稳定性边界。"
 
-#: manual/conventions.md:57
-msgid "Every package also keeps a `library/src/<path>/README.mbt.md`."
-msgstr "每个包还要保留一个 `library/src/<path>/README.mbt.md`。"
-
 #: manual/conventions.md:58
+msgid "Every package also keeps a `README.mbt.md` in its directory."
+msgstr "每个包还要在其目录中保留一个 `README.mbt.md`。"
+
+#: manual/conventions.md:59
 msgid "`pkg.generated.mbti` is the public-surface inventory; source and tests define behaviour. A method is documented as callable with dot syntax only if the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are not promoted implicitly and must be declared with `pub extend`."
 msgstr "`pkg.generated.mbti` 是公开接口的清单；源码和测试定义行为。只有当 `.mbti` 将某方法列为 `pub fn Type::name` 时，才能将其记录为可用点语法调用；trait 实现中的方法不会被隐式提升，必须用 `pub extend` 声明。"
 
-#: manual/conventions.md:62
+#: manual/conventions.md:63
 msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `library/CHANGELOG.md`."
 msgstr "不要把计划中的 API 写成已存在，也不要把研究笔记保留为独立页面。将持久的结论提升到设计、符合性或性能页面中，并把已被取代的历史移入 `library/CHANGELOG.md`。"
 
-#: manual/conventions.md:65
+#: manual/conventions.md:66
 msgid "Pages name only the current release. A page may mention an older release only when it carries a `<!-- historical-performance-baseline: X.Y.Z -->` marker for that version; `tools/doc_quality.py` rejects any other historical version."
 msgstr "页面只提及当前发布版本。只有当页面带有针对该版本的 `<!-- historical-performance-baseline: X.Y.Z -->` 标记时，才可以提及更早的版本；`tools/doc_quality.py` 会拒绝其他任何历史版本。"
 
-#: manual/conventions.md:70
+#: manual/conventions.md:71
 msgid "Naming"
 msgstr "命名"
 
-#: manual/conventions.md:72
+#: manual/conventions.md:73
 msgid "An operation is named after the standard of its package, in snake_case: IEEE 754-2019 for `binary` and `decimal` and their checked tiers, and the General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and its checked tier. A package has one spelling per operation: it carries no alias and never the name of the other standard for the same thing. For example, `decimal` names the IEEE `remainder` as `remainder_ctx`, and `decimal_gda` names the GDA `remainder-near` as `remainder_near`."
 msgstr "操作按其所在包的标准命名，使用 snake_case：`binary` 和 `decimal` 及其检查层遵循 IEEE 754-2019，`decimal_gda` 及其检查层遵循通用十进制算术规范（General Decimal Arithmetic Specification）1.70 版。每个包对每个操作只有一种拼写：没有别名，也不会为同一件事使用另一标准的名字。例如，`decimal` 把 IEEE 的 `remainder` 命名为 `remainder_ctx`，而 `decimal_gda` 把 GDA 的 `remainder-near` 命名为 `remainder_near`。"
 
-#: manual/conventions.md:80
+#: manual/conventions.md:81
 msgid "**Case.** `camelCase` names split at each capital (`minimumMagnitudeNumber` is `minimum_magnitude_number`) and hyphens become underscores (`round-to-integral-exact` is `round_to_integral_exact`). Digits and the standard's own abbreviations stay attached to their word: `exp2m1`, `log2p1`, `atan2`, `sinpi`."
 msgstr "**大小写。** `camelCase` 的名字在每个大写字母处拆分（`minimumMagnitudeNumber` 变为 `minimum_magnitude_number`），连字符变为下划线（`round-to-integral-exact` 变为 `round_to_integral_exact`）。数字和标准自己的缩写与其所在的词连在一起：`exp2m1`、`log2p1`、`atan2`、`sinpi`。"
 
-#: manual/conventions.md:85
+#: manual/conventions.md:86
 msgid "**Suffixes.** `_ctx` marks a method that takes a context and returns the value with its flags. `try_` marks the form that returns a `Result` for a certification failure. `_checked` and `_contextual` are the forms of the `Luna-Flow/arithmetic` traits. The checked tiers (`binary_checked`, `decimal_checked`, `decimal_gda_checked`) keep the bare names."
 msgstr "**后缀。** `_ctx` 标记接受上下文并返回值及其标志的方法。`try_` 标记在认证失败时返回 `Result` 的形式。`_checked` 和 `_contextual` 是 `Luna-Flow/arithmetic` trait 的形式。检查层（`binary_checked`、`decimal_checked`、`decimal_gda_checked`）保留不带后缀的名字。"
 
-#: manual/conventions.md:90
+#: manual/conventions.md:91
 msgid "**No standard name.** Where the standard has no name for something, such as a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
 msgstr "**没有标准名称。** 标准没有给某事物命名时，例如构造函数（`from_bigint`）或编码辅助函数，沿用使用最多的拼写，并由 API 页面记录。"
 
-#: manual/conventions.md:93
+#: manual/conventions.md:94
 msgid "**Documented exceptions.** These names are kept as they are, although the rule would spell them otherwise:"
 msgstr "**已记载的例外。** 下列名字保持原样，尽管按规则它们会有不同的拼写："
 
-#: manual/conventions.md:99
+#: manual/conventions.md:100
 msgid "`sinpi` and its family;"
 msgstr "`sinpi` 及其系列；"
 
-#: manual/conventions.md:100
+#: manual/conventions.md:101
 msgid "the flag name `division_by_zero`;"
 msgstr "标志名 `division_by_zero`；"
 
-#: manual/conventions.md:102
+#: manual/conventions.md:103
 msgid "`to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;"
 msgstr "`to_hex`、`from_hex`、`to_interchange_hex` 和 `from_interchange_hex`；"
 
-#: manual/conventions.md:103
+#: manual/conventions.md:104
 msgid "in `decimal_gda`, also `rescale`, `apply` and `trim` (decNumber operations that GDA 1.70 does not define), `class_name`, and the `logical_` prefix."
 msgstr "在 `decimal_gda` 中，还有 `rescale`、`apply` 和 `trim`（GDA 1.70 未定义的 decNumber 运算）、`class_name` 以及 `logical_` 前缀。"
 
-#: manual/conventions.md:105
+#: manual/conventions.md:106
 msgid "**Context in `decimal_gda`.** An operation that takes the context is a free function named after the GDA operation, taking a `GdaContext` last and returning a `GdaOutcome`; a quiet operation that GDA 1.70 says is unaffected by context is a method of `Decimal` (`copy`, `copy_sign`, `same_quantum`, the `is_*` predicates). `compare_total` and `compare_total_magnitude` are free functions although the total order itself uses no context: in a subset context (`extended=false`) the operands are first rounded to the precision (GDA 1.70, Appendix A), which the `Decimal` methods of the same names do not do. The design of 0.12 first took them to be context-free and quiet; the 32 `comparetotal` rows of the subset corpus `dectest0` showed that this holds only in extended contexts."
 msgstr "**`decimal_gda` 中的上下文。** 接受上下文的运算是以 GDA 运算命名的自由函数，上下文 `GdaContext` 作最后一个参数，返回 `GdaOutcome`；GDA 1.70 称不受上下文影响的静默运算是 `Decimal` 的方法（`copy`、`copy_sign`、`same_quantum`、`is_*` 谓词）。`compare_total` 和 `compare_total_magnitude` 虽然全序本身不使用上下文，却是自由函数：在子集上下文（`extended=false`）中，操作数先被舍入到该精度（GDA 1.70 附录 A），而同名的 `Decimal` 方法不这样做。0.12 的设计起初认为它们不涉及上下文且静默；子集语料 `dectest0` 的 32 行 `comparetotal` 表明，这只在扩展上下文中成立。"
 
-#: manual/conventions.md:116
+#: manual/conventions.md:117
 msgid "**Kept names with the standard's term.** These names differ from the word of the standard and are kept on purpose; the API page of each says so:"
 msgstr "**保留的名称及标准的术语。** 下列名称与标准用词不同，有意保留；每个名称的 API 页面都会说明："
 
-#: manual/conventions.md:118
+#: manual/conventions.md:119
 msgid "`coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component the significand (an integer when the exponent is $q$), and the standard does not use the word coefficient. The General Decimal Arithmetic Specification does (\"coefficient – an integer which is zero or positive\"), and one word for the integer view is used in all four packages;"
 msgstr "`coefficient` 与 `BinCoeff`：IEEE 754-2019 的 2.1 和 3.3 把这一部分称为有效数（significand，指数为 $q$ 时视为整数），标准不使用 coefficient 一词。General Decimal Arithmetic 规范使用它（“coefficient – an integer which is zero or positive”），四个包里整数视图都用这一个词；"
 
-#: manual/conventions.md:123
+#: manual/conventions.md:124
 msgid "the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;"
 msgstr "`*RoundingMode` 类型：754-2019 的 4.3 称为舍入方向属性（rounding-direction attribute）；"
 
-#: manual/conventions.md:124
+#: manual/conventions.md:125
 msgid "`is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has isSignaling and `class(x)`;"
 msgstr "`is_signaling_nan`、`is_quiet_nan` 与 `class_of`：754-2019 的 5.7.2 为 isSignaling 与 `class(x)`；"
 
-#: manual/conventions.md:126
+#: manual/conventions.md:127
 msgid "`DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the binary encoding of the significand (a declet is three decimal digits in ten bits, 2.1); the abbreviations are the usual names of the two encodings;"
 msgstr "`DPD` 与 `BID`：754-2019 的 3.5.2 讲的是有效数的十进制编码与二进制编码（declet 是十个比特中的三位十进制数字，2.1）；这两个缩写是这两种编码的通用名称；"
 
-#: manual/conventions.md:129
+#: manual/conventions.md:130
 msgid "`normalized`: it returns the canonical representation of a value, not the normal number of 754-2019 2.1 (a finite non-zero number of at least the smallest normal magnitude);"
 msgstr "`normalized`：它返回值的规范表示，不是 754-2019 2.1 的规格化数（正规数，幅值不小于最小正规幅值的有限非零数）；"
 
-#: manual/conventions.md:132
+#: manual/conventions.md:133
 msgid "`exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$ according to the view of the significand, so the suffix says the radix of the integer power."
 msgstr "`exponent2` 与 `exponent10`：754-2019 2.1 的指数是 $e$ 还是 $q$ 取决于有效数的视图，所以后缀说明整数次幂的基数。"
 
-#: manual/conventions.md:135
+#: manual/conventions.md:136
 msgid "**Names of this release that are not the standard's.** `min_num` and `max_num` (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which 754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name says which operation it is. `signum` is the three-valued classification of the sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2)."
 msgstr "**本版本中不是标准用语的名称。** `min_num` 与 `max_num`（binary、`decimal`）是 IEEE 754-2008 的 minNum 与 maxNum，754-2019 以 9.6 的运算取代了它们（见 5.3.1 的 NOTE）；名称说明它是哪个运算。`signum` 是标量符号的三值分类（`Negative`、`Zero`、`Positive`；两个零和 NaN 都是 `Zero`）；754-2019 的符号是一个比特，即 `is_sign_minus`（5.7.2）。"
 
-#: manual/conventions.md:141
+#: manual/conventions.md:142
 msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr "**旧名字。** 被改名或删除的操作不保留别名。一个曾有某种含义的名字，不会在同一版本里被用作另一种含义。改名或删除操作的版本，在 `library/CHANGELOG.md` 的 **Breaking** 下列出旧名字及其替代。"
 
-#: manual/conventions.md:146
+#: manual/conventions.md:147
 msgid "API snapshots"
 msgstr "API 快照"
 
-#: manual/conventions.md:148
+#: manual/conventions.md:149
 msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr "每个 API 页面都以 `## Complete public interface` 结尾，其正文是该包 `pkg.generated.mbti` 的精确副本，位于 `<!-- generated-api-start -->` 与 `<!-- generated-api-end -->` 标记之间，并用 `mbti` 代码块围起。页面正文中的单个签名也使用 `mbti` 代码块。`tools/doc_quality.py` 会将快照与生成的文件进行比较（也接受旧的 `moonbit` 代码块），因此每当 `moon info` 改变接口时都要重新生成快照。"
 
-#: manual/conventions.md:156
+#: manual/conventions.md:157
 msgid "Numeric documentation rules"
 msgstr "数值文档规则"
 
-#: manual/conventions.md:158
+#: manual/conventions.md:159
 msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr "按照[数值语义](./numeric_semantics.md)中的定义使用 `precision`、`rounding`、`classify`、`signum`、`normalized`、`exponent`、`context` 和 `flags`。"
 
-#: manual/conventions.md:161
+#: manual/conventions.md:162
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr "区分存储表示、精确值、舍入结果、状态标志、checked 错误和区间包络。"
 
-#: manual/conventions.md:163
+#: manual/conventions.md:164
 msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
 msgstr "说明解析何时保留指数，以及规范化何时在不改变值的情况下改变同值类（cohort）。"
 
-#: manual/conventions.md:165
+#: manual/conventions.md:166
 msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
 msgstr "指明 API 所使用的序。`compare`、`<` 和排序是一个全预序，它把每个 NaN 排在所有数之上；IEEE 偏序（含 *unordered*）和 `totalOrder` 是单独的 API。切勿暗示区间值存在标量序。"
 
-#: manual/conventions.md:169
+#: manual/conventions.md:170
 msgid "For `*_ctx` APIs, document both the returned value and the flags."
 msgstr "对于 `*_ctx` API，同时说明返回值和标志。"
 
-#: manual/conventions.md:170
+#: manual/conventions.md:171
 msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr "对于 checked API 和包装器，说明其特定于数值域的状态转换：结果错误、IEEE 标志累积，或 GDA 陷阱短路及其恢复。"
 
-#: manual/conventions.md:173
+#: manual/conventions.md:174
 msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr "必须把 `decimal` 与 `decimal_gda` 写成两个独立合同：IEEE 运算返回逐 operation flags，GDA 运算通过 `GdaOutcome` 传递 sticky status 与 traps。"
 
-#: manual/conventions.md:176
+#: manual/conventions.md:177
 msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr "用 TeX（`$…$`、`$$…$$`）书写数学内容，并引用推导所依赖的标准条款或经典结果。"
 
-#: manual/conventions.md:181
+#: manual/conventions.md:182
 msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr "可运行的示例是完整的顶层项，通常是一个 `test` 块，用 `moonbit` 代码块围起，并用 `inspect` 展示输出。它们必须能在当前分支上编译并通过。"
 
-#: manual/conventions.md:184
+#: manual/conventions.md:185
 msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr "不完整的片段、行文中的签名、可执行包的代码、无法从模块外部导入的 `internal/*` 代码，以及 `moon.pkg` 片段，使用 `moonbit nocheck` 代码块；shell 命令使用 `bash` 代码块。由 `just docs` 运行的 `tools/check_doc_examples.py` 会编译并运行手册中其余所有 `moonbit` 代码块。"
 
-#: manual/conventions.md:189
+#: manual/conventions.md:190
 msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
 msgstr "导入别名：`Luna-Flow/luna-generic` 使用 `@lf_alg`，`Luna-Flow/arithmetic` 使用 `@lf_arith`；floating 的各个包使用其默认别名（`@binary`、`@decimal`、…）。"
 
-#: manual/conventions.md:192
-msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
-msgstr "只调用 `.mbti` 中列出的内容。例如，`Binary` 没有 `to_double` 或 `is_finite` 方法；请使用 `to_shortest_string` 和 `@def.is_finite(x)`。"
+#: manual/conventions.md:193
+msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` method; use `to_shortest_string`."
+msgstr "只调用 `.mbti` 中列出的内容。例如，`Binary` 没有 `to_double` 方法；请使用 `to_shortest_string`。"
 
 #: manual/conventions.md:196
 msgid "Translations"
@@ -12989,7 +12989,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:138
-#: manual/design/internal.md:138
+#: manual/design/internal.md:139
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
@@ -13044,7 +13044,7 @@ msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使
 #: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:156
-#: manual/design/internal.md:199
+#: manual/design/internal.md:200
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/interval.md:1160
@@ -19363,8 +19363,8 @@ msgid "The binary, decimal and interval cores all reduce their hard steps to exa
 msgstr "二进制、十进制和区间核心都把各自的困难步骤归结为精确整数运算：对齐指数、去除尾随零、按某种舍入模式做除法、将比值包络在两个二进有理数之间。`internal` 把这些步骤表述为带有已证明不变量的小型 `BigInt` 函数，使本包的测试能够针对预言机逐一检查它们，并使各核心能够共享其共同部分。它是内部包，因此各核心可以一起修改这些辅助函数，而无需作出公开的兼容性承诺。"
 
 #: manual/design/internal.md:13
-msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
-msgstr "在当前分支上，共享只是部分的。十进制核心使用字符串拆分器、`round_positive_div`、幂缓存和 `digits10`；每个核心都使用细化预算和 `certified_failure`。`binary` 和两个十进制包的热路径使用各自的 limb 内核舍入（`BinCoeff`，以及子包 `internal/decimal_kernel` 中的 `DecCoeff`，后者由 `decimal` 和 `decimal_gda` 共用），这些内核实现了与 `round_positive_div` 相同的舍入表，但并非基于它构建；还有若干辅助函数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系列）只在测试中被使用。[API 页面](../api/internal.md#purpose)上的表格列出了每个辅助函数的使用者。"
+msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, the power caches and `digits10`; `binary` and the two decimal packages use the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
+msgstr "在当前分支上，共享只是部分的。十进制核心使用字符串拆分器、幂缓存和 `digits10`；`binary` 和两个十进制包使用细化预算和 `certified_failure`。`binary` 和两个十进制包的热路径使用各自的 limb 内核舍入（`BinCoeff`，以及子包 `internal/decimal_kernel` 中的 `DecCoeff`，后者由 `decimal` 和 `decimal_gda` 共用），这些内核实现了与 `round_positive_div` 相同的舍入表，但并非基于它构建；还有若干辅助函数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系列）只在测试中被使用。[API 页面](../api/internal.md#purpose)上的表格列出了每个辅助函数的使用者。"
 
 #: manual/design/internal.md:26
 msgid "Integer division with remainder"
@@ -19424,86 +19424,86 @@ msgid "Wide exponent parsing"
 msgstr "宽指数解析"
 
 #: manual/design/internal.md:92
-msgid "A decimal context may set $e_{\\max}$ anywhere in `Int`, and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
-msgstr "十进制上下文可以把 $e_{\\max}$ 设为 `Int` 中的任意值，而无上下文的 `parse` 完全不施加指数范围，因此在 `Int` 内设置任何上限都不安全：被钳制到较小值的字面量指数仍可能处于范围之内，从而悄然改变数值。因此 `split_decimal_string_wide` 以 `Int64` 返回指数 $q$。书写的指数在 $10^{18}$ 以内被精确读取，超出则饱和于此；小数位数至多为 $2^{31}$，故 $|q| < 10^{18} + 2^{31}$，减法绝不会使 `Int64` 溢出。饱和后的 $q$ 远在 `Int` 之外，因而也在任何值或上下文所能容纳的指数之外，这意味着将 $q$（加上位数）与 `Int` 及其上下文比较的调用方，会看到与精确指数相同的上溢或下溢。`split_decimal_string` 保持其 `Int` 签名，在 $q$ 不能放入 `Int` 时返回 `None`，而不是返回另一个指数。"
+msgid "A stored decimal value may have an exponent up to `decimal_value_e_max` (near the top of `Int`), and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
+msgstr "一个已存储的十进制值的指数可以达到 `decimal_value_e_max`（接近 `Int` 的上限），而无上下文的 `parse` 完全不施加指数范围，因此在 `Int` 内设置任何上限都不安全：被钳制到较小值的字面量指数仍可能处于范围之内，从而悄然改变数值。因此 `split_decimal_string_wide` 以 `Int64` 返回指数 $q$。书写的指数在 $10^{18}$ 以内被精确读取，超出则饱和于此；小数位数至多为 $2^{31}$，故 $|q| < 10^{18} + 2^{31}$，减法绝不会使 `Int64` 溢出。饱和后的 $q$ 远在 `Int` 之外，因而也在任何值或上下文所能容纳的指数之外，这意味着将 $q$（加上位数）与 `Int` 及其上下文比较的调用方，会看到与精确指数相同的上溢或下溢。`split_decimal_string` 保持其 `Int` 签名，在 $q$ 不能放入 `Int` 时返回 `None`，而不是返回另一个指数。"
 
-#: manual/design/internal.md:105
+#: manual/design/internal.md:106
 msgid "Ziv-style refinement budget"
 msgstr "Ziv 式细化预算"
 
-#: manual/design/internal.md:107
+#: manual/design/internal.md:108
 msgid "The certified elementary functions evaluate an enclosure at a working precision $p_k$ and accept the result when both ends round to the same target number (Ziv's strategy[^ziv]); otherwise they retry at a higher precision. The budget fixes the schedule"
 msgstr "经认证的初等函数在工作精度 $p_k$ 下求值一个包络，当两端舍入到同一个目标数时接受结果（Ziv 策略[^ziv]）；否则以更高精度重试。预算规定了如下调度"
 
-#: manual/design/internal.md:116
+#: manual/design/internal.md:117
 msgid "with $L = 12$ refinements by default. For $p_k \\ge 64$ this is $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$, geometric growth with ratio $3/2$ up to the floor, so $p_L \\approx p_0 (3/2)^{L}$ (about $130\\,p_0$ for $L = 12$ and $p_0 \\ge 64$). For $p_k < 64$ the step is $32$ and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to the floor) at every step. If one attempt at precision $p$ costs $C(p) \\ge c\\,p$ (at least linear), the total cost of all attempts is dominated by the last one:"
 msgstr "默认 $L = 12$ 次细化。当 $p_k \\ge 64$ 时即为 $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$，即比率为 $3/2$ 的几何增长（不计下取整），因此 $p_L \\approx p_0 (3/2)^{L}$（当 $L = 12$ 且 $p_0 \\ge 64$ 时约为 $130\\,p_0$）。当 $p_k < 64$ 时步长为 $32$，且 $p_{k+1}/p_k = 1 + 32/p_k > 3/2$，因此每一步的比率都至少为 $3/2$（不计下取整）。若在精度 $p$ 下一次尝试的代价为 $C(p) \\ge c\\,p$（至少线性），则所有尝试的总代价由最后一次主导："
 
-#: manual/design/internal.md:130
+#: manual/design/internal.md:131
 msgid "which holds, up to the floors in the schedule, for $C(p) = c\\,p^{\\alpha}$ with $\\alpha \\ge 1$ in the geometric phase. Exhaustion is reported with `certified_failure`, which records the target and final working precision, instead of returning a value that is not certified."
 msgstr "在几何增长阶段，对于 $\\alpha \\ge 1$ 的 $C(p) = c\\,p^{\\alpha}$，这一结论成立（忽略调度中的取整）。预算耗尽时以 `certified_failure` 报告，其中记录了目标精度与最终工作精度，而不是返回一个未经认证的值。"
 
-#: manual/design/internal.md:135
+#: manual/design/internal.md:136
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 
-#: manual/design/internal.md:140
+#: manual/design/internal.md:141
 msgid "**Rounding table.** Let $n = qd + r$ with $0 \\le r < d$ and $x = (-1)^{\\sigma} n/d$. Then $|\\circ(x)| \\in \\{q, q+1\\}$, with $q + 1$ only if $r > 0$, and `round_positive_div` returns $|\\circ(x)|$:"
 msgstr "**舍入表。** 设 $n = qd + r$，$0 \\le r < d$，$x = (-1)^{\\sigma} n/d$。则 $|\\circ(x)| \\in \\{q, q+1\\}$，且仅当 $r > 0$ 时才可能为 $q + 1$；`round_positive_div` 返回 $|\\circ(x)|$："
 
-#: manual/design/internal.md:154
+#: manual/design/internal.md:155
 msgid "*Proof.* $|x| = q + r/d$ lies in $[q, q+1)$. Toward zero takes the smaller magnitude. Toward $+\\infty$ takes the larger magnitude for a positive non-integer and the smaller for a negative one; toward $-\\infty$ is the mirror image. Away from zero takes the larger magnitude for any non-integer. For nearest, the distance to $q$ is $r/d$ and to $q+1$ is $1 - r/d$, so $q + 1$ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of $q, q+1$, which is $q + 1$ iff $q$ is odd. $\\square$"
 msgstr "*证明。* $|x| = q + r/d$ 位于 $[q, q+1)$ 中。向零舍入取较小的绝对值。向 $+\\infty$ 舍入对正的非整数取较大的绝对值，对负的非整数取较小的绝对值；向 $-\\infty$ 舍入与之镜像对称。远离零舍入对任何非整数都取较大的绝对值。对于就近舍入，到 $q$ 的距离为 $r/d$，到 $q+1$ 的距离为 $1 - r/d$，因此 $q + 1$ 更近当且仅当 $2r > d$；$2r = d$ 为平局，此时取 $q, q+1$ 中的偶数者，即当且仅当 $q$ 为奇数时取 $q + 1$。$\\square$"
 
-#: manual/design/internal.md:162
+#: manual/design/internal.md:163
 msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The tests of this package check both functions against these formulas on ties and directed cases."
 msgstr "`round_shift(m, s, …)` 是 $d = 2^{s}$、$q = m \\gg s$、$r = m - (q \\ll s)$ 的情形，因此对 $m \\ge 0$ 适用同一张表。对 $m < 0$，算术移位给出 $q = \\lfloor m/2^{s} \\rfloor < 0$ 和 $0 \\le r < 2^{s}$，此时“绝对值”表被应用到负的 $q$ 上；结果并不是 $\\pm|\\circ(x)|$（例如 $m = -5$、$s = 1$ 时 `TowardZero` 给出 $-3$）。该函数不检查符号，因此调用者必须传入绝对值。本包的测试针对平局和定向情形，按这些公式检查这两个函数。"
 
-#: manual/design/internal.md:170
+#: manual/design/internal.md:171
 msgid "**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros` preserve $c \\cdot 10^{e}$, removing one factor of 10 per step; the latter stops after `max_drop` steps."
 msgstr "**因子去除。** `remove_factor10` 和 `trim_trailing_decimal_zeros` 保持 $c \\cdot 10^{e}$ 不变，每一步去掉一个因子 10；后者在 `max_drop` 步之后停止。"
 
-#: manual/design/internal.md:174
+#: manual/design/internal.md:175
 msgid "**Enclosure.** `certified_dyadic_fraction(n, d, s)` returns $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ and $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$; from $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ with $y = n 2^{s}/d$ we get $\\ell \\le n/d \\le u$ and $u - \\ell \\le 2^{-s}$, with equality $\\ell = u$ iff $y \\in \\mathbb{Z}$. The floor of a negative ratio is computed as $-\\lceil |n| / d \\rceil$, so the enclosure is correct for both signs. `certified_dyadic_div` rewrites $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ with the sign moved to the numerator, so it inherits the same bound. `round_down` and `round_up` are the same floor and ceiling at a smaller scale, so $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$."
 msgstr "**包络。** `certified_dyadic_fraction(n, d, s)` 返回 $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ 和 $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$；由 $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$（其中 $y = n 2^{s}/d$）可得 $\\ell \\le n/d \\le u$ 且 $u - \\ell \\le 2^{-s}$，并且 $\\ell = u$ 当且仅当 $y \\in \\mathbb{Z}$。负比值的下取整按 $-\\lceil |n| / d \\rceil$ 计算，因此包络对两种符号都正确。`certified_dyadic_div` 将 $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ 改写为把符号移到分子上的形式，因此继承了相同的界。`round_down` 和 `round_up` 是在更小尺度上的同样的下取整与上取整，因此 $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$。"
 
-#: manual/design/internal.md:187
+#: manual/design/internal.md:188
 msgid "**Budget.** The precision sequence is strictly increasing (each step adds at least 32 bits) and at most `limit` refinements are made, so every refinement loop that checks `available()` terminates."
 msgstr "**预算。** 精度序列严格递增（每一步至少增加 32 位），且至多进行 `limit` 次细化，因此每个检查 `available()` 的细化循环都会终止。"
 
-#: manual/design/internal.md:191
+#: manual/design/internal.md:192
 msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
 msgstr "**中止约定。** 以负指数调用 `pow5`、`pow10`，以 $n < 0$ 或 $d \\le 0$ 调用 `round_positive_div`，以负移位和非零系数调用 `exact_divide_by_power_of_ten`，以及以负尺度调用二进有理数的构造函数和舍入函数，都会中止：这些都是核心内部的编程错误，用户输入永远无法触及。`round_shift` 收到负的量值时不会中止；它返回上文所述的值。"
 
-#: manual/design/internal.md:201
+#: manual/design/internal.md:202
 msgid "**Rounding via floating point.** Converting to `Double` to round a ratio loses exactness beyond 53 bits; all helpers stay in `BigInt`."
 msgstr "**借助浮点数舍入。** 为舍入比值而转换为 `Double` 会在超过 53 位时失去精确性；所有辅助函数都保持在 `BigInt` 中。"
 
-#: manual/design/internal.md:203
+#: manual/design/internal.md:204
 msgid "**Signed division with remainder.** Truncating and flooring division differ for negative operands; sign-magnitude avoids the ambiguity."
 msgstr "**带符号的带余除法。** 截断除法与向下取整除法对负操作数的结果不同；符号-绝对值表示避免了这种歧义。"
 
-#: manual/design/internal.md:205
+#: manual/design/internal.md:206
 msgid "**A normalized `CertifiedDyadic`.** Normalizing after every operation costs a trailing-zero scan; enclosures are compared with `compare`, which does not need canonical forms."
 msgstr "**规范化的 `CertifiedDyadic`。** 每次运算后都规范化需要扫描尾随零；包络使用 `compare` 进行比较，而它不需要规范形式。"
 
-#: manual/design/internal.md:208
+#: manual/design/internal.md:209
 msgid "**An unbounded power cache.** Pathological exponents would retain huge `BigInt` values for the life of the process."
 msgstr "**无界的幂缓存。** 病态的指数会在整个进程生命周期内保留巨大的 `BigInt` 值。"
 
-#: manual/design/internal.md:213
+#: manual/design/internal.md:214
 msgid "No floating-point formats, contexts or flags: the cores build them on these helpers."
 msgstr "不提供浮点格式、上下文或标志：核心在这些辅助函数之上构建它们。"
 
-#: manual/design/internal.md:215
+#: manual/design/internal.md:216
 msgid "No decimal string formatting and no special values (`inf`, `nan`) in `split_decimal_string`."
 msgstr "`split_decimal_string` 不做十进制字符串格式化，也不处理特殊值（`inf`、`nan`）。"
 
-#: manual/design/internal.md:217
+#: manual/design/internal.md:218
 msgid "No public stability: the package is importable only inside `Luna-Flow/floating`."
 msgstr "不提供公开的稳定性保证：该包只能在 `Luna-Flow/floating` 内部导入。"
 
-#: manual/design/internal.md:219
+#: manual/design/internal.md:220
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "幂缓存是进程范围的可变状态，也是该包中唯一的状态；它们绝不会改变任何结果。"
 
@@ -19693,8 +19693,8 @@ msgid "`Inline64` and `Inline128` are the only representations of values below $
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
 #: manual/design/internal/binary_kernel.md:109
-msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
-msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
+msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
+msgstr "除违反前置条件（负移位、`to_radix_string` 的基数超出 `2..=36`）外，没有函数会中止。"
 
 #: manual/design/internal/conformance.md:1
 msgid "internal/conformance design"
@@ -19806,9 +19806,8 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr "不检查结果的 `passed` 位是否与其处置结果一致。"
 
 #: manual/design/internal/conformance.md:135
-#: manual/design/internal/runner_cli.md:88
-msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
-msgstr "内部包：不能在 `Luna-Flow/floating` 之外导入，不提供稳定性承诺。"
+msgid "Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise."
+msgstr "内部包：不能在 `Luna-Flow/floating-tools` 之外导入，不作稳定性承诺。"
 
 #: manual/design/internal/decimal_kernel.md:1
 msgid "internal/decimal_kernel design"
@@ -20081,6 +20080,10 @@ msgstr "不退出进程：运行器返回退出码；只有 `cli` 调用 `exit`�
 #: manual/design/internal/runner_cli.md:87
 msgid "No recursive file search, globbing or encoding detection."
 msgstr "不支持递归文件搜索、通配符展开或编码检测。"
+
+#: manual/design/internal/runner_cli.md:88
+msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
+msgstr "内部包：不能在 `Luna-Flow/floating` 之外导入，不提供稳定性承诺。"
 
 #: manual/design/interval.md:1
 msgid "interval design"
@@ -21785,98 +21788,98 @@ msgid "`Binary` prints in the exact form `<coefficient>p<exponent>`; use `to_sho
 msgstr "`Binary` 以精确形式 `<coefficient>p<exponent>` 打印；如需十进制文本，请使用 `to_shortest_string` 或 `to_decimal_string_ctx`。仅当你想丢弃十进制数的同值类（cohort）时，才对其调用 `normalized()`。"
 
 #: manual/getting_started.md:99
-msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` defaults to 53 bits, as the other constructors."
-msgstr "其他构造函数：`Binary::from_int`、`from_double`、`from_string` 和 `from_string_ctx`（正确舍入的十进制解析）、`from_hex`；`Decimal::from_int`、`from_string` 和 `from_string_ctx`；`Interval::from_int`、`from_double`、`exact` 和 `from_bounds`。构造函数接受可选的 `precision` 参数；`Interval::from_int` 与其他构造函数一样默认为 53 位。"
+msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` requires it."
+msgstr "其他构造函数：`Binary::from_int`、`from_double`、`from_string` 和 `from_string_ctx`（正确舍入的十进制解析）、`from_hex`；`Decimal::from_int`、`from_string` 和 `from_string_ctx`；`Interval::from_int`、`from_double`、`exact` 和 `from_bounds`。构造函数接受可选的 `precision` 参数；`Interval::from_int` 要求提供该参数。"
 
-#: manual/getting_started.md:106
+#: manual/getting_started.md:105
 msgid "Choose a context"
 msgstr "选择上下文"
 
-#: manual/getting_started.md:108
+#: manual/getting_started.md:107
 msgid "The plain operators (`+`, `-`, `*`, `/` and `add`, `mul`, …) work at the operands' precision with round-to-nearest-even and an effectively unbounded exponent range, and they discard status. When precision, exponent range, rounding direction, tininess or the status flags are part of your result, use the `*_ctx` form with an explicit context:"
 msgstr "普通运算符（`+`、`-`、`*`、`/` 以及 `add`、`mul`、…）以操作数的精度、就近舍入（偶数优先）和实际上无界的指数范围进行计算，并丢弃状态。当精度、指数范围、舍入方向、微小性（tininess）或状态标志是结果的一部分时，请使用带显式上下文的 `*_ctx` 形式："
 
-#: manual/getting_started.md:141
-msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose status accumulates the flags."
-msgstr "上下文是不可变的值；库中没有任何地方读取全局舍入模式。IEEE 上下文返回单次运算的标志，由你自行 `combine`。GDA 上下文则随结果一起传递：每个 `GdaOutcome` 都返回下一个上下文，其状态会累积标志。"
+#: manual/getting_started.md:140
+msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose flags accumulate."
+msgstr "上下文是不可变的值；库中没有任何地方读取全局舍入模式。IEEE 上下文返回单次运算的标志，由你自行 `combine`。GDA 上下文则随结果一起传递：每个 `GdaOutcome` 都返回下一个上下文，其标志会累积。"
 
-#: manual/getting_started.md:146
+#: manual/getting_started.md:145
 msgid "Choose a failure model"
 msgstr "选择失败模型"
 
-#: manual/getting_started.md:148
+#: manual/getting_started.md:147
 msgid "The library exposes several failure channels on purpose. Pick the one that matches what your caller must observe:"
 msgstr "本库有意提供多种失败通道。请选择与调用者必须观察到的内容相匹配的那一种："
 
-#: manual/getting_started.md:151
-msgid "`Option` from simple constructors such as `Decimal::from_string`, when bad input needs no diagnostic."
-msgstr "来自 `Decimal::from_string` 等简单构造函数的 `Option`，适用于错误输入不需要诊断信息的情形。"
+#: manual/getting_started.md:150
+msgid "`Option` from simple constructors such as `BinaryInterchange::from_hex`, when bad input needs no diagnostic."
+msgstr "来自 `BinaryInterchange::from_hex` 等简单构造函数的 `Option`，适用于错误输入不需要诊断信息的情形。"
 
-#: manual/getting_started.md:153
-msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
-msgstr "来自 checked 运算（`div_checked`、`sqrt`、`compare_checked`、`from_string`、`try_*_ctx` 初等函数）的 `Result[T, ArithmeticError]`。"
+#: manual/getting_started.md:152
+msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt_checked`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
+msgstr "来自 checked 运算（`div_checked`、`sqrt_checked`、`compare_checked`、`from_string`、`try_*_ctx` 初等函数）的 `Result[T, ArithmeticError]`。"
 
-#: manual/getting_started.md:156
+#: manual/getting_started.md:155
 msgid "`BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result."
 msgstr "与有定义的结果一同返回的 `BinaryFlags`、`DecimalFlags` 和 `IntervalFlags`。"
 
-#: manual/getting_started.md:157
+#: manual/getting_started.md:156
 msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires."
 msgstr "`GdaOutcome[T]`，即使触发陷阱也保留 GDA 定义的结果。"
 
-#: manual/getting_started.md:158
+#: manual/getting_started.md:157
 msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
 msgstr "流水线包装器：`BinaryChecked` 和 `IntervalChecked` 在首个错误处停止；`DecimalChecked` 保留有定义的 NaN 与无穷大结果并累积标志；`GdaDecimalChecked` 在陷阱处停止并保留其结果。"
 
-#: manual/getting_started.md:162
+#: manual/getting_started.md:161
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr "Empty、Entire 和 NaI，它们是区间值，而不是错误。"
 
-#: manual/getting_started.md:181
+#: manual/getting_started.md:180
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr "不要把这些通道合并成一种异常类型或一个 `Result`：那样会抹去标准规定为可观察的语义。"
 
-#: manual/getting_started.md:184
+#: manual/getting_started.md:183
 msgid "Read results correctly"
 msgstr "正确解读结果"
 
-#: manual/getting_started.md:186
+#: manual/getting_started.md:185
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr "在标量上，带符号零、无穷大、静默 NaN 与信号 NaN 以及 NaN 的 payload 都是可观察的。"
 
-#: manual/getting_started.md:188
+#: manual/getting_started.md:187
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `binary`, or the `total_order*` functions."
 msgstr "`compare`、`<` 和排序使用一个全预序：其中所有 NaN 彼此相等且排在所有数之上，并且 $-0 = +0$。如需 IEEE 语义，请使用 `compare_checked`、`binary` 的静默与信号谓词，或 `total_order*` 系列函数。"
 
-#: manual/getting_started.md:192
+#: manual/getting_started.md:191
 msgid "`==` agrees with `compare` in the number types: on `Binary` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `Binary`. See [numeric semantics](./numeric_semantics.md)."
 msgstr "`==` 在各数值类型上与 `compare` 一致：`Binary` 的 `==` 忽略零的符号和精度（`-0 == +0`），并把两个 NaN 视为相等；`Decimal` 的 `==` 比较数值；`Interval` 的 `==` 按值比较端点（两个空区间相等）。`a.identical(b)` 比较 `Binary` 的每个字段。参见[数值语义](./numeric_semantics.md)。"
 
-#: manual/getting_started.md:197
-msgid "An `Interval` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
-msgstr "`Interval` 具有包含关系与集合关系（`contains`、`subset`、`definitely_lt`、…），而没有标量序。只要结果包络了精确结果，它就是正确的；紧致程度是另一项独立的质量指标。"
+#: manual/getting_started.md:196
+msgid "An `Interval` has containment and set relations (`contains`, `subset`, `strict_less`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
+msgstr "`Interval` 具有包含关系与集合关系（`contains`、`subset`、`strict_less`、…），而没有标量序。只要结果包含了精确结果，它就是正确的；紧致程度是另一项独立的质量指标。"
 
-#: manual/getting_started.md:200
+#: manual/getting_started.md:199
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, exponent, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` 跨包比较数学值，并丢弃精度、指数、带符号零、payload、装饰和标志。"
 
-#: manual/getting_started.md:203
+#: manual/getting_started.md:202
 msgid "Continue reading"
 msgstr "继续阅读"
 
-#: manual/getting_started.md:205
+#: manual/getting_started.md:204
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, exponent, signed zero, NaN and enclosures with their derivations."
 msgstr "[数值语义](./numeric_semantics.md)定义了舍入、ulp、标志、指数、带符号零、NaN 和包络，并给出其推导。"
 
-#: manual/getting_started.md:207
+#: manual/getting_started.md:206
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[架构](./architecture.md)解释了包的分层以及经认证的初等函数。"
 
-#: manual/getting_started.md:209
+#: manual/getting_started.md:208
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[验证](./verification.md)列出了各项检查关卡以及每项符合性声明的确切范围。"
 
-#: manual/getting_started.md:211
+#: manual/getting_started.md:210
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`binary` tutorial](./tutorial/binary.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr "每个包都有教程、API 参考和设计页面；可以从 [`binary` 教程](./tutorial/binary.md)、[`decimal` 教程](./tutorial/decimal.md)或 [`interval` 教程](./tutorial/interval.md)开始。"
 
@@ -22372,8 +22375,8 @@ msgid "Library infrastructure"
 msgstr "库的基础设施"
 
 #: manual/index.md:114
-msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
-msgstr "`internal`：精确有理数、大整数、解析、规范化与舍入辅助函数"
+msgid "`internal`: big-integer, parsing, normalization and rounding helpers, dyadic enclosures"
+msgstr "`internal`：大整数、解析、规范化与舍入辅助函数，二进有理数包含区间"
 
 #: manual/index.md:114
 msgid "[tutorial](tutorial/internal.md)"
@@ -28889,8 +28892,8 @@ msgid "The certified elementary functions follow Ziv's strategy: compute an encl
 msgstr "经认证的初等函数遵循 Ziv 策略：在某个工作精度下计算一个包络，只有当包络两端舍入到同一个数时才接受舍入结果；否则提高精度。预算限定了循环的次数。这里的“函数”是精确比值 $n/d$，向下舍入到 `target` 个小数位（二进制）："
 
 #: manual/tutorial/internal.md:167
-msgid "`binary`, `decimal`, `decimal_gda` and `interval` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
-msgstr "`binary`、`decimal`、`decimal_gda` 和 `interval` 以目标精度加上保护余量来创建细化预算，并在预算耗尽时报告 `certified_failure`；经认证的初等函数参见 [binary 设计](../design/binary.md)。"
+msgid "`binary`, `decimal` and `decimal_gda` create their refinement budgets at the target precision plus a guard margin and report `certified_failure` when the budget runs out; see the [binary design](../design/binary.md) for the certified elementary functions."
+msgstr "`binary`、`decimal` 和 `decimal_gda` 以目标精度加上保护余量来创建细化预算，并在预算耗尽时报告 `certified_failure`；经认证的初等函数参见 [binary 设计](../design/binary.md)。"
 
 #: manual/tutorial/internal.md:172
 msgid "The white-box tests of this package check these helpers against `BigInt` oracles."
@@ -28991,8 +28994,8 @@ msgid "`binary` imports the kernel and brings the names it uses into scope with 
 msgstr "`binary` 导入内核，并用 `using` 把用到的名字带入作用域（在 `kernel_imports.mbt` 中；只在系数有 64 位肢时才存在的名字在 `kernel_imports_nonjs.mbt` 中）："
 
 #: manual/tutorial/internal/binary_kernel.md:28
-msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
-msgstr "`Binary` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype（`value.0` 解包，`BinCoeff(c)` 包装结果），因此内核类型在公共接口中只作为 `BinCoeff` 的字段出现，而它在模块之外是不透明的，并且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `binary`："
+msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.to_kernel()` unwraps it and `BinCoeff::from_kernel(c)` wraps a result), so the kernel types show in a public interface only in those two functions and in `Binary`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
+msgstr "`Binary` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype（`value.to_kernel()` 解包，`BinCoeff::from_kernel(c)` 包装结果），因此内核类型在公共接口中只出现在这两个函数中以及在模块之外不透明的 `Binary` 中，并且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `binary`："
 
 #: manual/tutorial/internal/binary_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
@@ -29047,8 +29050,8 @@ msgid "internal/conformance tutorial"
 msgstr "internal/conformance 教程"
 
 #: manual/tutorial/internal/conformance.md:3
-msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating`, so the examples are written for code inside the module and are not compiled by the manual checker."
-msgstr "本页的目标是帮助添加或修改符合性前端的维护者：介绍前端如何借助 `internal/conformance` 的共享模型记录每个用例的结果、汇总一次运行、将其拆分为分片并把各分片合并回来。该包是 `Luna-Flow/floating` 的内部包，因此这些示例是为模块内部代码编写的，不会由手册检查器编译。"
+msgid "The goal of this page is to help maintainers who add or change a conformance frontend: it shows how a frontend records per-case results, summarizes a run, splits it into shards and merges the shards back, using the shared model of `internal/conformance`. The package is internal to `Luna-Flow/floating-tools`, so the examples are written for code inside the module and are not compiled by the manual checker."
+msgstr "本页的目标是帮助添加或修改符合性前端的维护者：介绍前端如何借助 `internal/conformance` 的共享模型记录每个用例的结果、汇总一次运行、将其拆分为分片并把各分片合并回来。该包是 `Luna-Flow/floating-tools` 的内部包，因此这些示例是为模块内部代码编写的，不会由手册检查器编译。"
 
 #: manual/tutorial/internal/conformance.md:12
 msgid "record the outcome of one case"
@@ -31417,6 +31420,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:945
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "All functions are named `dec_coeff_*`; the ones without that prefix are `remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and `trim_trailing_decimal_zeros_repr`."
+#~ msgstr "所有函数都以 `dec_coeff_*` 命名；没有这个前缀的是 `remove_factor10_repr`、`exact_divide_by_power_of_ten_repr` 和 `trim_trailing_decimal_zeros_repr`。"
 
 #~ msgid "where RA (round the magnitude up) is not an IEEE attribute: it is the GDA \"round-up\" mode that `@lf_arith.RoundingMode` shares with the decimal cores, and `BinaryRoundingMode` has no such variant. Two properties of every $\\circ$ above carry most of the proofs on this page:"
 #~ msgstr "其中 RA（将幅值向上舍入）不是 IEEE 属性：它是 `@lf_arith.RoundingMode` 与十进制核心共用的 GDA \"round-up\" 模式，而 `BinaryRoundingMode` 没有这样的变体。上述每个 $\\circ$ 的两条性质支撑了本页的大部分证明："
