@@ -4033,8 +4033,8 @@ msgid "For large integer exponents, the implementation decides zero and infinity
 msgstr "对于较大的整数指数，实现不展开指数，而是根据符号和奇偶性判定零和无穷大情况。例如，`pown_ctx(-0, Int::max_value())` 返回 `-0`；`pown_ctx(-0, Int::min_value())` 返回带 `division_by_zero` 的 `+infinity`；`pown_ctx(-infinity, Int::min_value())` 返回 `+0`。"
 
 #: manual/api/decimal.md:1739
-msgid "For other integral exponents, the result is exact when the power fits in $p$ digits and correctly rounded otherwise. In decimal32, `pow_ctx(3.339434, 3)` returns `37.24077`; the exact cube is $37.240765000\\ldots$. The operation treats $x^{0.5}$ as `sqrt_ctx`. It certifies positive non-integer powers and treats a negative base with a finite non-integer exponent as invalid. These IEEE rules differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic, including its invalid result for $0^0$ and the `powx2015` vector rounded to `1.00`."
-msgstr "其他整数指数的幂若能放入 $p$ 位，则结果精确；否则正确舍入。在 decimal32 中，`pow_ctx(3.339434, 3)` 返回 `37.24077`，精确立方为 $37.240765000\\ldots$。本运算将 $x^{0.5}$ 作为 `sqrt_ctx` 处理。它认证正底数的非整数幂，并将负底数与有限非整数指数视为无效。这些 IEEE 规则不同于 [`decimal_gda`](decimal_gda.md)，后者遵循 General Decimal Arithmetic，包括将 $0^0$ 判为无效，以及将 `powx2015` 向量舍入为 `1.00`。"
+msgid "For other integral exponents, the result is exact when the power fits in $p$ digits and correctly rounded otherwise. In decimal32, `pow_ctx(3.339434, 3)` returns `37.24077`; the exact cube is $37.240765000\\ldots$. The operation treats $x^{0.5}$ as `sqrt_ctx`. It certifies positive non-integer powers and treats a negative base with a finite non-integer exponent as invalid. These IEEE rules intentionally differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic, including its invalid result for $0^0$ and the `powx2015` vector rounded to `1.00`."
+msgstr "其他整数指数的幂若能放入 $p$ 位，则结果精确；否则正确舍入。在 decimal32 中，`pow_ctx(3.339434, 3)` 返回 `37.24077`，精确立方为 $37.240765000\\ldots$。本运算将 $x^{0.5}$ 作为 `sqrt_ctx` 处理。它认证正底数的非整数幂，并将负底数与有限非整数指数视为无效。这些 IEEE 规则有意不同于 [`decimal_gda`](decimal_gda.md)，后者遵循 General Decimal Arithmetic，包括将 $0^0$ 判为无效，以及将 `powx2015` 向量舍入为 `1.00`。"
 
 #: manual/api/decimal.md:1749
 msgid ""
