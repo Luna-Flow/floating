@@ -34,7 +34,7 @@ $$
 
 for $f : V \to M V$. A function $f : V \to M V$ is a *Kleisli arrow*: an
 operation that may fail. Every checked operation of `binary`
-(`Binary::sqrt`, `div_checked`, `try_ln_ctx`, …) and every checked trait
+(`Binary::sqrt_checked`, `div_checked`, `try_ln_ctx`, …) and every checked trait
 method of Luna-Flow/arithmetic (`SqrtChecked::sqrt_checked`,
 `DivChecked::div_checked`, `PowIntChecked::pow_int_checked`, …) is such an
 arrow once its non-value arguments are fixed. The wrapper turns them into
@@ -121,10 +121,11 @@ some precision stays at that precision:
 
 | Operation | Context used |
 | --- | --- |
-| `+`, `-`, `*`, `/`, `min_num`, `max_num` | as the `Binary` operator: the larger operand precision, nearest-even |
+| `+`, `-`, `*`, `min_num`, `max_num` | as the `Binary` operator: the larger operand precision, nearest-even (`min_num` and `max_num` return an operand unchanged, with no rounding) |
+| `/` | `div_ctx` under `BinaryContext::new(precision=max(p_x, p_y))`, flags mapped as above |
 | unary elementary functions, `rootn` | `BinaryContext::new(precision=x.precision())` |
 | `pow`, `hypot`, `atan2` | `BinaryContext::new(precision=max(p_x, p_y))` |
-| `sqrt`, `pown` | the `Binary` method at the operand's precision |
+| `sqrt`, `pown` | `sqrt_ctx`, `pown_ctx` under `BinaryContext::new(precision=x.precision())` |
 | `pow_nat` | `ArithmeticContext::new(x.precision())`, passed to `PowNatChecked` |
 | every `*_ctx` method | the given `BinaryContext` |
 
@@ -176,7 +177,7 @@ The exceptional cases of the arithmetic methods (IEEE 754-2019):
 
 | Case | Clause | Result |
 | --- | --- | --- |
-| a signaling NaN operand, any method | 6.2, 7.2 a) | `Err(DomainError)` |
+| a signaling NaN operand, any `_ctx` method, `div`, `sqrt` or `pown` | 6.2, 7.2 a) | `Err(DomainError)` |
 | a quiet NaN operand, no signaling NaN | 6.2: signals nothing | `Ok(NaN)` |
 | `mul_ctx(0, inf)`, `mul_ctx(inf, 0)`, signs arbitrary | 7.2 b) | `Err(DomainError)` |
 | `add_ctx(+inf, -inf)`, `add_ctx(-inf, +inf)` | 7.2 d) | `Err(DomainError)` |
@@ -192,7 +193,7 @@ The exceptional cases of the arithmetic methods (IEEE 754-2019):
 
 The elementary functions, `pow`, `rootn`, `hypot` and `atan2` follow the same
 map. A pole such as $\ln(\pm 0)$, $\operatorname{atanh}(\pm 1)$ or
-$\operatorname{pow}(\pm 0, y)$ with $y < 0$ (§9.2, Table 9.1) is a
+$\operatorname{pow}(\pm 0, y)$ with a finite $y < 0$ (§9.2, Table 9.1) is a
 `DivisionByZero` error and a signaling NaN operand a `DomainError`, in the
 plain and in the `_ctx` form alike. Before this rule the seven arithmetic
 `_ctx` methods dropped every flag ([#371](https://github.com/Luna-Flow/floating/issues/371)).

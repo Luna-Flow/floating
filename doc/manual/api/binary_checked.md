@@ -277,11 +277,14 @@ pub fn BinaryChecked::div_ctx(Self, Self, @binary.BinaryContext) -> Self
 
 The result has the context's precision, rounding direction and exponent range,
 with IEEE overflow, underflow and subnormal handling. The flags of the step are
-mapped as in `add`, `div` and the elementary methods: invalid operation is a
-`DomainError` and divideByZero a `DivisionByZero`; overflow, underflow and
+mapped as in `div` and the elementary methods: invalid operation is a
+`DomainError`, divideByZero a `DivisionByZero` and `not_computed` a
+`CertificationFailure`; overflow, underflow and
 inexact are dropped. So `div_ctx` by a zero divisor is `DivisionByZero`, and
 $0/0$, $\infty/\infty$, $\infty - \infty$ and $0 \cdot \infty$ are
-`DomainError`, exactly as without a context; a quiet NaN operand is still a
+`DomainError`, whereas `sub` and `mul` without a context give a successful NaN for
+$\infty - \infty$ and $0 \cdot \infty$ (only `div` reports $0/0$ and $\infty/\infty$ as errors
+without a context); a quiet NaN operand is still a
 successful NaN. The full table is in the
 [design page](../design/binary_checked.md). Use `Binary::div_ctx` and its
 siblings when the raw default result and the flags matter.
@@ -312,7 +315,8 @@ pub fn BinaryChecked::sqrt(Self) -> Self
 pub fn BinaryChecked::sqrt_ctx(Self, @binary.BinaryContext) -> Self
 ```
 
-`sqrt` is `Binary::sqrt`, which returns a `DomainError` for a negative
+`sqrt` is `Binary::sqrt_ctx` under `BinaryContext::new(precision=x.precision())`,
+with the flags mapped as for `div`: a `DomainError` for a negative
 non-zero argument, including $-\infty$, and for a signaling NaN;
 $\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same
 under a context: a negative argument is a `DomainError`.

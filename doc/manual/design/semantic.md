@@ -238,5 +238,5 @@ projection for every pipeline.
 - Projections of values with very large exponents are exact and therefore
   large; the package does not guard against that cost. A `Binary` exponent
   near its implementation limit $\pm(2^{30} - 1)$ gives a `BigInt` of about
-  $2^{30}$ bits, and a decimal exponent near $10^{9}$ one of about
-  $3.3 \cdot 10^{9}$ bits.
+  $2^{30}$ bits, and a decimal exponent near `decimal_value_e_max`
+  ($2.1 \cdot 10^{9}$) one of about $7 \cdot 10^{9}$ bits.

@@ -139,7 +139,7 @@ those predicates are the scalar ones, so the interval meaning could not be
 told from the call site. `Interval` therefore does not implement `Floating`;
 its package spells the questions the way IEEE 1788-2015 does (`is_empty`,
 `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table
-10.3, `contains` for a point) and re-rounds with `with_precision`, which always
+10.3, `is_member` for a point) and re-rounds with `with_precision`, which always
 rounds outward.
 
 ### `PartialOrder` is the IEEE four-way relation
@@ -214,15 +214,15 @@ exponent at most $2147483646$: `decimal_value_e_tiny`, `decimal_value_e_max`,
 `gda_value_e_tiny`, `gda_value_e_max`), and a result beyond it overflows or underflows by
 the direction as for `Binary`, so for them (F5) holds whenever $\circ_{m,q}([\![x]\!])$ lies in that range.
 `Binary` keeps its implementation range even in `with_precision`: let
-$E = 2^{30} - 1$ (`binary_value_e_max`, and $-E$ is
-`binary_value_e_min`). A rounded result whose leading bit would lie
-above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero`
+$E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is
+$1 - E$). A rounded result whose leading bit would lie
+above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway`
 and the directed mode that points away from zero on that side, otherwise to
-the largest finite value with $q$ bits. A value whose leading bit lies below
-$2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to
+the largest finite value with $q$ bits. A value that lies below
+$2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to
 $0$ or to that value. So for `Binary` (F5) holds whenever
 $\circ_{m,q}([\![x]\!])$ lies in that range. For example
-$3 \cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes
+$3 \cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes
 $+\infty$ instead of $2^{E+1}$.
 
 For non-finite scalars, `with_precision` keeps the class and the sign and only

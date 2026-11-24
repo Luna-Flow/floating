@@ -118,10 +118,10 @@ pub fn GdaDecimalChecked::flags(Self) -> @decimal_gda.GdaFlags
 `value()` is the defined result, also when trapped. `context()` is the next
 context, including its updated flags and its traps. `raised()` holds the
 signals of the latest operation only. `flags()` is `context().flags()`, the
-sticky union of everything raised since the context's flags was last cleared;
+sticky union of everything raised since the context's flags were last cleared;
 whenever any invalid-operation condition (`conversion_syntax`,
 `division_impossible`, `division_undefined`, `invalid_context`) is raised, the
-flags also gets `invalid_operation`.
+flags also get `invalid_operation`.
 
 ### `GdaDecimalChecked::error`, `GdaDecimalChecked::result`, `GdaDecimalChecked::is_ok`, `GdaDecimalChecked::is_err`
 
@@ -226,7 +226,7 @@ The operations that return a number are all here: `apply`, `plus`, `minus`,
 `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`,
 `logical_invert`, `next_minus`, `next_plus`, `next_toward`, `compare`,
 `compare_signal`, `max`, `min`, `max_magnitude` and `min_magnitude`. The
-functions of `decimal_gda` that return a string, a boolean or an integer
+functions of `decimal_gda` that return a `GdaOutcome[String]`, `GdaOutcome[Bool]` or `GdaOutcome[Int32]`
 (`class_name`, `is_normal`, `is_subnormal`, `compare_total`,
 `compare_total_magnitude`) and the `try_` forms are called on `value()` and
 `context()`.
