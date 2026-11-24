@@ -136,7 +136,7 @@ msgstr ""
 #: manual/api/differential/interval_mpfr.md:24
 #: manual/api/interval.md:151
 #: manual/numeric_semantics.md:317
-#: manual/tutorial/internal/runner_cli.md:116
+#: manual/tutorial/internal/runner_cli.md:117
 msgid "Meaning"
 msgstr ""
 
@@ -250,9 +250,9 @@ msgstr ""
 #: manual/api/binary_checked.md:845
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
-#: manual/api/cli/gda_expr_cli.md:83
+#: manual/api/cli/gda_expr_cli.md:86
 #: manual/api/cli/itl_expr_cli.md:71
-#: manual/api/cli/mpfr_expr_cli.md:73
+#: manual/api/cli/mpfr_expr_cli.md:76
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:59
 #: manual/api/decimal.md:2495
@@ -264,10 +264,10 @@ msgstr ""
 #: manual/api/differential/harness.md:39
 #: manual/api/differential/interval_mpfr.md:31
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:515
-#: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:537
-#: manual/api/frontend/testfloat_expr.md:418
+#: manual/api/frontend/gda_expr.md:519
+#: manual/api/frontend/itl_expr.md:281
+#: manual/api/frontend/mpfr_expr.md:539
+#: manual/api/frontend/testfloat_expr.md:421
 #: manual/api/internal.md:506
 #: manual/api/internal/binary_kernel.md:82
 #: manual/api/internal/conformance.md:359
@@ -312,7 +312,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:1217
 #: manual/api/decimal_gda.md:1279
 #: manual/api/decimal_gda.md:1886
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:116
 #: manual/design/bench/binary.md:33
 #: manual/design/bench/decimal.md:33
 #: manual/design/bench/decimal_gda.md:30
@@ -1388,12 +1388,12 @@ msgid "The parameters of a format."
 msgstr ""
 
 #: manual/api/binary.md:1480
-#: manual/api/cli/mpfr_expr_cli.md:46
+#: manual/api/cli/mpfr_expr_cli.md:47
 #: manual/api/decimal.md:471
 #: manual/design/binary.md:108
 #: manual/design/decimal.md:90
 #: manual/design/decimal.md:762
-#: manual/design/frontend/mpfr_expr.md:48
+#: manual/design/frontend/mpfr_expr.md:49
 msgid "Format"
 msgstr ""
 
@@ -1452,7 +1452,7 @@ msgstr ""
 #: manual/api/binary.md:1616
 #: manual/api/binary_checked.md:494
 #: manual/api/decimal.md:1570
-#: manual/api/frontend/mpfr_expr.md:156
+#: manual/api/frontend/mpfr_expr.md:155
 #: manual/api/interval.md:1262
 #: manual/api/interval_checked.md:431
 #: manual/design/decimal_gda.md:510
@@ -1975,10 +1975,10 @@ msgstr ""
 #: manual/api/decimal.md:2297
 #: manual/api/decimal_gda.md:1740
 #: manual/api/def.md:421
-#: manual/api/frontend/gda_expr.md:464
-#: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:524
-#: manual/api/frontend/testfloat_expr.md:372
+#: manual/api/frontend/gda_expr.md:468
+#: manual/api/frontend/itl_expr.md:268
+#: manual/api/frontend/mpfr_expr.md:526
+#: manual/api/frontend/testfloat_expr.md:375
 #: manual/api/internal/conformance.md:296
 #: manual/api/interval.md:2033
 #: manual/api/interval_checked.md:516
@@ -2599,7 +2599,7 @@ msgid "Exit status"
 msgstr ""
 
 #: manual/api/cli.md:58
-#: manual/tutorial/internal/runner_cli.md:116
+#: manual/tutorial/internal/runner_cli.md:117
 msgid "Code"
 msgstr ""
 
@@ -2628,7 +2628,7 @@ msgid "The executable is built by the conformance tooling:"
 msgstr ""
 
 #: manual/api/cli.md:75
-msgid "`tools/conformance_cli.py` builds `tooling/src/cli` once per backend into `_build/conformance/<backend>/` and copies it to `<backend>-conformance.exe`, so parallel builds for different backends do not share a target directory."
+msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into one shared target directory, `_build/conformance/cli/`, and copies the executable to `_build/conformance/<backend>/native/release/build/<backend>-conformance.exe` for each backend."
 msgstr ""
 
 #: manual/api/cli/dispatch.md:1
@@ -2715,23 +2715,27 @@ msgid "row filter: comma-separated ids or `first..last` ranges (see `RunOptions:
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:45
-msgid "print the usage line and return `2`"
+msgid "judge the rows recorded in the tab-separated `FILE` against their held values: at least five fields per line (corpus, file, id, corpus value, held value), the eighth is the held flags, and blank lines and lines starting with `#` are skipped (see `RunOptions::new`)"
 msgstr ""
 
 #: manual/api/cli/gda_expr_cli.md:46
+msgid "print the usage line and return `2`"
+msgstr ""
+
+#: manual/api/cli/gda_expr_cli.md:47
 msgid "`.decTest` files or directories (direct file entries ending in `.decTest`); default `testdata/decimal_gda/smoke.decTest`"
 msgstr ""
 
-#: manual/api/cli/gda_expr_cli.md:48
+#: manual/api/cli/gda_expr_cli.md:49
 msgid "Any other argument starting with `-` is an error `unknown option: …`. A directory contributes its direct file entries whose names end in `.decTest` (a directory without any adds no file); a named file without that suffix is the error `not a .decTest file: PATH`, and a path that does not exist is the error `path does not exist: PATH`, both with exit status 2. Files are sorted, each file is run once even if named twice, parsed in order (the first parse diagnostic of a file is printed as `source:line:1: message` and ends the run), and executed together, so row ordinals and shards span all files."
 msgstr ""
 
-#: manual/api/cli/gda_expr_cli.md:57
-msgid "Text output lists the counts (`cases`, `selected cases`, `executable cases`, `passed cases`, `failed cases`, `skipped cases`), the shard, and one `failed ID: MESSAGE` line per failing row. JSON output has the keys `totalCases`, `supportedCases` (executable rows), `diagnosticCases`, `legacyConditionCases`, `unsupportedCases` and an `execution` object with `executableCases`, `passedCases`, `failedCases`, `skippedCases`, `failedIds`, `shardCount`, `shardIndex`. `totalCases` counts the rows that match `--cases` in all shards; every other counter, including the top-level `supportedCases`, `diagnosticCases`, `legacyConditionCases` and `unsupportedCases`, counts only the rows of this shard. `legacyConditionCases` is always 0 with the current frontend."
+#: manual/api/cli/gda_expr_cli.md:58
+msgid "Text output lists the counts (`cases`, `selected cases`, `executable cases`, `passed cases`, `failed cases`, `skipped cases`), one `verdict KIND: N` line per kind of verdict (`text`, `hex`, `format-prefixed`, `value-not-checked`, `deviation`), the shard, and one `failed ID: MESSAGE` line per failing row. JSON output has the keys `totalCases`, `supportedCases` (executable rows), `diagnosticCases`, `legacyConditionCases`, `unsupportedCases` and an `execution` object with `executableCases`, `passedCases`, `failedCases`, `skippedCases`, `failedIds`, `verdictKinds` (an object with the count of each kind of verdict), `shardCount`, `shardIndex`. `totalCases` counts the rows that match `--cases` in all shards; every other counter, including the top-level `supportedCases`, `diagnosticCases`, `legacyConditionCases` and `unsupportedCases`, counts only the rows of this shard. `legacyConditionCases` is always 0 with the current frontend."
 msgstr ""
 
-#: manual/api/cli/gda_expr_cli.md:69
-msgid "Return value: `2` for usage, file or parse errors; `1` when a row failed, or with `--strict-supported` when any legacy or unsupported row was selected; `0` otherwise. Diagnostic rows (`#` and `?` placeholders) never change the exit status, even with `--strict-supported`."
+#: manual/api/cli/gda_expr_cli.md:72
+msgid "Return value: `2` for usage, file or parse errors; `1` when a row failed, or with `--strict-supported` when any legacy or unsupported row was selected; `0` otherwise. Diagnostic rows (`#` and `?` placeholders, rows under an invalid context) never change the exit status, even with `--strict-supported`."
 msgstr ""
 
 #: manual/api/cli/itl_expr_cli.md:1
@@ -2763,7 +2767,7 @@ msgid "Any other argument starting with `-` (including `--json`, `--help` and th
 msgstr ""
 
 #: manual/api/cli/itl_expr_cli.md:52
-msgid "The output is always one JSON object with the keys `schemaVersion` (`1`), `runner` (`\"itl-expression-interpreter\"`), `totalCases`, `executableCases`, `passedCases`, `failedCases`, `unsupportedCases`, `diagnosticCases`, `failedIds`, `failedMessages` (`ID: MESSAGE`), `unsupportedIds` and `diagnosticIds`."
+msgid "When the run completes, the output is one JSON object with the keys `schemaVersion` (`1`), `runner` (`\"itl-expression-interpreter\"`), `totalCases`, `executableCases`, `passedCases`, `failedCases`, `unsupportedCases`, `diagnosticCases`, `failedIds`, `failedMessages` (`ID: MESSAGE`), `unsupportedIds` and `diagnosticIds`."
 msgstr ""
 
 #: manual/api/cli/itl_expr_cli.md:58
@@ -2783,58 +2787,75 @@ msgid "The examples use the alias `@mpfr_expr_cli`. `run` reads files through `m
 msgstr ""
 
 #: manual/api/cli/mpfr_expr_cli.md:35
-msgid "`arguments[0]` is the program name and is ignored. The runner accepts `--json` and exactly one path. After `--json` is removed, any other number of arguments (none, or two or more, including shard options, which are disabled for this runner) prints `usage: mpfr-expr [--json] <MPFR sqrt, pow, or elementary corpus>`. A single remaining argument is always taken as the path, even when it starts with `-`: `--help` or a mistyped option is reported as `cannot read file: --help`. Both cases return `2`."
+msgid "`arguments[0]` is the program name and is ignored. The runner accepts `--json` and exactly one path. After `--json` is removed, any other number of arguments (none, or two or more, including shard options, which are disabled for this runner) prints `usage: mpfr-expr [--json] <MPFR sqrt, pow, elementary, strtofr, or decimal output corpus>`. A single remaining argument is always taken as the path, even when it starts with `-`: `--help` or a mistyped option is reported as `cannot read file: --help` (through `floating-conformance` the dispatcher answers `--help` itself, exit `0`). Both cases return `2`."
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:44
+#: manual/api/cli/mpfr_expr_cli.md:45
 msgid "The format is chosen from the file content:"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:46
+#: manual/api/cli/mpfr_expr_cli.md:47
 msgid "Content contains"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:46
+#: manual/api/cli/mpfr_expr_cli.md:47
 msgid "Parser and executor"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:46
+#: manual/api/cli/mpfr_expr_cli.md:47
 msgid "JSON `corpus`"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:48
+#: manual/api/cli/mpfr_expr_cli.md:49
 msgid "seeded random decimal differential rows"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:49
+#: manual/api/cli/mpfr_expr_cli.md:50
 msgid "seeded random differential rows"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:50
+#: manual/api/cli/mpfr_expr_cli.md:51
+msgid "`mpfr-strtofr-v1` (and not the above)"
+msgstr ""
+
+#: manual/api/cli/mpfr_expr_cli.md:51
+msgid "decimal text to binary conversion"
+msgstr ""
+
+#: manual/api/cli/mpfr_expr_cli.md:52
+msgid "`mpfr-decimal-output-v1` (and not the above)"
+msgstr ""
+
+#: manual/api/cli/mpfr_expr_cli.md:52
+msgid "binary to decimal digits conversion"
+msgstr ""
+
+#: manual/api/cli/mpfr_expr_cli.md:53
 msgid "elementary matrix"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:51
+#: manual/api/cli/mpfr_expr_cli.md:54
 msgid "`input_coefficient_hex` (and not the above)"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:51
+#: manual/api/cli/mpfr_expr_cli.md:54
 msgid "integer powers"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:52
-msgid "neither"
+#: manual/api/cli/mpfr_expr_cli.md:55
+#: manual/api/decimal_gda.md:1793
+msgid "none of these"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:52
+#: manual/api/cli/mpfr_expr_cli.md:55
 msgid "square-root `data_check`"
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:54
-msgid "On a parse error the first diagnostic is printed as `source:line:1: message`. Text output prints a title, `cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE` line per failure. JSON output has the keys `corpus`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
+#: manual/api/cli/mpfr_expr_cli.md:57
+msgid "On a parse error the first diagnostic is printed as `source:line:1: message`. Text output prints a title, `cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE` line per failure. JSON output has the keys `corpus`, `frontend` (always `mpfr`), `totalCases`, `passedCases`, `failedCases` and `failedIds`."
 msgstr ""
 
-#: manual/api/cli/mpfr_expr_cli.md:59
+#: manual/api/cli/mpfr_expr_cli.md:62
 msgid "Return value: `2` for usage, file or parse errors (including an elementary `pow`, `hypot` or `atan2` row whose second operand is `-`, see [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)); `1` when a row failed; `0` otherwise."
 msgstr ""
 
@@ -2879,7 +2900,7 @@ msgid "The names are interpreted by `TestFloatSpec::parse`. A value option given
 msgstr ""
 
 #: manual/api/cli/testfloat_expr_cli.md:56
-msgid "Text output prints the function, rounding, tininess, the counts `cases`, `selected cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE` line per failure. JSON output has the keys `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases` and `failedIds`."
+msgid "Text output prints the function, rounding, tininess, the counts `cases`, `selected cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE` line per failure. JSON output has the keys `frontend` (the string `testfloat`), `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases`, `failedIds` and `arms`."
 msgstr ""
 
 #: manual/api/cli/testfloat_expr_cli.md:62
@@ -4303,7 +4324,7 @@ msgstr ""
 #: manual/conformance/interval.md:23
 #: manual/conformance/interval.md:41
 #: manual/design/bench/external.md:245
-#: manual/design/frontend/mpfr_expr.md:50
+#: manual/design/frontend/mpfr_expr.md:51
 msgid "none"
 msgstr ""
 
@@ -4521,10 +4542,10 @@ msgstr ""
 
 #: manual/api/decimal.md:2497
 #: manual/api/decimal_gda.md:1957
-#: manual/api/frontend/gda_expr.md:517
-#: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:539
-#: manual/api/frontend/testfloat_expr.md:420
+#: manual/api/frontend/gda_expr.md:521
+#: manual/api/frontend/itl_expr.md:283
+#: manual/api/frontend/mpfr_expr.md:541
+#: manual/api/frontend/testfloat_expr.md:423
 #: manual/api/internal.md:508
 #: manual/api/internal/binary_kernel.md:84
 #: manual/api/internal/conformance.md:361
@@ -6319,10 +6340,6 @@ msgid "any other error flag"
 msgstr ""
 
 #: manual/api/decimal_gda.md:1793
-msgid "none of these"
-msgstr ""
-
-#: manual/api/decimal_gda.md:1793
 msgid "`Ok` with the value and the diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped`"
 msgstr ""
 
@@ -6503,7 +6520,7 @@ msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value,
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:193
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:116
 #: manual/conformance/interval.md:61
 msgid "Operations"
 msgstr ""
@@ -7024,7 +7041,7 @@ msgstr ""
 
 #: manual/api/frontend/gda_expr.md:230
 #: manual/api/frontend/itl_expr.md:82
-#: manual/api/frontend/testfloat_expr.md:240
+#: manual/api/frontend/testfloat_expr.md:241
 msgid "Execution"
 msgstr ""
 
@@ -7037,131 +7054,131 @@ msgid "Rows are visited document by document in file order. A row whose id does 
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:247
-msgid "`Diagnostic` if the context is invalid (precision not positive, or `minexponent` above `maxexponent`), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
+msgid "`Diagnostic` if the context is invalid (precision not positive or above $999999999$, `minexponent` outside $-999999999$ to $0$, `maxexponent` outside $0$ to $999999999$, or the magnitudes of the two differing by more than one), an operand is exactly `#` or `?`, or the expected result is exactly `#`;"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:250
+#: manual/api/frontend/gda_expr.md:251
 msgid "`Unsupported` if a condition is not one of the thirteen GDA conditions, the operation is not implemented, or the rounding directive is not recognized;"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:253
+#: manual/api/frontend/gda_expr.md:254
 msgid "`Executable` otherwise."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:255
+#: manual/api/frontend/gda_expr.md:256
 msgid "Only `Executable` rows are evaluated. Operands are decoded as described on the [design page](../../design/frontend/gda_expr.md#rows-as-operations); plain decimal operands are read with every digit, so only the result is rounded. The row passes when the result matches the expected token and the raised conditions are exactly the listed ones; the [design page](../../design/frontend/gda_expr.md#the-pass-rule) gives the full rule. Non-executable rows get `passed() == false` and the message `\"skipped\"`, and are counted as skipped, not failed. Unreadable operands and operations that reject their operands give a failed row, not an abort."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:267
+#: manual/api/frontend/gda_expr.md:268
 msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:277
+#: manual/api/frontend/gda_expr.md:278
 msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?, deviations?)` builds the options."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:284
+#: manual/api/frontend/gda_expr.md:285
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:287
+#: manual/api/frontend/gda_expr.md:288
 msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A selector `id` matches that id exactly. A selector `first..last` matches every id that has the same length as `first` and `last` and lies between them in string order, so `add001..add099` selects a numbered block."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:292
+#: manual/api/frontend/gda_expr.md:293
 msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value, held flags)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`. The held flags are condition names separated by spaces; with `Some`, the flags of the row are judged against them and not against the conditions of the row, and `None` keeps the conditions of the row. The default is no deviation."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:298
+#: manual/api/frontend/gda_expr.md:299
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:303
+#: manual/api/frontend/gda_expr.md:304
 msgid "These accessors return the option values."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:313
-#: manual/api/frontend/itl_expr.md:160
-#: manual/api/frontend/testfloat_expr.md:299
+#: manual/api/frontend/gda_expr.md:314
+#: manual/api/frontend/itl_expr.md:165
+#: manual/api/frontend/testfloat_expr.md:300
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:317
+#: manual/api/frontend/gda_expr.md:318
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:328
+#: manual/api/frontend/gda_expr.md:329
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:335
+#: manual/api/frontend/gda_expr.md:336
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:345
-msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
+#: manual/api/frontend/gda_expr.md:346
+msgid "These methods return the row id, its disposition, whether it passed, and a message: the kind of verdict for a pass (`\"text\"`, `\"hex\"`, `\"format-prefixed\"`, `\"value-not-checked\"` or `\"deviation\"`), `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text, or, for a deviation record that does not match its row, `\"deviation of … records the corpus value …, the row has …\"`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:361
+#: manual/api/frontend/gda_expr.md:365
 msgid "`RunSummary` aggregates the results of a run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:371
+#: manual/api/frontend/gda_expr.md:375
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:380
+#: manual/api/frontend/gda_expr.md:384
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:385
-msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
+#: manual/api/frontend/gda_expr.md:389
+msgid "These methods return the number of selected rows with the disposition `Executable`, and how many of them passed and failed."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:396
+#: manual/api/frontend/gda_expr.md:400
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:406
+#: manual/api/frontend/gda_expr.md:410
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:419
+#: manual/api/frontend/gda_expr.md:423
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:427
+#: manual/api/frontend/gda_expr.md:431
 msgid "Skipped rows do not affect `success`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:431
+#: manual/api/frontend/gda_expr.md:435
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:437
+#: manual/api/frontend/gda_expr.md:441
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:466
-#: manual/api/frontend/testfloat_expr.md:374
+#: manual/api/frontend/gda_expr.md:470
+#: manual/api/frontend/testfloat_expr.md:377
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:471
+#: manual/api/frontend/gda_expr.md:475
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:480
+#: manual/api/frontend/gda_expr.md:484
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:485
+#: manual/api/frontend/gda_expr.md:489
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr ""
 
-#: manual/api/frontend/gda_expr.md:495
-msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
+#: manual/api/frontend/gda_expr.md:499
+msgid "`equal` compares the shard, the strict flag, the filter text and the deviations; `to_repr` renders them."
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:1
@@ -7217,167 +7234,186 @@ msgid "`execute_case(case, precision?)` executes one case and returns its result
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:92
-msgid "`precision` (default `53`, must be positive) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval and number results are rounded with `@interval.IntervalContext::new(precision=precision)`, which has the binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the ITF1788 data."
+msgid "`precision` (default `53`, must be positive) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval results (except those of `intersection`, `convexHull`, `pow` and `atan2`) and `mid` are rounded with `@interval.IntervalContext::new(precision=precision, e_max=1023)`, which has the binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the ITF1788 data."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:99
-msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is first read as a decimal of $2p + 16$ significant digits; a literal with more digits is rounded twice."
+#: manual/api/frontend/itl_expr.md:100
+msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by `Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so a literal of any length is rounded once."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:113
+#: manual/api/frontend/itl_expr.md:114
 msgid "The case is dispatched on its operation and expected value:"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:116
 #: manual/performance_audit.md:25
 msgid "Expected"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:115
+#: manual/api/frontend/itl_expr.md:116
 #: manual/numeric_semantics.md:593
 msgid "Comparison"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:118
 #: manual/design/frontend/gda_expr.md:95
 msgid "boolean"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:118
 msgid "`true` or `false`"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:117
+#: manual/api/frontend/itl_expr.md:118
 msgid "equal booleans"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:119
 msgid "overlap"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:119
 msgid "an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`)"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:119
 msgid "equal names"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:120
 msgid "numeric"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:120
 msgid "a bound"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:120
 msgid "equal numbers"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:121
 msgid "unary"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:120
 #: manual/api/frontend/itl_expr.md:121
 #: manual/api/frontend/itl_expr.md:122
 #: manual/api/frontend/itl_expr.md:123
+#: manual/api/frontend/itl_expr.md:124
+#: manual/api/frontend/itl_expr.md:126
 msgid "interval"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:120
 #: manual/api/frontend/itl_expr.md:121
 #: manual/api/frontend/itl_expr.md:122
 #: manual/api/frontend/itl_expr.md:123
+#: manual/api/frontend/itl_expr.md:124
+#: manual/api/frontend/itl_expr.md:125
+#: manual/api/frontend/itl_expr.md:126
 msgid "equal sets"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:122
 msgid "ternary"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "integer power"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:123
 msgid "`pown` (second operand an integer)"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:123
-msgid "binary"
+#: manual/api/frontend/itl_expr.md:124
+msgid "reverse"
+msgstr ""
+
+#: manual/api/frontend/itl_expr.md:124
+msgid "`sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, each also as `…Bin` (the prior interval comes before the integer power of `pownRev`)"
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:125
-msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
+msgid "reverse, three operands or two results"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:130
+#: manual/api/frontend/itl_expr.md:125
+msgid "interval (two for `mulRevToPair`)"
+msgstr ""
+
+#: manual/api/frontend/itl_expr.md:126
+msgid "binary"
+msgstr ""
+
+#: manual/api/frontend/itl_expr.md:128
+msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The bounds of the actual interval must also carry the labels that the representation requires: a bound has the precision of the interval exactly when it is a number of that format. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
+msgstr ""
+
+#: manual/api/frontend/itl_expr.md:135
 msgid "Dispositions:"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:132
+#: manual/api/frontend/itl_expr.md:137
 msgid "`Executable` when the case was run; `passed()` tells the outcome;"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:133
+#: manual/api/frontend/itl_expr.md:138
 msgid "`Unsupported(reason)` for an unknown operation, whatever its operands and expected value, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a boolean predicate other than the five unary ones whose second operand is missing or unreadable;"
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:139
-msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand or the expected value of the overlap, numeric, unary, ternary or integer-power dispatch, cannot be read, or an operand of the binary dispatch is not an interval literal."
-msgstr ""
-
 #: manual/api/frontend/itl_expr.md:144
-msgid "Support is decided from the operation name before any operand is read, so `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `sqrRev [0.0,1.0]` are unsupported and do not count against `RunSummary::success`."
+msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric, unary, ternary, integer-power or reverse dispatch, cannot be read or is missing, or an operand of the binary dispatch is not an interval literal."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:148
+#: manual/api/frontend/itl_expr.md:149
+msgid "Support is decided from the operation name before any operand is read, so `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `rsqrt [1.0,4.0]` are unsupported and do not count against `RunSummary::success`."
+msgstr ""
+
+#: manual/api/frontend/itl_expr.md:153
 msgid "`execute_case` does not abort on case content."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:152
+#: manual/api/frontend/itl_expr.md:157
 msgid "`summarize_results(results)` counts a list of results."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:158
+#: manual/api/frontend/itl_expr.md:163
 msgid "`total_cases` is the length of the list."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:164
+#: manual/api/frontend/itl_expr.md:169
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:176
+#: manual/api/frontend/itl_expr.md:181
 msgid "`ItlResult` is the outcome of one case."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:186
-msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `DecoratedInterval::to_string`), and a short reason or the offending text otherwise."
+#: manual/api/frontend/itl_expr.md:191
+msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `DecoratedInterval::to_string`; `\"output N: expected E, got A; \"` for each wrong result of `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2`), and a short reason or the offending text otherwise."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:200
+#: manual/api/frontend/itl_expr.md:205
 msgid "`RunSummary` aggregates a list of results."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:210
+#: manual/api/frontend/itl_expr.md:215
 msgid "These methods return the number of results, the number of executed cases, and how many of those passed and failed."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:222
+#: manual/api/frontend/itl_expr.md:227
 msgid "These methods return the number of cases that were not executed, by disposition."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:232
+#: manual/api/frontend/itl_expr.md:237
 msgid "`results` returns a copy of the results in the order they were given; `success` is the overall verdict."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:240
+#: manual/api/frontend/itl_expr.md:245
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr ""
 
-#: manual/api/frontend/itl_expr.md:267
+#: manual/api/frontend/itl_expr.md:272
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -7386,7 +7422,7 @@ msgid "frontend/mpfr_expr API"
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:5
-msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `binary`. Six formats are supported: MPFR's square-root `data_check` files, integer-power rows, an elementary-function matrix with exception flags, two corpora for decimal character conversion (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows (`mpfr-random-v1`) and their decimal counterpart (`mpfr-decimal-random-v2`). The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
+msgid "`frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes it against `binary` (the `mpfr-decimal-random-v2` rows against `decimal`). Seven formats are supported: MPFR's square-root `data_check` files, integer-power rows, an elementary-function matrix with exception flags, two corpora for decimal character conversion (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows (`mpfr-random-v1`) and their decimal counterpart (`mpfr-decimal-random-v2`). The package does no IO; the runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md). See the [tutorial](../../tutorial/frontend/mpfr_expr.md) for the workflow and the [design page](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:25
@@ -7399,232 +7435,232 @@ msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:30
 msgid ""
-"All five parsers split the text at `\\n"
-"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field is one of"
+"All seven parsers split the text at `\\n"
+"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of"
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:34
 msgid "Field"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:43
+#: manual/api/frontend/mpfr_expr.md:42
 msgid "and a number is read by `@binary.Binary::from_hex` (`0x…p…` with an integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the precision named for that field; a significand with more bits than that precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and otherwise `Err` with one `ParseDiagnostic` per invalid line."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:49
+#: manual/api/frontend/mpfr_expr.md:48
 msgid "Square-root data"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:53
+#: manual/api/frontend/mpfr_expr.md:52
 msgid "`parse_sqrt_data(source, text)` parses rows of five fields: `input_precision output_precision rounding input expected`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:60
+#: manual/api/frontend/mpfr_expr.md:59
 msgid "The input is read at `input_precision` bits and the expected value at `output_precision` bits. Row ids are `sqrt:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:65
+#: manual/api/frontend/mpfr_expr.md:64
 msgid "`execute_sqrt_data(document)` computes `input.sqrt_ctx(ctx)` for every row, where `ctx` is `BinaryContext::new(precision=output_precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:72
-msgid "A row passes when the result is equal (`==`) to the expected `Binary`. Flags are not compared."
+#: manual/api/frontend/mpfr_expr.md:71
+msgid "A row passes when the result is identical (`Binary::identical`) to the expected `Binary`. Flags are not compared."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:77
+#: manual/api/frontend/mpfr_expr.md:76
 msgid "`MpfrDocument` is a parsed square-root file; `MpfrCase` is one of its rows and has no public methods."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:92
+#: manual/api/frontend/mpfr_expr.md:91
 msgid "`source` returns the name given to the parser and `case_count` the number of rows."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:100
+#: manual/api/frontend/mpfr_expr.md:99
 #: manual/design/decimal_gda.md:812
-#: manual/tutorial/frontend/mpfr_expr.md:81
+#: manual/tutorial/frontend/mpfr_expr.md:82
 msgid "Integer powers"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:104
+#: manual/api/frontend/mpfr_expr.md:103
 msgid "`parse_pow_data(source, text)` parses rows of ten fields."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:110
+#: manual/api/frontend/mpfr_expr.md:109
 msgid "The fields are `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`, where the two numbers are $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$, the signs and `inexact` are `0` or `1`, and `exponent` is the integer power. The input is read at 512 bits and the expected value at `precision` bits. Row ids are `pow:LINE`. The coefficient fields are bare hexadecimal digits; the parser builds `0xCOEFFpEXP` from them."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:121
+#: manual/api/frontend/mpfr_expr.md:120
 msgid "`execute_pow_data(document)` computes `input.pown_ctx(exponent, ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:128
-msgid "A row passes when the result is equal (`==`) to the expected value, the inexact flag equals the row's flag, and no underflow, overflow, division by zero or invalid flag is raised."
+#: manual/api/frontend/mpfr_expr.md:127
+msgid "A row passes when the result is identical (`Binary::identical`) to the expected value, the inexact flag equals the row's flag, and no underflow, overflow, division by zero or invalid flag is raised."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:134
+#: manual/api/frontend/mpfr_expr.md:133
 msgid "`MpfrPowDocument` is a parsed power file; `MpfrPowCase` is one row and has no public methods."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:149
-#: manual/api/frontend/mpfr_expr.md:214
+#: manual/api/frontend/mpfr_expr.md:148
+#: manual/api/frontend/mpfr_expr.md:213
 msgid "These methods return the name given to the parser and the number of rows."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:160
+#: manual/api/frontend/mpfr_expr.md:159
 msgid "`parse_elementary_data(source, text)` parses rows of ten fields: `op precision rounding x y n expected inexact invalid divbyzero`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:169
-msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
+#: manual/api/frontend/mpfr_expr.md:168
+msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits, or at four bits per character of the token when that is more (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:179
+#: manual/api/frontend/mpfr_expr.md:178
 msgid "A row of the two-operand functions `pow`, `powr`, `hypot`, `atan2` and `atan2pi` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:184
+#: manual/api/frontend/mpfr_expr.md:183
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `Binary` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::new(precision=precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:194
+#: manual/api/frontend/mpfr_expr.md:193
 msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:204
+#: manual/api/frontend/mpfr_expr.md:203
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:221
+#: manual/api/frontend/mpfr_expr.md:220
 msgid "Decimal character conversion"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:225
+#: manual/api/frontend/mpfr_expr.md:224
 msgid "`parse_strtofr_data(source, text)` parses rows of seven fields: `precision rounding input expected inexact overflow underflow`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:232
+#: manual/api/frontend/mpfr_expr.md:231
 msgid "`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr` result read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `strtofr:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:238
+#: manual/api/frontend/mpfr_expr.md:237
 msgid "`execute_strtofr_data(document)` evaluates `Binary::from_string_ctx(input, ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:245
+#: manual/api/frontend/mpfr_expr.md:244
 msgid "A row passes when the result compares equal to the expected value, with the same sign (including zero) and class, the inexact, overflow and underflow flags equal the row's flags, and neither invalid nor division by zero is raised. A literal rejected by the parser fails the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:252
+#: manual/api/frontend/mpfr_expr.md:251
 msgid "`MpfrStrtofrDocument` is a parsed file; the methods return the name given to the parser and the number of rows."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:266
+#: manual/api/frontend/mpfr_expr.md:265
 msgid "`parse_decimal_output_data(source, text)` parses two row kinds."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:272
+#: manual/api/frontend/mpfr_expr.md:271
 msgid "`fixed digits precision rounding value expected_digits expected_exponent10 inexact` (eight fields) is a value printed with `digits` significant digits: `expected_digits` is the digit string and `expected_exponent10` the decimal exponent of its first digit. `shortest precision value expected_digit_count` (four fields) is the number of significant digits of the shortest round-trip form. Values are read at `precision` bits. Row ids are `fixed:LINE` and `shortest:LINE`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:282
+#: manual/api/frontend/mpfr_expr.md:281
 msgid "`execute_decimal_output_data(document)` runs `Binary::to_decimal_string_ctx` for a `fixed` row and `Binary::to_shortest_string` for a `shortest` row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:289
+#: manual/api/frontend/mpfr_expr.md:288
 msgid "A `fixed` row passes when the printed digits, the exponent and the sign match and the inexact flag equals the row's flag (no overflow or underflow). A `shortest` row passes when the text has exactly `expected_digit_count` significant digits (leading zeros and the trailing zeros of positional notation are not counted) and `Binary::from_string(text, precision~)` returns the same value."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:307
+#: manual/api/frontend/mpfr_expr.md:306
 msgid "Seeded random rows"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:309
-msgid "`mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row per case, with precisions up to 10,000, six rounding directions, an optional exponent range with its tininess rule, up to three exact operands and the MPFR result with its flags. The full field list is in [`testdata/binary/README.md`](../../../../testdata/binary/README.md)."
+#: manual/api/frontend/mpfr_expr.md:308
+msgid "`mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row per case, with precisions up to 10,000, five rounding directions, an optional exponent range with its tininess rule, up to three exact operands and the MPFR result with its flags. The full field list is in [`testdata/binary/README.md`](../../../../testdata/binary/README.md)."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:325
-msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have thirteen fields, a known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of the elementary names), a rounding of `n na z u d a`, a positive precision, an exponent range that is either `- - -` or two integers and `a`/`b`, exact operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to `-` or a subset of `xouvz`. Operands and results are read at least at the row's precision, because reading a value below the smallest subnormal of a lower precision would flush it to zero. Each bad row is one diagnostic."
+#: manual/api/frontend/mpfr_expr.md:324
+msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have thirteen fields, a known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of the elementary names), a rounding of `n na z u d`, a positive precision, an exponent range that is either `- - -` or `emin emax` with `emin = 1 - emax` and an `emax` that `BinaryContext::try_new` accepts for the precision, then `a` (tininess after rounding) or `b` (before rounding), exact operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to `-` or a subset of `xouvz`. Operands and results are read at least at the row's precision, because reading a value below the smallest subnormal of a lower precision would flush it to zero. Each bad row is one diagnostic."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:341
+#: manual/api/frontend/mpfr_expr.md:342
 msgid "Runs every row with the row's `BinaryContext` (bounded when the row has an exponent range, `unbounded` otherwise) and passes a row only when the value and the flags agree. Values are compared with their sign for zeros and infinities; a NaN result must be a quiet NaN. A domain error of the elementary functions (`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN with flag `v`; any other error fails the row with the error message. The row id is the first field of the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:349
+#: manual/api/frontend/mpfr_expr.md:350
 msgid "Seeded random decimal rows"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:351
-msgid "`mpfr-decimal-random-v2` rows come from `tools/generate_mpfr_decimal_random.py`: one row per case for the IEEE decimal elementary functions (`exp exp2 exp10 expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context (precision and exponent range of an IEEE format, one of the five IEEE rounding directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one MPFR result, and a row exists only when both enclosure endpoints round alike and the rounded value lies outside the enclosure (the true value is not representable), so exact results are not sampled by this corpus."
+#: manual/api/frontend/mpfr_expr.md:352
+msgid "`mpfr-decimal-random-v2` rows come from `tools/generate_mpfr_decimal_random.py`: one row per case for the IEEE decimal elementary functions (`exp exp2 exp10 expm1 exp2m1 exp10m1 ln log2 log10 log1p log2p1 log10p1 rsqrt sin cos tan sinpi cospi tanpi asin acos atan asinpi acospi atanpi sinh cosh tanh asinh acosh atanh pow powr hypot atan2 atan2pi rootn pown compound`), with a decimal context (precision and exponent range of an IEEE format, one of the five IEEE rounding directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one MPFR result, and a row exists only when both enclosure endpoints round alike and the rounded value lies outside the enclosure (the true value is not representable), so exact results are not sampled by this corpus."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:372
-msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have ten fields: an identifier, a known operation, a rounding of `half_even half_up down ceiling floor` (the five rounding-direction attributes of IEEE 754-2019 4.3), a positive precision, an integer `emax` that forms a valid `DecimalContext` (the IEEE format of the precision and `emax`: `emin = 1 - emax`, tininess before rounding), one operand, a second operand or `-` (required by `pow`, `hypot` and `atan2`), an integer (`rootn` and `pown`; `0` otherwise), the expected value and `flags` equal to `-` or a subset of `xouvz` (inexact, overflow, underflow, invalid operation, division by zero) in that order. Every digit written in an operand or the expected value is kept. Each bad row is one diagnostic."
+#: manual/api/frontend/mpfr_expr.md:373
+msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have ten fields: an identifier, a known operation, a rounding of `half_even half_up down ceiling floor` (the five rounding-direction attributes of IEEE 754-2019 4.3), a positive precision, an integer `emax` that forms a valid `DecimalContext` (the IEEE format of the precision and `emax`: `emin = 1 - emax`, tininess before rounding), one operand, a second operand or `-` (required by `pow`, `powr`, `hypot`, `atan2` and `atan2pi`), an integer (`rootn`, `pown` and `compound`; `0` otherwise), the expected value and `flags` equal to `-` or a subset of `xouvz` (inexact, overflow, underflow, invalid operation, division by zero) in that order. Every digit written in an operand or the expected value is kept. Each bad row is one diagnostic."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:391
+#: manual/api/frontend/mpfr_expr.md:392
 msgid "Runs every row through the `try_*_ctx` form of the operation with the row's context, so a certification failure fails the row instead of becoming a quiet NaN. A row passes only when the result has the expected value *and* cohort (`total_order_compare` equal, so `1.0` and `1.00` differ) and the flags agree. The row id is the first field of the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:399
+#: manual/api/frontend/mpfr_expr.md:400
 msgid "`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v2` corpus (IEEE `decimal` elementary functions against MPFR); `source` is the label it was parsed from, `case_count` the number of rows and `case_ids` their ids in order."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:414
+#: manual/api/frontend/mpfr_expr.md:415
 msgid "`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations against MPFR) with the same three accessors."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:423
+#: manual/api/frontend/mpfr_expr.md:424
 msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:426
+#: manual/api/frontend/mpfr_expr.md:427
 msgid "Diagnostics and results"
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:430
-#: manual/api/frontend/testfloat_expr.md:221
+#: manual/api/frontend/mpfr_expr.md:431
+#: manual/api/frontend/testfloat_expr.md:222
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:440
-#: manual/api/frontend/testfloat_expr.md:231
+#: manual/api/frontend/mpfr_expr.md:441
+#: manual/api/frontend/testfloat_expr.md:232
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:449
+#: manual/api/frontend/mpfr_expr.md:450
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:455
+#: manual/api/frontend/mpfr_expr.md:456
 msgid "`CaseResult` is the outcome of one row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:465
+#: manual/api/frontend/mpfr_expr.md:466
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:473
-msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
+#: manual/api/frontend/mpfr_expr.md:474
+msgid "The message is empty for a pass and otherwise shows the expected and the actual value (hexadecimal for the binary formats, decimal text for the decimal formats) and the compared flags where the format compares flags."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:478
+#: manual/api/frontend/mpfr_expr.md:480
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:488
+#: manual/api/frontend/mpfr_expr.md:490
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:498
+#: manual/api/frontend/mpfr_expr.md:500
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:505
+#: manual/api/frontend/mpfr_expr.md:507
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:528
+#: manual/api/frontend/mpfr_expr.md:530
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -7693,106 +7729,106 @@ msgid "`parse_testfloat(source, text, spec)` parses the vectors of one function.
 msgstr ""
 
 #: manual/api/frontend/testfloat_expr.md:151
-msgid "Lines are trimmed; empty lines and lines starting with `#` are skipped. A vector has $k + 2$ white-space separated fields, where $k$ is the operand count of the operation: $k$ operand encodings, the expected result and a two-digit hexadecimal flag mask. Operand encodings are hexadecimal bit patterns of `spec.format()`. The expected result is an encoding for arithmetic operations, a hexadecimal integer of at most 16 digits for conversions, and `0` or `1` for comparisons. A wrong field count gives `\"unexpected TestFloat field count\"`, an unreadable field `\"invalid TestFloat hexadecimal field\"`. The result is `Ok` only when no line is invalid."
+msgid "Lines are trimmed; empty lines and lines starting with `#` are skipped. A vector has $k + 2$ white-space separated fields, where $k$ is the operand count of the operation: $k$ operand encodings, the expected result and a two-digit hexadecimal flag mask. Operand encodings are hexadecimal bit patterns of `spec.format()`. The expected result is an encoding for arithmetic operations and the format conversions (in the destination format), a hexadecimal integer of at most 16 digits for the integer conversions, and `0` or `1` for comparisons. A wrong field count gives `\"unexpected TestFloat field count\"`, an unreadable field `\"invalid TestFloat hexadecimal field\"`. The result is `Ok` only when no line is invalid."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:164
+#: manual/api/frontend/testfloat_expr.md:165
 msgid "`TestFloatDocument` is a parsed vector file."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:174
+#: manual/api/frontend/testfloat_expr.md:175
 msgid "These methods return the name given to the parser, the specification, a copy of the vectors in file order, and their number."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:186
+#: manual/api/frontend/testfloat_expr.md:187
 msgid "`TestFloatCase` is one vector."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:196
+#: manual/api/frontend/testfloat_expr.md:197
 msgid "These methods return the id `FUNCTION:LINE`, for example `f64_mulAdd:17`, and the 1-based line number of the vector in the parsed text."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:244
+#: manual/api/frontend/testfloat_expr.md:245
 msgid "`execute_document(document, options?)` executes the selected vectors."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:250
+#: manual/api/frontend/testfloat_expr.md:251
 msgid "Vector $k$ (counting from 0 in file order) is executed when $k \\bmod n = i$ for shard count $n$ and index $i$. Operands are decoded to `Binary` and the operation runs in `spec.format().context(rounding~, tininess~)`. The vector passes when:"
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:255
-msgid "**arithmetic:** the result, re-encoded in the format with the same rounding and tininess, has exactly the expected bit pattern, or the expected result is any NaN and the actual result is a quiet NaN; and the SoftFloat mask of the operation's flags combined with the encoding flags equals the expected mask;"
+#: manual/api/frontend/testfloat_expr.md:256
+msgid "**arithmetic:** the result, packed into the bit fields of the result format without rounding, has exactly the expected bit pattern, or the expected result is any NaN and the actual result is a quiet NaN; and the SoftFloat mask of the operation's flags equals the expected mask. A result that is not a number of the format fails with `\"result not in the format: …\"`;"
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:260
+#: manual/api/frontend/testfloat_expr.md:261
 msgid "**integer conversion:** if the expected mask has the invalid bit `10`, the conversion must report invalid (`None`) and its value field is ignored; otherwise the conversion must return the expected integer (signed results compared as two's-complement bit patterns); in both cases the flag masks must be equal;"
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:265
+#: manual/api/frontend/testfloat_expr.md:266
 msgid "**comparison:** the boolean and the flag mask are equal."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:267
+#: manual/api/frontend/testfloat_expr.md:268
 msgid "Every selected vector is executable; there are no skipped vectors."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:271
+#: manual/api/frontend/testfloat_expr.md:272
 msgid "`RunOptions` selects a shard."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:281
+#: manual/api/frontend/testfloat_expr.md:282
 msgid "`RunOptions::new(shard_count?, shard_index?)` builds the options."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:287
+#: manual/api/frontend/testfloat_expr.md:288
 msgid "Defaults: one shard, index 0. `RunOptions::new` aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:292
+#: manual/api/frontend/testfloat_expr.md:293
 msgid "These accessors return the shard count and index."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:303
+#: manual/api/frontend/testfloat_expr.md:304
 msgid "`CaseResult` is the outcome of one vector."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:313
+#: manual/api/frontend/testfloat_expr.md:314
 msgid "These methods return the vector id, whether it passed, and a message."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:321
-msgid "Messages: empty for a pass; `\"value mismatch: expected HEX, actual HEX\"`, `\"integer mismatch: …\"`, `\"comparison mismatch: …\"`, or `\"flags mismatch: expected M, actual M\"` (masks in decimal)."
+#: manual/api/frontend/testfloat_expr.md:322
+msgid "Messages: empty for a pass; `\"value mismatch: expected HEX, actual HEX\"` (`expected a NaN` instead of the first HEX when the column is a NaN), `\"integer mismatch: …\"`, `\"comparison mismatch: …\"`, `\"result not in the format: …\"`, or `\"flags mismatch: expected M, actual M\"` (masks in decimal)."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:327
+#: manual/api/frontend/testfloat_expr.md:330
 msgid "`RunSummary` aggregates a run."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:337
+#: manual/api/frontend/testfloat_expr.md:340
 msgid "These methods return the number of vectors in the document, the number this shard executed, and how many of those passed and failed."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:349
+#: manual/api/frontend/testfloat_expr.md:352
 msgid "`results` returns a copy of the results in vector order; `success` is the verdict."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:357
+#: manual/api/frontend/testfloat_expr.md:360
 msgid "`total_cases` is the number of vectors in the document, `selected_cases = passed_cases + failed_cases` the number executed by this shard, and `success` is true when none failed."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:363
-msgid "`arms` returns the names of the operations that ran, in the order they first ran. Each operation of the TestFloat frontend is a function that records its own name when it executes; the command-line summary prints the set as `arms`. The verification tools key a task by the code those operations reach."
+#: manual/api/frontend/testfloat_expr.md:366
+msgid "`arms` returns the names of the operations that ran, in the order they first ran. Each operation of the TestFloat frontend is a function that records its own name when it executes; the `--json` summary of the command-line runner prints the set as `arms`. The verification tools key a task by the code those operations reach."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:379
+#: manual/api/frontend/testfloat_expr.md:382
 msgid "`equal` compares constructors; `to_repr` renders the constructor name."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:389
+#: manual/api/frontend/testfloat_expr.md:392
 msgid "`equal` compares all six fields, including `function_name` as written, so `f64_mul` and `F64_MUL` give unequal specifications with the same behaviour."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:400
+#: manual/api/frontend/testfloat_expr.md:403
 msgid "`equal` compares location and message; `to_repr` renders both."
 msgstr ""
 
@@ -8374,19 +8410,19 @@ msgid "internal/runner_cli API"
 msgstr ""
 
 #: manual/api/internal/runner_cli.md:5
-msgid "`internal/runner_cli` holds the command-line plumbing shared by the conformance runners in `cli/`: parsing of the common options, reading files, collecting corpus files from directories, formatting diagnostics and building JSON output. It depends on `moonbitlang/x/fs`, so file access works on the targets that package supports (the runners are built for native). It is an internal package: code outside `Luna-Flow/floating` cannot import it. See the [tutorial](../../tutorial/internal/runner_cli.md) and the [design page](../../design/internal/runner_cli.md)."
+msgid "`internal/runner_cli` holds the command-line plumbing shared by the conformance runners in `cli/`: parsing of the common options, reading files, collecting corpus files from directories, formatting diagnostics and building JSON output. It depends on `moonbitlang/x/fs`, so file access works on the targets that package supports (the runners are built for native). It is an internal package: code outside `Luna-Flow/floating-tools` cannot import it. See the [tutorial](../../tutorial/internal/runner_cli.md) and the [design page](../../design/internal/runner_cli.md)."
 msgstr ""
 
 #: manual/api/internal/runner_cli.md:24
-msgid "The examples call the package as `@runner_cli.`. The manual's example checker has no alias for internal subpackages, so they are marked `nocheck`; their outputs were checked against the current source."
+msgid "The examples call the package as `@runner_cli.`. They are marked `nocheck`; their outputs were checked against the current source."
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:28
+#: manual/api/internal/runner_cli.md:27
 msgid "Command-line options"
 msgstr ""
 
-#: manual/api/internal/runner_cli.md:32
-msgid "`CommonOptions` holds the options every runner understands and the arguments it did not consume."
+#: manual/api/internal/runner_cli.md:31
+msgid "`CommonOptions` holds the options the runners share (`--json` and the shard options; `itl` does not use them, `mpfr` takes only `--json`) and the arguments it did not consume."
 msgstr ""
 
 #: manual/api/internal/runner_cli.md:43
@@ -11491,9 +11527,9 @@ msgstr ""
 #: manual/design/bench/interval.md:67
 #: manual/design/binary.md:2186
 #: manual/design/binary_checked.md:333
-#: manual/design/cli.md:71
+#: manual/design/cli.md:70
 #: manual/design/cli/dispatch.md:48
-#: manual/design/cli/gda_expr_cli.md:67
+#: manual/design/cli/gda_expr_cli.md:68
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
@@ -11507,13 +11543,13 @@ msgstr ""
 #: manual/design/differential/harness.md:41
 #: manual/design/differential/interval_mpfr.md:50
 #: manual/design/doc_examples.md:36
-#: manual/design/frontend/gda_expr.md:225
-#: manual/design/frontend/itl_expr.md:166
-#: manual/design/frontend/mpfr_expr.md:133
+#: manual/design/frontend/gda_expr.md:228
+#: manual/design/frontend/itl_expr.md:163
+#: manual/design/frontend/mpfr_expr.md:136
 #: manual/design/frontend/testfloat_expr.md:166
 #: manual/design/internal.md:212
 #: manual/design/internal/conformance.md:129
-#: manual/design/internal/runner_cli.md:83
+#: manual/design/internal/runner_cli.md:84
 #: manual/design/interval.md:1172
 #: manual/design/interval_checked.md:166
 #: manual/design/numeric_expr.md:194
@@ -12774,13 +12810,13 @@ msgstr ""
 #: manual/design/doc_examples.md:9
 #: manual/design/frontend/gda_expr.md:18
 #: manual/design/frontend/itl_expr.md:16
-#: manual/design/frontend/mpfr_expr.md:17
+#: manual/design/frontend/mpfr_expr.md:18
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:24
 #: manual/design/internal/binary_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
-#: manual/design/internal/runner_cli.md:13
+#: manual/design/internal/runner_cli.md:14
 #: manual/design/interval.md:29
 #: manual/design/interval_checked.md:13
 #: manual/design/numeric_expr.md:21
@@ -12917,13 +12953,13 @@ msgstr ""
 #: manual/design/differential/interval_mpfr.md:19
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
-#: manual/design/frontend/itl_expr.md:76
-#: manual/design/frontend/mpfr_expr.md:59
+#: manual/design/frontend/itl_expr.md:79
+#: manual/design/frontend/mpfr_expr.md:60
 #: manual/design/frontend/testfloat_expr.md:76
 #: manual/design/internal.md:55
 #: manual/design/internal/conformance.md:42
 #: manual/design/internal/decimal_kernel.md:51
-#: manual/design/internal/runner_cli.md:23
+#: manual/design/internal/runner_cli.md:24
 #: manual/design/interval.md:942
 #: manual/design/interval_checked.md:60
 #: manual/design/numeric_expr.md:78
@@ -12985,9 +13021,9 @@ msgstr ""
 #: manual/design/bench/interval.md:51
 #: manual/design/binary.md:2113
 #: manual/design/binary_checked.md:201
-#: manual/design/cli.md:52
+#: manual/design/cli.md:51
 #: manual/design/cli/dispatch.md:31
-#: manual/design/cli/gda_expr_cli.md:50
+#: manual/design/cli/gda_expr_cli.md:51
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
@@ -13001,14 +13037,14 @@ msgstr ""
 #: manual/design/differential/harness.md:27
 #: manual/design/differential/interval_mpfr.md:37
 #: manual/design/doc_examples.md:25
-#: manual/design/frontend/gda_expr.md:174
-#: manual/design/frontend/itl_expr.md:133
-#: manual/design/frontend/mpfr_expr.md:105
+#: manual/design/frontend/gda_expr.md:176
+#: manual/design/frontend/itl_expr.md:130
+#: manual/design/frontend/mpfr_expr.md:108
 #: manual/design/frontend/testfloat_expr.md:138
 #: manual/design/internal.md:139
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
-#: manual/design/internal/runner_cli.md:60
+#: manual/design/internal/runner_cli.md:61
 #: manual/design/interval.md:1106
 #: manual/design/interval_checked.md:138
 #: manual/design/numeric_expr.md:129
@@ -13040,9 +13076,9 @@ msgstr ""
 #: manual/design/bench/interval.md:60
 #: manual/design/binary.md:2161
 #: manual/design/binary_checked.md:320
-#: manual/design/cli.md:62
+#: manual/design/cli.md:61
 #: manual/design/cli/dispatch.md:38
-#: manual/design/cli/gda_expr_cli.md:60
+#: manual/design/cli/gda_expr_cli.md:61
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
@@ -13056,13 +13092,13 @@ msgstr ""
 #: manual/design/differential/harness.md:33
 #: manual/design/differential/interval_mpfr.md:44
 #: manual/design/doc_examples.md:30
-#: manual/design/frontend/gda_expr.md:214
-#: manual/design/frontend/itl_expr.md:156
-#: manual/design/frontend/mpfr_expr.md:123
+#: manual/design/frontend/gda_expr.md:217
+#: manual/design/frontend/itl_expr.md:153
+#: manual/design/frontend/mpfr_expr.md:126
 #: manual/design/frontend/testfloat_expr.md:156
 #: manual/design/internal.md:200
 #: manual/design/internal/conformance.md:119
-#: manual/design/internal/runner_cli.md:74
+#: manual/design/internal/runner_cli.md:75
 #: manual/design/interval.md:1153
 #: manual/design/interval_checked.md:153
 #: manual/design/numeric_expr.md:179
@@ -15302,7 +15338,7 @@ msgid "Three layers"
 msgstr ""
 
 #: manual/design/cli.md:22
-msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`, and the argument scanning that picks the runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has tests and the main package holds no test inputs. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
+msgid "Parsing and execution of corpora live in pure `frontend/*` packages; argument handling, file access and output live in `cli/*_expr_cli` runners, each a library with `run(arguments) -> Int32`; the process boundary (`@env.args()`, `@sys.exit`) lives only in `cli`, and the argument scanning that picks the runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has tests and the main package holds no test inputs. Because runners are libraries, their usage paths are unit-testable without spawning processes, and the frontends stay usable on every target."
 msgstr ""
 
 #: manual/design/cli.md:31
@@ -15318,54 +15354,54 @@ msgid "One binary, copied per backend"
 msgstr ""
 
 #: manual/design/cli.md:40
-msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target directory and copies it to `<backend>-conformance.exe`. Parallel builds for different backends therefore never share a `_build` directory or lock, and tools always invoke an executable whose name says what it runs."
+msgid "`tools/conformance_cli.py` builds `tooling/src/cli` into one shared target directory and copies it to `<backend>-conformance.exe`. Tools always invoke an executable whose name says what it runs."
 msgstr ""
 
-#: manual/design/cli.md:45
+#: manual/design/cli.md:44
 msgid "Dispatcher help wins"
 msgstr ""
 
-#: manual/design/cli.md:47
+#: manual/design/cli.md:46
 msgid "`--help` is handled while scanning arguments, before the backend is known, so it prints the dispatcher usage and exits with `0` whatever backend is named. The scan stops at the first error, so a malformed `--backend` before `--help` still exits with `2`. Runner options are documented on their pages instead."
 msgstr ""
 
-#: manual/design/cli.md:54
+#: manual/design/cli.md:53
 msgid "Exactly one runner is called per invocation, or none when the arguments are invalid (exit `2`) or `--help` is given (exit `0`)."
 msgstr ""
 
-#: manual/design/cli.md:56
+#: manual/design/cli.md:55
 msgid "The exit status equals the runner's return value: `0`, `1` or `2`."
 msgstr ""
 
-#: manual/design/cli.md:57
+#: manual/design/cli.md:56
 msgid "Arguments other than `--backend`, its value and `--help`/`-h` reach the runner unchanged and in order."
 msgstr ""
 
-#: manual/design/cli.md:59
+#: manual/design/cli.md:58
 msgid "\"At most once\" is checked on whether `--backend` was given, not on its value, and an empty `--backend=` is itself an error (exit `2`)."
 msgstr ""
 
-#: manual/design/cli.md:64
+#: manual/design/cli.md:63
 msgid "**Four executables.** Four packages with identical `main` functions and four link steps for no behavioural gain."
 msgstr ""
 
-#: manual/design/cli.md:66
+#: manual/design/cli.md:65
 msgid "**Subcommands (`floating-conformance gda …`).** A positional backend would collide with runner paths; an explicit option is unambiguous."
 msgstr ""
 
-#: manual/design/cli.md:68
+#: manual/design/cli.md:67
 msgid "**Exit codes from runners.** Calling `exit` inside a runner would make it untestable as a library."
 msgstr ""
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:72
 msgid "Native target only (file access through `moonbitlang/x/fs`, exit through `moonbitlang/x/sys`)."
 msgstr ""
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:74
 msgid "No corpus download, planning, parallelism or aggregation: those are in `tools/conformance.py` and the `tools/run_*_interpreter.py` scripts."
 msgstr ""
 
-#: manual/design/cli.md:77
+#: manual/design/cli.md:76
 msgid "No public MoonBit API."
 msgstr ""
 
@@ -15446,54 +15482,54 @@ msgid "Strictness at the process boundary"
 msgstr ""
 
 #: manual/design/cli/gda_expr_cli.md:31
-msgid "`--strict-supported` is evaluated here: the exit status is `1` when the summary has failed rows, or, in strict mode, any legacy or unsupported row. The frontend summary itself stays neutral, so in-process callers can apply their own policy. Diagnostic rows are excluded even in strict mode: they are placeholders without a scalar meaning, not features the library lacks."
+msgid "`--strict-supported` is evaluated here: the exit status is `1` when the summary has failed rows, or, in strict mode, any legacy or unsupported row. The frontend summary itself stays neutral, so in-process callers can apply their own policy. Diagnostic rows are excluded even in strict mode: they are placeholders or rows under an invalid context, without a scalar meaning, not features the library lacks."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:37
+#: manual/design/cli/gda_expr_cli.md:38
 msgid "Stable JSON keys"
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:39
+#: manual/design/cli/gda_expr_cli.md:40
 msgid "The JSON object uses fixed camelCase keys and puts execution counters in a nested `execution` object together with the shard, matching what `tools/run_dectest_interpreter.py` aggregates. `supportedCases` is the number of executable rows."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:44
+#: manual/design/cli/gda_expr_cli.md:45
 msgid "Stop at the first parse error"
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:46
+#: manual/design/cli/gda_expr_cli.md:47
 msgid "Corpora are pinned and expected to parse completely; a parse error is an infrastructure failure (exit `2`), reported with its location, not a test result."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:52
+#: manual/design/cli/gda_expr_cli.md:53
 msgid "Exit `0` implies `failed_cases() == 0`, and in strict mode also no legacy or unsupported row."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:54
+#: manual/design/cli/gda_expr_cli.md:55
 msgid "For a fixed argument vector and file contents the output is deterministic."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:55
+#: manual/design/cli/gda_expr_cli.md:56
 msgid "`totalCases` is the same in every shard of one run, so the aggregate total is the common value, not the sum. Every other counter is a sum over the shards, because each counts only the rows its shard selected and the shards partition the filtered rows."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:62
+#: manual/design/cli/gda_expr_cli.md:63
 msgid "**Per-file shards.** Uneven: one large file would bound the wall time."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:63
+#: manual/design/cli/gda_expr_cli.md:64
 msgid "**Reporting every parse diagnostic.** Useful while editing a corpus, but the runner targets pinned corpora; the frontend API returns all diagnostics for tools that need them."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:69
+#: manual/design/cli/gda_expr_cli.md:70
 msgid "No corpus download or phase planning (Python tooling)."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:70
+#: manual/design/cli/gda_expr_cli.md:71
 msgid "No recursion into subdirectories; directory entries without the `.decTest` suffix are skipped, while a named file without it is an error."
 msgstr ""
 
-#: manual/design/cli/gda_expr_cli.md:72
+#: manual/design/cli/gda_expr_cli.md:73
 msgid "Only GDA `.decTest` semantics through `decimal_gda`; IEEE decimal vectors use a different runner."
 msgstr ""
 
@@ -15530,7 +15566,7 @@ msgid "Diagnostics always fail"
 msgstr ""
 
 #: manual/design/cli/itl_expr_cli.md:37
-msgid "The frontend's `success()` already fails on diagnostic cases; the runner adds only the strict check on unsupported cases. Unreadable data in a pinned corpus is never an acceptable exclusion. The frontend classifies every unknown operation as unsupported whatever its operands, so a phase that runs a whole file without `--operation` (`sets`, `relations` and `reverse` in `interpreter_stages.json`) fails only on cases of operations it executes, and the unknown ones count against it only under `--strict-supported`."
+msgid "The frontend's `success()` already fails on diagnostic cases; the runner adds only the strict check on unsupported cases. Unreadable data in a pinned corpus is never an acceptable exclusion. The frontend classifies every unknown operation as unsupported whatever its operands, so a phase that runs a whole file without `--operation` (`sets` and `relations` in `interpreter_stages.json`) fails only on cases of operations it executes, and the unknown ones count against it only under `--strict-supported`."
 msgstr ""
 
 #: manual/design/cli/itl_expr_cli.md:47
@@ -15550,7 +15586,7 @@ msgid "**Sharding.** Not needed for a corpus of a few thousand cases."
 msgstr ""
 
 #: manual/design/cli/itl_expr_cli.md:56
-msgid "**Directory expansion.** Phases name files explicitly (`interpreter_stages.json`), which keeps the claim precise."
+msgid "**Directory expansion.** Phases name their files by pattern (`interpreter_stages.json`) and the tooling passes the runner explicit paths, which keeps the claim precise."
 msgstr ""
 
 #: manual/design/cli/itl_expr_cli.md:61
@@ -15558,10 +15594,10 @@ msgid "Precision is fixed at the frontend default (53 bits)."
 msgstr ""
 
 #: manual/design/cli/itl_expr_cli.md:62
-msgid "No reverse operations, string conversions or signals (frontend boundaries apply)."
+msgid "No string conversions or signals (frontend boundaries apply)."
 msgstr ""
 
-#: manual/design/cli/itl_expr_cli.md:64
+#: manual/design/cli/itl_expr_cli.md:63
 msgid "No text output mode."
 msgstr ""
 
@@ -15570,7 +15606,7 @@ msgid "cli/mpfr_expr_cli design"
 msgstr ""
 
 #: manual/design/cli/mpfr_expr_cli.md:5
-msgid "Run one MPFR reference file through [`frontend/mpfr_expr`](../frontend/mpfr_expr.md) with a single command, so that the binary conformance tooling can add MPFR evidence next to the TestFloat matrix without knowing the three file formats."
+msgid "Run one MPFR reference file through [`frontend/mpfr_expr`](../frontend/mpfr_expr.md) with a single command, so that the binary conformance tooling can add MPFR evidence next to the TestFloat matrix without knowing the seven file formats."
 msgstr ""
 
 #: manual/design/cli/mpfr_expr_cli.md:12
@@ -15626,7 +15662,7 @@ msgid "No sharding, no filtering of rows."
 msgstr ""
 
 #: manual/design/cli/mpfr_expr_cli.md:54
-msgid "Only the three formats of `frontend/mpfr_expr`."
+msgid "Only the seven formats of `frontend/mpfr_expr`."
 msgstr ""
 
 #: manual/design/cli/testfloat_expr_cli.md:1
@@ -18700,7 +18736,7 @@ msgid "other text"
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:93
-msgid "$v$ prints exactly as $x$, or $\\operatorname{compareTotal}(v, \\operatorname{dec}(x)) = 0$"
+msgid "$v$ prints exactly as $x$ (its to-scientific-string equals $x$)"
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:94
@@ -18744,98 +18780,98 @@ msgid "**Problem.** The official corpus contains rows that do not describe a sca
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:127
-msgid "**Choice.** Every selected row gets a disposition. `Diagnostic` marks rows that are not executable by construction (`#` or `?` operands, `#` result, or a context with precision $p \\le 0$ or $E_{\\min} > E_{\\max}$, which no `decimal_gda` context can represent). `Unsupported` marks legal rows the library cannot run (unknown operation, condition or rounding). Only `Executable` rows can pass or fail, and the summary reports every class, so a claim such as \"all executable rows pass\" comes with the number of rows it excludes. Strictness (failing when anything is unsupported) is a policy of the caller: `RunOptions` records it, and the CLI applies it to the exit code."
-msgstr ""
-
-#: manual/design/frontend/gda_expr.md:138
-msgid "Traps disabled, conditions compared"
+msgid "**Choice.** Every selected row gets a disposition. `Diagnostic` marks rows that are not executable by construction (`#` or `?` operands, `#` result, or a context with precision $p \\le 0$ or $p > 999999999$, $E_{\\min}$ outside $-999999999$ to $0$, $E_{\\max}$ outside $0$ to $999999999$, or magnitudes of $E_{\\min}$ and $E_{\\max}$ that differ by more than one, which no `decimal_gda` context can represent). `Unsupported` marks legal rows the library cannot run (unknown operation, condition or rounding). Only `Executable` rows can pass or fail, and the summary reports every class, so a claim such as \"all executable rows pass\" comes with the number of rows it excludes. Strictness (failing when anything is unsupported) is a policy of the caller: `RunOptions` records it, and the CLI applies it to the exit code."
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:140
+msgid "Traps disabled, conditions compared"
+msgstr ""
+
+#: manual/design/frontend/gda_expr.md:142
 msgid "A `.decTest` row lists conditions, not traps. Running every operation with an empty trap set makes `decimal_gda` return the specified default result (for example a quiet NaN for an invalid operation) and report all raised conditions, which is exactly what the row states. Comparing the whole set in both directions catches both missing and spurious `Inexact`, `Rounded`, `Clamped` and similar conditions."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:147
+#: manual/design/frontend/gda_expr.md:149
 msgid "Representation-exact comparison"
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:149
-msgid "GDA specifies the exponent of every result, so a library that returns the right value with the wrong exponent is wrong. Comparing with `compare_total`, or by exact string, makes the cohort, the sign of zero and the NaN payload part of the test. The only value-level comparison is for `32#`/`64#`/`128#` results, where the encoding conditions are what the row tests."
-msgstr ""
-
-#: manual/design/frontend/gda_expr.md:156
-msgid "Directive context resolved once per change"
+#: manual/design/frontend/gda_expr.md:151
+msgid "GDA specifies the exponent of every result, so a library that returns the right value with the wrong exponent is wrong. Comparing by exact string makes the cohort, the sign of zero and the NaN payload part of the test. The only value-level comparison is for `32#`/`64#`/`128#` results, where the encoding conditions are what the row tests."
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:158
+msgid "Directive context resolved once per change"
+msgstr ""
+
+#: manual/design/frontend/gda_expr.md:160
 msgid "Each row stores the directive record in force on its line. `execute_documents` converts it to `decimal_gda` contexts only when it differs from the previous row's record. Conversion is a pure function of the record, so the cache never changes a result; it removes repeated work in files with thousands of rows under one context."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:164
+#: manual/design/frontend/gda_expr.md:166
 msgid "Deterministic sharding"
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:166
+#: manual/design/frontend/gda_expr.md:168
 msgid "**Problem.** The corpus is large and runs in parallel processes, whose results must add up to the serial run."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:169
+#: manual/design/frontend/gda_expr.md:171
 msgid "**Choice.** After filtering, rows are numbered $k = 0, 1, \\dots, N-1$ in document order and shard $i$ of $n$ takes $S_i = \\{k : k \\bmod n = i\\}$. Round-robin assignment spreads files with slow operations (`power`, `ln`) across shards instead of giving one shard a whole slow file."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:176
+#: manual/design/frontend/gda_expr.md:178
 msgid "**Partition.** For $n \\ge 1$ the sets $S_0, \\dots, S_{n-1}$ are pairwise disjoint and cover $\\{0, \\dots, N-1\\}$, because every $k$ has exactly one residue modulo $n$. Their sizes are balanced:"
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:186
-msgid "**Shard independence.** The disposition and result of a row depend only on the row (its tokens and its directive record): parsing fixes the record per row, and the context cache memoizes a pure function. Hence the result of row $k$ is the same in every shard that contains it and in the serial run, and"
-msgstr ""
-
-#: manual/design/frontend/gda_expr.md:195
-msgid "since `merge` adds every counter and the shards partition the rows (`total_cases` is the same $N$ in every shard and `merge` keeps it)."
+#: manual/design/frontend/gda_expr.md:188
+msgid "**Shard independence.** The disposition and result of a row depend only on the row (its tokens and its directive record), on the deviation records of the options and on the source name of its document: parsing fixes the record per row, and the context cache memoizes a pure function. Hence the result of row $k$ is the same in every shard that contains it and in the serial run, and"
 msgstr ""
 
 #: manual/design/frontend/gda_expr.md:198
+msgid "since `merge` adds every counter and the shards partition the rows (`total_cases` is the same $N$ in every shard and `merge` keeps it)."
+msgstr ""
+
+#: manual/design/frontend/gda_expr.md:201
 msgid "**Counter identities.** For every summary, $\\text{selected} = \\text{executable} + \\text{skipped}$, $\\text{executable} = \\text{passed} + \\text{failed}$ and $\\text{skipped} = \\text{diagnostic} + \\text{legacy} + \\text{unsupported}$; they hold because each result is counted in exactly one class by `internal/conformance`."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:205
+#: manual/design/frontend/gda_expr.md:208
 msgid "**Totality.** Parsing assigns every line to exactly one of: skipped (empty or comment), directive, row, diagnostic. Execution never aborts on row content: an invalid context makes its rows `Diagnostic` before any context is built, and decoding and dispatch failures become a failed result with the message `\"evaluation failed\"`."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:211
+#: manual/design/frontend/gda_expr.md:214
 msgid "**Complexity.** Parsing is linear in the text length. Execution is linear in the number of rows plus the cost of the decimal operations themselves."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:216
+#: manual/design/frontend/gda_expr.md:219
 msgid "**Value-only comparison.** Simpler, but it would accept wrong exponents and signs of zero, which the specification and the corpus test deliberately."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:218
+#: manual/design/frontend/gda_expr.md:221
 msgid "**Subset comparison of conditions** (only listed conditions must be raised). It would accept spurious `Inexact` or `Clamped`, a common class of bugs."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:220
+#: manual/design/frontend/gda_expr.md:223
 msgid "**Executing `#` and `?` rows with ad-hoc meanings.** These rows have no scalar meaning; inventing one would make the pass count meaningless."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:222
+#: manual/design/frontend/gda_expr.md:225
 msgid "**Contiguous shards.** Splitting the row list into blocks is equally deterministic but puts whole slow files into one shard."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:227
+#: manual/design/frontend/gda_expr.md:230
 msgid "No file system access, globbing or process exit codes: those belong to [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:229
+#: manual/design/frontend/gda_expr.md:232
 msgid "No traps: rows are executed with every trap disabled."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:230
+#: manual/design/frontend/gda_expr.md:233
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr ""
 
-#: manual/design/frontend/gda_expr.md:232
+#: manual/design/frontend/gda_expr.md:235
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr ""
 
@@ -18885,86 +18921,86 @@ msgid "For an interval-valued case with actual result $(A, d_A)$ and expected $(
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:69
-msgid "where $\\operatorname{sets}(A, E)$ holds when both are empty or both are nonempty with $\\inf A = \\inf E$ and $\\sup A = \\sup E$, comparing bounds numerically (`Binary::compare == 0`, so $-0 = +0$, as in IEEE 1788 where intervals are sets of reals). A number-valued case passes when the actual number compares equal to the expected bound; a boolean case when the booleans are equal; an overlap case when the state names are equal."
+msgid "where $\\operatorname{sets}(A, E)$ holds when both are empty or both are nonempty with $\\inf A = \\inf E$ and $\\sup A = \\sup E$, comparing bounds numerically (`Binary::compare == 0`, so $-0 = +0$, as in IEEE 1788 where intervals are sets of reals). A number-valued case passes when the actual number compares equal to the expected bound; a boolean case when the booleans are equal; an overlap case when the state names are equal. An interval-valued case also requires that the bounds of the actual interval carry the labels the representation requires: a bound has the precision of the interval exactly when it is a number of that format."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:78
+#: manual/design/frontend/itl_expr.md:81
 msgid "Execute against the public `interval` API"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:80
-msgid "Each ITL operation maps to one public method of `@interval.DecoratedInterval` (for example `add` to `+`, `sqrt` to `sqrt`, `pown` to `pown`, `overlap` to `overlap`), and results are rounded with `IntervalContext::new(precision=p, e_max=1023)`, the format the bounds were read in (binary64 for the default $p = 53$). Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
+#: manual/design/frontend/itl_expr.md:83
+msgid "Each ITL operation maps to one public method of `@interval.DecoratedInterval` or, for the numeric functions, of `Interval` (for example `add` to `+`, `sqrt` to `sqrt`, `pown` to `pown`, `overlap` to `overlap`), and interval results (except those of `intersection`, `convexHull`, `pow` and `atan2`) are rounded with `IntervalContext::new(precision=p, e_max=1023)`, the format the bounds were read in (binary64 for the default $p = 53$). Testing through the public API means the corpus checks exactly what users call, including the decoration logic."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:88
+#: manual/design/frontend/itl_expr.md:91
 msgid "Reading bounds"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:90
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are parsed as a decimal with $2p + 16$ digits and converted to binary with one rounding to nearest-even at $p$ bits. For a literal with at most $2p + 16$ significant digits the decimal parse is exact, so the bound is rounded once. A longer literal is rounded twice, and the second rounding can then land on the wrong side of a binary midpoint; the decimal expansion of a binary64 midpoint can have hundreds of digits, so this needs a literal with more than $2p + 16 = 122$ significant digits, which ITF1788 data does not use. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
+#: manual/design/frontend/itl_expr.md:93
+msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:108
+#: manual/design/frontend/itl_expr.md:105
 msgid "Decorations only when the case states one"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:110
+#: manual/design/frontend/itl_expr.md:107
 msgid "ITL writes undecorated expectations (`[4.0,6.0]`) for the set-based tests and decorated ones (`[4.0,6.0]_com`) for the decoration tests. The executor parses an undecorated literal as $\\mathsf{com}$ but compares decorations only when the expected text contains `_`, so set-based cases are not failed by the decoration the implementation attaches."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:116
+#: manual/design/frontend/itl_expr.md:113
 msgid "Three dispositions and a strict summary"
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:118
-msgid "`Unsupported` marks cases the library does not implement (unknown operations such as the reverse operations `mulRevToPair`, or, in the binary dispatch, an expectation with a `signal` annotation). `Diagnostic` marks cases whose data cannot be read. Support is decided from the operation name before any operand is read, so an unknown operation is `Unsupported` whatever its operands (`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the classification is made by the dispatch path: a `signal` annotation on a unary, ternary, numeric or integer-power case makes its expected value unreadable and therefore a `Diagnostic`. `RunSummary::success` fails on any failed case *and* on any diagnostic, because unreadable data in a pinned corpus is a defect of the parser or the corpus, not an excluded feature. Unsupported cases do not fail `success`; the CLI's `--strict-supported` turns them into a failing exit code for the phases that claim full support."
+#: manual/design/frontend/itl_expr.md:115
+msgid "`Unsupported` marks cases this package does not execute (unknown operations such as `rsqrt`, or, in the binary dispatch, an expectation with a `signal` annotation). `Diagnostic` marks cases whose data cannot be read. Support is decided from the operation name before any operand is read, so an unknown operation is `Unsupported` whatever its operands (`nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3`). For a known operation the classification is made by the dispatch path: a `signal` annotation on a unary, ternary, numeric or integer-power case makes its expected value unreadable and therefore a `Diagnostic`. `RunSummary::success` fails on any failed case *and* on any diagnostic, because unreadable data in a pinned corpus is a defect of the parser or the corpus, not an excluded feature. Unsupported cases do not fail `success`; the CLI's `--strict-supported` turns them into a failing exit code for the phases that claim full support."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:135
+#: manual/design/frontend/itl_expr.md:132
 msgid "**Counter identities.** Every result has exactly one disposition, so $\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:139
+#: manual/design/frontend/itl_expr.md:136
 msgid "**Soundness of a pass.** If an interval-valued case passes, the actual bounds equal the expected bounds. When the expected value is the tightest binary64 enclosure, the actual result is then both an enclosure of the range and tightest; when the corpus only promises an enclosure (accurate rather than tightest operations), a pass shows that the implementation reached the same bounds."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:146
+#: manual/design/frontend/itl_expr.md:143
 msgid "**Determinism.** Parsing and execution depend only on the text and `precision`; results do not depend on the order in which cases are executed, so a caller may filter or reorder cases freely."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:150
+#: manual/design/frontend/itl_expr.md:147
 msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` never aborts on case content: every unreadable input is reported through a disposition. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:158
+#: manual/design/frontend/itl_expr.md:155
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:160
+#: manual/design/frontend/itl_expr.md:157
 msgid "**Always comparing decorations.** It would fail set-based cases on the default decoration, although those cases make no decoration claim."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:162
+#: manual/design/frontend/itl_expr.md:159
 msgid "**Treating signals as passes.** IEEE 1788 signals (for example `UndefinedOperation`) are not observable through the current API, so such cases are reported as not executed rather than silently passed."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:168
-msgid "Reverse operations, `mulRevToPair`, string conversions and exception signals are not executed."
+#: manual/design/frontend/itl_expr.md:165
+msgid "String conversions and exception signals are not executed."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:170
+#: manual/design/frontend/itl_expr.md:166
 msgid "Decimal bounds are rounded to nearest, as ITF1788 floating constants; an `[l,u]` in ITL is not an IEEE 1788 interval literal."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:172
+#: manual/design/frontend/itl_expr.md:168
 msgid "The result format for `precision = p` has the binary64 exponent range for every $p$, so `precision = 24` is not binary32."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:174
+#: manual/design/frontend/itl_expr.md:170
 msgid "`/*` opens a block comment only at the start of a line."
 msgstr ""
 
-#: manual/design/frontend/itl_expr.md:175
+#: manual/design/frontend/itl_expr.md:171
 msgid "No file IO and no operation filtering; both are in [`cli/itl_expr_cli`](../cli/itl_expr_cli.md)."
 msgstr ""
 
@@ -18973,162 +19009,162 @@ msgid "frontend/mpfr_expr design"
 msgstr ""
 
 #: manual/design/frontend/mpfr_expr.md:5
-msgid "GNU MPFR computes correctly rounded results of elementary functions at any precision and in every rounding direction.[^mpfr] This package turns MPFR output into executable checks for `binary`: a passing row shows that `binary` returns the correctly rounded result (and the right exception flags) for that input, precision and rounding mode. It is a pure library; the data files and their provenance live in `testdata/binary/` and the generators in `tools/`."
+msgid "GNU MPFR computes correctly rounded results of elementary functions at any precision and in every rounding direction.[^mpfr] This package turns MPFR output into executable checks for `binary` (the `mpfr-decimal-random-v2` rows for `decimal`): a passing row shows that `binary` returns the correctly rounded result (and the right exception flags) for that input, precision and rounding mode. It is a pure library; the data files and their provenance live in `testdata/binary/` and the generators in `tools/`."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:13
+#: manual/design/frontend/mpfr_expr.md:14
 msgid "L. Fousse, G. Hanrot, V. Lefèvre, P. Pélissier, P. Zimmermann, \"MPFR: A multiple-precision binary floating-point library with correct rounding\", *ACM TOMS* 33(2), 2007."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:19
+#: manual/design/frontend/mpfr_expr.md:20
 msgid "Correct rounding"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:21
+#: manual/design/frontend/mpfr_expr.md:22
 msgid "Let $\\mathbb{F}_p$ be the binary numbers with a $p$-bit significand and an unbounded exponent, and $\\circ_{p,\\rho}$ rounding to $\\mathbb{F}_p$ in direction $\\rho$. For a real function $f$ and $x \\in \\mathbb{F}_q$, the correctly rounded result is"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:31
+#: manual/design/frontend/mpfr_expr.md:32
 msgid "MPFR returns $y$ and a ternary value whose sign says whether $y$ is below, equal to or above $f(x)$; the generators turn it into the inexact field. At special points the IEEE 754 rules apply: an invalid operation (for example $\\sqrt{-1}$, $\\ln(-1)$) returns NaN with the invalid flag, and an exact infinite result from finite operands ($\\ln 0 = -\\infty$) raises division by zero.[^ieee]"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:38
+#: manual/design/frontend/mpfr_expr.md:39
 msgid "IEEE 754-2019, clauses 7.2 (invalid operation) and 7.3 (division by zero), and clause 9.2 for the recommended elementary functions."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:41
+#: manual/design/frontend/mpfr_expr.md:42
 msgid "What a row asserts"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:43
+#: manual/design/frontend/mpfr_expr.md:44
 msgid "Each format fixes $f$, the input $x$, the target precision $p$ and direction $\\rho$, and records MPFR's $y$ (and flags). The executor evaluates the corresponding `binary` method in `BinaryContext::new(precision=p, rounding=ρ)` and checks:"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:48
+#: manual/design/frontend/mpfr_expr.md:49
 msgid "Value check"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:48
+#: manual/design/frontend/mpfr_expr.md:49
 msgid "Flag check"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:50
+#: manual/design/frontend/mpfr_expr.md:51
 msgid "square root"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:50
-msgid "$\\hat y = y$ as `Binary` values (`==`)"
+#: manual/design/frontend/mpfr_expr.md:51
+msgid "$\\hat y = y$ as `Binary` values (`identical`)"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:51
+#: manual/design/frontend/mpfr_expr.md:52
 msgid "integer power $x^n$"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:51
+#: manual/design/frontend/mpfr_expr.md:52
 msgid "inexact equal; no underflow, overflow, division by zero, invalid"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:52
+#: manual/design/frontend/mpfr_expr.md:53
 msgid "elementary"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:52
+#: manual/design/frontend/mpfr_expr.md:53
 msgid "$\\hat y \\simeq y$ (`compare == 0`, zeros with their sign)"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:52
+#: manual/design/frontend/mpfr_expr.md:53
 msgid "inexact, invalid, division by zero equal; no underflow, overflow"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:54
-msgid "`==` on `Binary` compares the stored representation, which is canonical for a given value and precision, so it distinguishes $+0$ from $-0$ and NaN payloads. `compare == 0` is numeric equality extended so that every NaN compares equal to every NaN and $+0 = -0$."
+#: manual/design/frontend/mpfr_expr.md:55
+msgid "`identical` on `Binary` compares the stored representation, which is canonical for a given value and precision, so it distinguishes $+0$ from $-0$ and NaN payloads. `compare == 0` is numeric equality extended so that every NaN compares equal to every NaN and $+0 = -0$."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:61
+#: manual/design/frontend/mpfr_expr.md:62
 msgid "An unbounded exponent range"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:63
+#: manual/design/frontend/mpfr_expr.md:64
 msgid "MPFR's default exponent range is far wider than any IEEE format, and the data contains results such as $2^{-563}$ computed from subnormal-range binary64 inputs. Executing in an unbounded context tests rounding of the significand in isolation: range effects (overflow, underflow, subnormals) are covered by the TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats have real limits. Consequently an underflow or overflow flag in an MPFR row is a failure: it can only come from a defect."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:71
+#: manual/design/frontend/mpfr_expr.md:72
 msgid "Inputs read at 512 bits"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:73
-msgid "Inputs are written in hexadecimal and are exact binary numbers. Reading elementary and power inputs at 512 bits keeps every input of up to 512 significant bits exact, so the check concerns $f$, not the parsing of $x$. A longer input significand would be rounded to nearest-even at 512 bits and the row would then test $f$ at a different point. Every input of the committed elementary matrix has far fewer significant bits than 512. The square-root format carries its own input precision and is read at it."
+#: manual/design/frontend/mpfr_expr.md:74
+msgid "Inputs are written in hexadecimal and are exact binary numbers. Reading power inputs at 512 bits keeps every input of up to 512 significant bits exact, so the check concerns $f$, not the parsing of $x$. A longer power input significand would be rounded to nearest-even at 512 bits and the row would then test $f$ at a different point. Elementary inputs are read at 512 bits or at four bits per character of the token when that is more, so they are never rounded. Every input of the committed elementary matrix has far fewer significant bits than 512. The square-root format carries its own input precision and is read at it."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:81
+#: manual/design/frontend/mpfr_expr.md:84
 msgid "Numeric comparison for elementary rows"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:83
+#: manual/design/frontend/mpfr_expr.md:86
 msgid "The elementary matrix is generated for 29 functions across binary32/64/128 precisions and all five rounding modes. Its expected NaNs carry no payload information, and IEEE 754 leaves the payload of a generated NaN to the implementation, so the comparison treats all NaNs as equal. `compare` also identifies $+0$ and $-0$, but the sign of a zero result is specified (for example $\\sin(-0) = -0$ and $\\operatorname{atan2}(-0, 1) = -0$), so a zero result must in addition have the expected sign."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:91
+#: manual/design/frontend/mpfr_expr.md:94
 msgid "Certification failures are failures"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:93
+#: manual/design/frontend/mpfr_expr.md:96
 msgid "`binary` evaluates elementary functions with certified error bounds and a bounded refinement loop; when it cannot certify the rounding it returns an error instead of a possibly wrong value. The executor counts such an error as a failed row with its own message, so a corpus run also proves that certification succeeded on every row."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:99
+#: manual/design/frontend/mpfr_expr.md:102
 msgid "Line numbers as ids"
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:101
+#: manual/design/frontend/mpfr_expr.md:104
 msgid "Rows have no names in these formats, so ids are `op:LINE` (or `sqrt:LINE`, `pow:LINE`). They are stable as long as the pinned file is unchanged, which the SHA-256 pins in `testdata/binary/corpora.json` guarantee."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:107
+#: manual/design/frontend/mpfr_expr.md:110
 msgid "**Soundness of a pass.** If MPFR's $y$ is the correctly rounded value of $f(x)$ (which MPFR guarantees), a passing square-root or power row shows $\\hat y = \\circ_{p,\\rho}(f(x))$ exactly, and a passing elementary row shows the same up to the NaN payload, together with the stated flags."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:112
+#: manual/design/frontend/mpfr_expr.md:115
 msgid "**Counter identity.** Every parsed row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$ and the parsed row count equals `total_cases`."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:116
+#: manual/design/frontend/mpfr_expr.md:119
 msgid "**Determinism.** Each row's result depends only on the row."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:118
+#: manual/design/frontend/mpfr_expr.md:121
 msgid "**Totality of parsing.** Every non-comment line becomes a row or a diagnostic, and a document is returned only when there is no diagnostic. An elementary row for `pow`, `hypot` or `atan2` without a second operand is a diagnostic, so execution never meets a missing operand."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:125
+#: manual/design/frontend/mpfr_expr.md:128
 msgid "**Comparing decimal strings.** Decimal output would need its own correctly rounded conversion; hexadecimal significands compare exactly."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:127
+#: manual/design/frontend/mpfr_expr.md:130
 msgid "**Running in IEEE formats.** That would mix range and rounding effects and make most high-precision rows (precision 113 and above) impossible."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:129
+#: manual/design/frontend/mpfr_expr.md:132
 msgid "**Linking MPFR at test time.** The data is generated once by small C programs and pinned, so the MoonBit test run needs no C dependency and works on every target."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:135
+#: manual/design/frontend/mpfr_expr.md:138
 msgid "Square-root rows check values only, not flags."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:136
+#: manual/design/frontend/mpfr_expr.md:139
 msgid "Elementary rows do not check NaN payloads."
 msgstr ""
 
-#: manual/design/frontend/mpfr_expr.md:137
-msgid "No exponent range, subnormals or overflow handling are exercised."
-msgstr ""
-
-#: manual/design/frontend/mpfr_expr.md:138
-msgid "Only the three formats above are understood; there is no general MPFR test file reader."
-msgstr ""
-
 #: manual/design/frontend/mpfr_expr.md:140
+msgid "No exponent range, subnormals or overflow handling are exercised by the square-root, power and elementary formats; the two random formats do."
+msgstr ""
+
+#: manual/design/frontend/mpfr_expr.md:142
+msgid "Only the seven formats of the [API page](../../api/frontend/mpfr_expr.md) are understood; there is no general MPFR test file reader."
+msgstr ""
+
+#: manual/design/frontend/mpfr_expr.md:144
 msgid "File reading, format detection and exit codes are in [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)."
 msgstr ""
 
@@ -19744,6 +19780,7 @@ msgid "No check that a result's `passed` bit agrees with its disposition."
 msgstr ""
 
 #: manual/design/internal/conformance.md:135
+#: manual/design/internal/runner_cli.md:89
 msgid "Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise."
 msgstr ""
 
@@ -19930,95 +19967,91 @@ msgid "internal/runner_cli design"
 msgstr ""
 
 #: manual/design/internal/runner_cli.md:5
-msgid "The conformance runners are invoked thousands of times by `tools/*.py`, in parallel shards, and their output is parsed by scripts. They must therefore agree on option syntax, exit codes, diagnostic format and JSON shape, and produce the same output for the same input on any machine. `internal/runner_cli` is the single place where these conventions are implemented, so each runner in `cli/` only adds its own options and calls a frontend."
+msgid "The conformance runners are invoked thousands of times by `tools/*.py`, in parallel shards, and their output is parsed by scripts. They must therefore agree on option syntax, exit codes, diagnostic format and JSON shape, and produce the same output for the same input on any machine. `internal/runner_cli` is the single place where these conventions are implemented, so the runners that use it (`gda`, `testfloat`, `mpfr`) only add their own options and call a frontend; `itl` reads its own options and uses only `read_source` and the JSON helpers."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:15
+#: manual/design/internal/runner_cli.md:16
 msgid "There is little mathematics here; the one property that matters is determinism. A run is a function of (argument vector, file contents): the file list is sorted, documents are parsed in that order, cases are numbered in that order, and shard $(n, i)$ selects ordinals $k$ with $k \\bmod n = i$ ([internal/conformance design](conformance.md)). Hence the set of executed cases, and every counter in the output, is independent of directory listing order and of how many processes run in parallel."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:25
+#: manual/design/internal/runner_cli.md:26
 msgid "Full argument vectors"
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:27
+#: manual/design/internal/runner_cli.md:28
 msgid "Every runner receives the whole argument vector, program name included, and `parse_common_options` skips element 0. The dispatcher in `cli/` forwards the program name followed by the arguments it did not consume, so a runner behaves the same whether it is reached through the dispatcher or called directly from a test."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:33
+#: manual/design/internal/runner_cli.md:34
 msgid "Common options first, the rest in order"
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:35
+#: manual/design/internal/runner_cli.md:36
 msgid "`parse_common_options` consumes only `--json` and the shard options and keeps everything else in order. Runner-specific options and paths are parsed afterwards from `remaining()`. This keeps the common syntax identical across runners while letting each runner reject options it does not know."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:40
+#: manual/design/internal/runner_cli.md:41
 msgid "Validated shards"
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:42
+#: manual/design/internal/runner_cli.md:43
 msgid "Shard options are validated with `ShardSpec::try_new`, so an invalid pair is a usage error (exit code 2) instead of an abort in a frontend."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:45
+#: manual/design/internal/runner_cli.md:46
 msgid "Sorted, non-recursive file collection"
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:47
+#: manual/design/internal/runner_cli.md:48
 msgid "`collect_files` sorts the expanded list and does not descend into subdirectories. Sorting makes case ordinals, and thus shards, reproducible. Not recursing keeps the selected corpus explicit: the Python tooling passes the exact files of each corpus phase. Duplicates are removed, so a file named twice is not executed twice, and a named file without the suffix is an error, so a mistyped path cannot pass as an empty run."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:54
+#: manual/design/internal/runner_cli.md:55
 msgid "Small JSON layer"
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:56
+#: manual/design/internal/runner_cli.md:57
 msgid "The helpers wrap the core `Json` type: `json_int` stores the exact decimal representation so counts print as integers, and `json_object` keeps insertion order so reports are stable and diff-friendly."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:62
+#: manual/design/internal/runner_cli.md:63
 msgid "**Option round trip.** For an argument vector without common options, `remaining()` equals `arguments[1:]`."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:64
+#: manual/design/internal/runner_cli.md:65
 msgid "**Shard validity.** A successful `parse_common_options` always returns `shard_count() > 0` and `0 <= shard_index() < shard_count()`."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:66
+#: manual/design/internal/runner_cli.md:67
 msgid "**Deterministic file list.** `collect_files(paths, s)` is sorted, free of duplicates, and contains exactly the files named in `paths` plus the direct file entries of named directories that end in `s`; a named file that does not end in `s` is an error, never dropped. The list is a function of the argument vector and the directory contents, not of the listing order."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:71
+#: manual/design/internal/runner_cli.md:72
 msgid "**Diagnostic positions.** `format_diagnostic_at` never prints a line or column below 1."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:76
-msgid "**A generic argument-parsing library.** The runners need four options; a dependency would add more surface than it removes."
+#: manual/design/internal/runner_cli.md:77
+msgid "**A generic argument-parsing library.** The runners need a handful of options; a dependency would add more surface than it removes."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:78
+#: manual/design/internal/runner_cli.md:79
 msgid "**Recursive directory walks.** They would pull in unrelated files placed in subdirectories and make the selected corpus implicit."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:80
+#: manual/design/internal/runner_cli.md:81
 msgid "**Free-form text output for tools.** Scripts would have to parse prose; the JSON objects are the stable interface, text output is for humans."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:85
+#: manual/design/internal/runner_cli.md:86
 msgid "No corpus parsing or numeric semantics: frontends own them."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:86
+#: manual/design/internal/runner_cli.md:87
 msgid "No process exit: runners return an exit code; only `cli` calls `exit`."
 msgstr ""
 
-#: manual/design/internal/runner_cli.md:87
-msgid "No recursive file search, globbing or encoding detection."
-msgstr ""
-
 #: manual/design/internal/runner_cli.md:88
-msgid "Internal: not importable outside `Luna-Flow/floating`, no stability promise."
+msgid "No recursive file search, globbing or encoding detection."
 msgstr ""
 
 #: manual/design/interval.md:1
@@ -24863,13 +24896,13 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
-#: manual/tutorial/frontend/mpfr_expr.md:9
+#: manual/tutorial/frontend/mpfr_expr.md:10
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
 #: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
-#: manual/tutorial/internal/runner_cli.md:10
+#: manual/tutorial/internal/runner_cli.md:11
 #: manual/tutorial/interval.md:11
 #: manual/tutorial/interval_checked.md:12
 #: manual/tutorial/numeric_expr.md:10
@@ -24903,13 +24936,13 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
-#: manual/tutorial/frontend/mpfr_expr.md:9
+#: manual/tutorial/frontend/mpfr_expr.md:10
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
 #: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
-#: manual/tutorial/internal/runner_cli.md:10
+#: manual/tutorial/internal/runner_cli.md:11
 #: manual/tutorial/interval.md:11
 #: manual/tutorial/interval_checked.md:12
 #: manual/tutorial/numeric_expr.md:10
@@ -24972,11 +25005,11 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:13
 #: manual/tutorial/frontend/gda_expr.md:20
 #: manual/tutorial/frontend/itl_expr.md:17
-#: manual/tutorial/frontend/mpfr_expr.md:18
+#: manual/tutorial/frontend/mpfr_expr.md:19
 #: manual/tutorial/frontend/testfloat_expr.md:21
 #: manual/tutorial/internal.md:20
 #: manual/tutorial/internal/conformance.md:20
-#: manual/tutorial/internal/runner_cli.md:20
+#: manual/tutorial/internal/runner_cli.md:21
 #: manual/tutorial/interval.md:23
 #: manual/tutorial/interval_checked.md:21
 #: manual/tutorial/numeric_expr.md:19
@@ -25022,7 +25055,7 @@ msgstr ""
 #: manual/tutorial/binary_checked.md:57
 #: manual/tutorial/cli.md:38
 #: manual/tutorial/cli/dispatch.md:36
-#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/gda_expr_cli.md:72
 #: manual/tutorial/cli/itl_expr_cli.md:47
 #: manual/tutorial/cli/mpfr_expr_cli.md:49
 #: manual/tutorial/cli/testfloat_expr_cli.md:62
@@ -25038,11 +25071,11 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:25
 #: manual/tutorial/frontend/gda_expr.md:54
 #: manual/tutorial/frontend/itl_expr.md:51
-#: manual/tutorial/frontend/mpfr_expr.md:50
+#: manual/tutorial/frontend/mpfr_expr.md:51
 #: manual/tutorial/frontend/testfloat_expr.md:52
 #: manual/tutorial/internal.md:53
 #: manual/tutorial/internal/conformance.md:55
-#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/internal/runner_cli.md:111
 #: manual/tutorial/interval.md:87
 #: manual/tutorial/interval_checked.md:60
 #: manual/tutorial/numeric_expr.md:55
@@ -25112,7 +25145,7 @@ msgstr ""
 #: manual/tutorial/binary_checked.md:177
 #: manual/tutorial/cli.md:73
 #: manual/tutorial/cli/dispatch.md:60
-#: manual/tutorial/cli/gda_expr_cli.md:109
+#: manual/tutorial/cli/gda_expr_cli.md:114
 #: manual/tutorial/cli/itl_expr_cli.md:76
 #: manual/tutorial/cli/mpfr_expr_cli.md:70
 #: manual/tutorial/cli/testfloat_expr_cli.md:88
@@ -25128,11 +25161,11 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:52
 #: manual/tutorial/frontend/gda_expr.md:223
 #: manual/tutorial/frontend/itl_expr.md:151
-#: manual/tutorial/frontend/mpfr_expr.md:145
+#: manual/tutorial/frontend/mpfr_expr.md:146
 #: manual/tutorial/frontend/testfloat_expr.md:191
 #: manual/tutorial/internal.md:165
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/internal/runner_cli.md:137
 #: manual/tutorial/interval.md:287
 #: manual/tutorial/interval_checked.md:169
 #: manual/tutorial/numeric_expr.md:241
@@ -25162,7 +25195,7 @@ msgstr ""
 #: manual/tutorial/binary_checked.md:235
 #: manual/tutorial/cli.md:82
 #: manual/tutorial/cli/dispatch.md:66
-#: manual/tutorial/cli/gda_expr_cli.md:117
+#: manual/tutorial/cli/gda_expr_cli.md:122
 #: manual/tutorial/cli/itl_expr_cli.md:84
 #: manual/tutorial/cli/mpfr_expr_cli.md:79
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
@@ -25178,11 +25211,11 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:239
 #: manual/tutorial/frontend/itl_expr.md:164
-#: manual/tutorial/frontend/mpfr_expr.md:158
-#: manual/tutorial/frontend/testfloat_expr.md:207
+#: manual/tutorial/frontend/mpfr_expr.md:160
+#: manual/tutorial/frontend/testfloat_expr.md:208
 #: manual/tutorial/internal.md:180
 #: manual/tutorial/internal/conformance.md:116
-#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/internal/runner_cli.md:149
 #: manual/tutorial/interval.md:379
 #: manual/tutorial/interval_checked.md:234
 #: manual/tutorial/numeric_expr.md:257
@@ -25214,11 +25247,11 @@ msgstr ""
 #: manual/tutorial/bench/interval.md:62
 #: manual/tutorial/binary.md:425
 #: manual/tutorial/binary_checked.md:258
-#: manual/tutorial/cli.md:94
+#: manual/tutorial/cli.md:95
 #: manual/tutorial/cli/dispatch.md:74
-#: manual/tutorial/cli/gda_expr_cli.md:129
+#: manual/tutorial/cli/gda_expr_cli.md:134
 #: manual/tutorial/cli/itl_expr_cli.md:95
-#: manual/tutorial/cli/mpfr_expr_cli.md:88
+#: manual/tutorial/cli/mpfr_expr_cli.md:90
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:76
 #: manual/tutorial/decimal.md:438
@@ -25232,11 +25265,11 @@ msgstr ""
 #: manual/tutorial/doc_examples.md:63
 #: manual/tutorial/frontend/gda_expr.md:257
 #: manual/tutorial/frontend/itl_expr.md:178
-#: manual/tutorial/frontend/mpfr_expr.md:174
-#: manual/tutorial/frontend/testfloat_expr.md:218
+#: manual/tutorial/frontend/mpfr_expr.md:177
+#: manual/tutorial/frontend/testfloat_expr.md:219
 #: manual/tutorial/internal.md:194
 #: manual/tutorial/internal/conformance.md:127
-#: manual/tutorial/internal/runner_cli.md:164
+#: manual/tutorial/internal/runner_cli.md:165
 #: manual/tutorial/interval.md:435
 #: manual/tutorial/interval_checked.md:250
 #: manual/tutorial/numeric_expr.md:271
@@ -26223,30 +26256,30 @@ msgid "**`--help` is the dispatcher's.** `--backend gda --help` prints the dispa
 msgstr ""
 
 #: manual/tutorial/cli.md:86
-msgid "**Relative default paths.** Runners default to files under `testdata/`; run them from the repository root."
-msgstr ""
-
-#: manual/tutorial/cli.md:88
-msgid "**One backend per invocation.** `--backend` may be given only once."
+msgid "**Relative default paths.** The `gda` and `itl` runners default to files under `testdata/`; run them from the repository root. `mpfr` and `testfloat` need a path."
 msgstr ""
 
 #: manual/tutorial/cli.md:89
+msgid "**One backend per invocation.** `--backend` may be given only once."
+msgstr ""
+
+#: manual/tutorial/cli.md:90
 msgid "**An empty directory is not an error.** The `gda` runner rejects a named file without the `.decTest` suffix (`not a .decTest file: PATH`, exit `2`), but a directory contributes only its direct `.decTest` files, so a directory without any gives an empty run that exits with `0`."
 msgstr ""
 
-#: manual/tutorial/cli.md:96
+#: manual/tutorial/cli.md:97
 msgid "[cli API](../api/cli.md) for the exact options and exit codes."
 msgstr ""
 
-#: manual/tutorial/cli.md:97
+#: manual/tutorial/cli.md:98
 msgid "[internal/runner_cli](internal/runner_cli.md) for the shared option parser."
 msgstr ""
 
-#: manual/tutorial/cli.md:99
+#: manual/tutorial/cli.md:100
 msgid "[cli design](../design/cli.md) for the layering."
 msgstr ""
 
-#: manual/tutorial/cli.md:100
+#: manual/tutorial/cli.md:101
 msgid "[verification](../verification.md) for the published corpus claims."
 msgstr ""
 
@@ -26316,7 +26349,7 @@ msgid "Everything except `--backend` and its value is forwarded, in order, with 
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:62
-msgid "To add a backend, write a runner package `run(arguments) -> Int`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
+msgid "To add a backend, write a runner package `run(arguments) -> Int32`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:68
@@ -26328,7 +26361,7 @@ msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:71
-msgid "**Relative paths.** The runners read their default corpora relative to the working directory; the tests of the module run in `tooling/`."
+msgid "**Relative paths.** The `gda` and `itl` runners read their default corpora relative to the working directory; the tests of the module run in `tooling/`."
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:76
@@ -26388,98 +26421,98 @@ msgstr ""
 msgid "The executable is built from a checkout of the repository. Build it and run the committed smoke file:"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:38
+#: manual/tutorial/cli/gda_expr_cli.md:43
 msgid "The exit status is `0` when no executable row failed."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:40
+#: manual/tutorial/cli/gda_expr_cli.md:45
 #: manual/tutorial/cli/itl_expr_cli.md:31
 #: manual/tutorial/cli/mpfr_expr_cli.md:32
 #: manual/tutorial/cli/testfloat_expr_cli.md:43
 msgid "From MoonBit code"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:42
+#: manual/tutorial/cli/gda_expr_cli.md:47
 msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import it and pass the argument vector, program name first:"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:62
+#: manual/tutorial/cli/gda_expr_cli.md:67
 #: manual/tutorial/cli/itl_expr_cli.md:45
 #: manual/tutorial/cli/mpfr_expr_cli.md:47
 #: manual/tutorial/cli/testfloat_expr_cli.md:60
 msgid "`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:64
+#: manual/tutorial/cli/gda_expr_cli.md:69
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:69
+#: manual/tutorial/cli/gda_expr_cli.md:74
 msgid "Run files and directories"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:76
+#: manual/tutorial/cli/gda_expr_cli.md:81
 msgid "Files are sorted by path and executed as one run; a file named twice runs once."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:79
+#: manual/tutorial/cli/gda_expr_cli.md:84
 msgid "Select rows"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:86
+#: manual/tutorial/cli/gda_expr_cli.md:91
 msgid "A range matches ids of the same length that sort between its bounds."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:88
+#: manual/tutorial/cli/gda_expr_cli.md:93
 #: manual/tutorial/internal/conformance.md:70
 msgid "Shard a run"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:95
+#: manual/tutorial/cli/gda_expr_cli.md:100
 msgid "Shard `i` runs the rows whose position (after the `--cases` filter, across all files) is `i` modulo the shard count. Adding the JSON counters of all shards gives the counters of the unsharded run, except `totalCases`, which every shard already reports for the whole run."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:100
+#: manual/tutorial/cli/gda_expr_cli.md:105
 msgid "Fail on unsupported rows"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:106
+#: manual/tutorial/cli/gda_expr_cli.md:111
 msgid "With `--strict-supported` the exit status is `1` if any selected row is unsupported or legacy, even when all executed rows pass."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:111
-msgid "`just conformance run decimal_gda` fetches the pinned official corpora, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
-msgstr ""
-
-#: manual/tutorial/cli/gda_expr_cli.md:114
-msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
+#: manual/tutorial/cli/gda_expr_cli.md:116
+msgid "`just conformance run decimal_gda` fetches the pinned official corpora when they are not installed, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:119
-msgid "**`--help` returns `2`.** The runner prints its usage as an error; through the dispatcher, `--help` shows the dispatcher usage instead."
-msgstr ""
-
-#: manual/tutorial/cli/gda_expr_cli.md:121
-msgid "**First parse error only.** A malformed line stops the run with one `file:line:1: message`; fix it and rerun to see the next."
-msgstr ""
-
-#: manual/tutorial/cli/gda_expr_cli.md:123
-msgid "**Non-recursive directories.** Subdirectories are not searched."
+msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:124
+msgid "**`--help` returns `2`.** The runner prints its usage as an error; through the dispatcher, `--help` shows the dispatcher usage instead."
+msgstr ""
+
+#: manual/tutorial/cli/gda_expr_cli.md:126
+msgid "**First parse error only.** A malformed line stops the run with one `file:line:1: message`; fix it and rerun to see the next."
+msgstr ""
+
+#: manual/tutorial/cli/gda_expr_cli.md:128
+msgid "**Non-recursive directories.** Subdirectories are not searched."
+msgstr ""
+
+#: manual/tutorial/cli/gda_expr_cli.md:129
 msgid "**The suffix is case-sensitive.** A named file such as `add.dectest` or `add.txt` is the error `not a .decTest file: PATH` (exit `2`), and inside a directory such entries are skipped, so a directory without any `.decTest` file gives an empty run that exits with `0`."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:131
+#: manual/tutorial/cli/gda_expr_cli.md:136
 msgid "[cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md) for options, output keys and exit codes."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:133
+#: manual/tutorial/cli/gda_expr_cli.md:138
 msgid "[cli/gda_expr_cli design](../../design/cli/gda_expr_cli.md)."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:134
+#: manual/tutorial/cli/gda_expr_cli.md:139
 msgid "[frontend/gda_expr tutorial](../frontend/gda_expr.md) for the row semantics."
 msgstr ""
 
@@ -26554,7 +26587,7 @@ msgid "[itl_expr tutorial](../frontend/itl_expr.md) explains the cases and the p
 msgstr ""
 
 #: manual/tutorial/cli/itl_expr_cli.md:86
-msgid "**No `--json` option.** The output is always JSON; passing `--json` is an unknown option (exit `2`)."
+msgid "**No `--json` option.** The output of a run that completes is always JSON; passing `--json` is an unknown option (exit `2`)."
 msgstr ""
 
 #: manual/tutorial/cli/itl_expr_cli.md:88
@@ -26586,7 +26619,7 @@ msgid "cli/mpfr_expr_cli tutorial"
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:3
-msgid "This tutorial shows how to check `binary` against an MPFR data file from the command line. The runner is reached as `floating-conformance --backend mpfr`; below, `mpfr` abbreviates that command."
+msgid "This tutorial shows how to check `binary` against an MPFR data file (the `mpfr-decimal-random-v2` rows, `decimal`) from the command line. The runner is reached as `floating-conformance --backend mpfr`; below, `mpfr` abbreviates that command."
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:9
@@ -26628,7 +26661,7 @@ msgid "JSON for scripts"
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:67
-msgid "prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
+msgid "prints one object with `corpus`, `frontend`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:72
@@ -26644,26 +26677,26 @@ msgid "[mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats a
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:81
-msgid "**One file per invocation.** Extra paths, missing paths, and the shard options all print the usage line and exit with `2`."
+msgid "**One file per invocation.** Extra paths and a missing path print the usage line and exit with `2`; a shard option counts as an extra argument, so it prints the usage line when a path is given too."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:83
-msgid "**A lone option is read as a path.** `mpfr --help` reports `cannot read file: --help`, not the usage line."
+#: manual/tutorial/cli/mpfr_expr_cli.md:84
+msgid "**A lone option is read as a path.** `mpfr --verbose` reports `cannot read file: --verbose`, not the usage line; `--help` and `-h` are answered by the dispatcher, which prints its own usage and exits with `0`."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:85
+#: manual/tutorial/cli/mpfr_expr_cli.md:87
 msgid "**Format detection is textual.** A square-root file that happens to contain `input_coefficient_hex` in a comment is parsed as power data."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:90
+#: manual/tutorial/cli/mpfr_expr_cli.md:92
 msgid "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:91
+#: manual/tutorial/cli/mpfr_expr_cli.md:93
 msgid "[cli/mpfr_expr_cli design](../../design/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:92
+#: manual/tutorial/cli/mpfr_expr_cli.md:94
 msgid "[frontend/mpfr_expr tutorial](../frontend/mpfr_expr.md) for the row formats."
 msgstr ""
 
@@ -26720,7 +26753,7 @@ msgid "Shard `i` runs the vectors whose index is `i` modulo the shard count."
 msgstr ""
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:84
-msgid "`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases` and `failedIds` (`FUNCTION:LINE`)."
+msgid "`--json` prints `frontend`, `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases`, `failedIds` (`FUNCTION:LINE`) and `arms`."
 msgstr ""
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:90
@@ -28187,7 +28220,7 @@ msgid "run a few rows from a string"
 msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:13
-#: manual/tutorial/frontend/mpfr_expr.md:14
+#: manual/tutorial/frontend/mpfr_expr.md:15
 msgid "see why a row failed"
 msgstr ""
 
@@ -28209,7 +28242,7 @@ msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:22
 #: manual/tutorial/frontend/itl_expr.md:19
-#: manual/tutorial/frontend/mpfr_expr.md:20
+#: manual/tutorial/frontend/mpfr_expr.md:21
 #: manual/tutorial/frontend/testfloat_expr.md:23
 #: manual/tutorial/numeric_expr.md:21
 #: manual/tutorial/semantic.md:24
@@ -28218,7 +28251,7 @@ msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:24
 #: manual/tutorial/frontend/itl_expr.md:21
-#: manual/tutorial/frontend/mpfr_expr.md:22
+#: manual/tutorial/frontend/mpfr_expr.md:23
 #: manual/tutorial/frontend/testfloat_expr.md:25
 msgid "Import the package in `moon.pkg`:"
 msgstr ""
@@ -28296,7 +28329,7 @@ msgid "**Your own executor.** Every `GdaCase` exposes `expression()`, a [`numeri
 msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:235
-msgid "**Whole corpora.** `just conformance run decimal_gda` downloads the pinned official corpus, builds the native runner and executes all phases; see [verification](../../verification.md)."
+msgid "**Whole corpora.** `just conformance run decimal_gda` downloads the pinned official corpus when it is not installed, builds the native runner and executes all phases; see [verification](../../verification.md)."
 msgstr ""
 
 #: manual/tutorial/frontend/gda_expr.md:241
@@ -28396,7 +28429,7 @@ msgid "Check decorations"
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:78
-msgid "A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected value makes the decoration part of the test. Without a suffix only the set is compared. Failure messages print intervals in midpoint-radius form:"
+msgid "A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected value makes the decoration part of the test. Without a suffix only the set is compared. Failure messages print intervals in inf-sup form:"
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:101
@@ -28424,7 +28457,7 @@ msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps onl
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:160
-msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
+msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results (of the operations that round) at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:166
@@ -28460,114 +28493,114 @@ msgid "frontend/mpfr_expr tutorial"
 msgstr ""
 
 #: manual/tutorial/frontend/mpfr_expr.md:3
-msgid "This tutorial shows how to check `binary` against reference results computed with GNU MPFR. Three line-oriented formats are supported: MPFR's own square-root test data, integer powers, and an elementary-function matrix. You parse a file into a document, execute it, and read the summary. The command-line runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)."
-msgstr ""
-
-#: manual/tutorial/frontend/mpfr_expr.md:11
-msgid "check square roots from MPFR's `tests/data/sqrt`"
+msgid "This tutorial shows how to check `binary` against reference results computed with GNU MPFR. Seven line-oriented formats are supported; this page covers three: MPFR's own square-root test data, integer powers, and an elementary-function matrix. You parse a file into a document, execute it, and read the summary. The command-line runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)."
 msgstr ""
 
 #: manual/tutorial/frontend/mpfr_expr.md:12
-msgid "check elementary functions and their flags"
+msgid "check square roots from MPFR's `tests/data/sqrt`"
 msgstr ""
 
 #: manual/tutorial/frontend/mpfr_expr.md:13
+msgid "check elementary functions and their flags"
+msgstr ""
+
+#: manual/tutorial/frontend/mpfr_expr.md:14
 msgid "check integer powers"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:15
+#: manual/tutorial/frontend/mpfr_expr.md:16
 msgid "find malformed lines"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:16
+#: manual/tutorial/frontend/mpfr_expr.md:17
 msgid "run the pinned corpora"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:30
+#: manual/tutorial/frontend/mpfr_expr.md:31
 msgid "Check one square root: $\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$ at 53 bits, rounding to nearest:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:47
+#: manual/tutorial/frontend/mpfr_expr.md:48
 msgid "Numbers are written as hexadecimal significand and binary exponent: `0x10000000000000p-1074` is $2^{52} \\cdot 2^{-1074}$."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:52
+#: manual/tutorial/frontend/mpfr_expr.md:53
 msgid "Elementary functions with flags"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:54
+#: manual/tutorial/frontend/mpfr_expr.md:55
 msgid "An elementary row names the function, the output precision and rounding, the operands, the expected result and three exception flags (inexact, invalid, division by zero). Unused operands are written `-` (second operand) and `0` (integer operand):"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:78
+#: manual/tutorial/frontend/mpfr_expr.md:79
 msgid "`ln(0) = -inf` raises division by zero and `sqrt(-1)` is an invalid operation returning NaN; both flags are part of the check."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:83
+#: manual/tutorial/frontend/mpfr_expr.md:84
 msgid "A `pow` row splits each number into coefficient, binary exponent and sign:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:98
+#: manual/tutorial/frontend/mpfr_expr.md:99
 msgid "The fields are: precision, rounding, input coefficient (hex digits), input exponent, input sign (`1` negative), integer exponent, expected coefficient, expected exponent, expected sign, inexact flag. Here `0x6c0p-9` is $1728/512 = 27/8$."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:103
+#: manual/tutorial/frontend/mpfr_expr.md:104
 msgid "Read a failure"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:124
+#: manual/tutorial/frontend/mpfr_expr.md:125
 msgid "The id is the operation (or `sqrt`/`pow`) and the line number."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:126
+#: manual/tutorial/frontend/mpfr_expr.md:127
 msgid "Parse errors"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:128
+#: manual/tutorial/frontend/mpfr_expr.md:129
 msgid "Every malformed line is reported with its line number, and no document is returned:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:147
+#: manual/tutorial/frontend/mpfr_expr.md:148
 msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and the committed elementary matrix `testdata/binary/mpfr-4.2.2-elementary.txt` together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:153
-msgid "**Which parser?** The CLI chooses the elementary format when the file contains `mpfr-elementary-v1`, the power format when it contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
+#: manual/tutorial/frontend/mpfr_expr.md:154
+msgid "**Which parser?** The CLI chooses the format of the first marker it finds, in the order `mpfr-decimal-random-v2`, `mpfr-random-v1`, `mpfr-strtofr-v1`, `mpfr-decimal-output-v1`, `mpfr-elementary-v1`, then the power format when the file contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:160
+#: manual/tutorial/frontend/mpfr_expr.md:162
 msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `Binary`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:163
+#: manual/tutorial/frontend/mpfr_expr.md:165
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:167
 msgid "**No exponent range.** Rows are executed in an unbounded context: there is no overflow, underflow or subnormal range, and an elementary or power row that reports overflow or underflow fails."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:168
+#: manual/tutorial/frontend/mpfr_expr.md:170
 msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:171
-msgid "**Inputs are read at 512 bits.** Elementary and power operands with longer significands are rounded before the function is evaluated."
+#: manual/tutorial/frontend/mpfr_expr.md:173
+msgid "**Inputs are read at 512 bits.** Power operands with longer significands are rounded before the function is evaluated; elementary operands are read at four bits per character of the token when that is more than 512."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:176
+#: manual/tutorial/frontend/mpfr_expr.md:179
 msgid "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:181
 msgid "[frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:180
+#: manual/tutorial/frontend/mpfr_expr.md:183
 msgid "[cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:182
+#: manual/tutorial/frontend/mpfr_expr.md:185
 msgid "[binary tutorial](../binary.md) for the functions being tested."
 msgstr ""
 
@@ -28668,38 +28701,38 @@ msgid "**Tininess.** Pass `tininess=\"before\"` to `TestFloatSpec::parse` to mat
 msgstr ""
 
 #: manual/tutorial/frontend/testfloat_expr.md:202
-msgid "**Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_` or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`, `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `eq`, `le`, `lt`, `eq_signaling`, `le_quiet` or `lt_quiet`."
+msgid "**Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_` or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`, `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `to_f16`, `to_f32`, `to_f64`, `to_f128`, `eq`, `le`, `lt`, `eq_signaling`, `le_quiet` or `lt_quiet`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:209
+#: manual/tutorial/frontend/testfloat_expr.md:210
 msgid "**One function per document.** The spec applies to every line; split mixed files."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:211
+#: manual/tutorial/frontend/testfloat_expr.md:212
 msgid "**The rounding argument is not optional.** `rem` and the comparisons ignore it, but `TestFloatSpec::parse` still needs a valid name such as `rnear_even`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:214
+#: manual/tutorial/frontend/testfloat_expr.md:215
 msgid "**`rodd` is not supported.** Only the five IEEE directions are accepted."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:215
+#: manual/tutorial/frontend/testfloat_expr.md:216
 msgid "**`exact` matters.** Vectors from `-exact` runs contain the inexact flag for `roundToInt` and integer conversions; parse them with `exact=true`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:220
+#: manual/tutorial/frontend/testfloat_expr.md:221
 msgid "[frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md) for every item."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:222
+#: manual/tutorial/frontend/testfloat_expr.md:223
 msgid "[frontend/testfloat_expr design](../../design/frontend/testfloat_expr.md) for the exact pass rule."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:224
+#: manual/tutorial/frontend/testfloat_expr.md:225
 msgid "[cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for running vector files from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:226
+#: manual/tutorial/frontend/testfloat_expr.md:227
 msgid "[binary conformance](../../conformance/binary.md) for the published TestFloat claim."
 msgstr ""
 
@@ -28982,7 +29015,7 @@ msgid "[wrapper types](#wrap-the-model-in-a-frontend-type)"
 msgstr ""
 
 #: manual/tutorial/internal/conformance.md:22
-#: manual/tutorial/internal/runner_cli.md:22
+#: manual/tutorial/internal/runner_cli.md:23
 msgid "There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository). Run its tests from the repository:"
 msgstr ""
 
@@ -29139,130 +29172,130 @@ msgid "internal/runner_cli tutorial"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:3
-msgid "The goal of this page is to show maintainers how to write a conformance runner in `cli/` with the shared helpers of `internal/runner_cli`: parse the common options, collect and read corpus files, report diagnostics, print a JSON summary and choose the exit code. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
-msgstr ""
-
-#: manual/tutorial/internal/runner_cli.md:12
-msgid "parse `--json` and the shard options"
+msgid "The goal of this page is to show maintainers how to write a conformance runner in `cli/` with the shared helpers of `internal/runner_cli`: parse the common options, collect and read corpus files, report diagnostics, print a JSON summary and choose the exit code. The package is internal to `Luna-Flow/floating-tools`; the examples are written for code inside the module and, except the `nocheck` import block, are compiled by the manual checker in the tools module."
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:13
-msgid "expand files and directories into a sorted corpus list"
+msgid "parse `--json` and the shard options"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:14
-msgid "read a corpus file with a usage-style error"
+msgid "expand files and directories into a sorted corpus list"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:15
-msgid "print a diagnostic as `file:line:column: message`"
+msgid "read a corpus file with a usage-style error"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:16
-msgid "print a stable machine-readable summary"
+msgid "print a diagnostic as `file:line:column: message`"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:17
+msgid "print a stable machine-readable summary"
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:18
 msgid "add my own options"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:18
+#: manual/tutorial/internal/runner_cli.md:19
 msgid "choose the exit code"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:18
+#: manual/tutorial/internal/runner_cli.md:19
 msgid "[the exit-code convention](#follow-the-exit-code-convention)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:29
+#: manual/tutorial/internal/runner_cli.md:30
 msgid "Inside the module, import the helpers and a frontend:"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:38
+#: manual/tutorial/internal/runner_cli.md:39
 msgid "A minimal runner (`run` receives the whole argument vector, program name first):"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:100
+#: manual/tutorial/internal/runner_cli.md:101
 msgid "The runner is an ordinary function, so a test can check its exit status without a process:"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:112
+#: manual/tutorial/internal/runner_cli.md:113
 msgid "Follow the exit-code convention"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:114
+#: manual/tutorial/internal/runner_cli.md:115
 msgid "All runners in `cli/` use the same codes, which `tools/*.py` relies on:"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:118
+#: manual/tutorial/internal/runner_cli.md:119
 msgid "every executed case passed (and, in strict mode, nothing was unsupported)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:119
-msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows)"
+#: manual/tutorial/internal/runner_cli.md:120
+msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows; `itl` also counts diagnostic cases)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:120
+#: manual/tutorial/internal/runner_cli.md:121
 msgid "usage error, unreadable file, or parse diagnostic"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:122
+#: manual/tutorial/internal/runner_cli.md:123
 msgid "Add a runner-specific option"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:124
+#: manual/tutorial/internal/runner_cli.md:125
 msgid "`parse_common_options` leaves every argument it does not know in `remaining()`, in order. Parse your own options from that array and treat the rest as paths. Pass `allow_shard=false` if your runner cannot shard; the shard options then stay in `remaining()` and your parser should reject them as unknown."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:130
+#: manual/tutorial/internal/runner_cli.md:131
 msgid "Keep output machine-readable"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:132
+#: manual/tutorial/internal/runner_cli.md:133
 msgid "Print exactly one JSON object per invocation when `--json` is given. Build it with `json_object` so the key order is the order you list, and use `json_int` for counts so they print as integers."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:138
+#: manual/tutorial/internal/runner_cli.md:139
 msgid "The four runners in `cli/` are complete examples: [gda_expr_cli](../cli/gda_expr_cli.md), [itl_expr_cli](../cli/itl_expr_cli.md), [mpfr_expr_cli](../cli/mpfr_expr_cli.md) and [testfloat_expr_cli](../cli/testfloat_expr_cli.md)."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:143
+#: manual/tutorial/internal/runner_cli.md:144
 msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:145
+#: manual/tutorial/internal/runner_cli.md:146
 msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/runner_cli`."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:150
+#: manual/tutorial/internal/runner_cli.md:151
 msgid "**Program name.** `parse_common_options` skips `arguments[0]`. Pass the full vector, not a slice without the program name, or the first real argument is lost."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:153
+#: manual/tutorial/internal/runner_cli.md:154
 msgid "**Directories are not searched recursively.** `collect_files` lists only the direct entries of a directory."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:155
+#: manual/tutorial/internal/runner_cli.md:156
 msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:158
+#: manual/tutorial/internal/runner_cli.md:159
 msgid "**Option values use MoonBit integer syntax.** `0x10` and `1_000` are accepted as 16 and 1000; an argument starting with `--` is never taken as a value, so `--shard-count --json` is a missing count."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:161
+#: manual/tutorial/internal/runner_cli.md:162
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:166
+#: manual/tutorial/internal/runner_cli.md:167
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:167
+#: manual/tutorial/internal/runner_cli.md:168
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:168
+#: manual/tutorial/internal/runner_cli.md:169
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr ""
 
