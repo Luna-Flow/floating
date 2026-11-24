@@ -271,7 +271,7 @@ pub fn DecimalChecked::next_up(Self) -> Self
 | Method | Delegates to | Result |
 | --- | --- | --- |
 | `abs` | `abs_ctx` | $\lvert v\rvert$ rounded into the context |
-| `add`, `sub`, `mul`, `div` | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx` | $v \circ y$ correctly rounded |
+| `add`, `sub`, `mul`, `div` | `add_ctx`, … | $v \circ y$ correctly rounded |
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
 | `quantize(q)` | `quantize_ctx` | $v$ rounded to the exponent of `q` |
