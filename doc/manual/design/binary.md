@@ -127,31 +127,29 @@ $$
 \eta = 2^{e_{\min} - p + 1},
 $$
 
-the smallest positive subnormal. Missing bounds are replaced by the
-implementation range $\pm(2^{30}-1)$, which is large enough that every
-exponent arithmetic step fits a 64-bit intermediate and every stored exponent
-an `Int`; `binary_precision_max` $= 2^{28}$ keeps $e_{\min} - p + 1$ in range
+the smallest positive subnormal. A context given by its precision
+alone has $e_{\max}$ `binary_value_e_max` $= 2^{30}-1$ and
+$e_{\min} = 1 - e_{\max}$ `binary_value_e_min` $= 2 - 2^{30}$, the implementation
+range of stored values, which is large enough that every exponent arithmetic
+step fits a 64-bit intermediate and every stored exponent an `Int`; `binary_precision_max` $= 2^{28}$ keeps $e_{\min} - p + 1$ in range
 too.
 
 ### Rounding functions
 
 For $x \in \mathbb{R}$ let $x^- = \max\{y \in F : y \le x\}$ and
 $x^+ = \min\{y \in F : y \ge x\}$, extending $F$ by $\pm\infty$ beyond
-$\pm\Omega$ for the moment. The six rounding directions of
+$\pm\Omega$ for the moment. The five rounding directions of
 `BinaryRoundingMode` are the maps $\mathbb{R} \to F \cup \{\pm\infty\}$
 
 $$
 \begin{aligned}
 \operatorname{RD}(x) &= x^-, \qquad \operatorname{RU}(x) = x^+, \\
-\operatorname{RZ}(x) &= \operatorname{sign}(x)\,|x|^-, \qquad \operatorname{RA}(x) = \operatorname{sign}(x)\,|x|^+, \\
+\operatorname{RZ}(x) &= \operatorname{sign}(x)\,|x|^-, \\
 \operatorname{RNE}(x) &= \text{the nearer of } x^-, x^+, \text{ the one with even } M \text{ on a tie}, \\
 \operatorname{RNA}(x) &= \text{the nearer of } x^-, x^+, \text{ the one of larger magnitude on a tie},
 \end{aligned}
 $$
 
-where RA (round the magnitude up) is not an IEEE attribute: it is the GDA
-"round-up" mode that `@lf_arith.RoundingMode` shares with the decimal cores, and
-`BinaryRoundingMode` has no such variant.
 Two properties of every $\circ$ above carry most of the proofs on this page:
 
 $$
@@ -255,7 +253,6 @@ every rounding direction: with $q_0$ the last bit of $q$,
 | RZ | never |
 | RU | $(g \vee t) \wedge s = 0$ |
 | RD | $(g \vee t) \wedge s = 1$ |
-| RA | $g \vee t$ |
 
 *Derivation.* $f > \frac12 \iff g \wedge t$, $f = \frac12 \iff g \wedge \neg
 t$, and $f > 0 \iff g \vee t$. RNE rounds the magnitude up when $f > \frac12$,
@@ -273,7 +270,7 @@ A carry out of $q$ (when $q + 1 = 2^p$) only raises $\operatorname{top}$ by
 one; the result is re-normalized and the overflow test below is applied to
 the rounded value.
 
-**The three paths of the finalizer, and why the normalization chain is skipped.** `binary_round_dyadic` takes one of three paths. (1) *Exact exit:* if $\operatorname{bits}(m) \le p$ and $e_{\min} \le \operatorname{top} \le e_{\max}$ (the context range, clamped to the implementation range), then $r = m 2^{e}$ is representable: $e \ge e_{\min} - p + 1$, so the shift $\sigma$ is $0$, nothing is rounded and no flag is raised; this holds for bounded and unbounded contexts alike. (2) *Precision path:* if the shift onto the subnormal grid is not larger than the precision shift, the precision rounding already uses the final $\sigma$, so its result is the final result and the rounding is done once; its top bit is also the "rounded top" that the tininess rule after rounding and the overflow test need. (3) *Range path:* otherwise the value is split again at the range shift, and the precision rounding is kept only to supply the rounded top. In all three paths the stored value is built by `binary_finite_in_range`: the coefficient has at most $p$ bits (a carry out of $q$ gives a power of two, which is even and is stripped to $1$), its top bit is at least $e_{\min} - p + 1$ and at most $e_{\max}$ (overflow is tested first), so the general normalization has nothing left to do except stripping trailing zeros: the implementation-range underflow, the re-rounding of excess bits and the overflow test of `normalize_finite` cannot fire. The tests keep copies of the old core and compare value and flags on random corpora and at the exponent limits.
+**The three paths of the finalizer, and why the normalization chain is skipped.** `binary_round_dyadic` takes one of three paths. (1) *Exact exit:* if $\operatorname{bits}(m) \le p$ and $e_{\min} \le \operatorname{top} \le e_{\max}$ (the context range, clamped to the implementation range), then $r = m 2^{e}$ is representable: $e \ge e_{\min} - p + 1$, so the shift $\sigma$ is $0$, nothing is rounded and no flag is raised; this holds for every context alike. (2) *Precision path:* if the shift onto the subnormal grid is not larger than the precision shift, the precision rounding already uses the final $\sigma$, so its result is the final result and the rounding is done once; its top bit is also the "rounded top" that the tininess rule after rounding and the overflow test need. (3) *Range path:* otherwise the value is split again at the range shift, and the precision rounding is kept only to supply the rounded top. In all three paths the stored value is built by `binary_finite_in_range`: the coefficient has at most $p$ bits (a carry out of $q$ gives a power of two, which is even and is stripped to $1$), its top bit is at least $e_{\min} - p + 1$ and at most $e_{\max}$ (overflow is tested first), so the general normalization has nothing left to do except stripping trailing zeros: the implementation-range underflow, the re-rounding of excess bits and the overflow test of `normalize_finite` cannot fire. The tests keep copies of the old core and compare value and flags on random corpora and at the exponent limits.
 
 ### Finishing a wide result in place
 
@@ -357,7 +354,7 @@ the thresholds
 $$
 \begin{aligned}
 \text{RNE, RNA:}\quad & |r| \ge 2^{e_{\max}}\bigl(2 - 2^{-p}\bigr) = \Omega + \tfrac12 \operatorname{ulp}(\Omega), \\
-\text{RA, and RU for } r>0, \text{ RD for } r<0:\quad & |r| > \Omega, \\
+\text{RU for } r>0, \text{ RD for } r<0:\quad & |r| > \Omega, \\
 \text{RZ, and RU for } r<0, \text{ RD for } r>0:\quad & \text{never to } \infty,
 \end{aligned}
 $$
@@ -434,13 +431,13 @@ pair $(m, n)$. It does not build a `Binary` first: a `Binary` made from
 $(1, n)$ at one bit has its smallest value at $2^{e_{\min}}$, so $2^{n}$ with
 $n < e_{\min}$ was flushed to zero before any context could round it, although
 it is exactly representable at $p \ge 2$. The after-rounding rule uses
-$\circ_{p,\infty}$ with no exponent range at all, not an unbounded context,
+$\circ_{p,\infty}$ with no exponent range at all, not a context given by its precision alone,
 which still has gradual underflow at the implementation limit
 $2^{e_{\min}}$.
 
 **One layer for the new recommended functions.** The defects of the range
 audit (an exact power of two flushed by a one-bit `Binary::make`, a shortcut
-returning before a signaling NaN is seen, an unbounded context used as a
+returning before a signaling NaN is seen, a context given by its precision alone used as a
 range-free rounding) were each a pattern that a function could write again.
 `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, and the families that follow in
 [#235](https://github.com/Luna-Flow/floating/issues/235), therefore take four
@@ -594,8 +591,8 @@ $e_{\min}$ (it has only a precision), so `class_of`, `is_normal` and
 bit length and the exponent, so the test is exact and independent of the
 precision; no rounding happens and no flag is raised. `is_finite`,
 `is_infinite` and `is_nan` need no context. `class_of` is a total function: the
-ten classes partition every `Binary`, and `Decimal::class_name` is the text of
-the same partition for `Decimal`.
+ten classes partition every `Binary`, and `class_name` of `decimal_gda` is the text of
+the same partition for its `Decimal`.
 
 ### Format conversion
 
@@ -1255,7 +1252,7 @@ cannot verify, and the caller then runs the existing path, so correctness
 never depends on the new code covering a case.
 
 *Integer enclosures.* All new kernels work on non-negative integers in
-units of $2^{-F}$ with $F = w + g$, using only `BinCoeff` operations
+units of $2^{-F}$ with $F = w + g$, using only `Coeff` operations
 (`mul`, `add`, `sub_checked`, shifts, `div_rem_checked`, `compare`,
 `bit_length`), which exist on every target, so the same source runs on
 native, LLVM, Wasm, Wasm-GC and JavaScript. A quantity $E$ is carried as a
@@ -1264,7 +1261,7 @@ $\ell \le E \cdot 2^{F} \le u$. Every step produces a new pair from the old
 ones by monotone operations on non-negative numbers, so the invariant is
 proved step by step, and the final width $u - \ell$ is a computed integer,
 not an estimate. The last step converts to
-`Binary::make(coeff, exp, w, mode=TowardNegative / TowardPositive)`, which is
+`Binary::make(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is
 what the existing fixed-point series already does.
 
 **The `ln` series loop on limb arrays.** The fixed-point series of `ln` ($\ln v = 2 \sum_k P(k) / (2k + 1)$ with $P(0) = Z$, $P(k) = \lfloor P(k-1) Q / 2^F \rfloor$, the terms $T(k) = \lfloor P(k) / (2k + 1) \rfloor$ and the stop at $P(k) < 2^6$) computed each term with four `Coeff` operations that each allocate a result (the product, the shift, the quotient with its remainder, the sum): about four allocations and 3,700 instructions per term at 576 working bits. On the targets with limb rows the loop keeps `P`, `Q`, the product, the quotient and the sum in five limb arrays allocated once per call. A term is the exact product by `bin_limbs_mul_1` and `bin_limbs_addmul_1` (so the same integer as `P(k-1) Q`), the floor by $2^F$ as one copy pass with the shift $F = 64 w + r$ (limb offset $w$, bit offset $r$, the case $r = 0$ apart), the quotient by the odd divisor in place from the top limb, and the sum with a carry. The divisor is at most $20001$ (the loop stops after 10000 terms), so the running remainder $\rho < 2^{15}$ and $\rho \cdot 2^{32} + h < 2^{47}$ for a half limb $h$: a limb divides by two hardware divisions of its 32-bit halves, no 128-bit helper. Every integer equals the `Coeff` form's, so the bounds and their error analysis (above) are unchanged bit for bit; the JavaScript target keeps the `Coeff` form, since a host `BigInt` has no limb rows. The tests keep the `Coeff` loop as the reference and compare the sum and the term count for every $F$ from 60 to 700 (so every residue of $F$ modulo 64, in particular $F + 1$ a multiple of 64 and one below and above it, at one to eleven limbs), for terms whose product has a zero top limb, and the bounds of the whole function on exact values at 380 working precisions.
@@ -1285,7 +1282,7 @@ the kernels before the extraction.
    $N / 2^{F}$. `fixed_scaled_floor` rounds toward $-\infty$ and loses less
    than one unit; `fixed_scaled_exact` is `None` unless the scaling is exact;
    `fixed_enclosure` turns an integer pair $(\ell, u)$ into floats rounded
-   outward (lower end `TowardNegative`, upper end `TowardPositive`), swapping
+   outward (lower end `RoundTowardNegative`, upper end `RoundTowardPositive`), swapping
    the ends for a negative result.
 2. *Bounded cache* (`BoundedCache[V]`: `find`, `insert`, capacity as a
    parameter, oldest entry dropped first). It replaces the three ad-hoc caches
@@ -2128,9 +2125,10 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   and inexact; `division_by_zero` only for an exact infinite result of finite
   operands;
   `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a
-  signaling NaN was consumed. Exceptions to the last rule: `min`, `max`,
-  $\operatorname{pow}(x, \pm 0)$, $\operatorname{pown}(x, 0)$ and
-  $\operatorname{pow}(1, y)$ accept a signaling NaN without the flag.
+  signaling NaN was consumed. Exceptions to the last rule: `min_num` and
+  `max_num` return a value and no flags; $\operatorname{pow}(x, \pm 0)$,
+  $\operatorname{pown}(x, 0)$ and $\operatorname{pow}(1, y)$ return $1$ for a
+  quiet NaN operand without the flag (a signaling NaN operand raises it).
   `combine` is associative, commutative and idempotent.
 - **Error model.** Consequently, in the normal range,
   $|\circ(r) - r| \le u|r|$ for nearest and $< 2u|r|$ for directed rounding,
