@@ -19,7 +19,7 @@ import {
   "Luna-Flow/floating/interval" @ivl,
   "Luna-Flow/floating/interval_checked" @checked,
   "Luna-Flow/floating-tools/bench" @benchkit,
-  "Luna-Flow/floating/binary" @binary,
+  "Luna-Flow/floating/binary",
   "Luna-Flow/mare_mark/event",
   "Luna-Flow/mare_mark/model",
   "Luna-Flow/mare_mark/runner",

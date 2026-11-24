@@ -316,7 +316,7 @@ bench window of the measurement, with `just bench external warmup --target T`:
 
 ## Boundaries
 
-- Native target only; no claims for JavaScript or WebAssembly.
+- The floating side runs on `native`, `wasm` and `js` (see "Runtimes other than native"); `wasm-gc` is not a target.
 - One machine, one operating system, one compiler per run; see the performance
   page for the machine.
 - Elementary functions are measured on a few well-conditioned argument ranges;

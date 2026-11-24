@@ -23,6 +23,7 @@ import {
   "Luna-Flow/mare_mark/model",
   "Luna-Flow/mare_mark/runner",
   "moonbitlang/async",
+  "moonbitlang/core/string",
 } for "test"
 ```
 
