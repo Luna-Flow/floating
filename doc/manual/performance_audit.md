@@ -157,7 +157,7 @@ lists the current claims.
 | interval `pown` keeps ordered outward enclosures | monotonicity table, negative-half-axis regression, 4,656 strict ITF1788 cases | supported for the declared forward interval operations |
 | the optimized paths are performance-audited | native Maremark `all` artifacts | supported as measurement evidence, not a universal speed claim |
 | every target and operation has equivalent performance | no paired cross-target artifact | not claimed |
-| `floating` is competitive with MPFR and libmpdec | [external baseline](performance/bench/external.md): slower in all 59 measured cells on native | refuted for the measured operations; the ratios are tracked per release |
+| `floating` is competitive with MPFR and libmpdec | [external baseline](performance/bench/external.md): slower in 56 of the 59 measured cells on native | refuted for the measured operations; the ratios are tracked per release |
 
 ## Limits
 
