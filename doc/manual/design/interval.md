@@ -201,8 +201,7 @@ minimum is also attained at $\underline{x}\,\overline{y}$ or
 $\overline{x}\,\underline{y}$ (and a minimum of 0 at
 $\underline{x}\,\underline{y}$ means $\underline{y} = 0$, so
 $\underline{x}\,\overline{y} \le 0$ as well). The maximum and the case where
-$\boldsymbol{y}$ straddles 0 are symmetric. So two products suffice for the
-four single-sign rows and four for the rest.
+$\boldsymbol{y}$ straddles 0 are symmetric. So two products suffice for every row except the one where both intervals straddle 0, which needs four.
 
 For unbounded intervals all four products are formed with
 $0 \cdot \infty := 0$. This is the right limit for the set-based model: if
@@ -434,10 +433,7 @@ $|\xi - k\pi/2| < 2^{-(p + 140)}$ (an absolute bound that does not depend on
 the number of bits of the endpoint). A spurious extremum does not change a
 sine or cosine bound, since that close to an extremum the directed value
 already rounds to $\pm 1$; a spurious pole makes the tangent the whole line,
-which keeps the inclusion property. The tests compare old and new bit for bit
-on the binary64 number closest to a multiple of $\pi/2$
-($6381956970095103 \cdot 2^{797}$) and on the correctly rounded $\pi/2$ and
-$3\pi/2$ with their neighbours at 24, 53 and 113 bits, and no input differs.
+which keeps the inclusion property.
 The non-`try` `sin`, `cos` and `tan` are these
 `try_` forms with a fallback: they return $[-1, 1]$ (Entire for `tan`) for an
 argument the kernel cannot certify, which the `try_` forms report as an
@@ -673,7 +669,7 @@ $\operatorname{RU}(\mathrm{hi})$; no two transcendental ends are compared with e
 $\operatorname{RD}$ is monotone. The work is two searches of a few pieces each, whatever
 the prior spans, and its cost follows the number of bits of the period index through the
 working precision. The only limit is the one of the forward functions: an end of the prior
-whose reduction needs more than 8,000,000 working bits ($\max(0, k) + p + 96$ for the binary exponent $k$ of the end) is kept (valid, not tight). It is decided before any work
+whose reduction needs more than 8,000,000 working bits ($\max(0, k) + p + 96$ for the adjusted exponent $k$ of the end) is kept (valid, not tight). It is decided before any work
 (the working precision comes only from the ends inside it, and a prior whose finite ends are
 all beyond it is returned at once), so such an end never costs $\pi$ at its precision.
 
@@ -1075,11 +1071,11 @@ the inclusion property: $[0, +\infty)$ for `exp`, `exp2`, `exp10` and `pow`, $[-
 `sinpi`, `cospi` and `tanh`, $[1, +\infty)$ for `cosh`, $[0, +\infty)$ for
 `acosh`, $[-\pi/2, \pi/2]$ for `atan` and `asin`, $[0, \pi]$ for `acos`,
 $[-\pi, \pi]$ for `atan2`. The $\pi$ of a fallback is evaluated at no more
-than 64 bits and rounded outward, so a fallback cannot fail at any precision.
+than 64 bits and rounded outward, so the fallback of `atan`, `asin` and `acos` cannot fail at any precision; the fallback of `atan2` evaluates $\pi$ at the full precision.
 The domain is decided before the kernel runs, so a failure is always a
 certification failure and never a domain error: an argument outside the domain
 gives Empty, a wide interval means the kernel gave up. Trigonometric reduction
-is capped: when $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the binary exponent of the larger endpoint magnitude, reduction would need more working bits than the limit, so the
+is capped: when $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the adjusted exponent of the larger endpoint magnitude, reduction would need more working bits than the limit, so the
 `try_` forms report a resource limit and the total forms return the fallback.
 
 *Why one kernel.* Until this was settled the total forms of fifteen functions
