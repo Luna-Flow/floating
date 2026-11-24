@@ -1623,7 +1623,7 @@ Each elementary function has three forms:
 - `try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an
   `@lf_arith.ArithmeticError`.
 
-Except `hypot` and `compound`, which have their own algorithms (see their sections), all three forms run the same certified algorithm. It computes an enclosure
+Except `hypot`, `compound`, and `rsqrt` and `rootn` of a small degree ($|n| \le 12$ at every precision, up to 32 at precisions up to 1,024 bits), which have their own algorithms (see their sections), all three forms run the same certified algorithm. It computes an enclosure
 $[L, U] \ni f(x)$ whose every internal operation is rounded downward for $L$
 and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits
 (or at the operand precision plus 16 when that is larger, for `rootn`, `pow`, the
