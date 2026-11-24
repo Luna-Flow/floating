@@ -132,7 +132,7 @@ msgstr "参数"
 #: manual/api/cli/testfloat_expr_cli.md:38
 #: manual/api/decimal.md:516
 #: manual/api/decimal.md:541
-#: manual/api/differential.md:44
+#: manual/api/differential.md:43
 #: manual/api/differential/interval_mpfr.md:24
 #: manual/api/interval.md:151
 #: manual/numeric_semantics.md:317
@@ -237,14 +237,14 @@ msgid "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical
 msgstr "`tune_dataset(observations, case_id, dataset_id, candidate_ids, practical_delta_pct)` 为一个数据集挑选最快的候选。"
 
 #: manual/api/bench.md:196
-msgid "For every candidate it takes the valid confirmatory observations of the case and dataset, and scores the candidate by the median of the finite, non-negative samples. Candidates without such samples are invalid. The result is the valid candidate with the smallest median, ties broken by the smaller candidate id; `None` when no candidate is valid. Because the score is used as both the primary and the secondary criterion of `@tune.select_best`, `practical_delta_pct` does not change the choice. Which secondary criterion is intended is open in [#60](https://github.com/Luna-Flow/floating/issues/60)."
-msgstr "对每个候选，它取该用例和数据集的有效确认性观测，并以其中有限且非负样本的中位数为候选打分。没有此类样本的候选无效。结果是中位数最小的有效候选，平局时取候选 id 较小者；没有有效候选时为 `None`。由于该分数同时用作 `@tune.select_best` 的主要和次要判据，`practical_delta_pct` 不会改变选择结果。预期采用哪个次要判据尚在 [#60](https://github.com/Luna-Flow/floating/issues/60) 中讨论。"
+msgid "For every candidate it takes the valid confirmatory observations of the case and dataset, and scores the candidate by the median and the interquartile range of the finite, non-negative samples. Candidates without such samples are invalid. The fastest valid candidate is the one with the smallest median; every valid candidate whose median is within `practical_delta_pct` percent of it is practically tied with it, and among these the result is the one with the smaller interquartile range, then the smaller candidate id. `None` when no candidate is valid."
+msgstr "对每个候选，它取该用例和数据集的有效确认性观测，并以其中有限且非负样本的中位数和四分位距为候选打分。没有此类样本的候选无效。最快的有效候选是中位数最小者；中位数与它相差不超过 `practical_delta_pct` 个百分点的有效候选与它实际平局，结果是其中四分位距较小者，再按候选 id 较小者。没有有效候选时为 `None`。"
 
 #: manual/api/bench.md:216
 #: manual/api/bench/binary.md:44
-#: manual/api/bench/decimal.md:42
+#: manual/api/bench/decimal.md:43
 #: manual/api/bench/decimal_gda.md:42
-#: manual/api/bench/external.md:80
+#: manual/api/bench/external.md:83
 #: manual/api/bench/interval.md:43
 #: manual/api/binary.md:2645
 #: manual/api/binary_checked.md:841
@@ -260,7 +260,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/decimal_gda.md:1955
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
-#: manual/api/differential.md:97
+#: manual/api/differential.md:96
 #: manual/api/differential/harness.md:39
 #: manual/api/differential/interval_mpfr.md:31
 #: manual/api/doc_examples.md:46
@@ -296,7 +296,7 @@ msgid "The package is test-only and exports no items, so there is nothing to imp
 msgstr "该包仅用于测试，不导出任何项，因此没有可从中导入的内容。它的测试以 `@benchkit` 导入该工具包，并导入被测包和 Maremark："
 
 #: manual/api/bench/binary.md:30
-#: manual/api/bench/decimal.md:29
+#: manual/api/bench/decimal.md:30
 #: manual/api/bench/decimal_gda.md:29
 #: manual/api/bench/external.md:37
 #: manual/api/bench/interval.md:30
@@ -304,7 +304,7 @@ msgid "Benchmark cases"
 msgstr "基准用例"
 
 #: manual/api/bench/binary.md:32
-#: manual/api/bench/decimal.md:31
+#: manual/api/bench/decimal.md:32
 #: manual/api/bench/decimal_gda.md:31
 #: manual/api/bench/external.md:39
 #: manual/api/bench/interval.md:32
@@ -323,7 +323,7 @@ msgid "Case"
 msgstr "用例"
 
 #: manual/api/bench/binary.md:32
-#: manual/api/bench/decimal.md:31
+#: manual/api/bench/decimal.md:32
 #: manual/api/bench/decimal_gda.md:31
 #: manual/api/bench/interval.md:32
 #: manual/design/bench/binary.md:33
@@ -334,7 +334,7 @@ msgid "Datasets"
 msgstr "数据集"
 
 #: manual/api/bench/binary.md:32
-#: manual/api/bench/decimal.md:31
+#: manual/api/bench/decimal.md:32
 #: manual/api/bench/decimal_gda.md:31
 #: manual/api/bench/interval.md:32
 #: manual/design/bench/binary.md:33
@@ -345,7 +345,7 @@ msgid "Implementations"
 msgstr "实现"
 
 #: manual/api/bench/binary.md:32
-#: manual/api/bench/decimal.md:31
+#: manual/api/bench/decimal.md:32
 #: manual/api/bench/decimal_gda.md:31
 #: manual/api/bench/interval.md:32
 #: manual/design/bench/binary.md:33
@@ -384,17 +384,17 @@ msgid "`core/binary` (aborting methods), `full/checked` (`BinaryChecked`)"
 msgstr "`core/binary`（会中止的方法）、`full/checked`（`BinaryChecked`）"
 
 #: manual/api/bench/binary.md:37
-msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=binary/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=binary/elementary/OP/DATASET full_pct=…` for elementary functions."
+msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=binary/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=binary/elementary/OP/DATASET full_pct=…` for elementary functions."
 msgstr "每个规格都有一个在常规测试运行中执行的计划测试，用于检查它能编译（`binary benchmark plans compile`、`elementary benchmark plans compile`），以及一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列的从 0 开始的索引。性能测试把每个观测值以 `MAREMARK_JSONL=` 行流式输出，并打印归约后的结果：算术用 `MAREMARK_HOTSPOT=binary/OP/DATASET core_pct=… full_pct=…`，初等函数用 `MAREMARK_HOTSPOT=binary/elementary/OP/DATASET full_pct=…`。"
 
 #: manual/api/bench/binary.md:46
-#: manual/api/bench/decimal.md:44
+#: manual/api/bench/decimal.md:45
 #: manual/api/bench/decimal_gda.md:44
-#: manual/api/bench/external.md:82
+#: manual/api/bench/external.md:85
 #: manual/api/bench/interval.md:45
 #: manual/api/cli.md:82
 #: manual/api/consistency.md:52
-#: manual/api/differential.md:99
+#: manual/api/differential.md:98
 #: manual/api/differential/interval_mpfr.md:33
 #: manual/api/doc_examples.md:48
 msgid "The package exports no MoonBit items."
@@ -408,12 +408,12 @@ msgstr "bench/decimal API"
 msgid "`bench/decimal` holds the IEEE decimal arithmetic benchmarks of `floating`. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the benchmark cases it defines; the [tutorial](../../tutorial/bench/decimal.md) shows how to run them and the [design page](../../design/bench/decimal.md) explains the workloads."
 msgstr "`bench/decimal` 包含 `floating` 的 IEEE 十进制算术基准测试。它是一个仅用于测试的包：所有内容都位于基于 [`bench`](../bench.md) 工具包的 `*_test.mbt` 文件中，不导出任何 MoonBit 项。本页记录它定义的基准用例；[教程](../../tutorial/bench/decimal.md)介绍如何运行它们，[设计页面](../../design/bench/decimal.md)解释其工作负载。"
 
-#: manual/api/bench/decimal.md:33
+#: manual/api/bench/decimal.md:34
 #: manual/design/bench/decimal.md:35
 msgid "9, 34, 128, 512 digits"
 msgstr "9、34、128、512 位数字"
 
-#: manual/api/bench/decimal.md:35
+#: manual/api/bench/decimal.md:36
 msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`decimal benchmark plans compile`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=decimal/OP/DATASET core_pct=… full_pct=…`."
 msgstr "每个规格都有一个计划测试，它在常规测试运行中执行并检查规格能否编译（`decimal benchmark plans compile`），还有一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列中从 0 开始的索引。性能测试将每个观测以 `MAREMARK_JSONL=` 行的形式输出，并将归约结果打印为 `MAREMARK_HOTSPOT=decimal/OP/DATASET core_pct=… full_pct=…`。"
 
@@ -493,8 +493,8 @@ msgid "`floating` (`decimal_gda` functions in a context of the scale as precisio
 msgstr "`floating`（以该规模为精度的上下文中的 `decimal_gda` 函数，`HalfEven`，指数范围 ±999999）"
 
 #: manual/api/bench/external.md:42
-msgid "the libmpdec result for each operand, value for value"
-msgstr "每个操作数的 libmpdec 结果，数值一致"
+msgid "the libmpdec result for each operand, as text (sign, coefficient, exponent: the cohort included)"
+msgstr "每个操作数对应的 libmpdec 结果，按文本比较（符号、系数、指数：同值类也比较）"
 
 #: manual/api/bench/external.md:44
 msgid "Every case has a second implementation, `null`, next to `floating`: the same closure call and result store with the library call removed. Maremark runs the blocks of the two implementations interleaved (each with its own calibration), and the runner pairs them by block number. The null reads `expected` instead of the operands so that its output validates against the reference."
@@ -537,8 +537,8 @@ msgid "The performance test is built for native, wasm (run by `moonrun`) and js 
 msgstr "性能测试为 native、wasm（由 `moonrun` 运行）和 js（由 node 运行）构建，运行器正是借此在这些运行时上测量 `floating` 一侧（`--target`）。它不为 wasm-gc 构建：`moonbitlang/async` 依赖的模块初始化函数（一次在两个结构体类型之间的转换）在那里会被运行时在验证时拒绝。环境变量和文件在这三个目标上的读取方式相同。"
 
 #: manual/api/bench/external.md:73
-msgid "Three plan tests run in normal test runs (`external input rows group by case`, `external binary and decimal_gda plans compile`, `external operand parsing is exact`). The performance test `external baseline floating` is marked `#skip(\"performance benchmark\")` and builds on native only; the runner prints a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end."
-msgstr "三个计划测试在常规测试运行中执行（`external input rows group by case`、`external binary and decimal_gda plans compile`、`external operand parsing is exact`）。性能测试 `external baseline floating` 标记为 `#skip(\"performance benchmark\")`，且仅在 native 上构建；运行器为每个事件打印一行 `MAREMARK_JSONL=`，为每个用例打印 `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F`，最后打印 `EXTBENCH_FAILED=N`。"
+msgid "Six plan tests run in normal test runs (`external input rows group by case`, `external binary and decimal_gda plans compile`, `external operand parsing is exact`, `external validation compares text: the sign of zero, the cohort and a wrong value fail`, `canonical binary text: the formats of MPFR and of to_hex agree on one value`, `canonical decimal text: one value, the cohort and the sign of zero are kept`). The performance test `external baseline floating` is marked `#skip(\"performance benchmark\")` and builds on native, wasm and js; the runner prints a `MAREMARK_JSONL=` line for every event, `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F` for every case, and `EXTBENCH_FAILED=N` at the end."
+msgstr "六个计划测试在常规测试运行中执行（`external input rows group by case`、`external binary and decimal_gda plans compile`、`external operand parsing is exact`、`external validation compares text: the sign of zero, the cohort and a wrong value fail`、`canonical binary text: the formats of MPFR and of to_hex agree on one value`、`canonical decimal text: one value, the cohort and the sign of zero are kept`）。性能测试 `external baseline floating` 标记为 `#skip(\"performance benchmark\")`，且仅在 native 上构建；运行器为每个事件打印一行 `MAREMARK_JSONL=`，为每个用例打印 `EXTBENCH_CASE=kind/op/size round=R passed=P failed=F`，最后打印 `EXTBENCH_FAILED=N`。"
 
 #: manual/api/bench/interval.md:1
 msgid "bench/interval API"
@@ -2578,7 +2578,7 @@ msgid "To run a corpus from your own MoonBit code, import a runner such as [`cli
 msgstr "要从你自己的 MoonBit 代码运行语料，请导入一个运行器（例如 [`cli/gda_expr_cli`](cli/gda_expr_cli.md)）并调用其 `run`，或者直接调用某个前端。"
 
 #: manual/api/cli.md:31
-#: manual/api/differential.md:36
+#: manual/api/differential.md:35
 msgid "Command line"
 msgstr "命令行"
 
@@ -2700,7 +2700,7 @@ msgstr "`arguments[0]` 是程序名，会被忽略。选项："
 #: manual/api/cli/gda_expr_cli.md:39
 #: manual/api/cli/itl_expr_cli.md:37
 #: manual/api/cli/testfloat_expr_cli.md:38
-#: manual/api/differential.md:44
+#: manual/api/differential.md:43
 msgid "Option"
 msgstr "选项"
 
@@ -2920,7 +2920,7 @@ msgid "File"
 msgstr "文件"
 
 #: manual/api/consistency.md:41
-#: manual/api/differential.md:66
+#: manual/api/differential.md:65
 #: manual/tutorial/bench/external.md:46
 msgid "Content"
 msgstr "内容"
@@ -6703,104 +6703,104 @@ msgid "`differential` is the executable of the seeded random differential campai
 msgstr "`differential` 是带种子的随机差分测试活动（`random-diff`）的可执行程序。它读取生成的 MPFR（二进制、IEEE `decimal`）或 libmpdec（`decimal_gda`）行语料，通过 [mare_mark](https://lunaflow.cn/en/mare_mark/) 运行器按批对 `floating` 进行验证，并把本次运行的追加式 JSONL 记录打印到标准输出。该包没有公开的 MoonBit 项；本页记录它的命令行和记录格式。[教程](../tutorial/differential.md)完整演示一次测试活动，[设计页](../design/differential.md)解释为何按批验证以及失败批如何被最小化。行格式与预言机程序见 [`testdata/binary/README.md`](../../../testdata/binary/README.md) 、[`testdata/decimal/README.md`](../../../testdata/decimal/README.md)（IEEE `decimal`）和 [`testdata/decimal_gda/README.md`](../../../testdata/decimal_gda/README.md)（`decimal_gda`）。"
 
 #: manual/api/differential.md:21
-msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg` imports the library [`differential/harness`](differential/harness.md), which holds the behaviour described below, and the async runtime:"
-msgstr "`differential` 是可执行包（`pkgtype(kind: \"executable\")`），不能被导入。它可为 native、JavaScript、Wasm 和 LLVM 构建；因 mare_mark 运行器使用没有 Wasm-GC 运行时的 `moonbitlang/async`，所以不为 Wasm-GC 构建。它只是入口：其 `moon.pkg` 导入库 [`differential/harness`](differential/harness.md)（下文描述的行为都在其中）和异步运行时："
+msgid "`differential` is an executable package (`pkgtype(kind: \"executable\")`) and cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`, which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg` imports the library [`differential/harness`](differential/harness.md), which holds the behaviour described below, and the environment access of the core library:"
+msgstr "`differential` 是可执行包（`pkgtype(kind: \"executable\")`），不能被导入。它可为 native、JavaScript、Wasm 和 LLVM 构建；因 mare_mark 运行器使用没有 Wasm-GC 运行时的 `moonbitlang/async`，所以不为 Wasm-GC 构建。它只是入口：其 `moon.pkg` 导入库 [`differential/harness`](differential/harness.md)（下文描述的行为都在其中）和核心库的环境访问："
 
-#: manual/api/differential.md:46
+#: manual/api/differential.md:45
 msgid "the corpus: `mpfr-random-v1` rows, `mpfr-decimal-random-v2` rows or a `.decTest` file whose header says `libmpdec-random-v1`; the format is detected from the text"
 msgstr "语料：`mpfr-random-v1` 行、`mpfr-decimal-random-v2` 行，或头部写有 `libmpdec-random-v1` 的 `.decTest` 文件；格式由文本内容自动识别"
 
-#: manual/api/differential.md:47
+#: manual/api/differential.md:46
 msgid "cases validated together; default 1000"
 msgstr "一起验证的用例数；默认 1000"
 
-#: manual/api/differential.md:48
+#: manual/api/differential.md:47
 msgid "the mare_mark run seed, below 2^31; it seeds the balanced block order and is recorded in every failure"
 msgstr "mare_mark 的运行种子，小于 2^31；它决定平衡分块的顺序，并记录在每个失败记录中"
 
-#: manual/api/differential.md:49
+#: manual/api/differential.md:48
 msgid "provenance id written into the environment snapshot and the summary"
 msgstr "写入环境快照和摘要的来源标识"
 
-#: manual/api/differential.md:50
+#: manual/api/differential.md:49
 msgid "the backend name recorded in the environment snapshot (it does not select the backend: the binary you run does)"
 msgstr "记录在环境快照中的后端名称（它并不选择后端：由你运行的二进制决定）"
 
-#: manual/api/differential.md:51
+#: manual/api/differential.md:50
 msgid "the command stored in each `validation_failure` for `mare-mark replay`; default `python3`"
 msgstr "存入每个 `validation_failure` 供 `mare-mark replay` 使用的命令；默认为 `python3`"
 
-#: manual/api/differential.md:52
+#: manual/api/differential.md:51
 msgid "a leading argument of that command, repeatable; the harness appends `--target T` and the failing case id or `first..last` range"
 msgstr "该命令开头的一个参数，可重复；运行器会追加 `--target T` 以及失败用例的 id 或 `first..last` 范围"
 
-#: manual/api/differential.md:54
+#: manual/api/differential.md:53
 msgid "Arguments before the first `--option` are ignored, because a Node.js or Wasm host puts the program or script path first. Every option takes one value."
 msgstr "第一个 `--option` 之前的参数会被忽略，因为 Node.js 或 Wasm 宿主会把程序或脚本路径放在最前面。每个选项都带一个值。"
 
-#: manual/api/differential.md:57
+#: manual/api/differential.md:56
 msgid "Exit status: `0` when every batch agreed with its oracle; `1` when a batch failed or a case was not executable; `2` for a usage error, an unreadable file or a file that is not a random differential corpus."
 msgstr "退出状态：每个批都与其预言机一致时为 `0`；有批失败或有用例无法执行时为 `1`；用法错误、文件无法读取或文件不是随机差分语料时为 `2`。"
 
-#: manual/api/differential.md:61
+#: manual/api/differential.md:60
 msgid "The record"
 msgstr "记录"
 
-#: manual/api/differential.md:63
+#: manual/api/differential.md:62
 msgid "The harness writes mare_mark JSONL (`mmka_1`) to standard output, one event per line, nothing else:"
 msgstr "运行器把 mare_mark JSONL（`mmka_1`）写到标准输出，每行一个事件，没有其他内容："
 
-#: manual/api/differential.md:66
+#: manual/api/differential.md:65
 #: manual/design/interval.md:702
 msgid "When"
 msgstr "何时"
 
-#: manual/api/differential.md:68
-#: manual/api/differential.md:70
+#: manual/api/differential.md:67
+#: manual/api/differential.md:69
 msgid "once per batch"
 msgstr "每批一次"
 
-#: manual/api/differential.md:68
+#: manual/api/differential.md:67
 msgid "`status` (`valid`, `invalid` with a `reason`, `infrastructure_failure`), `operands` = `[first id, last id, case count]`, `scale` = the corpus header line (family, seed, range, oracle version), `dataset_id` = the batch number"
 msgstr "`status`（`valid`、带 `reason` 的 `invalid`、`infrastructure_failure`），`operands` = `[第一个 id, 最后一个 id, 用例数]`，`scale` = 语料头部行（族、种子、范围、预言机版本），`dataset_id` = 批编号"
 
-#: manual/api/differential.md:69
+#: manual/api/differential.md:68
 msgid "once per invalid batch"
 msgstr "每个无效批一次"
 
-#: manual/api/differential.md:69
+#: manual/api/differential.md:68
 msgid "the same fields plus `seed`, the `shrink_path` (each step of the delta debugging, as an id range), `minimal_input` (the failing case, as its row) and the `replay_command` with its arguments"
 msgstr "同样的字段，再加上 `seed`、`shrink_path`（差分最小化的每一步，以 id 范围表示）、`minimal_input`（失败用例，以其行表示）以及带参数的 `replay_command`"
 
-#: manual/api/differential.md:70
+#: manual/api/differential.md:69
 msgid "the timing of the batch; one iteration per block"
 msgstr "该批的计时；每个块一次迭代"
 
-#: manual/api/differential.md:71
+#: manual/api/differential.md:70
 msgid "last"
 msgstr "最后"
 
-#: manual/api/differential.md:71
+#: manual/api/differential.md:70
 msgid "`validation_count`, `passed_count`, `failed_count`, the protocol and the environment"
 msgstr "`validation_count`、`passed_count`、`failed_count`、协议和环境"
 
-#: manual/api/differential.md:73
+#: manual/api/differential.md:72
 msgid "The protocol is fixed: `MultipleDatasetsSingleMeasurement`, no warm-up, one iteration per batch, `EveryDataset` validation, balanced blocks seeded by `--seed`. Timing is a by-product; correctness is the verdict."
 msgstr "协议是固定的：`MultipleDatasetsSingleMeasurement`，无预热，每批一次迭代，`EveryDataset` 验证，由 `--seed` 决定种子的平衡分块。计时只是副产品；判定依据是正确性。"
 
-#: manual/api/differential.md:77
+#: manual/api/differential.md:76
 msgid "A case is identified by its id, `<seed>.<family>.<index>` for MPFR rows and `d<seed>.<family>.<index>` for libmpdec rows. The id is all that `tools/random_differential.py replay` needs, because both generators are pure functions of seed, family and index."
 msgstr "用例由其 id 标识：MPFR 行为 `<seed>.<family>.<index>`，libmpdec 行为 `d<seed>.<family>.<index>`。`tools/random_differential.py replay` 只需要这个 id，因为两个生成器都是种子、族和索引的纯函数。"
 
-#: manual/api/differential.md:82
+#: manual/api/differential.md:81
 msgid "Replaying a failure"
 msgstr "重放失败"
 
-#: manual/api/differential.md:84
+#: manual/api/differential.md:83
 msgid "The `validation_failure` event carries the replay command, so the record can be replayed by the mare_mark command line:"
 msgstr "`validation_failure` 事件携带重放命令，因此可以用 mare_mark 命令行重放记录："
 
-#: manual/api/differential.md:92
+#: manual/api/differential.md:91
 msgid "The command it prints is `python3 tools/random_differential.py replay --target native <id or range>`, which regenerates the rows and runs them through the frontends. Without mare_mark, run that command directly or `just random-diff replay <id>`."
 msgstr "它打印出的命令是 `python3 tools/random_differential.py replay --target native <id 或范围>`，它会重新生成行并通过前端运行。没有 mare_mark 时，可直接运行该命令或 `just random-diff replay <id>`。"
 
@@ -13548,8 +13548,8 @@ msgid "**Timing one operand repeatedly.** A single fixed operand lets branch pre
 msgstr "**重复对同一个操作数计时。** 单个固定的操作数会让分支预测器和缓存记住数据路径；每遍使用八个不同的操作数可以避免这一点，代价是批次时长变为八倍。"
 
 #: manual/design/bench/external.md:319
-msgid "Native target only; no claims for JavaScript or WebAssembly."
-msgstr "仅限 native 目标；不对 JavaScript 或 WebAssembly 作出任何结论。"
+msgid "The floating side runs on `native`, `wasm` and `js` (see \"Runtimes other than native\"); `wasm-gc` is not a target."
+msgstr "浮点侧可在 `native`、`wasm` 和 `js` 上运行（见“Runtimes other than native”）；`wasm-gc` 不是目标。"
 
 #: manual/design/bench/external.md:320
 msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
@@ -24729,8 +24729,8 @@ msgid "pole: $[\\min(\\underline{x}^{n}, \\overline{x}^{n}), +\\infty)$ with $0^
 msgstr "极点：$[\\min(\\underline{x}^{n}, \\overline{x}^{n}), +\\infty)$，其中 $0^{n} = +\\infty$，下界向下舍入"
 
 #: manual/performance_audit.md:99
-msgid "The implementation selects the mathematical endpoint first and then applies the direction its role requires. For an interval across zero with even $n > 0$, both finite extremum candidates are rounded upward for the upper bound. `quantize_interval` then rounds once more outward. The proof is local to the declared operation and precision contract and makes no claim about the unsupported reverse operations."
-msgstr "实现先选出数学端点，再施加该端点角色所要求的舍入方向。对于跨越零且 $n > 0$ 为偶数的区间，两个有限极值候选都向上舍入以形成上界。随后 `quantize_interval` 再向外舍入一次。该证明仅限于已声明的运算与精度契约，不对尚未支持的逆运算作任何断言。"
+msgid "The implementation selects the mathematical endpoint first and then applies the direction its role requires. For an interval across zero with even $n > 0$, both finite extremum candidates are rounded upward for the upper bound. The storage of the interval then rounds each bound once more outward. The proof is local to the declared operation and precision contract and makes no claim about the unsupported reverse operations."
+msgstr "实现先选出数学端点，再施加该端点角色所要求的舍入方向。对于跨越零且 $n > 0$ 为偶数的区间，两个有限极值候选都向上舍入以形成上界。随后区间的存储再把每个界向外舍入一次。该证明仅限于已声明的运算与精度契约，不对尚未支持的逆运算作任何断言。"
 
 #: manual/performance_audit.md:106
 msgid "Performance evidence"
@@ -24921,8 +24921,8 @@ msgid "`floating` is competitive with MPFR and libmpdec"
 msgstr "`floating` 与 MPFR 和 libmpdec 相比具有竞争力"
 
 #: manual/performance_audit.md:160
-msgid "[external baseline](performance/bench/external.md): slower in all 59 measured cells on native"
-msgstr "[外部基线](performance/bench/external.md)：在 native 上全部 59 个测量单元格中都更慢"
+msgid "[external baseline](performance/bench/external.md): slower in 56 of the 59 measured cells on native"
+msgstr "[外部基线](performance/bench/external.md)：在 native 上59 个测量单元格中的 56 个更慢"
 
 #: manual/performance_audit.md:160
 msgid "refuted for the measured operations; the ratios are tracked per release"
@@ -25092,8 +25092,8 @@ msgid "Quick start"
 msgstr "快速入门"
 
 #: manual/tutorial/bench.md:19
-msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
-msgstr "要在你自己的模块中使用这些归约函数，请在 `moon.pkg` 中导入该包。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。"
+msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.12.0`."
+msgstr "要在你自己的模块中使用这些归约函数，请在 `moon.pkg` 中导入该包。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.12.0`。"
 
 #: manual/tutorial/bench.md:28
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
@@ -25139,7 +25139,7 @@ msgstr "含义是：对于 `binary/mul` 的数据集 2，`core/binary` 路径与
 #: manual/tutorial/decimal_gda.md:61
 #: manual/tutorial/decimal_gda_checked.md:58
 #: manual/tutorial/def.md:48
-#: manual/tutorial/differential.md:39
+#: manual/tutorial/differential.md:40
 #: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/differential/interval_mpfr.md:22
 #: manual/tutorial/doc_examples.md:25
@@ -25229,7 +25229,7 @@ msgstr "保持 plan-compiles 测试不被跳过：它会在每次常规测试运
 #: manual/tutorial/decimal_gda.md:280
 #: manual/tutorial/decimal_gda_checked.md:176
 #: manual/tutorial/def.md:163
-#: manual/tutorial/differential.md:173
+#: manual/tutorial/differential.md:174
 #: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/differential/interval_mpfr.md:40
 #: manual/tutorial/doc_examples.md:52
@@ -25279,7 +25279,7 @@ msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录�
 #: manual/tutorial/decimal_gda.md:371
 #: manual/tutorial/decimal_gda_checked.md:254
 #: manual/tutorial/def.md:197
-#: manual/tutorial/differential.md:184
+#: manual/tutorial/differential.md:185
 #: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/differential/interval_mpfr.md:45
 #: manual/tutorial/doc_examples.md:58
@@ -25333,7 +25333,7 @@ msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset
 #: manual/tutorial/decimal_gda.md:406
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:214
-#: manual/tutorial/differential.md:195
+#: manual/tutorial/differential.md:196
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/differential/interval_mpfr.md:51
 #: manual/tutorial/doc_examples.md:63
@@ -25770,8 +25770,8 @@ msgid "A validation failure is reported but does not stop the timing: look for `
 msgstr "验证失败会被报告，但不会中止计时：请查看 `WARNING` 行和 `results.json` 中的 `validation_failed_cases`。"
 
 #: manual/tutorial/bench/external.md:245
-msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
-msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始时记录。"
+msgid "Do not run other heavy work during a measurement; the load average is recorded at the start and at the end only."
+msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始和结束时记录。"
 
 #: manual/tutorial/bench/external.md:250
 msgid "[bench/external API](../../api/bench/external.md)"
@@ -27917,115 +27917,115 @@ msgstr "运行另一个后端"
 msgid "The committed fixtures need no oracle: their expected values are in the rows."
 msgstr "已提交的固定样例不需要预言机：它们的期望值就在行里。"
 
-#: manual/tutorial/differential.md:33
+#: manual/tutorial/differential.md:34
 msgid "`smoke` builds the synchronous `floating-conformance` executable for the native target and runs the fixture files through it. A known failure recorded in a regression fixture is annotated `xfail` with its issue number; the smoke run requires exactly those rows to fail, so a fix shows up as an unexpected pass."
 msgstr "`smoke` 为 native 目标构建同步的 `floating-conformance` 可执行文件，并用它运行各个夹具文件。回归夹具中记录的已知失败带有 `xfail` 和 issue 编号；smoke 运行要求恰好这些行失败，所以一旦修复，就会表现为意外通过。"
 
-#: manual/tutorial/differential.md:41
+#: manual/tutorial/differential.md:42
 msgid "Decimal elementary functions against MPFR"
 msgstr "对照 MPFR 检查十进制初等函数"
 
-#: manual/tutorial/differential.md:43
-msgid "The IEEE `decimal` package's elementary functions have one family each, `decimal-<function>` (`decimal-exp`, `decimal-atan2`, `decimal-pown`, `decimal-exp2m1`, `decimal-log10p1`, ...), checked against certified MPFR enclosures instead of libmpdec. They are not in the default set (there are as many families as functions); name them with `--family`, or add all of them with `--decimal`. A case id reads `m<seed>.<function>.<index>`."
-msgstr "IEEE `decimal` 包的每个初等函数各有一个族 `decimal-<function>`（`decimal-exp`、`decimal-atan2`、`decimal-pown`、`decimal-exp2m1`、`decimal-log10p1` 等），对照经过认证的 MPFR 包络而不是 libmpdec 来检查。它们不在默认集合里（族的数量与函数一样多）；用 `--family` 指名，或用 `--decimal` 一次加入全部。用例 id 形如 `m<seed>.<function>.<index>`。"
+#: manual/tutorial/differential.md:44
+msgid "The IEEE `decimal` package's elementary functions have one family each, `decimal-<function>` (`decimal-exp`, `decimal-atan2`, `decimal-pown`, `decimal-exp2m1`, `decimal-log10p1`, ...), checked against certified MPFR enclosures instead of libmpdec. They are not in the default set (there are as many families as functions); name them with `--family`, or select all of them with `--decimal` (without `--family`, `--decimal` runs only these families). A case id reads `m<seed>.<function>.<index>`."
+msgstr "IEEE `decimal` 包的每个初等函数各有一个族 `decimal-<function>`（`decimal-exp`、`decimal-atan2`、`decimal-pown`、`decimal-exp2m1`、`decimal-log10p1` 等），对照经过认证的 MPFR 包络而不是 libmpdec 来检查。它们不在默认集合里（族的数量与函数一样多）；用 `--family` 指名，或用 `--decimal` 一次选中全部（不带 `--family` 时，`--decimal` 只运行这些族）。用例 id 形如 `m<seed>.<function>.<index>`。"
 
-#: manual/tutorial/differential.md:55
+#: manual/tutorial/differential.md:56
 msgid "Operands and contexts are drawn so that results reach overflow, underflow and the subnormal range; exact results are not sampled (an enclosure cannot certify them), and exponent ranges stay within ±20,000 because the cost of the exact endpoint conversion grows steeply beyond that."
 msgstr "操作数和上下文的取法使结果能到达上溢、下溢和次正规范围；精确结果不被抽取（包络无法认证它们），指数范围限制在 ±20,000 以内，因为精确端点转换的代价在此之后增长得很陡。"
 
-#: manual/tutorial/differential.md:60
+#: manual/tutorial/differential.md:61
 msgid "Run a campaign"
 msgstr "运行测试活动"
 
-#: manual/tutorial/differential.md:62
+#: manual/tutorial/differential.md:63
 msgid "A campaign needs the oracles: a C compiler with MPFR and GMP (Homebrew puts them in `/opt/homebrew`; pass `--mpfr-prefix` elsewhere) for the binary families, and Python 3 with the `decimal` module for the decimal families."
 msgstr "测试活动需要预言机：二进制族需要带 MPFR 和 GMP 的 C 编译器（Homebrew 把它们放在 `/opt/homebrew`；其他位置请传 `--mpfr-prefix`），十进制族需要带 `decimal` 模块的 Python 3。"
 
-#: manual/tutorial/differential.md:81
-msgid "`--family` is repeatable and defaults to every family. The binary families are `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4` (`elem2` holds `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, `elem3` holds `rsqrt`, `compound` and `powr`, `elem4` holds `asinpi`, `acospi`, `atanpi` and `atan2pi`, which `elem` does not draw); the `decimal_gda` families (General Decimal Arithmetic against libmpdec) are `decimal_gda-add decimal_gda-subtract decimal_gda-multiply decimal_gda-divide decimal_gda-squareroot decimal_gda-fma decimal_gda-apply decimal_gda-tosci decimal_gda-toeng decimal_gda-exp decimal_gda-ln decimal_gda-log10 decimal_gda-power`. The `decimal_gda-*wide` families sample the contexts on which the elementary functions refuse by design and are opt-in. The `decimal-<function>` families belong to the IEEE `decimal` package (see above). The former prefixes `dec-` (now `decimal_gda-`) and `decm-` (now `decimal-`), and the option `--decm` (now `--decimal`), are deprecated aliases and still accepted. `--count` is per family, `--shard` bounds the rows generated per file, `--batch` the cases validated together, `--jobs` the parallel shards."
-msgstr "`--family` 可重复，默认为每个族。二进制族是 `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4`（`elem2` 包含 `exp2m1`、`exp10m1`、`log2p1`、`log10p1`，`elem3` 包含 `rsqrt`、`compound`、`powr`，`elem4` 包含 `asinpi`、`acospi`、`atanpi`、`atan2pi`，`elem` 不会抽到它们）；`decimal_gda` 族（通用十进制算术，对照 libmpdec）是 `decimal_gda-add decimal_gda-subtract decimal_gda-multiply decimal_gda-divide decimal_gda-squareroot decimal_gda-fma decimal_gda-apply decimal_gda-tosci decimal_gda-toeng decimal_gda-exp decimal_gda-ln decimal_gda-log10 decimal_gda-power`。`decimal_gda-*wide` 族抽样初等函数按设计拒绝的上下文，需要显式选用。`decimal-<function>` 族属于 IEEE `decimal` 包（见上文）。旧前缀 `dec-`（现为 `decimal_gda-`）和 `decm-`（现为 `decimal-`）以及选项 `--decm`（现为 `--decimal`）是已弃用的别名，仍然可用。`--count` 是每个族的用例数，`--shard` 限制每个文件生成的行数，`--batch` 是一起验证的用例数，`--jobs` 是并行分片数。"
+#: manual/tutorial/differential.md:82
+msgid "`--family` is repeatable and defaults to every family that is not opt-in (see below). The binary families are `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4` (`elem2` holds `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, `elem3` holds `rsqrt`, `compound` and `powr`, `elem4` holds `asinpi`, `acospi`, `atanpi` and `atan2pi`, which `elem` does not draw); the `decimal_gda` families (General Decimal Arithmetic against libmpdec) are `decimal_gda-add decimal_gda-subtract decimal_gda-multiply decimal_gda-divide decimal_gda-squareroot decimal_gda-fma decimal_gda-apply decimal_gda-tosci decimal_gda-toeng decimal_gda-exp decimal_gda-ln decimal_gda-log10 decimal_gda-power`. The `decimal_gda-*wide` families sample the contexts on which the elementary functions refuse by design and are opt-in. The `decimal-<function>` families belong to the IEEE `decimal` package (see above). The former prefixes `dec-` (now `decimal_gda-`) and `decm-` (now `decimal-`), and the option `--decm` (now `--decimal`), are deprecated aliases and still accepted. `--count` is per family, `--shard` bounds the rows generated per file, `--batch` the cases validated together, `--jobs` the parallel shards."
+msgstr "`--family` 可重复，默认为每个非显式选用的族（见下文）。二进制族是 `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4`（`elem2` 包含 `exp2m1`、`exp10m1`、`log2p1`、`log10p1`，`elem3` 包含 `rsqrt`、`compound`、`powr`，`elem4` 包含 `asinpi`、`acospi`、`atanpi`、`atan2pi`，`elem` 不会抽到它们）；`decimal_gda` 族（通用十进制算术，对照 libmpdec）是 `decimal_gda-add decimal_gda-subtract decimal_gda-multiply decimal_gda-divide decimal_gda-squareroot decimal_gda-fma decimal_gda-apply decimal_gda-tosci decimal_gda-toeng decimal_gda-exp decimal_gda-ln decimal_gda-log10 decimal_gda-power`。`decimal_gda-*wide` 族抽样初等函数按设计拒绝的上下文，需要显式选用。`decimal-<function>` 族属于 IEEE `decimal` 包（见上文）。旧前缀 `dec-`（现为 `decimal_gda-`）和 `decm-`（现为 `decimal-`）以及选项 `--decm`（现为 `--decimal`）是已弃用的别名，仍然可用。`--count` 是每个族的用例数，`--shard` 限制每个文件生成的行数，`--batch` 是一起验证的用例数，`--jobs` 是并行分片数。"
 
-#: manual/tutorial/differential.md:95
+#: manual/tutorial/differential.md:96
 msgid "The run directory holds `records-<target>.jsonl` (append-only, one file per backend) and `summary.json` with the exact number of cases per backend, family and operation. The command exits with `1` when a batch disagreed."
 msgstr "运行目录包含 `records-<target>.jsonl`（追加式，每个后端一个文件）和 `summary.json`，后者给出每个后端、族和运算的确切用例数。当有批不一致时命令以 `1` 退出。"
 
-#: manual/tutorial/differential.md:99
+#: manual/tutorial/differential.md:100
 msgid "Read the record"
 msgstr "读取记录"
 
-#: manual/tutorial/differential.md:117
+#: manual/tutorial/differential.md:118
 msgid "Each `validation` names the batch by its first and last case id and its size. An `invalid` one is followed by a `validation_failure` that carries the minimized case."
 msgstr "每个 `validation` 用其第一个和最后一个用例 id 以及大小来命名该批。`invalid` 之后跟着一个携带最小化用例的 `validation_failure`。"
 
-#: manual/tutorial/differential.md:121
+#: manual/tutorial/differential.md:122
 msgid "Replay a case"
 msgstr "重放一个用例"
 
-#: manual/tutorial/differential.md:129
+#: manual/tutorial/differential.md:130
 msgid "The generators are pure functions of seed, family and index, so the id is the whole reproduction. The output is the frontend's summary; a failing row is printed with the expected and the actual value and flags."
 msgstr "生成器是种子、族和索引的纯函数，所以 id 就是完整的复现信息。输出是前端的摘要；失败的行会连同期望值与实际值及标志一起打印。"
 
-#: manual/tutorial/differential.md:133
+#: manual/tutorial/differential.md:134
 msgid "Minimize a failure"
 msgstr "最小化一个失败"
 
-#: manual/tutorial/differential.md:139
+#: manual/tutorial/differential.md:140
 msgid "The minimizer tries simpler variants (smaller precision, plain rounding, no clamp, narrower exponent range, shorter operands, operands rewritten as `1E+k`), asks the oracle for the correct answer of each variant, and keeps a variant when the library still disagrees. The result is a row the oracle produced itself, so it is a consistent regression case, not an edited one."
 msgstr "最小化器会尝试更简单的变体（更小的精度、普通舍入、无 clamp、更窄的指数范围、更短的操作数、改写为 `1E+k` 的操作数），向预言机询问每个变体的正确答案，并在库仍然不一致时保留该变体。结果是预言机自己生成的一行，因此是一个一致的回归用例，而不是被编辑过的。"
 
-#: manual/tutorial/differential.md:145
+#: manual/tutorial/differential.md:146
 msgid "Sweep the range limits"
 msgstr "扫描范围极限"
 
-#: manual/tutorial/differential.md:147
+#: manual/tutorial/differential.md:148
 msgid "The random rows rarely land on an underflow or overflow threshold. For the binary elementary functions, `tools/range_boundary_rows.py` writes rows on the thresholds themselves, for every precision in a range, with the oracle columns left as `?`:"
 msgstr "随机行很少恰好落在下溢或上溢阈值上。对二进制初等函数，`tools/range_boundary_rows.py` 会直接在阈值上生成行，覆盖一个范围内的每个精度，并把预言机列留作 `?`："
 
-#: manual/tutorial/differential.md:158
+#: manual/tutorial/differential.md:159
 msgid "The generator binary is built by any `just random-diff run`. A failing row is named with its expected and actual value and flags, so it can be pasted into a regression fixture."
 msgstr "任何一次 `just random-diff run` 都会构建这个生成器二进制。失败的行会连同期望值、实际值与标志一起列出，因此可以直接粘贴进回归夹具。"
 
-#: manual/tutorial/differential.md:162
+#: manual/tutorial/differential.md:163
 msgid "Other backends"
 msgstr "其他后端"
 
-#: manual/tutorial/differential.md:164
+#: manual/tutorial/differential.md:165
 msgid "`--target` selects the backend of the harness: `native`, `wasm`, `js` or `llvm` (the mare_mark runner has no Wasm-GC runtime). For Wasm-GC, run the same fixtures through the synchronous runner:"
 msgstr "`--target` 选择运行器的后端：`native`、`wasm`、`js` 或 `llvm`（mare_mark 运行器没有 Wasm-GC 运行时）。对于 Wasm-GC，请通过同步运行器运行同样的固定样例："
 
-#: manual/tutorial/differential.md:175
+#: manual/tutorial/differential.md:176
 msgid "[API](../api/differential.md): the command line and the record."
 msgstr "[API](../api/differential.md)：命令行和记录。"
 
-#: manual/tutorial/differential.md:176
+#: manual/tutorial/differential.md:177
 msgid "[Design](../design/differential.md): the oracle reductions and the batch validation."
 msgstr "[设计](../design/differential.md)：预言机的归约和按批验证。"
 
-#: manual/tutorial/differential.md:178
+#: manual/tutorial/differential.md:179
 msgid "[Binary test data](../../../testdata/binary/README.md) and [decimal (IEEE) test data](../../../testdata/decimal/README.md) and [decimal_gda test data](../../../testdata/decimal_gda/README.md): row formats, coverage, the intentional differences and the regression fixtures."
 msgstr "[二进制测试数据](../../../testdata/binary/README.md)、[十进制（IEEE）测试数据](../../../testdata/decimal/README.md)和 [decimal_gda 测试数据](../../../testdata/decimal_gda/README.md)：行格式、覆盖范围、有意的差异和回归固定样例。"
 
-#: manual/tutorial/differential.md:182
+#: manual/tutorial/differential.md:183
 msgid "[Verification](../verification.md): what has been run, with exact counts."
 msgstr "[验证](../verification.md)：运行了什么，附确切计数。"
 
-#: manual/tutorial/differential.md:186
+#: manual/tutorial/differential.md:187
 msgid "**A stale `moon` earlier on `PATH`.** The build runs `moon`; make sure the one you meant comes first."
 msgstr "**`PATH` 上更靠前的旧版 `moon`。** 构建会运行 `moon`；请确保你想用的那个排在最前面。"
 
-#: manual/tutorial/differential.md:188
+#: manual/tutorial/differential.md:189
 msgid "**No MPFR headers.** The generator build fails with `mpfr.h not found`; set `MPFR_PREFIX` or pass `--mpfr-prefix`."
 msgstr "**没有 MPFR 头文件。** 生成器构建会失败并提示 `mpfr.h not found`；请设置 `MPFR_PREFIX` 或传 `--mpfr-prefix`。"
 
-#: manual/tutorial/differential.md:190
+#: manual/tutorial/differential.md:191
 msgid "**Seeds above 2^31.** The harness takes the seed as a 32-bit integer and the tool reduces it; the case ids keep the full seed."
 msgstr "**超过 2^31 的种子。** 运行器把种子当作 32 位整数，工具会对其取模；用例 id 保留完整的种子。"
 
-#: manual/tutorial/differential.md:192
+#: manual/tutorial/differential.md:193
 msgid "**Treating a disagreement as a bug.** The oracles are implementations. Read the clause first."
 msgstr "**把不一致当作缺陷。** 预言机只是实现。请先阅读条款。"
 
-#: manual/tutorial/differential.md:197
+#: manual/tutorial/differential.md:198
 msgid "Run a longer campaign on every backend, then read [verification](../verification.md) for how the published counts were produced."
 msgstr "在每个后端上运行更长的测试活动，然后阅读[验证](../verification.md)了解公布的计数是如何得出的。"
 
@@ -30198,8 +30198,8 @@ msgid "`ci.yml` runs `just pr` on every pull request and every push to `main`. I
 msgstr "`ci.yml` 在每个拉取请求和每次推送到 `main` 时运行 `just pr`。它先恢复最新的验证账本，只有推送到 `main` 才会保存账本：GitHub 把缓存限定在创建它的引用上，因此拉取请求运行所保存的内容，`main` 和其他拉取请求都无法恢复。拉取请求闸门的 native 测试以增量单元运行（`tools/native_units.py`）。"
 
 #: manual/verification.md:35
-msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
-msgstr "`nightly.yml` 每晚并按需把 `quick`、`decimal`、`decimal_gda`、`binary` 和 `interval` 作为并行作业运行 `just gate`。它按清单哈希缓存由 SHA-256 固定的上游语料（下载后仍会校验哈希），并把每个 `summary.json` 作为制品上传，使发布的结果能在维护者的机器之外复现。它以 `--no-reuse` 运行各闸门，且不恢复账本。它还在 `native`（不复用，是对拉取请求闸门 native 单元的审计）、`js`、`wasm` 和 `wasm-gc` 上运行整个工作区的单元测试（拉取请求的闸门对这些目标只做类型检查，只在 native 上测试；`tools/run_ci.py` 中的 `QUICK_TEST_TARGETS` 是给闸门加一个目标的那一行），并在 arm64 macOS 运行器上，以行原语为可移植（`LUNA_FLOATING_PORTABLE=1`）、强制使用 C 层（`LUNA_FLOATING_LIMBS=c`）和默认状态三种方式，在 native 上运行 `internal/binary_kernel` 和 `binary` 的测试；当运行器不是 arm64、某个状态报告的层级不是预期的层级，或开关未生效（可移植状态下为 `enabled=false`，其余状态下为 `enabled=true`）时，`tools/check_limbs_tier.py` 会使该作业失败。Linux 运行器是 x86-64，所以没有别的东西会执行 arm64 代码。`wasm-gc` 运行整个工作区，只排除需要 `moonbitlang/async` 的部分，该包没有 wasm-gc 运行时（其模块初始化函数在验证时被运行时拒绝）；工作流在该作业旁边写明了原因。"
+msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`override=1` in the portable and C states, `override=0` in the default state). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
+msgstr "`nightly.yml` 每晚并按需把 `quick`、`decimal`、`decimal_gda`、`binary` 和 `interval` 作为并行作业运行 `just gate`。它按清单哈希缓存由 SHA-256 固定的上游语料（下载后仍会校验哈希），并把每个 `summary.json` 作为制品上传，使发布的结果能在维护者的机器之外复现。它以 `--no-reuse` 运行各闸门，且不恢复账本。它还在 `native`（不复用，是对拉取请求闸门 native 单元的审计）、`js`、`wasm` 和 `wasm-gc` 上运行整个工作区的单元测试（拉取请求的闸门对这些目标只做类型检查，只在 native 上测试；`tools/run_ci.py` 中的 `QUICK_TEST_TARGETS` 是给闸门加一个目标的那一行），并在 arm64 macOS 运行器上，以行原语为可移植（`LUNA_FLOATING_PORTABLE=1`）、强制使用 C 层（`LUNA_FLOATING_LIMBS=c`）和默认状态三种方式，在 native 上运行 `internal/binary_kernel` 和 `binary` 的测试；当运行器不是 arm64、某个状态报告的层级不是预期的层级，或开关未生效（可移植和 C 状态下为 `override=1`，默认状态下为 `override=0`）时，`tools/check_limbs_tier.py` 会使该作业失败。Linux 运行器是 x86-64，所以没有别的东西会执行 arm64 代码。`wasm-gc` 运行整个工作区，只排除需要 `moonbitlang/async` 的部分，该包没有 wasm-gc 运行时（其模块初始化函数在验证时被运行时拒绝）；工作流在该作业旁边写明了原因。"
 
 #: manual/verification.md:56
 msgid "`docs.yml` runs the organization's `lunadoc check` workflow."
@@ -30214,12 +30214,12 @@ msgid "Quick-gate table of the π-inverse rows"
 msgstr "π 反函数行的快速门禁表"
 
 #: manual/verification.md:62
-msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 9,691 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v2` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`total_order_compare`) and all flags exactly."
-msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 9,691 行编译进 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（2.2 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v2` 行，见 `tooling/src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同值类（`total_order_compare`）和全部标志。"
+msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 9,691 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (1.1 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v2` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`total_order_compare`) and all flags exactly."
+msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 9,691 行编译进 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（1.1 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v2` 行，见 `tooling/src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同值类（`total_order_compare`）和全部标志。"
 
 #: manual/verification.md:71
-msgid "This was not always so. While about 50 `atan2pi` rows with an operand of `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a deterministic sample. After the `atan2pi` path for tiny operands was fixed the full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the sample was dropped. The mechanism stays in the generator (`tools/generate_decimal_pi_inverse_rows.py`) as an option: `--sample-step N` compiles every row that is not the rounding of an MPFR enclosure (the exact Niven values and the other cases decided by exact rational arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one row in N, taken equidistantly in generation order (a stratum shorter than N keeps its middle row). The data file is always the full table."
-msgstr "过去并非如此。当时约 50 条操作数为 `1E-1999996` 的 `atan2pi` 行占去 466 秒 debug 运行的 90%，快速门禁只编译一份确定性抽样。修复 `atan2pi` 对极小操作数的路径之后，全表在 debug 原生构建下 2.4 秒即可跑完（4,416 行的抽样为 0.5 秒），构建只多约 1.4 秒，低于快速门禁允许的 5 秒，因此抽样被取消。该机制仍作为生成器（`tools/generate_decimal_pi_inverse_rows.py`）的选项保留：`--sample-step N` 编译所有不是 MPFR 包络舍入结果的行（精确 Niven 值和由精确有理数运算决定的其他情形），并对按（运算，舍入模式）分层的 MPFR 行，按生成顺序等距地每 N 行取一行（短于 N 的层保留其中间行）。数据文件始终是全表。"
+msgid "This was not always so. While about 50 `atan2pi` rows with an operand of `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a deterministic sample. After the `atan2pi` path for tiny operands was fixed the full table of 19,134 rows (the table before the 0.12 context restriction, 2.2 MB of source) ran in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and added about 1.4 s to the build, under the 5 s the quick gate allows it, so the sample was dropped. The mechanism stays in the generator (`tools/generate_decimal_pi_inverse_rows.py`) as an option: `--sample-step N` compiles every row that is not the rounding of an MPFR enclosure (the exact Niven values and the other cases decided by exact rational arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one row in N, taken equidistantly in generation order (a stratum shorter than N keeps its middle row). The data file is always the full table."
+msgstr "过去并非如此。当时约 50 条操作数为 `1E-1999996` 的 `atan2pi` 行占去 466 秒 debug 运行的 90%，快速门禁只编译一份确定性抽样。修复 `atan2pi` 对极小操作数的路径之后，含 19,134 行的全表（0.12 收紧上下文之前的表，源码 2.2 MB）在 debug 原生构建下 2.4 秒即可跑完（4,416 行的抽样为 0.5 秒），构建只多了约 1.4 秒，低于快速门禁允许的 5 秒，因此抽样被取消。该机制仍作为生成器（`tools/generate_decimal_pi_inverse_rows.py`）的选项保留：`--sample-step N` 编译所有不是 MPFR 包络舍入结果的行（精确 Niven 值和由精确有理数运算决定的其他情形），并对按（运算，舍入模式）分层的 MPFR 行，按生成顺序等距地每 N 行取一行（短于 N 的层保留其中间行）。数据文件始终是全表。"
 
 #: manual/verification.md:84
 msgid "Exact rows"
@@ -30366,24 +30366,24 @@ msgid "*Decimal elementary functions against MPFR*: 26 of the 28 functions agree
 msgstr "*十进制初等函数对照 MPFR*：28 个函数中的 26 个，在各自 20,000 个 native 用例里，值、cohort 和标志都与 MPFR 一致，同样的行在 Wasm、JavaScript 和 Wasm-GC 上也通过。有两处不一致，四个后端上失败的 id 完全相同：`atan2` 对下溢结果的零返回指数 0，而不是最小指数 `e_min - p + 1`（20,000 行中有 54 行，例如 decimal64 里 `atan2(1E-500, 9)` 给出 `0` 而不是 `0E-398`；IEEE 754-2019 §5.2：不精确的结果使用最小可能指数的 cohort 成员）；以及 `exp` 在 `precision = 1`、选用非标准的 `AfterRounding` tininess 选项、方向为 `Up`、`Ceiling` 或 `ZeroFiveUp` 时，对下溢到最小次正规数的结果不报 Underflow 与 Subnormal（20,000 行中有 22 行；此时最小次正规数等于最小正规数，而库自己的舍入后规则认为该结果是 tiny；十进制格式的标准规则，即舍入前检测 tininess，是正确的）。两者另行报告，修复后成为回归行。"
 
 #: manual/verification.md:366
-msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
-msgstr "*十进制 `exp2m1`、`exp10m1`、`log2p1` 与 `log10p1`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-exp2m1`、`decm-exp10m1`、`decm-log2p1` 与 `decm-log10p1`，种子 20261118，每个 250,000 个 native 用例（共 1,000,000 个）在值、同值类与全部八个标志上都与 MPFR 一致；Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,200,000 个，804 个经过校验的批次）同样一致，于 2026-11-19 用 `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js` 运行。在最终代码上，种子 20261118 的 1,000,000 个 native 用例又运行了一遍（1,000 个经过校验的批次），另有第二个种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,600,000 个，1,204 个经过校验的批次）；两者都于 2026-11-19 运行，均无分歧。这里不抽取精确结果；精确结果、整数附近与 -1 附近的聚集情形、微小参数以及微小性与 clamp 的边界由 `library/src/decimal/elementary_pm1_rows_wbtest.mbt` 的 10,673 行覆盖（精确有理数运算与认证的 MPFR 包络，`tools/generate_decimal_pm1_rows.py`），它们在 native、Wasm、Wasm-GC 与 JavaScript 上通过。"
+msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 7,175 rows of `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
+msgstr "*十进制 `exp2m1`、`exp10m1`、`log2p1` 与 `log10p1`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-exp2m1`、`decm-exp10m1`、`decm-log2p1` 与 `decm-log10p1`，种子 20261118，每个 250,000 个 native 用例（共 1,000,000 个）在值、同值类与全部八个标志上都与 MPFR 一致；Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,200,000 个，804 个经过校验的批次）同样一致，于 2026-11-19 用 `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js` 运行。在最终代码上，种子 20261118 的 1,000,000 个 native 用例又运行了一遍（1,000 个经过校验的批次），另有第二个种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,600,000 个，1,204 个经过校验的批次）；两者都于 2026-11-19 运行，均无分歧。这里不抽取精确结果；精确结果、整数附近与 -1 附近的聚集情形、微小参数以及微小性与 clamp 的边界由 `library/src/decimal/elementary_pm1_rows_wbtest.mbt` 的 7,175 行覆盖（精确有理数运算与认证的 MPFR 包络，`tools/generate_decimal_pm1_rows.py`），它们在 native、Wasm、Wasm-GC 与 JavaScript 上通过。"
 
 #: manual/verification.md:385
-msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
-msgstr "*十进制 `rsqrt`、`compound` 与 `powr`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-rsqrt`、`decm-compound` 与 `decm-powr`；`compound` 的行由精确运算认证（有理数 $(1+x)^n$；$|x| < 10^{-150}$ 时的精确十进制数 $1 + nx \\pm 2(nx)^2$；或带有已证明余量的 libmpdec $\\exp(n\\ln(1+x))$），从不取自 `mpfr_compound_si`，因为 MPFR 4.2.2 在定向舍入下对 $n < 0$ 舍入错误。种子 20261118：每个函数 250,000 个 native 用例（共 750,000 个），以及 Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 900,000 个）；种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 1,200,000 个）；均于 2026-11-19 运行，在值、同值类与标志上全部一致。`library/src/decimal/elementary_rcp_rows_wbtest.mbt` 的 14,267 行（`tools/generate_decimal_rcp_rows.py`）在全部四个目标上补充了精确情形、首选指数、`compound` 的 `Int32` 最小值、低至 $10^{-1\\,999\\,997}$ 的操作数以及范围边界。"
+msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 8,459 rows of `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
+msgstr "*十进制 `rsqrt`、`compound` 与 `powr`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-rsqrt`、`decm-compound` 与 `decm-powr`；`compound` 的行由精确运算认证（有理数 $(1+x)^n$；$|x| < 10^{-150}$ 时的精确十进制数 $1 + nx \\pm 2(nx)^2$；或带有已证明余量的 libmpdec $\\exp(n\\ln(1+x))$），从不取自 `mpfr_compound_si`，因为 MPFR 4.2.2 在定向舍入下对 $n < 0$ 舍入错误。种子 20261118：每个函数 250,000 个 native 用例（共 750,000 个），以及 Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 900,000 个）；种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 1,200,000 个）；均于 2026-11-19 运行，在值、同值类与标志上全部一致。`library/src/decimal/elementary_rcp_rows_wbtest.mbt` 的 8,459 行（`tools/generate_decimal_rcp_rows.py`）在全部四个目标上补充了精确情形、首选指数、`compound` 的 `Int32` 最小值、低至 $10^{-1\\,999\\,997}$ 的操作数以及范围边界。"
 
 #: manual/verification.md:400
-msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 8,330 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, the five rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
-msgstr "*范围极限处的十进制 `exp`、`exp2` 和 `exp10`*（[#363](https://github.com/Luna-Flow/floating/issues/363)）：族 `decimal-exp`、`decimal-exp2` 和 `decimal-exp10`，种子 334 与种子 20261120 在 native 上每个函数各 100,000 个用例（共 600,000），种子 334 在 Wasm、Wasm-GC 和 JavaScript 上每个函数各 20,000 个（共 180,000），于 2026-11-20 运行，其值、同值类和标志与 MPFR 一致。生成器只是偶尔才会产生出错的参数（用例 `m334.exp2.30728` 就是其中之一），因此边界由确定性的行覆盖：`library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`，用 400 位的 Python `decimal`，仅作交叉核对）含有 8,330 行，覆盖该问题的上下文、decimal32、decimal64、decimal128 和一个宽上下文，五种舍入方向，位于刚好在范围内外的结果以及该决策的阈值处；它们也覆盖 `expm1`、`exp2m1`、`exp10m1`、`sinh`、`cosh`、`pow`、`powr`、`pown`、`compound` 和 `rsqrt`，这些函数在改动前都没有失败。"
+msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 8,305 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, the five rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
+msgstr "*范围极限处的十进制 `exp`、`exp2` 和 `exp10`*（[#363](https://github.com/Luna-Flow/floating/issues/363)）：族 `decimal-exp`、`decimal-exp2` 和 `decimal-exp10`，种子 334 与种子 20261120 在 native 上每个函数各 100,000 个用例（共 600,000），种子 334 在 Wasm、Wasm-GC 和 JavaScript 上每个函数各 20,000 个（共 180,000），于 2026-11-20 运行，其值、同值类和标志与 MPFR 一致。生成器只是偶尔才会产生出错的参数（用例 `m334.exp2.30728` 就是其中之一），因此边界由确定性的行覆盖：`library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`，用 400 位的 Python `decimal`，仅作交叉核对）含有 8,305 行，覆盖该问题的上下文、decimal32、decimal64、decimal128 和一个宽上下文，五种舍入方向，位于刚好在范围内外的结果以及该决策的阈值处；它们也覆盖 `expm1`、`exp2m1`、`exp10m1`、`sinh`、`cosh`、`pow`、`powr`、`pown`、`compound` 和 `rsqrt`，这些函数在改动前都没有失败。"
 
 #: manual/verification.md:415
 msgid "*Decimal `asinPi`, `acosPi`, `atanPi` and `atan2Pi`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decimal-asinpi`, `decimal-acospi`, `decimal-atanpi` and `decimal-atan2pi`, certified by `mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi` and `mpfr_atan2pi`. Seed 20261118: 100,000 native cases per function (400,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript (240,000), 564 validated batches, run on 2026-11-19 with `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` and the same with `--count 20000 --target wasm --target wasm-gc --target js`, in agreement with MPFR in value, cohort and all eight flags. The 9,691 rows of `testdata/decimal/ieee/rows/pi_inverse.txt` (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at the preferred exponent 0, the clusters next to $\\pm\\tfrac12$ and $\\pm 1$ in the five rounding directions on both sides, operands down to $10^{-1\\,999\\,996}$ and the range limits of decimal32/64/128. They run in the full gate and the nightly run on all four targets, and all of them run in the quick gate (see [Quick-gate table of the π-inverse rows](#quick-gate-table-of-the-π-inverse-rows))."
 msgstr "*十进制 `asinPi`、`acosPi`、`atanPi` 与 `atan2Pi`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decimal-asinpi`、`decimal-acospi`、`decimal-atanpi` 与 `decimal-atan2pi`，分别由 `mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi` 与 `mpfr_atan2pi` 认证。种子 20261118：每个函数 native 100,000 例（共 400,000），Wasm、Wasm-GC 与 JavaScript 各每个函数 20,000 例（共 240,000），564 个已验证批次，于 2026-11-19 运行，命令为 `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native`，以及同样的 `--count 20000 --target wasm --target wasm-gc --target js`，在数值、同值类与全部八个标志上与 MPFR 一致。`testdata/decimal/ieee/rows/pi_inverse.txt` 的 9,691 行（`tools/generate_decimal_pi_inverse_rows.py`）补充了首选指数 0 的精确 Niven 值、$\\pm\\tfrac12$ 与 $\\pm 1$ 附近五种舍入方向两侧的聚集情形、小至 $10^{-1\\,999\\,996}$ 的操作数，以及 decimal32/64/128 的范围极限。这些行在完整门禁与夜间运行中于四个目标上执行，快速门禁则运行全部这些行（见 [π 反函数行的快速门禁表](#quick-gate-table-of-the-π-inverse-rows)）。"
 
 #: manual/verification.md:433
-msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/binary/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each. The random sample reaches the range limits rarely, so `tools/range_boundary_rows.py` generates the thresholds directly: for every precision from 2 to 300, six contexts (unbounded, the binary16, 32, 64 and 128 ranges, `e_min = -6`) and the thresholds log2(result) in {q − 1, q, e_min, e_max, e_max + 1}, the arguments of `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown` and `rootn` are placed on each threshold and at relative offsets of 2^−20 to 2^−64, rounding direction and tininess rule cycling (1,269,554 rows). That sweep found four more disagreements, all fixed with regression rows or tests: `pow` of an exact power of two below 2^e_min ([#272](https://github.com/Luna-Flow/floating/issues/272)), the underflow flag of `pown` under after-rounding tininess near the implementation limit ([#273](https://github.com/Luna-Flow/floating/issues/273)), `expm1` just past its overflow threshold ([#274](https://github.com/Luna-Flow/floating/issues/274)) and `pown` of a value between half and the whole smallest subnormal, rounded to the wrong neighbour ([#278](https://github.com/Luna-Flow/floating/issues/278)); after the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity without flags ([#275](https://github.com/Luna-Flow/floating/issues/275), open): the random generator does not draw such operands and the sweep does not include that function."
-msgstr "*二进制初等函数*：在 1,000,000 个 native 用例（其他后端各 300,000 个）中有一个发现：对 −2^30 整数做 `exp2` 时，结果 2^−1073741824 是精确的次正规数，却返回 +0 且没有任何标志（13 个用例，[#271](https://github.com/Luna-Flow/floating/issues/271)）。该问题已修复，其行成为 `testdata/binary/random-regressions.txt` 的回归行。修复之后，两个种子（20261118 与 20261201）在各 1,000,000 个 native `elem` 用例中都与 MPFR 一致。随机样本很少触及范围极限，因此 `tools/range_boundary_rows.py` 直接生成阈值：对 2 到 300 的每个精度、六种上下文（无界、binary16、32、64、128 的范围、`e_min = -6`）以及阈值 log2(结果) ∈ {q − 1, q, e_min, e_max, e_max + 1}，把 `exp`、`exp2`、`exp10`、`expm1`、`pow`、`pown`、`rootn` 的参数放在每个阈值上以及相对偏移 2^−20 到 2^−64 处，舍入方向与 tininess 规则循环取用（1,269,554 行）。该扫描又发现四处不一致，均已修复并附有回归行或测试：`pow` 对低于 2^e_min 的精确 2 的幂（[#272](https://github.com/Luna-Flow/floating/issues/272)）、`pown` 在实现极限附近舍入后 tininess 下的 underflow 标志（[#273](https://github.com/Luna-Flow/floating/issues/273)）、`expm1` 刚过上溢阈值时的结果（[#274](https://github.com/Luna-Flow/floating/issues/274)），以及 `pown` 对介于最小次正规数的一半与整个最小次正规数之间的值舍入到了错误的邻点（[#278](https://github.com/Luna-Flow/floating/issues/278)）；修复后它与 MPFR 在全部 1,269,554 行上一致。对相邻的 `hypot` 做的探测发现，指数超出 ±2^29 的操作数会得到 0 或无穷且没有标志（[#275](https://github.com/Luna-Flow/floating/issues/275)，尚未修复）：随机生成器不会产生这样的操作数，扫描也不包含该函数。"
+msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/binary/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each. The random sample reaches the range limits rarely, so `tools/range_boundary_rows.py` generates the thresholds directly: for every precision from 2 to 300, six contexts (unbounded, the binary16, 32, 64 and 128 ranges, `e_min = -6`) and the thresholds log2(result) in {q − 1, q, e_min, e_max, e_max + 1}, the arguments of `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown` and `rootn` are placed on each threshold and at relative offsets of 2^−20 to 2^−64, rounding direction and tininess rule cycling (1,269,554 rows). That sweep found four more disagreements, all fixed with regression rows or tests: `pow` of an exact power of two below 2^e_min ([#272](https://github.com/Luna-Flow/floating/issues/272)), the underflow flag of `pown` under after-rounding tininess near the implementation limit ([#273](https://github.com/Luna-Flow/floating/issues/273)), `expm1` just past its overflow threshold ([#274](https://github.com/Luna-Flow/floating/issues/274)) and `pown` of a value between half and the whole smallest subnormal, rounded to the wrong neighbour ([#278](https://github.com/Luna-Flow/floating/issues/278)); after the fixes it agrees with MPFR in all 1,269,554 rows. A probe of the neighbouring `hypot` found that operands with an exponent beyond ±2^29 give 0 or infinity without flags ([#275](https://github.com/Luna-Flow/floating/issues/275), fixed): the random generator does not draw such operands and the sweep does not include that function."
+msgstr "*二进制初等函数*：在 1,000,000 个 native 用例（其他后端各 300,000 个）中有一个发现：对 −2^30 整数做 `exp2` 时，结果 2^−1073741824 是精确的次正规数，却返回 +0 且没有任何标志（13 个用例，[#271](https://github.com/Luna-Flow/floating/issues/271)）。该问题已修复，其行成为 `testdata/binary/random-regressions.txt` 的回归行。修复之后，两个种子（20261118 与 20261201）在各 1,000,000 个 native `elem` 用例中都与 MPFR 一致。随机样本很少触及范围极限，因此 `tools/range_boundary_rows.py` 直接生成阈值：对 2 到 300 的每个精度、六种上下文（无界、binary16、32、64、128 的范围、`e_min = -6`）以及阈值 log2(结果) ∈ {q − 1, q, e_min, e_max, e_max + 1}，把 `exp`、`exp2`、`exp10`、`expm1`、`pow`、`pown`、`rootn` 的参数放在每个阈值上以及相对偏移 2^−20 到 2^−64 处，舍入方向与 tininess 规则循环取用（1,269,554 行）。该扫描又发现四处不一致，均已修复并附有回归行或测试：`pow` 对低于 2^e_min 的精确 2 的幂（[#272](https://github.com/Luna-Flow/floating/issues/272)）、`pown` 在实现极限附近舍入后 tininess 下的 underflow 标志（[#273](https://github.com/Luna-Flow/floating/issues/273)）、`expm1` 刚过上溢阈值时的结果（[#274](https://github.com/Luna-Flow/floating/issues/274)），以及 `pown` 对介于最小次正规数的一半与整个最小次正规数之间的值舍入到了错误的邻点（[#278](https://github.com/Luna-Flow/floating/issues/278)）；修复后它与 MPFR 在全部 1,269,554 行上一致。对相邻的 `hypot` 做的探测发现，指数超出 ±2^29 的操作数会得到 0 或无穷且没有标志（[#275](https://github.com/Luna-Flow/floating/issues/275)，已修复）：随机生成器不会产生这样的操作数，扫描也不包含该函数。"
 
 #: manual/verification.md:461
 msgid "*`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2, and so do 718,824 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules; the thresholds of $1/\\sqrt{x}$, $(1 + x)^n$ for $n \\in \\{\\pm 3, \\pm 7, \\pm 100\\}$ and $x^y$ with $y$ placed on $\\log_2$ of each threshold). The comparison needed two corrections of the oracle, both documented in `testdata/binary/README.md`: `mpfr_compound_si` is wrong for a negative `n` in the directed modes and near the range limits (proved with exact rational arithmetic on all 2,017 boundary rows; the rows use the exact rational instead), and `mpfr_rec_sqrt(-0)` is +inf where the standard says -inf. The library had no disagreement in either case."
@@ -31137,8 +31137,8 @@ msgid "Tininess detection for binary formats"
 msgstr "二进制格式的微小性检测"
 
 #: manual/verification.md:912
-msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
-msgstr "`BinaryContext` 默认舍入后检测；也可选择舍入前，TestFloat 门禁两种都运行。对十进制，标准要求舍入前检测，`DecimalContext` 默认如此；舍入后检测是显式的非标准选项。"
+msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `decimal` always detects tininess before rounding; `DecimalContext` has no tininess option."
+msgstr "`BinaryContext` 默认舍入后检测；也可选择舍入前，TestFloat 门禁两种都运行。对十进制，标准要求舍入前检测，`decimal` 始终在舍入前检测；`DecimalContext` 没有 tininess 选项。"
 
 #: manual/verification.md:913
 msgid "IEEE 754 §6.2"
@@ -31149,8 +31149,8 @@ msgid "Which NaN payload a NaN result carries"
 msgstr "NaN 结果携带哪个 NaN 载荷"
 
 #: manual/verification.md:913
-msgid "`binary`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
-msgstr "`binary`：保留所选 NaN 操作数的载荷和符号，signaling NaN 被转为 quiet。`decimal`：取第一个 NaN 操作数的符号和载荷，截取其低 `p` 位（`clamp` 时为 `p - 1` 位，即交换格式载荷字段的宽度）。"
+msgid "`binary`: the sign of the selected NaN operand is kept, its payload keeps the low `p - 2` bits under a context, and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p - 1` digits (the width of the interchange payload field; a `DecimalContext` is always clamped)."
+msgstr "`binary`：保留所选 NaN 操作数的符号，其载荷在上下文下保留低 `p - 2` 位，signaling NaN 被转为 quiet。`decimal`：取第一个 NaN 操作数的符号和载荷，截取其低 `p - 1` 位（交换格式载荷字段的宽度；`DecimalContext` 始终是钳位的）。"
 
 #: manual/verification.md:914
 msgid "IEEE 754 §9.7"
@@ -31221,8 +31221,8 @@ msgid "Accuracy of recommended functions"
 msgstr "推荐函数的精度"
 
 #: manual/verification.md:919
-msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
-msgstr "在每种舍入方向下都正确舍入（认证的包络不断细化，直到舍入结果唯一）。细化预算耗尽时，`try_*_ctx` 返回 `Err`，普通形式返回 NaN；精度或指数界的绝对值超过 999,999 的十进制上下文返回 `invalid_context`。"
+msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; for decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude the functions return NaN with `not_computed`."
+msgstr "在每种舍入方向下都正确舍入（认证的包络不断细化，直到舍入结果唯一）。细化预算耗尽时，`try_*_ctx` 返回 `Err`，普通形式返回 NaN；对精度或指数界的绝对值超过 999,999 的十进制上下文，这些函数返回带 `not_computed` 的 NaN。"
 
 #: manual/verification.md:920
 msgid "IEEE 754 §9.2.2"
@@ -31257,8 +31257,8 @@ msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr "`remainder` 结果为零时的符号（`decimal`）"
 
 #: manual/verification.md:922
-msgid "The sign of the dividend, kept in extended contexts."
-msgstr "被除数的符号，在扩展上下文中保留。"
+msgid "The sign of the dividend."
+msgstr "被除数的符号。"
 
 #: manual/verification.md:923
 msgid "IEEE 1788 §7, §4.2"
@@ -31325,108 +31325,111 @@ msgid "Tracking"
 msgstr "跟踪"
 
 #: manual/verification.md:936
-msgid "IEEE 754-2019 §7.5"
-msgstr "IEEE 754-2019 §7.5"
-
-#: manual/verification.md:936
-msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
-msgstr "`decimal` 提供舍入后微小性检测，作为非标准选项（默认是舍入前检测，符合 §7.5 的要求）"
-
-#: manual/verification.md:936
-msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
-msgstr "无；由 issue [#217](https://github.com/Luna-Flow/floating/issues/217) 关闭"
-
-#: manual/verification.md:937
 msgid "IEEE 754-2019 §8"
 msgstr "IEEE 754-2019 §8"
 
-#: manual/verification.md:937
+#: manual/verification.md:936
 msgid "No alternate exception handling"
 msgstr "没有替代异常处理"
 
-#: manual/verification.md:937
+#: manual/verification.md:936
 msgid "by design (flags are values)"
 msgstr "按设计如此（标志是值）"
 
-#: manual/verification.md:938
+#: manual/verification.md:937
 msgid "IEEE 754-2019 §9.3"
 msgstr "IEEE 754-2019 §9.3"
 
-#: manual/verification.md:938
+#: manual/verification.md:937
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr "核心包不提供动态模式运算（context 是显式值）"
 
-#: manual/verification.md:938
+#: manual/verification.md:937
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr "按设计如此；可选包装包：[#247](https://github.com/Luna-Flow/floating/issues/247)"
 
-#: manual/verification.md:939
+#: manual/verification.md:938
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr "IEEE 754-2019 §9.4, §9.6"
 
-#: manual/verification.md:939
+#: manual/verification.md:938
 msgid "No reduction operations; `binary` has no minimum/maximum family"
 msgstr "没有归约运算；`binary` 没有 minimum/maximum 系列"
 
-#: manual/verification.md:940
+#: manual/verification.md:939
 msgid "IEEE 754-2019 §9.5"
 msgstr "IEEE 754-2019 §9.5"
 
-#: manual/verification.md:940
+#: manual/verification.md:939
 msgid "No augmented arithmetic for `binary`"
 msgstr "`binary` 没有增强算术"
 
-#: manual/verification.md:941
+#: manual/verification.md:940
 msgid "IEEE 754-2019 §5.3.2"
 msgstr "IEEE 754-2019 §5.3.2"
 
-#: manual/verification.md:941
+#: manual/verification.md:940
 msgid "decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format)"
 msgstr "decNumber 会把高于 `e_max - p + 1` 的零 `quantize` 结果下折；`decimal` 也是如此（每个结果都是该格式的成员）"
 
-#: manual/verification.md:942
+#: manual/verification.md:941
 msgid "IEEE 754-2019 §3.7"
 msgstr "IEEE 754-2019 §3.7"
 
-#: manual/verification.md:942
+#: manual/verification.md:941
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr "实现的指数范围两端都比 MPFR 高一个 binade"
 
-#: manual/verification.md:942
+#: manual/verification.md:941
 msgid "documented in `testdata/binary/README.md`"
 msgstr "记录在 `testdata/binary/README.md`"
 
-#: manual/verification.md:943
-msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
-msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
+#: manual/verification.md:942
+msgid "IEEE 1788-2015 §10.6.2"
+msgstr "IEEE 1788-2015 §10.6.2"
+
+#: manual/verification.md:942
+msgid "No slope functions"
+msgstr "没有斜率函数"
 
 #: manual/verification.md:943
-msgid "No reverse-mode operations and no interval literals (text input and output)"
-msgstr "没有反向模式运算，也没有区间字面量（文本输入输出）"
-
-#: manual/verification.md:943
-msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
-msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（反向模式），[#21](https://github.com/Luna-Flow/floating/issues/21)（文本）"
-
-#: manual/verification.md:944
-msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
-msgstr "IEEE 1788-2015 §10.5.5, §10.6.2"
-
-#: manual/verification.md:944
-msgid "No two-output division, no slope functions"
-msgstr "没有双输出除法，也没有斜率函数"
-
-#: manual/verification.md:945
 msgid "Public API"
 msgstr "公开 API"
 
-#: manual/verification.md:945
+#: manual/verification.md:943
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 
-#: manual/verification.md:945
+#: manual/verification.md:943
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "the libmpdec result for each operand, value for value"
+#~ msgstr "每个操作数的 libmpdec 结果，数值一致"
+
+#~ msgid "Native target only; no claims for JavaScript or WebAssembly."
+#~ msgstr "仅限 native 目标；不对 JavaScript 或 WebAssembly 作出任何结论。"
+
+#~ msgid "IEEE 754-2019 §7.5"
+#~ msgstr "IEEE 754-2019 §7.5"
+
+#~ msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
+#~ msgstr "`decimal` 提供舍入后微小性检测，作为非标准选项（默认是舍入前检测，符合 §7.5 的要求）"
+
+#~ msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
+#~ msgstr "无；由 issue [#217](https://github.com/Luna-Flow/floating/issues/217) 关闭"
+
+#~ msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
+#~ msgstr "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
+
+#~ msgid "No reverse-mode operations and no interval literals (text input and output)"
+#~ msgstr "没有反向模式运算，也没有区间字面量（文本输入输出）"
+
+#~ msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
+#~ msgstr "[#230](https://github.com/Luna-Flow/floating/issues/230)（反向模式），[#21](https://github.com/Luna-Flow/floating/issues/21)（文本）"
+
+#~ msgid "No two-output division, no slope functions"
+#~ msgstr "没有双输出除法，也没有斜率函数"
 
 #~ msgid "conforming for the selected phases; decorated `rootn` with a negative degree can keep a decoration above `trv` (see the [design page](../design/interval.md#known-limitations))"
 #~ msgstr "对所选阶段符合; 带装饰的负次数 `rootn` 可能保留高于 `trv` 的装饰 （参见[设计页面](../design/interval.md#known-limitations))"
