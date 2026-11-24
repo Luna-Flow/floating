@@ -146,8 +146,10 @@ test "parse errors" {
 ## Going further
 
 - **Corpora.** `just conformance run binary` executes the pinned MPFR
-  `tests/data/sqrt` file and the committed elementary matrix
-  `testdata/binary/mpfr-4.2.2-elementary.txt` together with TestFloat; see
+  `tests/data/sqrt` file and every `mpfrCorpora` entry of
+  `testdata/binary/corpora.json` (the elementary matrix
+  `mpfr-4.2.2-elementary.txt`, `mpfr-4.2.2-ln-wide.txt`,
+  `mpfr-4.2.2-strtofr.txt` and `mpfr-4.2.2-decimal-output.txt`) together with TestFloat; see
   [verification](../../verification.md). The generators for the elementary
   and power data are `tools/generate_mpfr_elementary_oracle.c` and
   `tools/generate_mpfr_pow_oracle.c`.
@@ -164,11 +166,11 @@ test "parse errors" {
   power rows compare the whole `Binary`.
 - **Square-root flags are not checked.** `sqrt` data rows compare only the
   value.
-- **No exponent range.** Rows are executed in an unbounded context: there is
-  no overflow, underflow or subnormal range, and an elementary or power row
+- **No exponent range.** Rows are executed in the context of the precision alone
+  (`e_max` 1073741823, gradual underflow), and an elementary or power row
   that reports overflow or underflow fails.
-- **Binary operations need a second operand.** An elementary `pow`, `hypot`
-  or `atan2` row with `-` as second operand is the parse diagnostic
+- **Binary operations need a second operand.** An elementary `pow`, `powr`,
+  `hypot`, `atan2` or `atan2pi` row with `-` as second operand is the parse diagnostic
   `invalid MPFR elementary field`.
 - **Inputs are read at 512 bits.** Power operands with longer significands are
   rounded before the function is evaluated; elementary operands are read at four

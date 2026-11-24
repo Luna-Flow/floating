@@ -20,7 +20,7 @@ strict verdict of a phase is "failed, diagnostic and unsupported are empty".
 ### Its own small option parser
 
 The runner does not use the shared `parse_common_options`: it has neither
-sharding nor a text mode, because ITF1788 files are small and the tooling runs
+sharding nor a text mode, because ITF1788 files are small (the largest pinned file is 218 KB) and the tooling runs
 phases in parallel instead. It parses
 `--strict-supported`, repeatable `--operation` and paths itself, and rejects
 every other option, so a mistyped option never silently changes a phase.
@@ -52,7 +52,7 @@ the unknown ones count against it only under `--strict-supported`.
 
 ## Alternatives rejected
 
-- **Sharding.** Not needed for a corpus of a few thousand cases.
+- **Sharding.** Not needed for the pinned corpus of 6,632 selected cases.
 - **Directory expansion.** Phases name their files by pattern
   (`interpreter_stages.json`) and the tooling passes the runner explicit paths, which keeps the claim precise.
 

@@ -256,8 +256,9 @@ tininess~)`. The vector passes when:
 - **arithmetic:** the result, packed into the bit fields of the result format
   without rounding, has exactly the expected bit pattern, or the expected
   result is any NaN and the actual result is a quiet NaN; and the SoftFloat
-  mask of the operation's flags equals the expected mask. A result that is not
-  a number of the format fails with `"result not in the format: …"`;
+  mask of the operation's flags equals the expected mask. A NaN result against
+  a non-NaN expected column, and a result that is not a number of the format,
+  fail with `"result not in the format: …"`;
 - **integer conversion:** if the expected mask has the invalid bit `10`, the
   conversion must report invalid (`None`) and its value field is ignored;
   otherwise the conversion must return the expected integer (signed results
@@ -363,8 +364,9 @@ shard, and `success` is true when none failed.
 
 ### `RunSummary::arms`
 
-`arms` returns the names of the operations that ran, in the order they first
-ran. Each operation of the TestFloat frontend is a function that records its
+`arms` returns the names of the operations that ran in this process, in the order
+they first ran; the set is process-global, so a summary also lists the operations of
+earlier runs in the same process. Each operation of the TestFloat frontend is a function that records its
 own name when it executes; the `--json` summary of the command-line runner prints the set as `arms`.
 The verification tools key a task by the code those operations reach.
 

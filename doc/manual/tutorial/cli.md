@@ -9,7 +9,7 @@ run the four conformance runners through it, either directly or through the
 | build the executable and see its usage | [`run … tooling/src/cli -- --help`](#quick-start) |
 | run decTest, ITL, MPFR or TestFloat data | [`--backend gda`, `itl`, `mpfr`, `testfloat`](#choose-a-backend) |
 | run whole pinned corpora in parallel | [`just conformance …`](#use-the-tooling-instead-of-raw-invocations) |
-| use the result in a script | [the exit code and `--json`](#read-the-exit-code) |
+| use the result in a script | [the exit code and the JSON report](#read-the-exit-code) |
 | see the options of one runner | [the runner tutorials](#going-further) |
 
 ## Quick start
@@ -68,7 +68,7 @@ just gate decimal_gda 8
 `0` means success, `1` means failing cases (for `itl` also diagnostic cases;
 in strict mode also unsupported cases), `2` means a usage, file or parse
 error. Scripts should check the code
-and, with `--json`, parse the single JSON object on standard output.
+and parse the single JSON object on standard output (`--json` for `gda`, `mpfr` and `testfloat`; `itl` always prints it and has no such option).
 
 ## Going further
 

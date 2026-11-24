@@ -39,9 +39,12 @@ returns. Line numbers start at 1. A rounding field (in every format but `mpfr-de
 | `u` | `RoundTowardPositive` |
 | `d` | `RoundTowardNegative` |
 
-and a number is read by `@binary.Binary::from_hex` (`0x…p…` with an
-integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the
-precision named for that field; a significand with more bits than that
+and a number is read by `@binary.Binary::from_hex` (`0x…p…` with a hexadecimal
+significand that may have a point, an optional sign, `inf`, `nan`, `snan`, in any case) at the
+precision named for that field, except where a format below names another precision
+(the operands of the power, elementary and `mpfr-random-v1` formats; the input of
+`mpfr-strtofr-v1` is decimal text and the operands of `mpfr-decimal-random-v2` are
+decimal numbers); a significand with more bits than that
 precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and
 otherwise `Err` with one `ParseDiagnostic` per invalid line.
 
@@ -340,7 +343,7 @@ pub fn execute_random_data(MpfrRandomDocument) -> RunSummary
 ```
 
 Runs every row with the row's `BinaryContext` (bounded when the row has an
-exponent range, `unbounded` otherwise) and passes a row only when the value and
+exponent range, the context of the precision alone otherwise, with `e_max` 1073741823 and gradual underflow) and passes a row only when the value and
 the flags agree. Values are compared with their sign for zeros and infinities;
 a NaN result must be a quiet NaN. A domain error of the elementary functions
 (`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN
@@ -472,7 +475,8 @@ pub fn CaseResult::message(Self) -> String
 ```
 
 The message is empty for a pass and otherwise shows the expected and the actual
-value (hexadecimal for the binary formats, decimal text for the decimal
+value (hexadecimal for the binary formats, except digit text and exponent for `mpfr-decimal-output-v1` and for the
+`getstr` and `shortest` rows of `mpfr-random-v1`; decimal text for the decimal
 formats) and the compared flags where the format compares flags.
 
 ### `RunSummary`

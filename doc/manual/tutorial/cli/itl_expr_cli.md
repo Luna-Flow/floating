@@ -85,7 +85,7 @@ not change the exit status; diagnostic cases always do.
 
 - **No `--json` option.** The output of a run that completes is always JSON; passing `--json` is an
   unknown option (exit `2`).
-- **No sharding.** ITL files are small; the tooling parallelizes by phase.
+- **No sharding.** ITL files are mostly small (the generated `testdata/interval/generated/atan2_rev.itl` has 16,260 cases and is 2.0 MB); the tooling parallelizes by phase.
 - **All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops,
   even when the bad statement belongs to an operation you did not select.
 - **Strict mode counts unknown operations.** Without `--operation`, cases

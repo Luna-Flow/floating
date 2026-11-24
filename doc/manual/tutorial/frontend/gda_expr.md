@@ -196,7 +196,7 @@ every row. `RunSummary::merge` adds the counts back up.
 
 ### Look at the parsed rows
 
-`parse_dectest` keeps each row's text and the context in force for it, so you
+`parse_dectest` keeps each row's tokens and the context in force for it, so you
 can inspect a corpus without executing it:
 
 ```moonbit
@@ -249,8 +249,11 @@ test "parsed rows" {
 - **Doubled quotes.** Inside a quoted token, the delimiting quote written
   twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted
   token ends only at a single matching quote.
-- **Invalid contexts are skipped.** A non-positive precision directive (or
-  `minexponent` above `maxexponent`) is accepted by the parser, and the rows
+- **Invalid contexts are skipped.** A non-positive precision directive, a
+  precision above 999999999, an exponent bound outside its range, `minexponent`
+  above `maxexponent`, or a `minexponent` that is none of `-maxexponent`,
+  `1 - maxexponent`, `-maxexponent - 1` (for example `maxexponent` set alone
+  to a value other than the default) is accepted by the parser, and the rows
   under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not
   executed.
 
