@@ -49,7 +49,7 @@ test "run the ITL runner from MoonBit code" {
 ### Run files
 
 ```bash
-itl .tmp/interval/itf1788/libieeep1788_tests_set.itl
+itl testdata/interval/itf1788/libieeep1788_tests_set.itl
 itl a.itl b.itl
 ```
 

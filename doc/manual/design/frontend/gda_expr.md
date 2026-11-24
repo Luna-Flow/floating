@@ -90,7 +90,7 @@ token $x$ and the kind of $v$:
 | `?` | any | true (only the conditions are checked) |
 | `#hex` | decimal | the interchange encoding of $v$ in the context's format equals $x$, ignoring letter case |
 | `32#…`, `64#…`, `128#…` | decimal | $v$ equals the value of $x$ in that format numerically (`compare == 0`); the conditions raised by encoding $v$ in that format are added to $F$ |
-| other text | decimal | $v$ prints exactly as $x$, or $\operatorname{compareTotal}(v, \operatorname{dec}(x)) = 0$ |
+| other text | decimal | $v$ prints exactly as $x$ (its to-scientific-string equals $x$) |
 | other text | integer | the decimal text of $v$ equals $x$ |
 | other text | boolean | $x$ is `true`/`1` for true or `false`/`0` for false, ignoring case |
 | text | text | equal strings (ignoring case for `#hex`) |
@@ -126,7 +126,9 @@ failures; dropping them silently overstates coverage.
 
 **Choice.** Every selected row gets a disposition. `Diagnostic` marks rows
 that are not executable by construction (`#` or `?` operands, `#` result, or
-a context with precision $p \le 0$ or $E_{\min} > E_{\max}$, which no
+a context with precision $p \le 0$ or $p > 999999999$, $E_{\min}$ outside
+$-999999999$ to $0$, $E_{\max}$ outside $0$ to $999999999$, or magnitudes of
+$E_{\min}$ and $E_{\max}$ that differ by more than one, which no
 `decimal_gda` context can represent).
 `Unsupported` marks legal rows the library cannot run (unknown operation,
 condition or rounding). Only `Executable` rows can pass or fail, and the
@@ -147,8 +149,8 @@ in both directions catches both missing and spurious `Inexact`, `Rounded`,
 ### Representation-exact comparison
 
 GDA specifies the exponent of every result, so a library that returns the
-right value with the wrong exponent is wrong. Comparing with
-`compare_total`, or by exact string, makes the cohort, the sign of zero and the
+right value with the wrong exponent is wrong. Comparing by exact
+string makes the cohort, the sign of zero and the
 NaN payload part of the test. The only value-level comparison is for
 `32#`/`64#`/`128#` results, where the encoding conditions are what the row
 tests.

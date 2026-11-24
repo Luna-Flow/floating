@@ -85,4 +85,4 @@ order so reports are stable and diff-friendly.
 - No corpus parsing or numeric semantics: frontends own them.
 - No process exit: runners return an exit code; only `cli` calls `exit`.
 - No recursive file search, globbing or encoding detection.
-- Internal: not importable outside `Luna-Flow/floating`, no stability promise.
+- Internal: not importable outside `Luna-Flow/floating-tools`, no stability promise.

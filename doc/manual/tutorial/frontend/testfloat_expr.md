@@ -201,7 +201,8 @@ test "shards" {
   vectors generated with `-tininessbefore`; the default is after rounding.
 - **Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_`
   or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`,
-  `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `eq`, `le`, `lt`,
+  `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `to_f16`, `to_f32`,
+  `to_f64`, `to_f128`, `eq`, `le`, `lt`,
   `eq_signaling`, `le_quiet` or `lt_quiet`.
 
 ## Common pitfalls

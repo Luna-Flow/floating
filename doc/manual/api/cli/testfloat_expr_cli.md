@@ -55,9 +55,9 @@ diagnostic of the file (`source:line:1: message`).
 
 Text output prints the function, rounding, tininess, the counts `cases`,
 `selected cases`, `passed cases`, `failed cases` and one `failed ID: MESSAGE`
-line per failure. JSON output has the keys `function`, `rounding`,
-`tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`,
-`failedCases` and `failedIds`.
+line per failure. JSON output has the keys `frontend` (the string `testfloat`), `function`,
+`rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`,
+`failedCases`, `failedIds` and `arms`.
 
 Return value: `2` for usage, specification, file or parse errors; `1` when a
 vector failed; `0` otherwise.

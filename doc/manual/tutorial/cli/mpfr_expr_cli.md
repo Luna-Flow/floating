@@ -64,8 +64,8 @@ mpfr path/to/mpfr/tests/data/sqrt                   # anything else: sqrt data_c
 mpfr --json testdata/binary/mpfr-4.2.2-elementary.txt
 ```
 
-prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases`
-and `failedIds`.
+prints one object with `corpus`, `frontend`, `totalCases`, `passedCases`,
+`failedCases` and `failedIds`.
 
 ## Going further
 

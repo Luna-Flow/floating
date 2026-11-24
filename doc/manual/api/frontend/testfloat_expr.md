@@ -153,7 +153,8 @@ vector has $k + 2$ white-space separated fields, where $k$ is the operand count
 of the operation: $k$ operand encodings, the expected result and a two-digit
 hexadecimal flag mask. Operand encodings are hexadecimal bit patterns of
 `spec.format()`. The expected result is an encoding for arithmetic
-operations, a hexadecimal integer of at most 16 digits for conversions, and
+operations and the format conversions (in the destination format), a
+hexadecimal integer of at most 16 digits for the integer conversions, and
 `0` or `1` for comparisons. A wrong field count gives
 `"unexpected TestFloat field count"`, an unreadable field
 `"invalid TestFloat hexadecimal field"`. The result is `Ok` only when no line
@@ -252,11 +253,11 @@ $k \bmod n = i$ for shard count $n$ and index $i$. Operands are decoded to
 `Binary` and the operation runs in `spec.format().context(rounding~,
 tininess~)`. The vector passes when:
 
-- **arithmetic:** the result, re-encoded in the format with the same rounding
-  and tininess, has exactly the expected bit pattern, or the expected result
-  is any NaN and the actual result is a quiet NaN; and the SoftFloat mask of
-  the operation's flags combined with the encoding flags equals the expected
-  mask;
+- **arithmetic:** the result, packed into the bit fields of the result format
+  without rounding, has exactly the expected bit pattern, or the expected
+  result is any NaN and the actual result is a quiet NaN; and the SoftFloat
+  mask of the operation's flags equals the expected mask. A result that is not
+  a number of the format fails with `"result not in the format: …"`;
 - **integer conversion:** if the expected mask has the invalid bit `10`, the
   conversion must report invalid (`None`) and its value field is ignored;
   otherwise the conversion must return the expected integer (signed results
@@ -319,7 +320,8 @@ pub fn CaseResult::message(Self) -> String
 ```
 
 Messages: empty for a pass; `"value mismatch: expected HEX, actual HEX"`,
-`"integer mismatch: …"`, `"comparison mismatch: …"`, or
+`"integer mismatch: …"`, `"comparison mismatch: …"`,
+`"result not in the format: …"`, or
 `"flags mismatch: expected M, actual M"` (masks in decimal).
 
 ### `RunSummary`
@@ -362,7 +364,7 @@ shard, and `success` is true when none failed.
 
 `arms` returns the names of the operations that ran, in the order they first
 ran. Each operation of the TestFloat frontend is a function that records its
-own name when it executes; the command-line summary prints the set as `arms`.
+own name when it executes; the `--json` summary of the command-line runner prints the set as `arms`.
 The verification tools key a task by the code those operations reach.
 
 ```mbti

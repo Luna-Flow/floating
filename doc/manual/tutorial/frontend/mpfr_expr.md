@@ -1,8 +1,9 @@
 # frontend/mpfr_expr tutorial
 
 This tutorial shows how to check `binary` against reference results
-computed with GNU MPFR. Three line-oriented formats are supported: MPFR's own
-square-root test data, integer powers, and an elementary-function matrix. You
+computed with GNU MPFR. Seven line-oriented formats are supported; this page
+covers three: MPFR's own square-root test data, integer powers, and an
+elementary-function matrix. You
 parse a file into a document, execute it, and read the summary. The
 command-line runner is [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md).
 
@@ -150,9 +151,10 @@ test "parse errors" {
   [verification](../../verification.md). The generators for the elementary
   and power data are `tools/generate_mpfr_elementary_oracle.c` and
   `tools/generate_mpfr_pow_oracle.c`.
-- **Which parser?** The CLI chooses the elementary format when the file
-  contains `mpfr-elementary-v1`, the power format when it contains
-  `input_coefficient_hex`, and the square-root format otherwise. Put the
+- **Which parser?** The CLI chooses the format of the first marker it finds, in
+  the order `mpfr-decimal-random-v2`, `mpfr-random-v1`, `mpfr-strtofr-v1`,
+  `mpfr-decimal-output-v1`, `mpfr-elementary-v1`, then the power format when the
+  file contains `input_coefficient_hex`, and the square-root format otherwise. Put the
   marker in a comment line.
 
 ## Common pitfalls
@@ -168,8 +170,9 @@ test "parse errors" {
 - **Binary operations need a second operand.** An elementary `pow`, `hypot`
   or `atan2` row with `-` as second operand is the parse diagnostic
   `invalid MPFR elementary field`.
-- **Inputs are read at 512 bits.** Elementary and power operands with longer
-  significands are rounded before the function is evaluated.
+- **Inputs are read at 512 bits.** Power operands with longer significands are
+  rounded before the function is evaluated; elementary operands are read at four
+  bits per character of the token when that is more than 512.
 
 ## Next steps
 

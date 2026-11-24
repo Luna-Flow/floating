@@ -59,7 +59,7 @@ runner).
 
 ## Going further
 
-To add a backend, write a runner package `run(arguments) -> Int`, import it in
+To add a backend, write a runner package `run(arguments) -> Int32`, import it in
 `moon.pkg` of this package and add one arm to the `match backend` of
 `dispatch`; keep process exit in `cli`, which stays an entry point only.
 

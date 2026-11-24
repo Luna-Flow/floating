@@ -21,7 +21,7 @@ arguments and the files it reads (see
 
 Parsing and execution of corpora live in pure `frontend/*` packages; argument
 handling, file access and output live in `cli/*_expr_cli` runners, each a
-library with `run(arguments) -> Int`; the process boundary (`@env.args()`,
+library with `run(arguments) -> Int32`; the process boundary (`@env.args()`,
 `@sys.exit`) lives only in `cli`, and the argument scanning that picks the
 runner lives in the library [`cli/dispatch`](cli/dispatch.md), so that it has
 tests and the main package holds no test inputs. Because runners are libraries, their usage
@@ -37,10 +37,9 @@ own executable.
 
 ### One binary, copied per backend
 
-`tools/conformance_cli.py` builds `tooling/src/cli` into a backend-specific target
-directory and copies it to `<backend>-conformance.exe`. Parallel builds for
-different backends therefore never share a `_build` directory or lock, and
-tools always invoke an executable whose name says what it runs.
+`tools/conformance_cli.py` builds `tooling/src/cli` into one shared target
+directory and copies it to `<backend>-conformance.exe`. Tools always invoke an
+executable whose name says what it runs.
 
 ### Dispatcher help wins
 
