@@ -163,7 +163,8 @@ within $999\,999$ in magnitude, otherwise the result is NaN with
 `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
 a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001
 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid
-context condition permits it.[^gda] The default unbounded exponent range therefore
+context condition permits it.[^gda] A precision of 1,000 digits or more without an
+explicit `e_max` (the default range is then beyond 999,999) therefore
 disables them, which the API page and tutorial point out. `pow` and `pown`
 with an integral exponent, and `pow` with the exponent $0.5$ (a square
 root), are the exceptions in the exponent limits: like the arithmetic
@@ -211,7 +212,9 @@ undergo successful steps $1, \dots, n$ with raised flags $r_1, \dots, r_n$
 (including `with_context` and `apply`), with no `clear_flags` in between and
 with plain steps only (a step with a pipeline as its right operand also joins
 the flags of that pipeline, `raised` with its `raised` and `flags` with its
-`flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then
+`flags`; the `flags` of an operand can exceed its `raised`, so the equation
+below then holds only with the `flags` of those operands also joined on the
+right side). Then
 
 $$
 F_n = r_0 \lor r_1 \lor \dots \lor r_n, \qquad r = r_n .
