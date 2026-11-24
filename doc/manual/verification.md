@@ -378,7 +378,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both
   without a disagreement. Exact results are not sampled here; they,
   the clusters near the integers and near -1, the tiny arguments and the
-  tininess and clamp boundaries are the 10,673 rows of
+  tininess and clamp boundaries are the 7,175 rows of
   `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
   certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass
   on native, Wasm, Wasm-GC and JavaScript.
@@ -392,7 +392,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   cases per function (750,000) and 100,000 per function on each of Wasm,
   Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on
   native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all
-  in agreement in value, cohort and flags. The 14,267 rows of
+  in agreement in value, cohort and flags. The 8,459 rows of
   `library/src/decimal/elementary_rcp_rows_wbtest.mbt`
   (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred
   exponents, the `Int32` minimum of `compound`, operands down to
@@ -406,7 +406,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   generator reaches the failing arguments only rarely (case `m334.exp2.30728`
   is one of them), so the boundaries are covered by deterministic rows:
   `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`,
-  Python `decimal` at 400 digits, a cross-check only) holds 8,330 rows for
+  Python `decimal` at 400 digits, a cross-check only) holds 8,305 rows for
   the context of the issue, decimal32, decimal64, decimal128 and a wide
   context, the five rounding directions, at results just inside and outside
   the range and at the thresholds of the decision; they also cover `expm1`,
@@ -940,6 +940,5 @@ or the page that documents the decision.
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `binary` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
 | IEEE 754-2019 §5.3.2 | decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format) | [#234](https://github.com/Luna-Flow/floating/issues/234) |
 | IEEE 754-2019 §3.7 | The implementation exponent range is one binade above MPFR's at both ends | documented in `testdata/binary/README.md` |
-| IEEE 1788-2015 §10.5.4, §9.7, §12.11 | No reverse-mode operations and no interval literals (text input and output) | [#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text) |
-| IEEE 1788-2015 §10.5.5, §10.6.2 | No two-output division, no slope functions | [#231](https://github.com/Luna-Flow/floating/issues/231), [#242](https://github.com/Luna-Flow/floating/issues/242) |
+| IEEE 1788-2015 §10.6.2 | No slope functions | [#242](https://github.com/Luna-Flow/floating/issues/242) |
 | Public API | The clause to API mapping may change when the public API is narrowed | issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245) |
