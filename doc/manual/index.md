@@ -111,7 +111,7 @@ verified, and how) and a performance page (measurements and their method).
 
 | Part | Tutorial | API | Design |
 | --- | --- | --- | --- |
-| `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
+| `internal`: big-integer, parsing, normalization and rounding helpers, dyadic enclosures | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
 | `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
 | `internal/binary_kernel`: exact integer arithmetic on the coefficients of `binary` | [tutorial](tutorial/internal/binary_kernel.md) | [API](api/internal/binary_kernel.md) | [design](design/internal/binary_kernel.md) |
 

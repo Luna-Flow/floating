@@ -47,14 +47,15 @@ and this page. Do not add or rename guides without updating that list.
 
 ## Package pages
 
-- Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented
+- Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` or
+  `tooling/src/<path>/moon.pkg` is documented
   in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not
   create packages; `moon.pkg` boundaries do.
 - Give every package all three pages. Packages without an application API
   (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`)
   still document their generated interface, maintainer workflow and stability
   boundary.
-- Every package also keeps a `library/src/<path>/README.mbt.md`.
+- Every package also keeps a `README.mbt.md` in its directory.
 - `pkg.generated.mbti` is the public-surface inventory; source and tests
   define behaviour. A method is documented as callable with dot syntax only if
   the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are
@@ -190,8 +191,7 @@ changes the interface.
   `Luna-Flow/arithmetic`; floating packages use their default aliases
   (`@binary`, `@decimal`, …).
 - Call only what the `.mbti` lists. For example, `Binary` has no
-  `to_double` or `is_finite` method; use `to_shortest_string` and
-  `@def.is_finite(x)`.
+  `to_double` method; use `to_shortest_string`.
 
 ## Translations
 

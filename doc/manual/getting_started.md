@@ -100,8 +100,7 @@ Other constructors: `Binary::from_int`, `from_double`, `from_string` and
 `from_string_ctx` (correctly rounded decimal parsing), `from_hex`;
 `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`,
 `from_double`, `exact` and `from_bounds`. Constructors take an optional
-`precision`; `Interval::from_int` defaults to 53 bits, as the other
-constructors.
+`precision`; `Interval::from_int` requires it.
 
 ## Choose a context
 
@@ -141,17 +140,17 @@ test "contextual arithmetic" {
 Contexts are immutable values; nothing in the library reads a global rounding
 mode. IEEE contexts return the flags of one operation, which you `combine`
 yourself. A GDA context instead travels with the result: every `GdaOutcome`
-returns the next context, whose status accumulates the flags.
+returns the next context, whose flags accumulate.
 
 ## Choose a failure model
 
 The library exposes several failure channels on purpose. Pick the one that
 matches what your caller must observe:
 
-- `Option` from simple constructors such as `Decimal::from_string`, when bad
-  input needs no diagnostic.
+- `Option` from simple constructors such as `BinaryInterchange::from_hex`, when
+  bad input needs no diagnostic.
 - `Result[T, ArithmeticError]` from checked operations (`div_checked`,
-  `sqrt`, `compare_checked`, `from_string`, the `try_*_ctx` elementary
+  `sqrt_checked`, `compare_checked`, `from_string`, the `try_*_ctx` elementary
   functions).
 - `BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result.
 - `GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires.
@@ -195,7 +194,7 @@ erases semantics the standards make observable.
   value (two empty intervals are equal). `a.identical(b)` compares every field
   of a `Binary`. See [numeric semantics](./numeric_semantics.md).
 - An `Interval` has containment and set relations (`contains`, `subset`,
-  `definitely_lt`, …), not a scalar order. A result is correct when it encloses
+  `strict_less`, …), not a scalar order. A result is correct when it encloses
   the exact result; tightness is a separate quality.
 - `SemanticScalar` compares mathematical values across packages and drops
   precision, exponent, signed zero, payloads, decorations and flags.
