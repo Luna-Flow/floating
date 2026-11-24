@@ -56,7 +56,7 @@ The corpus interpreter is an adapter around the public contextual operations.
 binary128 bit patterns. `BinaryContext` carries precision, rounding direction,
 paired exponent limits, and before/after tininess detection. Encoding and
 contextual arithmetic both return status flags; ordinary operators use an
-unbounded nearest-even context and intentionally do not expose those flags.
+nearest-even context given by its precision alone and intentionally do not expose those flags.
 
 NaN comparisons in the TestFloat adapter are class-based only when an expected
 result is NaN. This is not a weakened finite-value comparison: non-NaN encoded
@@ -114,13 +114,13 @@ The pinned full gate is documented in
 | MPFR 4.2.2 `mpfr_strtofr` fixture | decimal text to binary: 5 precisions (11 to 200 bits) × 5 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros | 3,699 / 3,699 |
 | MPFR 4.2.2 `mpfr_get_str` fixture | binary to decimal: 2,448 fixed-digit rows (5 precisions × 5 roundings × 10 digit counts × up to 12 fixed-seed values per cell, exponents up to ±20,000) and 240 shortest round-trip digit-count rows | 2,688 / 2,688 |
 | Optional MPFR elementary stress, seed 20260715 | at least 100,000 cases per three-operation-or-larger family | 966,744 / 966,744 |
-| Seeded random elementary (`elem`), seeds 20261118 and 20261201 | 29 functions, unbounded contexts, precisions 2 to 700, all rounding directions | 2,000,000 / 2,000,000 |
+| Seeded random elementary (`elem`), seeds 20261118 and 20261201 | 29 functions, contexts given by the precision alone, precisions 2 to 700, all rounding directions | 2,000,000 / 2,000,000 |
 | Range-boundary sweep (`tools/range_boundary_rows.py`) | `exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown`, `rootn` on the underflow and overflow thresholds, precisions 2 to 300, six contexts, both tininess rules | 1,269,554 / 1,269,554 |
-| Seeded random elementary (`elem2`: `exp2m1`, `exp10m1`, `log2p1`, `log10p1`), seed 20261118 | unbounded contexts, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
+| Seeded random elementary (`elem2`: `exp2m1`, `exp10m1`, `log2p1`, `log10p1`), seed 20261118 | contexts given by the precision alone, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
 | Range-boundary sweep of the four new functions | precisions 2 to 300, six contexts, overflow, saturation and tiny-result thresholds | 303,108 / 303,108 |
-| Seeded random elementary (`elem3`: `rsqrt`, `compound`, `powr`), seed 20261118 | unbounded contexts, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
+| Seeded random elementary (`elem3`: `rsqrt`, `compound`, `powr`), seed 20261118 | contexts given by the precision alone, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
 | Range-boundary sweep of the three new functions | precisions 2 to 300, six contexts, overflow and tiny-result thresholds; the `compound` rows use the exact rational in place of `mpfr_compound_si` (see the oracle defect in `verification.md`) | 718,824 / 718,824 |
-| Seeded random elementary (`elem4`: `asinpi`, `acospi`, `atanpi`, `atan2pi`), seed 20261118 | unbounded contexts, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
+| Seeded random elementary (`elem4`: `asinpi`, `acospi`, `atanpi`, `atan2pi`), seed 20261118 | contexts given by the precision alone, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC | 1,300,000 / 1,300,000 |
 | Range-boundary sweep of the four functions | precisions 2 to 300, six contexts, underflow thresholds, the anchors ±1/2 and ±1 for huge and tiny arguments and extreme ratios, next to ±1; `atan2pi` rows whose operands differ by more than 100,000 binades are not oracle rows (MPFR is too slow) | 1,654,315 / 1,654,315 |
 | Committed smoke | TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses | 8,514 / 8,514 |
 | TestFloat 3e level 2 | binary16, all declared operations/directions/tininess modes | 50,205,600 / 50,205,600 |

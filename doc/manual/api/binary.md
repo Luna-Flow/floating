@@ -1072,8 +1072,8 @@ underflow handling; it is exact unless the operand has more bits than the contex
 count `n` is a `Binary`, the kind `logb_ctx` returns, as in `Decimal::scaleb_ctx`
 and `decimal_gda`: it must be an integer value. A NaN count propagates (invalid
 for a signaling NaN); an infinite or non-integer count is a NaN with
-`invalid_operation`, whatever the receiver is (an infinite receiver with a
-finite count is returned as it is); an integer count beyond the `Int32` range
+`invalid_operation`, for a receiver that is not a NaN (a NaN receiver propagates
+like a NaN count; an infinite receiver with a finite count is returned as it is); an integer count beyond the `Int32` range
 acts as the largest count of its sign, which overflows or underflows every
 finite non-zero value of any format. IEEE 754-2019 5.3.3 defines scaleB for integral counts only and leaves a
 non-integral second operand (an infinity is not integral) to the language: the
@@ -1623,11 +1623,11 @@ Each elementary function has three forms:
 - `try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an
   `@lf_arith.ArithmeticError`.
 
-All three run the same certified algorithm. It computes an enclosure
+Except `hypot` and `compound`, which have their own algorithms (see their sections), all three forms run the same certified algorithm. It computes an enclosure
 $[L, U] \ni f(x)$ whose every internal operation is rounded downward for $L$
 and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits
 (or at the operand precision plus 16 when that is larger, for `rootn`, `pow`, the
-inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to
+inverse trigonometric and the hyperbolic functions; for `sin`, `cos` and `tan` at the larger of $p + \max(0, e) + 96$, with $e$ the adjusted exponent of the argument, and the operand precision plus 16; for `sinpi`, `cospi` and `tanpi` at $\max(p + 96, q + 32)$ for the operand precision $q$). If $L$ and $U$ round to
 the same value with the same flags, that value is returned; otherwise $w$
 grows by $\max(32, \lfloor w/2 \rfloor)$, for at most as many attempts as the
 refinement limit of the context allows (default 12, `None` for no limit). Because
@@ -1732,7 +1732,8 @@ pub fn Binary::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags
 
 IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer
 $x \le \max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic.
-Saturation towards $-1$ and the overflow decision follow `exp2m1`, with
+Saturation towards $-1$ starts at $x \le -\lceil (p + 3)/3 \rceil$ (since
+$10^{-1/3} < 1/2$), and the overflow decision follows `exp2m1`, with
 $\log_2 10$ in place of 1.
 
 ### `Binary::exp2`, `Binary::exp2_ctx`, `Binary::try_exp2_ctx`
@@ -1891,8 +1892,8 @@ The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 7. A negative finite $x$ with a non-integral $y$ is a domain case, a quiet NaN
    with `invalid_operation`. With an
    integral $y$ (here $|y| \ge 2^{31}$) the result is $|x|^y$ for an even $y$
-   and $-|x|^y$ for an odd one, computed with the directed rounding modes
-   swapped.
+   and $-|x|^y$ for an odd one, computed for an odd $y$ with the directed rounding
+   directions swapped.
 8. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, n)` with $n = \pm 2^k$.
 9. A result certainly outside the exponent range is decided from certified
    bounds on $\log_2 x$.
