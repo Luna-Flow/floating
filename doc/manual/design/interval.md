@@ -638,7 +638,7 @@ answer for every float $d$. A pole therefore never equals a float, and the trigo
 reverse functions need no open flag.
 
 *Comparison and rounding.* Each end is evaluated as an enclosure at a working precision
-$w$, starting at $p + b + 96$ bits ($b$ the binary exponent of the larger prior end),
+$w$, starting at $p + b + 96$ bits ($b = \max(0, k + 1)$ for the adjusted exponent $k$ of the larger prior end),
 from the certified enclosure of $\pi$ and the certified `asin`, `acos`, `atan` of the
 exact point $s$. A comparison with a prior end $d$ is decided as soon as the enclosure
 excludes $d$, else $w$ is doubled. The value written for a result end is the outward
