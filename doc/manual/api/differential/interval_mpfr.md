@@ -10,8 +10,8 @@ The package is test-only and exports no items, so there is nothing to import fro
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/interval" @interval,
-  "Luna-Flow/floating/binary" @binary,
+  "Luna-Flow/floating/interval",
+  "Luna-Flow/floating/binary",
   "moonbitlang/async",
   "moonbitlang/core/env",
   "moonbitlang/core/string",

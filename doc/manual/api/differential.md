@@ -23,12 +23,11 @@ cannot be imported. It builds for native, JavaScript, Wasm and LLVM; it is
 excluded from Wasm-GC because the mare_mark runner uses `moonbitlang/async`,
 which has no Wasm-GC runtime. It is only the entry point: its `moon.pkg`
 imports the library [`differential/harness`](differential/harness.md), which
-holds the behaviour described below, and the async runtime:
+holds the behaviour described below, and the environment access of the core library:
 
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/differential/harness",
-  "moonbitlang/async",
   "moonbitlang/core/env",
 }
 ```
