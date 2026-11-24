@@ -189,9 +189,9 @@ pub(all) enum OverlapState {
 ```
 
 The constructors are the 16 states of IEEE 1788-2015 Table 10.7 (10.6.4),
-with the standard's names: `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`,
-`meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`,
-`metBy`, `overlappedBy`, `startedBy`, `contains` and `finishedBy`. There is no
+with the standard's names in upper camel case: `BothEmpty`, `FirstEmpty`, `SecondEmpty`, `Before`,
+`Meets`, `Overlaps`, `Starts`, `ContainedBy`, `Finishes`, `Equals`, `After`,
+`MetBy`, `OverlappedBy`, `StartedBy`, `Contains` and `FinishedBy`. There is no
 17th state: the decorated `overlap` has no value for NaI (11.7.2) and returns
 `None`.
 
@@ -1038,7 +1038,7 @@ leaves an ulp of slack. For example `sin_rev([0, 0], x = [RU(pi), 7])` is
 $[RD(2\pi), RU(2\pi)]$ and `sin_rev([0, 0], x = [RU(pi), 6])` is Empty. How the ends are
 decided is on the [design page](../design/interval.md#reverse-sine-cosine-and-tangent).
 The one limit is the forward trigonometric one: an end of the prior whose reduction needs more than
-8,000,000 working bits ($\max(0, k) + p + 96$ for the binary exponent $k$ of the end) is kept as it is (valid, not tight), decided before
+8,000,000 working bits ($\max(0, k) + p + 96$ for the adjusted exponent $k$ of the end) is kept as it is (valid, not tight), decided before
 any work is done, and a prior whose finite ends are all beyond it is returned at once. For
 a prior end of magnitude $2^e$ inside the limit the cost grows with $e$ like the cost of the
 forward functions of the
@@ -1346,7 +1346,7 @@ When the interval reaches the domain boundary ($\underline{x} \le 0$, or
 $\underline{x} \le -1$ for `log1p`) the lower endpoint is $-\infty$; when it
 lies entirely outside the domain ($\overline{x} \le 0$, or
 $\overline{x} < -1$ for `log1p`) the result is Empty. `log10`
-returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The fallback of
+returns exact integers at endpoints $10^k$ that are numbers of the precision ($k \le 22$ at 53 bits). The fallback of
 the total forms is Entire (an endpoint at or below the domain boundary is
 decided before the kernel runs and is not a failure).
 
@@ -1461,7 +1461,7 @@ $k \equiv 0$ and $-1$ at $k \equiv 2$); for `tan` an odd multiple of $\pi/2$
 inside the interval (a pole) makes the result Entire. The set of candidate
 indices $k$ is computed from the enclosure of $\pi$ and can only be too large,
 which widens but never invalidates the result. Unbounded arguments give
-$[-1, 1]$ (Entire for `tan`). When $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the binary exponent of the larger endpoint magnitude, the `try_` forms return a resource-limit error
+$[-1, 1]$ (Entire for `tan`). When $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the adjusted exponent of the larger endpoint magnitude, the `try_` forms return a resource-limit error
 without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the
 same fallback they use when the certification budget (12 work precisions) is
 exhausted.
