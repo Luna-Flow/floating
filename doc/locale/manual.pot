@@ -247,19 +247,19 @@ msgstr ""
 #: manual/api/bench/external.md:83
 #: manual/api/bench/interval.md:43
 #: manual/api/binary.md:2645
-#: manual/api/binary_checked.md:841
+#: manual/api/binary_checked.md:845
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
-#: manual/api/consistency.md:50
+#: manual/api/consistency.md:59
 #: manual/api/decimal.md:2495
 #: manual/api/decimal_checked.md:388
 #: manual/api/decimal_gda.md:1955
 #: manual/api/decimal_gda_checked.md:318
-#: manual/api/def.md:428
+#: manual/api/def.md:435
 #: manual/api/differential.md:96
 #: manual/api/differential/harness.md:39
 #: manual/api/differential/interval_mpfr.md:31
@@ -274,7 +274,7 @@ msgstr ""
 #: manual/api/internal/decimal_kernel.md:91
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/interval.md:2249
-#: manual/api/interval_checked.md:528
+#: manual/api/interval_checked.md:531
 #: manual/api/numeric_expr.md:339
 #: manual/api/semantic.md:377
 msgid "Complete public interface"
@@ -317,7 +317,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:33
 #: manual/design/bench/decimal_gda.md:30
 #: manual/design/bench/interval.md:33
-#: manual/design/binary_checked.md:176
+#: manual/design/binary_checked.md:178
 #: manual/design/interval.md:750
 msgid "Case"
 msgstr ""
@@ -393,7 +393,7 @@ msgstr ""
 #: manual/api/bench/external.md:85
 #: manual/api/bench/interval.md:45
 #: manual/api/cli.md:82
-#: manual/api/consistency.md:52
+#: manual/api/consistency.md:61
 #: manual/api/differential.md:98
 #: manual/api/differential/interval_mpfr.md:33
 #: manual/api/doc_examples.md:48
@@ -456,7 +456,7 @@ msgid "Scale"
 msgstr ""
 
 #: manual/api/bench/external.md:39
-#: manual/api/def.md:187
+#: manual/api/def.md:186
 msgid "Implementation"
 msgstr ""
 
@@ -626,7 +626,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:1886
 #: manual/api/interval.md:807
 #: manual/conformance/binary.md:107
-#: manual/design/binary_checked.md:176
+#: manual/design/binary_checked.md:178
 #: manual/performance_audit.md:122
 msgid "Result"
 msgstr ""
@@ -648,7 +648,7 @@ msgid "contextual"
 msgstr ""
 
 #: manual/api/binary.md:49
-#: manual/design/binary_checked.md:129
+#: manual/design/binary_checked.md:130
 msgid "the given `BinaryContext`"
 msgstr ""
 
@@ -1220,10 +1220,10 @@ msgstr ""
 #: manual/api/binary.md:1237
 #: manual/api/decimal.md:1448
 #: manual/api/decimal.md:1458
+#: manual/numeric_semantics.md:601
 #: manual/numeric_semantics.md:602
 #: manual/numeric_semantics.md:603
 #: manual/numeric_semantics.md:604
-#: manual/numeric_semantics.md:605
 msgid "equal"
 msgstr ""
 
@@ -1450,11 +1450,11 @@ msgid "The two are the same operation: `apply_ctx` with the format's context, th
 msgstr ""
 
 #: manual/api/binary.md:1616
-#: manual/api/binary_checked.md:490
+#: manual/api/binary_checked.md:494
 #: manual/api/decimal.md:1570
 #: manual/api/frontend/mpfr_expr.md:156
 #: manual/api/interval.md:1262
-#: manual/api/interval_checked.md:428
+#: manual/api/interval_checked.md:431
 #: manual/design/decimal_gda.md:510
 msgid "Elementary functions"
 msgstr ""
@@ -1971,17 +1971,17 @@ msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result i
 msgstr ""
 
 #: manual/api/binary.md:2434
-#: manual/api/binary_checked.md:821
+#: manual/api/binary_checked.md:825
 #: manual/api/decimal.md:2297
 #: manual/api/decimal_gda.md:1740
-#: manual/api/def.md:414
+#: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:372
 #: manual/api/internal/conformance.md:296
 #: manual/api/interval.md:2033
-#: manual/api/interval_checked.md:513
+#: manual/api/interval_checked.md:516
 #: manual/api/numeric_expr.md:298
 #: manual/api/semantic.md:340
 msgid "Trait implementations"
@@ -2152,13 +2152,13 @@ msgid "53 (`negative` defaults to `false`)"
 msgstr ""
 
 #: manual/api/binary_checked.md:97
-msgid "They never produce an error: NaN and infinity inputs become successful NaN or infinite values, and a value that does not fit `precision` is rounded to nearest-even as by the delegated constructor. `from_float` widens through a host `Double`, so a signaling `Float` NaN may arrive quiet (see [`Binary::from_float`](binary.md#binaryfrom_double-binaryfrom_float))."
+msgid "A `precision` outside `1..=binary_precision_max` gives a `DomainError`. NaN and infinity inputs become successful NaN or infinite values, and a value that does not fit `precision` is rounded to nearest-even as by the delegated constructor. `from_float` widens through a host `Double`, so a signaling `Float` NaN may arrive quiet (see [`Binary::from_float`](binary.md#binaryfrom_double-binaryfrom_float))."
 msgstr ""
 
 #: manual/api/binary_checked.md:103
 #: manual/api/decimal_checked.md:139
 #: manual/api/decimal_gda_checked.md:104
-#: manual/api/interval_checked.md:166
+#: manual/api/interval_checked.md:168
 msgid "Observation"
 msgstr ""
 
@@ -2171,7 +2171,7 @@ msgid "`is_err(r) == !is_ok(r)`, and `error(r)` is `Some(e)` exactly when `resul
 msgstr ""
 
 #: manual/api/binary_checked.md:119
-#: manual/api/interval_checked.md:182
+#: manual/api/interval_checked.md:184
 msgid "Composition"
 msgstr ""
 
@@ -2192,7 +2192,7 @@ msgid "$\\texttt{bind}(\\texttt{Ok}(x), f) = f(x)$ and $\\texttt{bind}(\\texttt{
 msgstr ""
 
 #: manual/api/binary_checked.md:167
-#: manual/api/interval_checked.md:198
+#: manual/api/interval_checked.md:200
 msgid "Unary value maps"
 msgstr ""
 
@@ -2201,12 +2201,12 @@ msgid "These methods are `map` of the `Binary` method of the same name; they nev
 msgstr ""
 
 #: manual/api/binary_checked.md:182
-msgid "`with_precision(p, mode)` rounds to $\\max(1,p)$ bits in direction `mode` with an unbounded exponent; `ulp` is the unit in the last place at the value's precision (NaN for non-finite values)."
+msgid "`with_precision(p, mode)` rounds to $p$ bits in direction `mode` with an unbounded exponent, and aborts for $p$ outside `1..=binary_precision_max`; `ulp` is the unit in the last place at the value's precision (NaN for non-finite values)."
 msgstr ""
 
 #: manual/api/binary_checked.md:186
 #: manual/api/interval.md:769
-#: manual/api/interval_checked.md:217
+#: manual/api/interval_checked.md:219
 msgid "Arithmetic"
 msgstr ""
 
@@ -2243,308 +2243,308 @@ msgid "These methods apply the `Binary::*_ctx` operation under an explicit `Bina
 msgstr ""
 
 #: manual/api/binary_checked.md:278
-msgid "The result has the context's precision, rounding direction and exponent range, with IEEE overflow, underflow and subnormal handling. The flags of the step are mapped as in `add`, `div` and the elementary methods: invalid operation is a `DomainError` and divideByZero a `DivisionByZero`; overflow, underflow and inexact are dropped. So `div_ctx` by a zero divisor is `DivisionByZero`, and $0/0$, $\\infty/\\infty$, $\\infty - \\infty$ and $0 \\cdot \\infty$ are `DomainError`, exactly as without a context; a quiet NaN operand is still a successful NaN. The full table is in the [design page](../design/binary_checked.md). Use `Binary::div_ctx` and its siblings when the raw default result and the flags matter."
+msgid "The result has the context's precision, rounding direction and exponent range, with IEEE overflow, underflow and subnormal handling. The flags of the step are mapped as in `div` and the elementary methods: invalid operation is a `DomainError`, divideByZero a `DivisionByZero` and `not_computed` a `CertificationFailure`; overflow, underflow and inexact are dropped. So `div_ctx` by a zero divisor is `DivisionByZero`, and $0/0$, $\\infty/\\infty$, $\\infty - \\infty$ and $0 \\cdot \\infty$ are `DomainError`, whereas `sub` and `mul` without a context give a successful NaN for $\\infty - \\infty$ and $0 \\cdot \\infty$ (only `div` reports $0/0$ and $\\infty/\\infty$ as errors without a context); a quiet NaN operand is still a successful NaN. The full table is in the [design page](../design/binary_checked.md). Use `Binary::div_ctx` and its siblings when the raw default result and the flags matter."
 msgstr ""
 
-#: manual/api/binary_checked.md:303
+#: manual/api/binary_checked.md:306
 msgid "Powers and roots"
 msgstr ""
 
-#: manual/api/binary_checked.md:307
+#: manual/api/binary_checked.md:310
 msgid "`sqrt` takes the square root at the operand's precision; `sqrt_ctx` under a context."
 msgstr ""
 
-#: manual/api/binary_checked.md:315
-msgid "`sqrt` is `Binary::sqrt`, which returns a `DomainError` for a negative non-zero argument, including $-\\infty$, and for a signaling NaN; $\\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same under a context: a negative argument is a `DomainError`."
+#: manual/api/binary_checked.md:318
+msgid "`sqrt` is `Binary::sqrt_ctx` under `BinaryContext::new(precision=x.precision())`, with the flags mapped as for `div`: a `DomainError` for a negative non-zero argument, including $-\\infty$, and for a signaling NaN; $\\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same under a context: a negative argument is a `DomainError`."
 msgstr ""
 
-#: manual/api/binary_checked.md:322
+#: manual/api/binary_checked.md:326
 msgid "These methods raise a value to an integer power."
 msgstr ""
 
-#: manual/api/binary_checked.md:330
+#: manual/api/binary_checked.md:334
 msgid "`pow_nat(n)` calls the Luna-Flow/arithmetic trait method `PowNatChecked::pow_nat_checked` with `ArithmeticContext::new(x.precision())`, which `binary` maps to the binary context of that precision (`BinaryContext::new(precision=p)`) with nearest-even rounding. `pown` returns a `DivisionByZero` error for a zero base with a negative exponent, a `DomainError` for a signaling NaN base, zero exponent included (as does `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms map the flags the same way: a `DivisionByZero` error for a zero base with a negative exponent and a `DomainError` for a signaling NaN base."
 msgstr ""
 
-#: manual/api/binary_checked.md:341
+#: manual/api/binary_checked.md:345
 msgid "`rootn(n)` computes the real $n$-th root with `Binary::try_rootn_ctx`."
 msgstr ""
 
-#: manual/api/binary_checked.md:348
-msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`Binary::rootn`](binary.md#binaryrootn-binaryrootn_ctx-binarytry_rootn_ctx)."
+#: manual/api/binary_checked.md:352
+msgid "`rootn` uses `BinaryContext::new(precision=p)` at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`Binary::rootn`](binary.md#binaryrootn-binaryrootn_ctx-binarytry_rootn_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:358
+#: manual/api/binary_checked.md:362
 msgid "`pow(y)` computes $x^{y}$ for a binary exponent with `Binary::try_pow_ctx`."
 msgstr ""
 
-#: manual/api/binary_checked.md:365
-msgid "`pow` uses an unbounded context at the larger operand precision. Errors of the operands come first (base, then exponent); the operation itself reports a `DomainError` for a negative finite base with a non-integer exponent (for example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero` error for a zero base with a finite negative exponent ($(\\pm 0)^{-1.5}$, IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. A base of $-0$, a negative base with an integral exponent of any size and an infinite exponent all give the IEEE 754 values listed in [`Binary::pow`](binary.md#binarypow-binarypow_ctx-binarytry_pow_ctx), for example $(-1)^{\\infty} = 1$ and $(-0)^{0.75} = +0$."
+#: manual/api/binary_checked.md:369
+msgid "`pow` uses `BinaryContext::new(precision=p)` at the larger operand precision. Errors of the operands come first (base, then exponent); the operation itself reports a `DomainError` for a negative finite base with a non-integer exponent (for example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero` error for a zero base with a finite negative exponent ($(\\pm 0)^{-1.5}$, IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. A base of $-0$, a negative base with an integral exponent of any size and an infinite exponent all give the IEEE 754 values listed in [`Binary::pow`](binary.md#binarypow-binarypow_ctx-binarytry_pow_ctx), for example $(-1)^{\\infty} = 1$ and $(-0)^{0.75} = +0$."
 msgstr ""
 
-#: manual/api/binary_checked.md:378
+#: manual/api/binary_checked.md:382
 msgid "$1/\\sqrt{x}$, delegated to [`Binary::try_rsqrt_ctx`](binary.md#binaryrsqrt-binaryrsqrt_ctx-binarytry_rsqrt_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:385
+#: manual/api/binary_checked.md:389
 msgid "Errors: a `DomainError` for a negative operand ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{rSqrt}(\\pm 0)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:390
+#: manual/api/binary_checked.md:394
 msgid "$(1 + x)^n$, delegated to [`Binary::try_compound_ctx`](binary.md#binarycompound-binarycompound_ctx-binarytry_compound_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:397
+#: manual/api/binary_checked.md:401
 msgid "Errors: a `DomainError` below $-1$ ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{compound}(-1, n)$ with $n < 0$."
 msgstr ""
 
-#: manual/api/binary_checked.md:402
+#: manual/api/binary_checked.md:406
 msgid "$x^y$ for $x \\ge 0$, delegated to [`Binary::try_powr_ctx`](binary.md#binarypowr-binarypowr_ctx-binarytry_powr_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:409
+#: manual/api/binary_checked.md:413
 msgid "Errors of the operands come first (base, then exponent). The operation reports a `DomainError` for a negative base, for a signaling NaN, and for the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$ and $(1, \\pm\\infty)$, and a `DivisionByZero` error for $(\\pm 0, y)$ with a finite $y < 0$."
 msgstr ""
 
-#: manual/api/binary_checked.md:416
+#: manual/api/binary_checked.md:420
 msgid "$\\operatorname{asin}(x)/\\pi$, delegated to [`Binary::try_asinpi_ctx`](binary.md#binaryasinpi-binaryasinpi_ctx-binarytry_asinpi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:423
+#: manual/api/binary_checked.md:427
 msgid "Errors: a `DomainError` for $|x| > 1$ ($\\pm\\infty$ included) and for a signaling NaN."
 msgstr ""
 
-#: manual/api/binary_checked.md:427
+#: manual/api/binary_checked.md:431
 msgid "$\\operatorname{acos}(x)/\\pi$, delegated to [`Binary::try_acospi_ctx`](binary.md#binaryacospi-binaryacospi_ctx-binarytry_acospi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:434
+#: manual/api/binary_checked.md:438
 msgid "Errors: as `asinpi`."
 msgstr ""
 
-#: manual/api/binary_checked.md:438
+#: manual/api/binary_checked.md:442
 msgid "$\\operatorname{atan}(x)/\\pi$, delegated to [`Binary::try_atanpi_ctx`](binary.md#binaryatanpi-binaryatanpi_ctx-binarytry_atanpi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:445
+#: manual/api/binary_checked.md:449
 msgid "Errors: a `DomainError` for a signaling NaN only; $\\pm\\infty$ gives $\\pm 1/2$."
 msgstr ""
 
-#: manual/api/binary_checked.md:449
+#: manual/api/binary_checked.md:453
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$ in half-revolutions, delegated to [`Binary::try_atan2pi_ctx`](binary.md#binaryatan2pi-binaryatan2pi_ctx-binarytry_atan2pi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:457
+#: manual/api/binary_checked.md:461
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2pi` uses `BinaryContext::new(precision=p)` at the larger operand precision. Zero and infinite operands give exact constants with no exception; a signaling NaN operand is a `DomainError`."
 msgstr ""
 
-#: manual/api/binary_checked.md:464
+#: manual/api/binary_checked.md:468
 msgid "`hypot(y)` computes $\\sqrt{x^2 + y^2}$ without intermediate overflow, with `Binary::try_hypot_ctx`."
 msgstr ""
 
-#: manual/api/binary_checked.md:472
-msgid "`hypot` uses an unbounded context at the larger operand precision. A signaling NaN operand is a `DomainError`; `hypot` raises no other exception (overflow and underflow are values)."
+#: manual/api/binary_checked.md:476
+msgid "`hypot` uses `BinaryContext::new(precision=p)` at the larger operand precision. A signaling NaN operand is a `DomainError`; `hypot` raises no other exception (overflow and underflow are values)."
 msgstr ""
 
-#: manual/api/binary_checked.md:492
-msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `Binary::try_name_ctx` under `BinaryContext::new(precision=x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `binary`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `binary` cannot certify the rounding within its refinement budget (see [`binary` elementary functions](binary.md#elementary-functions)); the `CertificationFailureDetail` names the function. The messages of the other errors name it too: `name: invalid operation` and `name: division by zero`, so that in a chain of steps the message says which one failed. A quiet NaN operand gives a successful NaN."
+#: manual/api/binary_checked.md:496
+msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `Binary::try_name_ctx` under `BinaryContext::new(precision=x.precision())`, that is nearest-even rounding to the operand's precision with the exponent range `binary_value_e_max` of the extendable format; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `binary`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `binary` cannot certify the rounding within its refinement budget (see [`binary` elementary functions](binary.md#elementary-functions)); the `CertificationFailureDetail` names the function. The messages of the other errors name it too: `name: invalid operation` and `name: division by zero`, so that in a chain of steps the message says which one failed. A quiet NaN operand gives a successful NaN."
 msgstr ""
 
-#: manual/api/binary_checked.md:512
+#: manual/api/binary_checked.md:516
 msgid "$e^x$, delegated to [`Binary::try_exp_ctx`](binary.md#binaryexp-binaryexp_ctx-binarytry_exp_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:521
+#: manual/api/binary_checked.md:525
 msgid "$e^x - 1$, delegated to [`Binary::try_expm1_ctx`](binary.md#binaryexpm1-binaryexpm1_ctx-binarytry_expm1_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:530
+#: manual/api/binary_checked.md:534
 msgid "$2^x - 1$, delegated to [`Binary::try_exp2m1_ctx`](binary.md#binaryexp2m1-binaryexp2m1_ctx-binarytry_exp2m1_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:537
+#: manual/api/binary_checked.md:541
 msgid "Errors: a signaling NaN is a `DomainError`; $-\\infty$ gives $-1$."
 msgstr ""
 
-#: manual/api/binary_checked.md:541
+#: manual/api/binary_checked.md:545
 msgid "$10^x - 1$, delegated to [`Binary::try_exp10m1_ctx`](binary.md#binaryexp10m1-binaryexp10m1_ctx-binarytry_exp10m1_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:548
+#: manual/api/binary_checked.md:552
 msgid "Errors: as `exp2m1`."
 msgstr ""
 
-#: manual/api/binary_checked.md:552
+#: manual/api/binary_checked.md:556
 msgid "$2^x$, delegated to [`Binary::try_exp2_ctx`](binary.md#binaryexp2-binaryexp2_ctx-binarytry_exp2_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:561
+#: manual/api/binary_checked.md:565
 msgid "$10^x$, delegated to [`Binary::try_exp10_ctx`](binary.md#binaryexp10-binaryexp10_ctx-binarytry_exp10_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:570
+#: manual/api/binary_checked.md:574
 msgid "$\\ln x$, delegated to [`Binary::try_ln_ctx`](binary.md#binaryln-binaryln_ctx-binarytry_ln_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:577
+#: manual/api/binary_checked.md:581
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\ln(\\pm 0)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:581
+#: manual/api/binary_checked.md:585
 msgid "$\\ln(1 + x)$, delegated to [`Binary::try_log1p_ctx`](binary.md#binarylog1p-binarylog1p_ctx-binarytry_log1p_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:588
+#: manual/api/binary_checked.md:592
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included; a `DivisionByZero` error for $\\operatorname{log1p}(-1)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:592
+#: manual/api/binary_checked.md:596
 msgid "$\\log_2(1 + x)$, delegated to [`Binary::try_log2p1_ctx`](binary.md#binarylog2p1-binarylog2p1_ctx-binarytry_log2p1_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:599
+#: manual/api/binary_checked.md:603
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included, and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{log2p1}(-1)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:603
+#: manual/api/binary_checked.md:607
 msgid "$\\log_{10}(1 + x)$, delegated to [`Binary::try_log10p1_ctx`](binary.md#binarylog10p1-binarylog10p1_ctx-binarytry_log10p1_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:610
+#: manual/api/binary_checked.md:614
 msgid "Errors: as `log2p1`."
 msgstr ""
 
-#: manual/api/binary_checked.md:614
+#: manual/api/binary_checked.md:618
 msgid "$\\log_2 x$, delegated to [`Binary::try_log2_ctx`](binary.md#binarylog2-binarylog2_ctx-binarytry_log2_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:621
+#: manual/api/binary_checked.md:625
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_2(\\pm 0)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:625
+#: manual/api/binary_checked.md:629
 msgid "$\\log_{10} x$, delegated to [`Binary::try_log10_ctx`](binary.md#binarylog10-binarylog10_ctx-binarytry_log10_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:632
+#: manual/api/binary_checked.md:636
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_{10}(\\pm 0)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:636
+#: manual/api/binary_checked.md:640
 msgid "$\\sin x$, delegated to [`Binary::try_sin_ctx`](binary.md#binarysin-binarysin_ctx-binarytry_sin_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:643
-#: manual/api/binary_checked.md:654
-#: manual/api/binary_checked.md:665
-#: manual/api/binary_checked.md:676
-#: manual/api/binary_checked.md:687
+#: manual/api/binary_checked.md:647
+#: manual/api/binary_checked.md:658
+#: manual/api/binary_checked.md:669
+#: manual/api/binary_checked.md:680
+#: manual/api/binary_checked.md:691
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr ""
 
-#: manual/api/binary_checked.md:647
+#: manual/api/binary_checked.md:651
 msgid "$\\cos x$, delegated to [`Binary::try_cos_ctx`](binary.md#binarycos-binarycos_ctx-binarytry_cos_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:658
+#: manual/api/binary_checked.md:662
 msgid "$\\tan x$, delegated to [`Binary::try_tan_ctx`](binary.md#binarytan-binarytan_ctx-binarytry_tan_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:669
+#: manual/api/binary_checked.md:673
 msgid "$\\sin(\\pi x)$, delegated to [`Binary::try_sinpi_ctx`](binary.md#binarysinpi-binarysinpi_ctx-binarytry_sinpi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:680
+#: manual/api/binary_checked.md:684
 msgid "$\\cos(\\pi x)$, delegated to [`Binary::try_cospi_ctx`](binary.md#binarycospi-binarycospi_ctx-binarytry_cospi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:691
+#: manual/api/binary_checked.md:695
 msgid "$\\tan(\\pi x)$, delegated to [`Binary::try_tanpi_ctx`](binary.md#binarytanpi-binarytanpi_ctx-binarytry_tanpi_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:698
+#: manual/api/binary_checked.md:702
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr ""
 
-#: manual/api/binary_checked.md:702
+#: manual/api/binary_checked.md:706
 msgid "$\\arcsin x$, delegated to [`Binary::try_asin_ctx`](binary.md#binaryasin-binaryasin_ctx-binarytry_asin_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:709
-#: manual/api/binary_checked.md:720
+#: manual/api/binary_checked.md:713
+#: manual/api/binary_checked.md:724
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr ""
 
-#: manual/api/binary_checked.md:713
+#: manual/api/binary_checked.md:717
 msgid "$\\arccos x$, delegated to [`Binary::try_acos_ctx`](binary.md#binaryacos-binaryacos_ctx-binarytry_acos_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:724
+#: manual/api/binary_checked.md:728
 msgid "$\\arctan x$, delegated to [`Binary::try_atan_ctx`](binary.md#binaryatan-binaryatan_ctx-binarytry_atan_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:733
+#: manual/api/binary_checked.md:737
 msgid "$\\sinh x$, delegated to [`Binary::try_sinh_ctx`](binary.md#binarysinh-binarysinh_ctx-binarytry_sinh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:742
+#: manual/api/binary_checked.md:746
 msgid "$\\cosh x$, delegated to [`Binary::try_cosh_ctx`](binary.md#binarycosh-binarycosh_ctx-binarytry_cosh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:751
+#: manual/api/binary_checked.md:755
 msgid "$\\tanh x$, delegated to [`Binary::try_tanh_ctx`](binary.md#binarytanh-binarytanh_ctx-binarytry_tanh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:760
+#: manual/api/binary_checked.md:764
 msgid "$\\operatorname{asinh} x$, delegated to [`Binary::try_asinh_ctx`](binary.md#binaryasinh-binaryasinh_ctx-binarytry_asinh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:769
+#: manual/api/binary_checked.md:773
 msgid "$\\operatorname{acosh} x$, delegated to [`Binary::try_acosh_ctx`](binary.md#binaryacosh-binaryacosh_ctx-binarytry_acosh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:776
+#: manual/api/binary_checked.md:780
 msgid "Errors: a `DomainError` below $1$."
 msgstr ""
 
-#: manual/api/binary_checked.md:780
+#: manual/api/binary_checked.md:784
 msgid "$\\operatorname{atanh} x$, delegated to [`Binary::try_atanh_ctx`](binary.md#binaryatanh-binaryatanh_ctx-binarytry_atanh_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:787
+#: manual/api/binary_checked.md:791
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr ""
 
-#: manual/api/binary_checked.md:791
+#: manual/api/binary_checked.md:795
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`Binary::try_atan2_ctx`](binary.md#binaryatan2-binaryatan2_ctx-binarytry_atan2_ctx)."
 msgstr ""
 
-#: manual/api/binary_checked.md:799
+#: manual/api/binary_checked.md:803
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::new(precision=p)` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr ""
 
-#: manual/api/binary_checked.md:823
+#: manual/api/binary_checked.md:827
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinaryChecked`"
 msgstr ""
 
-#: manual/api/binary_checked.md:825
-#: manual/api/interval_checked.md:517
+#: manual/api/binary_checked.md:829
+#: manual/api/interval_checked.md:520
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr ""
 
-#: manual/api/binary_checked.md:836
+#: manual/api/binary_checked.md:840
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `Binary` values returns an infinity."
 msgstr ""
 
-#: manual/api/binary_checked.md:839
+#: manual/api/binary_checked.md:843
 msgid "Deprecated"
 msgstr ""
 
-#: manual/api/binary_checked.md:843
+#: manual/api/binary_checked.md:847
 #: manual/api/decimal_checked.md:390
 #: manual/api/decimal_gda_checked.md:320
-#: manual/api/def.md:430
-#: manual/api/interval_checked.md:530
+#: manual/api/def.md:437
+#: manual/api/interval_checked.md:533
 #: manual/api/semantic.md:379
 msgid "The following snapshot is the complete generated interface of the package."
 msgstr ""
@@ -2891,41 +2891,73 @@ msgid "consistency API"
 msgstr ""
 
 #: manual/api/consistency.md:5
-msgid "`consistency` is a white-box test package. It exports no MoonBit items; its content is a suite of about 250 deterministic tests (28 in `api_audit_wbtest.mbt` and 228 in `core_wbtest.mbt` on the current branch) that check laws *across* the packages of `floating`: that the binary, decimal, GDA and interval cores, their checked wrappers, `semantic`, and the shared `internal` helpers agree with each other and with exact `BigInt` and rational oracles. This page records the package's role and its (empty) interface; the [tutorial](../tutorial/consistency.md) shows how to run and extend it and the [design page](../design/consistency.md) explains what is checked."
+msgid "`consistency` is a white-box test package. It exports no MoonBit items; its content is a suite of 176 deterministic tests (26 in `api_audit_wbtest.mbt`, 146 in `core_wbtest.mbt` and 4 in other files on the current branch) that check laws *across* the packages of `floating`: that the binary, decimal, GDA and interval cores, their checked wrappers and `semantic` agree with each other and with exact `BigInt` and rational oracles. This page records the package's role and its (empty) interface; the [tutorial](../tutorial/consistency.md) shows how to run and extend it and the [design page](../design/consistency.md) explains what is checked."
 msgstr ""
 
 #: manual/api/consistency.md:17
 msgid "Nothing can be imported from `consistency`. It is a package of the tools module `Luna-Flow/floating-tools`; its `moon.pkg` imports the cores of the library for white-box tests only:"
 msgstr ""
 
-#: manual/api/consistency.md:39
+#: manual/api/consistency.md:40
 msgid "Test files"
 msgstr ""
 
-#: manual/api/consistency.md:41
+#: manual/api/consistency.md:42
 #: manual/tutorial/bench/external.md:46
 msgid "File"
 msgstr ""
 
-#: manual/api/consistency.md:41
+#: manual/api/consistency.md:42
 #: manual/api/differential.md:65
 #: manual/tutorial/bench/external.md:46
 msgid "Content"
 msgstr ""
 
-#: manual/api/consistency.md:43
-msgid "audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `binary`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values"
-msgstr ""
-
 #: manual/api/consistency.md:44
-msgid "cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `binary` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors"
+msgid "audits of public behaviour that spans packages: `def` predicates, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `binary`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values"
 msgstr ""
 
 #: manual/api/consistency.md:45
+msgid "cross-package arithmetic laws: `binary` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors"
+msgstr ""
+
+#: manual/api/consistency.md:46
 msgid "helpers that build `Binary` values from `BigInt` for the tests above"
 msgstr ""
 
 #: manual/api/consistency.md:47
+msgid "`decimal` and `decimal_gda` agree on a zero `quantize` result under `clamp`"
+msgstr ""
+
+#: manual/api/consistency.md:48
+msgid "the table of rows from CPython `decimal` that the test above reads (generated by `tools/generate_clamp_fold_rows.py`)"
+msgstr ""
+
+#: manual/api/consistency.md:49
+msgid "the library constructors against `testdata/context_vectors.txt`; native target only"
+msgstr ""
+
+#: manual/api/consistency.md:50
+msgid "the table of decimal interchange rows (generated by `tools/generate_interchange_rows.py`)"
+msgstr ""
+
+#: manual/api/consistency.md:51
+msgid "the rows of `interchange_rows_wbtest.mbt` run against `Decimal::to_interchange_hex` and `DecimalInterchange::from_decimal`"
+msgstr ""
+
+#: manual/api/consistency.md:52
+msgid "the limits of the library against the numbers written in the oracle programs of the gates"
+msgstr ""
+
+#: manual/api/consistency.md:53
+msgid "`to_binary` of `decimal_gda` and of `decimal` at large decimal exponents, against the table below"
+msgstr ""
+
+#: manual/api/consistency.md:54
+msgid "the table of large-exponent rows (generated by `tools/generate_to_binary_large_rows.py`)"
+msgstr ""
+
+#: manual/api/consistency.md:56
 msgid "All tests are white-box (`*_wbtest.mbt`) and import every core package for `wbtest` only, so the package adds nothing to any build of the library."
 msgstr ""
 
@@ -3520,8 +3552,8 @@ msgstr ""
 #: manual/api/decimal.md:889
 #: manual/api/decimal_gda.md:214
 #: manual/api/decimal_gda.md:1578
-#: manual/numeric_semantics.md:552
-#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:551
+#: manual/numeric_semantics.md:599
 msgid "NaN"
 msgstr ""
 
@@ -6435,7 +6467,7 @@ msgid "These methods return the wrapped outcome and its components."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:118
-msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated flags and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().flags()`, the sticky union of everything raised since the context's flags was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the flags also gets `invalid_operation`."
+msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated flags and its traps. `raised()` holds the signals of the latest operation only. `flags()` is `context().flags()`, the sticky union of everything raised since the context's flags were last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the flags also get `invalid_operation`."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:128
@@ -6489,7 +6521,7 @@ msgid "`fma` applies the same rules to its two operands. The GDA operation compu
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:222
-msgid "The operations that return a number are all here: `apply`, `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `fma`, `remainder`, `remainder_near`, `power`, `sqrt`, `exp`, `ln`, `log10`, `quantize`, `rescale`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`, `logical_invert`, `next_minus`, `next_plus`, `next_toward`, `compare`, `compare_signal`, `max`, `min`, `max_magnitude` and `min_magnitude`. The functions of `decimal_gda` that return a string, a boolean or an integer (`class_name`, `is_normal`, `is_subnormal`, `compare_total`, `compare_total_magnitude`) and the `try_` forms are called on `value()` and `context()`."
+msgid "The operations that return a number are all here: `apply`, `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `fma`, `remainder`, `remainder_near`, `power`, `sqrt`, `exp`, `ln`, `log10`, `quantize`, `rescale`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`, `logical_invert`, `next_minus`, `next_plus`, `next_toward`, `compare`, `compare_signal`, `max`, `min`, `max_magnitude` and `min_magnitude`. The functions of `decimal_gda` that return a `GdaOutcome[String]`, `GdaOutcome[Bool]` or `GdaOutcome[Int32]` (`class_name`, `is_normal`, `is_subnormal`, `compare_total`, `compare_total_magnitude`) and the `try_` forms are called on `value()` and `context()`."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:259
@@ -6537,146 +6569,146 @@ msgid "`Sign` is the three-way sign classification returned by `Floating::signum
 msgstr ""
 
 #: manual/api/def.md:45
-msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the argument of constructors such as `Binary::inf`."
+msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package."
 msgstr ""
 
-#: manual/api/def.md:64
+#: manual/api/def.md:63
 msgid "`IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike `FpClass` it separates the two NaNs, the sign of every class and the normal, subnormal and zero cases."
 msgstr ""
 
-#: manual/api/def.md:83
+#: manual/api/def.md:82
 msgid "`Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal depend on the format's $e_{\\min}$, so both take the context that fixes it."
 msgstr ""
 
-#: manual/api/def.md:98
+#: manual/api/def.md:97
 msgid "`PartialOrder` is the result of an IEEE 754 comparison: exactly one of the four mutually exclusive relations *less*, *equal*, *greater* and *unordered* holds between two floating-point data."
 msgstr ""
 
-#: manual/api/def.md:111
+#: manual/api/def.md:110
 msgid "`Unordered` holds exactly when at least one operand is NaN; $-0$ and $+0$ compare `Equal`. The type is returned by `Binary::compare_quiet` and `Binary::compare_signaling` in [`binary`](binary.md) (each paired with the flags of the comparison). It is a value type only; `def` performs no comparison itself. Why four results and not a `Compare` instance is derived in the [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation)."
 msgstr ""
 
-#: manual/api/def.md:136
+#: manual/api/def.md:135
 msgid "The `Floating` trait"
 msgstr ""
 
-#: manual/api/def.md:140
+#: manual/api/def.md:139
 msgid "`Floating` is the observation and re-precision interface shared by every representation in this repository."
 msgstr ""
 
-#: manual/api/def.md:153
+#: manual/api/def.md:152
 msgid "`Floating` is implemented by the scalar types of this library only: `@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a type outside this module is not supported and is not covered by the compatibility promise, because methods may be added to the trait in a minor release. It is declared `pub(open)` only because the implementations are in other packages of this module (the [design page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy are listed in the [design page](../design/def.md#the-floating-laws)."
 msgstr ""
 
-#: manual/api/def.md:170
+#: manual/api/def.md:169
 msgid "`classify` returns the class of a value: `Finite`, `Infinity` or `NaN`."
 msgstr ""
 
-#: manual/api/def.md:176
+#: manual/api/def.md:175
 msgid "For the scalar types this is the IEEE class with signalling and quiet NaNs merged. Total; never aborts."
 msgstr ""
 
-#: manual/api/def.md:181
+#: manual/api/def.md:180
 msgid "`signum` returns the sign classification of a value."
 msgstr ""
 
-#: manual/api/def.md:189
+#: manual/api/def.md:188
 msgid "`Binary`, both `Decimal`s"
 msgstr ""
 
-#: manual/api/def.md:189
+#: manual/api/def.md:188
 msgid "value $< 0$, including $-\\infty$"
 msgstr ""
 
-#: manual/api/def.md:189
+#: manual/api/def.md:188
 msgid "$\\pm 0$ and every NaN"
 msgstr ""
 
-#: manual/api/def.md:189
+#: manual/api/def.md:188
 msgid "value $> 0$, including $+\\infty$"
 msgstr ""
 
-#: manual/api/def.md:193
+#: manual/api/def.md:192
 msgid "`precision` returns the working precision stored on the value."
 msgstr ""
 
-#: manual/api/def.md:199
-msgid "It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every constructor clamps the stored precision to at least $1$, so the result is always at least $1$."
+#: manual/api/def.md:198
+msgid "It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every constructor requires a precision of at least $1$ and aborts otherwise, so the result is always at least $1$."
 msgstr ""
 
-#: manual/api/def.md:205
-msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = \\max(1, p)$."
+#: manual/api/def.md:204
+msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = p$; `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds `binary_precision_max` or `decimal_precision_max`, and `@decimal_gda.Decimal` uses $q = \\max(1, p)$."
 msgstr ""
 
-#: manual/api/def.md:212
-msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `Binary` keeps its implementation range: a result whose exponent leaves $[1 - e_{\\max}, e_{\\max}]$ with $e_{\\max} = 2^{30} - 1$ (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
+#: manual/api/def.md:213
+msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). Each type keeps the range of its stored values. For `Binary` a result whose exponent leaves $[1 - e_{\\max}, e_{\\max}]$ with $e_{\\max} = 2^{30} - 1$ (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. The decimal types behave alike at their stored ranges: the exponent of the least digit is at least `decimal_value_e_tiny` or `gda_value_e_tiny` ($-2147483645$) and the adjusted exponent is at most `decimal_value_e_max` or `gda_value_e_max` ($2147483646$). Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
 msgstr ""
 
-#: manual/api/def.md:227
+#: manual/api/def.md:231
 msgid "`normalized` returns the canonical representative of a value."
 msgstr ""
 
-#: manual/api/def.md:233
+#: manual/api/def.md:237
 msgid "For `Binary` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr ""
 
-#: manual/api/def.md:288
+#: manual/api/def.md:292
 msgid "Generic predicates"
 msgstr ""
 
-#: manual/api/def.md:292
+#: manual/api/def.md:296
 msgid "These functions test the class of any `Floating` value."
 msgstr ""
 
-#: manual/api/def.md:310
+#: manual/api/def.md:314
 msgid "Exactly one of the first three is true for every value. `is_zero` is true for both signed zeros and false for NaN."
 msgstr ""
 
-#: manual/api/def.md:324
+#: manual/api/def.md:328
 msgid "Re-exported types"
 msgstr ""
 
-#: manual/api/def.md:326
+#: manual/api/def.md:330
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr ""
 
-#: manual/api/def.md:333
+#: manual/api/def.md:337
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/api/def.md:340
+#: manual/api/def.md:344
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr ""
 
-#: manual/api/def.md:345
+#: manual/api/def.md:349
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr ""
 
-#: manual/api/def.md:354
+#: manual/api/def.md:358
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr ""
 
-#: manual/api/def.md:361
+#: manual/api/def.md:365
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr ""
 
-#: manual/api/def.md:371
+#: manual/api/def.md:375
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr ""
 
-#: manual/api/def.md:377
+#: manual/api/def.md:381
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr ""
 
-#: manual/api/def.md:386
-msgid "`RoundingMode` lists the five rounding directions accepted by the inherent `with_precision` methods and by the concrete constructors (not by the trait method `Floating::with_precision`): `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
+#: manual/api/def.md:390
+msgid "`RoundingMode` lists the five rounding directions that an `ArithmeticContext` carries: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`. The inherent `with_precision` methods and the concrete constructors take the rounding type of their own package (`BinaryRoundingMode`, `DecimalRoundingMode`, `GdaRoundingMode`) and the trait method `Floating::with_precision` takes none; `AwayFromZero` has no `BinaryRoundingMode` or `DecimalRoundingMode` counterpart."
 msgstr ""
 
-#: manual/api/def.md:397
+#: manual/api/def.md:404
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr ""
 
-#: manual/api/def.md:418
+#: manual/api/def.md:425
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr ""
 
@@ -7190,7 +7222,7 @@ msgid "Expected"
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:115
-#: manual/numeric_semantics.md:594
+#: manual/numeric_semantics.md:593
 msgid "Comparison"
 msgstr ""
 
@@ -9566,7 +9598,7 @@ msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
 msgstr ""
 
 #: manual/api/interval_checked.md:28
-msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`, `@binary.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_midpoint_radius_string` of a bounded interval is `midpoint +/- radius` in binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
+msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`, `@binary.` and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_midpoint_radius_string` of a bounded interval is `midpoint +/- radius` in binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
 msgstr ""
 
 #: manual/api/interval_checked.md:48
@@ -9582,170 +9614,170 @@ msgid "These functions wrap an existing interval, error or `Result` unchanged."
 msgstr ""
 
 #: manual/api/interval_checked.md:73
-msgid "These constructors enclose an integer through `Interval::from_int` / `Interval::from_coefficient`; they never fail."
+msgid "These constructors enclose an integer through `Interval::from_int` / `Interval::from_coefficient`; they fail only with a `DomainError` for a `precision` outside 1 to `binary_precision_max`."
 msgstr ""
 
-#: manual/api/interval_checked.md:81
+#: manual/api/interval_checked.md:82
 msgid "The default precision is **53 bits**. The integer is converted exactly and then rounded outward to the precision, so the result always contains it: a singleton when the integer fits in the precision, otherwise the two-point interval of its neighbours (for example `from_int(100001, precision=8)`, a 17-bit odd integer, gives an interval of width 2^9). Pass a precision large enough for the integer to get a point."
 msgstr ""
 
-#: manual/api/interval_checked.md:90
+#: manual/api/interval_checked.md:91
 msgid "These constructors enclose a finite `Double` or `Float`."
 msgstr ""
 
-#: manual/api/interval_checked.md:97
+#: manual/api/interval_checked.md:98
 msgid "The source is converted exactly (at least 53 or 24 bits) and then rounded outward to `precision` (defaults 53 and 24), so the result always contains the source value. A NaN or infinite source gives a `DomainError` (`interval double source must be finite`, `interval float source must be finite`)."
 msgstr ""
 
-#: manual/api/interval_checked.md:104
+#: manual/api/interval_checked.md:105
 msgid "`exact(x, precision~)` encloses a finite `Binary`."
 msgstr ""
 
-#: manual/api/interval_checked.md:110
+#: manual/api/interval_checked.md:111
 msgid "`precision` defaults to `x.precision()`. The bounds are `x` rounded down and up to that precision, so the result contains `x`. A non-finite `x` gives a `DomainError` (`interval exact source must be finite`)."
 msgstr ""
 
-#: manual/api/interval_checked.md:116
+#: manual/api/interval_checked.md:117
 msgid "`from_bounds(lo, hi, precision~)` builds the interval $[\\textit{lo}, \\textit{hi}]$."
 msgstr ""
 
-#: manual/api/interval_checked.md:123
+#: manual/api/interval_checked.md:124
 msgid "`precision` defaults to the larger bound precision; `lo` is rounded down and `hi` up. It returns a `DomainError` when a bound is NaN, when `lo` is $+\\infty$, when `hi` is $-\\infty$ (IEEE 1788 intervals are subsets of $\\mathbb{R}$, so $[+\\infty, +\\infty]$ is not an interval), or when `lo > hi`. Infinite bounds on the open side are allowed: $[-\\infty, 0]$ is valid."
 msgstr ""
 
-#: manual/api/interval_checked.md:132
-msgid "`entire(precision~)` is the entire real line $[-\\infty, +\\infty]$ (default precision 53); it never fails."
+#: manual/api/interval_checked.md:133
+msgid "`entire(precision~)` is the entire real line $[-\\infty, +\\infty]$ (default precision 53); it fails only with a `DomainError` for a `precision` outside 1 to `binary_precision_max`."
 msgstr ""
 
-#: manual/api/interval_checked.md:170
+#: manual/api/interval_checked.md:172
 msgid "These methods expose the wrapped `Result`, test its branch, or return the error as an option."
 msgstr ""
 
-#: manual/api/interval_checked.md:180
+#: manual/api/interval_checked.md:182
 msgid "`error()` is `Some(e)` exactly when `result()` is `Err(e)`."
 msgstr ""
 
-#: manual/api/interval_checked.md:186
+#: manual/api/interval_checked.md:188
 msgid "`map(f)` applies an infallible interval function to a success; `bind(f)` applies one that may fail. Errors pass through unchanged."
 msgstr ""
 
-#: manual/api/interval_checked.md:194
+#: manual/api/interval_checked.md:196
 msgid "They satisfy the monad and functor laws proved in the [`binary_checked` design](../design/binary_checked.md#the-monad-laws); the proof does not depend on the value type."
 msgstr ""
 
-#: manual/api/interval_checked.md:202
+#: manual/api/interval_checked.md:204
 msgid "These methods are `map` of the `Interval` method of the same name."
 msgstr ""
 
-#: manual/api/interval_checked.md:211
+#: manual/api/interval_checked.md:213
 msgid "`neg` and `abs` are the exact interval images $\\{-t\\}$ and $\\{|t|\\}$; `with_precision` rounds the endpoints outward to the new precision, which is the tightest enclosure of the input. Neither it nor `normalized` changes an interval that is already representable at the target precision (see [`Interval::with_precision`](interval.md#intervalwith_precision))."
 msgstr ""
 
-#: manual/api/interval_checked.md:221
+#: manual/api/interval_checked.md:223
 msgid "These methods combine two wrappers with the `Interval` operators."
 msgstr ""
 
-#: manual/api/interval_checked.md:230
-msgid "The left operand's error comes first, then the right one's. Interval arithmetic itself never fails: the result encloses $\\{\\, s \\circ t : s \\in X, t \\in Y \\,\\}$. Division by an interval that is exactly $\\{0\\}$ gives the empty set, and division by an interval that contains zero in its interior gives the whole line."
+#: manual/api/interval_checked.md:232
+msgid "The left operand's error comes first, then the right one's. Interval arithmetic itself never fails: the result encloses $\\{\\, s \\circ t : s \\in X, t \\in Y \\,\\}$. Division by an interval that is exactly $\\{0\\}$ gives the empty set, and division by an interval that contains zero in its interior gives the whole line, except that $\\{0\\}$ and the empty set divided by it give $\\{0\\}$ and the empty set."
 msgstr ""
 
-#: manual/api/interval_checked.md:238
+#: manual/api/interval_checked.md:241
 msgid "These methods are `map` of the `Interval` method of the same name (IEEE 1788-2015 Table 9.1): the directed square root, the square of one point (`sqr`, so the square of $[-1, 1]$ is $[0, 1]$) and the reciprocal. None of them can fail."
 msgstr ""
 
-#: manual/api/interval_checked.md:251
+#: manual/api/interval_checked.md:254
 msgid "These methods are `map` of the `Interval` integer functions of Table 9.1 (see the [`interval` page](interval.md#intervalsign-intervalceil-intervalfloor-intervaltrunc-intervalround_ties_to_even-intervalround_ties_to_away)). They are exact and cannot fail."
 msgstr ""
 
-#: manual/api/interval_checked.md:264
+#: manual/api/interval_checked.md:267
 msgid "`IntervalChecked::sqr_rev`, `IntervalChecked::abs_rev`, `IntervalChecked::pown_rev` and `IntervalChecked::cosh_rev`"
 msgstr ""
 
-#: manual/api/interval_checked.md:266
+#: manual/api/interval_checked.md:269
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsqr_rev-intervalabs_rev-intervalpown_rev-and-intervalcosh_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/interval_checked.md:278
+#: manual/api/interval_checked.md:281
 msgid "`IntervalChecked::sin_rev`, `IntervalChecked::cos_rev` and `IntervalChecked::tan_rev`"
 msgstr ""
 
-#: manual/api/interval_checked.md:280
+#: manual/api/interval_checked.md:283
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsin_rev-intervalcos_rev-and-intervaltan_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/interval_checked.md:293
+#: manual/api/interval_checked.md:296
 msgid "`Interval::pow_rev1` on the interval parts (see the [`interval` page](interval.md#intervalpow_rev1)). It cannot fail itself; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/interval_checked.md:302
+#: manual/api/interval_checked.md:305
 msgid "`Interval::pow_rev2` on the interval parts (see the [`interval` page](interval.md#intervalpow_rev2)). It cannot fail itself; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/interval_checked.md:309
+#: manual/api/interval_checked.md:312
 msgid "`IntervalChecked::atan2_rev1` and `IntervalChecked::atan2_rev2`"
 msgstr ""
 
-#: manual/api/interval_checked.md:311
+#: manual/api/interval_checked.md:314
 msgid "`Interval::atan2_rev1` and `Interval::atan2_rev2` on the interval parts (see the [`interval` page](interval.md#intervalatan2_rev1-and-intervalatan2_rev2)). They cannot fail themselves; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/interval_checked.md:321
+#: manual/api/interval_checked.md:324
 msgid "`Interval::from_string` (see the [`interval` page](interval.md#intervalfrom_string-and-decoratedintervalfrom_string)) as a result: the failed call is the failure of the result."
 msgstr ""
 
-#: manual/api/interval_checked.md:327
+#: manual/api/interval_checked.md:330
 msgid "`IntervalChecked::mul_rev` and `IntervalChecked::mul_rev_to_pair`"
 msgstr ""
 
-#: manual/api/interval_checked.md:329
+#: manual/api/interval_checked.md:332
 msgid "These methods apply `Interval::mul_rev` and `Interval::mul_rev_to_pair` to the interval parts (see the [`interval` page](interval.md#intervalmul_rev_to_pair-and-intervalmul_rev)). They cannot fail themselves; an earlier failure in an input is passed on, and for `mul_rev_to_pair` both outputs carry it. `x` is optional."
 msgstr ""
 
-#: manual/api/interval_checked.md:341
+#: manual/api/interval_checked.md:344
 msgid "These methods combine two or three wrappers with the `Interval` method of the same name (Table 9.1 `min`, `max`, `fma`; 9.2 and 9.3 the cancellative and set operations). The first error comes first, in argument order, as for `add`."
 msgstr ""
 
-#: manual/api/interval_checked.md:357
+#: manual/api/interval_checked.md:360
 msgid "`pown` raises an interval to an integer power through the Luna-Flow/arithmetic trait `PowIntChecked`."
 msgstr ""
 
-#: manual/api/interval_checked.md:364
+#: manual/api/interval_checked.md:367
 msgid "The context is `ArithmeticContext::new(x.precision())`; `interval` uses only its precision, and re-rounds the base and the result outward with `with_precision`, which adds nothing when they are already representable. `pown` encloses $\\{t^{n}\\}$ with `Interval::pown`, which treats the base as one point (so `pown(2)` of $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base with a negative exponent gives the empty set. An empty base stays empty for every exponent, including `pown(0)`. There is no `pow_nat` here: a non-negative exponent is a `pown`, and the trait form `Interval::pow_nat_checked` takes a `UInt`."
 msgstr ""
 
-#: manual/api/interval_checked.md:376
+#: manual/api/interval_checked.md:379
 msgid "`rootn(n)` encloses the real $n$-th root with `Interval::try_rootn`."
 msgstr ""
 
-#: manual/api/interval_checked.md:382
+#: manual/api/interval_checked.md:385
 msgid "Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the interval (set semantics): the root of $[-1, 1]$ is $[0, 1]$."
 msgstr ""
 
-#: manual/api/interval_checked.md:387
+#: manual/api/interval_checked.md:390
 msgid "These binary functions enclose $x^{y}$, $\\sqrt{x^2+y^2}$ and the angle of $(\\text{abscissa}, \\text{self})$."
 msgstr ""
 
-#: manual/api/interval_checked.md:396
+#: manual/api/interval_checked.md:399
 msgid "They call `try_pow`, `try_hypot` and `try_atan2`. Operand errors are taken left first; the operation can fail with a `CertificationFailure`. Points outside the real domain are dropped from the result set, so $(-2)^{0.5}$ is the empty interval."
 msgstr ""
 
-#: manual/api/interval_checked.md:432
+#: manual/api/interval_checked.md:435
 msgid "These methods enclose the image of the interval under the exponentials and logarithms."
 msgstr ""
 
-#: manual/api/interval_checked.md:448
+#: manual/api/interval_checked.md:451
 msgid "These methods enclose the image of the interval under the trigonometric functions and their inverses."
 msgstr ""
 
-#: manual/api/interval_checked.md:465
+#: manual/api/interval_checked.md:468
 msgid "These methods enclose the image of the interval under the hyperbolic functions and their inverses."
 msgstr ""
 
-#: manual/api/interval_checked.md:477
-msgid "Each method is `bind` of `Interval::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
+#: manual/api/interval_checked.md:480
+msgid "Each method is `bind` of `Interval::try_<name>` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
 msgstr ""
 
-#: manual/api/interval_checked.md:515
+#: manual/api/interval_checked.md:518
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalChecked`"
 msgstr ""
 
@@ -9967,7 +9999,7 @@ msgid "`from_binary(x)` returns the exact meaning of a `Binary`."
 msgstr ""
 
 #: manual/api/semantic.md:147
-msgid "A finite $x = (-1)^{s} c\\, 2^{e}$ maps to `Rational` of `from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.sign())`; a NaN maps to `NaN`. Precision is dropped. Never aborts, but the result is exact: a `Binary` exponent can reach about $\\pm 2^{30}$, and the projection then builds a numerator or denominator of about $|e|$ bits (over 100 MB at the extremes)."
+msgid "A finite $x = (-1)^{s} c\\, 2^{e}$ maps to `Rational` of `from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.signum())`; a NaN maps to `NaN`. Precision is dropped. Never aborts, but the result is exact: a `Binary` exponent can reach about $\\pm 2^{30}$, and the projection then builds a numerator or denominator of about $|e|$ bits (over 100 MB at the extremes)."
 msgstr ""
 
 #: manual/api/semantic.md:156
@@ -10561,7 +10593,7 @@ msgstr ""
 #: manual/conformance/binary.md:71
 #: manual/conformance/decimal.md:43
 #: manual/conformance/interval.md:11
-#: manual/design/binary_checked.md:176
+#: manual/design/binary_checked.md:178
 #: manual/verification.md:910
 msgid "Clause"
 msgstr ""
@@ -10582,7 +10614,7 @@ msgstr ""
 #: manual/index.md:98
 #: manual/index.md:112
 #: manual/index.md:120
-#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:599
 msgid "API"
 msgstr ""
 
@@ -11229,11 +11261,11 @@ msgid "Mandatory operation vectors use exact integer/rational construction and t
 msgstr ""
 
 #: manual/conformance/decimal.md:15
-msgid "The committed elementary layer contains 3,060 certified rows. MPFR 4.2.2 produces directed 768-bit dyadic endpoints; exact integer conversion rounds both endpoints into decimal32/64/128 under each of the five `DecimalRoundingMode` values, and the generator rejects a row unless result and flags are unique. Native, Wasm, Wasm-GC, and JavaScript each pass 573/573 public API tests after these rows are materialized (one test per MPFR interval, holding its 15 rows: a Wasm test module cannot register one test per row). The full gate, `just gate decimal 3`, is 64,327/64,323: the 23,031 target-independent checks, the 573 public API tests on each of the four targets, and the 9,691 rows of the `pi_inverse` table and the 60 rows of the `huge_trig` table on each of the four targets. RDFP and Arb remain optional secondary routes and are not counted when unavailable."
+msgid "The committed elementary layer contains 3,060 certified rows. MPFR 4.2.2 produces directed 768-bit dyadic endpoints; exact integer conversion rounds both endpoints into decimal32/64/128 under each of the five `DecimalRoundingMode` values, and the generator rejects a row unless result and flags are unique. Native, Wasm, Wasm-GC, and JavaScript each pass 573/573 public API tests after these rows are materialized (one test per MPFR interval, holding its 15 rows: a Wasm test module cannot register one test per row). The full gate, `just gate decimal 3`, is 64,327/64,327: the 23,031 target-independent checks, the 573 public API tests on each of the four targets, and the 9,691 rows of the `pi_inverse` table and the 60 rows of the `huge_trig` table on each of the four targets. RDFP and Arb remain optional secondary routes and are not counted when unavailable."
 msgstr ""
 
 #: manual/conformance/decimal.md:28
-msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all five `DecimalRoundingMode` values, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight rounding algorithms (the five directions of `DecimalRoundingMode` and three working ones), and the exact `Inexact` flag. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess and overflow flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
 msgstr ""
 
 #: manual/conformance/decimal.md:41
@@ -11281,7 +11313,7 @@ msgid "IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest
 msgstr ""
 
 #: manual/conformance/decimal.md:51
-msgid "`remainder_ctx` (IEEE remainder; `remainder` is the truncating GDA form)"
+msgid "`remainder_ctx` (IEEE remainder; the truncating form is the GDA `remainder`)"
 msgstr ""
 
 #: manual/conformance/decimal.md:51
@@ -11338,7 +11370,7 @@ msgid "§5.6, §5.11 comparison, quiet and signaling"
 msgstr ""
 
 #: manual/conformance/decimal.md:62
-msgid "`compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered` and the fifteen of `compare_predicates.mbt` (22 in all, Tables 5.1 and 5.2)"
+msgid "`compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered` and the fifteen of `compare_predicates.mbt` (24 in all: the 22 predicates of Tables 5.1 and 5.2 and the two three-way forms `compare_quiet` and `compare_signaling`)"
 msgstr ""
 
 #: manual/conformance/decimal.md:62
@@ -11358,7 +11390,7 @@ msgid "`Decimal::total_order`, `Decimal::total_order_mag` (and `Decimal::total_o
 msgstr ""
 
 #: manual/conformance/decimal.md:64
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (9,408 ordered pairs for each of the two predicates), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:65
@@ -11402,7 +11434,7 @@ msgid "conforming (before rounding is the only rule for decimal formats; the aft
 msgstr ""
 
 #: manual/conformance/decimal.md:70
-msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `library/src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `library/src/decimal/elementary_pm1_wbtest.mbt` and the generated `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `library/src/decimal/elementary_rcp_wbtest.mbt` and the generated `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `library/src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `library/src/decimal/exp_range_wbtest.mbt` and the generated `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
+msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 60 rows and 11 operations × 120 rows = 3,060); `library/src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding algorithms (the five directions and three working ones), tininess before rounding): `library/src/decimal/elementary_pm1_wbtest.mbt` and the generated `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `library/src/decimal/elementary_rcp_wbtest.mbt` and the generated `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding algorithms on both sides, tiny and extreme operands, underflow): `library/src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all five rounding directions): `library/src/decimal/exp_range_wbtest.mbt` and the generated `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
 msgstr ""
 
 #: manual/conformance/decimal.md:71
@@ -11410,7 +11442,7 @@ msgid "§9.2.2 preferred exponents of pow and pown"
 msgstr ""
 
 #: manual/conformance/decimal.md:71
-msgid "`library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `library/src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `library/src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
+msgid "`library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `library/src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (an integer power is folded down only when the exponent had to be altered); `library/src/decimal/power_ten_clamp_issue287_wbtest.mbt` (a power of ten above the top exponent is folded down); `library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (an inexact result is delivered with precision digits, not folded down)"
 msgstr ""
 
 #: manual/conformance/decimal.md:74
@@ -11446,19 +11478,19 @@ msgstr ""
 #: manual/design/bench/external.md:317
 #: manual/design/bench/interval.md:67
 #: manual/design/binary.md:2186
-#: manual/design/binary_checked.md:331
+#: manual/design/binary_checked.md:333
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
-#: manual/design/consistency.md:70
+#: manual/design/consistency.md:68
 #: manual/design/decimal.md:1486
 #: manual/design/decimal_checked.md:287
 #: manual/design/decimal_gda.md:1168
 #: manual/design/decimal_gda_checked.md:262
-#: manual/design/def.md:314
+#: manual/design/def.md:318
 #: manual/design/differential.md:174
 #: manual/design/differential/harness.md:41
 #: manual/design/differential/interval_mpfr.md:50
@@ -11471,7 +11503,7 @@ msgstr ""
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/interval.md:1172
-#: manual/design/interval_checked.md:171
+#: manual/design/interval_checked.md:166
 #: manual/design/numeric_expr.md:194
 #: manual/design/semantic.md:229
 msgid "Boundaries"
@@ -11490,7 +11522,7 @@ msgid "The matrix passes on the current branch, which has no [known deviations](
 msgstr ""
 
 #: manual/conformance/decimal.md:95
-#: manual/conformance/decimal_gda.md:188
+#: manual/conformance/decimal_gda.md:190
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -11847,7 +11879,7 @@ msgid "random, 1 to 120 digits, mixed signs, cancellations and exponent gaps"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:107
-msgid "nine precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
+msgid "ten precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:108
@@ -11891,7 +11923,7 @@ msgid "Deviations of the corpus"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:124
-msgid "The pinned corpora are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are three kinds of row. The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
+msgid "The pinned corpora are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are three kinds of row. The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 30 and 31). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:149
@@ -11931,14 +11963,14 @@ msgid "Isolation and native benchmark"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:179
-msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
+msgid "The dependency scan `tools/check_imports.py` requires `decimal_gda` to contain no import of the IEEE `decimal`, and `decimal` none of `decimal_gda`; `decimal_gda_checked` and `frontend/gda_expr` import `decimal_gda` and no IEEE `decimal`, which no scan enforces. IEEE tests and its independent conformance corpus are run separately."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:183
+#: manual/conformance/decimal_gda.md:185
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:197
+#: manual/conformance/decimal_gda.md:199
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr ""
 
@@ -12718,7 +12750,7 @@ msgstr ""
 #: manual/design/cli/itl_expr_cli.md:10
 #: manual/design/cli/mpfr_expr_cli.md:10
 #: manual/design/cli/testfloat_expr_cli.md:9
-#: manual/design/consistency.md:14
+#: manual/design/consistency.md:13
 #: manual/design/decimal.md:42
 #: manual/design/decimal_checked.md:15
 #: manual/design/decimal_gda.md:29
@@ -12862,7 +12894,7 @@ msgstr ""
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
 #: manual/design/cli/testfloat_expr_cli.md:18
-#: manual/design/consistency.md:36
+#: manual/design/consistency.md:33
 #: manual/design/decimal.md:264
 #: manual/design/decimal_checked.md:96
 #: manual/design/decimal_gda.md:425
@@ -12940,14 +12972,14 @@ msgstr ""
 #: manual/design/bench/external.md:297
 #: manual/design/bench/interval.md:51
 #: manual/design/binary.md:2113
-#: manual/design/binary_checked.md:199
+#: manual/design/binary_checked.md:201
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
-#: manual/design/consistency.md:56
+#: manual/design/consistency.md:53
 #: manual/design/decimal.md:1418
 #: manual/design/decimal_checked.md:201
 #: manual/design/decimal_gda.md:1115
@@ -12995,19 +13027,19 @@ msgstr ""
 #: manual/design/bench/external.md:307
 #: manual/design/bench/interval.md:60
 #: manual/design/binary.md:2161
-#: manual/design/binary_checked.md:318
+#: manual/design/binary_checked.md:320
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
-#: manual/design/consistency.md:63
+#: manual/design/consistency.md:61
 #: manual/design/decimal.md:1465
 #: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:1151
 #: manual/design/decimal_gda_checked.md:253
-#: manual/design/def.md:302
+#: manual/design/def.md:306
 #: manual/design/differential.md:162
 #: manual/design/differential/harness.md:33
 #: manual/design/differential/interval_mpfr.md:44
@@ -13020,7 +13052,7 @@ msgstr ""
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/interval.md:1153
-#: manual/design/interval_checked.md:158
+#: manual/design/interval_checked.md:153
 #: manual/design/numeric_expr.md:179
 #: manual/design/semantic.md:216
 msgid "Alternatives rejected"
@@ -14965,7 +14997,7 @@ msgid "$M$ is the *exception* (or *Either*) monad with the error type fixed.[^mo
 msgstr ""
 
 #: manual/design/binary_checked.md:35
-msgid "for $f : V \\to M V$. A function $f : V \\to M V$ is a *Kleisli arrow*: an operation that may fail. Every checked operation of `binary` (`Binary::sqrt`, `div_checked`, `try_ln_ctx`, …) and every checked trait method of Luna-Flow/arithmetic (`SqrtChecked::sqrt_checked`, `DivChecked::div_checked`, `PowIntChecked::pow_int_checked`, …) is such an arrow once its non-value arguments are fixed. The wrapper turns them into methods that take *and* return $M V$, so arrows can be chained."
+msgid "for $f : V \\to M V$. A function $f : V \\to M V$ is a *Kleisli arrow*: an operation that may fail. Every checked operation of `binary` (`Binary::sqrt_checked`, `div_checked`, `try_ln_ctx`, …) and every checked trait method of Luna-Flow/arithmetic (`SqrtChecked::sqrt_checked`, `DivChecked::div_checked`, `PowIntChecked::pow_int_checked`, …) is such an arrow once its non-value arguments are fixed. The wrapper turns them into methods that take *and* return $M V$, so arrows can be chained."
 msgstr ""
 
 #: manual/design/binary_checked.md:43
@@ -15041,199 +15073,203 @@ msgid "Context used"
 msgstr ""
 
 #: manual/design/binary_checked.md:124
-msgid "as the `Binary` operator: the larger operand precision, nearest-even"
+msgid "as the `Binary` operator: the larger operand precision, nearest-even (`min_num` and `max_num` return an operand unchanged, with no rounding)"
 msgstr ""
 
 #: manual/design/binary_checked.md:125
+msgid "`div_ctx` under `BinaryContext::new(precision=max(p_x, p_y))`, flags mapped as above"
+msgstr ""
+
+#: manual/design/binary_checked.md:126
 msgid "unary elementary functions, `rootn`"
 msgstr ""
 
-#: manual/design/binary_checked.md:127
-msgid "the `Binary` method at the operand's precision"
-msgstr ""
-
 #: manual/design/binary_checked.md:128
-msgid "`ArithmeticContext::new(x.precision())`, passed to `PowNatChecked`"
+msgid "`sqrt_ctx`, `pown_ctx` under `BinaryContext::new(precision=x.precision())`"
 msgstr ""
 
 #: manual/design/binary_checked.md:129
+msgid "`ArithmeticContext::new(x.precision())`, passed to `PowNatChecked`"
+msgstr ""
+
+#: manual/design/binary_checked.md:130
 msgid "every `*_ctx` method"
 msgstr ""
 
-#: manual/design/binary_checked.md:131
+#: manual/design/binary_checked.md:132
 msgid "`BinaryContext::new(precision=p)` means precision $p$, round to nearest-even, and the implementation range of `binary` (the extendable format of IEEE 754-2019 3.7), so these operations overflow or underflow only near $2^{\\pm 2^{30}}$. For `pow_nat` the wrapper goes through the Luna-Flow/arithmetic trait, and `binary` maps the `ArithmeticContext` to a `BinaryContext` with `BinaryContext::from_arithmetic_context`: the precision is copied, the `RoundingMode` is mapped to the binary rounding attribute (`AwayFromZero` is an error), and `e_max` (or `e_min`, giving `e_max = 1 - e_min`) becomes the exponent range, which must be of the IEEE 754-2019 3.3 shape `e_min = 1 - e_max`; both absent gives the precision-alone format. A conversion that fails is an `Err`. The `clamp` field of `ArithmeticContext` has no binary meaning and is not used."
 msgstr ""
 
-#: manual/design/binary_checked.md:143
+#: manual/design/binary_checked.md:144
 msgid "One flag rule for every `_ctx` method"
 msgstr ""
 
-#: manual/design/binary_checked.md:145
+#: manual/design/binary_checked.md:146
 msgid "`Binary::*_ctx` operations return $(v, \\phi) \\in V \\times F$ where $F$ is the set of `BinaryFlags`. Every `_ctx` method of the wrapper, the six arithmetic ones (`add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pown_ctx`) and the elementary ones alike, is the plain method with an explicit context and the same map $\\kappa$:"
 msgstr ""
 
-#: manual/design/binary_checked.md:163
+#: manual/design/binary_checked.md:165
 msgid "Overflow, underflow and inexact are dropped: their default results are the values the wrapper returns. The map is one private function (`bin_result_checked_flags`); the wrapper does not recompute the exceptional cases, it reads the flags that `Binary::*_ctx` returns. Keeping the flags would make the wrapper a combination of the exception monad with the writer monad on $F$; the decimal pipeline makes that choice because IEEE decimal arithmetic is usually audited by its flags (see the [`decimal_checked` design](decimal_checked.md)). Use the unwrapped `Binary::*_ctx` when the flags, or the raw default result of an exceptional case, matter."
 msgstr ""
 
-#: manual/design/binary_checked.md:174
+#: manual/design/binary_checked.md:176
 msgid "The exceptional cases of the arithmetic methods (IEEE 754-2019):"
 msgstr ""
 
-#: manual/design/binary_checked.md:178
-msgid "a signaling NaN operand, any method"
+#: manual/design/binary_checked.md:180
+msgid "a signaling NaN operand, any `_ctx` method, `div`, `sqrt` or `pown`"
 msgstr ""
 
-#: manual/design/binary_checked.md:178
+#: manual/design/binary_checked.md:180
 msgid "6.2, 7.2 a)"
 msgstr ""
 
-#: manual/design/binary_checked.md:179
+#: manual/design/binary_checked.md:181
 msgid "a quiet NaN operand, no signaling NaN"
 msgstr ""
 
-#: manual/design/binary_checked.md:179
+#: manual/design/binary_checked.md:181
 msgid "6.2: signals nothing"
 msgstr ""
 
-#: manual/design/binary_checked.md:180
+#: manual/design/binary_checked.md:182
 msgid "`mul_ctx(0, inf)`, `mul_ctx(inf, 0)`, signs arbitrary"
 msgstr ""
 
-#: manual/design/binary_checked.md:180
+#: manual/design/binary_checked.md:182
 msgid "7.2 b)"
 msgstr ""
 
-#: manual/design/binary_checked.md:181
-#: manual/design/binary_checked.md:182
+#: manual/design/binary_checked.md:183
+#: manual/design/binary_checked.md:184
 msgid "7.2 d)"
 msgstr ""
 
-#: manual/design/binary_checked.md:183
+#: manual/design/binary_checked.md:185
 msgid "`div_ctx(0, 0)`, `div_ctx(inf, inf)`, signs arbitrary"
 msgstr ""
 
-#: manual/design/binary_checked.md:183
+#: manual/design/binary_checked.md:185
 msgid "7.2 e)"
 msgstr ""
 
-#: manual/design/binary_checked.md:184
+#: manual/design/binary_checked.md:186
 msgid "`div_ctx(x, +-0)`, `x` finite and nonzero"
 msgstr ""
 
-#: manual/design/binary_checked.md:185
+#: manual/design/binary_checked.md:187
 msgid "`sqrt_ctx(x)`, `x < 0` including $-\\infty$"
 msgstr ""
 
-#: manual/design/binary_checked.md:185
+#: manual/design/binary_checked.md:187
 msgid "7.2 g)"
 msgstr ""
 
-#: manual/design/binary_checked.md:188
+#: manual/design/binary_checked.md:190
 msgid "`pown_ctx(x, 0)` for `x` not a signaling NaN"
 msgstr ""
 
-#: manual/design/binary_checked.md:189
+#: manual/design/binary_checked.md:191
 msgid "7.3 needs finite operands"
 msgstr ""
 
-#: manual/design/binary_checked.md:190
+#: manual/design/binary_checked.md:192
 msgid "overflow, underflow, inexact"
 msgstr ""
 
-#: manual/design/binary_checked.md:192
-msgid "The elementary functions, `pow`, `rootn`, `hypot` and `atan2` follow the same map. A pole such as $\\ln(\\pm 0)$, $\\operatorname{atanh}(\\pm 1)$ or $\\operatorname{pow}(\\pm 0, y)$ with $y < 0$ (§9.2, Table 9.1) is a `DivisionByZero` error and a signaling NaN operand a `DomainError`, in the plain and in the `_ctx` form alike. Before this rule the seven arithmetic `_ctx` methods dropped every flag ([#371](https://github.com/Luna-Flow/floating/issues/371))."
-msgstr ""
-
-#: manual/design/binary_checked.md:201
-msgid "The monad laws"
+#: manual/design/binary_checked.md:194
+msgid "The elementary functions, `pow`, `rootn`, `hypot` and `atan2` follow the same map. A pole such as $\\ln(\\pm 0)$, $\\operatorname{atanh}(\\pm 1)$ or $\\operatorname{pow}(\\pm 0, y)$ with a finite $y < 0$ (§9.2, Table 9.1) is a `DivisionByZero` error and a signaling NaN operand a `DomainError`, in the plain and in the `_ctx` form alike. Before this rule the seven arithmetic `_ctx` methods dropped every flag ([#371](https://github.com/Luna-Flow/floating/issues/371))."
 msgstr ""
 
 #: manual/design/binary_checked.md:203
+msgid "The monad laws"
+msgstr ""
+
+#: manual/design/binary_checked.md:205
 msgid "For all $x \\in V$, $m \\in M V$ and Kleisli arrows $f, g$:"
 msgstr ""
 
-#: manual/design/binary_checked.md:213
+#: manual/design/binary_checked.md:215
 msgid "*Proof.* Left identity is the first defining equation of bind. For right identity, case $m = \\mathrm{Ok}(x)$: $\\mathrm{Ok}(x) \\mathbin{>\\!\\!>\\!\\!=} \\eta = \\eta(x) = \\mathrm{Ok}(x)$; case $m = \\mathrm{Err}(e)$: both sides are $\\mathrm{Err}(e)$. For associativity, case $m = \\mathrm{Err}(e)$: the left side is $\\mathrm{Err}(e) \\mathbin{>\\!\\!>\\!\\!=} g = \\mathrm{Err}(e)$ and the right side is $\\mathrm{Err}(e)$. Case $m = \\mathrm{Ok}(x)$: both sides reduce to $f(x) \\mathbin{>\\!\\!>\\!\\!=} g$. $\\square$"
 msgstr ""
 
-#: manual/design/binary_checked.md:221
+#: manual/design/binary_checked.md:223
 msgid "In code these read `BinaryChecked::ok(x).bind(f) ≡ f(x)`, `m.bind(BinaryChecked::ok) ≡ m` and `m.bind(f).bind(g) ≡ m.bind(x => f(x).bind(g))`, where $\\equiv$ compares `result()`. Associativity is what makes a pipeline independent of how it is split into helper functions: a helper that chains two checked steps can be inlined or extracted without changing the result."
 msgstr ""
 
-#: manual/design/binary_checked.md:228
+#: manual/design/binary_checked.md:230
 msgid "The functor laws follow from $\\texttt{map}(m, g) = m \\mathbin{>\\!\\!>\\!\\!=} (\\eta \\circ g)$:"
 msgstr ""
 
-#: manual/design/binary_checked.md:240
+#: manual/design/binary_checked.md:242
 msgid "So `normalized`, `neg`, `abs`, `ulp` and `with_precision`, which are all `map`s, can be fused or reordered exactly as the underlying `Binary` functions can."
 msgstr ""
 
-#: manual/design/binary_checked.md:244
+#: manual/design/binary_checked.md:246
 msgid "The laws can be checked on concrete arrows; here $f$ is the checked square root and $g$ the checked logarithm:"
 msgstr ""
 
-#: manual/design/binary_checked.md:273
+#: manual/design/binary_checked.md:275
 msgid "The first-error theorem"
 msgstr ""
 
-#: manual/design/binary_checked.md:275
+#: manual/design/binary_checked.md:277
 msgid "Consider an expression tree whose leaves are `BinaryChecked` values and whose inner nodes are wrapper operations. MoonBit evaluates arguments eagerly, so every node is evaluated; the short circuit is inside a node: the `binary` operation of a node runs only when all its children are successes, and otherwise the node just passes an error on. (A leaf that is itself an expensive MoonBit expression, such as `f(b)` in `a + f(b)`, is still computed; only `bind` defers work.) Say that a node *originates* an error when all its children are successes and the operation itself fails (a leaf originates its error if it is an `Err`)."
 msgstr ""
 
-#: manual/design/binary_checked.md:285
+#: manual/design/binary_checked.md:287
 msgid "**Theorem.** If any node originates an error, the expression evaluates to the error originated by the first originating node in post-order (children left to right, then the node). Otherwise it evaluates to the success obtained by applying the `binary` operations to the leaf values."
 msgstr ""
 
-#: manual/design/binary_checked.md:290
+#: manual/design/binary_checked.md:292
 msgid "*Proof* by induction on the tree. A leaf is immediate. For a node $n = \\operatorname{lift}_{\\oplus}(t_1, t_2)$, post-order lists the nodes of $t_1$, then those of $t_2$, then $n$. If $t_1$ contains an originating node, by induction $t_1$ evaluates to the error $e$ of the first one, which also comes first in the post-order of $n$, and $\\operatorname{lift}_{\\oplus}$ returns the left error $e$. Otherwise $t_1$ evaluates to $\\mathrm{Ok}(x)$; if $t_2$ contains an originating node, $t_2$ evaluates to the error of the first one, and by the second case of $\\operatorname{lift}_{\\oplus}$ it is returned, again matching post-order. Otherwise both are successes, $n$ originates an error exactly when $x \\oplus y$ fails, and that is the result. Unary nodes are binds and follow from the same case analysis; `clamp` is the three-child version. $\\square$"
 msgstr ""
 
-#: manual/design/binary_checked.md:303
+#: manual/design/binary_checked.md:305
 msgid "For example, in `left + one / zero` the leaf `left` comes first in post-order, so its error is reported, and in `one / zero + left` the division is first. The lifted operation is therefore *not* commutative on errors even when $\\oplus$ is commutative on values: on successes $\\operatorname{lift}_{+}(\\mathrm{Ok}\\,x, \\mathrm{Ok}\\,y) = \\mathrm{Ok}(x+y) = \\mathrm{Ok}(y+x)$ because rounded binary addition is commutative, but with two errors the reported one depends on the order."
 msgstr ""
 
-#: manual/design/binary_checked.md:311
+#: manual/design/binary_checked.md:313
 msgid "No other invariant"
 msgstr ""
 
-#: manual/design/binary_checked.md:313
+#: manual/design/binary_checked.md:315
 msgid "The wrapper holds one `Result` and adds no state, so every invariant of `Binary` (normalized coefficient, precision at least one, correctly rounded operations) carries over unchanged to the success branch. Each wrapper step costs $O(1)$ on top of the delegated operation."
 msgstr ""
 
-#: manual/design/binary_checked.md:320
+#: manual/design/binary_checked.md:322
 msgid "**Storing `BinaryFlags` in the wrapper.** See the decision above; flags belong to the `(value, flags)` APIs of `binary`."
 msgstr ""
 
-#: manual/design/binary_checked.md:322
+#: manual/design/binary_checked.md:324
 msgid "**Turning NaN results into errors.** IEEE defines NaN as a value, and `binary` already decides which cases are errors in its checked APIs; a second policy here would make the wrapper disagree with the checked trait implementations of the same type."
 msgstr ""
 
-#: manual/design/binary_checked.md:326
+#: manual/design/binary_checked.md:328
 msgid "**Error accumulation.** Needs a combining operation on `ArithmeticError`, which Luna-Flow/arithmetic does not define."
 msgstr ""
 
-#: manual/design/binary_checked.md:328
+#: manual/design/binary_checked.md:330
 msgid "**Implicit recovery.** There is no method that turns an error back into a value; recovery is the caller's decision after `result()`."
 msgstr ""
 
-#: manual/design/binary_checked.md:333
+#: manual/design/binary_checked.md:335
 msgid "No arithmetic of its own: every numeric result comes from `binary`."
 msgstr ""
 
-#: manual/design/binary_checked.md:334
+#: manual/design/binary_checked.md:336
 msgid "No IEEE flags, no context state, no interchange encoding and no decimal conversion."
 msgstr ""
 
-#: manual/design/binary_checked.md:336
+#: manual/design/binary_checked.md:338
 msgid "No error recovery or error accumulation; only the first error is kept."
 msgstr ""
 
-#: manual/design/binary_checked.md:337
+#: manual/design/binary_checked.md:339
 msgid "No `Eq`, `Show` or `Compare` on the wrapper; compare through `result()`."
 msgstr ""
 
-#: manual/design/binary_checked.md:338
+#: manual/design/binary_checked.md:340
 msgid "The operation set is the one in the generated interface; operations of `binary` without a wrapper method are reached through `map` or `bind`."
 msgstr ""
 
@@ -15646,74 +15682,74 @@ msgid "consistency design"
 msgstr ""
 
 #: manual/design/consistency.md:5
-msgid "`floating` has four numeric cores with overlapping claims: a binary value converted to a decimal and back must denote the same rational number; the checked wrappers must give the same values as the cores; an interval must enclose the exact result of the scalar operation; the `internal` helpers must agree with exact `BigInt` arithmetic. A package's own tests see one package; cross-package tests placed there would add test-only dependencies between the cores. `consistency` is the one place where these cross-package laws are written down and executed."
+msgid "`floating` has four numeric cores with overlapping claims: a binary value converted to a decimal and back must denote the same rational number; the checked wrappers must give the same values as the cores; an interval must enclose the exact result of the scalar operation. A package's own tests see one package; cross-package tests placed there would add test-only dependencies between the cores. `consistency` is the one place where these cross-package laws are written down and executed."
 msgstr ""
 
-#: manual/design/consistency.md:16
+#: manual/design/consistency.md:15
 msgid "Every finite value of every core denotes a rational number. Let $\\llbracket\\cdot\\rrbracket$ map a value to $\\mathbb{Q}$ (implemented by `semantic`, with `ExactRational` as canonical form). The laws the suite checks have three shapes:"
 msgstr ""
 
-#: manual/design/consistency.md:21
+#: manual/design/consistency.md:20
 msgid "**Agreement:** for values $x$ of package $A$ and $y$ of package $B$ that represent the same input, $\\llbracket f_A(x) \\rrbracket = \\llbracket f_B(y) \\rrbracket$ when both operations are exact, and the results are the two packages' roundings of the same real otherwise."
 msgstr ""
 
-#: manual/design/consistency.md:25
-msgid "**Exact oracles:** a helper or operation equals a `BigInt` or rational computation, for example `round_positive_div` against $\\lfloor n/d \\rfloor$ plus the rounding table, or `digits10` against powers of ten."
+#: manual/design/consistency.md:24
+msgid "**Exact oracles:** an operation equals a `BigInt` or rational computation."
 msgstr ""
 
-#: manual/design/consistency.md:29
+#: manual/design/consistency.md:26
 msgid "**Enclosure:** for an interval operation $F$ and a point operation $f$, $x \\in X \\Rightarrow f(x) \\in F(X)$, and enclosure relations behave as partial orders rather than total orders."
 msgstr ""
 
-#: manual/design/consistency.md:33
+#: manual/design/consistency.md:30
 msgid "Representation laws are checked as well: GDA results keep the right cohort, signed zero and NaN payload; interchange encodings round-trip bit for bit."
 msgstr ""
 
-#: manual/design/consistency.md:38
+#: manual/design/consistency.md:35
 msgid "White-box tests only"
 msgstr ""
 
-#: manual/design/consistency.md:40
-msgid "The package has no source files besides tests, and imports the cores only `for \"wbtest\"`. It therefore never becomes part of a library build and has no API to maintain, while still being able to use internal helpers."
+#: manual/design/consistency.md:37
+msgid "The package has no source files besides tests, and imports the cores only `for \"wbtest\"`. It therefore never becomes part of a library build and has no API to maintain."
 msgstr ""
 
-#: manual/design/consistency.md:44
+#: manual/design/consistency.md:41
 msgid "Fixed witnesses from official corpora"
 msgstr ""
 
-#: manual/design/consistency.md:46
+#: manual/design/consistency.md:43
 msgid "Many decimal tests use rows of the official decTest suite as named witnesses. They pin the exact cases that once disagreed between packages, in-process and without the corpus download."
 msgstr ""
 
-#: manual/design/consistency.md:50
+#: manual/design/consistency.md:47
 msgid "Oracles over expectations"
 msgstr ""
 
-#: manual/design/consistency.md:52
+#: manual/design/consistency.md:49
 msgid "Where possible a test computes the expected result independently (with `BigInt` or `semantic`) instead of hard-coding output strings, so a law stays meaningful when formatting changes."
 msgstr ""
 
-#: manual/design/consistency.md:58
+#: manual/design/consistency.md:55
 msgid "A passing run shows that each stated law holds on its witnesses; it is finite evidence, not a proof for all inputs."
 msgstr ""
 
-#: manual/design/consistency.md:60
-msgid "Tests are deterministic and target-independent, so the same run on native, Wasm and JavaScript checks the same claims."
+#: manual/design/consistency.md:57
+msgid "Tests are deterministic and, except `context_vectors_wbtest.mbt` (native only, because it reads `testdata/context_vectors.txt`), target-independent, so the same run on native, Wasm and JavaScript checks the same claims."
 msgstr ""
 
-#: manual/design/consistency.md:65
+#: manual/design/consistency.md:63
 msgid "**Putting cross-package tests into each package.** It would create test-only dependency cycles between the cores."
 msgstr ""
 
-#: manual/design/consistency.md:67
+#: manual/design/consistency.md:65
 msgid "**Property-based random testing only.** Random inputs rarely hit cohort boundaries and ties; fixed witnesses do."
 msgstr ""
 
-#: manual/design/consistency.md:72
+#: manual/design/consistency.md:70
 msgid "No public API and no runtime code."
 msgstr ""
 
-#: manual/design/consistency.md:73
+#: manual/design/consistency.md:71
 msgid "No external corpora (that is the role of the conformance frontends) and no performance measurements (the `bench` packages)."
 msgstr ""
 
@@ -16412,7 +16448,7 @@ msgstr ""
 #: manual/design/decimal.md:1315
 #: manual/design/decimal_checked.md:271
 #: manual/design/decimal_gda_checked.md:248
-#: manual/design/def.md:295
+#: manual/design/def.md:299
 msgid "Cost"
 msgstr ""
 
@@ -17887,7 +17923,7 @@ msgid "**Problem.** A pipeline must remember the value, the context to use next,
 msgstr ""
 
 #: manual/design/decimal_gda_checked.md:121
-msgid "**Choice.** `GdaDecimalChecked` stores one `GdaOutcome` and nothing else, so it is the outcome type of `decimal_gda` closed under its operations. Every observation (`value`, `context`, `raised`, `status`, `error`, `result`, `is_ok`, `is_err`) is a projection of the outcome, and `from_outcome` / `outcome` convert in both directions without loss."
+msgid "**Choice.** `GdaDecimalChecked` stores one `GdaOutcome` and nothing else, so it is the outcome type of `decimal_gda` closed under its operations. Every observation (`value`, `context`, `raised`, `flags`, `error`, `result`, `is_ok`, `is_err`) is a projection of the outcome, and `from_outcome` / `outcome` convert in both directions without loss."
 msgstr ""
 
 #: manual/design/decimal_gda_checked.md:127
@@ -18085,7 +18121,7 @@ msgid "**Evidence.** Declaring `pub trait Floating` in `def` makes every impleme
 msgstr ""
 
 #: manual/design/def.md:105
-msgid "The four implementations are in `binary`, `decimal`, `decimal_gda` and `interval`, which are other packages of the module, and `def` cannot import them (they import `def`)."
+msgid "The three implementations are in `binary`, `decimal` and `decimal_gda`, which are other packages of the module, and `def` cannot import them (they import `def`)."
 msgstr ""
 
 #: manual/design/def.md:109
@@ -18111,7 +18147,7 @@ msgstr ""
 #: manual/design/def.md:132
 msgid ""
 "Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `signum` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
-"e \\{0\\}$. The names of those predicates are the scalar ones, so the interval meaning could not be told from the call site. `Interval` therefore does not implement `Floating`; its package spells the questions the way IEEE 1788-2015 does (`is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3, `contains` for a point) and re-rounds with `with_precision`, which always rounds outward."
+"e \\{0\\}$. The names of those predicates are the scalar ones, so the interval meaning could not be told from the call site. `Interval` therefore does not implement `Floating`; its package spells the questions the way IEEE 1788-2015 does (`is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3, `is_member` for a point) and re-rounds with `with_precision`, which always rounds outward."
 msgstr ""
 
 #: manual/design/def.md:145
@@ -18151,92 +18187,92 @@ msgid "The `Floating` laws"
 msgstr ""
 
 #: manual/design/def.md:191
-msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception of `Binary` stated below (F5). The laws are the contract between the three implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
+msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = p$ for $p \\ge 1$ (for $p < 1$, `Binary` and `@decimal.Decimal` abort and `@decimal_gda.Decimal` uses $q = 1$). The three scalar implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception stated below (F5). The laws are the contract between the three implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
 msgstr ""
 
-#: manual/design/def.md:209
-msgid "**The exponent range of `Binary`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `Binary` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_value_e_max`, and $-E$ is `binary_value_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
+#: manual/design/def.md:210
+msgid "**The exponent range of `Binary`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types keep a stored range of their own (the exponent of the least digit at least $-2147483645$, the adjusted exponent at most $2147483646$: `decimal_value_e_tiny`, `decimal_value_e_max`, `gda_value_e_tiny`, `gda_value_e_max`), and a result beyond it overflows or underflows by the direction as for `Binary`, so for them (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. `Binary` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
 msgstr ""
 
-#: manual/design/def.md:224
+#: manual/design/def.md:228
 msgid "For non-finite scalars, `with_precision` keeps the class and the sign and only changes the stored precision, so (F4) still holds. For scalars \"the side of $0$\" is `Zero` for $[\\![x]\\!] = 0$."
 msgstr ""
 
-#: manual/design/def.md:227
+#: manual/design/def.md:231
 msgid "Consequences of (F5)"
 msgstr ""
 
-#: manual/design/def.md:229
+#: manual/design/def.md:233
 msgid "Rounding is the identity on its target set: if $t \\in \\mathbb{F}_{\\beta,q}$ then $\\circ_{m,q}(t) = t$ for every direction, because $t$ is its own neighbour. Hence"
 msgstr ""
 
-#: manual/design/def.md:237
+#: manual/design/def.md:241
 msgid "and in particular raising the precision never changes a value, since $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$ for $p \\le p'$."
 msgstr ""
 
-#: manual/design/def.md:240
+#: manual/design/def.md:244
 msgid "Lowering the precision in two steps is *not* the same as lowering it once in general. For the directed modes it is. Take $q \\le p$ and $m =$ `TowardZero`, write $\\circ_k$ for $\\circ_{m,k}$, and let $a = \\circ_q(t)$, the element of $\\mathbb{F}_{\\beta,q}$ with the sign of $t$ and the largest magnitude not exceeding $|t|$. Then"
 msgstr ""
 
-#: manual/design/def.md:256
+#: manual/design/def.md:260
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
 "abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `Binary::with_precision`, which takes one.) Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
 msgstr ""
 
-#: manual/design/def.md:284
+#: manual/design/def.md:288
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 msgstr ""
 
-#: manual/design/def.md:288
+#: manual/design/def.md:292
 msgid "The predicates"
 msgstr ""
 
-#: manual/design/def.md:290
+#: manual/design/def.md:294
 msgid "The four predicates are projections of `classify` and `signum`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `signum` on a NaN-class value, which keeps it total on NaN."
 msgstr ""
 
-#: manual/design/def.md:297
+#: manual/design/def.md:301
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
 msgstr ""
 
-#: manual/design/def.md:304
+#: manual/design/def.md:308
 msgid "**A `Real` super-trait with arithmetic.** It would claim laws (associativity, total order) that rounded and interval arithmetic do not satisfy, and would hide the difference between exact, rounded and enclosing operations."
 msgstr ""
 
-#: manual/design/def.md:307
+#: manual/design/def.md:311
 msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unordered*; see the derivation above."
 msgstr ""
 
-#: manual/design/def.md:309
+#: manual/design/def.md:313
 msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `signum` depend on the representation rather than the value."
 msgstr ""
 
-#: manual/design/def.md:311
+#: manual/design/def.md:315
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/design/def.md:316
+#: manual/design/def.md:320
 msgid "No arithmetic, parsing, formatting or comparison is implemented here; `def` only names results (`Sign`, `PartialOrder`) and states contracts."
 msgstr ""
 
-#: manual/design/def.md:318
+#: manual/design/def.md:322
 msgid "`Floating` does not imply a field, a total order, an IEEE format, exact arithmetic or any error behaviour. Generic code must request the additional capability traits it uses."
 msgstr ""
 
-#: manual/design/def.md:321
-msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the `Binary` implementation range applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
+#: manual/design/def.md:325
+msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the stored range of the type applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/design/def.md:325
+#: manual/design/def.md:329
 msgid "`normalized` keeps the representation-independent value (F6)."
 msgstr ""
 
-#: manual/design/def.md:326
+#: manual/design/def.md:330
 msgid "`Sign` does not expose the sign bit of zeros or NaNs."
 msgstr ""
 
-#: manual/design/def.md:327
+#: manual/design/def.md:331
 msgid "The laws are documented and tested by the implementations; the trait does not enforce them for downstream implementations."
 msgstr ""
 
@@ -20984,7 +21020,7 @@ msgid "`interval_checked` lets an interval computation be written as one chain o
 msgstr ""
 
 #: manual/design/interval_checked.md:15
-#: manual/numeric_semantics.md:429
+#: manual/numeric_semantics.md:428
 msgid "Enclosures"
 msgstr ""
 
@@ -21082,7 +21118,7 @@ msgid "Arithmetic operators cannot fail"
 msgstr ""
 
 #: manual/design/interval_checked.md:92
-msgid "`add`, `sub`, `mul` and `div` lift the `Interval` operators with `map`, so they never introduce an error: the four set operations always have an enclosure in $\\mathbb{IR}$ (for division, $X / Y$ is defined as the hull of $\\{ s/t : s \\in X, t \\in Y \\setminus \\{0\\} \\}$, empty when $Y = \\{0\\}$). The only errors in an arithmetic expression are those of its leaves."
+msgid "`add`, `sub`, `mul` and `div` lift the `Interval` operators with `interval_result_lift2`, so they never introduce an error: the four set operations always have an enclosure in $\\mathbb{IR}$ (for division, $X / Y$ is defined as the hull of $\\{ s/t : s \\in X, t \\in Y \\setminus \\{0\\} \\}$, empty when $Y = \\{0\\}$). The only errors in an arithmetic expression are those of its leaves."
 msgstr ""
 
 #: manual/design/interval_checked.md:98
@@ -21090,7 +21126,7 @@ msgid "Powers go through the arithmetic traits"
 msgstr ""
 
 #: manual/design/interval_checked.md:100
-msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
+msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound and adds nothing when they are already representable. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` of a non-empty interval is $\\{1\\}$, and of an empty interval is empty."
 msgstr ""
 
 #: manual/design/interval_checked.md:119
@@ -21110,54 +21146,54 @@ msgid "The constructors use the defaults of `interval` (53 bits for integers and
 msgstr ""
 
 #: manual/design/interval_checked.md:140
-msgid "**Soundness.** If every leaf of an expression is a success enclosing the intended real input, and the expression evaluates to $\\mathrm{Ok}(Y)$, then $Y$ encloses the range of the real formula over the inputs. This is the composition argument above together with the fact that the wrapper applies exactly the `interval` operations on successes; it inherits the one inclusion exception listed under [Known limitations](interval.md#known-limitations): `with_precision` (also used by `normalized` and `pown`) can lose the smaller endpoint of an interval whose endpoints are more than about $2^{16}$ binary orders of magnitude apart when the new precision exceeds about 65536 bits."
+msgid "**Soundness.** If every leaf of an expression is a success enclosing the intended real input, and the expression evaluates to $\\mathrm{Ok}(Y)$, then $Y$ encloses the range of the real formula over the inputs. This is the composition argument above together with the fact that the wrapper applies exactly the `interval` operations on successes."
 msgstr ""
 
-#: manual/design/interval_checked.md:150
+#: manual/design/interval_checked.md:145
 msgid "**Error determinism.** If the expression evaluates to $\\mathrm{Err}(e)$, then $e$ is the error of the first originating node in post-order."
 msgstr ""
 
-#: manual/design/interval_checked.md:152
+#: manual/design/interval_checked.md:147
 msgid "**No hidden recovery.** No method turns an error into a value, and `map` never turns a value into an error ($\\texttt{map} = \\mathbin{>\\!\\!>\\!\\!=} \\circ\\, (\\eta \\circ -)$)."
 msgstr ""
 
-#: manual/design/interval_checked.md:155
+#: manual/design/interval_checked.md:150
 msgid "**Cost.** Each wrapper step adds $O(1)$ work to the interval operation it delegates to."
 msgstr ""
 
-#: manual/design/interval_checked.md:160
+#: manual/design/interval_checked.md:155
 msgid "**Empty results as errors.** Breaks set-based semantics and would report an error for $\\ln([-1, 1])$ where a sound enclosure exists."
 msgstr ""
 
-#: manual/design/interval_checked.md:162
+#: manual/design/interval_checked.md:157
 msgid "**Carrying decorations in the wrapper.** Would duplicate the decorated API of `interval` with a second propagation rule."
 msgstr ""
 
-#: manual/design/interval_checked.md:164
+#: manual/design/interval_checked.md:159
 msgid "**Context variants (`exp_ctx`, …).** Enclosures are outward-rounded at the interval's precision; changing precision is done explicitly with `with_precision`, which always rounds outward (but may widen by one ulp per side)."
 msgstr ""
 
-#: manual/design/interval_checked.md:168
+#: manual/design/interval_checked.md:163
 msgid "**Accumulating errors.** As for the binary wrapper, there is no combining operation on `ArithmeticError`."
 msgstr ""
 
-#: manual/design/interval_checked.md:173
+#: manual/design/interval_checked.md:168
 msgid "No interval algorithm of its own; every enclosure comes from `interval`."
 msgstr ""
 
-#: manual/design/interval_checked.md:174
+#: manual/design/interval_checked.md:169
 msgid "No decorations, `IntervalFlags`, interval contexts or interchange formats."
 msgstr ""
 
-#: manual/design/interval_checked.md:175
+#: manual/design/interval_checked.md:170
 msgid "No error recovery or accumulation; only the first error is kept."
 msgstr ""
 
-#: manual/design/interval_checked.md:176
+#: manual/design/interval_checked.md:171
 msgid "No `Eq`, `Show`, or enclosure relations on the wrapper itself; extract the `Interval` with `result()` to test containment or ordering."
 msgstr ""
 
-#: manual/design/interval_checked.md:178
+#: manual/design/interval_checked.md:173
 msgid "Out-of-domain parts of an argument are ignored, not reported."
 msgstr ""
 
@@ -21452,7 +21488,7 @@ msgid "**Reduced form.** Every `ExactRational` satisfies $d > 0$, $\\gcd(|n|, d)
 msgstr ""
 
 #: manual/design/semantic.md:200
-msgid "**Exactness.** For finite $x$, $\\texttt{from\\_bin\\_float}(x) = \\texttt{Rational}([\\![x]\\!])$ and $\\texttt{from\\_decimal}(x) = \\texttt{Rational}([\\![x]\\!])$; nothing is rounded."
+msgid "**Exactness.** For finite $x$, $\\texttt{from\\_binary}(x) = \\texttt{Rational}([\\![x]\\!])$ and $\\texttt{from\\_decimal}(x) = \\texttt{Rational}([\\![x]\\!])$; nothing is rounded."
 msgstr ""
 
 #: manual/design/semantic.md:204
@@ -21504,7 +21540,7 @@ msgid "Only `Binary`, `@decimal.Decimal` and `Interval` have projections."
 msgstr ""
 
 #: manual/design/semantic.md:238
-msgid "Projections of values with very large exponents are exact and therefore large; the package does not guard against that cost. A `Binary` exponent near its implementation limit $\\pm(2^{30} - 1)$ gives a `BigInt` of about $2^{30}$ bits, and a decimal exponent near $10^{9}$ one of about $3.3 \\cdot 10^{9}$ bits."
+msgid "Projections of values with very large exponents are exact and therefore large; the package does not guard against that cost. A `Binary` exponent near its implementation limit $\\pm(2^{30} - 1)$ gives a `BigInt` of about $2^{30}$ bits, and a decimal exponent near `decimal_value_e_max` ($2.1 \\cdot 10^{9}$) one of about $7 \\cdot 10^{9}$ bits."
 msgstr ""
 
 #: manual/getting_started.md:1
@@ -22775,11 +22811,11 @@ msgid "A context fixes $\\mathbb{F}$ and the rounding function. No package reads
 msgstr ""
 
 #: manual/numeric_semantics.md:284
-msgid "`BinaryContext` holds the precision $p$ (bits), a `BinaryRoundingMode`, optional exponent bounds $e_{\\min}, e_{\\max}$ for the **leading bit**, and a `TininessDetection`. Normal values satisfy $2^{e_{\\min}} \\le |x| \\le (2 - 2^{1-p})\\,2^{e_{\\max}}$; below $2^{e_{\\min}}$ the **subnormal** values keep the fixed spacing $2^{\\,e_{\\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64` and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision format of IEEE 754-2019 3.7 and has the implementation range $[\\texttt{binary\\_implementation\\_e\\_min}, \\texttt{binary\\_implementation\\_e\\_max}] = [2 - 2^{30},\\ 2^{30} - 1]$, so $e_{\\min} = 1 - e_{\\max}$ as in every context (3.3), and every precision is capped at $\\texttt{binary\\_precision\\_max} = 2^{28}$ bits. A result beyond the implementation range is classified (overflow to infinity or the largest finite value, underflow to zero or the smallest subnormal, by rounding direction), never stored with a saturated exponent."
+msgid "`BinaryContext` holds the precision $p$ (bits), a `BinaryRoundingMode`, optional exponent bounds $e_{\\min}, e_{\\max}$ for the **leading bit**, and a `TininessDetection`. Normal values satisfy $2^{e_{\\min}} \\le |x| \\le (2 - 2^{1-p})\\,2^{e_{\\max}}$; below $2^{e_{\\min}}$ the **subnormal** values keep the fixed spacing $2^{\\,e_{\\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64` and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision format of IEEE 754-2019 3.7 and has the implementation range $[\\texttt{binary\\_value\\_e\\_min}, \\texttt{binary\\_value\\_e\\_max}] = [2 - 2^{30},\\ 2^{30} - 1]$, so $e_{\\min} = 1 - e_{\\max}$ as in every context (3.3), and every precision is capped at $\\texttt{binary\\_precision\\_max} = 2^{28}$ bits. A result beyond the implementation range is classified (overflow to infinity or the largest finite value, underflow to zero or the smallest subnormal, by rounding direction), never stored with a saturated exponent."
 msgstr ""
 
 #: manual/numeric_semantics.md:297
-msgid "The plain binary operators (`add`, `sub`, `mul`, `div`, `+`, `-`, `*`, `/`) round to nearest-even at the larger operand precision in that unbounded context and discard the flags."
+msgid "The plain binary operators (`add`, `sub`, `mul`, `div`, `+`, `-`, `*`, `/`) round to nearest-even at the larger operand precision in `BinaryContext::new(precision=p)` and discard the flags."
 msgstr ""
 
 #: manual/numeric_semantics.md:300
@@ -22903,202 +22939,202 @@ msgid "GDA status and traps"
 msgstr ""
 
 #: manual/numeric_semantics.md:384
-msgid "`decimal_gda` follows the General Decimal Arithmetic model. Each operation returns a `GdaOutcome` that holds the defined result, the **next context** and the **raised** flags of this operation. The next context's `status()` is the sticky union of everything raised so far. When a raised condition is enabled in the context's trap set the outcome is `Trapped(signal, value, context, raised)` instead of `Completed(value, context, raised)`; the defined result is still there. If several enabled conditions are raised at once the trapped signal is the first in this precedence: invalid operation, division by zero, division undefined, division impossible, invalid context, conversion syntax, overflow, underflow, subnormal, inexact, rounded, clamped, lost digits."
+msgid "`decimal_gda` follows the General Decimal Arithmetic model. Each operation returns a `GdaOutcome` that holds the defined result, the **next context** and the **raised** flags of this operation. The next context's `flags()` is the sticky union of everything raised so far. When a raised condition is enabled in the context's trap set the outcome is `Trapped(signal, value, context, raised)` instead of `Completed(value, context, raised)`; the defined result is still there. If several enabled conditions are raised at once the trapped signal is the first in this precedence: invalid operation, division by zero, overflow, underflow, subnormal, inexact, rounded, clamped, lost digits."
 msgstr ""
 
-#: manual/numeric_semantics.md:414
+#: manual/numeric_semantics.md:413
 msgid "Checked errors"
 msgstr ""
 
-#: manual/numeric_semantics.md:416
+#: manual/numeric_semantics.md:415
 msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalChecked` keep the first error and skip the remaining steps."
 msgstr ""
 
-#: manual/numeric_semantics.md:423
+#: manual/numeric_semantics.md:422
 msgid "The elementary functions have both forms. A `try_*_ctx` function returns `Err` with a `CertificationFailure` detail if the certified refinement cannot decide the rounding within its budget. The non-`try` forms never abort: the binary ones return a quiet NaN with *invalid operation*, and the decimal and GDA ones return their invalid result so that flags and traps apply as usual."
 msgstr ""
 
-#: manual/numeric_semantics.md:431
+#: manual/numeric_semantics.md:430
 msgid "An `Interval` denotes a closed set of reals $X = [\\underline{x}, \\overline{x}]$ with binary endpoints, or one of the special sets **Empty** ($\\varnothing$) and **Entire** ($\\mathbb{R}$). An interval extension $F$ of a function $f$ must satisfy the **inclusion property**"
 msgstr ""
 
-#: manual/numeric_semantics.md:440
+#: manual/numeric_semantics.md:439
 msgid "which outward rounding guarantees: the exact lower endpoint is rounded with $\\operatorname{RD}$ and the exact upper endpoint with $\\operatorname{RU}$, so by $\\operatorname{RD}(a) \\le a$ and $b \\le \\operatorname{RU}(b)$ the stored interval contains the exact one.[^interval] A wide enclosure is a correct result; tightness is a quality, not a contract. Division by an interval that contains zero can return Entire."
 msgstr ""
 
-#: manual/numeric_semantics.md:447
+#: manual/numeric_semantics.md:446
 msgid "`DecoratedInterval` adds an IEEE 1788 **decoration** describing what is known about $f$ on $X$: `Com` (defined, continuous and bounded on a bounded $X$), `Dac` (defined and continuous), `Def` (defined), `Trv` (nothing known) and `Ill` (the interval is NaI, \"not an interval\"). NaI is distinct from Empty. Decorations are not scalar flags; `IntervalFlags` reports precision and range events of an `IntervalContext`."
 msgstr ""
 
-#: manual/numeric_semantics.md:454
+#: manual/numeric_semantics.md:453
 msgid "R. E. Moore, R. B. Kearfott and M. J. Cloud, *Introduction to Interval Analysis*, SIAM 2009, ch. 3; IEEE 1788-2015, clauses 10–11 for the set and decoration model."
 msgstr ""
 
-#: manual/numeric_semantics.md:481
+#: manual/numeric_semantics.md:480
 msgid "Quantum and cohorts"
 msgstr ""
 
-#: manual/numeric_semantics.md:483
+#: manual/numeric_semantics.md:482
 msgid "For decimal values the cohort member an operation returns is part of its contract. Each operation names an **ideal exponent**:[^ideal]"
 msgstr ""
 
-#: manual/numeric_semantics.md:494
+#: manual/numeric_semantics.md:493
 msgid "When the exact result is representable, the operation returns the member of its cohort whose exponent is closest to the ideal one. For a sum or a product whose coefficient fits in $p$ digits that member has exactly the ideal exponent, since the exact coefficient is an integer at that exponent. A quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$, but $0.25$ needs exponent $-2$, so that is the result. When the result must be rounded, the operation returns the member with $p$ digits, the smallest exponent that holds the rounded value (fewer digits only for a subnormal result). Parsing preserves the exponent of the literal. `quantize_ctx(x, y)` rounds $x$ to the quantum of $y$ (the exponent of $y$); `quantum_ctx(x, ctx)` is the number $10^q$ for the exponent $q$ of $x$ (IEEE 754-2019 5.3.2); `normalized()` (and, in `decimal_gda`, `reduce`) strips trailing zeros. Numeric comparison sees only the value; `same_quantum` and the total orders `total_order_compare` (IEEE) and `compare_total` (GDA) also see the cohort."
 msgstr ""
 
-#: manual/numeric_semantics.md:509
+#: manual/numeric_semantics.md:508
 msgid "IEEE 754-2019, clause 5.2 and table 5.1; Cowlishaw, *General Decimal Arithmetic Specification* 1.70, \"Arithmetic operations\"."
 msgstr ""
 
-#: manual/numeric_semantics.md:538
+#: manual/numeric_semantics.md:537
 msgid "Signed zero and NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:540
+#: manual/numeric_semantics.md:539
 msgid "Zero"
 msgstr ""
 
-#: manual/numeric_semantics.md:542
+#: manual/numeric_semantics.md:541
 msgid "Zero carries a sign so that $1/{+0} = +\\infty$ and $1/{-0} = -\\infty$ keep the direction of an underflow. The rules follow IEEE 754-2019 clause 6.3:"
 msgstr ""
 
-#: manual/numeric_semantics.md:545
+#: manual/numeric_semantics.md:544
 msgid "a product or quotient has the exclusive-or of the operand signs;"
 msgstr ""
 
-#: manual/numeric_semantics.md:546
+#: manual/numeric_semantics.md:545
 msgid "an exact zero sum of operands with opposite signs, or $x - x$, is $+0$ under every rounding direction except $\\operatorname{RD}$, where it is $-0$;"
 msgstr ""
 
-#: manual/numeric_semantics.md:548
+#: manual/numeric_semantics.md:547
 msgid "$\\sqrt{-0} = -0$, and rounding to an integer keeps the sign ($\\lceil -0.3 \\rceil = -0$);"
 msgstr ""
 
-#: manual/numeric_semantics.md:550
+#: manual/numeric_semantics.md:549
 msgid "numeric comparison treats $-0$ and $+0$ as equal."
 msgstr ""
 
-#: manual/numeric_semantics.md:554
+#: manual/numeric_semantics.md:553
 msgid "A **quiet NaN** propagates through arithmetic silently; a **signaling NaN** raises *invalid operation* when an operation consumes it and is quieted in the result. A NaN carries a sign and an integer payload (`nan_payload`). In `binary` and `decimal` an operation with NaN operands returns a quiet NaN with the sign and payload of the first NaN operand, signaling or not, which IEEE 754 allows.[^nan-payload] `decimal_gda` follows the General Decimal Arithmetic rule instead: a signaling NaN operand takes precedence over a quiet one, so `add(NaN3, sNaN7)` is `NaN7` there and `NaN3` in `decimal`."
 msgstr ""
 
-#: manual/numeric_semantics.md:563
+#: manual/numeric_semantics.md:562
 msgid "IEEE 754-2019, clause 6.2.3, only recommends that the result carry the payload of one of the input NaNs."
 msgstr ""
 
-#: manual/numeric_semantics.md:596
+#: manual/numeric_semantics.md:595
 msgid "IEEE comparison has four outcomes: less, equal, greater and **unordered**, the last whenever an operand is NaN. Several APIs expose different orders, and choosing the right one matters:"
 msgstr ""
 
-#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:599
 msgid "Order"
 msgstr ""
 
-#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:599
 msgid "$-0$ vs $+0$"
 msgstr ""
 
-#: manual/numeric_semantics.md:602
+#: manual/numeric_semantics.md:601
 msgid "IEEE partial order, `@def.PartialOrder`"
 msgstr ""
 
-#: manual/numeric_semantics.md:602
+#: manual/numeric_semantics.md:601
 msgid "`Unordered`; *invalid* only for a signaling NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:603
+#: manual/numeric_semantics.md:602
 msgid "IEEE partial order"
 msgstr ""
 
-#: manual/numeric_semantics.md:603
+#: manual/numeric_semantics.md:602
 msgid "`Unordered`; *invalid* for any NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:604
+#: manual/numeric_semantics.md:603
 msgid "numeric order"
 msgstr ""
 
-#: manual/numeric_semantics.md:604
+#: manual/numeric_semantics.md:603
 msgid "`Err` with `UnorderedComparison`"
 msgstr ""
 
-#: manual/numeric_semantics.md:605
+#: manual/numeric_semantics.md:604
 msgid "`compare`, `<`, `<=`, sorting (`Compare`)"
 msgstr ""
 
-#: manual/numeric_semantics.md:605
+#: manual/numeric_semantics.md:604
 msgid "total preorder"
 msgstr ""
 
-#: manual/numeric_semantics.md:605
+#: manual/numeric_semantics.md:604
 msgid "every NaN equals every NaN and is above every number"
 msgstr ""
 
-#: manual/numeric_semantics.md:606
+#: manual/numeric_semantics.md:605
 msgid "`total_order`, `total_order_compare`, `total_order_mag` (`binary`), `total_order_compare` (decimal)"
 msgstr ""
 
-#: manual/numeric_semantics.md:606
+#: manual/numeric_semantics.md:605
 msgid "IEEE `totalOrder` on representations"
 msgstr ""
 
-#: manual/numeric_semantics.md:606
+#: manual/numeric_semantics.md:605
 msgid "ordered by sign, kind and payload"
 msgstr ""
 
-#: manual/numeric_semantics.md:608
+#: manual/numeric_semantics.md:607
 msgid "`compare` orders NaN above every number so that `Compare` is a total preorder and sorting never fails; it never aborts. Use the quiet predicates or `compare_checked` when NaN must be treated as unordered."
 msgstr ""
 
-#: manual/numeric_semantics.md:612
+#: manual/numeric_semantics.md:611
 msgid "`==` agrees with `compare` in the three number types: `a == b` exactly when `a.compare(b) == 0`. `Decimal`'s `==` is numeric for finite values (`-0 == 0.00`) and treats two NaNs as equal; `Binary`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality: use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical` (`Binary`) for the structural question (the sign of a zero, the precision, the NaN kind). `Interval`'s `==` compares the endpoints by value."
 msgstr ""
 
-#: manual/numeric_semantics.md:641
+#: manual/numeric_semantics.md:640
 msgid "Conversion between radices"
 msgstr ""
 
-#: manual/numeric_semantics.md:643
+#: manual/numeric_semantics.md:642
 msgid "Every binary fraction has a finite decimal expansion, because $2^{-k} = 5^{k} \\cdot 10^{-k}$; most decimal fractions have no finite binary expansion, because $10^{-k} = 2^{-k}5^{-k}$ and $5^{-k}$ is not dyadic. So decimal-to-binary conversion is usually inexact and binary-to-decimal conversion is exact but may need many digits. `Binary::from_string_ctx` (IEEE convertFromDecimalCharacter) and `to_decimal_string_ctx` (convertToDecimalCharacter) are both correctly rounded for every precision and exponent; `to_shortest_string` prints the fewest digits that read back to the same value, which is how `0.1 + 0.2` shows its rounding error."
 msgstr ""
 
-#: manual/numeric_semantics.md:653
-msgid "Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128) and the decimal32/64/128 DPD and BID encodings fix field widths, exponent bounds and special encodings. `semantic` projects values of every package to exact rationals, so it can tell that decimal $0.1$ and binary $\\operatorname{fl}(0.1)$ are different numbers; the projection deliberately drops precision, exponent, signed zero, payloads, decorations and flags."
+#: manual/numeric_semantics.md:652
+msgid "Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128) and the decimal32/64/128 DPD and BID encodings fix field widths, exponent bounds and special encodings. `semantic` projects values of `Binary`, `@decimal.Decimal` and `Interval` to exact rationals, so it can tell that decimal $0.1$ and binary $\\operatorname{fl}(0.1)$ are different numbers; the projection deliberately drops precision, exponent, signed zero, payloads, decorations and flags."
 msgstr ""
 
-#: manual/numeric_semantics.md:684
+#: manual/numeric_semantics.md:683
 msgid "Decision checklist"
 msgstr ""
 
-#: manual/numeric_semantics.md:686
+#: manual/numeric_semantics.md:685
 msgid "Before choosing an API, answer:"
 msgstr ""
 
-#: manual/numeric_semantics.md:688
+#: manual/numeric_semantics.md:687
 msgid "Is the result a scalar value, a representation, or a set of reals?"
 msgstr ""
 
-#: manual/numeric_semantics.md:689
+#: manual/numeric_semantics.md:688
 msgid "Must the radix, precision, exponent range or exponent stay observable?"
 msgstr ""
 
-#: manual/numeric_semantics.md:690
+#: manual/numeric_semantics.md:689
 msgid "Does the caller need per-operation flags, sticky GDA status and traps, or a short-circuiting checked error?"
 msgstr ""
 
-#: manual/numeric_semantics.md:692
+#: manual/numeric_semantics.md:691
 msgid "Can NaN, an infinity, a signed zero, Empty, Entire or NaI occur?"
 msgstr ""
 
-#: manual/numeric_semantics.md:693
+#: manual/numeric_semantics.md:692
 msgid "Is the numeric order enough, or is the IEEE partial order, a total order or a set relation required?"
 msgstr ""
 
-#: manual/numeric_semantics.md:695
+#: manual/numeric_semantics.md:694
 msgid "Is the conversion arbitrary-precision or a fixed interchange format?"
 msgstr ""
 
-#: manual/numeric_semantics.md:696
+#: manual/numeric_semantics.md:695
 msgid "Which pinned conformance evidence supports the claim? See [verification](./verification.md)."
 msgstr ""
 
@@ -25068,7 +25104,7 @@ msgstr ""
 #: manual/tutorial/cli/itl_expr_cli.md:76
 #: manual/tutorial/cli/mpfr_expr_cli.md:70
 #: manual/tutorial/cli/testfloat_expr_cli.md:88
-#: manual/tutorial/consistency.md:64
+#: manual/tutorial/consistency.md:63
 #: manual/tutorial/decimal.md:325
 #: manual/tutorial/decimal_checked.md:159
 #: manual/tutorial/decimal_gda.md:280
@@ -25118,7 +25154,7 @@ msgstr ""
 #: manual/tutorial/cli/itl_expr_cli.md:84
 #: manual/tutorial/cli/mpfr_expr_cli.md:79
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
-#: manual/tutorial/consistency.md:71
+#: manual/tutorial/consistency.md:69
 #: manual/tutorial/decimal.md:408
 #: manual/tutorial/decimal_checked.md:242
 #: manual/tutorial/decimal_gda.md:371
@@ -25172,12 +25208,12 @@ msgstr ""
 #: manual/tutorial/cli/itl_expr_cli.md:95
 #: manual/tutorial/cli/mpfr_expr_cli.md:88
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
-#: manual/tutorial/consistency.md:78
+#: manual/tutorial/consistency.md:76
 #: manual/tutorial/decimal.md:438
 #: manual/tutorial/decimal_checked.md:269
 #: manual/tutorial/decimal_gda.md:406
 #: manual/tutorial/decimal_gda_checked.md:268
-#: manual/tutorial/def.md:214
+#: manual/tutorial/def.md:215
 #: manual/tutorial/differential.md:196
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/differential/interval_mpfr.md:51
@@ -26772,30 +26808,26 @@ msgid "Decide where a test belongs"
 msgstr ""
 
 #: manual/tutorial/consistency.md:60
-msgid "A law about one package goes into that package's own tests. A test belongs here when it needs two or more packages, or `internal` helpers from outside their package, or an oracle such as `semantic` exact rationals."
+msgid "A law about one package goes into that package's own tests. A test belongs here when it needs two or more packages, or an oracle such as `semantic` exact rationals."
 msgstr ""
 
-#: manual/tutorial/consistency.md:66
+#: manual/tutorial/consistency.md:65
 msgid "The conformance corpora ([verification](../verification.md)) check each core against external references; this suite checks the cores against each other and against exact arithmetic."
 msgstr ""
 
-#: manual/tutorial/consistency.md:69
-msgid "[internal tutorial](internal.md) shows the helpers several tests exercise."
-msgstr ""
-
-#: manual/tutorial/consistency.md:73
+#: manual/tutorial/consistency.md:71
 msgid "**Run from a workspace.** The package imports sibling Luna-Flow modules; use the repository wrapper or a workspace that resolves them."
 msgstr ""
 
-#: manual/tutorial/consistency.md:75
+#: manual/tutorial/consistency.md:73
 msgid "**Keep tests deterministic.** Use fixed seeds and explicit contexts; no test may depend on timing or the target's `Double` formatting."
 msgstr ""
 
-#: manual/tutorial/consistency.md:80
+#: manual/tutorial/consistency.md:78
 msgid "[consistency API](../api/consistency.md) for the file layout."
 msgstr ""
 
-#: manual/tutorial/consistency.md:81
+#: manual/tutorial/consistency.md:79
 msgid "[consistency design](../design/consistency.md) for what the suite proves."
 msgstr ""
 
@@ -26885,7 +26917,7 @@ msgid "`12.30` and `12.3` are two members of the same *cohort*: numerically equa
 msgstr ""
 
 #: manual/tutorial/decimal.md:81
-msgid "Integers are built reduced: `Decimal::from_int(1000)` is stored as $1 \\times 10^{3}$ and prints as `1E+3`. Parse `\"1000\"` when you want the four digits."
+msgid "Integers are built with exponent $0$: `Decimal::from_int(1000)` is stored unreduced and prints as `1000`."
 msgstr ""
 
 #: manual/tutorial/decimal.md:84
@@ -26897,7 +26929,7 @@ msgid "A `DecimalContext` fixes the precision, rounding direction and exponent r
 msgstr ""
 
 #: manual/tutorial/decimal.md:105
-msgid "`inexact` tells you that $100/3 \\cdot 3$ was not computed exactly; it is not an error, so `has_error()` stays false. `has_error()` reports invalid operations, unparsable text, division by zero, impossible divisions and invalid contexts. Check the individual flags (`overflow`, `underflow`, `inexact`) when your application cares about them."
+msgid "`inexact` tells you that $100/3 \\cdot 3$ was not computed exactly; it is not an error, so `has_error()` stays false. `has_error()` reports invalid operations, division by zero and results the library could not compute (`not_computed`). Check the individual flags (`overflow`, `underflow`, `inexact`) when your application cares about them."
 msgstr ""
 
 #: manual/tutorial/decimal.md:112
@@ -27466,7 +27498,7 @@ msgid "decimal_gda_checked tutorial"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:3
-msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky flags, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: flags flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the flags and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
+msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky flags, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: the flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the flags and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:15
@@ -27518,7 +27550,7 @@ msgid "Read the sticky flags"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:111
-msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its flags was last cleared:"
+msgid "`raised()` holds the signals of the latest operation, `flags()` every signal since the context was created or its flags were last cleared:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:130
@@ -27534,7 +27566,7 @@ msgid "Resume deliberately"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:153
-msgid "`resume_defined()` accepts the defined result and continues. The flags still records the trapped signal, so the decision is visible afterwards:"
+msgid "`resume_defined()` accepts the defined result and continues. The flags still record the trapped signal, so the decision is visible afterwards:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:173
@@ -27546,7 +27578,7 @@ msgid "Syntax errors are invalid operations"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:180
-msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the flags gains `invalid_operation` next to the specific condition:"
+msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the flags gain `invalid_operation` next to the specific condition:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:201
@@ -27554,7 +27586,7 @@ msgid "Mathematical functions need bounded contexts"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:203
-msgid "`exp`, `ln`, `log10` and `power` keep decNumber's restriction (an implementation limit that decTest requires) to precision and exponent limits within $\\pm 999\\,999$. The interchange contexts satisfy it; `GdaContext::new` with its default unbounded range does not, and the functions return NaN with `invalid_context` (which traps under `InvalidOperation`):"
+msgid "`exp`, `ln`, `log10` and `power` keep decNumber's restriction (an implementation limit that decTest requires) to precision and exponent limits within $\\pm 999\\,999$. The interchange contexts satisfy it; `GdaContext::new` with its default range of $\\pm 999\\,999\\,999$ does not, and the functions return NaN with `invalid_context` (which traps under `InvalidOperation`):"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:226
@@ -27562,7 +27594,7 @@ msgid "Combine with the plain GDA functions"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:228
-msgid "Every `decimal_gda` operation that returns a number has a pipeline method. The functions that return a string, a boolean or an integer (`class_name`, `is_normal`, `is_subnormal`, `compare_total`) and the `try_` forms do not: run them on `value()` and `context()`, and wrap the outcome of a `try_` form with `from_outcome`:"
+msgid "Every `decimal_gda` operation that returns a number has a pipeline method. The functions that return a `GdaOutcome[String]`, `GdaOutcome[Bool]` or `GdaOutcome[Int32]` (`class_name`, `is_normal`, `is_subnormal`, `compare_total`) and the `try_` forms do not: run them on `value()` and `context()`, and wrap the outcome of a `try_` form with `from_outcome`:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:251
@@ -27574,7 +27606,7 @@ msgid "**`basic_default()` traps, `new()` does not.** Choose the context deliber
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:257
-msgid "**`raised()` versus `status()`.** The first is the latest step, the second the sticky history."
+msgid "**`raised()` versus `flags()`.** The first is the latest step, the second the sticky history."
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:259
@@ -27686,7 +27718,7 @@ msgid "`@def.ArithmeticContext`, `@def.ArithmeticError`, `@def.RoundingMode` and
 msgstr ""
 
 #: manual/tutorial/def.md:199
-msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for NaN by the scalar types. Test `@def.is_nan` first. `Interval` is not `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`."
+msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for NaN by the scalar types. Test `@def.is_nan` first. `Interval` is not `Floating`: ask an interval `is_empty`, `is_common_interval` or `is_member`."
 msgstr ""
 
 #: manual/tutorial/def.md:202
@@ -27702,22 +27734,22 @@ msgid "`with_precision` reports no flags and ignores context exponent limits (a 
 msgstr ""
 
 #: manual/tutorial/def.md:212
-msgid "`with_precision(x, 0)` is not an error: the precision is clamped to 1."
+msgid "`with_precision(x, 0)` is an error for `Binary` and `@decimal.Decimal`: they abort. Only `@decimal_gda.Decimal` clamps the precision to 1."
 msgstr ""
 
-#: manual/tutorial/def.md:216
+#: manual/tutorial/def.md:217
 msgid "[`def` design](../design/def.md): the trait laws and the order theory of `PartialOrder`."
 msgstr ""
 
-#: manual/tutorial/def.md:218
+#: manual/tutorial/def.md:219
 msgid "[`def` API](../api/def.md): every item with its signature."
 msgstr ""
 
-#: manual/tutorial/def.md:219
+#: manual/tutorial/def.md:220
 msgid "[`semantic` tutorial](semantic.md): compare values of different representations exactly."
 msgstr ""
 
-#: manual/tutorial/def.md:221
+#: manual/tutorial/def.md:222
 msgid "[Numeric semantics guide](../numeric_semantics.md) for the shared vocabulary of the repository."
 msgstr ""
 
