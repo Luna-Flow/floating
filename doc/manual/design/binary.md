@@ -16,7 +16,7 @@ certified, and why the fast integer kernels cannot change a result. The
 Every operation of `binary` returns the value that IEEE 754-2019 requires
 of a correctly rounded operation, $\circ(f(x))$ for the exact real
 $f(x)$, together with exactly the IEEE status flags, for every precision $p$
-from 1 to $2^{28}$ bits and every exponent range up to $\pm(2^{30}-1)$. The
+from 1 to $2^{28}$ bits and every exponent range with $e_{\max}$ up to $2^{30}-1$ and $e_{\min} = 1 - e_{\max}$. The
 same code serves two audiences: arbitrary-precision numerics that need
 dyadic values far beyond `Double`, and bit-exact emulation of binary16,
 binary32, binary64 and binary128 including subnormals, the five rounding
@@ -946,7 +946,7 @@ $c = r^{2^k}$ and $q = r^{|m|} \cdot 2^{e|m|/2^k}$. Conversely these values are
 exact. So a rational `pow` result exists exactly under these two divisibility
 conditions; for $m > 0$ it is the dyadic $q$, and for $m < 0$ it is $1/q$,
 which is dyadic only when $r = 1$. Every other `pow` result is irrational.
-`binary_pow_exact_dyadic` computes the dyadic results and rounds them once,
+`binary_pow_exactness` computes the dyadic results and rounds them once,
 unless the odd part $r^m$ would need more than $2p + 64$ bits (then it has
 more than $p + 1$ significant bits and is not a breakpoint). The same argument
 with $1/|n|$ in place of $|y|$ shows that $\operatorname{rootn}(x, n)$ is
@@ -1261,7 +1261,7 @@ $\ell \le E \cdot 2^{F} \le u$. Every step produces a new pair from the old
 ones by monotone operations on non-negative numbers, so the invariant is
 proved step by step, and the final width $u - \ell$ is a computed integer,
 not an estimate. The last step converts to
-`Binary::make(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is
+`Binary::make_coeff(coeff, exp, w, mode=RoundTowardNegative / RoundTowardPositive)`, which is
 what the existing fixed-point series already does.
 
 **The `ln` series loop on limb arrays.** The fixed-point series of `ln` ($\ln v = 2 \sum_k P(k) / (2k + 1)$ with $P(0) = Z$, $P(k) = \lfloor P(k-1) Q / 2^F \rfloor$, the terms $T(k) = \lfloor P(k) / (2k + 1) \rfloor$ and the stop at $P(k) < 2^6$) computed each term with four `Coeff` operations that each allocate a result (the product, the shift, the quotient with its remainder, the sum): about four allocations and 3,700 instructions per term at 576 working bits. On the targets with limb rows the loop keeps `P`, `Q`, the product, the quotient and the sum in five limb arrays allocated once per call. A term is the exact product by `bin_limbs_mul_1` and `bin_limbs_addmul_1` (so the same integer as `P(k-1) Q`), the floor by $2^F$ as one copy pass with the shift $F = 64 w + r$ (limb offset $w$, bit offset $r$, the case $r = 0$ apart), the quotient by the odd divisor in place from the top limb, and the sum with a carry. The divisor is at most $20001$ (the loop stops after 10000 terms), so the running remainder $\rho < 2^{15}$ and $\rho \cdot 2^{32} + h < 2^{47}$ for a half limb $h$: a limb divides by two hardware divisions of its 32-bit halves, no 128-bit helper. Every integer equals the `Coeff` form's, so the bounds and their error analysis (above) are unchanged bit for bit; the JavaScript target keeps the `Coeff` form, since a host `BigInt` has no limb rows. The tests keep the `Coeff` loop as the reference and compare the sum and the term count for every $F$ from 60 to 700 (so every residue of $F$ modulo 64, in particular $F + 1$ a multiple of 64 and one below and above it, at one to eleven limbs), for terms whose product has a zero top limb, and the bounds of the whole function on exact values at 380 working precisions.
@@ -1503,7 +1503,7 @@ a per-target working precision (1536 to 3072 bits, see below) the enclosure of
 $e^x$ comes from `binary_exp_bounds_table` (`elementary_table_exp.mbt`), the
 scheme of Johansson, *Efficient implementation of elementary functions in the
 medium-precision range*, ARITH 22 (2015), arXiv:1410.7176, on the integer
-arithmetic of `BinCoeff`. Let $F = w + g$ rounded up to a multiple of 64
+arithmetic of `Coeff`. Let $F = w + g$ rounded up to a multiple of 64
 ($\ge 128$; multiples of 256 above 1024), so $g \ge 16$. The reduction to
 $R_t = \lfloor 2^F R \rfloor / 2^F \in [0, \ln 2)$ and the residual factor
 $e^{\delta}$ are those of the bit-burst kernel above (3 units below, 6 above
@@ -1600,7 +1600,7 @@ kernel first up to 1792 bits on Native and LLVM, 2048 on Wasm, 1536 on Wasm-GC,
 3072 on JavaScript) are per-target constants beside the bit-burst threshold.
 Above them the bit-burst kernel (from its own threshold) and the series
 are unchanged. The cost of the table kernel is dominated by a few
-dozen `BinCoeff` operations of 100 to 250 ns each at these sizes, and by the
+dozen `Coeff` operations of 100 to 250 ns each at these sizes, and by the
 size of the integer coefficients $N'!/i!$ above 2000 bits, which is why it
 loses there.
 
@@ -1849,7 +1849,7 @@ $q(j) = (2j + 1) k^2$, which telescope to $1/((2j+1) k^{2j})$, and the
 Chudnovsky series has $p(k) = (6k-5)(2k-1)(6k-1)$,
 $q(k) = k^3\, 640320^3 / 24$ and the leaf $t = \pm p(k)(A + Bk)$. Only the
 Chudnovsky $t$ is signed, so a sign-and-magnitude wrapper over the unsigned
-`BinCoeff` suffices and the code is the same on every target. The partial sum
+`Coeff` suffices and the code is the same on every target. The partial sum
 $t/q$ is exact; the only roundings are the final directed divisions and
 $\sqrt{10005}$ (directed `sqrt_ctx`), done at $w + 16$ bits, and the result is
 rounded outward to $w$ bits.
@@ -1920,7 +1920,7 @@ affordable, which is the point of
 [#15](https://github.com/Luna-Flow/floating/issues/15): the limit is a policy
 of the loop and does not interact with the kernels.
 
-**Allocation and targets.** `BinCoeff` values are immutable, so each term of
+**Allocation and targets.** `Coeff` values are immutable, so each term of
 a fixed-point stage allocates four arrays of up to $w/32$ limbs (product,
 shift, quotient, sum); on native these are included in the measured unit costs
 above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits).
@@ -1929,7 +1929,7 @@ The `ln` series loop already runs on limb arrays on the non-JavaScript targets
 multiply-shift-divide loop on a mutable limb array for the other stages, which
 still allocate per term, would remove most of that for the non-JavaScript
 targets, and is a later optimization behind the same function, not part of the
-design. On JavaScript `BinCoeff` is a
+design. On JavaScript `Coeff` is a
 `bigint`: products, shifts and divisions are the engine's, with a larger
 constant per operation and an asymptotically faster product, so the stage
 boundaries and every threshold are measured separately on native, LLVM, Wasm,
@@ -2105,9 +2105,10 @@ antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare
 equal but are different values), which `Compare` does not require. The cost is
 that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
 `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling`
-(four-valued, with flags) or `total_order`. Structural `==` stays the derived
-`Eq`, because it is the only equality that is a congruence for every method
-(precision and payload included).
+(four-valued, with flags) or `total_order`. `==` is `Eq`, which is
+`compare(x, y) == 0`, so it ignores the sign of a zero, the precision and the
+payload of a NaN; the structural equality, the only one that is a congruence for
+every method (precision and payload included), is `identical`.
 
 ## Correctness and invariants
 
