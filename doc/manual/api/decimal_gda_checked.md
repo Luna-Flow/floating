@@ -117,7 +117,7 @@ pub fn GdaDecimalChecked::flags(Self) -> @decimal_gda.GdaFlags
 
 `value()` is the defined result, also when trapped. `context()` is the next
 context, including its updated flags and its traps. `raised()` holds the
-signals of the latest operation only. `status()` is `context().flags()`, the
+signals of the latest operation only. `flags()` is `context().flags()`, the
 sticky union of everything raised since the context's flags was last cleared;
 whenever any invalid-operation condition (`conversion_syntax`,
 `division_impossible`, `division_undefined`, `invalid_context`) is raised, the

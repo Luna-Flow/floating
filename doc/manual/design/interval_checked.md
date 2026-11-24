@@ -73,7 +73,7 @@ enclosure; or the true range is empty or unbounded.
 | NaN bound, $\ell = +\infty$, $u = -\infty$, $\ell > u$ | `DomainError` | `try_from_bounds` |
 | non-finite `exact`, `from_double`, `from_float` source | `DomainError` | `try_exact`, `try_from_double`, `try_from_float` |
 | `rootn` of degree $0$ | `DomainError` | `try_rootn` |
-| enclosure not certifiable within budget | `CertificationFailure` | `try_*_interval`, `try_hypot` |
+| enclosure not certifiable within budget | `CertificationFailure` | `try_*`, `try_hypot` |
 | range empty ($\ln$ of negatives, $1/\{0\}$) | success: empty interval | interval operation |
 | range unbounded ($1/[-1,1]$) | success: entire or half-line | interval operation |
 
@@ -89,7 +89,7 @@ their application add that rule with `bind` (see the tutorial).
 
 ### Arithmetic operators cannot fail
 
-`add`, `sub`, `mul` and `div` lift the `Interval` operators with `map`, so
+`add`, `sub`, `mul` and `div` lift the `Interval` operators with `interval_result_lift2`, so
 they never introduce an error: the four set operations always have an
 enclosure in $\mathbb{IR}$ (for division, $X / Y$ is defined as the hull of
 $\{ s/t : s \in X, t \in Y \setminus \{0\} \}$, empty when $Y = \{0\}$). The
@@ -112,9 +112,8 @@ monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses
 powering, $X^{n} = X^{\lfloor n/2 \rfloor} \cdot X^{\lfloor n/2 \rfloor}
 \cdot X^{n \bmod 2}$ evaluated with interval products, so it encloses the
 larger set $\{t_1 t_2 \cdots t_n : t_i \in X\}$ and returns $[-1, 1]$; both
-are enclosures of $\{t^n\}$, but only `pown` is tight. `pow_nat_checked(0)` starts
-from $\{1\}$ without inspecting the base, so it maps an empty interval to
-$\{1\}$.
+are enclosures of $\{t^n\}$, but only `pown` is tight. `pow_nat_checked(0)` of a
+non-empty interval is $\{1\}$, and of an empty interval is empty.
 
 ### No decorations and no flags
 
@@ -141,12 +140,7 @@ needs more bits than the precision.
   intended real input, and the expression evaluates to $\mathrm{Ok}(Y)$, then
   $Y$ encloses the range of the real formula over the inputs. This is the
   composition argument above together with the fact that the wrapper applies
-  exactly the `interval` operations on successes; it inherits the one
-  inclusion exception listed under
-  [Known limitations](interval.md#known-limitations): `with_precision`
-  (also used by `normalized` and `pown`) can lose the smaller
-  endpoint of an interval whose endpoints are more than about $2^{16}$ binary
-  orders of magnitude apart when the new precision exceeds about 65536 bits.
+  exactly the `interval` operations on successes.
 - **Error determinism.** If the expression evaluates to $\mathrm{Err}(e)$,
   then $e$ is the error of the first originating node in post-order.
 - **No hidden recovery.** No method turns an error into a value, and `map`

@@ -120,7 +120,7 @@ latest signals and whether a trap fired.
 
 **Choice.** `GdaDecimalChecked` stores one `GdaOutcome` and nothing else, so
 it is the outcome type of `decimal_gda` closed under its operations. Every
-observation (`value`, `context`, `raised`, `status`, `error`, `result`,
+observation (`value`, `context`, `raised`, `flags`, `error`, `result`,
 `is_ok`, `is_err`) is a projection of the outcome, and `from_outcome` /
 `outcome` convert in both directions without loss.
 

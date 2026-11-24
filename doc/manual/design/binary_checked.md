@@ -121,7 +121,7 @@ some precision stays at that precision:
 
 | Operation | Context used |
 | --- | --- |
-| `+`, `-`, `*`, `/`, `min`, `max` | as the `Binary` operator: the larger operand precision, nearest-even |
+| `+`, `-`, `*`, `/`, `min_num`, `max_num` | as the `Binary` operator: the larger operand precision, nearest-even |
 | unary elementary functions, `rootn` | `BinaryContext::new(precision=x.precision())` |
 | `pow`, `hypot`, `atan2` | `BinaryContext::new(precision=max(p_x, p_y))` |
 | `sqrt`, `pown` | the `Binary` method at the operand's precision |
@@ -151,6 +151,7 @@ $$
 \kappa(v, \phi) =
 \begin{cases}
 \mathrm{Err}(\texttt{DivisionByZero}) & \text{if } \phi \text{ has divideByZero},\\
+\mathrm{Err}(\texttt{CertificationFailure}) & \text{else if } \phi \text{ has not\_computed},\\
 \mathrm{Err}(\texttt{DomainError}) & \text{else if } \phi \text{ has invalid operation},\\
 \mathrm{Ok}(v) & \text{otherwise.}
 \end{cases}

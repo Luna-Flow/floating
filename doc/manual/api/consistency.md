@@ -3,10 +3,10 @@
 ## Purpose
 
 `consistency` is a white-box test package. It exports no MoonBit items; its
-content is a suite of about 250 deterministic tests (28 in
-`api_audit_wbtest.mbt` and 228 in `core_wbtest.mbt` on the current branch) that check laws *across*
+content is a suite of 176 deterministic tests (26 in
+`api_audit_wbtest.mbt`, 146 in `core_wbtest.mbt` and 4 in other files on the current branch) that check laws *across*
 the packages of `floating`: that the binary, decimal, GDA and interval cores,
-their checked wrappers, `semantic`, and the shared `internal` helpers agree
+their checked wrappers and `semantic` agree
 with each other and with exact `BigInt` and rational oracles. This page
 records the package's role and its (empty) interface; the
 [tutorial](../tutorial/consistency.md) shows how to run and extend it and the
@@ -31,8 +31,9 @@ import {
   "Luna-Flow/floating/interval",
   "Luna-Flow/floating/interval_checked",
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal",
   "Luna-Flow/floating-tools/semantic",
+  "moonbitlang/core/string",
+  "moonbitlang/x/fs",
 } for "wbtest"
 ```
 
@@ -40,8 +41,8 @@ import {
 
 | File | Content |
 | --- | --- |
-| `api_audit_wbtest.mbt` | audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `binary`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values |
-| `core_wbtest.mbt` | cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `binary` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors |
+| `api_audit_wbtest.mbt` | audits of public behaviour that spans packages: `def` predicates, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `binary`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values |
+| `core_wbtest.mbt` | cross-package arithmetic laws: `binary` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors |
 | `bin_coeff_migration_wbtest.mbt` | helpers that build `Binary` values from `BigInt` for the tests above |
 
 All tests are white-box (`*_wbtest.mbt`) and import every core package for

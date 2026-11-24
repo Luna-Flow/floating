@@ -145,7 +145,7 @@ pub fn SemanticScalar::from_binary(@binary.Binary) -> Self
 ```
 
 A finite $x = (-1)^{s} c\, 2^{e}$ maps to `Rational` of
-`from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.sign())`; a
+`from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.signum())`; a
 NaN maps to `NaN`. Precision is dropped. Never aborts, but the result is exact:
 a `Binary` exponent can reach about $\pm 2^{30}$, and the projection then
 builds a numerator or denominator of about $|e|$ bits (over 100 MB at the

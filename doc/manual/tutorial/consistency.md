@@ -58,15 +58,13 @@ flag rules, and quote the row id in the test name.
 ### Decide where a test belongs
 
 A law about one package goes into that package's own tests. A test belongs
-here when it needs two or more packages, or `internal` helpers from outside
-their package, or an oracle such as `semantic` exact rationals.
+here when it needs two or more packages, or an oracle such as `semantic` exact rationals.
 
 ## Going further
 
 - The conformance corpora ([verification](../verification.md)) check each
   core against external references; this suite checks the cores against each
   other and against exact arithmetic.
-- [internal tutorial](internal.md) shows the helpers several tests exercise.
 
 ## Common pitfalls
 

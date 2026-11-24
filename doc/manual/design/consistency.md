@@ -5,8 +5,7 @@
 `floating` has four numeric cores with overlapping claims: a binary value
 converted to a decimal and back must denote the same rational number; the
 checked wrappers must give the same values as the cores; an interval must
-enclose the exact result of the scalar operation; the `internal` helpers must
-agree with exact `BigInt` arithmetic. A package's own tests see one package;
+enclose the exact result of the scalar operation. A package's own tests see one package;
 cross-package tests placed there would add test-only dependencies between the
 cores. `consistency` is the one place where these cross-package laws are
 written down and executed.
@@ -22,10 +21,8 @@ checks have three shapes:
   represent the same input, $\llbracket f_A(x) \rrbracket =
   \llbracket f_B(y) \rrbracket$ when both operations are exact, and the
   results are the two packages' roundings of the same real otherwise.
-- **Exact oracles:** a helper or operation equals a `BigInt` or rational
-  computation, for example `round_positive_div` against
-  $\lfloor n/d \rfloor$ plus the rounding table, or `digits10` against powers
-  of ten.
+- **Exact oracles:** an operation equals a `BigInt` or rational
+  computation.
 - **Enclosure:** for an interval operation $F$ and a point operation $f$,
   $x \in X \Rightarrow f(x) \in F(X)$, and enclosure relations behave as
   partial orders rather than total orders.
@@ -39,7 +36,7 @@ signed zero and NaN payload; interchange encodings round-trip bit for bit.
 
 The package has no source files besides tests, and imports the cores only
 `for "wbtest"`. It therefore never becomes part of a library build and has
-no API to maintain, while still being able to use internal helpers.
+no API to maintain.
 
 ### Fixed witnesses from official corpora
 
@@ -57,8 +54,9 @@ a law stays meaningful when formatting changes.
 
 - A passing run shows that each stated law holds on its witnesses; it is
   finite evidence, not a proof for all inputs.
-- Tests are deterministic and target-independent, so the same run on native,
-  Wasm and JavaScript checks the same claims.
+- Tests are deterministic and, except `context_vectors_wbtest.mbt` (native only,
+  because it reads `testdata/context_vectors.txt`), target-independent, so the
+  same run on native, Wasm and JavaScript checks the same claims.
 
 ## Alternatives rejected
 

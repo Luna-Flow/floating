@@ -46,8 +46,7 @@ pub(all) enum Sign {
 from $+0$; use the concrete package (for example `Binary::is_negative_zero`)
 when the sign bit of a zero matters. The scalar implementations also return
 `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of
-`SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the
-argument of constructors such as `Binary::inf`.
+`SemanticScalar::Infinity` in the [`semantic`](semantic.md) package.
 
 ```moonbit
 ///|
@@ -197,13 +196,15 @@ fn precision(Self) -> Int
 ```
 
 It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every
-constructor clamps the stored precision to at least $1$, so the result is
+constructor requires a precision of at least $1$ and aborts otherwise, so the result is
 always at least $1$.
 
 ### `Floating::with_precision`
 
 `with_precision(x, p)` returns `x` re-expressed at precision
-$q = \max(1, p)$.
+$q = p$; `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds
+`binary_precision_max` or `decimal_precision_max`, and `@decimal_gda.Decimal`
+uses $q = \max(1, p)$.
 
 ```mbti
 fn with_precision(Self, Int) -> Self
@@ -213,12 +214,15 @@ For a finite scalar the value is rounded to $q$ significant digits of its
 radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has
 no rounding parameter, because it cannot return an error; the inherent
 `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags
-are reported (use the `*_ctx` APIs of the concrete package for both). The
-decimal types have no other exponent limit. `Binary` keeps its
-implementation range: a result whose exponent leaves
+are reported (use the `*_ctx` APIs of the concrete package for both). Each
+type keeps the range of its stored values. For `Binary` a result whose exponent leaves
 $[1 - e_{\max}, e_{\max}]$ with $e_{\max} = 2^{30} - 1$
 (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest
-finite value, or underflows, as in IEEE 754. Zeros keep their sign.
+finite value, or underflows, as in IEEE 754. The decimal types behave alike at
+their stored ranges: the exponent of the least digit is at least
+`decimal_value_e_tiny` or `gda_value_e_tiny` ($-2147483645$) and the adjusted
+exponent is at most `decimal_value_e_max` or `gda_value_e_max` ($2147483646$).
+Zeros keep their sign.
 Infinities and NaNs keep their class, sign and payload and only change the
 stored precision.
 
@@ -303,7 +307,7 @@ $$
 \texttt{is\_finite}(x) &\iff \texttt{classify}(x) = \texttt{Finite},\\
 \texttt{is\_infinite}(x) &\iff \texttt{classify}(x) = \texttt{Infinity},\\
 \texttt{is\_nan}(x) &\iff \texttt{classify}(x) = \texttt{NaN},\\
-\texttt{is\_zero}(x) &\iff \texttt{classify}(x) = \texttt{Finite} \wedge \texttt{sign}(x) = \texttt{Zero}.
+\texttt{is\_zero}(x) &\iff \texttt{classify}(x) = \texttt{Finite} \wedge \texttt{signum}(x) = \texttt{Zero}.
 \end{aligned}
 $$
 
@@ -383,10 +387,13 @@ pub using @arithmetic {type FpClass}
 
 ### `RoundingMode`
 
-`RoundingMode` lists the five rounding directions accepted by the inherent
-`with_precision` methods and by the concrete constructors (not by the trait
-method `Floating::with_precision`): `ToNearestEven`,
-`TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`.
+`RoundingMode` lists the five rounding directions that an `ArithmeticContext`
+carries: `ToNearestEven`,
+`TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`. The inherent
+`with_precision` methods and the concrete constructors take the rounding type of
+their own package (`BinaryRoundingMode`, `DecimalRoundingMode`, `GdaRoundingMode`)
+and the trait method `Floating::with_precision` takes none; `AwayFromZero` has no
+`BinaryRoundingMode` or `DecimalRoundingMode` counterpart.
 
 ```mbti
 pub using @arithmetic {type RoundingMode}

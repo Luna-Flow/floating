@@ -26,7 +26,7 @@ import {
 ```
 
 The examples refer to the packages as `@interval_checked.`,
-`@interval.`, `@binary.`, `@def.` (for the `Sign` of an infinity) and
+`@interval.`, `@binary.` and
 `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
 helper (`to_midpoint_radius_string` of a bounded interval is `midpoint +/- radius` in binary
 notation, `mpe` meaning $m \cdot 2^{e}$):
@@ -71,7 +71,8 @@ pub fn IntervalChecked::from_result(Result[@interval.Interval, @arithmetic.Arith
 ### `IntervalChecked::from_int`, `IntervalChecked::from_coefficient`
 
 These constructors enclose an integer through `Interval::from_int` /
-`Interval::from_coefficient`; they never fail.
+`Interval::from_coefficient`; they fail only with a `DomainError` for a
+`precision` outside 1 to `binary_precision_max`.
 
 ```mbti
 pub fn IntervalChecked::from_int(Int, precision? : Int) -> Self
@@ -130,7 +131,8 @@ valid.
 ### `IntervalChecked::entire`
 
 `entire(precision~)` is the entire real line $[-\infty, +\infty]$ (default
-precision 53); it never fails.
+precision 53); it fails only with a `DomainError` for a `precision` outside 1
+to `binary_precision_max`.
 
 ```mbti
 pub fn IntervalChecked::entire(precision? : Int) -> Self
@@ -474,7 +476,7 @@ pub fn IntervalChecked::acosh(Self) -> Self
 pub fn IntervalChecked::atanh(Self) -> Self
 ```
 
-Each method is `bind` of `Interval::try_<name>_interval` at the interval's
+Each method is `bind` of `Interval::try_<name>` at the interval's
 precision. The result $Y$ satisfies $f(X \cap \operatorname{dom} f) \subseteq
 Y$; parts of $X$ outside the domain are ignored, so $\ln([-1, 1]) =
 [-\infty, 0]$ and $\ln([-2, -2])$ is empty. The only error is a

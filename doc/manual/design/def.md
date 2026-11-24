@@ -102,8 +102,8 @@ Error: [4145]
       │                ╰──────── Cannot implement trait '@Luna-Flow/floating/def.Floating' because it is readonly.
 ```
 
-The four implementations are in `binary`, `decimal`, `decimal_gda` and
-`interval`, which are other packages of the module, and `def` cannot import
+The three implementations are in `binary`, `decimal` and `decimal_gda`,
+which are other packages of the module, and `def` cannot import
 them (they import `def`).
 
 **Options.** (a) Keep `pub(open)` and state the contract in the documentation.
@@ -189,16 +189,17 @@ layer exists between the two repositories.
 ### The `Floating` laws
 
 The laws below are the contract of the trait. They are stated for a value $x$,
-a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
+a precision $p$ and a direction $m$; $q = p$ for $p \ge 1$ (for $p < 1$,
+`Binary` and `@decimal.Decimal` abort and `@decimal_gda.Decimal` uses $q = 1$). The three scalar
 implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception
-of `Binary` stated below (F5). The laws are the contract between the three implementations and the generic
+stated below (F5). The laws are the contract between the three implementations and the generic
 code of this library; they are not an invitation to implement the trait
 elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open)).
 
 $$
 \begin{aligned}
 &\textbf{(F1) partition} && \text{exactly one of } \texttt{is\_finite}(x),\ \texttt{is\_infinite}(x),\ \texttt{is\_nan}(x) \text{ holds;}\\
-&\textbf{(F2) sign} && \texttt{classify}(x) \ne \texttt{NaN} \implies \texttt{sign}(x) \text{ is given by the side of } 0 \text{ on which } [\![x]\!] \text{ lies;}\\
+&\textbf{(F2) sign} && \texttt{classify}(x) \ne \texttt{NaN} \implies \texttt{signum}(x) \text{ is given by the side of } 0 \text{ on which } [\![x]\!] \text{ lies;}\\
 &\textbf{(F3) precision} && \texttt{precision}(x) \ge 1;\\
 &\textbf{(F4) re-precision} && \texttt{precision}(\texttt{with\_precision}(x, p, m)) = q;\\
 &\textbf{(F5) rounding} && x \text{ a finite scalar} \implies [\![\texttt{with\_precision}(x,p,m)]\!] = \circ_{m,q}([\![x]\!]);\\
@@ -207,8 +208,11 @@ $$
 $$
 
 **The exponent range of `Binary`.** (F5) is stated over
-$\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types store the
-exponent as an `Int` and add no other limit, so for them (F5) holds as stated.
+$\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types keep a stored
+range of their own (the exponent of the least digit at least $-2147483645$, the adjusted
+exponent at most $2147483646$: `decimal_value_e_tiny`, `decimal_value_e_max`,
+`gda_value_e_tiny`, `gda_value_e_max`), and a result beyond it overflows or underflows by
+the direction as for `Binary`, so for them (F5) holds whenever $\circ_{m,q}([\![x]\!])$ lies in that range.
 `Binary` keeps its implementation range even in `with_precision`: let
 $E = 2^{30} - 1$ (`binary_value_e_max`, and $-E$ is
 `binary_value_e_min`). A rounded result whose leading bit would lie
@@ -319,7 +323,7 @@ length for decimals, and linear in the coefficient bit length for binary.
   arithmetic or any error behaviour. Generic code must request the additional
   capability traits it uses.
 - `with_precision` neither honours context exponent bounds nor reports flags
-  (only the `Binary` implementation range applies); contexts and flags belong
+  (only the stored range of the type applies); contexts and flags belong
   to the `*_ctx` APIs of the concrete packages and to the contextual traits of
   Luna-Flow/arithmetic.
 - `normalized` keeps the representation-independent value (F6).
