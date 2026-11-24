@@ -8,7 +8,7 @@ summaries with fixed counting rules, and deterministic shard selection.
 `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`,
 `frontend/testfloat_expr` and `internal/runner_cli` build on it and wrap its
 types in their own public types. It is an internal package: code outside
-the `Luna-Flow/floating` module cannot import it, and its interface may change
+the `Luna-Flow/floating-tools` module cannot import it, and its interface may change
 without notice. See the [tutorial](../../tutorial/internal/conformance.md) and
 the [design page](../../design/internal/conformance.md).
 
