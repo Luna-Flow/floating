@@ -3127,7 +3127,7 @@ msgstr "`Decimal` と二進の [`Binary`](binary.md) の間で変換します。
 
 #: manual/api/decimal.md:318
 msgid "`from_binary(x, precision~, mode~)` is exact whenever the decimal expansion of `x` fits in `precision` decimal digits, with the exponent closest to 0 as for `from_double`, and is otherwise rounded once to exactly `precision` digits in `mode` (default `RoundTiesToEven`, the rounding type of the radix of the result). The precision is required and counts digits; it was the number of bits of `x` by default, a count of the wrong kind."
-msgstr "`from_binary(x, precision~, mode~)` は、`x` の十進展開が `precision` 桁に収まる場合は正確に変換します。このとき指数は `from_double` と同様に 0 に最も近い値となり、それ以外では `mode`（既定は `RoundTiesToEven`、結果の基数に対応する丸め型）でちょうど `precision` 桁に一度だけ丸めます。精度は必須で、十進桁数を指定します。以前は既定値を `x` のビット数にしていましたが、これは種類の異なる数え方でした。"
+msgstr "`from_binary(x, precision~, mode~)` は、`x` の十進展開が `precision` 桁に収まる場合は厳密に変換します。このとき指数は `from_double` と同様に 0 に最も近い値となり、それ以外では `mode`（既定は `RoundTiesToEven`、結果の基数に対応する丸め型）でちょうど `precision` 桁に一度だけ丸めます。精度は必須で、十進桁数を指定します。以前は既定値を `x` のビット数にしていましたが、これは種類の異なる数え方でした。"
 
 #: manual/api/decimal.md:325
 msgid "A binary zero keeps its sign, so $-0$ converts to $-0$ (IEEE 754-2019 5.4.2 and 6.3). A NaN becomes a quiet NaN with payload 0."
@@ -3135,7 +3135,7 @@ msgstr "二進ゼロは符号を保つため、$-0$ は $-0$ に変換されま�
 
 #: manual/api/decimal.md:328
 msgid "`to_binary(precision~, mode~)` rounds the exact decimal value once to a `Binary` of `precision` bits with `mode`, one of the five rounding-direction attributes of IEEE 754-2019 4.3.1 (default `RoundTiesToEven`). The precision is required and counts bits, from 1 to `@binary.binary_precision_max`; outside that range the call aborts (it was the number of digits of the decimal by default). Most decimal fractions are not dyadic, so this conversion is usually inexact. Using `RoundTowardNegative` and `RoundTowardPositive` gives a binary enclosure of the decimal value. Zeros keep their sign; NaN payloads are not kept. The same conversions are available in `decimal_gda`, with `GdaRoundingMode` for a decimal result."
-msgstr "`to_binary(precision~, mode~)` は正確な十進値を一度だけ、`mode`（IEEE 754-2019 4.3.1 の 5 種類の丸め方向属性のいずれか。既定は `RoundTiesToEven`）で `precision` ビットの `Binary` に丸めます。精度は必須で、1 から `@binary.binary_precision_max` までのビット数を指定します。範囲外では呼び出しが中断されます（以前は十進値の桁数を既定値にしていました）。十進分数の大半は二進有理数ではないため、この変換は通常不正確です。`RoundTowardNegative` と `RoundTowardPositive` を使うと、十進値を含む二進区間が得られます。ゼロの符号は保持され、NaN のペイロードは保持されません。同じ変換は `decimal_gda` にもあり、十進結果には `GdaRoundingMode` を使います。"
+msgstr "`to_binary(precision~, mode~)` は厳密な十進値を一度だけ、`mode`（IEEE 754-2019 4.3.1 の 5 種類の丸め方向属性のいずれか。既定は `RoundTiesToEven`）で `precision` ビットの `Binary` に丸めます。精度は必須で、1 から `@binary.binary_precision_max` までのビット数を指定します。範囲外では呼び出しが中断されます（以前は十進値の桁数を既定値にしていました）。十進分数の大半は二進有理数ではないため、この変換は通常不正確です。`RoundTowardNegative` と `RoundTowardPositive` を使うと、十進値を含む二進区間が得られます。ゼロの符号は保持され、NaN のペイロードは保持されません。同じ変換は `decimal_gda` にもあり、十進結果には `GdaRoundingMode` を使います。"
 
 #: manual/api/decimal.md:341
 msgid "Convert a `Decimal` between decimal formats or between decimal and binary formats; each operation returns flags. They implement convertFormat, IEEE 754-2019 5.4.2."
@@ -3147,7 +3147,7 @@ msgstr "`convert_format(format)` は decimal32、decimal64、decimal128 に変�
 
 #: manual/api/decimal.md:359
 msgid "`from_binary_ctx(x, ctx)` rounds the exact value of a binary float once under the decimal context (precision, exponent range, direction) with the flags of the rounding. For an exact conversion, the preferred exponent is 0, the exponent closest to 0 that holds the digits: `0.5` is `5E-1`, and `96` is `96`. An inexact conversion has `precision` digits because the preferred exponent is the least possible. A value beyond the exponent range, or far below it, overflows or underflows without its digits being formed. An in-range value is correctly rounded at any binary exponent, at a cost that does not grow with the exponent. A binary exponent beyond $2^{22}$ is refused with NaN and `invalid_operation`."
-msgstr "`from_binary_ctx(x, ctx)` は十進コンテキスト（精度、指数範囲、方向）のもとで二進浮動小数点数の正確な値を一度だけ丸め、その丸めフラグを返します。正確な変換では、優先指数は 0、すなわち桁を保持する指数のうち 0 に最も近いものです。`0.5` は `5E-1`、`96` は `96` になります。不正確な変換は、優先指数が可能な限り小さいため `precision` 桁になります。指数範囲を超える値や大幅に下回る値は、桁を生成せずにオーバーフローまたはアンダーフローします。範囲内の値はどの二進指数でも正しく丸められ、そのコストは指数に応じて増えません。二進指数が $2^{22}$ を超えると拒否され、NaN と `invalid_operation` が返ります。"
+msgstr "`from_binary_ctx(x, ctx)` は十進コンテキスト（精度、指数範囲、方向）のもとで二進浮動小数点数の厳密な値を一度だけ丸め、その丸めフラグを返します。厳密な変換では、優先指数は 0、すなわち桁を保持する指数のうち 0 に最も近いものです。`0.5` は `5E-1`、`96` は `96` になります。不正確な変換は、優先指数が可能な限り小さいため `precision` 桁になります。指数範囲を超える値や大幅に下回る値は、桁を生成せずにオーバーフローまたはアンダーフローします。範囲内の値はどの二進指数でも正しく丸められ、そのコストは指数に応じて増えません。二進指数が $2^{22}$ を超えると拒否され、NaN と `invalid_operation` が返ります。"
 
 #: manual/api/decimal.md:370
 msgid "`to_binary_ctx(ctx)` rounds the exact decimal value once under a `BinaryContext`. The destination may be binary16 through binary128, or a format with any precision and range. It returns `BinaryFlags` for `inexact`, `overflow` and `underflow`. This is the conversion of `Binary::from_string_ctx`, correctly rounded for any exponent."
@@ -3417,7 +3417,7 @@ msgstr "共通の列挙型にない `RoundTiesToAway` に対して、`to_arithme
 
 #: manual/api/decimal.md:773
 msgid "Every context detects tininess before rounding (IEEE 754-2019 7.5). A non-zero exact result whose magnitude is below $10^{e_{\\min}}$ is tiny, regardless of the delivered value. An inexact tiny result raises `underflow`. Contexts have no option for the binary after-rounding rule."
-msgstr "すべてのコンテキストは丸め前に極小性を検出します（IEEE 754-2019 7.5）。絶対値が $10^{e_{\\min}}$ 未満の非ゼロの正確な結果は、実際に返される値にかかわらず極小です。不正確な極小結果は `underflow` を発生させます。コンテキストには二進形式のように丸め後に検出する規則を選ぶオプションはありません。"
+msgstr "すべてのコンテキストは丸め前に極小性を検出します（IEEE 754-2019 7.5）。絶対値が $10^{e_{\\min}}$ 未満の非ゼロの厳密な結果は、実際に返される値にかかわらず極小です。不正確な極小結果は `underflow` を発生させます。コンテキストには二進形式のように丸め後に検出する規則を選ぶオプションはありません。"
 
 #: manual/api/decimal.md:778
 msgid "Status flags"
@@ -3609,7 +3609,7 @@ msgstr "コンテキスト演算"
 
 #: manual/api/decimal.md:967
 msgid "Each function in this group takes a `DecimalContext` and returns `(result, flags)`. It rounds the exact result once to the context precision in the context's rounding direction, then applies the exponent range. Overflow gives the result for that rounding direction; see [overflow](../design/decimal.md#overflow). A result whose exact magnitude is below $10^{e_{\\min}}$ is rounded directly to the subnormal grid $10^{E_{\\text{tiny}}}$. A normal result is rounded only to $p$ digits even when its exact exponent is below $E_{\\text{tiny}}$. Large exponents are folded down to $e_{\\max}-p+1$."
-msgstr "このグループの各関数は `DecimalContext` を取り、`(result, flags)` を返します。正確な結果をコンテキストの精度と丸め方向で一度丸めてから、指数範囲を適用します。オーバーフローではその丸め方向が選ぶ結果を返します。[オーバーフロー](../design/decimal.md#overflow)を参照してください。正確な絶対値が $10^{e_{\\min}}$ 未満の結果は、次小数の格子 $10^{E_{\\text{tiny}}}$ に直接丸められます。正確な指数が $E_{\\text{tiny}}$ 未満でも、正規結果は $p$ 桁に限って丸めます。大きな指数は $e_{\\max}-p+1$ まで折り下げられます。"
+msgstr "このグループの各関数は `DecimalContext` を取り、`(result, flags)` を返します。厳密な結果をコンテキストの精度と丸め方向で一度丸めてから、指数範囲を適用します。オーバーフローではその丸め方向が選ぶ結果を返します。[オーバーフロー](../design/decimal.md#overflow)を参照してください。厳密な絶対値が $10^{e_{\\min}}$ 未満の結果は、次小数の格子 $10^{E_{\\text{tiny}}}$ に直接丸められます。厳密な指数が $E_{\\text{tiny}}$ 未満でも、正規結果は $p$ 桁に限って丸めます。大きな指数は $e_{\\max}-p+1$ まで折り下げられます。"
 
 #: manual/api/decimal.md:976
 msgid "When the exact result fits, the operation uses its *preferred exponent*, so cohort information is preserved. NaN operands propagate as a quiet NaN with the sign and payload of the first NaN; the payload is cut to its low $p-1$ digits, as in `from_string_ctx` and the interchange encodings. A signaling NaN operand raises `invalid_operation`."
@@ -3617,7 +3617,7 @@ msgstr "厳密な結果が収まる場合、演算は*優先指数*を使い、�
 
 #: manual/api/decimal.md:982
 msgid "Near the underflow threshold, the single rounding determines the result. In decimal32, the exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\\cdot 10^{-90}$. It is a normal number even though its exact exponent is below $E_{\\text{tiny}}=-101$, and rounds once to seven digits as `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is $5.0000000000005\\cdot 10^{-102}$, which is subnormal. Its guarded quotient rounds once to the grid $10^{-101}$, giving `1E-101` with `inexact` and `underflow`."
-msgstr "アンダーフロー閾値の近くでは、一度の丸めが結果を決めます。decimal32 で、正確な積 `3.000001E-45 * 1.500001E-45` は $4.5000045000015\\cdot 10^{-90}$ です。正確な指数が $E_{\\text{tiny}}=-101$ より小さくても正規数であり、一度七桁に丸めて `4.500005E-90` になります。商 `1 / 1.9999999999998E+101` は $5.0000000000005\\cdot 10^{-102}$ で、非正規化数です。ガード付き商をグリッド $10^{-101}$ に一度丸めると、`inexact` と `underflow` を伴う `1E-101` になります。"
+msgstr "アンダーフロー閾値の近くでは、一度の丸めが結果を決めます。decimal32 で、厳密な積 `3.000001E-45 * 1.500001E-45` は $4.5000045000015\\cdot 10^{-90}$ です。厳密な指数が $E_{\\text{tiny}}=-101$ より小さくても正規数であり、一度七桁に丸めて `4.500005E-90` になります。商 `1 / 1.9999999999998E+101` は $5.0000000000005\\cdot 10^{-102}$ で、非正規化数です。ガード付き商をグリッド $10^{-101}$ に一度丸めると、`inexact` と `underflow` を伴う `1E-101` になります。"
 
 #: manual/api/decimal.md:993
 msgid "Add, subtract, multiply and divide return correctly rounded results."
@@ -3625,7 +3625,7 @@ msgstr "加算、減算、乗算、除算は正しく丸められた結果を返
 
 #: manual/api/decimal.md:1002
 msgid "The preferred exponents are $\\min(q_a,q_b)$ for addition and subtraction, $q_a+q_b$ for multiplication, and $q_a-q_b$ for division. An exact quotient uses the cohort member closest to its preferred exponent. An inexact quotient has $p$ digits, except a subnormal quotient, whose exponent is $E_{\\text{tiny}}$. A zero sum is $+0$ except under `Floor`, when it is $-0$ if either operand is negative, or when both operands are $-0$."
-msgstr "加算と減算の優先指数は $\\min(q_a,q_b)$、乗算は $q_a+q_b$、除算は $q_a-q_b$ です。正確な商には優先指数に最も近いコホートのメンバーを使います。不正確な商は $p$ 桁です。ただし非正規化数の商の指数は $E_{\\text{tiny}}$ です。ゼロの和は $+0$ です。ただし `Floor` では、どちらかのオペランドが負なら結果は $-0$ となり、両方のオペランドが $-0$ の場合も該当します。"
+msgstr "加算と減算の優先指数は $\\min(q_a,q_b)$、乗算は $q_a+q_b$、除算は $q_a-q_b$ です。厳密な商には優先指数に最も近いコホートのメンバーを使います。不正確な商は $p$ 桁です。ただし非正規化数の商の指数は $E_{\\text{tiny}}$ です。ゼロの和は $+0$ です。ただし `Floor` では、どちらかのオペランドが負なら結果は $-0$ となり、両方のオペランドが $-0$ の場合も該当します。"
 
 #: manual/api/decimal.md:1009
 #: manual/api/decimal.md:1111
