@@ -118,7 +118,7 @@ This is the only way rounding enters the package: each operation computes a
 lower bound $L$ and an upper bound $U$ of the exact range and stores
 $\operatorname{RD}_p(L)$ and $\operatorname{RU}_p(U)$. Property (iii) means
 it does not matter whether candidates are rounded before or after taking the
-minimum; the code rounds the extremal candidate once (`quantize_interval`).
+minimum; the code rounds the extremal candidate once (`directed_add`, `directed_sub` and `directed_mul`).
 
 The width added by rounding is at most one unit in the last place per
 endpoint. For $2^{e} \le |a| < 2^{e+1}$ the $p$-bit numbers near $a$ are
@@ -672,8 +672,8 @@ $\operatorname{RD}(\mathrm{lo})$, and the upper end the maximum of $x_h$ or
 $\operatorname{RU}(\mathrm{hi})$; no two transcendental ends are compared with each other, since
 $\operatorname{RD}$ is monotone. The work is two searches of a few pieces each, whatever
 the prior spans, and its cost follows the number of bits of the period index through the
-working precision. The only limit is the one of the forward functions: an end of the prior at
-or beyond $2^{\max(65536, 4p)+1}$ is kept (valid, not tight). It is decided before any work
+working precision. The only limit is the one of the forward functions: an end of the prior
+whose reduction needs more than 8,000,000 working bits ($\max(0, k) + p + 96$ for the binary exponent $k$ of the end) is kept (valid, not tight). It is decided before any work
 (the working precision comes only from the ends inside it, and a prior whose finite ends are
 all beyond it is returned at once), so such an end never costs $\pi$ at its precision.
 
@@ -884,7 +884,7 @@ float and the upper end $+\infty$. Both converters accept an exponent field of a
 
 *The order $l \le u$.* It is decided from the exact values, so rounding never makes a nonempty literal Empty and an empty one nonempty: two
 decimal bounds are compared by the adjusted exponent and then the digit strings (trailing zeros removed, the shorter padded with
-zeros), which needs no power of ten whatever the exponent; any other pair is first separated by roundings at 64 bits and
+zeros), which needs no power of ten whatever the exponent; two hexadecimal bounds are compared exactly by the position of the leading bit and then the aligned coefficients, without a power; any other pair is first separated by roundings at 64 bits and
 otherwise compared by cross-multiplication of the exact numerators and denominators, a power being formed only for an
 exponent of magnitude at most 65,536. A pair that is neither separated nor within that limit (two bounds of different radices
 that agree to 64 bits and have an exponent beyond 65,536) is undecided: 12.12.7 case (b) allows it and requires the result to contain
@@ -1040,8 +1040,8 @@ gives the exact center.
 ### Contexts and double rounding
 
 `IntervalContext` carries a target precision $q$ and exponent range;
-`apply_ctx` rounds endpoints outward into it and the `*_ctx` operations
-compute at the operands' precision $p$ and then apply the context. Rounding
+`apply_ctx` rounds endpoints outward into it, and the operations
+compute at the operands' precision $p$ and the context is applied to the result. Rounding
 twice is harmless for directed rounding when $q \le p$:
 
 $$
@@ -1057,7 +1057,7 @@ enclosing direction: an upper endpoint above the range becomes $+\infty$, a
 positive lower endpoint becomes the largest finite number (still below the
 true value). Underflow rounds outward on the subnormal grid, so a tiny
 positive upper bound becomes the smallest subnormal and never 0. The flags
-are returned, never stored glointervaly.
+are returned, never stored globally.
 
 ### Total and `try_` forms
 
@@ -1070,8 +1070,7 @@ tightness.
 `ArithmeticError` with a certification detail (operation, stage, reason,
 precision). The total form is the `try_` form with a fallback: when the `try_`
 form fails it returns the range of the function over its domain, which keeps
-the inclusion property: $[0, +\infty)$ for `exp`, `exp2`, `exp10`, `pow` and
-`hypot`, $[-1, +\infty)$ for `expm1`, Entire for the logarithms, `sinh`,
+the inclusion property: $[0, +\infty)$ for `exp`, `exp2`, `exp10` and `pow`, $[-1, +\infty)$ for `expm1`, Entire for the logarithms, `sinh`,
 `asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`,
 `sinpi`, `cospi` and `tanh`, $[1, +\infty)$ for `cosh`, $[0, +\infty)$ for
 `acosh`, $[-\pi/2, \pi/2]$ for `atan` and `asin`, $[0, \pi]$ for `acos`,
@@ -1080,8 +1079,7 @@ than 64 bits and rounded outward, so a fallback cannot fail at any precision.
 The domain is decided before the kernel runs, so a failure is always a
 certification failure and never a domain error: an argument outside the domain
 gives Empty, a wide interval means the kernel gave up. Trigonometric reduction
-is capped: when the larger endpoint magnitude is at least
-$2^{\max(65536, 4p)+1}$, reduction would need more than that many bits, so the
+is capped: when $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the binary exponent of the larger endpoint magnitude, reduction would need more working bits than the limit, so the
 `try_` forms report a resource limit and the total forms return the fallback.
 
 *Why one kernel.* Until this was settled the total forms of fifteen functions
@@ -1140,8 +1138,7 @@ either.
 function evaluated, by the induction argument above.
 
 **Complexity.** Arithmetic performs at most four endpoint products or two
-sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus
-alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one
+sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$. Elementary functions cost one
 or two directed evaluations of the `binary` kernels at precision $p$ (see
 [`binary`](binary.md) for their cost), plus the index range for the
 trigonometric functions.
@@ -1184,11 +1181,11 @@ The package deliberately does not:
   `z = x / y` to `x = y z` and use `mul_rev`);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
-- define a total order on intervals, or treat `Eq` as set equality;
+- define a total order on intervals;
 - convert decimal data outward on its own: `from_double` and `exact` enclose
   binary values, and enclosing a decimal literal is the caller's job (see the
   [tutorial](../tutorial/interval.md#enclose-a-decimal-constant));
 - implement intervals over decimal endpoints, complex intervals, interval vectors
   or matrices, or Taylor models;
-- report status through global flags: flags come back from `*_ctx` calls and
+- report status through global flags: flags come back from `apply_ctx` and `midpoint_ctx` and
   decorations travel with values.
