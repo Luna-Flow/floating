@@ -285,7 +285,7 @@ form) and rounded outward: the lower bound down and the upper bound up. The comp
 the exact values, so a literal is never rejected or emptied by rounding; a decimal exponent or a binary exponent beyond
 the range is decided from the exponent and the digits without forming the value (a lower bound above the range is the
 largest finite float and an upper bound is $+\infty$; below the smallest stored value they are 0 and the smallest
-positive stored value). Only two finite bounds of different radices that are equal to the working size and have an
+positive stored value). Only two finite bounds of different radices that agree to 64 bits and have an
 exponent beyond 65,536 cannot be ordered; then (12.12.7 case (b), `PossiblyUndefinedOperation`) the result contains
 both bounds.
 
@@ -795,10 +795,10 @@ $$
 with $0 \cdot \infty$ taken as 0 in $S$ (a zero endpoint times an unbounded
 side contributes 0). The sums and products are formed exactly and rounded
 once. For bounded operands the signs select the products that can be
-extremal: two when both operands have constant sign, four (the minimum of
+extremal: two when at most one operand has 0 in its interior, four (the minimum of
 $\underline{x}\,\overline{y}$ and $\overline{x}\,\underline{y}$, the maximum
-of $\underline{x}\,\underline{y}$ and $\overline{x}\,\overline{y}$) when either
-operand has 0 in its interior. The design page proves the
+of $\underline{x}\,\underline{y}$ and $\overline{x}\,\overline{y}$) when both
+operands have 0 in their interior. The design page proves the
 [sign-case table](../design/interval.md#endpoint-formulas).
 
 Division follows IEEE 1788: $\boldsymbol{x} / \boldsymbol{y}$ is the hull of
@@ -1037,8 +1037,8 @@ end). This is the tightest result, and it can be narrower than a reference value
 leaves an ulp of slack. For example `sin_rev([0, 0], x = [RU(pi), 7])` is
 $[RD(2\pi), RU(2\pi)]$ and `sin_rev([0, 0], x = [RU(pi), 6])` is Empty. How the ends are
 decided is on the [design page](../design/interval.md#reverse-sine-cosine-and-tangent).
-The one limit is the forward trigonometric one: an end of the prior at or beyond
-$2^{\max(65536, 4p) + 1}$ in magnitude is kept as it is (valid, not tight), decided before
+The one limit is the forward trigonometric one: an end of the prior whose reduction needs more than
+8,000,000 working bits ($\max(0, k) + p + 96$ for the binary exponent $k$ of the end) is kept as it is (valid, not tight), decided before
 any work is done, and a prior whose finite ends are all beyond it is returned at once. For
 a prior end of magnitude $2^e$ inside the limit the cost grows with $e$ like the cost of the
 forward functions of the
@@ -1404,7 +1404,7 @@ pub fn Interval::rootn(Self, Int) -> Self
 pub fn Interval::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-`rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain
+`rootn(x, 0)` is Empty; `try_rootn(x, 0)` is a domain
 error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt`. The total
 form is `try_rootn` with a fallback ($[0, +\infty)$ for an even degree, Entire
 for an odd one). For negative $n$, `try_rootn` returns Entire when an odd
@@ -1461,8 +1461,7 @@ $k \equiv 0$ and $-1$ at $k \equiv 2$); for `tan` an odd multiple of $\pi/2$
 inside the interval (a pole) makes the result Entire. The set of candidate
 indices $k$ is computed from the enclosure of $\pi$ and can only be too large,
 which widens but never invalidates the result. Unbounded arguments give
-$[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least
-$2^{\max(65536,\, 4p) + 1}$ the `try_` forms return a resource-limit error
+$[-1, 1]$ (Entire for `tan`). When $\max(0, k) + p + 96$ exceeds 8,000,000, with $k$ the binary exponent of the larger endpoint magnitude, the `try_` forms return a resource-limit error
 without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the
 same fallback they use when the certification budget (12 work precisions) is
 exhausted.
@@ -2148,7 +2147,7 @@ pub fn DecoratedInterval::to_midpoint_radius_string(Self) -> String
 
 ### `Interval::equal`, `Interval::not_equal`, `Interval::to_repr`, `DecoratedInterval::equal`, `DecoratedInterval::not_equal`, `IntervalFlags::equal`, `IntervalFlags::not_equal`
 
-These are the derived `Eq` and `Debug` methods of the structures.
+These are the `Eq` and `Debug` methods of the structures.
 
 ```mbti
 pub fn Interval::equal(Self, Self) -> Bool
