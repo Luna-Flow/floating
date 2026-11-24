@@ -3695,8 +3695,8 @@ msgid "Round a value to the context or return its absolute value rounded to the 
 msgstr "値をコンテキストに合わせて丸める、またはコンテキストに丸めた絶対値を返します。"
 
 #: manual/api/decimal.md:1094
-msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $E_{\\mathrm{top}}=e_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
-msgstr "`apply_ctx` は値をコンテキストの精度と指数範囲に丸めます。$E_{\\mathrm{top}}=e_{\\max}-p+1$ より大きい指数は下方へ折り畳まれます。NaN を quiet 化し、ゼロの符号を保ちます。`abs_ctx` は $|x|$ をコンテキストに丸めて返します。signaling NaN は `invalid_operation` を発生させます。"
+msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $e_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
+msgstr "`apply_ctx` は値をコンテキストの精度と指数範囲に丸めます。$e_{\\max}-p+1$ より大きい指数は下方へ折り畳まれます。NaN を quiet 化し、ゼロの符号を保ちます。`abs_ctx` は $|x|$ をコンテキストに丸めて返します。signaling NaN は `invalid_operation` を発生させます。"
 
 #: manual/api/decimal.md:1100
 msgid "Compute the IEEE remainder of a value and a divisor."
@@ -3809,8 +3809,8 @@ msgid "Exactly one operand is infinite"
 msgstr "一方のオペランドだけが無限大"
 
 #: manual/api/decimal.md:1173
-msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(E_{\\mathrm{top}},e_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $E_{\\mathrm{top}}$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
-msgstr "両方が無限大なら、$x$ の無限大を返します。量子はコホート範囲内の別の値へ暗黙に変わりません。結果の指数を $q_y$ にできなければ演算は失敗します。目標指数が $(E_{\\mathrm{top}},e_{\\max}]$ にある場合は、指数を折り畳む例外として受理され、他の結果と同様に指数 $E_{\\mathrm{top}}$ の結果になります。たとえば decimal64 で `1E+384` を `1E+384` に量子化すると `1.000000000000000E+384` です。"
+msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(e_{\\max}-p+1,e_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $e_{\\max}-p+1$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
+msgstr "両方が無限大なら、$x$ の無限大を返します。量子はコホート範囲内の別の値へ暗黙に変わりません。結果の指数を $q_y$ にできなければ演算は失敗します。目標指数が $(e_{\\max}-p+1,e_{\\max}]$ にある場合は、指数を折り畳む例外として受理され、他の結果と同様に指数 $e_{\\max}-p+1$ の結果になります。たとえば decimal64 で `1E+384` を `1E+384` に量子化すると `1.000000000000000E+384` です。"
 
 #: manual/api/decimal.md:1196
 msgid "Test whether two values have the same exponent."

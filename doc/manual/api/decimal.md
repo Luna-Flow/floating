@@ -1092,7 +1092,7 @@ pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above
-$E_{\mathrm{top}}=e_{\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero.
+$e_{\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero.
 `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`.
 
 ### `Decimal::remainder_ctx`
@@ -1172,8 +1172,8 @@ The result is NaN with `invalid_operation` in these cases:
 
 Two infinities give the infinity of $x$. The quantum does not silently change to another value
 of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target
-exponent in $(E_{\mathrm{top}},e_{\max}]$ is accepted as the fold-down exception; the result
-then has exponent $E_{\mathrm{top}}$, like every other result. For example, quantizing `1E+384`
+exponent in $(e_{\max}-p+1,e_{\max}]$ is accepted as the fold-down exception; the result
+then has exponent $e_{\max}-p+1$, like every other result. For example, quantizing `1E+384`
 to `1E+384` in decimal64 gives `1.000000000000000E+384`.
 
 ```moonbit

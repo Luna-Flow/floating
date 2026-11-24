@@ -3695,8 +3695,8 @@ msgid "Round a value to the context or return its absolute value rounded to the 
 msgstr "将值舍入到上下文，或返回舍入到上下文的绝对值。"
 
 #: manual/api/decimal.md:1094
-msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $E_{\\mathrm{top}}=e_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
-msgstr "`apply_ctx` 将值舍入到上下文的精度和指数范围。指数超过 $E_{\\mathrm{top}}=e_{\\max}-p+1$ 时会向下折叠。它会将 NaN 静默化，并保留零的符号。`abs_ctx` 返回舍入到上下文的 $|x|$；信号 NaN 会引发 `invalid_operation`。"
+msgid "`apply_ctx` rounds a value to the precision and exponent range of the context. An exponent above $e_{\\max}-p+1$ is folded down. It quiets a NaN and keeps the sign of zero. `abs_ctx` returns $|x|$ rounded to the context; a signaling NaN raises `invalid_operation`."
+msgstr "`apply_ctx` 将值舍入到上下文的精度和指数范围。指数超过 $e_{\\max}-p+1$ 时会向下折叠。它会将 NaN 静默化，并保留零的符号。`abs_ctx` 返回舍入到上下文的 $|x|$；信号 NaN 会引发 `invalid_operation`。"
 
 #: manual/api/decimal.md:1100
 msgid "Compute the IEEE remainder of a value and a divisor."
@@ -3809,8 +3809,8 @@ msgid "Exactly one operand is infinite"
 msgstr "恰有一个操作数是无穷大"
 
 #: manual/api/decimal.md:1173
-msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(E_{\\mathrm{top}},e_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $E_{\\mathrm{top}}$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
-msgstr "两个操作数均为无穷大时，结果取 $x$ 的无穷大。量子不会悄悄改成同值类范围内的另一个值：若结果无法具有指数 $q_y$，运算就会失败。目标指数位于 $(E_{\\mathrm{top}},e_{\\max}]$ 时，作为折叠例外可以接受；此时结果指数为 $E_{\\mathrm{top}}$，与其他结果一样。例如，在 decimal64 中将 `1E+384` 量化到 `1E+384`，得到 `1.000000000000000E+384`。"
+msgid "Two infinities give the infinity of $x$. The quantum does not silently change to another value of the cohort range: if the result cannot have exponent $q_y$, the operation fails. A target exponent in $(e_{\\max}-p+1,e_{\\max}]$ is accepted as the fold-down exception; the result then has exponent $e_{\\max}-p+1$, like every other result. For example, quantizing `1E+384` to `1E+384` in decimal64 gives `1.000000000000000E+384`."
+msgstr "两个操作数均为无穷大时，结果取 $x$ 的无穷大。量子不会悄悄改成同值类范围内的另一个值：若结果无法具有指数 $q_y$，运算就会失败。目标指数位于 $(e_{\\max}-p+1,e_{\\max}]$ 时，作为折叠例外可以接受；此时结果指数为 $e_{\\max}-p+1$，与其他结果一样。例如，在 decimal64 中将 `1E+384` 量化到 `1E+384`，得到 `1.000000000000000E+384`。"
 
 #: manual/api/decimal.md:1196
 msgid "Test whether two values have the same exponent."
