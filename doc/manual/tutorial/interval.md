@@ -424,7 +424,7 @@ $+\infty$ for any unbounded interval. Test `is_empty()` and
 **Integers wider than the precision.** `from_int(n, precision=p)` and
 `from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits
 the result is the two-point interval of its $p$-bit neighbours, not a point.
-At the default of 53 bits every `Int32` is a point, but a `BinCoeff` wider than
+At 53 bits every `Int32` is a point, but a `BinCoeff` wider than
 53 bits, or an explicit small precision, is not: pass a precision at least as
 large as the bit length of the integer.
 
