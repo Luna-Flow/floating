@@ -11,8 +11,8 @@ share what they have in common. It is internal so the cores can change the
 helpers together without a public compatibility promise.
 
 On the current branch the sharing is partial. The decimal cores use the
-string splitter, `round_positive_div`, the power caches and `digits10`; every
-core uses the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their
+string splitter, the power caches and `digits10`; `binary` and the two decimal
+packages use the refinement budget and `certified_failure`. The hot paths of `binary` and the two decimal packages round with their
 own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage
 `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which
 implement the same rounding table as `round_positive_div` but are not built
@@ -89,7 +89,8 @@ floating-point error in the estimate), and the cost is a constant number of
 
 ### Wide exponent parsing
 
-A decimal context may set $e_{\max}$ anywhere in `Int`, and the context-free
+A stored decimal value may have an exponent up to `decimal_value_e_max` (near
+the top of `Int`), and the context-free
 `parse` applies no exponent range at all, so no cap inside `Int` is safe: a
 literal exponent that is clamped to a smaller value can still be in range and
 silently changes the number. `split_decimal_string_wide` therefore returns the
