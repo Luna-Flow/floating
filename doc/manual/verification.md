@@ -919,7 +919,7 @@ cite them.
 | IEEE 754 §9.2 | Accuracy of recommended functions | Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; for decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude the functions return NaN with `not_computed`. |
 | IEEE 754 §9.2.2 | Preferred exponent when undefined (infinite or NaN `y` in `pow`) | `decimal`: `pow(+1, y)` is the plain `1`. |
 | IEEE 754 §5.12 | Character sequences accepted and produced (`binary`) | Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`. |
-| IEEE 754 §6.3 | Sign of a zero `remainder` result (`decimal`) | The sign of the dividend, kept in extended contexts. |
+| IEEE 754 §6.3 | Sign of a zero `remainder` result (`decimal`) | The sign of the dividend. |
 | IEEE 1788 §7, §4.2 | Flavor | Set-based. |
 | IEEE 1788 §12.10 | Accuracy of the elementary functions | Documented per operation in the [interval accuracy table](./conformance/interval.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire. |
 | IEEE 1788 §12.5 | Interval types | Inf-sup intervals with `Binary` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type. |
@@ -933,7 +933,7 @@ or the page that documents the decision.
 
 | Standard | Gap | Tracking |
 | --- | --- | --- |
-| IEEE 754-2019 §7.5 | IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
+| IEEE 754-2019 §8 | No alternate exception handling | by design (flags are values) |
 | IEEE 754-2019 §9.3 | No dynamic mode operations in the core packages (contexts are explicit values) | by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247) |
 | IEEE 754-2019 §9.4, §9.6 | No reduction operations; `binary` has no minimum/maximum family | [#237](https://github.com/Luna-Flow/floating/issues/237), [#238](https://github.com/Luna-Flow/floating/issues/238), [#240](https://github.com/Luna-Flow/floating/issues/240) |
 | IEEE 754-2019 §9.5 | No augmented arithmetic for `binary` | [#239](https://github.com/Luna-Flow/floating/issues/239) |
