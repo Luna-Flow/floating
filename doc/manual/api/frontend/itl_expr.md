@@ -89,7 +89,7 @@ pub fn ItlCase::expected(Self) -> String
 pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 ```
 
-`precision` (default `53`, must be positive) is the significand precision of
+`precision` (default `53`, must be within `1` and `268435456`) is the significand precision of
 the interval format the case runs in: bounds are read at `precision` bits and
 interval results (except those of `intersection`, `convexHull`, `pow` and
 `atan2`) and `mid` are rounded with
@@ -101,7 +101,9 @@ Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
 `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`).
 A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float
-`0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to
+`0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` aborts
+`execute_case`, so `nan` is usable only as a numeric expected value or as the
+candidate of `isMember`. Decimal and hexadecimal bounds are rounded to
 nearest-even at `precision` bits, the lower bound as well as the upper one.
 This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup
 constructor of the target type as two floating constants, so a bound is the
@@ -122,7 +124,7 @@ The case is dispatched on its operation and expected value:
 | ternary | `fma` | interval | equal sets |
 | integer power | `pown` (second operand an integer) | interval | equal sets |
 | reverse | `sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, each also as `…Bin` (the prior interval comes before the integer power of `pownRev`) | interval | equal sets |
-| reverse, three operands or two results | `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` | interval (two for `mulRevToPair`) | equal sets |
+| reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`) | `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` | interval (two for `mulRevToPair`) | equal sets |
 | binary | `add`, `sub`, `mul`, `div`, `pow`, `atan2`, `min`, `max`, `intersection`, `convexHull`, `cancelPlus`, `cancelMinus` | interval | equal sets |
 
 "Equal sets" means: both NaI, or both empty, or equal lower bounds and equal
@@ -140,17 +142,22 @@ Dispositions:
   interval (for example one followed by a `signal` annotation), a
   binary-dispatch case with other than two operands, or a boolean predicate
   other than the five unary ones whose second operand is missing or
-  unreadable;
+  unreadable, or a boolean case whose operation is not a boolean predicate
+  (`unsupported boolean operation`);
 - `Diagnostic(reason)` when the first operand of a boolean case, an operand of
   `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric,
   unary, ternary, integer-power or reverse dispatch, cannot be read or is missing, or an operand of
-  the binary dispatch is not an interval literal.
+  the binary dispatch is not an interval literal; the fma, unary, numeric,
+  integer-power, overlap and reverse dispatches also report a wrong number of
+  operands as a `Diagnostic`.
 
 Support is decided from the operation name before any operand is read, so
 `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `rsqrt [1.0,4.0]` are
 unsupported and do not count against `RunSummary::success`.
 
-`execute_case` does not abort on case content.
+`execute_case` aborts when an interval literal has a lower bound above the
+upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of
+`-inf` (the literal `[1e400,1e400]` included, which reads as `[inf,inf]`).
 
 ### `summarize_results`
 

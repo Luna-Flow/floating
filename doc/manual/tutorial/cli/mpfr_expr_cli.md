@@ -69,8 +69,9 @@ prints one object with `corpus`, `frontend`, `totalCases`, `passedCases`,
 
 ## Going further
 
-- `just conformance run binary` runs the pinned MPFR square-root data and the
-  elementary matrix together with the TestFloat matrix.
+- `just conformance run binary` runs the pinned MPFR square-root data and every
+  `mpfrCorpora` entry of `testdata/binary/corpora.json` (elementary, ln-wide,
+  strtofr and decimal output) together with the TestFloat matrix.
 - New elementary data is produced by `tools/generate_mpfr_elementary_oracle.c`;
   keep the `mpfr-elementary-v1` marker line so the runner detects the format.
 - [mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats and

@@ -151,8 +151,11 @@ test "dispositions" {
 ## Going further
 
 - **Corpus runs.** `just conformance run interval` fetches the pinned ITF1788
-  corpus, builds the native runner and runs the strict phases listed in
-  `testdata/interval/interpreter_stages.json`; see
+  corpus when `testdata/interval/itf1788` is missing, builds the native runner
+  and runs the phases listed in
+  `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic
+  case fails a phase only with `--strict-supported`, which this command does not
+  pass; see
   [verification](../../verification.md).
 - **Filtering by operation.** The CLI's `--operation NAME` option keeps only
   cases of that operation; in code, filter `cases` by `operation()` before
@@ -172,7 +175,8 @@ test "dispositions" {
   expected value make the expected value unreadable; such cases become
   unsupported or diagnostic rather than passing.
 - **Parse errors reject the input.** `parse_itl` returns only diagnostics if
-  any statement lacks `=` or an operation, or if the text ends inside a
+  any statement lacks `=` or an operation, if a `testcase` line has no space
+  after its name (`invalid testcase declaration`), or if the text ends inside a
   statement.
 
 ## Next steps

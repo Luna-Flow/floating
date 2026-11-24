@@ -67,8 +67,9 @@ disabled*. The result is a value of one of four kinds (decimal, integer,
 boolean, text) together with the set $F$ of raised conditions. Conversions
 `tosci` and `toeng` read the raw operand text, because the conversion from
 text is itself under test. Interchange-only operations (`canonical`, and
-`apply`, `copy*` on `#` operands with a `#` result) work on the encoding and
-return text.
+`apply` with a `#` result, and `copy`, `copyabs`, `copynegate`, `copyneg`,
+`copysign` on a `#` operand with a `#` result) work on the encoding and return
+text.
 
 ### The pass rule
 
@@ -82,7 +83,8 @@ $$
 $$
 
 where equality of flag sets is checked in both directions: a missing or an
-extra condition fails the row. $\operatorname{match}$ depends on the expected
+extra condition fails the row. A deviation that holds a value or flags for the
+row replaces $x$ or $C$ in this rule. $\operatorname{match}$ depends on the expected
 token $x$ and the kind of $v$:
 
 | expected $x$ | actual $v$ | $\operatorname{match}(v, x)$ |
@@ -95,24 +97,11 @@ token $x$ and the kind of $v$:
 | other text | boolean | $x$ is `true`/`1` for true or `false`/`0` for false, ignoring case |
 | text | text | equal strings (ignoring case for `#hex`) |
 
-The decimal case is exact on representations. IEEE 754 `totalOrder`[^total]
-compares signs first, then classes, then numeric values, then exponents, and
-orders NaNs by signaling bit and payload. Hence
-
-$$
-\operatorname{compareTotal}(a, b) = 0 \iff
-\begin{cases}
-(s_a, c_a, q_a) = (s_b, c_b, q_b) & \text{finite,} \\
-s_a = s_b & \pm\infty, \\
-s_a = s_b,\ \text{same signaling bit and payload} & \text{NaN,}
-\end{cases}
-$$
-
-so `2.0` does not match `2.00`, `-0` does not match `0`, and `NaN12` does not
-match `NaN`.
-
-[^total]: IEEE 754-2019, clause 5.10, `totalOrder`. `Decimal::compare_total`
-    implements it for `decimal_gda`.
+The decimal case is a comparison of text. The expected token is not read as a
+number (except the format-prefixed tokens above); the result is printed with
+its to-scientific-string and compared with the token, so the comparison is
+exact on representations: `2.0` does not match `2.00`, `-0` does not match
+`0`, and `NaN12` does not match `NaN`.
 
 ## Design decisions
 
@@ -212,7 +201,9 @@ and decoding and dispatch failures become a failed result with the message
 `"evaluation failed"`.
 
 **Complexity.** Parsing is linear in the text length. Execution is linear in
-the number of rows plus the cost of the decimal operations themselves.
+the number of rows plus the cost of the decimal operations themselves, and,
+when deviations are given, plus one scan of the deviation list for every
+selected row.
 
 ## Alternatives rejected
 

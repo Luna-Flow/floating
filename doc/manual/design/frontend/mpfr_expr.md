@@ -63,11 +63,11 @@ compares equal to every NaN and $+0 = -0$.
 
 MPFR's default exponent range is far wider than any IEEE format, and the data
 contains results such as $2^{-563}$ computed from subnormal-range binary64
-inputs. Executing in an unbounded context tests rounding of the significand in
+inputs. Executing in the context of the precision alone (`e_max` 1073741823, gradual underflow) tests rounding of the significand in
 isolation: range effects (overflow, underflow, subnormals) are covered by the
 TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats
-have real limits. Consequently an underflow or overflow flag in an MPFR row is
-a failure: it can only come from a defect.
+have real limits. Consequently an underflow or overflow flag in a power or
+elementary row is a failure: it can only come from a defect.
 
 ### Inputs read at 512 bits
 
@@ -120,12 +120,12 @@ $\text{total} = \text{passed} + \text{failed}$ and the parsed row count equals
 
 **Totality of parsing.** Every non-comment line becomes a row or a diagnostic,
 and a document is returned only when there is no diagnostic. An elementary row
-for `pow`, `hypot` or `atan2` without a second operand is a diagnostic, so
+for `pow`, `powr`, `hypot`, `atan2` or `atan2pi` without a second operand is a diagnostic, so
 execution never meets a missing operand.
 
 ## Alternatives rejected
 
-- **Comparing decimal strings.** Decimal output would need its own correctly
+- **Comparing decimal strings** outside the two decimal conversion formats. Decimal output would need its own correctly
   rounded conversion; hexadecimal significands compare exactly.
 - **Running in IEEE formats.** That would mix range and rounding effects and
   make most high-precision rows (precision 113 and above) impossible.
@@ -138,7 +138,9 @@ execution never meets a missing operand.
 - Square-root rows check values only, not flags.
 - Elementary rows do not check NaN payloads.
 - No exponent range, subnormals or overflow handling are exercised by the
-  square-root, power and elementary formats; the two random formats do.
+  square-root, power and elementary formats; the two random formats do, and the
+  `mpfr-strtofr-v1` rows state overflow and underflow flags of the default
+  exponent range.
 - Only the seven formats of the [API page](../../api/frontend/mpfr_expr.md) are
   understood; there is no general MPFR test file reader.
 - File reading, format detection and exit codes are in

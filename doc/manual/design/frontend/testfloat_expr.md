@@ -94,7 +94,7 @@ dropped the inexact flag, passed whenever the rounding happened to repair it. Th
 executor now packs the sign, the coefficient and the exponent of the result into
 the fields of the format with the layout of the format written out in the front
 end (precision, width, bias), and fails the vector with "result not in the
-format" when the value does not fit: more significant bits than the precision, a
+format" when the result is a NaN and the column is not, or the value does not fit: more significant bits than the precision, a
 bit below the last place of the smallest subnormal, a leading bit above the
 largest exponent. The same holds for the format conversions, where the operation
 under test is `convert_format` and nothing rounds behind it. No flag is added by

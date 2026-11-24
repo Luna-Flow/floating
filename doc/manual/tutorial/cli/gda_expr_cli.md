@@ -113,8 +113,8 @@ unsupported or legacy, even when all executed rows pass.
 
 ## Going further
 
-- `just conformance run decimal_gda` fetches the pinned official corpora when they are not installed,
-  splits them into the phases of `testdata/decimal_gda/interpreter_stages.json`
+- `just conformance run decimal_gda` fetches the pinned official corpus when it is not installed,
+  splits it into the phases of `testdata/decimal_gda/interpreter_stages.json`
   and runs the shards in parallel with this runner.
 - [gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and
   the pass rule.

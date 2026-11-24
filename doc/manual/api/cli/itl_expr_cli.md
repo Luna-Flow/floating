@@ -40,8 +40,10 @@ pub fn run(Array[String]) -> Int
 | `--operation NAME` | keep only cases of this operation; repeatable (cases of any listed operation are kept) |
 | `PATH …` | `.itl` files, read in the given order; default `testdata/interval/smoke.itl` |
 
-Any other argument starting with `-` (including `--json`, `--help` and the
-shard options, which this runner does not have) is an error
+Any other argument starting with `-` (including `--json` and the
+shard options, which this runner does not have, and `--help` when `run` is called
+directly; through `floating-conformance` the dispatcher prints usage and returns
+`0`) is an error
 `unknown option: …`; `--operation` without a value prints
 `missing value for --operation`. Paths are files; directories are not
 expanded, and an unreadable path prints `cannot read ITL file: PATH`. Every

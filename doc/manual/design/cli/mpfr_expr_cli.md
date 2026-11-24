@@ -19,7 +19,9 @@ the semantics; its summary is the frontend summary of the whole file.
 
 The formats have no common header, so the runner looks for a marker: the
 elementary generator writes `mpfr-elementary-v1`, the power data has a header
-naming `input_coefficient_hex`, and MPFR's own `tests/data/sqrt` has neither.
+naming `input_coefficient_hex`, the other four formats write `mpfr-random-v1`,
+`mpfr-decimal-random-v2`, `mpfr-strtofr-v1` and `mpfr-decimal-output-v1`, and
+MPFR's own `tests/data/sqrt` has none of them.
 Content-based detection lets the pinned upstream file be used unchanged.
 
 ### No shards
@@ -38,7 +40,7 @@ data was produced with, so aggregated reports state their evidence source.
 - Exactly one parser runs per invocation, determined by the file content.
 - Exit `0` iff every row passed; `totalCases = passedCases + failedCases`.
 - Parse errors exit with `2` before any row is executed; an elementary
-  `pow`, `hypot` or `atan2` row without a second operand is such an error, so
+  `pow`, `powr`, `hypot`, `atan2` or `atan2pi` row without a second operand is such an error, so
   every outcome is an exit code.
 
 ## Alternatives rejected

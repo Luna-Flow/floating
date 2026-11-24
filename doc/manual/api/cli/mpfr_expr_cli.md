@@ -60,7 +60,7 @@ Text output prints a title, `cases`, `passed cases`, `failed cases` and one
 `frontend` (always `mpfr`), `totalCases`, `passedCases`, `failedCases` and `failedIds`.
 
 Return value: `2` for usage, file or parse errors (including an elementary
-`pow`, `hypot` or `atan2` row whose second operand is `-`, see
+`pow`, `powr`, `hypot`, `atan2` or `atan2pi` row whose second operand is `-`, see
 [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)); `1`
 when a row failed; `0` otherwise.
 
