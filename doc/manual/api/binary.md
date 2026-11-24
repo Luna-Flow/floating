@@ -82,8 +82,8 @@ The largest precision a `BinaryContext` accepts and the largest precision a
 `Binary` may carry. Every constructor that takes a precision checks it
 against `1..=binary_precision_max`: a value-returning constructor aborts with a
 message that names the constructor, the range and the offending value, and a
-constructor that returns a `Result` (`from_string`, `from_hex`, and the
-constructors of `BinaryChecked`) returns an `ArithmeticError` of kind
+constructor that returns a `Result` (`from_string`, `from_hex`) or a `BinaryChecked` (its
+constructors) returns an `ArithmeticError` of kind
 `DomainError`. A precision is never replaced by another one.
 
 ```mbti
@@ -283,7 +283,7 @@ replaced as an overflow or underflow would be: above it by $\pm\infty$ or, for
 a mode that rounds toward zero, the largest finite magnitude
 $(2^p - 1)\,2^{e_{\max} - p + 1}$; below the smallest implementation subnormal
 $2^{e_{\min} - p + 1}$ by $\pm 0$ or, for a mode that rounds away from zero
-(and for nearest when the value exceeds half of it), by that subnormal.
+(and for nearest when the value exceeds half of it, or equals it under `RoundTiesToAway`), by that subnormal.
 `make` rounds precision and range together, in `mode`: a value between the
 smallest subnormal and $2^{e_{\min}}$ keeps only the bits on the subnormal
 grid $2^{e_{\min} - p + 1}$ (at least one), so the stored value never has a bit
@@ -317,8 +317,8 @@ preserves signed zeros, infinities, the NaN sign, the quiet/signaling
 distinction and the NaN payload (the fraction field without the quiet bit).
 `from_float` first widens the `Float` to a `Double` on the host and then
 decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps
-the payload of the widened binary64 encoding (the binary32 payload times
-$2^{29}$), and on the native target a signaling `Float` NaN arrives as a quiet
+the low $p - 2$ bits of the payload of the widened binary64 encoding (the binary32 payload times
+$2^{29}$), so at the default precision 24 the payload is 0 and a signaling NaN is quiet, and on the native target a signaling `Float` NaN arrives as a quiet
 NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs
 bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is
 $3602879701896397 \cdot 2^{-55}$, not one tenth. Use `from_string` to round a
@@ -467,8 +467,8 @@ pub fn Binary::with_precision(Self, Int32, BinaryRoundingMode) -> Self
 ```
 
 A finite value with more significant bits than the new precision is rounded
-in the given direction (a `BinaryRoundingMode`, ties to away included). Zeros, infinities and NaNs only change their
-precision attribute. No flags are reported; use `apply_ctx` when they matter.
+in the given direction (a `BinaryRoundingMode`, ties to away included). Zeros and infinities only change their
+precision attribute; a NaN keeps the low $p-2$ bits of its payload at the new precision $p$, and a signaling NaN whose payload does not survive becomes quiet. No flags are reported; use `apply_ctx` when they matter.
 
 ### `Binary::ulp`
 
@@ -794,7 +794,7 @@ decision, `try_*_ctx` returns the `CertificationFailure` error with the
 refinement count, and the plain and `*_ctx` forms return a quiet
 NaN with `not_computed`. With `None` the loop still stops when the working
 precision passes a cap, the larger of 8,000,000 bits and 256 times the first
-working precision, and the trigonometric work limit of 8,000,000 bits still
+working precision, at most 1,000,000,000 bits, and the trigonometric work limit of 8,000,000 bits still
 refuses an argument that would need more. The default changes no result.
 The field takes part in `==`: two contexts that differ only in the limit are
 different.
@@ -1068,12 +1068,12 @@ pub fn Binary::ilogb(Self) -> Int32?
 ```
 
 `x.scaleb_ctx(n, ctx)` is $\circ(x \cdot 2^n)$ with the usual overflow and
-underflow handling; it is exact unless the result leaves the normal range. The
+underflow handling; it is exact unless the operand has more bits than the context precision or the result leaves the normal range. The
 count `n` is a `Binary`, the kind `logb_ctx` returns, as in `Decimal::scaleb_ctx`
 and `decimal_gda`: it must be an integer value. A NaN count propagates (invalid
 for a signaling NaN); an infinite or non-integer count is a NaN with
 `invalid_operation`, whatever the receiver is (an infinite receiver with a
-finite count is returned as it is); an integer count beyond the `Int` range
+finite count is returned as it is); an integer count beyond the `Int32` range
 acts as the largest count of its sign, which overflows or underflows every
 finite non-zero value of any format. IEEE 754-2019 5.3.3 defines scaleB for integral counts only and leaves a
 non-integral second operand (an infinity is not integral) to the language: the
@@ -1390,11 +1390,11 @@ string that `from_string(text, precision=x.precision())` maps back to `x`. An
 operand that is not representable in the context is first rounded into it
 (`apply_ctx`, in the rounding direction of the context, with the overflow and
 underflow of the context), and the result is the shortest string of that
-rounded value: `inf` or `-inf` on overflow, `0` or `-0` on underflow (the
-largest finite value for a direction that rounds toward zero). A value of the
+rounded value: `inf` or `-inf` on overflow, `0` or `-0` when the value rounds to zero (the
+smallest subnormal for a direction that rounds away from zero), and the largest finite value on overflow for a direction that rounds toward zero. A value of the
 format prints as itself. The second component is the flags of that rounding
 (`inexact`, `overflow`, `underflow`); it is empty for a value of the format, a
-NaN or an infinity.
+quiet NaN or an infinity; a signaling NaN is quieted with `invalid_operation`.
 
 ### `Binary::from_hex`, `Binary::from_hex_ctx`, `Binary::to_hex`
 
@@ -1477,7 +1477,7 @@ pub fn BinaryInterchangeFormat::trailing_significand_field_width(Self) -> Int
 pub fn BinaryInterchangeFormat::storage_width(Self) -> Int
 ```
 
-| Format | `total_bits` $k$ | `exponent_bits` $w$ | `fraction_bits` $p-1$ | `precision` $p$ | `bias` $= e_{\max}$ | `e_min` $= 1 - e_{\max}$ |
+| Format | `storage_width` $k$ | `exponent_field_width` $w$ | `trailing_significand_field_width` $p-1$ | `precision` $p$ | `bias` $= e_{\max}$ | `e_min` $= 1 - e_{\max}$ |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `Binary16` | 16 | 5 | 10 | 11 | 15 | −14 |
 | `Binary32` | 32 | 8 | 23 | 24 | 127 | −126 |
@@ -1514,7 +1514,7 @@ pub fn BinaryInterchange::format(Self) -> BinaryInterchangeFormat
 pub fn BinaryInterchange::bits(Self) -> BinCoeff
 ```
 
-`bits()` is the encoding as a natural number below $2^k$, $k$ = `total_bits`:
+`bits()` is the encoding as a natural number below $2^k$, $k$ = `storage_width`:
 the sign bit is bit $k-1$, the biased exponent field the next $w$ bits and the
 trailing significand field the low $p-1$ bits.
 
@@ -1528,8 +1528,8 @@ pub fn BinaryInterchange::from_hex(String, BinaryInterchangeFormat) -> Self?
 pub fn BinaryInterchange::to_hex(Self) -> String
 ```
 
-`from_bits` keeps the low `total_bits` bits. `from_hex` needs exactly
-`total_bits / 4` hexadecimal digits, optionally prefixed with `0x` or `#`, and
+`from_bits` keeps the low `storage_width` bits. `from_hex` needs exactly
+`storage_width / 4` hexadecimal digits, optionally prefixed with `0x` or `#`, and
 returns `None` otherwise. `to_hex` prints upper-case digits padded to the full
 width.
 
@@ -1626,7 +1626,7 @@ Each elementary function has three forms:
 All three run the same certified algorithm. It computes an enclosure
 $[L, U] \ni f(x)$ whose every internal operation is rounded downward for $L$
 and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits
-(or at the operand precision plus 16 when that is larger, for `rootn`, the
+(or at the operand precision plus 16 when that is larger, for `rootn`, `pow`, the
 inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to
 the same value with the same flags, that value is returned; otherwise $w$
 grows by $\max(32, \lfloor w/2 \rfloor)$, for at most as many attempts as the
@@ -1659,7 +1659,7 @@ every rounding mode.
 Every result that reaches the loop is not a rounding breakpoint, so an
 enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for
 $\sin x$ at a tiny $x$) cannot be the result. The functions other than
-`rootn` move such an end just inside the enclosure before rounding it; `pow`
+`rootn` and `rsqrt` move such an end just inside the enclosure before rounding it; `pow`
 does so once its exactness test has excluded a breakpoint.
 In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide
 an argument with $|x|^3$ below the target spacing at $x$ directly from
@@ -1874,8 +1874,8 @@ pub fn Binary::try_pow_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFla
 
 The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 
-1. $x^{\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included
-   (also a signaling NaN, without `invalid_operation`).
+1. $x^{\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, a quiet NaN included
+   (a signaling NaN operand is decided before this step: a quiet NaN with `invalid_operation`).
 2. An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`.
 3. A NaN operand propagates.
 4. An infinite $y$: $(\pm 1)^{\pm\infty} = 1$; otherwise the result is
@@ -2021,7 +2021,7 @@ a quiet NaN with `invalid_operation`, from `powr_ctx` and `try_powr_ctx` alike:
    $+\infty$.
 6. $x = +1$: $\pm\infty$ is invalid, any other $y$ gives $1$.
 7. $y = \pm 0$ gives $1$.
-8. Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which
+8. Otherwise $x > 0$ and $y \ne 0$ (an infinite $y$ only with $x \ne 1$): `try_pow_ctx(x, y)`, which
    owns the exact dyadic cases, the range decision and the rounding.
 
 So $\operatorname{powr}(\pm 0, \pm 0)$, $\operatorname{powr}(+\infty, \pm 0)$
@@ -2480,8 +2480,8 @@ The shared floating-point vocabulary of `floating`.
 pub impl @def.Floating for Binary
 ```
 
-`classify`, `signum`, `precision`, `with_precision` and `normalized` are the
-inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`,
+`classify`, `signum`, `precision` and `normalized` are the inherent methods
+above; `with_precision` is the inherent method with `RoundTiesToEven`. Generic code uses `@def.is_finite`, `@def.is_nan`,
 `@def.is_infinite` and `@def.is_zero`.
 
 ### `Binary::sqrt_checked`, `Binary::pow_nat_checked`, `Binary::pow_int_checked`
@@ -2614,7 +2614,7 @@ one representation of every context.
 
 ### `BinaryFlags::equal`, `BinaryFlags::not_equal`, `BinaryFlags::to_repr`
 
-The derived `Eq` and `Debug` methods of `BinaryFlags`.
+The derived `Eq` and the hand-written `Debug` methods of `BinaryFlags`.
 
 ```mbti
 pub fn BinaryFlags::equal(Self, Self) -> Bool
