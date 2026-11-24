@@ -295,8 +295,8 @@ ambient rounding mode; the context is an ordinary immutable argument.
   infinity or the largest finite value, underflow to zero or the smallest
   subnormal, by rounding direction), never stored with a saturated exponent.
 - The plain binary operators (`add`, `sub`, `mul`, `div`, `+`, `-`, `*`, `/`)
-  round to nearest-even at the larger operand precision in that unbounded
-  context and discard the flags.
+  round to nearest-even at the larger operand precision in
+  `BinaryContext::new(precision=p)` and discard the flags.
 - `DecimalContext` (IEEE) and `GdaContext` (GDA) hold the precision in digits,
   the rounding mode, $e_{\min}$ and $e_{\max}$ for the **adjusted exponent**
   $q + (\text{digits of } c) - 1$, and a `clamp` switch. The smallest exponent
@@ -651,7 +651,7 @@ same value, which is how `0.1 + 0.2` shows its rounding error.
 
 Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128)
 and the decimal32/64/128 DPD and BID encodings fix field widths, exponent
-bounds and special encodings. `semantic` projects values of every package to
+bounds and special encodings. `semantic` projects values of `Binary`, `@decimal.Decimal` and `Interval` to
 exact rationals, so it can tell that decimal $0.1$ and binary $\operatorname{fl}(0.1)$
 are different numbers; the projection deliberately drops precision, exponent,
 signed zero, payloads, decorations and flags.

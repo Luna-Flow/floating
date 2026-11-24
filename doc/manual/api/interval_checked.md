@@ -233,7 +233,8 @@ The left operand's error comes first, then the right one's. Interval
 arithmetic itself never fails: the result encloses
 $\{\, s \circ t : s \in X, t \in Y \,\}$. Division by an interval that is
 exactly $\{0\}$ gives the empty set, and division by an interval that contains
-zero in its interior gives the whole line.
+zero in its interior gives the whole line, except that $\{0\}$ and the empty set
+divided by it give $\{0\}$ and the empty set.
 
 ### `IntervalChecked::sqrt`, `IntervalChecked::sqr`, `IntervalChecked::recip`
 

@@ -78,8 +78,8 @@ written with different exponents. `normalized()` picks the shortest member.
 Do not call it on amounts whose number of decimal places matters; call it
 when you want a canonical key.
 
-Integers are built reduced: `Decimal::from_int(1000)` is stored as $1 \times
-10^{3}$ and prints as `1E+3`. Parse `"1000"` when you want the four digits.
+Integers are built with exponent $0$: `Decimal::from_int(1000)` is stored
+unreduced and prints as `1000`.
 
 ### Compute under a context and keep the flags
 

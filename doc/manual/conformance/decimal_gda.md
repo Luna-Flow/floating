@@ -176,8 +176,10 @@ behaviours, none of which has a pinned row:
 
 ## Isolation and native benchmark
 
-Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and
-`frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge.
+The dependency scan `tools/check_imports.py` requires `decimal_gda` to contain
+no import of the IEEE `decimal`, and `decimal` none of `decimal_gda`;
+`decimal_gda_checked` and `frontend/gda_expr` import `decimal_gda` and no IEEE
+`decimal`, which no scan enforces.
 IEEE tests and its independent conformance corpus are run separately.
 
 The quick benchmark builds only the current engine in an isolated snapshot and

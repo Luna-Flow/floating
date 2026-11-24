@@ -101,7 +101,8 @@ only errors in an arithmetic expression are those of its leaves.
 `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision
 from the context (rounding direction and exponent bounds have no meaning for an
 outward-rounded enclosure) and re-rounds the base and the result with
-`with_precision`, which is sound but can add one ulp per side. The two traits
+`with_precision`, which is sound and adds nothing when they are already
+representable. The two traits
 `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented
 differently, and only one of them avoids the *dependency problem*
 (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through

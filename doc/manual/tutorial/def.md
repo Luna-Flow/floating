@@ -198,7 +198,7 @@ test "handle a checked result through def" {
 
 - `Sign::Zero` does not mean "the value is zero". It is also returned for NaN
   by the scalar types. Test `@def.is_nan` first. `Interval` is not
-  `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`.
+  `Floating`: ask an interval `is_empty`, `is_common_interval` or `is_member`.
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
   (`Binary::is_negative_zero`, `Decimal::is_sign_minus`) when the sign bit
   matters.

@@ -5,7 +5,7 @@ as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps
 your application needs, start a `GdaDecimalChecked`, chain operations, detect
 the step that trapped, inspect the sticky flags, and decide explicitly whether
 to continue. This is the model of Python's `decimal` module and of the GDA test
-suites: flags flags are sticky, and an enabled trap stops the computation.
+suites: the flags are sticky, and an enabled trap stops the computation.
 The operations come from [`decimal_gda`](decimal_gda.md); the
 [design page](../design/decimal_gda_checked.md) proves the flags and trap laws;
 the [API reference](../api/decimal_gda_checked.md) lists every method.
@@ -109,7 +109,7 @@ test "trap inexact results" {
 ### Read the sticky flags
 
 `raised()` holds the signals of the latest operation, `flags()` every signal
-since the context was created or its flags was last cleared:
+since the context was created or its flags were last cleared:
 
 ```moonbit
 ///|
@@ -151,7 +151,7 @@ test "short circuit after a trap" {
 ### Resume deliberately
 
 `resume_defined()` accepts the defined result and continues. The flags still
-records the trapped signal, so the decision is visible afterwards:
+record the trapped signal, so the decision is visible afterwards:
 
 ```moonbit
 ///|
@@ -179,7 +179,7 @@ again.
 
 GDA classifies conversion syntax, impossible and undefined divisions and invalid
 contexts as *invalid-operation conditions*. A context that traps
-`InvalidOperation` therefore stops on a malformed string, and the flags gains
+`InvalidOperation` therefore stops on a malformed string, and the flags gain
 `invalid_operation` next to the specific condition:
 
 ```moonbit
@@ -226,7 +226,7 @@ test "exp needs a bounded context" {
 ### Combine with the plain GDA functions
 
 Every `decimal_gda` operation that returns a number has a pipeline method. The
-functions that return a string, a boolean or an integer (`class_name`,
+functions that return a `GdaOutcome[String]`, `GdaOutcome[Bool]` or `GdaOutcome[Int32]` (`class_name`,
 `is_normal`, `is_subnormal`, `compare_total`) and the `try_` forms do not: run
 them on `value()` and `context()`, and wrap the outcome of a `try_` form with
 `from_outcome`:
