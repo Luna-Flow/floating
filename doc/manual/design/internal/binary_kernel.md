@@ -106,5 +106,5 @@ The cutoffs of the elementary functions are not kernel policy and stay in
 - The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array.
 - `Inline64` and `Inline128` are the only representations of values below
   $2^{128}$; `bin_coeff_from_words` normalizes.
-- No function aborts except on a violated precondition (a zero divisor, a
-  negative shift).
+- No function aborts except on a violated precondition (a negative shift, a
+  radix of `to_radix_string` outside `2..=36`).

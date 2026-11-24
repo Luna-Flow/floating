@@ -75,8 +75,9 @@ the functions below.
 The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are
 private: they live in `coeff_thresholds_<target>.mbt` and are selected by
 `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a
-zero divisor): they are programmer errors of the caller, never conditions of an
-operation.
+radix of `to_radix_string` outside `2..=36`): they are programmer errors of the
+caller, never conditions of an operation. `Coeff::div_rem_checked` returns an
+`Err` for a zero divisor, and `Coeff::parse` for a radix outside `2..=36`.
 
 ## Complete public interface
 

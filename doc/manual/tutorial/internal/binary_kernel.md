@@ -26,10 +26,10 @@ using @binary_kernel { type Coeff, bin_coeff_short_div_rem }
 ```
 
 A `Binary` stores its coefficient as a private `Coeff` field. The public type
-`BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a
-result), so the kernel type shows in a public interface only as the field of
-`BinCoeff`, which is opaque outside the module, and the wrapping costs neither
-an allocation nor a call. A typical
+`BinCoeff` is a newtype over it (`value.to_kernel()` unwraps it and
+`BinCoeff::from_kernel(c)` wraps a result), so the kernel types show in a
+public interface only in those two functions and in `Binary`, which is opaque
+outside the module, and the wrapping costs neither an allocation nor a call. A typical
 use computes the exact quotient and remainder and leaves rounding to
 `binary`:
 
