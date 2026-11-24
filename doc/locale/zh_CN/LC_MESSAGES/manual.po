@@ -251,7 +251,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:86
-#: manual/api/cli/itl_expr_cli.md:71
+#: manual/api/cli/itl_expr_cli.md:73
 #: manual/api/cli/mpfr_expr_cli.md:76
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:59
@@ -265,9 +265,9 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/differential/interval_mpfr.md:31
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:519
-#: manual/api/frontend/itl_expr.md:281
-#: manual/api/frontend/mpfr_expr.md:539
-#: manual/api/frontend/testfloat_expr.md:421
+#: manual/api/frontend/itl_expr.md:288
+#: manual/api/frontend/mpfr_expr.md:543
+#: manual/api/frontend/testfloat_expr.md:423
 #: manual/api/internal.md:506
 #: manual/api/internal/binary_kernel.md:82
 #: manual/api/internal/conformance.md:359
@@ -312,7 +312,7 @@ msgstr "基准用例"
 #: manual/api/decimal_gda.md:1217
 #: manual/api/decimal_gda.md:1279
 #: manual/api/decimal_gda.md:1886
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:118
 #: manual/design/bench/binary.md:33
 #: manual/design/bench/decimal.md:33
 #: manual/design/bench/decimal_gda.md:30
@@ -1454,7 +1454,7 @@ msgstr "二者是同一个操作：先以该格式的上下文执行 `apply_ctx`
 #: manual/api/binary.md:1616
 #: manual/api/binary_checked.md:494
 #: manual/api/decimal.md:1570
-#: manual/api/frontend/mpfr_expr.md:155
+#: manual/api/frontend/mpfr_expr.md:158
 #: manual/api/interval.md:1262
 #: manual/api/interval_checked.md:431
 #: manual/design/decimal_gda.md:510
@@ -1988,9 +1988,9 @@ msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果属于�
 #: manual/api/decimal_gda.md:1740
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:468
-#: manual/api/frontend/itl_expr.md:268
-#: manual/api/frontend/mpfr_expr.md:526
-#: manual/api/frontend/testfloat_expr.md:375
+#: manual/api/frontend/itl_expr.md:275
+#: manual/api/frontend/mpfr_expr.md:530
+#: manual/api/frontend/testfloat_expr.md:377
 #: manual/api/internal/conformance.md:296
 #: manual/api/interval.md:2033
 #: manual/api/interval_checked.md:516
@@ -2775,14 +2775,14 @@ msgid "`.itl` files, read in the given order; default `testdata/interval/smoke.i
 msgstr "`.itl` 文件，按给定顺序读取；默认为 `testdata/interval/smoke.itl`"
 
 #: manual/api/cli/itl_expr_cli.md:43
-msgid "Any other argument starting with `-` (including `--json`, `--help` and the shard options, which this runner does not have) is an error `unknown option: …`; `--operation` without a value prints `missing value for --operation`. Paths are files; directories are not expanded, and an unreadable path prints `cannot read ITL file: PATH`. Every file is parsed completely before the operation filter is applied, so a parse error in a statement of an unselected operation still ends the run: every diagnostic of that file is printed as `PATH: MESSAGE`."
-msgstr "其他任何以 `-` 开头的参数（包括本运行器不支持的 `--json`、`--help` 和分片选项）都会产生错误 `unknown option: …`；没有值的 `--operation` 会打印 `missing value for --operation`。路径均视为文件；目录不会被展开，无法读取的路径会打印 `cannot read ITL file: PATH`。每个文件都会在应用运算过滤器之前被完整解析，因此即使解析错误出现在未选中运算的语句中，也会结束本次运行：该文件的每条诊断都以 `PATH: MESSAGE` 的形式打印。"
+msgid "Any other argument starting with `-` (including `--json` and the shard options, which this runner does not have, and `--help` when `run` is called directly; through `floating-conformance` the dispatcher prints usage and returns `0`) is an error `unknown option: …`; `--operation` without a value prints `missing value for --operation`. Paths are files; directories are not expanded, and an unreadable path prints `cannot read ITL file: PATH`. Every file is parsed completely before the operation filter is applied, so a parse error in a statement of an unselected operation still ends the run: every diagnostic of that file is printed as `PATH: MESSAGE`."
+msgstr "其他任何以 `-` 开头的参数（包括本运行器不支持的 `--json` 和分片选项，以及直接调用 `run` 时的 `--help`；通过 `floating-conformance` 时，分派器会打印用法并返回 `0`）都会产生错误 `unknown option: …`；没有值的 `--operation` 会打印 `missing value for --operation`。路径均视为文件；目录不会被展开，无法读取的路径会打印 `cannot read ITL file: PATH`。每个文件都会在应用运算过滤器之前被完整解析，因此即使解析错误出现在未选中运算的语句中，也会结束本次运行：该文件的每条诊断都以 `PATH: MESSAGE` 的形式打印。"
 
-#: manual/api/cli/itl_expr_cli.md:52
+#: manual/api/cli/itl_expr_cli.md:54
 msgid "When the run completes, the output is one JSON object with the keys `schemaVersion` (`1`), `runner` (`\"itl-expression-interpreter\"`), `totalCases`, `executableCases`, `passedCases`, `failedCases`, `unsupportedCases`, `diagnosticCases`, `failedIds`, `failedMessages` (`ID: MESSAGE`), `unsupportedIds` and `diagnosticIds`."
 msgstr "运行完成时，输出是一个 JSON 对象，包含键 `schemaVersion`（`1`）、`runner`（`\"itl-expression-interpreter\"`）、`totalCases`、`executableCases`、`passedCases`、`failedCases`、`unsupportedCases`、`diagnosticCases`、`failedIds`、`failedMessages`（`ID: MESSAGE`）、`unsupportedIds` 和 `diagnosticIds`。"
 
-#: manual/api/cli/itl_expr_cli.md:58
+#: manual/api/cli/itl_expr_cli.md:60
 msgid "Return value: `2` for usage, file or parse errors; `1` when a case failed, a case was a diagnostic, or with `--strict-supported` a case was unsupported; `0` otherwise. Cases are executed with the default precision 53."
 msgstr "返回值：用法、文件或解析错误时为 `2`；有用例失败、有用例属于诊断，或指定 `--strict-supported` 时有用例不受支持，为 `1`；否则为 `0`。用例以默认精度 53 执行。"
 
@@ -2868,8 +2868,8 @@ msgid "On a parse error the first diagnostic is printed as `source:line:1: messa
 msgstr "出现解析错误时，第一条诊断以 `source:line:1: message` 的形式打印。文本输出打印一个标题、`cases`、`passed cases`、`failed cases`，并为每个失败输出一行 `failed ID: MESSAGE`。JSON 输出包含键 `corpus`、`frontend`（始终为 `mpfr`）、`totalCases`、`passedCases`、`failedCases` 和 `failedIds`。"
 
 #: manual/api/cli/mpfr_expr_cli.md:62
-msgid "Return value: `2` for usage, file or parse errors (including an elementary `pow`, `hypot` or `atan2` row whose second operand is `-`, see [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)); `1` when a row failed; `0` otherwise."
-msgstr "返回值：用法、文件或解析错误时为 `2`（包括第二个操作数为 `-` 的初等 `pow`、`hypot` 或 `atan2` 行，参见 [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)）；有行失败时为 `1`；否则为 `0`。"
+msgid "Return value: `2` for usage, file or parse errors (including an elementary `pow`, `powr`, `hypot`, `atan2` or `atan2pi` row whose second operand is `-`, see [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)); `1` when a row failed; `0` otherwise."
+msgstr "返回值：用法、文件或解析错误时为 `2`（包括第二个操作数为 `-` 的初等 `pow`、`powr`、`hypot`、`atan2` 或 `atan2pi` 行，参见 [`frontend/mpfr_expr`](../frontend/mpfr_expr.md#parse_elementary_data)）；有行失败时为 `1`；否则为 `0`。"
 
 #: manual/api/cli/testfloat_expr_cli.md:1
 msgid "cli/testfloat_expr_cli API"
@@ -4557,9 +4557,9 @@ msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值
 #: manual/api/decimal.md:2497
 #: manual/api/decimal_gda.md:1957
 #: manual/api/frontend/gda_expr.md:521
-#: manual/api/frontend/itl_expr.md:283
-#: manual/api/frontend/mpfr_expr.md:541
-#: manual/api/frontend/testfloat_expr.md:423
+#: manual/api/frontend/itl_expr.md:290
+#: manual/api/frontend/mpfr_expr.md:545
+#: manual/api/frontend/testfloat_expr.md:425
 #: manual/api/internal.md:508
 #: manual/api/internal/binary_kernel.md:84
 #: manual/api/internal/conformance.md:361
@@ -6534,7 +6534,7 @@ msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value,
 msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(value, context, GdaFlags::new())`：值和上下文（其标志中已包含被捕获的信号）被保留，陷阱标记和最近一步的标志被丢弃。对于已完成的流水线，它不做任何事。陷阱在上下文中保持启用，因此同一条件若再次出现会再次触发陷阱。"
 
 #: manual/api/decimal_gda_checked.md:193
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:118
 #: manual/conformance/interval.md:61
 msgid "Operations"
 msgstr "运算"
@@ -7114,8 +7114,8 @@ msgid "These accessors return the option values."
 msgstr "这些访问器返回选项值。"
 
 #: manual/api/frontend/gda_expr.md:314
-#: manual/api/frontend/itl_expr.md:165
-#: manual/api/frontend/testfloat_expr.md:300
+#: manual/api/frontend/itl_expr.md:172
+#: manual/api/frontend/testfloat_expr.md:301
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "结果"
@@ -7177,7 +7177,7 @@ msgid "All counters except `total_cases` are added; `total_cases` is the maximum
 msgstr "除 `total_cases` 之外的所有计数器都相加；`total_cases` 取各部分的最大值（每个分片报告的总数相同）。结果按 `parts` 的顺序拼接。合并一次运行的 $n$ 个分片，得到的计数器与不分片运行相同。"
 
 #: manual/api/frontend/gda_expr.md:470
-#: manual/api/frontend/testfloat_expr.md:377
+#: manual/api/frontend/testfloat_expr.md:379
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法来自 `derive(Eq, @debug.Debug)`。新代码请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -7250,186 +7250,186 @@ msgid "`execute_case(case, precision?)` executes one case and returns its result
 msgstr "`execute_case(case, precision?)` 执行一个用例并返回其结果。"
 
 #: manual/api/frontend/itl_expr.md:92
-msgid "`precision` (default `53`, must be positive) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval results (except those of `intersection`, `convexHull`, `pow` and `atan2`) and `mid` are rounded with `@interval.IntervalContext::new(precision=precision, e_max=1023)`, which has the binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the ITF1788 data."
-msgstr "`precision`（默认 `53`，必须为正）是用例所在区间格式的有效数字精度：界以 `precision` 位读取，区间结果（`intersection`、`convexHull`、`pow` 和 `atan2` 的结果除外）和 `mid` 使用 `@interval.IntervalContext::new(precision=precision, e_max=1023)` 舍入，其指数范围与 binary64 相同。默认值 `53` 即 `IntervalContext::binary64()`，也就是 ITF1788 数据所用的格式。"
+msgid "`precision` (default `53`, must be within `1` and `268435456`) is the significand precision of the interval format the case runs in: bounds are read at `precision` bits and interval results (except those of `intersection`, `convexHull`, `pow` and `atan2`) and `mid` are rounded with `@interval.IntervalContext::new(precision=precision, e_max=1023)`, which has the binary64 exponent range. The default `53` is `IntervalContext::binary64()`, the format of the ITF1788 data."
+msgstr "`precision`（默认 `53`，必须在 `1` 与 `268435456` 之间）是用例所在区间格式的有效数字精度：界以 `precision` 位读取，区间结果（`intersection`、`convexHull`、`pow` 和 `atan2` 的结果除外）和 `mid` 使用 `@interval.IntervalContext::new(precision=precision, e_max=1023)` 舍入，其指数范围与 binary64 相同。默认值 `53` 即 `IntervalContext::binary64()`，也就是 ITF1788 数据所用的格式。"
 
 #: manual/api/frontend/itl_expr.md:100
-msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by `Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so a literal of any length is rounded once."
-msgstr "操作数和期望值按如下方式读取。区间字面量为 `[lo,hi]`、`[empty]`、`[entire]` 或 `[nai]`，后面可选地跟 `_dec`，其中 `dec` 为 `com`、`dac`、`def`、`trv`、`ill` 之一（默认 `com`）。界为可带符号的 `inf`/`infinity` 或 `nan`、十六进制浮点数 `0x…p…`，或十进制文本。十进制和十六进制界以 `precision` 位按就近舍入（偶数优先）舍入，下界和上界都是如此。这是 ITF1788 的约定：其生成器把 `[lo,hi]` 作为目标类型的两个浮点常量传给 inf-sup 构造函数，因此界是该格式中最接近的数，而不是 IEEE 1788 `textToInterval` 对区间字面量字符串所做的向外舍入；测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`）。十进制界由 `Binary::from_string_ctx` 一次性读取，十六进制界由 `Binary::from_hex_ctx` 读取，因此任意长度的字面量都只舍入一次。"
+msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` aborts `execute_case`, so `nan` is usable only as a numeric expected value or as the candidate of `isMember`. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by `Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so a literal of any length is rounded once."
+msgstr "操作数和期望值按如下方式读取。区间字面量为 `[lo,hi]`、`[empty]`、`[entire]` 或 `[nai]`，后面可选地跟 `_dec`，其中 `dec` 为 `com`、`dac`、`def`、`trv`、`ill` 之一（默认 `com`）。界为可带符号的 `inf`/`infinity` 或 `nan`、十六进制浮点数 `0x…p…`，或十进制文本。读取器接受 `nan`，但 `[lo,hi]` 中的 `nan` 界会使 `execute_case` 中止，因此 `nan` 只能用作数值型期望值，或用作 `isMember` 的候选值。十进制和十六进制界以 `precision` 位按就近舍入（偶数优先）舍入，下界和上界都是如此。这是 ITF1788 的约定：其生成器把 `[lo,hi]` 作为目标类型的两个浮点常量传给 inf-sup 构造函数，因此界是该格式中最接近的数，而不是 IEEE 1788 `textToInterval` 对区间字面量字符串所做的向外舍入；测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`）。十进制界由 `Binary::from_string_ctx` 一次性读取，十六进制界由 `Binary::from_hex_ctx` 读取，因此任意长度的字面量都只舍入一次。"
 
-#: manual/api/frontend/itl_expr.md:114
+#: manual/api/frontend/itl_expr.md:116
 msgid "The case is dispatched on its operation and expected value:"
 msgstr "用例根据其运算和期望值进行分派："
 
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:118
 #: manual/performance_audit.md:25
 msgid "Expected"
 msgstr "预期"
 
-#: manual/api/frontend/itl_expr.md:116
+#: manual/api/frontend/itl_expr.md:118
 #: manual/numeric_semantics.md:593
 msgid "Comparison"
 msgstr "比较"
 
-#: manual/api/frontend/itl_expr.md:118
-#: manual/design/frontend/gda_expr.md:95
+#: manual/api/frontend/itl_expr.md:120
+#: manual/design/frontend/gda_expr.md:97
 msgid "boolean"
 msgstr "布尔"
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
 msgid "`true` or `false`"
 msgstr "`true` 或 `false`"
 
-#: manual/api/frontend/itl_expr.md:118
+#: manual/api/frontend/itl_expr.md:120
 msgid "equal booleans"
 msgstr "布尔值相等"
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:121
 msgid "overlap"
 msgstr "重叠"
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:121
 msgid "an overlap state name (`before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains`, `finishedBy`, `bothEmpty`, `firstEmpty`, `secondEmpty`, `undefined`)"
 msgstr "一个重叠状态名（`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equals`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy`、`bothEmpty`、`firstEmpty`、`secondEmpty`、`undefined`）"
 
-#: manual/api/frontend/itl_expr.md:119
+#: manual/api/frontend/itl_expr.md:121
 msgid "equal names"
 msgstr "名称相等"
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:122
 msgid "numeric"
 msgstr "数值"
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:122
 msgid "a bound"
 msgstr "一个端点"
 
-#: manual/api/frontend/itl_expr.md:120
+#: manual/api/frontend/itl_expr.md:122
 msgid "equal numbers"
 msgstr "数值相等"
 
-#: manual/api/frontend/itl_expr.md:121
+#: manual/api/frontend/itl_expr.md:123
 msgid "unary"
 msgstr "一元"
 
-#: manual/api/frontend/itl_expr.md:121
-#: manual/api/frontend/itl_expr.md:122
 #: manual/api/frontend/itl_expr.md:123
 #: manual/api/frontend/itl_expr.md:124
+#: manual/api/frontend/itl_expr.md:125
 #: manual/api/frontend/itl_expr.md:126
+#: manual/api/frontend/itl_expr.md:128
 msgid "interval"
 msgstr "区间"
 
-#: manual/api/frontend/itl_expr.md:121
-#: manual/api/frontend/itl_expr.md:122
 #: manual/api/frontend/itl_expr.md:123
 #: manual/api/frontend/itl_expr.md:124
 #: manual/api/frontend/itl_expr.md:125
 #: manual/api/frontend/itl_expr.md:126
+#: manual/api/frontend/itl_expr.md:127
+#: manual/api/frontend/itl_expr.md:128
 msgid "equal sets"
 msgstr "集合相等"
 
-#: manual/api/frontend/itl_expr.md:122
+#: manual/api/frontend/itl_expr.md:124
 msgid "ternary"
 msgstr "三元"
 
-#: manual/api/frontend/itl_expr.md:123
+#: manual/api/frontend/itl_expr.md:125
 msgid "integer power"
 msgstr "整数幂"
 
-#: manual/api/frontend/itl_expr.md:123
+#: manual/api/frontend/itl_expr.md:125
 msgid "`pown` (second operand an integer)"
 msgstr "`pown`（第二个操作数为整数）"
 
-#: manual/api/frontend/itl_expr.md:124
+#: manual/api/frontend/itl_expr.md:126
 msgid "reverse"
 msgstr "反向"
 
-#: manual/api/frontend/itl_expr.md:124
+#: manual/api/frontend/itl_expr.md:126
 msgid "`sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, each also as `…Bin` (the prior interval comes before the integer power of `pownRev`)"
 msgstr "`sqrRev`、`absRev`、`coshRev`、`pownRev`、`sinRev`、`cosRev`、`tanRev`，每个也有 `…Bin` 形式（先验区间位于 `pownRev` 的整数幂之前）"
 
-#: manual/api/frontend/itl_expr.md:125
-msgid "reverse, three operands or two results"
-msgstr "反向，三个操作数或两个结果"
+#: manual/api/frontend/itl_expr.md:127
+msgid "reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`)"
+msgstr "反向（`mulRev` 为两个操作数，其余为三个）或两个结果（`mulRevToPair`）"
 
-#: manual/api/frontend/itl_expr.md:125
+#: manual/api/frontend/itl_expr.md:127
 msgid "interval (two for `mulRevToPair`)"
 msgstr "区间（`mulRevToPair` 为两个）"
 
-#: manual/api/frontend/itl_expr.md:126
+#: manual/api/frontend/itl_expr.md:128
 msgid "binary"
 msgstr "二元"
 
-#: manual/api/frontend/itl_expr.md:128
+#: manual/api/frontend/itl_expr.md:130
 msgid "\"Equal sets\" means: both NaI, or both empty, or equal lower bounds and equal upper bounds (compared numerically, so $-0 = +0$). When the expected text contains `_`, the decorations must also be equal. The bounds of the actual interval must also carry the labels that the representation requires: a bound has the precision of the interval exactly when it is a number of that format. The boolean dispatch is chosen whenever the expected text is `true` or `false`."
 msgstr "“集合相等”的含义是：两者都是 NaI，或都为空，或下界相等且上界相等（按数值比较，因此 $-0 = +0$）。当期望文本包含 `_` 时，装饰也必须相等。实际区间的界还必须带有该表示所要求的标签：当且仅当一个界是该格式的数时，它才具有该区间的精度。只要期望文本是 `true` 或 `false`，就选择布尔分派。"
 
-#: manual/api/frontend/itl_expr.md:135
+#: manual/api/frontend/itl_expr.md:137
 msgid "Dispositions:"
 msgstr "处置结果："
 
-#: manual/api/frontend/itl_expr.md:137
+#: manual/api/frontend/itl_expr.md:139
 msgid "`Executable` when the case was run; `passed()` tells the outcome;"
 msgstr "用例已运行时为 `Executable`；`passed()` 给出结果；"
 
-#: manual/api/frontend/itl_expr.md:138
-msgid "`Unsupported(reason)` for an unknown operation, whatever its operands and expected value, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a boolean predicate other than the five unary ones whose second operand is missing or unreadable;"
-msgstr "以下情况为 `Unsupported(reason)`：未知运算（无论其操作数和期望值如何）；二元分派的用例其期望值不是区间（例如后面跟有 `signal` 注记的期望值）；二元分派的用例其操作数不是两个；或除五个一元谓词之外的布尔谓词，其第二个操作数缺失或无法读取；"
+#: manual/api/frontend/itl_expr.md:140
+msgid "`Unsupported(reason)` for an unknown operation, whatever its operands and expected value, a binary-dispatch case whose expected value is not an interval (for example one followed by a `signal` annotation), a binary-dispatch case with other than two operands, or a boolean predicate other than the five unary ones that does not have exactly two operands or whose second operand is unreadable, or a boolean case whose operation is not a boolean predicate (`unsupported boolean operation`);"
+msgstr "以下情况为 `Unsupported(reason)`：未知运算（无论其操作数和期望值如何）；二元分派的用例其期望值不是区间（例如后面跟有 `signal` 注记的期望值）；二元分派的用例其操作数不是两个；除五个一元谓词之外的布尔谓词，其操作数不是恰好两个，或其第二个操作数无法读取；或布尔用例的运算不是布尔谓词（`unsupported boolean operation`）；"
 
-#: manual/api/frontend/itl_expr.md:144
-msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric, unary, ternary, integer-power or reverse dispatch, cannot be read or is missing, or an operand of the binary dispatch is not an interval literal."
-msgstr "以下情况为 `Diagnostic(reason)`：布尔用例的第一个操作数、`isMember` 的某个操作数或重叠分派的某个操作数无法读取或缺失；数值、一元、三元、整数幂或反向分派中的某个操作数或期望值无法读取或缺失；或二元分派的某个操作数不是区间字面量。"
+#: manual/api/frontend/itl_expr.md:147
+msgid "`Diagnostic(reason)` when the first operand of a boolean case, an operand of `isMember`, or an operand of the overlap dispatch, or an operand or the expected value of the numeric, unary, ternary, integer-power or reverse dispatch, cannot be read or is missing, or an operand of the binary dispatch is not an interval literal; the fma, unary, numeric, integer-power, overlap and reverse dispatches also report a wrong number of operands as a `Diagnostic`."
+msgstr "以下情况为 `Diagnostic(reason)`：布尔用例的第一个操作数、`isMember` 的某个操作数或重叠分派的某个操作数无法读取或缺失；数值、一元、三元、整数幂或反向分派中的某个操作数或期望值无法读取或缺失；或二元分派的某个操作数不是区间字面量；fma、一元、数值、整数幂、重叠和反向分派对操作数个数错误也报告为 `Diagnostic`。"
 
-#: manual/api/frontend/itl_expr.md:149
+#: manual/api/frontend/itl_expr.md:154
 msgid "Support is decided from the operation name before any operand is read, so `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `rsqrt [1.0,4.0]` are unsupported and do not count against `RunSummary::success`."
 msgstr "是否支持在读取任何操作数之前就根据运算名决定，因此 `nums2interval 1.0 2.0`、`rootn [1.0,8.0] 3` 和 `rsqrt [1.0,4.0]` 都不受支持，且不会影响 `RunSummary::success`。"
 
-#: manual/api/frontend/itl_expr.md:153
-msgid "`execute_case` does not abort on case content."
-msgstr "`execute_case` 不会因用例内容而中止。"
+#: manual/api/frontend/itl_expr.md:158
+msgid "`execute_case` aborts when an interval literal has a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf` (the literal `[1e400,1e400]` included, which reads as `[inf,inf]`)."
+msgstr "当区间字面量的下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf` 时（包括读作 `[inf,inf]` 的字面量 `[1e400,1e400]`），`execute_case` 会中止。"
 
-#: manual/api/frontend/itl_expr.md:157
+#: manual/api/frontend/itl_expr.md:164
 msgid "`summarize_results(results)` counts a list of results."
 msgstr "`summarize_results(results)` 对一组结果进行计数。"
 
-#: manual/api/frontend/itl_expr.md:163
+#: manual/api/frontend/itl_expr.md:170
 msgid "`total_cases` is the length of the list."
 msgstr "`total_cases` 是列表的长度。"
 
-#: manual/api/frontend/itl_expr.md:169
+#: manual/api/frontend/itl_expr.md:176
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr "`ItlDisposition` 说明一个用例是否被执行。"
 
-#: manual/api/frontend/itl_expr.md:181
+#: manual/api/frontend/itl_expr.md:188
 msgid "`ItlResult` is the outcome of one case."
 msgstr "`ItlResult` 是一个用例的结果。"
 
-#: manual/api/frontend/itl_expr.md:191
+#: manual/api/frontend/itl_expr.md:198
 msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `DecoratedInterval::to_string`; `\"output N: expected E, got A; \"` for each wrong result of `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2`), and a short reason or the offending text otherwise."
 msgstr "这些方法返回用例 id、处置结果、该用例是否通过，以及一条消息：成功时为空，不匹配时为 `\"expected E, got A\"`（区间由 `DecoratedInterval::to_string` 打印；`mulRev`、`mulRevTen`、`mulRevToPair`、`powRev1`、`powRev2`、`atan2Rev1`、`atan2Rev2` 的每个错误结果为 `\"output N: expected E, got A; \"`），其他情况下为简短的原因或出错的文本。"
 
-#: manual/api/frontend/itl_expr.md:205
+#: manual/api/frontend/itl_expr.md:212
 msgid "`RunSummary` aggregates a list of results."
 msgstr "`RunSummary` 汇总一组结果。"
 
-#: manual/api/frontend/itl_expr.md:215
+#: manual/api/frontend/itl_expr.md:222
 msgid "These methods return the number of results, the number of executed cases, and how many of those passed and failed."
 msgstr "这些方法返回结果数、已执行的用例数，以及其中通过和失败的数目。"
 
-#: manual/api/frontend/itl_expr.md:227
+#: manual/api/frontend/itl_expr.md:234
 msgid "These methods return the number of cases that were not executed, by disposition."
 msgstr "这些方法按处置类别返回未执行的用例数。"
 
-#: manual/api/frontend/itl_expr.md:237
+#: manual/api/frontend/itl_expr.md:244
 msgid "`results` returns a copy of the results in the order they were given; `success` is the overall verdict."
 msgstr "`results` 按给定顺序返回结果的副本；`success` 是总体判定。"
 
-#: manual/api/frontend/itl_expr.md:245
+#: manual/api/frontend/itl_expr.md:252
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ 且 $\\text{executable} = \\text{passed} + \\text{failed}$。当没有可执行用例失败**并且**没有诊断用例时，`success()` 为真；不受支持的用例不影响它。"
 
-#: manual/api/frontend/itl_expr.md:272
+#: manual/api/frontend/itl_expr.md:279
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法比较两个用例的所有字段，并为 `Debug` 渲染一个用例。新代码中请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -7462,223 +7462,223 @@ msgid "Field"
 msgstr "字段"
 
 #: manual/api/frontend/mpfr_expr.md:42
-msgid "and a number is read by `@binary.Binary::from_hex` (`0x…p…` with an integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the precision named for that field; a significand with more bits than that precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and otherwise `Err` with one `ParseDiagnostic` per invalid line."
-msgstr "数值由 `@binary.Binary::from_hex` 以该字段所指定的精度读取（`0x…p…`，其有效数为不带小数点的十六进制整数；以及 `inf`、`-inf`、`nan`）；位数多于该精度的有效数按就近舍入（偶数优先）舍入。每个解析器在所有行都有效时返回 `Ok(document)`，否则返回 `Err`，其中每个无效行对应一个 `ParseDiagnostic`。"
+msgid "and a number is read by `@binary.Binary::from_hex` (`0x…p…` with a hexadecimal significand that may have a point, an optional sign, `inf`, `nan`, `snan`, in any case) at the precision named for that field, except where a format below names another precision (the operands of the power, elementary and `mpfr-random-v1` formats; the input of `mpfr-strtofr-v1` is decimal text and the operands of `mpfr-decimal-random-v2` are decimal numbers); a significand with more bits than that precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and otherwise `Err` with one `ParseDiagnostic` per invalid line."
+msgstr "数值由 `@binary.Binary::from_hex` 以该字段所指定的精度读取（`0x…p…`，其十六进制有效数可带小数点；可选的符号；`inf`、`nan`、`snan`，不分大小写），但下文某种格式另行指定精度的地方除外（幂、初等函数和 `mpfr-random-v1` 格式的操作数；`mpfr-strtofr-v1` 的输入是十进制文本，`mpfr-decimal-random-v2` 的操作数是十进制数）；位数多于该精度的有效数按就近舍入（偶数优先）舍入。每个解析器在所有行都有效时返回 `Ok(document)`，否则返回 `Err`，其中每个无效行对应一个 `ParseDiagnostic`。"
 
-#: manual/api/frontend/mpfr_expr.md:48
+#: manual/api/frontend/mpfr_expr.md:51
 msgid "Square-root data"
 msgstr "平方根数据"
 
-#: manual/api/frontend/mpfr_expr.md:52
+#: manual/api/frontend/mpfr_expr.md:55
 msgid "`parse_sqrt_data(source, text)` parses rows of five fields: `input_precision output_precision rounding input expected`."
 msgstr "`parse_sqrt_data(source, text)` 解析由五个字段组成的行：`input_precision output_precision rounding input expected`。"
 
-#: manual/api/frontend/mpfr_expr.md:59
+#: manual/api/frontend/mpfr_expr.md:62
 msgid "The input is read at `input_precision` bits and the expected value at `output_precision` bits. Row ids are `sqrt:LINE`."
 msgstr "输入以 `input_precision` 位读取，期望值以 `output_precision` 位读取。行 id 为 `sqrt:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:64
+#: manual/api/frontend/mpfr_expr.md:67
 msgid "`execute_sqrt_data(document)` computes `input.sqrt_ctx(ctx)` for every row, where `ctx` is `BinaryContext::new(precision=output_precision, rounding~)`."
 msgstr "`execute_sqrt_data(document)` 为每一行计算 `input.sqrt_ctx(ctx)`，其中 `ctx` 为 `BinaryContext::new(precision=output_precision, rounding~)`。"
 
-#: manual/api/frontend/mpfr_expr.md:71
+#: manual/api/frontend/mpfr_expr.md:74
 msgid "A row passes when the result is identical (`Binary::identical`) to the expected `Binary`. Flags are not compared."
 msgstr "当结果与期望的 `Binary` 完全相同（`Binary::identical`）时该行通过。不比较标志。"
 
-#: manual/api/frontend/mpfr_expr.md:76
+#: manual/api/frontend/mpfr_expr.md:79
 msgid "`MpfrDocument` is a parsed square-root file; `MpfrCase` is one of its rows and has no public methods."
 msgstr "`MpfrDocument` 是一个已解析的平方根文件；`MpfrCase` 是其中的一行，没有公开方法。"
 
-#: manual/api/frontend/mpfr_expr.md:91
+#: manual/api/frontend/mpfr_expr.md:94
 msgid "`source` returns the name given to the parser and `case_count` the number of rows."
 msgstr "`source` 返回传给解析器的名称，`case_count` 返回行数。"
 
-#: manual/api/frontend/mpfr_expr.md:99
+#: manual/api/frontend/mpfr_expr.md:102
 #: manual/design/decimal_gda.md:812
 #: manual/tutorial/frontend/mpfr_expr.md:82
 msgid "Integer powers"
 msgstr "整数次幂"
 
-#: manual/api/frontend/mpfr_expr.md:103
+#: manual/api/frontend/mpfr_expr.md:106
 msgid "`parse_pow_data(source, text)` parses rows of ten fields."
 msgstr "`parse_pow_data(source, text)` 解析由十个字段组成的行。"
 
-#: manual/api/frontend/mpfr_expr.md:109
+#: manual/api/frontend/mpfr_expr.md:112
 msgid "The fields are `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`, where the two numbers are $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$, the signs and `inexact` are `0` or `1`, and `exponent` is the integer power. The input is read at 512 bits and the expected value at `precision` bits. Row ids are `pow:LINE`. The coefficient fields are bare hexadecimal digits; the parser builds `0xCOEFFpEXP` from them."
 msgstr "字段为 `precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact`，其中两个数均为 $(-1)^{\\text{negative}} \\cdot \\text{coefficient} \\cdot 2^{\\text{exponent2}}$，各符号位和 `inexact` 为 `0` 或 `1`，`exponent` 是整数幂指数。输入以 512 位读取，期望值以 `precision` 位读取。行 id 为 `pow:LINE`。系数字段是不带前缀的十六进制数字；解析器由它们构造 `0xCOEFFpEXP`。"
 
-#: manual/api/frontend/mpfr_expr.md:120
+#: manual/api/frontend/mpfr_expr.md:123
 msgid "`execute_pow_data(document)` computes `input.pown_ctx(exponent, ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`."
 msgstr "`execute_pow_data(document)` 计算 `input.pown_ctx(exponent, ctx)`，其中 `ctx = BinaryContext::new(precision=precision, rounding~)`。"
 
-#: manual/api/frontend/mpfr_expr.md:127
+#: manual/api/frontend/mpfr_expr.md:130
 msgid "A row passes when the result is identical (`Binary::identical`) to the expected value, the inexact flag equals the row's flag, and no underflow, overflow, division by zero or invalid flag is raised."
 msgstr "当结果与期望值完全相同（`Binary::identical`）、不精确标志等于该行的标志，并且没有引发下溢、上溢、除以零或无效标志时，该行通过。"
 
-#: manual/api/frontend/mpfr_expr.md:133
+#: manual/api/frontend/mpfr_expr.md:136
 msgid "`MpfrPowDocument` is a parsed power file; `MpfrPowCase` is one row and has no public methods."
 msgstr "`MpfrPowDocument` 是一个已解析的幂文件；`MpfrPowCase` 是其中的一行，没有公开方法。"
 
-#: manual/api/frontend/mpfr_expr.md:148
-#: manual/api/frontend/mpfr_expr.md:213
+#: manual/api/frontend/mpfr_expr.md:151
+#: manual/api/frontend/mpfr_expr.md:216
 msgid "These methods return the name given to the parser and the number of rows."
 msgstr "这些方法返回传给解析器的名称以及行数。"
 
-#: manual/api/frontend/mpfr_expr.md:159
+#: manual/api/frontend/mpfr_expr.md:162
 msgid "`parse_elementary_data(source, text)` parses rows of ten fields: `op precision rounding x y n expected inexact invalid divbyzero`."
 msgstr "`parse_elementary_data(source, text)` 解析由十个字段组成的行：`op precision rounding x y n expected inexact invalid divbyzero`。"
 
-#: manual/api/frontend/mpfr_expr.md:168
+#: manual/api/frontend/mpfr_expr.md:171
 msgid "`op` is one of `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `sqrt`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. `x` and `y` are operands read at 512 bits, or at four bits per character of the token when that is more (`y` is `-` when unused), `n` is the integer argument of `rootn`, `pown` and `compound`, `expected` is read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `op:LINE`."
 msgstr "`op` 为 `exp`、`exp2`、`exp10`、`expm1`、`exp2m1`、`exp10m1`、`ln`、`log2`、`log10`、`log1p`、`log2p1`、`log10p1`、`sqrt`、`rsqrt`、`rootn`、`pown`、`compound`、`pow`、`powr`、`hypot`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`asinpi`、`acospi`、`atanpi`、`atan2pi`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` 之一。`x` 和 `y` 是以 512 位读取的操作数，若按词元每个字符四位计算更多，则按后者读取（未使用时 `y` 为 `-`），`n` 是 `rootn`、`pown` 和 `compound` 的整数参数，`expected` 以 `precision` 位读取，最后三个字段为 `0` 或 `1`。行 id 为 `op:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:178
+#: manual/api/frontend/mpfr_expr.md:181
 msgid "A row of the two-operand functions `pow`, `powr`, `hypot`, `atan2` and `atan2pi` whose `y` is `-` is the diagnostic `\"invalid MPFR elementary field\"`."
 msgstr "双操作数函数 `pow`、`powr`、`hypot`、`atan2` 和 `atan2pi` 中 `y` 为 `-` 的行是诊断 `\"invalid MPFR elementary field\"`。"
 
-#: manual/api/frontend/mpfr_expr.md:183
+#: manual/api/frontend/mpfr_expr.md:186
 msgid "`execute_elementary_data(document)` evaluates every row with the checked `try_*_ctx` method of `Binary` for its operation (`sqrt_ctx` and `pown_ctx` for `sqrt` and `pown`) in `BinaryContext::new(precision=precision, rounding~)`."
 msgstr "`execute_elementary_data(document)` 在 `BinaryContext::new(precision=precision, rounding~)` 中，用 `Binary` 对应其运算的 checked 方法 `try_*_ctx`（对 `sqrt` 和 `pown` 则为 `sqrt_ctx` 和 `pown_ctx`）对每一行求值。"
 
-#: manual/api/frontend/mpfr_expr.md:193
+#: manual/api/frontend/mpfr_expr.md:196
 msgid "A row passes when the result compares equal to the expected value (`compare == 0`, so every NaN equals every NaN) with the same sign when it is zero, the inexact, invalid and division-by-zero flags equal the row's flags, and neither underflow nor overflow is raised. If a `try_*_ctx` method returns `Err` (for example a certification failure) the row fails with the message `\"certification failure for MPFR differential case\"`."
 msgstr "当结果与期望值比较相等（`compare == 0`，因此任意 NaN 都与任意 NaN 相等）且结果为零时符号相同，不精确、无效和除以零标志等于该行的标志，并且既没有引发下溢也没有引发上溢时，该行通过。若某个 `try_*_ctx` 方法返回 `Err`（例如认证失败），该行以消息 `\"certification failure for MPFR differential case\"` 失败。"
 
-#: manual/api/frontend/mpfr_expr.md:203
+#: manual/api/frontend/mpfr_expr.md:206
 msgid "`MpfrElementaryDocument` is a parsed elementary file."
 msgstr "`MpfrElementaryDocument` 是一个已解析的初等函数文件。"
 
-#: manual/api/frontend/mpfr_expr.md:220
+#: manual/api/frontend/mpfr_expr.md:223
 msgid "Decimal character conversion"
 msgstr "十进制字符转换"
 
-#: manual/api/frontend/mpfr_expr.md:224
+#: manual/api/frontend/mpfr_expr.md:227
 msgid "`parse_strtofr_data(source, text)` parses rows of seven fields: `precision rounding input expected inexact overflow underflow`."
 msgstr "`parse_strtofr_data(source, text)` 解析含七个字段的行：`precision rounding input expected inexact overflow underflow`。"
 
-#: manual/api/frontend/mpfr_expr.md:231
+#: manual/api/frontend/mpfr_expr.md:234
 msgid "`input` is a decimal literal kept as text, `expected` is the `mpfr_strtofr` result read at `precision` bits, and the last three fields are `0` or `1`. Row ids are `strtofr:LINE`."
 msgstr "`input` 是按文本保留的十进制字面量，`expected` 是以 `precision` 位读取的 `mpfr_strtofr` 结果，最后三个字段为 `0` 或 `1`。行 id 为 `strtofr:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:237
+#: manual/api/frontend/mpfr_expr.md:240
 msgid "`execute_strtofr_data(document)` evaluates `Binary::from_string_ctx(input, ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`."
 msgstr "`execute_strtofr_data(document)` 以 `ctx = BinaryContext::new(precision=precision, rounding~)` 计算 `Binary::from_string_ctx(input, ctx)`。"
 
-#: manual/api/frontend/mpfr_expr.md:244
+#: manual/api/frontend/mpfr_expr.md:247
 msgid "A row passes when the result compares equal to the expected value, with the same sign (including zero) and class, the inexact, overflow and underflow flags equal the row's flags, and neither invalid nor division by zero is raised. A literal rejected by the parser fails the row."
 msgstr "当结果与期望值比较相等、符号（含零）和类别相同、inexact、overflow 与 underflow 标志等于该行的标志，且未引发 invalid 或除零时，该行通过。被解析器拒绝的字面量会使该行失败。"
 
-#: manual/api/frontend/mpfr_expr.md:251
+#: manual/api/frontend/mpfr_expr.md:254
 msgid "`MpfrStrtofrDocument` is a parsed file; the methods return the name given to the parser and the number of rows."
 msgstr "`MpfrStrtofrDocument` 是一个已解析的文件；这些方法返回传给解析器的名称和行数。"
 
-#: manual/api/frontend/mpfr_expr.md:265
+#: manual/api/frontend/mpfr_expr.md:268
 msgid "`parse_decimal_output_data(source, text)` parses two row kinds."
 msgstr "`parse_decimal_output_data(source, text)` 解析两种行。"
 
-#: manual/api/frontend/mpfr_expr.md:271
+#: manual/api/frontend/mpfr_expr.md:274
 msgid "`fixed digits precision rounding value expected_digits expected_exponent10 inexact` (eight fields) is a value printed with `digits` significant digits: `expected_digits` is the digit string and `expected_exponent10` the decimal exponent of its first digit. `shortest precision value expected_digit_count` (four fields) is the number of significant digits of the shortest round-trip form. Values are read at `precision` bits. Row ids are `fixed:LINE` and `shortest:LINE`."
 msgstr "`fixed digits precision rounding value expected_digits expected_exponent10 inexact`（八个字段）是以 `digits` 位有效数字打印的值：`expected_digits` 是数字串，`expected_exponent10` 是其首位数字的十进制指数。`shortest precision value expected_digit_count`（四个字段）是最短往返形式的有效数字个数。值以 `precision` 位读取。行 id 为 `fixed:LINE` 和 `shortest:LINE`。"
 
-#: manual/api/frontend/mpfr_expr.md:281
+#: manual/api/frontend/mpfr_expr.md:284
 msgid "`execute_decimal_output_data(document)` runs `Binary::to_decimal_string_ctx` for a `fixed` row and `Binary::to_shortest_string` for a `shortest` row."
 msgstr "`execute_decimal_output_data(document)` 对 `fixed` 行运行 `Binary::to_decimal_string_ctx`，对 `shortest` 行运行 `Binary::to_shortest_string`。"
 
-#: manual/api/frontend/mpfr_expr.md:288
+#: manual/api/frontend/mpfr_expr.md:291
 msgid "A `fixed` row passes when the printed digits, the exponent and the sign match and the inexact flag equals the row's flag (no overflow or underflow). A `shortest` row passes when the text has exactly `expected_digit_count` significant digits (leading zeros and the trailing zeros of positional notation are not counted) and `Binary::from_string(text, precision~)` returns the same value."
 msgstr "当打印的数字、指数和符号都匹配，且 inexact 标志等于该行的标志（无上溢或下溢）时，`fixed` 行通过。当文本恰有 `expected_digit_count` 位有效数字（不计前导零和位置记法的尾随零），且 `Binary::from_string(text, precision~)` 返回相同的值时，`shortest` 行通过。"
 
-#: manual/api/frontend/mpfr_expr.md:306
+#: manual/api/frontend/mpfr_expr.md:309
 msgid "Seeded random rows"
 msgstr "带种子的随机行"
 
-#: manual/api/frontend/mpfr_expr.md:308
+#: manual/api/frontend/mpfr_expr.md:311
 msgid "`mpfr-random-v1` rows come from `tools/generate_mpfr_random_oracle.c`: one row per case, with precisions up to 10,000, five rounding directions, an optional exponent range with its tininess rule, up to three exact operands and the MPFR result with its flags. The full field list is in [`testdata/binary/README.md`](../../../../testdata/binary/README.md)."
 msgstr "`mpfr-random-v1` 行来自 `tools/generate_mpfr_random_oracle.c`：每个用例一行，精度最高 10,000，有五种舍入方向、可选的带微小性规则的指数范围、最多三个精确操作数，以及带标志的 MPFR 结果。完整字段列表见 [`testdata/binary/README.md`](../../../../testdata/binary/README.md)。"
 
-#: manual/api/frontend/mpfr_expr.md:324
+#: manual/api/frontend/mpfr_expr.md:327
 msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have thirteen fields, a known operation (`add sub mul div sqrt fma strtofr getstr shortest` or one of the elementary names), a rounding of `n na z u d`, a positive precision, an exponent range that is either `- - -` or `emin emax` with `emin = 1 - emax` and an `emax` that `BinaryContext::try_new` accepts for the precision, then `a` (tininess after rounding) or `b` (before rounding), exact operands (`[-]0x<hex>p<exp>`, `inf`, `-inf`, `nan`, `-`) and `flags` equal to `-` or a subset of `xouvz`. Operands and results are read at least at the row's precision, because reading a value below the smallest subnormal of a lower precision would flush it to zero. Each bad row is one diagnostic."
 msgstr "解析文本（第一个参数为来源名）。空行和以 `#` 开头的行被跳过。其余每行必须有十三个字段、一个已知运算（`add sub mul div sqrt fma strtofr getstr shortest` 或某个初等函数名）、取值为 `n na z u d` 的舍入、正的精度、要么是 `- - -` 要么是 `emin emax` 的指数范围（其中 `emin = 1 - emax`，且 `emax` 为 `BinaryContext::try_new` 对该精度所接受的值），然后是 `a`（舍入后检测下溢）或 `b`（舍入前检测下溢）、精确操作数（`[-]0x<hex>p<exp>`、`inf`、`-inf`、`nan`、`-`），以及等于 `-` 或 `xouvz` 子集的 `flags`。操作数和结果至少按该行的精度读取，因为以较低精度读取低于其最小次正规数的值会把它清零。每个错误行产生一条诊断。"
 
-#: manual/api/frontend/mpfr_expr.md:342
-msgid "Runs every row with the row's `BinaryContext` (bounded when the row has an exponent range, `unbounded` otherwise) and passes a row only when the value and the flags agree. Values are compared with their sign for zeros and infinities; a NaN result must be a quiet NaN. A domain error of the elementary functions (`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN with flag `v`; any other error fails the row with the error message. The row id is the first field of the row."
-msgstr "用该行的 `BinaryContext` 运行每一行（有指数范围时为有界，否则为 `unbounded`），只有当值和标志都一致时该行才通过。比较值时区分零和无穷的符号；NaN 结果必须是安静 NaN。初等函数的定义域错误（`ArithmeticError::is_domain_error`）视为无效操作：带标志 `v` 的安静 NaN；任何其他错误都以错误信息使该行失败。行 id 是该行的第一个字段。"
+#: manual/api/frontend/mpfr_expr.md:345
+msgid "Runs every row with the row's `BinaryContext` (bounded when the row has an exponent range, the context of the precision alone otherwise, with `e_max` 1073741823 and gradual underflow) and passes a row only when the value and the flags agree. Values are compared with their sign for zeros and infinities; a NaN result must be a quiet NaN. A domain error of the elementary functions (`ArithmeticError::is_domain_error`) counts as the invalid operation: a quiet NaN with flag `v`; any other error fails the row with the error message. The row id is the first field of the row."
+msgstr "用该行的 `BinaryContext` 运行每一行（有指数范围时为有界；否则为仅由精度确定的上下文，其 `e_max` 为 1073741823，并采用渐进下溢），只有当值和标志都一致时该行才通过。比较值时区分零和无穷的符号；NaN 结果必须是静默 NaN。初等函数的定义域错误（`ArithmeticError::is_domain_error`）视为无效运算：带标志 `v` 的静默 NaN；任何其他错误都以错误信息使该行失败。行 id 是该行的第一个字段。"
 
-#: manual/api/frontend/mpfr_expr.md:350
+#: manual/api/frontend/mpfr_expr.md:353
 msgid "Seeded random decimal rows"
 msgstr "带种子的随机十进制行"
 
-#: manual/api/frontend/mpfr_expr.md:352
+#: manual/api/frontend/mpfr_expr.md:355
 msgid "`mpfr-decimal-random-v2` rows come from `tools/generate_mpfr_decimal_random.py`: one row per case for the IEEE decimal elementary functions (`exp exp2 exp10 expm1 exp2m1 exp10m1 ln log2 log10 log1p log2p1 log10p1 rsqrt sin cos tan sinpi cospi tanpi asin acos atan asinpi acospi atanpi sinh cosh tanh asinh acosh atanh pow powr hypot atan2 atan2pi rootn pown compound`), with a decimal context (precision and exponent range of an IEEE format, one of the five IEEE rounding directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one MPFR result, and a row exists only when both enclosure endpoints round alike and the rounded value lies outside the enclosure (the true value is not representable), so exact results are not sampled by this corpus."
 msgstr "`mpfr-decimal-random-v2` 行由 `tools/generate_mpfr_decimal_random.py` 生成：每个用例一行，用于 IEEE 十进制初等函数（`exp exp2 exp10 expm1 exp2m1 exp10m1 ln log2 log10 log1p log2p1 log10p1 rsqrt sin cos tan sinpi cospi tanpi asin acos atan asinpi acospi atanpi sinh cosh tanh asinh acosh atanh pow powr hypot atan2 atan2pi rootn pown compound`），带十进制上下文（IEEE 格式的精度和指数范围，IEEE 的五种舍入方向之一：`half_even`、`half_up`、`down`、`ceiling`、`floor`）、精确十进制操作数，以及期望值和标志。期望值是对一个严格的 768 位 MPFR 包含区间舍入的结果，而不是 MPFR 的单个结果；只有当包含区间两端舍入一致且舍入值落在该包含区间之外（真值不可表示）时才产生一行，因此这个语料不抽取精确结果。"
 
-#: manual/api/frontend/mpfr_expr.md:373
+#: manual/api/frontend/mpfr_expr.md:376
 msgid "Parses the text (the first argument names the source). Blank lines and lines starting with `#` are skipped. Every other line must have ten fields: an identifier, a known operation, a rounding of `half_even half_up down ceiling floor` (the five rounding-direction attributes of IEEE 754-2019 4.3), a positive precision, an integer `emax` that forms a valid `DecimalContext` (the IEEE format of the precision and `emax`: `emin = 1 - emax`, tininess before rounding), one operand, a second operand or `-` (required by `pow`, `powr`, `hypot`, `atan2` and `atan2pi`), an integer (`rootn`, `pown` and `compound`; `0` otherwise), the expected value and `flags` equal to `-` or a subset of `xouvz` (inexact, overflow, underflow, invalid operation, division by zero) in that order. Every digit written in an operand or the expected value is kept. Each bad row is one diagnostic."
 msgstr "解析文本（第一个参数是来源名）。空行和以 `#` 开头的行被跳过。其余每一行必须有十个字段：标识符、已知的运算、`half_even half_up down ceiling floor` 之一的舍入（IEEE 754-2019 4.3 的五种舍入方向属性）、正的精度、构成合法 `DecimalContext` 的整数 `emax`（精度与 `emax` 所确定的 IEEE 格式：`emin = 1 - emax`，舍入前检测微小性）、一个操作数、第二个操作数或 `-`（`pow`、`powr`、`hypot`、`atan2` 与 `atan2pi` 必需）、一个整数（`rootn`、`pown` 与 `compound` 使用，否则为 `0`）、期望值，以及等于 `-` 或 `xouvz` 的子集（inexact、overflow、underflow、invalid operation、division by zero，按此顺序）的 `flags`。操作数和期望值中写出的每一位数字都会保留。每个错误行产生一条诊断。"
 
-#: manual/api/frontend/mpfr_expr.md:392
+#: manual/api/frontend/mpfr_expr.md:395
 msgid "Runs every row through the `try_*_ctx` form of the operation with the row's context, so a certification failure fails the row instead of becoming a quiet NaN. A row passes only when the result has the expected value *and* cohort (`total_order_compare` equal, so `1.0` and `1.00` differ) and the flags agree. The row id is the first field of the row."
 msgstr "用行的上下文，通过运算的 `try_*_ctx` 形式运行每一行，因此认证失败会使该行失败，而不是变成静默的 NaN。只有当结果的值与 cohort 都等于期望（按 `total_order_compare` 比较，所以 `1.0` 与 `1.00` 不同）且标志一致时，该行才通过。行 id 是该行的第一个字段。"
 
-#: manual/api/frontend/mpfr_expr.md:400
+#: manual/api/frontend/mpfr_expr.md:403
 msgid "`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v2` corpus (IEEE `decimal` elementary functions against MPFR); `source` is the label it was parsed from, `case_count` the number of rows and `case_ids` their ids in order."
 msgstr "`MpfrDecimalRandomDocument` 是解析后的 `mpfr-decimal-random-v2` 语料（IEEE `decimal` 初等函数对照 MPFR）；`source` 是解析时使用的标签，`case_count` 是行数，`case_ids` 按顺序给出各行的 id。"
 
-#: manual/api/frontend/mpfr_expr.md:415
+#: manual/api/frontend/mpfr_expr.md:418
 msgid "`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations against MPFR) with the same three accessors."
 msgstr "`MpfrRandomDocument` 是解析后的 `mpfr-random-v1` 语料（二进制运算对照 MPFR），提供同样的三个访问器。"
 
-#: manual/api/frontend/mpfr_expr.md:424
+#: manual/api/frontend/mpfr_expr.md:427
 msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
 msgstr "`case_ids` 按顺序列出各行的 id，差分运行器用它来命名一个批中的失败用例。"
 
-#: manual/api/frontend/mpfr_expr.md:427
+#: manual/api/frontend/mpfr_expr.md:430
 msgid "Diagnostics and results"
 msgstr "诊断与结果"
 
-#: manual/api/frontend/mpfr_expr.md:431
+#: manual/api/frontend/mpfr_expr.md:434
 #: manual/api/frontend/testfloat_expr.md:222
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` 是一个无效行。"
 
-#: manual/api/frontend/mpfr_expr.md:441
+#: manual/api/frontend/mpfr_expr.md:444
 #: manual/api/frontend/testfloat_expr.md:232
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr "这些方法返回传给解析器的名称、从 1 开始的行号和消息。"
 
-#: manual/api/frontend/mpfr_expr.md:450
+#: manual/api/frontend/mpfr_expr.md:453
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "消息指明问题所在，例如 `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"` 或 `\"invalid MPFR elementary expected value\"`。"
 
-#: manual/api/frontend/mpfr_expr.md:456
+#: manual/api/frontend/mpfr_expr.md:459
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` 是一行的结果。"
 
-#: manual/api/frontend/mpfr_expr.md:466
+#: manual/api/frontend/mpfr_expr.md:469
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr "这些方法返回行 id、该行是否通过，以及一条消息。"
 
-#: manual/api/frontend/mpfr_expr.md:474
-msgid "The message is empty for a pass and otherwise shows the expected and the actual value (hexadecimal for the binary formats, decimal text for the decimal formats) and the compared flags where the format compares flags."
-msgstr "通过时消息为空，否则显示期望值和实际值（二进制格式用十六进制，十进制格式用十进制文本），并在该格式比较标志时显示所比较的标志。"
+#: manual/api/frontend/mpfr_expr.md:477
+msgid "The message is empty for a pass and otherwise shows the expected and the actual value (hexadecimal for the binary formats, except digit text and exponent for `mpfr-decimal-output-v1` and for the `getstr` and `shortest` rows of `mpfr-random-v1`; decimal text for the decimal formats) and the compared flags where the format compares flags."
+msgstr "通过时消息为空，否则显示期望值和实际值（二进制格式用十六进制，但 `mpfr-decimal-output-v1` 以及 `mpfr-random-v1` 的 `getstr` 和 `shortest` 行用数字文本和指数；十进制格式用十进制文本），并在该格式比较标志时显示所比较的标志。"
 
-#: manual/api/frontend/mpfr_expr.md:480
+#: manual/api/frontend/mpfr_expr.md:484
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` 汇总一个文档中的各行。"
 
-#: manual/api/frontend/mpfr_expr.md:490
+#: manual/api/frontend/mpfr_expr.md:494
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr "这些方法返回行数，以及通过和失败的数目。"
 
-#: manual/api/frontend/mpfr_expr.md:500
+#: manual/api/frontend/mpfr_expr.md:504
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr "`results` 返回逐行结果的副本；`success` 是判定。"
 
-#: manual/api/frontend/mpfr_expr.md:507
+#: manual/api/frontend/mpfr_expr.md:511
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "每一行都会被执行，因此 $\\text{total} = \\text{passed} + \\text{failed}$；当没有行失败时 `success` 为真。`results` 按行序返回结果。"
 
-#: manual/api/frontend/mpfr_expr.md:530
+#: manual/api/frontend/mpfr_expr.md:534
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法比较位置和消息，并为 `Debug` 渲染诊断。新代码中请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -7775,78 +7775,78 @@ msgid "Vector $k$ (counting from 0 in file order) is executed when $k \\bmod n =
 msgstr "对于分片数 $n$ 和索引 $i$，当 $k \\bmod n = i$ 时执行第 $k$ 个向量（按文件顺序从 0 开始计数）。操作数被解码为 `Binary`，运算在 `spec.format().context(rounding~, tininess~)` 中执行。向量在以下情况下通过："
 
 #: manual/api/frontend/testfloat_expr.md:256
-msgid "**arithmetic:** the result, packed into the bit fields of the result format without rounding, has exactly the expected bit pattern, or the expected result is any NaN and the actual result is a quiet NaN; and the SoftFloat mask of the operation's flags equals the expected mask. A result that is not a number of the format fails with `\"result not in the format: …\"`;"
-msgstr "**算术运算**：结果未经舍入直接打包到结果格式的位字段后，其位模式与期望位模式完全一致，或者期望结果是任意 NaN 而实际结果是静默 NaN；并且该运算标志的 SoftFloat 掩码等于期望掩码。不属于该格式的数的结果以 `\"result not in the format: …\"` 失败；"
+msgid "**arithmetic:** the result, packed into the bit fields of the result format without rounding, has exactly the expected bit pattern, or the expected result is any NaN and the actual result is a quiet NaN; and the SoftFloat mask of the operation's flags equals the expected mask. A NaN result against a non-NaN expected column, and a result that is not a number of the format, fail with `\"result not in the format: …\"`;"
+msgstr "**算术运算**：结果未经舍入直接打包到结果格式的位字段后，其位模式与期望位模式完全一致，或者期望结果是任意 NaN 而实际结果是静默 NaN；并且该运算标志的 SoftFloat 掩码等于期望掩码。NaN 结果对应非 NaN 的期望列，以及不属于该格式的数的结果，都以 `\"result not in the format: …\"` 失败；"
 
-#: manual/api/frontend/testfloat_expr.md:261
+#: manual/api/frontend/testfloat_expr.md:262
 msgid "**integer conversion:** if the expected mask has the invalid bit `10`, the conversion must report invalid (`None`) and its value field is ignored; otherwise the conversion must return the expected integer (signed results compared as two's-complement bit patterns); in both cases the flag masks must be equal;"
 msgstr "**整数转换**：若期望掩码含有无效位 `10`，则转换必须报告无效（`None`），其值字段被忽略；否则转换必须返回期望的整数（有符号结果按二进制补码位模式比较）；两种情况下标志掩码都必须相等；"
 
-#: manual/api/frontend/testfloat_expr.md:266
+#: manual/api/frontend/testfloat_expr.md:267
 msgid "**comparison:** the boolean and the flag mask are equal."
 msgstr "**比较**：布尔值与标志掩码都相等。"
 
-#: manual/api/frontend/testfloat_expr.md:268
+#: manual/api/frontend/testfloat_expr.md:269
 msgid "Every selected vector is executable; there are no skipped vectors."
 msgstr "每个被选中的向量都是可执行的；不存在被跳过的向量。"
 
-#: manual/api/frontend/testfloat_expr.md:272
+#: manual/api/frontend/testfloat_expr.md:273
 msgid "`RunOptions` selects a shard."
 msgstr "`RunOptions` 选择一个分片。"
 
-#: manual/api/frontend/testfloat_expr.md:282
+#: manual/api/frontend/testfloat_expr.md:283
 msgid "`RunOptions::new(shard_count?, shard_index?)` builds the options."
 msgstr "`RunOptions::new(shard_count?, shard_index?)` 构建选项。"
 
-#: manual/api/frontend/testfloat_expr.md:288
+#: manual/api/frontend/testfloat_expr.md:289
 msgid "Defaults: one shard, index 0. `RunOptions::new` aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
 msgstr "默认值：一个分片，索引 0。除非 `shard_count > 0` 且 `0 <= shard_index < shard_count`，否则 `RunOptions::new` 中止。"
 
-#: manual/api/frontend/testfloat_expr.md:293
+#: manual/api/frontend/testfloat_expr.md:294
 msgid "These accessors return the shard count and index."
 msgstr "这些访问器返回分片数和分片索引。"
 
-#: manual/api/frontend/testfloat_expr.md:304
+#: manual/api/frontend/testfloat_expr.md:305
 msgid "`CaseResult` is the outcome of one vector."
 msgstr "`CaseResult` 是一个向量的结果。"
 
-#: manual/api/frontend/testfloat_expr.md:314
+#: manual/api/frontend/testfloat_expr.md:315
 msgid "These methods return the vector id, whether it passed, and a message."
 msgstr "这些方法返回向量 id、它是否通过，以及一条消息。"
 
-#: manual/api/frontend/testfloat_expr.md:322
+#: manual/api/frontend/testfloat_expr.md:323
 msgid "Messages: empty for a pass; `\"value mismatch: expected HEX, actual HEX\"` (`expected a NaN` instead of the first HEX when the column is a NaN), `\"integer mismatch: …\"`, `\"comparison mismatch: …\"`, `\"result not in the format: …\"`, or `\"flags mismatch: expected M, actual M\"` (masks in decimal)."
 msgstr "消息：通过时为空；否则为 `\"value mismatch: expected HEX, actual HEX\"`（当该列为 NaN 时，第一个 HEX 换成 `expected a NaN`）、`\"integer mismatch: …\"`、`\"comparison mismatch: …\"`、`\"result not in the format: …\"` 或 `\"flags mismatch: expected M, actual M\"`（掩码以十进制表示）。"
 
-#: manual/api/frontend/testfloat_expr.md:330
+#: manual/api/frontend/testfloat_expr.md:331
 msgid "`RunSummary` aggregates a run."
 msgstr "`RunSummary` 汇总一次运行。"
 
-#: manual/api/frontend/testfloat_expr.md:340
+#: manual/api/frontend/testfloat_expr.md:341
 msgid "These methods return the number of vectors in the document, the number this shard executed, and how many of those passed and failed."
 msgstr "这些方法返回文档中的向量数、本分片执行的数目，以及其中通过和失败的数目。"
 
-#: manual/api/frontend/testfloat_expr.md:352
+#: manual/api/frontend/testfloat_expr.md:353
 msgid "`results` returns a copy of the results in vector order; `success` is the verdict."
 msgstr "`results` 按向量顺序返回结果的副本；`success` 是判定。"
 
-#: manual/api/frontend/testfloat_expr.md:360
+#: manual/api/frontend/testfloat_expr.md:361
 msgid "`total_cases` is the number of vectors in the document, `selected_cases = passed_cases + failed_cases` the number executed by this shard, and `success` is true when none failed."
 msgstr "`total_cases` 是文档中的向量数，`selected_cases = passed_cases + failed_cases` 是本分片执行的向量数，当没有向量失败时 `success` 为真。"
 
-#: manual/api/frontend/testfloat_expr.md:366
-msgid "`arms` returns the names of the operations that ran, in the order they first ran. Each operation of the TestFloat frontend is a function that records its own name when it executes; the `--json` summary of the command-line runner prints the set as `arms`. The verification tools key a task by the code those operations reach."
-msgstr "`arms` 按首次运行的顺序返回已运行操作的名称。TestFloat 前端的每个操作都是一个函数，执行时记录自己的名称；命令行运行器的 `--json` 摘要把这个集合输出为 `arms`。验证工具按这些操作所能到达的代码为任务生成键。"
+#: manual/api/frontend/testfloat_expr.md:367
+msgid "`arms` returns the names of the operations that ran in this process, in the order they first ran; the set is process-global, so a summary also lists the operations of earlier runs in the same process. Each operation of the TestFloat frontend is a function that records its own name when it executes; the `--json` summary of the command-line runner prints the set as `arms`. The verification tools key a task by the code those operations reach."
+msgstr "`arms` 按首次运行的顺序返回本进程中已运行操作的名称；该集合是进程全局的，因此摘要也会列出同一进程中先前运行的操作。TestFloat 前端的每个操作都是一个函数，执行时记录自己的名称；命令行运行器的 `--json` 摘要把这个集合输出为 `arms`。验证工具按这些操作所能到达的代码为任务生成键。"
 
-#: manual/api/frontend/testfloat_expr.md:382
+#: manual/api/frontend/testfloat_expr.md:384
 msgid "`equal` compares constructors; `to_repr` renders the constructor name."
 msgstr "`equal` 比较构造器；`to_repr` 渲染构造器名称。"
 
-#: manual/api/frontend/testfloat_expr.md:392
+#: manual/api/frontend/testfloat_expr.md:394
 msgid "`equal` compares all six fields, including `function_name` as written, so `f64_mul` and `F64_MUL` give unequal specifications with the same behaviour."
 msgstr "`equal` 比较全部六个字段，包括按书写形式比较的 `function_name`，因此 `f64_mul` 和 `F64_MUL` 给出行为相同但不相等的规格。"
 
-#: manual/api/frontend/testfloat_expr.md:403
+#: manual/api/frontend/testfloat_expr.md:405
 msgid "`equal` compares location and message; `to_repr` renders both."
 msgstr "`equal` 比较位置和消息；`to_repr` 渲染两者。"
 
@@ -11564,7 +11564,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/cli/dispatch.md:48
 #: manual/design/cli/gda_expr_cli.md:68
 #: manual/design/cli/itl_expr_cli.md:59
-#: manual/design/cli/mpfr_expr_cli.md:51
+#: manual/design/cli/mpfr_expr_cli.md:53
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:68
 #: manual/design/decimal.md:1486
@@ -11576,8 +11576,8 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/differential/harness.md:41
 #: manual/design/differential/interval_mpfr.md:50
 #: manual/design/doc_examples.md:36
-#: manual/design/frontend/gda_expr.md:228
-#: manual/design/frontend/itl_expr.md:163
+#: manual/design/frontend/gda_expr.md:219
+#: manual/design/frontend/itl_expr.md:165
 #: manual/design/frontend/mpfr_expr.md:136
 #: manual/design/frontend/testfloat_expr.md:166
 #: manual/design/internal.md:212
@@ -12985,7 +12985,7 @@ msgstr "中位数减速必须具有实际意义，*并且*中位数配对差的 
 #: manual/design/differential/harness.md:18
 #: manual/design/differential/interval_mpfr.md:19
 #: manual/design/doc_examples.md:14
-#: manual/design/frontend/gda_expr.md:117
+#: manual/design/frontend/gda_expr.md:106
 #: manual/design/frontend/itl_expr.md:79
 #: manual/design/frontend/mpfr_expr.md:60
 #: manual/design/frontend/testfloat_expr.md:76
@@ -13060,7 +13060,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/cli/dispatch.md:31
 #: manual/design/cli/gda_expr_cli.md:51
 #: manual/design/cli/itl_expr_cli.md:45
-#: manual/design/cli/mpfr_expr_cli.md:36
+#: manual/design/cli/mpfr_expr_cli.md:38
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:53
 #: manual/design/decimal.md:1418
@@ -13072,7 +13072,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/differential/harness.md:27
 #: manual/design/differential/interval_mpfr.md:37
 #: manual/design/doc_examples.md:25
-#: manual/design/frontend/gda_expr.md:176
+#: manual/design/frontend/gda_expr.md:165
 #: manual/design/frontend/itl_expr.md:130
 #: manual/design/frontend/mpfr_expr.md:108
 #: manual/design/frontend/testfloat_expr.md:138
@@ -13115,7 +13115,7 @@ msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使
 #: manual/design/cli/dispatch.md:38
 #: manual/design/cli/gda_expr_cli.md:61
 #: manual/design/cli/itl_expr_cli.md:53
-#: manual/design/cli/mpfr_expr_cli.md:44
+#: manual/design/cli/mpfr_expr_cli.md:46
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:61
 #: manual/design/decimal.md:1465
@@ -13127,8 +13127,8 @@ msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使
 #: manual/design/differential/harness.md:33
 #: manual/design/differential/interval_mpfr.md:44
 #: manual/design/doc_examples.md:30
-#: manual/design/frontend/gda_expr.md:217
-#: manual/design/frontend/itl_expr.md:153
+#: manual/design/frontend/gda_expr.md:208
+#: manual/design/frontend/itl_expr.md:155
 #: manual/design/frontend/mpfr_expr.md:126
 #: manual/design/frontend/testfloat_expr.md:156
 #: manual/design/internal.md:200
@@ -15634,8 +15634,8 @@ msgid "Its own small option parser"
 msgstr "自带的小型选项解析器"
 
 #: manual/design/cli/itl_expr_cli.md:22
-msgid "The runner does not use the shared `parse_common_options`: it has neither sharding nor a text mode, because ITF1788 files are small and the tooling runs phases in parallel instead. It parses `--strict-supported`, repeatable `--operation` and paths itself, and rejects every other option, so a mistyped option never silently changes a phase."
-msgstr "本运行器不使用共享的 `parse_common_options`：它既没有分片，也没有文本模式，因为 ITF1788 文件较小，工具改为并行运行各阶段。它自行解析 `--strict-supported`、可重复的 `--operation` 以及路径，并拒绝其他所有选项，因此拼错的选项永远不会静默地改变一个阶段。"
+msgid "The runner does not use the shared `parse_common_options`: it has neither sharding nor a text mode, because ITF1788 files are small (the largest pinned file is 218 KB) and the tooling runs phases in parallel instead. It parses `--strict-supported`, repeatable `--operation` and paths itself, and rejects every other option, so a mistyped option never silently changes a phase."
+msgstr "本运行器不使用共享的 `parse_common_options`：它既没有分片，也没有文本模式，因为 ITF1788 文件较小（固定版本中最大的文件为 218 KB），工具改为并行运行各阶段。它自行解析 `--strict-supported`、可重复的 `--operation` 以及路径，并拒绝其他所有选项，因此拼错的选项永远不会静默地改变一个阶段。"
 
 #: manual/design/cli/itl_expr_cli.md:28
 msgid "JSON lists, not only counts"
@@ -15666,8 +15666,8 @@ msgid "The listed ids are exactly the cases in each class, in execution order."
 msgstr "列出的 id 恰好是每一类中的用例，按执行顺序排列。"
 
 #: manual/design/cli/itl_expr_cli.md:55
-msgid "**Sharding.** Not needed for a corpus of a few thousand cases."
-msgstr "**分片。** 对于只有几千个用例的语料没有必要。"
+msgid "**Sharding.** Not needed for the pinned corpus of 6,632 selected cases."
+msgstr "**分片。** 对于固定版本的语料中选出的 6,632 个用例没有必要。"
 
 #: manual/design/cli/itl_expr_cli.md:56
 msgid "**Directory expansion.** Phases name their files by pattern (`interpreter_stages.json`) and the tooling passes the runner explicit paths, which keeps the claim precise."
@@ -15702,50 +15702,50 @@ msgid "Format detection from content"
 msgstr "根据内容检测格式"
 
 #: manual/design/cli/mpfr_expr_cli.md:20
-msgid "The formats have no common header, so the runner looks for a marker: the elementary generator writes `mpfr-elementary-v1`, the power data has a header naming `input_coefficient_hex`, and MPFR's own `tests/data/sqrt` has neither. Content-based detection lets the pinned upstream file be used unchanged."
-msgstr "这些格式没有共同的文件头，因此运行器会查找标记：初等函数生成器写入 `mpfr-elementary-v1`，幂函数数据有一个包含 `input_coefficient_hex` 的文件头，而 MPFR 自带的 `tests/data/sqrt` 两者都没有。基于内容的检测使固定版本的上游文件可以原样使用。"
+msgid "The formats have no common header, so the runner looks for a marker: the elementary generator writes `mpfr-elementary-v1`, the power data has a header naming `input_coefficient_hex`, the other four formats write `mpfr-random-v1`, `mpfr-decimal-random-v2`, `mpfr-strtofr-v1` and `mpfr-decimal-output-v1`, and MPFR's own `tests/data/sqrt` has none of them. Content-based detection lets the pinned upstream file be used unchanged."
+msgstr "这些格式没有共同的文件头，因此运行器会查找标记：初等函数生成器写入 `mpfr-elementary-v1`，幂函数数据有一个包含 `input_coefficient_hex` 的文件头，其余四种格式分别写入 `mpfr-random-v1`、`mpfr-decimal-random-v2`、`mpfr-strtofr-v1` 和 `mpfr-decimal-output-v1`，而 MPFR 自带的 `tests/data/sqrt` 这些都没有。基于内容的检测使固定版本的上游文件可以原样使用。"
 
-#: manual/design/cli/mpfr_expr_cli.md:25
+#: manual/design/cli/mpfr_expr_cli.md:27
 msgid "No shards"
 msgstr "不分片"
 
-#: manual/design/cli/mpfr_expr_cli.md:27
+#: manual/design/cli/mpfr_expr_cli.md:29
 msgid "MPFR files have at most a few thousand rows; `parse_common_options` is called with `allow_shard=false` so that shard options are rejected instead of being silently ignored."
 msgstr "MPFR 文件至多只有几千行；调用 `parse_common_options` 时传入 `allow_shard=false`，使分片选项被拒绝，而不是被静默忽略。"
 
-#: manual/design/cli/mpfr_expr_cli.md:31
+#: manual/design/cli/mpfr_expr_cli.md:33
 msgid "Corpus names in JSON"
 msgstr "JSON 中的语料名称"
 
-#: manual/design/cli/mpfr_expr_cli.md:33
+#: manual/design/cli/mpfr_expr_cli.md:35
 msgid "The JSON `corpus` field names the detected format and the MPFR release the data was produced with, so aggregated reports state their evidence source."
 msgstr "JSON 的 `corpus` 字段给出检测到的格式以及生成数据所用的 MPFR 版本，使汇总报告能说明其证据来源。"
 
-#: manual/design/cli/mpfr_expr_cli.md:38
+#: manual/design/cli/mpfr_expr_cli.md:40
 msgid "Exactly one parser runs per invocation, determined by the file content."
 msgstr "每次调用恰好运行一个解析器，由文件内容决定。"
 
-#: manual/design/cli/mpfr_expr_cli.md:39
+#: manual/design/cli/mpfr_expr_cli.md:41
 msgid "Exit `0` iff every row passed; `totalCases = passedCases + failedCases`."
 msgstr "当且仅当每一行都通过时退出码为 `0`；`totalCases = passedCases + failedCases`。"
 
-#: manual/design/cli/mpfr_expr_cli.md:40
-msgid "Parse errors exit with `2` before any row is executed; an elementary `pow`, `hypot` or `atan2` row without a second operand is such an error, so every outcome is an exit code."
-msgstr "解析错误会在执行任何行之前以 `2` 退出；缺少第二个操作数的初等函数 `pow`、`hypot` 或 `atan2` 行就属于此类错误，因此每种结果都对应一个退出码。"
+#: manual/design/cli/mpfr_expr_cli.md:42
+msgid "Parse errors exit with `2` before any row is executed; an elementary `pow`, `powr`, `hypot`, `atan2` or `atan2pi` row without a second operand is such an error, so every outcome is an exit code."
+msgstr "解析错误会在执行任何行之前以 `2` 退出；缺少第二个操作数的初等函数 `pow`、`powr`、`hypot`、`atan2` 或 `atan2pi` 行就属于此类错误，因此每种结果都对应一个退出码。"
 
-#: manual/design/cli/mpfr_expr_cli.md:46
+#: manual/design/cli/mpfr_expr_cli.md:48
 msgid "**A `--format` option.** Redundant with the markers already present in the data and a source of mismatches."
 msgstr "**`--format` 选项。** 与数据中已有的标记重复，且会成为不一致的来源。"
 
-#: manual/design/cli/mpfr_expr_cli.md:48
+#: manual/design/cli/mpfr_expr_cli.md:50
 msgid "**Accepting several files.** The formats differ per file; one file per process keeps the report unambiguous."
 msgstr "**接受多个文件。** 各文件的格式不同；每个进程处理一个文件可使报告没有歧义。"
 
-#: manual/design/cli/mpfr_expr_cli.md:53
+#: manual/design/cli/mpfr_expr_cli.md:55
 msgid "No sharding, no filtering of rows."
 msgstr "不分片，也不过滤行。"
 
-#: manual/design/cli/mpfr_expr_cli.md:54
+#: manual/design/cli/mpfr_expr_cli.md:56
 msgid "Only the seven formats of `frontend/mpfr_expr`."
 msgstr "仅支持 `frontend/mpfr_expr` 的七种格式。"
 
@@ -18794,197 +18794,189 @@ msgid "otherwise decimal text (a leading `+` is dropped), parsed with a precisio
 msgstr "否则为十进制文本（前导 `+` 会被去掉），以至少为该记号长度的精度解析，因此每一位数字都会被保留：GDA 运算精确地接收操作数，只对结果舍入。"
 
 #: manual/design/frontend/gda_expr.md:62
-msgid "The operation callback maps the normalized name to one `decimal_gda` function (for example `add` to `@decimal_gda.add`, `squareroot` to `@decimal_gda.sqrt`, `comparetotal` to `@decimal_gda.compare_total`) and calls it with a `@decimal_gda.GdaContext` built from $\\kappa$ *with every trap disabled*. The result is a value of one of four kinds (decimal, integer, boolean, text) together with the set $F$ of raised conditions. Conversions `tosci` and `toeng` read the raw operand text, because the conversion from text is itself under test. Interchange-only operations (`canonical`, and `apply`, `copy*` on `#` operands with a `#` result) work on the encoding and return text."
-msgstr "操作回调将规范化后的名称映射到一个 `decimal_gda` 函数（例如 `add` 映射到 `@decimal_gda.add`，`squareroot` 映射到 `@decimal_gda.sqrt`，`comparetotal` 映射到 `@decimal_gda.compare_total`），并以由 $\\kappa$ 构造、*禁用所有陷阱*的 `@decimal_gda.GdaContext` 调用它。结果是四种类型之一的值（十进制数、整数、布尔值、文本），以及所引发条件的集合 $F$。转换 `tosci` 和 `toeng` 读取原始操作数文本，因为从文本的转换本身就是被测对象。仅针对交换格式的操作（`canonical`，以及作用于 `#` 操作数并产生 `#` 结果的 `apply`、`copy*`）直接处理编码并返回文本。"
+msgid "The operation callback maps the normalized name to one `decimal_gda` function (for example `add` to `@decimal_gda.add`, `squareroot` to `@decimal_gda.sqrt`, `comparetotal` to `@decimal_gda.compare_total`) and calls it with a `@decimal_gda.GdaContext` built from $\\kappa$ *with every trap disabled*. The result is a value of one of four kinds (decimal, integer, boolean, text) together with the set $F$ of raised conditions. Conversions `tosci` and `toeng` read the raw operand text, because the conversion from text is itself under test. Interchange-only operations (`canonical`, and `apply` with a `#` result, and `copy`, `copyabs`, `copynegate`, `copyneg`, `copysign` on a `#` operand with a `#` result) work on the encoding and return text."
+msgstr "操作回调将规范化后的名称映射到一个 `decimal_gda` 函数（例如 `add` 映射到 `@decimal_gda.add`，`squareroot` 映射到 `@decimal_gda.sqrt`，`comparetotal` 映射到 `@decimal_gda.compare_total`），并以由 $\\kappa$ 构造、*禁用所有陷阱*的 `@decimal_gda.GdaContext` 调用它。结果是四种类型之一的值（十进制数、整数、布尔值、文本），以及所引发条件的集合 $F$。转换 `tosci` 和 `toeng` 读取原始操作数文本，因为从文本的转换本身就是被测对象。仅针对交换格式的操作（`canonical`，以及结果为 `#` 的 `apply`，还有作用于 `#` 操作数并产生 `#` 结果的 `copy`、`copyabs`、`copynegate`、`copyneg`、`copysign`）直接处理编码并返回文本。"
 
-#: manual/design/frontend/gda_expr.md:73
+#: manual/design/frontend/gda_expr.md:74
 #: manual/design/frontend/itl_expr.md:58
 #: manual/design/frontend/testfloat_expr.md:54
 msgid "The pass rule"
 msgstr "通过规则"
 
-#: manual/design/frontend/gda_expr.md:75
+#: manual/design/frontend/gda_expr.md:76
 msgid "Let $v$ be the actual result, $F$ the actual condition set and $C$ the set of listed conditions. Define $\\widehat{C}$ by adding `Invalid_operation` whenever $C$ contains `Division_impossible` or `Division_undefined` (both are reported through the invalid-operation signal). The row passes if and only if"
 msgstr "设 $v$ 为实际结果，$F$ 为实际条件集合，$C$ 为所列条件的集合。定义 $\\widehat{C}$：当 $C$ 包含 `Division_impossible` 或 `Division_undefined` 时向其加入 `Invalid_operation`（两者都通过无效操作信号报告）。该行通过当且仅当"
 
-#: manual/design/frontend/gda_expr.md:84
-msgid "where equality of flag sets is checked in both directions: a missing or an extra condition fails the row. $\\operatorname{match}$ depends on the expected token $x$ and the kind of $v$:"
-msgstr "其中标志集合的相等性在两个方向上检查：缺少或多出一个条件都会使该行失败。$\\operatorname{match}$ 取决于预期记号 $x$ 和 $v$ 的类型："
+#: manual/design/frontend/gda_expr.md:85
+msgid "where equality of flag sets is checked in both directions: a missing or an extra condition fails the row. A deviation that holds a value or flags for the row replaces $x$ or $C$ in this rule. $\\operatorname{match}$ depends on the expected token $x$ and the kind of $v$:"
+msgstr "其中标志集合的相等性在两个方向上检查：缺少或多出一个条件都会使该行失败。若有偏差为该行给定了值或标志，则它在此规则中取代 $x$ 或 $C$。$\\operatorname{match}$ 取决于预期记号 $x$ 和 $v$ 的类型："
 
-#: manual/design/frontend/gda_expr.md:88
+#: manual/design/frontend/gda_expr.md:90
 msgid "expected $x$"
 msgstr "预期 $x$"
 
-#: manual/design/frontend/gda_expr.md:88
+#: manual/design/frontend/gda_expr.md:90
 msgid "actual $v$"
 msgstr "实际 $v$"
 
-#: manual/design/frontend/gda_expr.md:90
+#: manual/design/frontend/gda_expr.md:92
 #: manual/design/interval.md:570
 msgid "any"
 msgstr "任意"
 
-#: manual/design/frontend/gda_expr.md:90
+#: manual/design/frontend/gda_expr.md:92
 msgid "true (only the conditions are checked)"
 msgstr "真（只检查条件）"
 
-#: manual/design/frontend/gda_expr.md:91
-#: manual/design/frontend/gda_expr.md:92
 #: manual/design/frontend/gda_expr.md:93
+#: manual/design/frontend/gda_expr.md:94
+#: manual/design/frontend/gda_expr.md:95
 msgid "decimal"
 msgstr "十进制数"
 
-#: manual/design/frontend/gda_expr.md:91
+#: manual/design/frontend/gda_expr.md:93
 msgid "the interchange encoding of $v$ in the context's format equals $x$, ignoring letter case"
 msgstr "$v$ 在上下文格式中的交换格式编码等于 $x$，忽略字母大小写"
 
-#: manual/design/frontend/gda_expr.md:92
+#: manual/design/frontend/gda_expr.md:94
 msgid "$v$ equals the value of $x$ in that format numerically (`compare == 0`); the conditions raised by encoding $v$ in that format are added to $F$"
 msgstr "$v$ 在数值上等于 $x$ 在该格式中的值（`compare == 0`）；将 $v$ 编码为该格式时引发的条件会加入 $F$"
 
-#: manual/design/frontend/gda_expr.md:93
-#: manual/design/frontend/gda_expr.md:94
 #: manual/design/frontend/gda_expr.md:95
+#: manual/design/frontend/gda_expr.md:96
+#: manual/design/frontend/gda_expr.md:97
 msgid "other text"
 msgstr "其他文本"
 
-#: manual/design/frontend/gda_expr.md:93
+#: manual/design/frontend/gda_expr.md:95
 msgid "$v$ prints exactly as $x$ (its to-scientific-string equals $x$)"
 msgstr "$v$ 的打印结果与 $x$ 完全相同（其 to-scientific-string 等于 $x$）"
 
-#: manual/design/frontend/gda_expr.md:94
+#: manual/design/frontend/gda_expr.md:96
 msgid "integer"
 msgstr "整数"
 
-#: manual/design/frontend/gda_expr.md:94
+#: manual/design/frontend/gda_expr.md:96
 msgid "the decimal text of $v$ equals $x$"
 msgstr "$v$ 的十进制文本等于 $x$"
 
-#: manual/design/frontend/gda_expr.md:95
+#: manual/design/frontend/gda_expr.md:97
 msgid "$x$ is `true`/`1` for true or `false`/`0` for false, ignoring case"
 msgstr "$x$ 为 `true`/`1` 表示真，为 `false`/`0` 表示假，忽略大小写"
 
-#: manual/design/frontend/gda_expr.md:96
+#: manual/design/frontend/gda_expr.md:98
 msgid "text"
 msgstr "文本"
 
-#: manual/design/frontend/gda_expr.md:96
+#: manual/design/frontend/gda_expr.md:98
 msgid "equal strings (ignoring case for `#hex`)"
 msgstr "字符串相等（对 `#hex` 忽略大小写）"
 
-#: manual/design/frontend/gda_expr.md:98
-msgid "The decimal case is exact on representations. IEEE 754 `totalOrder`[^total] compares signs first, then classes, then numeric values, then exponents, and orders NaNs by signaling bit and payload. Hence"
-msgstr "十进制情形在表示层面是精确的。IEEE 754 `totalOrder`[^total] 先比较符号，再比较类别，然后比较数值，最后比较指数，并按信号位和载荷对 NaN 排序。因此"
+#: manual/design/frontend/gda_expr.md:100
+msgid "The decimal case is a comparison of text. The expected token is not read as a number (except the format-prefixed tokens above); the result is printed with its to-scientific-string and compared with the token, so the comparison is exact on representations: `2.0` does not match `2.00`, `-0` does not match `0`, and `NaN12` does not match `NaN`."
+msgstr "十进制情形是文本的比较。预期记号不按数读取（上文带格式前缀的记号除外）；结果以其转换为科学记数法字符串的形式打印，并与该记号比较，因此比较在表示上是精确的：`2.0` 不匹配 `2.00`，`-0` 不匹配 `0`，`NaN12` 不匹配 `NaN`。"
 
-#: manual/design/frontend/gda_expr.md:111
-msgid "so `2.0` does not match `2.00`, `-0` does not match `0`, and `NaN12` does not match `NaN`."
-msgstr "所以 `2.0` 与 `2.00` 不匹配，`-0` 与 `0` 不匹配，`NaN12` 与 `NaN` 也不匹配。"
-
-#: manual/design/frontend/gda_expr.md:114
-msgid "IEEE 754-2019, clause 5.10, `totalOrder`. `Decimal::compare_total` implements it for `decimal_gda`."
-msgstr "IEEE 754-2019，第 5.10 节，`totalOrder`。`Decimal::compare_total` 为 `decimal_gda` 实现了它。"
-
-#: manual/design/frontend/gda_expr.md:119
+#: manual/design/frontend/gda_expr.md:108
 msgid "Dispositions instead of failures for rows that are not tests"
 msgstr "对不是测试的行给出处置类别而非判为失败"
 
-#: manual/design/frontend/gda_expr.md:121
+#: manual/design/frontend/gda_expr.md:110
 msgid "**Problem.** The official corpus contains rows that do not describe a scalar computation: `#` placeholders for invalid or non-scalar encodings, `?` operands from older versions, operations the library does not provide, and rounding modes it does not know. Counting them as failures hides real failures; dropping them silently overstates coverage."
 msgstr "**问题。** 官方语料包含一些并不描述标量计算的行：用于无效或非标量编码的 `#` 占位符、来自旧版本的 `?` 操作数、库未提供的操作，以及库不认识的舍入模式。将它们计为失败会掩盖真正的失败；静默丢弃它们则会夸大覆盖率。"
 
-#: manual/design/frontend/gda_expr.md:127
+#: manual/design/frontend/gda_expr.md:116
 msgid "**Choice.** Every selected row gets a disposition. `Diagnostic` marks rows that are not executable by construction (`#` or `?` operands, `#` result, or a context with precision $p \\le 0$ or $p > 999999999$, $E_{\\min}$ outside $-999999999$ to $0$, $E_{\\max}$ outside $0$ to $999999999$, or magnitudes of $E_{\\min}$ and $E_{\\max}$ that differ by more than one, which no `decimal_gda` context can represent). `Unsupported` marks legal rows the library cannot run (unknown operation, condition or rounding). Only `Executable` rows can pass or fail, and the summary reports every class, so a claim such as \"all executable rows pass\" comes with the number of rows it excludes. Strictness (failing when anything is unsupported) is a policy of the caller: `RunOptions` records it, and the CLI applies it to the exit code."
 msgstr "**选择。** 每个被选中的行都会得到一个处置类别。`Diagnostic` 标记按构造即不可执行的行（`#` 或 `?` 操作数、`#` 结果，或精度 $p \\le 0$ 或 $p > 999999999$、$E_{\\min}$ 在 $-999999999$ 到 $0$ 之外、$E_{\\max}$ 在 $0$ 到 $999999999$ 之外，或 $E_{\\min}$ 与 $E_{\\max}$ 的绝对值相差大于一的上下文，任何 `decimal_gda` 上下文都无法表示这种上下文）。`Unsupported` 标记库无法运行的合法行（未知的操作、条件或舍入）。只有 `Executable` 行可以通过或失败，汇总报告每一类，因此诸如“所有可执行行都通过”这样的结论会附带它所排除的行数。严格性（有任何不支持项即失败）是调用者的策略：`RunOptions` 记录它，CLI 将其应用于退出码。"
 
-#: manual/design/frontend/gda_expr.md:140
+#: manual/design/frontend/gda_expr.md:129
 msgid "Traps disabled, conditions compared"
 msgstr "禁用陷阱，比较条件"
 
-#: manual/design/frontend/gda_expr.md:142
+#: manual/design/frontend/gda_expr.md:131
 msgid "A `.decTest` row lists conditions, not traps. Running every operation with an empty trap set makes `decimal_gda` return the specified default result (for example a quiet NaN for an invalid operation) and report all raised conditions, which is exactly what the row states. Comparing the whole set in both directions catches both missing and spurious `Inexact`, `Rounded`, `Clamped` and similar conditions."
 msgstr "`.decTest` 行列出的是条件，而不是陷阱。以空陷阱集运行每个操作，可使 `decimal_gda` 返回规定的默认结果（例如无效操作时返回静默 NaN）并报告所有引发的条件，这正是该行所陈述的内容。在两个方向上比较整个集合，可以同时捕获缺失的和多余的 `Inexact`、`Rounded`、`Clamped` 等条件。"
 
-#: manual/design/frontend/gda_expr.md:149
+#: manual/design/frontend/gda_expr.md:138
 msgid "Representation-exact comparison"
 msgstr "表示精确的比较"
 
-#: manual/design/frontend/gda_expr.md:151
+#: manual/design/frontend/gda_expr.md:140
 msgid "GDA specifies the exponent of every result, so a library that returns the right value with the wrong exponent is wrong. Comparing by exact string makes the cohort, the sign of zero and the NaN payload part of the test. The only value-level comparison is for `32#`/`64#`/`128#` results, where the encoding conditions are what the row tests."
 msgstr "GDA 规定了每个结果的指数，因此一个返回正确值但指数错误的库就是错误的。用精确字符串进行比较，会将同值类、零的符号和 NaN 载荷都纳入测试。唯一的值层面比较用于 `32#`/`64#`/`128#` 结果，此时该行测试的是编码条件。"
 
-#: manual/design/frontend/gda_expr.md:158
+#: manual/design/frontend/gda_expr.md:147
 msgid "Directive context resolved once per change"
 msgstr "指令上下文仅在变化时解析一次"
 
-#: manual/design/frontend/gda_expr.md:160
+#: manual/design/frontend/gda_expr.md:149
 msgid "Each row stores the directive record in force on its line. `execute_documents` converts it to `decimal_gda` contexts only when it differs from the previous row's record. Conversion is a pure function of the record, so the cache never changes a result; it removes repeated work in files with thousands of rows under one context."
 msgstr "每一行都保存其所在行生效的指令记录。`execute_documents` 只在记录与前一行不同时才将其转换为 `decimal_gda` 上下文。转换是记录的纯函数，因此缓存永远不会改变结果；它消除了在同一上下文下包含数千行的文件中的重复工作。"
 
-#: manual/design/frontend/gda_expr.md:166
+#: manual/design/frontend/gda_expr.md:155
 msgid "Deterministic sharding"
 msgstr "确定性分片"
 
-#: manual/design/frontend/gda_expr.md:168
+#: manual/design/frontend/gda_expr.md:157
 msgid "**Problem.** The corpus is large and runs in parallel processes, whose results must add up to the serial run."
 msgstr "**问题。** 语料很大，并在多个并行进程中运行，这些进程的结果相加必须等于串行运行的结果。"
 
-#: manual/design/frontend/gda_expr.md:171
+#: manual/design/frontend/gda_expr.md:160
 msgid "**Choice.** After filtering, rows are numbered $k = 0, 1, \\dots, N-1$ in document order and shard $i$ of $n$ takes $S_i = \\{k : k \\bmod n = i\\}$. Round-robin assignment spreads files with slow operations (`power`, `ln`) across shards instead of giving one shard a whole slow file."
 msgstr "**选择。** 过滤之后，行按文档顺序编号为 $k = 0, 1, \\dots, N-1$，$n$ 个分片中的第 $i$ 个分片取 $S_i = \\{k : k \\bmod n = i\\}$。轮转分配会把含有慢操作（`power`、`ln`）的文件分散到各个分片，而不是让某一个分片承担整个慢文件。"
 
-#: manual/design/frontend/gda_expr.md:178
+#: manual/design/frontend/gda_expr.md:167
 msgid "**Partition.** For $n \\ge 1$ the sets $S_0, \\dots, S_{n-1}$ are pairwise disjoint and cover $\\{0, \\dots, N-1\\}$, because every $k$ has exactly one residue modulo $n$. Their sizes are balanced:"
 msgstr "**划分。** 对于 $n \\ge 1$，集合 $S_0, \\dots, S_{n-1}$ 两两不交且覆盖 $\\{0, \\dots, N-1\\}$，因为每个 $k$ 模 $n$ 恰有一个余数。它们的大小是均衡的："
 
-#: manual/design/frontend/gda_expr.md:188
+#: manual/design/frontend/gda_expr.md:177
 msgid "**Shard independence.** The disposition and result of a row depend only on the row (its tokens and its directive record), on the deviation records of the options and on the source name of its document: parsing fixes the record per row, and the context cache memoizes a pure function. Hence the result of row $k$ is the same in every shard that contains it and in the serial run, and"
 msgstr "**分片独立性。** 一行的处置类别和结果只取决于该行本身（其记号和指令记录）、选项的偏差记录以及其文档的来源名：解析为每一行确定记录，而上下文缓存记忆的是一个纯函数。因此，第 $k$ 行的结果在包含它的每个分片中以及在串行运行中都相同，并且"
 
-#: manual/design/frontend/gda_expr.md:198
+#: manual/design/frontend/gda_expr.md:187
 msgid "since `merge` adds every counter and the shards partition the rows (`total_cases` is the same $N$ in every shard and `merge` keeps it)."
 msgstr "因为 `merge` 将每个计数器相加，而各分片构成行的一个划分（`total_cases` 在每个分片中都是同一个 $N$，`merge` 会保留它）。"
 
-#: manual/design/frontend/gda_expr.md:201
+#: manual/design/frontend/gda_expr.md:190
 msgid "**Counter identities.** For every summary, $\\text{selected} = \\text{executable} + \\text{skipped}$, $\\text{executable} = \\text{passed} + \\text{failed}$ and $\\text{skipped} = \\text{diagnostic} + \\text{legacy} + \\text{unsupported}$; they hold because each result is counted in exactly one class by `internal/conformance`."
 msgstr "**计数器恒等式。** 对每个汇总，$\\text{selected} = \\text{executable} + \\text{skipped}$，$\\text{executable} = \\text{passed} + \\text{failed}$，$\\text{skipped} = \\text{diagnostic} + \\text{legacy} + \\text{unsupported}$；这些等式成立，是因为每个结果都被 `internal/conformance` 恰好计入一个类别。"
 
-#: manual/design/frontend/gda_expr.md:208
+#: manual/design/frontend/gda_expr.md:197
 msgid "**Totality.** Parsing assigns every line to exactly one of: skipped (empty or comment), directive, row, diagnostic. Execution never aborts on row content: an invalid context makes its rows `Diagnostic` before any context is built, and decoding and dispatch failures become a failed result with the message `\"evaluation failed\"`."
 msgstr "**完全性。** 解析把每一行恰好归入以下之一：跳过（空行或注释）、指令、数据行、诊断。执行绝不会因行内容而中止：无效的上下文会在构建任何上下文之前使其下的行成为 `Diagnostic`，而解码和分派失败会变为带有消息 `\"evaluation failed\"` 的失败结果。"
 
-#: manual/design/frontend/gda_expr.md:214
-msgid "**Complexity.** Parsing is linear in the text length. Execution is linear in the number of rows plus the cost of the decimal operations themselves."
-msgstr "**复杂度。** 解析与文本长度呈线性关系。执行与行数呈线性关系，再加上十进制运算本身的开销。"
+#: manual/design/frontend/gda_expr.md:203
+msgid "**Complexity.** Parsing is linear in the text length. Execution is linear in the number of rows plus the cost of the decimal operations themselves, and, when deviations are given, plus one scan of the deviation list for every selected row."
+msgstr "**复杂度。** 解析与文本长度呈线性关系。执行与行数呈线性关系，再加上十进制运算本身的开销；若给出了偏差，则对每个选中的行再加上一次对偏差列表的扫描。"
 
-#: manual/design/frontend/gda_expr.md:219
+#: manual/design/frontend/gda_expr.md:210
 msgid "**Value-only comparison.** Simpler, but it would accept wrong exponents and signs of zero, which the specification and the corpus test deliberately."
 msgstr "**仅比较值。** 更简单，但会接受错误的指数和零的符号，而规范和语料恰恰有意测试这些。"
 
-#: manual/design/frontend/gda_expr.md:221
+#: manual/design/frontend/gda_expr.md:212
 msgid "**Subset comparison of conditions** (only listed conditions must be raised). It would accept spurious `Inexact` or `Clamped`, a common class of bugs."
 msgstr "**条件的子集比较**（只要求引发所列的条件）。这会接受多余的 `Inexact` 或 `Clamped`，而这是一类常见的缺陷。"
 
-#: manual/design/frontend/gda_expr.md:223
+#: manual/design/frontend/gda_expr.md:214
 msgid "**Executing `#` and `?` rows with ad-hoc meanings.** These rows have no scalar meaning; inventing one would make the pass count meaningless."
 msgstr "**以临时约定的含义执行 `#` 和 `?` 行。** 这些行没有标量含义；凭空赋予一个含义会使通过计数失去意义。"
 
-#: manual/design/frontend/gda_expr.md:225
+#: manual/design/frontend/gda_expr.md:216
 msgid "**Contiguous shards.** Splitting the row list into blocks is equally deterministic but puts whole slow files into one shard."
 msgstr "**连续分片。** 将行列表切分为块同样是确定性的，但会把整个慢文件放进同一个分片。"
 
-#: manual/design/frontend/gda_expr.md:230
+#: manual/design/frontend/gda_expr.md:221
 msgid "No file system access, globbing or process exit codes: those belong to [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) and `tools/`."
 msgstr "不负责文件系统访问、通配符展开或进程退出码：这些属于 [`cli/gda_expr_cli`](../cli/gda_expr_cli.md) 和 `tools/`。"
 
-#: manual/design/frontend/gda_expr.md:232
+#: manual/design/frontend/gda_expr.md:223
 msgid "No traps: rows are executed with every trap disabled."
 msgstr "不使用陷阱：执行各行时禁用所有陷阱。"
 
-#: manual/design/frontend/gda_expr.md:233
+#: manual/design/frontend/gda_expr.md:224
 msgid "`Legacy` is part of the shared result model but is never assigned by the current executor."
 msgstr "`Legacy` 是共享结果模型的一部分，但当前的执行器从不分配它。"
 
-#: manual/design/frontend/gda_expr.md:235
+#: manual/design/frontend/gda_expr.md:226
 msgid "The executor tests `decimal_gda` only; IEEE decimal (`decimal`) has its own corpus runner in `tools/`."
 msgstr "该执行器只测试 `decimal_gda`；IEEE 十进制（`decimal`）在 `tools/` 中有自己的语料运行器。"
 
@@ -19082,38 +19074,38 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**确定性。** 解析与执行只依赖于文本和 `precision`；结果不依赖于用例的执行顺序，因此调用者可以自由地筛选或重排用例。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` never aborts on case content: every unreadable input is reported through a disposition. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 绝不会因用例内容而中止：每个无法读取的输入都通过处置结果报告。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts only on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`). Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它只会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`）。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
 
-#: manual/design/frontend/itl_expr.md:155
+#: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
 msgstr "**仅检查包含性**（$E \\subseteq A$）。这会接受宽出许多 ulp 的结果，从而掩盖精度退化。"
 
-#: manual/design/frontend/itl_expr.md:157
+#: manual/design/frontend/itl_expr.md:159
 msgid "**Always comparing decorations.** It would fail set-based cases on the default decoration, although those cases make no decoration claim."
 msgstr "**始终比较装饰。** 这会让基于集合的用例因默认装饰而失败，尽管这些用例并未对装饰作任何声明。"
 
-#: manual/design/frontend/itl_expr.md:159
+#: manual/design/frontend/itl_expr.md:161
 msgid "**Treating signals as passes.** IEEE 1788 signals (for example `UndefinedOperation`) are not observable through the current API, so such cases are reported as not executed rather than silently passed."
 msgstr "**将信号视为通过。** IEEE 1788 的信号（例如 `UndefinedOperation`）无法通过当前 API 观察到，因此这类用例被报告为未执行，而不是被静默地判为通过。"
 
-#: manual/design/frontend/itl_expr.md:165
+#: manual/design/frontend/itl_expr.md:167
 msgid "String conversions and exception signals are not executed."
 msgstr "字符串转换和异常信号均不执行。"
 
-#: manual/design/frontend/itl_expr.md:166
+#: manual/design/frontend/itl_expr.md:168
 msgid "Decimal bounds are rounded to nearest, as ITF1788 floating constants; an `[l,u]` in ITL is not an IEEE 1788 interval literal."
 msgstr "十进制端点按 ITF1788 浮点常量的方式就近舍入；ITL 中的 `[l,u]` 不是 IEEE 1788 区间字面量。"
 
-#: manual/design/frontend/itl_expr.md:168
+#: manual/design/frontend/itl_expr.md:170
 msgid "The result format for `precision = p` has the binary64 exponent range for every $p$, so `precision = 24` is not binary32."
 msgstr "`precision = p` 时的结果格式对任何 $p$ 都使用 binary64 的指数范围，因此 `precision = 24` 并不是 binary32。"
 
-#: manual/design/frontend/itl_expr.md:170
+#: manual/design/frontend/itl_expr.md:172
 msgid "`/*` opens a block comment only at the start of a line."
 msgstr "`/*` 只有出现在行首时才开始一个块注释。"
 
-#: manual/design/frontend/itl_expr.md:171
+#: manual/design/frontend/itl_expr.md:173
 msgid "No file IO and no operation filtering; both are in [`cli/itl_expr_cli`](../cli/itl_expr_cli.md)."
 msgstr "不提供文件 IO，也不提供运算筛选；二者都在 [`cli/itl_expr_cli`](../cli/itl_expr_cli.md) 中。"
 
@@ -19198,8 +19190,8 @@ msgid "An unbounded exponent range"
 msgstr "无界指数范围"
 
 #: manual/design/frontend/mpfr_expr.md:64
-msgid "MPFR's default exponent range is far wider than any IEEE format, and the data contains results such as $2^{-563}$ computed from subnormal-range binary64 inputs. Executing in an unbounded context tests rounding of the significand in isolation: range effects (overflow, underflow, subnormals) are covered by the TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats have real limits. Consequently an underflow or overflow flag in an MPFR row is a failure: it can only come from a defect."
-msgstr "MPFR 的默认指数范围远宽于任何 IEEE 格式，数据中包含诸如由 binary64 次正规数范围输入计算得到的 $2^{-563}$ 之类的结果。在无界上下文中执行可以单独测试有效数字的舍入：范围效应（上溢、下溢、次正规数）由 TestFloat 语料通过 [`testfloat_expr`](testfloat_expr.md) 覆盖，那里的格式具有真实的界限。因此，MPFR 行中出现的下溢或上溢标志即为失败：它只可能来自缺陷。"
+msgid "MPFR's default exponent range is far wider than any IEEE format, and the data contains results such as $2^{-563}$ computed from subnormal-range binary64 inputs. Executing in the context of the precision alone (`e_max` 1073741823, gradual underflow) tests rounding of the significand in isolation: range effects (overflow, underflow, subnormals) are covered by the TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats have real limits. Consequently an underflow or overflow flag in a power or elementary row is a failure: it can only come from a defect."
+msgstr "MPFR 的默认指数范围远宽于任何 IEEE 格式，数据中包含诸如由 binary64 次正规数范围输入计算得到的 $2^{-563}$ 之类的结果。仅在由精度确定的上下文中执行（`e_max` 为 1073741823，采用渐进下溢）可以单独测试有效数字的舍入：范围效应（上溢、下溢、次正规数）由 TestFloat 语料通过 [`testfloat_expr`](testfloat_expr.md) 覆盖，那里的格式具有真实的界限。因此，幂或初等函数行中出现的下溢或上溢标志即为失败：它只可能来自缺陷。"
 
 #: manual/design/frontend/mpfr_expr.md:72
 msgid "Inputs read at 512 bits"
@@ -19246,12 +19238,12 @@ msgid "**Determinism.** Each row's result depends only on the row."
 msgstr "**确定性。** 每行的结果只依赖于该行本身。"
 
 #: manual/design/frontend/mpfr_expr.md:121
-msgid "**Totality of parsing.** Every non-comment line becomes a row or a diagnostic, and a document is returned only when there is no diagnostic. An elementary row for `pow`, `hypot` or `atan2` without a second operand is a diagnostic, so execution never meets a missing operand."
-msgstr "**解析的完全性。** 每个非注释行都会成为一行数据或一条诊断，且仅当没有任何诊断时才返回文档。缺少第二个操作数的 `pow`、`hypot` 或 `atan2` 初等函数行是一条诊断，因此执行时绝不会遇到缺失的操作数。"
+msgid "**Totality of parsing.** Every non-comment line becomes a row or a diagnostic, and a document is returned only when there is no diagnostic. An elementary row for `pow`, `powr`, `hypot`, `atan2` or `atan2pi` without a second operand is a diagnostic, so execution never meets a missing operand."
+msgstr "**解析的完全性。** 每个非注释行都会成为一行数据或一条诊断，且仅当没有任何诊断时才返回文档。缺少第二个操作数的 `pow`、`powr`、`hypot`、`atan2` 或 `atan2pi` 初等函数行是一条诊断，因此执行时绝不会遇到缺失的操作数。"
 
 #: manual/design/frontend/mpfr_expr.md:128
-msgid "**Comparing decimal strings.** Decimal output would need its own correctly rounded conversion; hexadecimal significands compare exactly."
-msgstr "**比较十进制字符串。** 十进制输出需要其自身的正确舍入转换；而十六进制有效数字可以精确比较。"
+msgid "**Comparing decimal strings** outside the two decimal conversion formats. Decimal output would need its own correctly rounded conversion; hexadecimal significands compare exactly."
+msgstr "**比较十进制字符串**（两种十进制转换格式之外）。十进制输出需要其自身的正确舍入转换；而十六进制有效数字可以精确比较。"
 
 #: manual/design/frontend/mpfr_expr.md:130
 msgid "**Running in IEEE formats.** That would mix range and rounding effects and make most high-precision rows (precision 113 and above) impossible."
@@ -19270,14 +19262,14 @@ msgid "Elementary rows do not check NaN payloads."
 msgstr "初等函数行不检查 NaN 载荷。"
 
 #: manual/design/frontend/mpfr_expr.md:140
-msgid "No exponent range, subnormals or overflow handling are exercised by the square-root, power and elementary formats; the two random formats do."
-msgstr "平方根、幂和初等函数这几种格式不涉及指数范围、次正规数或上溢处理；两种随机格式则涉及。"
+msgid "No exponent range, subnormals or overflow handling are exercised by the square-root, power and elementary formats; the two random formats do, and the `mpfr-strtofr-v1` rows state overflow and underflow flags of the default exponent range."
+msgstr "平方根、幂和初等函数这几种格式不涉及指数范围、次正规数或上溢处理；两种随机格式则涉及，`mpfr-strtofr-v1` 的各行还给出默认指数范围的上溢和下溢标志。"
 
-#: manual/design/frontend/mpfr_expr.md:142
+#: manual/design/frontend/mpfr_expr.md:144
 msgid "Only the seven formats of the [API page](../../api/frontend/mpfr_expr.md) are understood; there is no general MPFR test file reader."
 msgstr "只理解 [API 页](../../api/frontend/mpfr_expr.md)中的七种格式；不存在通用的 MPFR 测试文件读取器。"
 
-#: manual/design/frontend/mpfr_expr.md:144
+#: manual/design/frontend/mpfr_expr.md:146
 msgid "File reading, format detection and exit codes are in [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md)."
 msgstr "文件读取、格式检测和退出码位于 [`cli/mpfr_expr_cli`](../cli/mpfr_expr_cli.md) 中。"
 
@@ -19362,8 +19354,8 @@ msgid "The operation is judged, not the operation followed by a rounding"
 msgstr "判定的是运算，而不是运算之后再接一次舍入"
 
 #: manual/design/frontend/testfloat_expr.md:89
-msgid "An earlier version encoded the result with `BinaryInterchange::from_binary`, which first rounds to the format and adds the flags of that rounding. Every vector then tested \"the operation, then a rounding\": an operation that returned a value with more bits than the format, or below its smallest subnormal, or that dropped the inexact flag, passed whenever the rounding happened to repair it. The executor now packs the sign, the coefficient and the exponent of the result into the fields of the format with the layout of the format written out in the front end (precision, width, bias), and fails the vector with \"result not in the format\" when the value does not fit: more significant bits than the precision, a bit below the last place of the smallest subnormal, a leading bit above the largest exponent. The same holds for the format conversions, where the operation under test is `convert_format` and nothing rounds behind it. No flag is added by the harness."
-msgstr "早先的版本用 `BinaryInterchange::from_binary` 对结果编码，它会先舍入到该格式，并加上那次舍入的标志。于是每个向量测试的都是“运算，然后再舍入”：运算若返回位数多于该格式的值、低于其最小次正规数的值，或丢掉了 inexact 标志，只要后面的舍入碰巧把它修好，向量就会通过。现在执行器按前端自己写出的格式布局（精度、宽度、偏置），把结果的符号、系数和指数打包进该格式的字段，当值放不进该格式时以“result not in the format”使向量失败：有效位数多于精度，低于最小次正规数的最后一位，或最高位超过最大指数。格式转换也是如此，被测的运算是 `convert_format`，其后没有任何舍入。测试框架不添加任何标志。"
+msgid "An earlier version encoded the result with `BinaryInterchange::from_binary`, which first rounds to the format and adds the flags of that rounding. Every vector then tested \"the operation, then a rounding\": an operation that returned a value with more bits than the format, or below its smallest subnormal, or that dropped the inexact flag, passed whenever the rounding happened to repair it. The executor now packs the sign, the coefficient and the exponent of the result into the fields of the format with the layout of the format written out in the front end (precision, width, bias), and fails the vector with \"result not in the format\" when the result is a NaN and the column is not, or the value does not fit: more significant bits than the precision, a bit below the last place of the smallest subnormal, a leading bit above the largest exponent. The same holds for the format conversions, where the operation under test is `convert_format` and nothing rounds behind it. No flag is added by the harness."
+msgstr "早先的版本用 `BinaryInterchange::from_binary` 对结果编码，它会先舍入到该格式，并加上那次舍入的标志。于是每个向量测试的都是“运算，然后再舍入”：运算若返回位数多于该格式的值、低于其最小次正规数的值，或丢掉了 inexact 标志，只要后面的舍入碰巧把它修好，向量就会通过。现在执行器按前端自己写出的格式布局（精度、宽度、偏置），把结果的符号、系数和指数打包进该格式的字段，当结果是 NaN 而该列不是，或值放不进该格式时，以“result not in the format”使向量失败：有效位数多于精度，低于最小次正规数的最后一位，或最高位超过最大指数。格式转换也是如此，被测的运算是 `convert_format`，其后没有任何舍入。测试框架不添加任何标志。"
 
 #: manual/design/frontend/testfloat_expr.md:103
 msgid "What stays shared with the code under test: the decoding of the operands (`BinaryInterchange::from_hex` and `to_binary`; a wrong decoding changes the result and shows as a mismatch with the vector, it cannot be compensated by the packing, which is independent) and `Binary::to_hex` in the failure message. The expected column is compared as the text of the vector, not decoded. A NaN column is compared as a quiet NaN result; the payload and the sign of a NaN are not compared."
@@ -25352,7 +25344,7 @@ msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录�
 #: manual/tutorial/cli/dispatch.md:66
 #: manual/tutorial/cli/gda_expr_cli.md:122
 #: manual/tutorial/cli/itl_expr_cli.md:84
-#: manual/tutorial/cli/mpfr_expr_cli.md:79
+#: manual/tutorial/cli/mpfr_expr_cli.md:80
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:69
 #: manual/tutorial/decimal.md:408
@@ -25365,8 +25357,8 @@ msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录�
 #: manual/tutorial/differential/interval_mpfr.md:45
 #: manual/tutorial/doc_examples.md:58
 #: manual/tutorial/frontend/gda_expr.md:239
-#: manual/tutorial/frontend/itl_expr.md:164
-#: manual/tutorial/frontend/mpfr_expr.md:160
+#: manual/tutorial/frontend/itl_expr.md:167
+#: manual/tutorial/frontend/mpfr_expr.md:162
 #: manual/tutorial/frontend/testfloat_expr.md:208
 #: manual/tutorial/internal.md:180
 #: manual/tutorial/internal/conformance.md:116
@@ -25406,7 +25398,7 @@ msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset
 #: manual/tutorial/cli/dispatch.md:74
 #: manual/tutorial/cli/gda_expr_cli.md:134
 #: manual/tutorial/cli/itl_expr_cli.md:95
-#: manual/tutorial/cli/mpfr_expr_cli.md:90
+#: manual/tutorial/cli/mpfr_expr_cli.md:91
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:76
 #: manual/tutorial/decimal.md:438
@@ -25418,9 +25410,9 @@ msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/differential/interval_mpfr.md:51
 #: manual/tutorial/doc_examples.md:63
-#: manual/tutorial/frontend/gda_expr.md:257
-#: manual/tutorial/frontend/itl_expr.md:178
-#: manual/tutorial/frontend/mpfr_expr.md:177
+#: manual/tutorial/frontend/gda_expr.md:260
+#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/mpfr_expr.md:179
 #: manual/tutorial/frontend/testfloat_expr.md:219
 #: manual/tutorial/internal.md:194
 #: manual/tutorial/internal/conformance.md:127
@@ -26347,8 +26339,8 @@ msgid "use the result in a script"
 msgstr "在脚本中使用结果"
 
 #: manual/tutorial/cli.md:12
-msgid "[the exit code and `--json`](#read-the-exit-code)"
-msgstr "[退出码与 `--json`](#read-the-exit-code)"
+msgid "[the exit code and the JSON report](#read-the-exit-code)"
+msgstr "[退出码与 JSON 报告](#read-the-exit-code)"
 
 #: manual/tutorial/cli.md:13
 msgid "see the options of one runner"
@@ -26395,8 +26387,8 @@ msgid "Read the exit code"
 msgstr "解读退出码"
 
 #: manual/tutorial/cli.md:68
-msgid "`0` means success, `1` means failing cases (for `itl` also diagnostic cases; in strict mode also unsupported cases), `2` means a usage, file or parse error. Scripts should check the code and, with `--json`, parse the single JSON object on standard output."
-msgstr "`0` 表示成功，`1` 表示有失败的用例（对 `itl` 还包括诊断用例；在严格模式下还包括不支持的用例），`2` 表示用法、文件或解析错误。脚本应检查退出码；使用 `--json` 时，再解析标准输出上的那一个 JSON 对象。"
+msgid "`0` means success, `1` means failing cases (for `itl` also diagnostic cases; in strict mode also unsupported cases), `2` means a usage, file or parse error. Scripts should check the code and parse the single JSON object on standard output (`--json` for `gda`, `mpfr` and `testfloat`; `itl` always prints it and has no such option)."
+msgstr "`0` 表示成功，`1` 表示有失败的用例（对 `itl` 还包括诊断用例；在严格模式下还包括不支持的用例），`2` 表示用法、文件或解析错误。脚本应检查退出码，并解析标准输出上的那一个 JSON 对象（`gda`、`mpfr` 和 `testfloat` 用 `--json`；`itl` 总是打印它，没有这个选项）。"
 
 #: manual/tutorial/cli.md:75
 msgid "Each runner has its own options; see the tutorials for [gda_expr_cli](cli/gda_expr_cli.md), [itl_expr_cli](cli/itl_expr_cli.md), [mpfr_expr_cli](cli/mpfr_expr_cli.md) and [testfloat_expr_cli](cli/testfloat_expr_cli.md)."
@@ -26504,8 +26496,8 @@ msgid "Everything except `--backend` and its value is forwarded, in order, with 
 msgstr "除 `--backend` 及其值以外的所有参数都会按顺序转发，程序名在最前，因此运行器看到的向量与直接调用时相同（单个运行器的选项见 [`cli/gda_expr_cli`](gda_expr_cli.md)）。"
 
 #: manual/tutorial/cli/dispatch.md:62
-msgid "To add a backend, write a runner package `run(arguments) -> Int32`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
-msgstr "要添加后端，请编写一个运行器包 `run(arguments) -> Int32`，在本包的 `moon.pkg` 中导入它，并在 `dispatch` 的 `match backend` 中增加一个分支；进程退出仍放在 `cli` 中，它只保持为入口。"
+msgid "To add a backend, write a runner package `run(arguments) -> Int32`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch` and name the backend in `usage()`; keep process exit in `cli`, which stays an entry point only."
+msgstr "要添加后端，请编写一个运行器包 `run(arguments) -> Int32`，在本包的 `moon.pkg` 中导入它，在 `dispatch` 的 `match backend` 中增加一个分支，并在 `usage()` 中写出该后端的名称；进程退出仍放在 `cli` 中，它只保持为入口。"
 
 #: manual/tutorial/cli/dispatch.md:68
 msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
@@ -26636,8 +26628,8 @@ msgid "With `--strict-supported` the exit status is `1` if any selected row is u
 msgstr "使用 `--strict-supported` 时，只要有任何被选中的行不受支持或属于遗留（legacy）行，即使所有已执行的行都通过，退出状态也为 `1`。"
 
 #: manual/tutorial/cli/gda_expr_cli.md:116
-msgid "`just conformance run decimal_gda` fetches the pinned official corpora when they are not installed, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
-msgstr "`just conformance run decimal_gda` 会在固定版本的官方语料未安装时获取它们，按 `testdata/decimal_gda/interpreter_stages.json` 将其划分为各阶段，并用此运行器并行运行各分片。"
+msgid "`just conformance run decimal_gda` fetches the pinned official corpus when it is not installed, splits it into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
+msgstr "`just conformance run decimal_gda` 会在固定版本的官方语料未安装时获取它，按 `testdata/decimal_gda/interpreter_stages.json` 将其划分为各阶段，并用此运行器并行运行各分片。"
 
 #: manual/tutorial/cli/gda_expr_cli.md:119
 msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
@@ -26746,8 +26738,8 @@ msgid "**No `--json` option.** The output of a run that completes is always JSON
 msgstr "**没有 `--json` 选项。** 运行完成时的输出总是 JSON；传入 `--json` 会被视为未知选项（退出码 `2`）。"
 
 #: manual/tutorial/cli/itl_expr_cli.md:88
-msgid "**No sharding.** ITL files are small; the tooling parallelizes by phase."
-msgstr "**不支持分片。** ITL 文件很小；工具链按阶段并行。"
+msgid "**No sharding.** ITL files are mostly small (the generated `testdata/interval/generated/atan2_rev.itl` has 16,260 cases and is 2.0 MB); the tooling parallelizes by phase."
+msgstr "**没有分片。** ITL 文件大多较小（生成的 `testdata/interval/generated/atan2_rev.itl` 有 16,260 个用例，大小为 2.0 MB）；工具按阶段并行。"
 
 #: manual/tutorial/cli/itl_expr_cli.md:89
 msgid "**All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops, even when the bad statement belongs to an operation you did not select."
@@ -26820,38 +26812,38 @@ msgid "prints one object with `corpus`, `frontend`, `totalCases`, `passedCases`,
 msgstr "打印一个包含 `corpus`、`frontend`、`totalCases`、`passedCases`、`failedCases` 和 `failedIds` 的对象。"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:72
-msgid "`just conformance run binary` runs the pinned MPFR square-root data and the elementary matrix together with the TestFloat matrix."
-msgstr "`just conformance run binary` 将固定版本的 MPFR 平方根数据、初等函数矩阵与 TestFloat 矩阵一起运行。"
+msgid "`just conformance run binary` runs the pinned MPFR square-root data and every `mpfrCorpora` entry of `testdata/binary/corpora.json` (elementary, ln-wide, strtofr and decimal output) together with the TestFloat matrix."
+msgstr "`just conformance run binary` 将固定版本的 MPFR 平方根数据和 `testdata/binary/corpora.json` 中的每个 `mpfrCorpora` 条目（初等函数、ln-wide、strtofr 和十进制输出）与 TestFloat 矩阵一起运行。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:74
+#: manual/tutorial/cli/mpfr_expr_cli.md:75
 msgid "New elementary data is produced by `tools/generate_mpfr_elementary_oracle.c`; keep the `mpfr-elementary-v1` marker line so the runner detects the format."
 msgstr "新的初等函数数据由 `tools/generate_mpfr_elementary_oracle.c` 生成；请保留 `mpfr-elementary-v1` 标记行，以便运行器识别格式。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:76
+#: manual/tutorial/cli/mpfr_expr_cli.md:77
 msgid "[mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats and pass rules."
 msgstr "[mpfr_expr 教程](../frontend/mpfr_expr.md) 解释了行格式与通过规则。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:81
+#: manual/tutorial/cli/mpfr_expr_cli.md:82
 msgid "**One file per invocation.** Extra paths and a missing path print the usage line and exit with `2`; a shard option counts as an extra argument, so it prints the usage line when a path is given too."
 msgstr "**每次调用只处理一个文件。** 多余的路径和缺失的路径都会打印用法行并以 `2` 退出；分片选项算作多余参数，因此在同时给出路径时也会打印用法行。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:85
 msgid "**A lone option is read as a path.** `mpfr --verbose` reports `cannot read file: --verbose`, not the usage line; `--help` and `-h` are answered by the dispatcher, which prints its own usage and exits with `0`."
 msgstr "**单独的选项会被当作路径读取。** `mpfr --verbose` 报告的是 `cannot read file: --verbose`，而不是用法行；`--help` 和 `-h` 由调度器应答，它会打印自己的用法并以 `0` 退出。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:87
+#: manual/tutorial/cli/mpfr_expr_cli.md:88
 msgid "**Format detection is textual.** A square-root file that happens to contain `input_coefficient_hex` in a comment is parsed as power data."
 msgstr "**格式检测基于文本。** 若平方根文件恰好在注释中包含 `input_coefficient_hex`，它会被当作幂运算数据解析。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:92
+#: manual/tutorial/cli/mpfr_expr_cli.md:93
 msgid "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:93
+#: manual/tutorial/cli/mpfr_expr_cli.md:94
 msgid "[cli/mpfr_expr_cli design](../../design/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli 设计](../../design/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:94
+#: manual/tutorial/cli/mpfr_expr_cli.md:95
 msgid "[frontend/mpfr_expr tutorial](../frontend/mpfr_expr.md) for the row formats."
 msgstr "[frontend/mpfr_expr 教程](../frontend/mpfr_expr.md)：行格式。"
 
@@ -28468,8 +28460,8 @@ msgid "Look at the parsed rows"
 msgstr "查看解析后的行"
 
 #: manual/tutorial/frontend/gda_expr.md:199
-msgid "`parse_dectest` keeps each row's text and the context in force for it, so you can inspect a corpus without executing it:"
-msgstr "`parse_dectest` 保留每一行的文本以及对其生效的上下文，因此无需执行即可检查语料："
+msgid "`parse_dectest` keeps each row's tokens and the context in force for it, so you can inspect a corpus without executing it:"
+msgstr "`parse_dectest` 保留每一行的记号以及对其生效的上下文，因此无需执行即可检查语料："
 
 #: manual/tutorial/frontend/gda_expr.md:225
 msgid "**Interchange rows.** In a context whose precision and exponent limits are exactly those of decimal32, decimal64 or decimal128, operands and results written as `#` followed by hexadecimal digits are IEEE 754 interchange encodings, and the result is compared bit for bit. Operands prefixed `32#`, `64#` or `128#` are read in that format."
@@ -28504,22 +28496,22 @@ msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written t
 msgstr "**连写的引号。** 在带引号的记号内部，连写两次的定界引号表示一个字面引号（`'1''2'` 是操作数 `1'2`），因此带引号的记号只在单个匹配引号处结束。"
 
 #: manual/tutorial/frontend/gda_expr.md:252
-msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
-msgstr "**无效上下文会被跳过。** 解析器接受非正的精度指令（或大于 `maxexponent` 的 `minexponent`），其下的行为 `Diagnostic`：它们计入 `diagnostic_cases()`，而不会被执行。"
+msgid "**Invalid contexts are skipped.** A non-positive precision directive, a precision above 999999999, an exponent bound outside its range, `minexponent` above `maxexponent`, or a `minexponent` that is none of `-maxexponent`, `1 - maxexponent`, `-maxexponent - 1` (for example `maxexponent` set alone to a value other than the default) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
+msgstr "**无效上下文会被跳过。** 非正的精度指令、大于 999999999 的精度、超出范围的指数界、大于 `maxexponent` 的 `minexponent`，或者不属于 `-maxexponent`、`1 - maxexponent`、`-maxexponent - 1` 之一的 `minexponent`（例如单独把 `maxexponent` 设为默认值以外的值），解析器都会接受，其下的行为 `Diagnostic`：它们计入 `diagnostic_cases()`，而不会被执行。"
 
-#: manual/tutorial/frontend/gda_expr.md:259
+#: manual/tutorial/frontend/gda_expr.md:262
 msgid "[frontend/gda_expr API](../../api/frontend/gda_expr.md) for every item."
 msgstr "[frontend/gda_expr API](../../api/frontend/gda_expr.md)：每个条目。"
 
-#: manual/tutorial/frontend/gda_expr.md:260
+#: manual/tutorial/frontend/gda_expr.md:263
 msgid "[frontend/gda_expr design](../../design/frontend/gda_expr.md) for the exact pass rule and the row-to-operation mapping."
 msgstr "[frontend/gda_expr 设计](../../design/frontend/gda_expr.md)：精确的通过规则以及行到运算的映射。"
 
-#: manual/tutorial/frontend/gda_expr.md:262
+#: manual/tutorial/frontend/gda_expr.md:265
 msgid "[cli/gda_expr_cli tutorial](../cli/gda_expr_cli.md) for running corpora from the command line."
 msgstr "[cli/gda_expr_cli 教程](../cli/gda_expr_cli.md)：从命令行运行语料。"
 
-#: manual/tutorial/frontend/gda_expr.md:264
+#: manual/tutorial/frontend/gda_expr.md:267
 msgid "[decimal_gda tutorial](../decimal_gda.md) for the arithmetic being tested."
 msgstr "[decimal_gda 教程](../decimal_gda.md)：被测试的算术。"
 
@@ -28604,42 +28596,42 @@ msgid "A case the executor does not implement is `Unsupported`, whatever its ope
 msgstr "执行器未实现的用例是 `Unsupported`，无论其操作数如何（包括 `nums2interval 1.0 2.0`）；已知运算的用例若其操作数无法读取，则为 `Diagnostic`。两者都不算作失败，但诊断会使 `success()` 为 false："
 
 #: manual/tutorial/frontend/itl_expr.md:153
-msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus, builds the native runner and runs the strict phases listed in `testdata/interval/interpreter_stages.json`; see [verification](../../verification.md)."
-msgstr "**语料运行。** `just conformance run interval` 获取固定版本的 ITF1788 语料，构建 native 运行器，并运行 `testdata/interval/interpreter_stages.json` 中列出的严格阶段；参见[验证](../../verification.md)。"
+msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic case fails a phase only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
+msgstr "**语料运行。** 当 `testdata/interval/itf1788` 缺失时，`just conformance run interval` 会获取固定版本的 ITF1788 语料，构建 native 运行器，并运行 `testdata/interval/interpreter_stages.json` 中列出的各阶段。不支持的用例或诊断用例只有在使用 `--strict-supported` 时才会使阶段失败，而此命令不传该选项；参见[验证](../../verification.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:157
+#: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
 msgstr "**按运算过滤。** CLI 的 `--operation NAME` 选项只保留该运算的用例；在代码中，可在执行前按 `operation()` 过滤 `cases`。"
 
-#: manual/tutorial/frontend/itl_expr.md:160
+#: manual/tutorial/frontend/itl_expr.md:163
 msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results (of the operations that round) at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr "**精度。** `execute_case(case, precision=p)` 以 `p` 位读取端点并舍入结果（对会舍入的运算而言），指数范围与 binary64 相同。ITF1788 数据是为 binary64 编写的，因此运行测试语料时请保持默认值 `53`。"
 
-#: manual/tutorial/frontend/itl_expr.md:166
+#: manual/tutorial/frontend/itl_expr.md:169
 msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
 msgstr "**十进制端点按就近舍入。** 与 ITF1788 一样，诸如 `0.1` 的端点是该格式的浮点常量，被读作最接近的 binary64 数，因此 `[0.1,0.1]` 是该数构成的单点区间，而不是包含十分之一的区间。若要测试某个十进制值的包含区间，请用十六进制写出其端点。"
 
-#: manual/tutorial/frontend/itl_expr.md:171
+#: manual/tutorial/frontend/itl_expr.md:174
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr "**不检查信号。** 预期值之后的 `signal …` 等 ITL 注解会使预期值无法读取；这类用例会成为不支持或诊断用例，而不会通过。"
 
-#: manual/tutorial/frontend/itl_expr.md:174
-msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
-msgstr "**解析错误会使输入被拒绝。** 只要有任何语句缺少 `=` 或运算，或者文本在语句中途结束，`parse_itl` 就只返回诊断。"
+#: manual/tutorial/frontend/itl_expr.md:177
+msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, if a `testcase` line has no space after its name (`invalid testcase declaration`), or if the text ends inside a statement."
+msgstr "**解析错误会使输入被拒绝。** 只要有任何语句缺少 `=` 或运算，或者某个 `testcase` 行在名称后没有空格（`invalid testcase declaration`），或者文本在语句中途结束，`parse_itl` 就只返回诊断。"
 
-#: manual/tutorial/frontend/itl_expr.md:180
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr "[frontend/itl_expr API](../../api/frontend/itl_expr.md)：每个条目以及已执行运算的列表。"
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr "[frontend/itl_expr 设计](../../design/frontend/itl_expr.md)：通过规则。"
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:188
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr "[cli/itl_expr_cli 教程](../cli/itl_expr_cli.md)：从命令行运行文件。"
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:190
 msgid "[interval tutorial](../interval.md) for the interval arithmetic being tested."
 msgstr "[interval 教程](../interval.md)：被测试的区间算术。"
 
@@ -28716,46 +28708,46 @@ msgid "Every malformed line is reported with its line number, and no document is
 msgstr "每一行格式错误的行都会连同行号一起报告，并且不返回文档："
 
 #: manual/tutorial/frontend/mpfr_expr.md:148
-msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and the committed elementary matrix `testdata/binary/mpfr-4.2.2-elementary.txt` together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
-msgstr "**语料。** `just conformance run binary` 将固定版本的 MPFR `tests/data/sqrt` 文件、仓库中提交的初等函数矩阵 `testdata/binary/mpfr-4.2.2-elementary.txt` 与 TestFloat 一起执行；参见[验证](../../verification.md)。初等函数数据和幂运算数据的生成器分别是 `tools/generate_mpfr_elementary_oracle.c` 和 `tools/generate_mpfr_pow_oracle.c`。"
+msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and every `mpfrCorpora` entry of `testdata/binary/corpora.json` (the elementary matrix `mpfr-4.2.2-elementary.txt`, `mpfr-4.2.2-ln-wide.txt`, `mpfr-4.2.2-strtofr.txt` and `mpfr-4.2.2-decimal-output.txt`) together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
+msgstr "**语料。** `just conformance run binary` 将固定版本的 MPFR `tests/data/sqrt` 文件和 `testdata/binary/corpora.json` 中的每个 `mpfrCorpora` 条目（初等函数矩阵 `mpfr-4.2.2-elementary.txt`、`mpfr-4.2.2-ln-wide.txt`、`mpfr-4.2.2-strtofr.txt` 和 `mpfr-4.2.2-decimal-output.txt`）与 TestFloat 一起执行；参见[验证](../../verification.md)。初等函数数据和幂运算数据的生成器分别是 `tools/generate_mpfr_elementary_oracle.c` 和 `tools/generate_mpfr_pow_oracle.c`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:154
+#: manual/tutorial/frontend/mpfr_expr.md:156
 msgid "**Which parser?** The CLI chooses the format of the first marker it finds, in the order `mpfr-decimal-random-v2`, `mpfr-random-v1`, `mpfr-strtofr-v1`, `mpfr-decimal-output-v1`, `mpfr-elementary-v1`, then the power format when the file contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
 msgstr "**用哪个解析器？** CLI 选择它找到的第一个标记所对应的格式，顺序为 `mpfr-decimal-random-v2`、`mpfr-random-v1`、`mpfr-strtofr-v1`、`mpfr-decimal-output-v1`、`mpfr-elementary-v1`；然后，文件包含 `input_coefficient_hex` 时选择幂运算格式，否则选择平方根格式。请把标记放在注释行中。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:162
+#: manual/tutorial/frontend/mpfr_expr.md:164
 msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `Binary`."
 msgstr "**初等函数行比较的是数值，而不是编码。** 任何 NaN 都匹配期望的 `nan`，而零必须具有期望的符号。平方根行和幂运算行比较整个 `Binary`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:167
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
 msgstr "**不检查平方根的标志。** `sqrt` 数据行只比较值。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:167
-msgid "**No exponent range.** Rows are executed in an unbounded context: there is no overflow, underflow or subnormal range, and an elementary or power row that reports overflow or underflow fails."
-msgstr "**没有指数范围。** 各行在无界上下文中执行：不存在上溢、下溢或次正规数范围；报告上溢或下溢的初等函数行或幂运算行会失败。"
+#: manual/tutorial/frontend/mpfr_expr.md:169
+msgid "**No exponent range.** Rows are executed in the context of the precision alone (`e_max` 1073741823, gradual underflow), and an elementary or power row that reports overflow or underflow fails."
+msgstr "**没有指数范围。** 各行在仅由精度确定的上下文中执行（`e_max` 为 1073741823，采用渐进下溢），报告上溢或下溢的初等函数行或幂运算行会失败。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:170
-msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
-msgstr "**二元运算需要第二个操作数。** 第二个操作数为 `-` 的 `pow`、`hypot` 或 `atan2` 初等函数行会产生解析诊断 `invalid MPFR elementary field`。"
+#: manual/tutorial/frontend/mpfr_expr.md:172
+msgid "**Binary operations need a second operand.** An elementary `pow`, `powr`, `hypot`, `atan2` or `atan2pi` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
+msgstr "**二元运算需要第二个操作数。** 第二个操作数为 `-` 的 `pow`、`powr`、`hypot`、`atan2` 或 `atan2pi` 初等函数行会产生解析诊断 `invalid MPFR elementary field`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:173
+#: manual/tutorial/frontend/mpfr_expr.md:175
 msgid "**Inputs are read at 512 bits.** Power operands with longer significands are rounded before the function is evaluated; elementary operands are read at four bits per character of the token when that is more than 512."
 msgstr "**输入以 512 位读取。** 有效数字更长的幂的操作数会在函数求值之前被舍入；初等函数的操作数在按词元每个字符四位计算超过 512 位时，按后者读取。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:179
+#: manual/tutorial/frontend/mpfr_expr.md:181
 msgid "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md)：每个条目以及确切的字段布局。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:181
+#: manual/tutorial/frontend/mpfr_expr.md:183
 msgid "[frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr "[frontend/mpfr_expr 设计](../../design/frontend/mpfr_expr.md)：通过规则。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:183
+#: manual/tutorial/frontend/mpfr_expr.md:185
 msgid "[cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file from the command line."
 msgstr "[cli/mpfr_expr_cli 教程](../cli/mpfr_expr_cli.md)：从命令行运行文件。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:185
+#: manual/tutorial/frontend/mpfr_expr.md:187
 msgid "[binary tutorial](../binary.md) for the functions being tested."
 msgstr "[binary 教程](../binary.md)：被测试的函数。"
 
@@ -31480,6 +31472,21 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:943
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`execute_case` does not abort on case content."
+#~ msgstr "`execute_case` 不会因用例内容而中止。"
+
+#~ msgid "The decimal case is exact on representations. IEEE 754 `totalOrder`[^total] compares signs first, then classes, then numeric values, then exponents, and orders NaNs by signaling bit and payload. Hence"
+#~ msgstr "十进制情形在表示层面是精确的。IEEE 754 `totalOrder`[^total] 先比较符号，再比较类别，然后比较数值，最后比较指数，并按信号位和载荷对 NaN 排序。因此"
+
+#~ msgid "so `2.0` does not match `2.00`, `-0` does not match `0`, and `NaN12` does not match `NaN`."
+#~ msgstr "所以 `2.0` 与 `2.00` 不匹配，`-0` 与 `0` 不匹配，`NaN12` 与 `NaN` 也不匹配。"
+
+#~ msgid "IEEE 754-2019, clause 5.10, `totalOrder`. `Decimal::compare_total` implements it for `decimal_gda`."
+#~ msgstr "IEEE 754-2019，第 5.10 节，`totalOrder`。`Decimal::compare_total` 为 `decimal_gda` 实现了它。"
+
+#~ msgid "**No sharding.** ITL files are small; the tooling parallelizes by phase."
+#~ msgstr "**不支持分片。** ITL 文件很小；工具链按阶段并行。"
 
 #~ msgid "neither"
 #~ msgstr "两者都不包含"
