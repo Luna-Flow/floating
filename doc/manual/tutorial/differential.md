@@ -24,10 +24,11 @@ just random-diff smoke
 
 ```text
 binary: 650/650 passed (testdata/binary/mpfr-4.2.2-random.txt)
-binary-regression: 163/163 passed (testdata/binary/random-regressions.txt)
+binary-regression: 166/166 passed (testdata/binary/random-regressions.txt)
 decimal_gda: 650/650 passed (testdata/decimal_gda/random/libmpdec-random.decTest)
-decimal_gda-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal_gda/random/random-regressions.decTest)
+decimal_gda-regression: 15/15 passed (testdata/decimal_gda/random/random-regressions.decTest)
 decimal: 468/468 passed (testdata/decimal/random/mpfr-decimal-random.txt)
+decimal-regression: 0/0 passed (testdata/decimal/random/mpfr-decimal-random-regressions.txt)
 ```
 
 `smoke` builds the synchronous `floating-conformance` executable for the
@@ -44,8 +45,8 @@ The IEEE `decimal` package's elementary functions have one family each,
 `decimal-<function>` (`decimal-exp`, `decimal-atan2`, `decimal-pown`, `decimal-exp2m1`,
 `decimal-log10p1`, ...), checked against
 certified MPFR enclosures instead of libmpdec. They are not in the default set
-(there are as many families as functions); name them with `--family`, or add
-all of them with `--decimal`. A case id reads `m<seed>.<function>.<index>`.
+(there are as many families as functions); name them with `--family`, or select
+all of them with `--decimal` (without `--family`, `--decimal` runs only these families). A case id reads `m<seed>.<function>.<index>`.
 
 ```bash
 just random-diff run --family decimal-exp --family decimal-atan2 --count 100000 --target native
@@ -78,7 +79,7 @@ batches validated 200, invalid 0
 records and summary: .tmp/random-diff/run-20261118-120000
 ```
 
-`--family` is repeatable and defaults to every family. The binary families
+`--family` is repeatable and defaults to every family that is not opt-in (see below). The binary families
 are `add sub mul div sqrt fma strtofr getstr shortest elem elem2 elem3 elem4` (`elem2` holds
 `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, `elem3` holds `rsqrt`, `compound` and
 `powr`, `elem4` holds `asinpi`, `acospi`, `atanpi` and `atan2pi`, which `elem` does not draw); the `decimal_gda`
