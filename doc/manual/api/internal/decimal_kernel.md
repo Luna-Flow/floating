@@ -66,9 +66,8 @@ be negative (Toom-3, the Newton reciprocal). Zero is never negative. The type is
 
 ## Function families
 
-All functions are named `dec_coeff_*`; the ones without that prefix are
-`remove_factor10_repr`, `exact_divide_by_power_of_ten_repr` and
-`trim_trailing_decimal_zeros_repr`.
+Most functions are named `dec_coeff_*`; the table gives the others by their
+full names.
 
 | Family | Functions |
 | --- | --- |
