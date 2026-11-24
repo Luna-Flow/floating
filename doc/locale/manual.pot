@@ -246,7 +246,7 @@ msgstr ""
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:80
 #: manual/api/bench/interval.md:43
-#: manual/api/binary.md:2644
+#: manual/api/binary.md:2645
 #: manual/api/binary_checked.md:841
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
@@ -1145,7 +1145,7 @@ msgid "IEEE `scaleB` and `logB`."
 msgstr ""
 
 #: manual/api/binary.md:1070
-msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow and underflow handling; it is exact unless the operand has more bits than the context precision or the result leaves the normal range. The count `n` is a `Binary`, the kind `logb_ctx` returns, as in `Decimal::scaleb_ctx` and `decimal_gda`: it must be an integer value. A NaN count propagates (invalid for a signaling NaN); an infinite or non-integer count is a NaN with `invalid_operation`, whatever the receiver is (an infinite receiver with a finite count is returned as it is); an integer count beyond the `Int32` range acts as the largest count of its sign, which overflows or underflows every finite non-zero value of any format. IEEE 754-2019 5.3.3 defines scaleB for integral counts only and leaves a non-integral second operand (an infinity is not integral) to the language: the NaN with `invalid_operation` is this library's choice, as in `decimal`. `x.logb_ctx(ctx)` is $\\lfloor \\log_2 |x| \\rfloor$ as an exact integral value (also for subnormal $x$): $\\operatorname{logB}(0) = -\\infty$ with `division_by_zero`, $\\operatorname{logB}(\\pm\\infty) = +\\infty$, and a NaN propagates."
+msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow and underflow handling; it is exact unless the operand has more bits than the context precision or the result leaves the normal range. The count `n` is a `Binary`, the kind `logb_ctx` returns, as in `Decimal::scaleb_ctx` and `decimal_gda`: it must be an integer value. A NaN count propagates (invalid for a signaling NaN); an infinite or non-integer count is a NaN with `invalid_operation`, for a receiver that is not a NaN (a NaN receiver propagates like a NaN count; an infinite receiver with a finite count is returned as it is); an integer count beyond the `Int32` range acts as the largest count of its sign, which overflows or underflows every finite non-zero value of any format. IEEE 754-2019 5.3.3 defines scaleB for integral counts only and leaves a non-integral second operand (an infinity is not integral) to the language: the NaN with `invalid_operation` is this library's choice, as in `decimal`. `x.logb_ctx(ctx)` is $\\lfloor \\log_2 |x| \\rfloor$ as an exact integral value (also for subnormal $x$): $\\operatorname{logB}(0) = -\\infty$ with `division_by_zero`, $\\operatorname{logB}(\\pm\\infty) = +\\infty$, and a NaN propagates."
 msgstr ""
 
 #: manual/api/binary.md:1086
@@ -1477,8 +1477,8 @@ msgstr ""
 
 #: manual/api/binary.md:1626
 msgid ""
-"All three run the same certified algorithm. It computes an enclosure $[L, U] \\n"
-"i f(x)$ whose every internal operation is rounded downward for $L$ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits (or at the operand precision plus 16 when that is larger, for `rootn`, `pow`, the inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to the same value with the same flags, that value is returned; otherwise $w$ grows by $\\max(32, \\lfloor w/2 \\rfloor)$, for at most as many attempts as the refinement limit of the context allows (default 12, `None` for no limit). Because rounding is monotone, a returned value is the correctly rounded result $\\circ(f(x))$, never an uncertified approximation; the [design page](../design/binary.md#certified-elementary-functions) gives the argument for the value and the flags."
+"Except `hypot` and `compound`, which have their own algorithms (see their sections), all three forms run the same certified algorithm. It computes an enclosure $[L, U] \\n"
+"i f(x)$ whose every internal operation is rounded downward for $L$ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits (or at the operand precision plus 16 when that is larger, for `rootn`, `pow`, the inverse trigonometric and the hyperbolic functions; for `sin`, `cos` and `tan` at the larger of $p + \\max(0, e) + 96$, with $e$ the adjusted exponent of the argument, and the operand precision plus 16; for `sinpi`, `cospi` and `tanpi` at $\\max(p + 96, q + 32)$ for the operand precision $q$). If $L$ and $U$ round to the same value with the same flags, that value is returned; otherwise $w$ grows by $\\max(32, \\lfloor w/2 \\rfloor)$, for at most as many attempts as the refinement limit of the context allows (default 12, `None` for no limit). Because rounding is monotone, a returned value is the correctly rounded result $\\circ(f(x))$, never an uncertified approximation; the [design page](../design/binary.md#certified-elementary-functions) gives the argument for the value and the flags."
 msgstr ""
 
 #: manual/api/binary.md:1639
@@ -1518,459 +1518,459 @@ msgid "$10^x - 1$ without the cancellation of `exp10(x) - 1` near zero."
 msgstr ""
 
 #: manual/api/binary.md:1733
-msgid "IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer $x \\le \\max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic. Saturation towards $-1$ and the overflow decision follow `exp2m1`, with $\\log_2 10$ in place of 1."
+msgid "IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer $x \\le \\max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic. Saturation towards $-1$ starts at $x \\le -\\lceil (p + 3)/3 \\rceil$ (since $10^{-1/3} < 1/2$), and the overflow decision follows `exp2m1`, with $\\log_2 10$ in place of 1."
 msgstr ""
 
-#: manual/api/binary.md:1740
+#: manual/api/binary.md:1741
 msgid "The power of two $2^x$."
 msgstr ""
 
-#: manual/api/binary.md:1748
+#: manual/api/binary.md:1749
 msgid "An integral $x$ with $|x| < 2^{31}$ gives the exact $2^x$, rounded into the context only when it leaves the exponent range. The other special values are those of `exp`."
 msgstr ""
 
-#: manual/api/binary.md:1754
+#: manual/api/binary.md:1755
 msgid "The power of ten $10^x$."
 msgstr ""
 
-#: manual/api/binary.md:1762
+#: manual/api/binary.md:1763
 msgid "An integral $x$ in $[0, \\max(4096, p)]$ gives the exact $10^x = 5^x 2^x$, rounded once. For a larger integral $x$ the odd part $5^x$ has more than $p + 1$ bits, so the result is neither representable nor a midpoint, and a negative integral $x$ gives a value that is never dyadic; both are always inexact. The other special values are those of `exp`."
 msgstr ""
 
-#: manual/api/binary.md:1770
+#: manual/api/binary.md:1771
 msgid "The natural logarithm $\\ln x$."
 msgstr ""
 
-#: manual/api/binary.md:1778
+#: manual/api/binary.md:1779
 msgid "The domain is $x > 0$. $\\ln 1 = +0$ exactly; $\\ln(\\pm 0) = -\\infty$ with `division_by_zero`; $\\ln(+\\infty) = +\\infty$. A negative argument, finite or $-\\infty$, is a domain case: a quiet NaN with `invalid_operation`, also from `try_ln_ctx`."
 msgstr ""
 
-#: manual/api/binary.md:1785
+#: manual/api/binary.md:1786
 msgid "The two directed roundings of $e^x$ or $\\ln x$ in one call, for the interval types."
 msgstr ""
 
-#: manual/api/binary.md:1792
+#: manual/api/binary.md:1793
 msgid ""
 "`x.try_exp_directed_pair(p)` returns the values of `x.try_exp_ctx` at precision $p$ under `RoundTowardNegative` and under `RoundTowardPositive`, as `(low, high)`, and the error of the first of the two calls that fails; `try_ln_directed_pair` is the same for `try_ln_ctx`. For every operand the result is exactly what the two calls give. Where one certified enclosure can decide both roundings (a finite $x \\n"
 "e 0$ with an in-range result for `exp`, a finite positive $x \\n"
 "e 1$ for `ln`) it costs one evaluation instead of two; every other operand is answered by the two calls themselves."
 msgstr ""
 
-#: manual/api/binary.md:1796
+#: manual/api/binary.md:1797
 msgid "$\\ln(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/binary.md:1804
+#: manual/api/binary.md:1805
 msgid "The domain is $x > -1$. $\\operatorname{log1p}(\\pm 0) = \\pm 0$, $\\operatorname{log1p}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ and $-\\infty$ are a domain case, a quiet NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/binary.md:1811
+#: manual/api/binary.md:1812
 msgid "$\\log_2(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/binary.md:1819
+#: manual/api/binary.md:1820
 msgid "The domain is $x \\ge -1$ (Table 9.1). $\\operatorname{log2p1}(\\pm 0) = \\pm 0$, $\\operatorname{log2p1}(+\\infty) = +\\infty$, $\\operatorname{log2p1}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ and $-\\infty$ are a domain case, a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and $x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$)."
 msgstr ""
 
-#: manual/api/binary.md:1827
+#: manual/api/binary.md:1828
 msgid "$\\log_{10}(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/binary.md:1835
+#: manual/api/binary.md:1836
 msgid "The special values of `log2p1`. $x = 10^k - 1$ for an integer $k \\ge 1$ gives the exact integer $k$."
 msgstr ""
 
-#: manual/api/binary.md:1840
+#: manual/api/binary.md:1841
 msgid "The binary logarithm $\\log_2 x$."
 msgstr ""
 
-#: manual/api/binary.md:1848
+#: manual/api/binary.md:1849
 msgid "Special values and domain as for `ln`. A power of two $2^k$ gives the exact integer $k$, rounded into the context."
 msgstr ""
 
-#: manual/api/binary.md:1853
+#: manual/api/binary.md:1854
 msgid "The decimal logarithm $\\log_{10} x$."
 msgstr ""
 
-#: manual/api/binary.md:1861
+#: manual/api/binary.md:1862
 msgid "Special values and domain as for `ln`. $x = 10^k$ with $k \\ge 1$ (stored as the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded into the context, at any precision that holds $10^k$."
 msgstr ""
 
-#: manual/api/binary.md:1867
+#: manual/api/binary.md:1868
 msgid "The real power $x^y$."
 msgstr ""
 
-#: manual/api/binary.md:1875
+#: manual/api/binary.md:1876
 msgid "The cases are tried in this order, as in IEEE 754-2019 §9.2.1:"
 msgstr ""
 
-#: manual/api/binary.md:1877
+#: manual/api/binary.md:1878
 msgid "$x^{\\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, a quiet NaN included (a signaling NaN operand is decided before this step: a quiet NaN with `invalid_operation`)."
 msgstr ""
 
-#: manual/api/binary.md:1879
+#: manual/api/binary.md:1880
 msgid "An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`."
 msgstr ""
 
-#: manual/api/binary.md:1880
+#: manual/api/binary.md:1881
 msgid "A NaN operand propagates."
 msgstr ""
 
-#: manual/api/binary.md:1881
+#: manual/api/binary.md:1882
 msgid "An infinite $y$: $(\\pm 1)^{\\pm\\infty} = 1$; otherwise the result is $+\\infty$ when $|x| > 1$ and $y = +\\infty$ or $|x| < 1$ and $y = -\\infty$, and $+0$ in the other two cases, $x = \\pm 0$ included ($(\\pm 0)^{-\\infty} = +\\infty$). No flag is raised."
 msgstr ""
 
-#: manual/api/binary.md:1885
+#: manual/api/binary.md:1886
 msgid "An infinite $x$: $(\\pm\\infty)^{y < 0}$ is a zero and $(\\pm\\infty)^{y > 0}$ an infinity, negative only for $x = -\\infty$ and an odd integral $y$. No flag is raised."
 msgstr ""
 
-#: manual/api/binary.md:1888
+#: manual/api/binary.md:1889
 msgid "A zero $x$: $(\\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and $(\\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral $y$; so $(-0)^{3/4} = +0$."
 msgstr ""
 
-#: manual/api/binary.md:1891
-msgid "A negative finite $x$ with a non-integral $y$ is a domain case, a quiet NaN with `invalid_operation`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed with the directed rounding modes swapped."
-msgstr ""
-
-#: manual/api/binary.md:1896
-msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, n)` with $n = \\pm 2^k$."
+#: manual/api/binary.md:1892
+msgid "A negative finite $x$ with a non-integral $y$ is a domain case, a quiet NaN with `invalid_operation`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed for an odd $y$ with the directed rounding directions swapped."
 msgstr ""
 
 #: manual/api/binary.md:1897
+msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, n)` with $n = \\pm 2^k$."
+msgstr ""
+
+#: manual/api/binary.md:1898
 msgid "A result certainly outside the exponent range is decided from certified bounds on $\\log_2 x$."
 msgstr ""
 
-#: manual/api/binary.md:1899
+#: manual/api/binary.md:1900
 msgid "An exactly dyadic result is computed and rounded once. For $x = c \\cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \\le k \\le 30$) it exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power $r$ (tested as for `rootn`, for coefficients of any size); then $x^y = r^m \\cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would need more than $2p + 64$ bits is not a rounding breakpoint and is left to the next step."
 msgstr ""
 
-#: manual/api/binary.md:1907
+#: manual/api/binary.md:1908
 msgid "Otherwise the value is certified from enclosures of $e^{y \\ln x}$."
 msgstr ""
 
-#: manual/api/binary.md:1909
+#: manual/api/binary.md:1910
 msgid "Integrality and parity of $y$ are read from its odd coefficient: a finite nonzero $y$ is integral when `exponent2()` $\\ge 0$ and odd when it is $0$. When step 10 has shown that the result is not a rounding breakpoint, step 11 moves a representable enclosure end just inside before rounding, so an exponent so small that $x^y$ lies closer to $1$ than the target spacing is still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A few results with a power-of-two base that step 10 cannot classify (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range) keep the plain test."
 msgstr ""
 
-#: manual/api/binary.md:1921
+#: manual/api/binary.md:1922
 msgid "The real $n$-th root $x^{1/n}$."
 msgstr ""
 
-#: manual/api/binary.md:1929
+#: manual/api/binary.md:1930
 msgid "$n = 0$ is a domain case, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which IEEE 754-2019 7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid_operation`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr ""
 
-#: manual/api/binary.md:1932
+#: manual/api/binary.md:1933
 msgid "odd $n > 0$"
 msgstr ""
 
-#: manual/api/binary.md:1932
+#: manual/api/binary.md:1933
 msgid "even $n > 0$"
 msgstr ""
 
-#: manual/api/binary.md:1932
+#: manual/api/binary.md:1933
 msgid "odd $n < 0$"
 msgstr ""
 
-#: manual/api/binary.md:1932
+#: manual/api/binary.md:1933
 msgid "even $n < 0$"
 msgstr ""
 
-#: manual/api/binary.md:1935
-#: manual/api/binary.md:1938
-#: manual/api/binary.md:1986
+#: manual/api/binary.md:1936
+#: manual/api/binary.md:1939
+#: manual/api/binary.md:1987
 msgid "domain case"
 msgstr ""
 
-#: manual/api/binary.md:1938
+#: manual/api/binary.md:1939
 msgid "finite $x < 0$"
 msgstr ""
 
-#: manual/api/binary.md:1940
+#: manual/api/binary.md:1941
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr ""
 
-#: manual/api/binary.md:1951
+#: manual/api/binary.md:1952
 msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/binary.md:1959
+#: manual/api/binary.md:1960
 msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a domain case (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr ""
 
-#: manual/api/binary.md:1971
+#: manual/api/binary.md:1972
 msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr ""
 
-#: manual/api/binary.md:1980
+#: manual/api/binary.md:1981
 msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr ""
 
-#: manual/api/binary.md:1985
+#: manual/api/binary.md:1986
 msgid "quiet NaN"
 msgstr ""
 
-#: manual/api/binary.md:1986
+#: manual/api/binary.md:1987
 msgid "$-\\infty$, finite $x < -1$"
 msgstr ""
 
-#: manual/api/binary.md:1991
+#: manual/api/binary.md:1992
 msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr ""
 
-#: manual/api/binary.md:2001
+#: manual/api/binary.md:2002
 msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/binary.md:2010
+#: manual/api/binary.md:2011
 msgid "The cases are tried in this order, as in IEEE 754-2019 9.2.1; every domain case below is a quiet NaN with `invalid_operation`, from `powr_ctx` and `try_powr_ctx` alike:"
 msgstr ""
 
-#: manual/api/binary.md:2013
+#: manual/api/binary.md:2014
 msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
 msgstr ""
 
-#: manual/api/binary.md:2014
+#: manual/api/binary.md:2015
 msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
 msgstr ""
 
-#: manual/api/binary.md:2016
+#: manual/api/binary.md:2017
 msgid "A quiet NaN $y$ gives a quiet NaN."
 msgstr ""
 
-#: manual/api/binary.md:2017
+#: manual/api/binary.md:2018
 msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
 msgstr ""
 
-#: manual/api/binary.md:2020
+#: manual/api/binary.md:2021
 msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
 msgstr ""
 
-#: manual/api/binary.md:2022
+#: manual/api/binary.md:2023
 msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
 msgstr ""
 
-#: manual/api/binary.md:2023
+#: manual/api/binary.md:2024
 msgid "$y = \\pm 0$ gives $1$."
 msgstr ""
 
-#: manual/api/binary.md:2024
+#: manual/api/binary.md:2025
 msgid ""
 "Otherwise $x > 0$ and $y \\n"
 "e 0$ (an infinite $y$ only with $x \\n"
 "e 1$): `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr ""
 
-#: manual/api/binary.md:2027
+#: manual/api/binary.md:2028
 msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr ""
 
-#: manual/api/binary.md:2033
+#: manual/api/binary.md:2034
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr ""
 
-#: manual/api/binary.md:2041
+#: manual/api/binary.md:2042
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr ""
 
-#: manual/api/binary.md:2057
+#: manual/api/binary.md:2058
 msgid "The sine of an argument in radians."
 msgstr ""
 
-#: manual/api/binary.md:2065
+#: manual/api/binary.md:2066
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a domain case. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds 8,000,000 bits, that is for $|x| \\ge 2^{8{,}000{,}000 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond 8,000,000 bits."
 msgstr ""
 
-#: manual/api/binary.md:2075
+#: manual/api/binary.md:2076
 msgid "The cosine of an argument in radians."
 msgstr ""
 
-#: manual/api/binary.md:2083
+#: manual/api/binary.md:2084
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr ""
 
-#: manual/api/binary.md:2087
+#: manual/api/binary.md:2088
 msgid "The tangent of an argument in radians."
 msgstr ""
 
-#: manual/api/binary.md:2095
+#: manual/api/binary.md:2096
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr ""
 
-#: manual/api/binary.md:2109
+#: manual/api/binary.md:2110
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a domain case. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr ""
 
-#: manual/api/binary.md:2125
+#: manual/api/binary.md:2126
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/binary.md:2139
+#: manual/api/binary.md:2140
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/binary.md:2149
+#: manual/api/binary.md:2150
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/binary.md:2157
+#: manual/api/binary.md:2158
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a domain case. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/binary.md:2163
+#: manual/api/binary.md:2164
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr ""
 
-#: manual/api/binary.md:2171
+#: manual/api/binary.md:2172
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a domain case, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr ""
 
-#: manual/api/binary.md:2179
+#: manual/api/binary.md:2180
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/binary.md:2187
+#: manual/api/binary.md:2188
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/binary.md:2192
+#: manual/api/binary.md:2193
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr ""
 
-#: manual/api/binary.md:2200
+#: manual/api/binary.md:2201
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr ""
 
-#: manual/api/binary.md:2204
-#: manual/api/binary.md:2288
+#: manual/api/binary.md:2205
+#: manual/api/binary.md:2289
 msgid "result"
 msgstr ""
 
-#: manual/api/binary.md:2206
+#: manual/api/binary.md:2207
 msgid "$\\pm 0$ (exact)"
 msgstr ""
 
-#: manual/api/binary.md:2210
-#: manual/api/binary.md:2294
+#: manual/api/binary.md:2211
+#: manual/api/binary.md:2295
 msgid "finite"
 msgstr ""
 
-#: manual/api/binary.md:2211
 #: manual/api/binary.md:2212
 #: manual/api/binary.md:2213
-#: manual/api/binary.md:2295
+#: manual/api/binary.md:2214
 #: manual/api/binary.md:2296
 #: manual/api/binary.md:2297
+#: manual/api/binary.md:2298
 msgid ""
 "finite $y \\n"
 "e 0$"
 msgstr ""
 
-#: manual/api/binary.md:2211
+#: manual/api/binary.md:2212
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/binary.md:2212
+#: manual/api/binary.md:2213
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr ""
 
-#: manual/api/binary.md:2213
+#: manual/api/binary.md:2214
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/binary.md:2215
+#: manual/api/binary.md:2216
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr ""
 
-#: manual/api/binary.md:2221
+#: manual/api/binary.md:2222
 msgid "$\\operatorname{asin}(x)/\\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/binary.md:2229
+#: manual/api/binary.md:2230
 msgid "The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\\pm\\infty$ are a domain case, a quiet NaN with `invalid_operation`. $\\operatorname{asinPi}(\\pm 0) = \\pm 0$ with no exception, and $\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ exactly. $\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every other argument (by Niven's theorem these are the only rational values). For a tiny $x$ the result is $x/\\pi$ up to a relative error of order $x^2$ and is rounded from a certified enclosure whatever the exponent range, down to the implementation subnormal limit."
 msgstr ""
 
-#: manual/api/binary.md:2249
+#: manual/api/binary.md:2250
 msgid "The domain is $[-1, 1]$ as for `asinpi`. $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$ and $\\operatorname{acosPi}(\\pm 0) = 1/2$, exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \\mp \\delta$ with $0 < \\delta < |x|/2$, so it clusters at the representable $1/2$: when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and its neighbour on that side (below for $x > 0$, above for $x < 0$), before the main loop, and the result is always `inexact`."
 msgstr ""
 
-#: manual/api/binary.md:2267
+#: manual/api/binary.md:2268
 msgid "Defined on all of $\\mathbb{R}$. $\\operatorname{atanPi}(\\pm 0) = \\pm 0$ with no exception, $\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ with no exception (§9.2.1) and $\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ exactly. For $|x| \\ge 2^{p + 8}$ the result is $\\pm(1/2 - \\delta)$ with $0 < \\delta < 2^{-t}$ for $2^t \\le |x|$, so the rounding direction alone decides between $\\pm 1/2$ and its neighbour inside, without forming a value that close to $1/2$. A tiny $x$ gives $x/\\pi$ rounded from a certified enclosure (underflow with the flags of §7.5 and §7.6)."
 msgstr ""
 
-#: manual/api/binary.md:2277
+#: manual/api/binary.md:2278
 msgid "$\\operatorname{atan2}(y, x)/\\pi$ for `y.atan2pi(x)`, in $[-1, 1]$."
 msgstr ""
 
-#: manual/api/binary.md:2285
+#: manual/api/binary.md:2286
 msgid "The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact constant that signals no exception:"
 msgstr ""
 
-#: manual/api/binary.md:2295
+#: manual/api/binary.md:2296
 msgid "$\\pm 1/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/binary.md:2296
+#: manual/api/binary.md:2297
 msgid "$\\pm 0$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/binary.md:2297
+#: manual/api/binary.md:2298
 msgid "$\\pm 1$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/binary.md:2299
+#: manual/api/binary.md:2300
 msgid "For finite nonzero operands $\\operatorname{atan2Pi}(y, x)$ is $\\operatorname{atan}(|y/x|)/\\pi$ for $x > 0$ and $1 - \\operatorname{atan}(|y/x|)/\\pi$ for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\\pm 1/4$ or $\\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$ (so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors before the main loop, from $|D| \\ge p + 8$: $D \\ge p + 8$ gives $1/2 - \\delta$ ($1/2 + \\delta$ for $x < 0$) with $0 < \\delta < 2^{-D}$, and $D \\le -(p + 8)$ with $x < 0$ gives $1 - \\delta$ with $0 < \\delta < 2^{D}$, each rounded by direction alone. With $x > 0$ and a tiny ratio the result is $\\approx t/\\pi$; when $D$ is below a quarter of the smallest subnormal ($D \\le e_{\\min} - p - 1$) it is the tiny nonzero result of the direction with `underflow` and `inexact`. The ratio $y/x$ itself is never formed outside the range where it is representable, so operands at the two ends of the exponent range are handled."
 msgstr ""
 
-#: manual/api/binary.md:2315
+#: manual/api/binary.md:2316
 msgid "The hyperbolic sine."
 msgstr ""
 
-#: manual/api/binary.md:2323
+#: manual/api/binary.md:2324
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$, which holds for $|x| \\ge (\\ln 2)/2$ (and overflow needs $|x|$ far above that)."
 msgstr ""
 
-#: manual/api/binary.md:2329
+#: manual/api/binary.md:2330
 msgid "The hyperbolic cosine."
 msgstr ""
 
-#: manual/api/binary.md:2337
+#: manual/api/binary.md:2338
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr ""
 
-#: manual/api/binary.md:2342
+#: manual/api/binary.md:2343
 msgid "The hyperbolic tangent."
 msgstr ""
 
-#: manual/api/binary.md:2350
+#: manual/api/binary.md:2351
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr ""
 
-#: manual/api/binary.md:2354
+#: manual/api/binary.md:2355
 msgid "The inverse hyperbolic sine."
 msgstr ""
 
-#: manual/api/binary.md:2362
+#: manual/api/binary.md:2363
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr ""
 
-#: manual/api/binary.md:2367
+#: manual/api/binary.md:2368
 msgid "The inverse hyperbolic cosine."
 msgstr ""
 
-#: manual/api/binary.md:2375
+#: manual/api/binary.md:2376
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a domain case. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr ""
 
-#: manual/api/binary.md:2381
+#: manual/api/binary.md:2382
 msgid "The inverse hyperbolic tangent."
 msgstr ""
 
-#: manual/api/binary.md:2389
+#: manual/api/binary.md:2390
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a domain case. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr ""
 
-#: manual/api/binary.md:2433
+#: manual/api/binary.md:2434
 #: manual/api/binary_checked.md:821
 #: manual/api/decimal.md:2297
 #: manual/api/decimal_gda.md:1740
@@ -1987,95 +1987,95 @@ msgstr ""
 msgid "Trait implementations"
 msgstr ""
 
-#: manual/api/binary.md:2437
+#: manual/api/binary.md:2438
 msgid "The numerical equality of `compare`, the hand-written `Eq`."
 msgstr ""
 
-#: manual/api/binary.md:2444
+#: manual/api/binary.md:2445
 msgid "See [`Binary`](#binary): `==` and `!=` compare numbers, so `-0 == +0`, precisions are ignored and every NaN equals every NaN; `identical` is the structural question."
 msgstr ""
 
-#: manual/api/binary.md:2450
+#: manual/api/binary.md:2451
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr ""
 
-#: manual/api/binary.md:2459
+#: manual/api/binary.md:2460
 msgid "They use [`compare`](#binarycompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binarycompare_quiet_equal-binarycompare_quiet_less-binarycompare_quiet_less_equal-binarycompare_quiet_unordered-binarycompare_signaling_equal-binarycompare_signaling_less-binarycompare_signaling_less_equal) when NaN must be unordered."
 msgstr ""
 
-#: manual/api/binary.md:2465
+#: manual/api/binary.md:2466
 msgid "The `Show` and `Debug` methods."
 msgstr ""
 
-#: manual/api/binary.md:2472
+#: manual/api/binary.md:2473
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binaryto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr ""
 
-#: manual/api/binary.md:2477
+#: manual/api/binary.md:2478
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr ""
 
-#: manual/api/binary.md:2483
+#: manual/api/binary.md:2484
 msgid "`classify`, `signum`, `precision` and `normalized` are the inherent methods above; `with_precision` is the inherent method with `RoundTiesToEven`. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr ""
 
-#: manual/api/binary.md:2489
+#: manual/api/binary.md:2490
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr ""
 
-#: manual/api/binary.md:2502
+#: manual/api/binary.md:2503
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (an `Err` for `AwayFromZero`, a range that is not of the IEEE 754-2019 3.3 shape or a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. There is no inherent `div_checked`: the trait form takes the context, and `BinaryChecked::div` is the chained form at the larger precision of the operands. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binarycompare_checked)."
 msgstr ""
 
-#: manual/api/binary.md:2524
+#: manual/api/binary.md:2525
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr ""
 
-#: manual/api/binary.md:2543
+#: manual/api/binary.md:2544
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `apply_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`, one with `not_computed` a `certification_failure`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr ""
 
-#: manual/api/binary.md:2553
+#: manual/api/binary.md:2554
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr ""
 
-#: manual/api/binary.md:2568
+#: manual/api/binary.md:2569
 msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal)."
 msgstr ""
 
-#: manual/api/binary.md:2572
+#: manual/api/binary.md:2573
 msgid "The `Show` and `Debug` methods of `BinCoeff`; `to_repr` is the integer value."
 msgstr ""
 
-#: manual/api/binary.md:2579
+#: manual/api/binary.md:2580
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr ""
 
-#: manual/api/binary.md:2583
+#: manual/api/binary.md:2584
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr ""
 
-#: manual/api/binary.md:2593
+#: manual/api/binary.md:2594
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr ""
 
-#: manual/api/binary.md:2603
+#: manual/api/binary.md:2604
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr ""
 
-#: manual/api/binary.md:2611
+#: manual/api/binary.md:2612
 msgid "Equality compares the fields, so `BinaryContext::new(precision=53)` equals `BinaryContext::new(precision=53, e_max=binary_value_e_max)`: there is one representation of every context."
 msgstr ""
 
-#: manual/api/binary.md:2617
+#: manual/api/binary.md:2618
 msgid "The derived `Eq` and the hand-written `Debug` methods of `BinaryFlags`."
 msgstr ""
 
-#: manual/api/binary.md:2627
+#: manual/api/binary.md:2628
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr ""
 
-#: manual/api/binary.md:2637
+#: manual/api/binary.md:2638
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr ""
 
@@ -10540,7 +10540,7 @@ msgid "Interchange and context"
 msgstr ""
 
 #: manual/conformance/binary.md:55
-msgid "`BinaryInterchange` decodes and encodes IEEE binary16, binary32, binary64, and binary128 bit patterns. `BinaryContext` carries precision, rounding direction, paired exponent limits, and before/after tininess detection. Encoding and contextual arithmetic both return status flags; ordinary operators use an unbounded nearest-even context and intentionally do not expose those flags."
+msgid "`BinaryInterchange` decodes and encodes IEEE binary16, binary32, binary64, and binary128 bit patterns. `BinaryContext` carries precision, rounding direction, paired exponent limits, and before/after tininess detection. Encoding and contextual arithmetic both return status flags; ordinary operators use an nearest-even context given by its precision alone and intentionally do not expose those flags."
 msgstr ""
 
 #: manual/conformance/binary.md:61
@@ -11107,7 +11107,7 @@ msgid "Seeded random elementary (`elem`), seeds 20261118 and 20261201"
 msgstr ""
 
 #: manual/conformance/binary.md:117
-msgid "29 functions, unbounded contexts, precisions 2 to 700, all rounding directions"
+msgid "29 functions, contexts given by the precision alone, precisions 2 to 700, all rounding directions"
 msgstr ""
 
 #: manual/conformance/binary.md:118
@@ -11125,7 +11125,7 @@ msgstr ""
 #: manual/conformance/binary.md:119
 #: manual/conformance/binary.md:121
 #: manual/conformance/binary.md:123
-msgid "unbounded contexts, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC"
+msgid "contexts given by the precision alone, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC"
 msgstr ""
 
 #: manual/conformance/binary.md:120
@@ -24110,7 +24110,7 @@ msgid "Multiplication"
 msgstr ""
 
 #: manual/performance/binary.md:20
-msgid "Balanced multiplication uses schoolbook below 32 64-bit limbs (2,048 bits on LLVM, Wasm and Wasm-GC and on Native with the portable and C rows; 48 limbs on Native with the assembly rows), then Karatsuba on limb arrays (a few small temporaries per step, no intermediate `BinCoeff`), Toom-3, and a two-prime Montgomery NTT with CRT when transform bounds fit. Unbalanced inputs use block multiplication or overlap-add. Native and LLVM select Toom-3 and NTT multiplication at 4,096 64-bit limbs and NTT square at 3,584; Wasm and Wasm-GC at 2,048 and 1,536 (the values of the version before the 64-bit limbs, 4,096 and 3,072 in 32-bit limbs, halved; not measured again on those targets). A 64-bit limb product costs four `i64.mul` on Wasm, so from 160 limbs (10,240 bits) Wasm and Wasm-GC split the operands into 32-bit limbs, multiply there with the same Karatsuba and pack the result back (the conversions are linear); squaring uses the 32-bit half-product schoolbook from 80 limbs. Native square dispatch switches from specialized schoolbook to recursive multiplication at 512 limbs; other targets retain the previous 768-limb boundary. Cutoffs measured per target with paired runs of coefficient multiplication at 1,024 to 65,536 bits. Paired runs against the 32-bit implementation: coefficient multiplication is 2 to 3 times faster on Native from 1,024 to 32,768 bits, 1.1 to 2.2 times on Wasm-GC and 1.1 to 2.1 times on Wasm; `Binary` `mul` 1.6, 2.5 and 2.9 times faster at 512, 2,048 and 8,192 bits on Native, `add` 1.9 and 2.4 times at 2,048 and 8,192 bits, `sqrt` 1.5 and 2.0 times at 2,048 and 8,192 bits."
+msgid "Balanced multiplication uses schoolbook below 32 64-bit limbs (2,048 bits on LLVM, Wasm and Wasm-GC and on Native with the portable and C rows; 48 limbs on Native with the assembly rows), then Karatsuba on limb arrays (a few small temporaries per step, no intermediate `BinCoeff`), Toom-3, and a two-prime Montgomery NTT with CRT when transform bounds fit. Unbalanced inputs use block multiplication or overlap-add. Native and LLVM select Toom-3 and NTT multiplication at 4,096 64-bit limbs and NTT square at 3,584; Wasm and Wasm-GC at 2,048 and 1,536 (the values of the version before the 64-bit limbs, 4,096 and 3,072 in 32-bit limbs, halved; not measured again on those targets). A 64-bit limb product costs four `i64.mul` on Wasm, so from 160 limbs (10,240 bits) Wasm and Wasm-GC split the operands into 32-bit limbs, multiply there with the same Karatsuba and pack the result back (the conversions are linear); squaring uses the 32-bit half-product schoolbook from 80 limbs. Native square dispatch switches from specialized schoolbook to recursive multiplication at 256 64-bit limbs (512 of 32 bits) on Native and LLVM; Wasm and Wasm-GC retain the previous boundary of 384 64-bit limbs (768 of 32 bits). Cutoffs measured per target with paired runs of coefficient multiplication at 1,024 to 65,536 bits. Paired runs against the 32-bit implementation: coefficient multiplication is 2 to 3 times faster on Native from 1,024 to 32,768 bits, 1.1 to 2.2 times on Wasm-GC and 1.1 to 2.1 times on Wasm; `Binary` `mul` 1.6, 2.5 and 2.9 times faster at 512, 2,048 and 8,192 bits on Native, `add` 1.9 and 2.4 times at 2,048 and 8,192 bits, `sqrt` 1.5 and 2.0 times at 2,048 and 8,192 bits."
 msgstr ""
 
 #: manual/performance/binary.md:22
@@ -24126,7 +24126,7 @@ msgid "Two-word and coefficient fast paths"
 msgstr ""
 
 #: manual/performance/binary.md:28
-msgid "Above the single-word range, `Binary::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, and `div` and `sqrt` at any size, go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one array (up to 24 words, then whole-coefficient shifts and one addition), the product is the existing `BinCoeff` product, the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path). Paired runs against the previous build: `add` 3.3 times and `mul` 3.5 times faster at 128 bits on Native (2.5 and 3.7 on Wasm-GC, 3.5 and 3.0 on Wasm), 1.9 to 2.2 times at 256 bits, 1.5 to 1.9 times at 512 bits and 1.2 times at 1,024 bits; `sqrt` 1.4 times at 128 bits (1.9 on Wasm-GC) and 1.1 at 512 and 2,048 bits; `div` 1.1 to 1.2 times at 128 to 512 bits, where the Knuth division dominates."
+msgid "Above the single-word range, `Binary::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, `div` above 128 bits (up to 128 bits it has a two-word path of its own in `binary_fast_pair_nonjs.mbt`) and `sqrt` at any size go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one window array of the width of the result plus three bits (the operand with the larger top bit placed, the other read through its shift, a sticky bit for what lies below it), the product is the short product of the high limbs when its rounding is certain (`bin_words_mul_short`), otherwise the limb-array product (`bin_words_mul`), the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path). Paired runs against the previous build: `add` 3.3 times and `mul` 3.5 times faster at 128 bits on Native (2.5 and 3.7 on Wasm-GC, 3.5 and 3.0 on Wasm), 1.9 to 2.2 times at 256 bits, 1.5 to 1.9 times at 512 bits and 1.2 times at 1,024 bits; `sqrt` 1.4 times at 128 bits (1.9 on Wasm-GC) and 1.1 at 512 and 2,048 bits; `div` 1.1 to 1.2 times at 128 to 512 bits, where the Knuth division dominates."
 msgstr ""
 
 #: manual/performance/binary.md:30
@@ -24134,7 +24134,7 @@ msgid "Fixed-point sine and cosine"
 msgstr ""
 
 #: manual/performance/binary.md:32
-msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 28)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that the guard bits would exceed four times the working precision, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
+msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 24)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that its leading zero bits would exceed four times the working precision plus 64, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
 msgstr ""
 
 #: manual/performance/binary.md:34
@@ -24154,11 +24154,11 @@ msgid "The last stage of the 64-bit limb work moves the remaining coefficient ke
 msgstr ""
 
 #: manual/performance/binary.md:42
-msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. Before, every chunk went through the 32-bit limb accessors and allocated a coefficient (about 113 instructions per 32-bit limb step against about 10 now). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM, measured as the crossover with retired instructions (formatting 65,536 bits 14.5 million against 25.5 million instructions for divide and conquer, 262,144 bits 220 million against 181 million; parsing 131,072 bits 47.2 against 48.3 million, 262,144 bits 201 against 146 million); Wasm and Wasm-GC use 4,608 chunks for parsing as well and keep 128 limbs of 32 bits (64 of 64 bits) for formatting. Retired instructions per operation on Native, base 10, against the previous build: formatting 4.9, 5.7, 4.2 and 2.0 times fewer at 512, 2,048, 8,192 and 65,536 bits, parsing 6.1, 8.3, 4.7 and 1.5 times; base 16 (a power of two) is unchanged. White-box tests compare both paths with a chunk-by-chunk reference of the previous build for the radixes 3, 5, 7, 10, 12 and 36 at 1 to 513 limbs, with the values $r^{9k}$ and $r^{9k} - 1$ around chunk edges up to 130 chunks, and with each other (in place against divide and conquer, formatting and parsing) on both sides of the old cutoffs."
+msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. Before, every chunk went through the 32-bit limb accessors and allocated a coefficient (about 113 instructions per 32-bit limb step against about 10 now). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM, measured as the crossover with retired instructions (formatting 65,536 bits 14.5 million against 25.5 million instructions for divide and conquer, 262,144 bits 220 million against 181 million; parsing 131,072 bits 47.2 against 48.3 million, 262,144 bits 201 against 146 million); Wasm and Wasm-GC use 4,608 chunks for parsing as well and keep 128 limbs of 32 bits (64 of 64 bits) for formatting. Retired instructions per operation on Native, base 10, against the previous build: formatting 4.9, 5.7, 4.2 and 2.0 times fewer at 512, 2,048, 8,192 and 65,536 bits, parsing 6.1, 8.3, 4.7 and 1.5 times; base 16 (a power of two) is unchanged. White-box tests check, for the radixes 3, 10 and 36, the powers of the radix and their neighbours around chunk edges up to 130 chunks, and the in-place conversion against divide and conquer (formatting and parsing) at 1 to 1,025 limbs on both sides of the cutoffs; a CPython oracle checks both directions for further radixes."
 msgstr ""
 
 #: manual/performance/binary.md:44
-msgid "Above 256 bits the integer square root on every target except JavaScript runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. Retired instructions of one root on Native (release, radicand of twice the root width, paired with the previous build): 2.0 times fewer for a 512-bit root, 1.85 for 2,048 bits, 1.3 for 8,192 bits and 1.04 for 65,536 bits, where the division and the squaring of the recursion dominate; a root of 256 bits (a 512-bit radicand) 1.8 times. On Wasm-GC paired wall-clock runs of one root (radicand of twice the root width, medians of five) are 4.9 and 2.2 times faster at 512 and 2,048 bits and 1.3 and 1.07 times at 8,192 and 65,536 bits; on linear Wasm 2.2, 2.0, 1.4 and 1.05 times; on Native 2.0, 1.8, 1.3 and 1.05 times, in line with the instruction counts. No size is slower on any target, so the word recursion is selected on every target except JavaScript (there is no per-target switch: `bin_coeff_sqrt_words_enabled` only selects the word or the restoring kernels of the base case, and the previous recursion remains as the test reference). White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 129 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
+msgid "Above 256 bits the integer square root on every target except JavaScript runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. Retired instructions of one root on Native (release, radicand of twice the root width, paired with the previous build): 2.0 times fewer for a 512-bit root, 1.85 for 2,048 bits, 1.3 for 8,192 bits and 1.04 for 65,536 bits, where the division and the squaring of the recursion dominate; a root of 256 bits (a 512-bit radicand) 1.8 times. On Wasm-GC paired wall-clock runs of one root (radicand of twice the root width, medians of five) are 4.9 and 2.2 times faster at 512 and 2,048 bits and 1.3 and 1.07 times at 8,192 and 65,536 bits; on linear Wasm 2.2, 2.0, 1.4 and 1.05 times; on Native 2.0, 1.8, 1.3 and 1.05 times, in line with the instruction counts. No size is slower on any target, so the word recursion is selected on every target except JavaScript (there is no per-target switch: `bin_coeff_sqrt_words_enabled` only selects the word or the restoring kernels of the base case, and the previous recursion remains as the test reference). White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 257 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
 msgstr ""
 
 #: manual/performance/binary.md:46
@@ -24183,7 +24183,7 @@ msgid "The unified Maremark harness under `tooling/src/bench/binary` compares co
 msgstr ""
 
 #: manual/performance/binary.md:56
-msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
+msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions that `0.6.1` does not have run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr ""
 
 #: manual/performance/binary.md:65
@@ -24191,7 +24191,7 @@ msgid "Certified series"
 msgstr ""
 
 #: manual/performance/binary.md:67
-msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
+msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, one series instead of four for `sin` and `cos` (evaluated at the midpoint of the reduced interval and widened by its radius). The `exp` skip returns the exact enclosures of before, and the trigonometric one the same correctly rounded results, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr ""
 
 #: manual/performance/binary.md:69
@@ -24207,7 +24207,7 @@ msgid "Fixed-point logarithm"
 msgstr ""
 
 #: manual/performance/binary.md:75
-msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
+msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and, below a working precision of 64 bits, the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the leading zero bits of `z` would exceed four times the working precision plus 64, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr ""
 
 #: manual/performance/decimal.md:1
