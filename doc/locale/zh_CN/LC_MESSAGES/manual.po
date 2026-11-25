@@ -12836,7 +12836,7 @@ msgstr "`floating` 中的性能结论必须可复现，且不能与噪声混淆�
 #: manual/design/decimal_checked.md:14
 #: manual/design/decimal_gda.md:29
 #: manual/design/decimal_gda_checked.md:20
-#: manual/design/def.md:16
+#: manual/design/def.md:13
 #: manual/design/differential.md:13
 #: manual/design/differential/harness.md:11
 #: manual/design/differential/interval_mpfr.md:7
@@ -12980,7 +12980,7 @@ msgstr "中位数减速必须具有实际意义，*并且*中位数配对差的 
 #: manual/design/decimal_checked.md:95
 #: manual/design/decimal_gda.md:425
 #: manual/design/decimal_gda_checked.md:114
-#: manual/design/def.md:65
+#: manual/design/def.md:62
 #: manual/design/differential.md:101
 #: manual/design/differential/harness.md:18
 #: manual/design/differential/interval_mpfr.md:19
@@ -13067,7 +13067,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/decimal_checked.md:209
 #: manual/design/decimal_gda.md:1116
 #: manual/design/decimal_gda_checked.md:205
-#: manual/design/def.md:187
+#: manual/design/def.md:182
 #: manual/design/differential.md:151
 #: manual/design/differential/harness.md:27
 #: manual/design/differential/interval_mpfr.md:37
@@ -18210,180 +18210,178 @@ msgid "def design"
 msgstr "def 设计"
 
 #: manual/design/def.md:5
-msgid "`def` gives the three scalar representations of `floating` (binary `Binary`, IEEE decimal `@decimal.Decimal` and GDA decimal `@decimal_gda.Decimal`) one vocabulary for the things they have in common: what class a value belongs to, what its sign is, at what precision it is stored, how to move it to another precision, and which representative of its value it is. It also names the result of an IEEE comparison and re-exports the context and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The package is deliberately thin: it states contracts and contains no numerical algorithm. The [API page](../api/def.md) lists the items; the [tutorial](../tutorial/def.md) shows them in use."
-msgstr "`def` 为 `floating` 的三种标量表示（二进制 `Binary`、IEEE 十进制 `@decimal.Decimal` 和 GDA 十进制 `@decimal_gda.Decimal`）的共同之处提供一套统一词汇：值属于哪一类、符号是什么、以什么精度存储、如何转换到另一精度，以及它是其值的哪一个代表。它还为 IEEE 比较的结果命名，并重新导出 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 的上下文与错误类型。本包刻意保持精简：只陈述契约，不包含任何数值算法。[API 页面](../api/def.md)列出了各项条目；[教程](../tutorial/def.md)演示了它们的用法。"
+msgid "`def` gives `Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal` a shared vocabulary for classification, sign, precision, re-precision and normal form. It also names the four-way result of an IEEE comparison and re-exports the context and error types from [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The package states these contracts; numerical algorithms remain in the scalar packages. See the [API page](../api/def.md) for the items and the [tutorial](../tutorial/def.md) for examples."
+msgstr "`def` gives `Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal` a shared vocabulary for classification, sign, precision, re-precision and normal form. It also names the four-way result of an IEEE comparison and re-exports the context and error types from [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The package states these contracts; numerical algorithms remain in the scalar packages. See the [API page](../api/def.md) for the items and the [tutorial](../tutorial/def.md) for examples."
 
-#: manual/design/def.md:18
+#: manual/design/def.md:15
 msgid "Values and their meaning"
 msgstr "值及其含义"
 
-#: manual/design/def.md:20
+#: manual/design/def.md:17
 msgid "A finite scalar of radix $\\beta$ ($\\beta = 2$ for `Binary`, $\\beta = 10$ for both decimals) is a triple of a sign bit $s$, a coefficient $c \\in \\mathbb{N}$ and an exponent $e \\in \\mathbb{Z}$, and denotes the real number"
 msgstr "基数为 $\\beta$（`Binary` 为 $\\beta = 2$，两种十进制均为 $\\beta = 10$）的有限标量是由符号位 $s$、系数 $c \\in \\mathbb{N}$ 和指数 $e \\in \\mathbb{Z}$ 组成的三元组，表示实数"
 
-#: manual/design/def.md:28
-msgid "Several triples denote the same real: $(0, 15, -1)$ and $(0, 150, -2)$ both denote $1.5$ in radix ten, and $(0, 0, e)$ and $(1, 0, e)$ both denote $0$. Non-finite scalars denote $\\pm\\infty$ or are NaN, which denotes no number."
+#: manual/design/def.md:25
+msgid "Different triples can denote the same real. In radix ten, $(0, 15, -1)$ and $(0, 150, -2)$ both denote $1.5$; $(0, 0, e)$ and $(1, 0, e)$ both denote $0$. Non-finite scalars denote $\\pm\\infty$ or are NaN, which denotes no number."
 msgstr "多个三元组可以表示同一个实数：在十进制下 $(0, 15, -1)$ 和 $(0, 150, -2)$ 都表示 $1.5$，$(0, 0, e)$ 和 $(1, 0, e)$ 都表示 $0$。非有限标量表示 $\\pm\\infty$，或者是 NaN，NaN 不表示任何数。"
 
-#: manual/design/def.md:32
+#: manual/design/def.md:30
 msgid "For a precision $p \\ge 1$ let"
 msgstr "对精度 $p \\ge 1$，令"
 
-#: manual/design/def.md:38
+#: manual/design/def.md:36
 msgid ""
 "be the numbers with at most $p$ significant radix-$\\beta$ digits and an unbounded exponent. A rounding function $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ for a direction $m$ (`RoundingMode`) maps a real to a neighbouring element of $\\mathbb{F}_{\\beta,p}$: $\\n"
 "abla$ (`TowardNegative`) to the largest element $\\le t$, $\\Delta$ (`TowardPositive`) to the smallest element $\\ge t$, `TowardZero` to the one of these two with the smaller magnitude, `AwayFromZero` to the larger, and `ToNearestEven` to the nearer one, ties going to the even coefficient.[^ieee-rounding]"
-msgstr ""
-"为至多有 $p$ 位基数 $\\beta$ 有效数字、指数无界的数。对方向 $m$（`RoundingMode`），舍入函数 $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ 把实数映到 $\\mathbb{F}_{\\beta,p}$ 中相邻的元素：$\\n"
-"abla$（`TowardNegative`）映到 $\\le t$ 的最大元素，$\\Delta$（`TowardPositive`）映到 $\\ge t$ 的最小元素，`TowardZero` 映到这两者中绝对值较小的一个，`AwayFromZero` 映到较大的一个，`ToNearestEven` 映到较近的一个，平局时取偶数系数。[^ieee-rounding]"
+msgstr "为至多有 $p$ 位基数 $\\beta$ 有效数字、指数无界的数。对方向 $m$（`RoundingMode`），舍入函数 $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ 把实数映到 $\\mathbb{F}_{\\beta,p}$ 中相邻的元素：$\\\nabla$（`TowardNegative`）映到 $\\le t$ 的最大元素，$\\Delta$（`TowardPositive`）映到 $\\ge t$ 的最小元素，`TowardZero` 映到这两者中绝对值较小的一个，`AwayFromZero` 映到较大的一个，`ToNearestEven` 映到较近的一个，平局时取偶数系数。[^ieee-rounding] $ (`TowardNegative`) to the largest element $ $, $ $ (`TowardPositive`) to the smallest element $"
 
-#: manual/design/def.md:47
-msgid "IEEE 754-2019, clause 4.3 (rounding-direction attributes). `AwayFromZero` is not an IEEE binary attribute; it corresponds to the GDA rounding `Up` (Cowlishaw, *General Decimal Arithmetic Specification*)."
+#: manual/design/def.md:45
+msgid "IEEE 754-2019 4.3 (rounding-direction attributes). `AwayFromZero` is not an IEEE binary attribute; it corresponds to the GDA rounding `Up` (Cowlishaw, *General Decimal Arithmetic Specification*)."
 msgstr "IEEE 754-2019，第 4.3 条（舍入方向属性）。`AwayFromZero` 不是 IEEE 二进制属性；它对应 GDA 的舍入 `Up`（Cowlishaw，*General Decimal Arithmetic Specification*）。"
 
-#: manual/design/def.md:51
+#: manual/design/def.md:49
 msgid "The IEEE comparison relation"
 msgstr "IEEE 比较关系"
 
-#: manual/design/def.md:53
+#: manual/design/def.md:51
 msgid "IEEE 754 defines comparison so that for every pair of floating-point data exactly one of four relations holds: *less than*, *equal*, *greater than* and *unordered*.[^ieee-compare] On the extended reals the first three are the usual trichotomy, with $-0 = +0$ and $-\\infty < t < +\\infty$ for every finite $t$; *unordered* holds exactly when at least one operand is NaN, including when both are the same NaN. `PartialOrder` is this four-valued relation as a datatype."
 msgstr "IEEE 754 对比较的定义使得任意一对浮点数据之间恰好成立四种关系之一：*小于*、*等于*、*大于*和*无序*。[^ieee-compare] 在扩展实数上，前三种就是通常的三分律，其中 $-0 = +0$，且对每个有限的 $t$ 有 $-\\infty < t < +\\infty$；*无序*恰在至少一个操作数为 NaN 时成立，包括两者是同一个 NaN 的情形。`PartialOrder` 就是把这一四值关系表示为数据类型。"
 
-#: manual/design/def.md:60
-msgid "IEEE 754-2019, clause 5.11 (details of comparison predicates) and Table 5.1. The quiet and signaling predicates differ only in whether a quiet-NaN operand signals invalid operation, which is why `binary` returns the relation together with `BinaryFlags`."
+#: manual/design/def.md:58
+msgid "IEEE 754-2019 5.11 and Table 5.1. The quiet and signaling predicates differ only in whether a quiet-NaN operand signals invalid operation, which is why `binary` returns the relation together with `BinaryFlags`."
 msgstr "IEEE 754-2019，第 5.11 条（比较谓词的细节）及表 5.1。静默谓词与信号谓词的区别仅在于静默 NaN 操作数是否发出无效运算信号，这也是 `binary` 把该关系与 `BinaryFlags` 一并返回的原因。"
 
-#: manual/design/def.md:67
+#: manual/design/def.md:64
 msgid "A small trait instead of a numeric tower"
 msgstr "小的 trait，而非数值塔"
 
-#: manual/design/def.md:69
-msgid "**Problem.** Generic code must be able to ask any representation a few questions, but the representations do not share arithmetic laws: binary and decimal operations round in different radices and GDA operations thread a sticky context. Intervals are deliberately not among them (see [Intervals are not `Floating`](#intervals-are-not-floating))."
+#: manual/design/def.md:66
+msgid "**Problem.** Generic code needs a small set of observations, but the scalar representations do not share arithmetic laws. Binary and decimal operations round in different radices, and GDA operations thread a sticky context. Intervals are not scalar values (see [Intervals are not `Floating`](#intervals-are-not-floating))."
 msgstr "**问题。** 泛型代码必须能向任何表示询问若干问题，但各种表示并不共享算术定律：二进制和十进制运算在不同基数下舍入，GDA 运算贯穿一个粘滞上下文。区间刻意不在其列（见[区间不是 `Floating`](#intervals-are-not-floating)）。"
 
-#: manual/design/def.md:75
+#: manual/design/def.md:71
 msgid "**Options.** (a) A broad \"real number\" trait with arithmetic, ordering and parsing. (b) A trait with only representation-independent observations and re-precision. (c) No shared trait."
 msgstr "**可选方案。** (a) 一个包含算术、序和解析的宽泛“实数” trait。(b) 一个只包含与表示无关的观测和重设精度的 trait。(c) 没有共享 trait。"
 
-#: manual/design/def.md:79
+#: manual/design/def.md:75
 msgid "**Choice: (b).** `Floating` has exactly `classify`, `signum`, `precision`, `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`, `AddContextual`, …), which each type implements only where it can honour the law. A single broad trait would force one law on all domains; for example an interval cannot implement a scalar `compare` without lying about overlapping operands. This follows the Luna-Flow principle that code depends on the smallest trait composition stating its requirements."
 msgstr "**选择：(b)。** `Floating` 恰好只有 `classify`、`signum`、`precision`、`with_precision` 和 `normalized`。算术取自 MoonBit 的运算符 trait 以及 Luna-Flow/arithmetic 的能力 trait（`SqrtChecked`、`AddContextual`……），每种类型只在能遵守相应定律时才实现它们。单一的宽泛 trait 会把同一套定律强加于所有领域；例如，区间无法实现标量的 `compare`，除非对相互重叠的操作数撒谎。这遵循 Luna-Flow 的原则：代码只依赖于陈述其需求的最小 trait 组合。"
 
-#: manual/design/def.md:88
+#: manual/design/def.md:84
 msgid "Why `Floating` is declared open"
 msgstr "为什么 `Floating` 被声明为开放"
 
-#: manual/design/def.md:90
+#: manual/design/def.md:86
 msgid "**Problem.** `Floating` is meant to be implemented by the types of this library only, so that a method can be added to it in a minor release without breaking a downstream type. MoonBit has a visibility that would enforce this, `pub trait` (readonly), but it is per package."
 msgstr "**问题。** `Floating` 只应由本库的类型实现，这样就能在次版本中为它增加方法而不破坏下游类型。MoonBit 有一种可见性能强制这一点，即 `pub trait`（只读），但它以包为单位。"
 
-#: manual/design/def.md:95
+#: manual/design/def.md:91
 msgid "**Evidence.** Declaring `pub trait Floating` in `def` makes every implementation outside `def` fail to compile:"
 msgstr "**证据。** 在 `def` 中声明 `pub trait Floating` 会使 `def` 之外的每个实现都无法编译："
 
-#: manual/design/def.md:105
+#: manual/design/def.md:101
 msgid "The three implementations are in `binary`, `decimal` and `decimal_gda`, which are other packages of the module, and `def` cannot import them (they import `def`)."
 msgstr "这三个实现位于 `binary`、`decimal` 和 `decimal_gda` 中，它们是本模块的其他包，而 `def` 不能导入它们（它们导入 `def`）。"
 
-#: manual/design/def.md:109
+#: manual/design/def.md:105
 msgid "**Options.** (a) Keep `pub(open)` and state the contract in the documentation. (b) Seal the trait with a token type that only this module can build. (c) Move the implementations into `def`, which is a dependency cycle."
 msgstr "**选项。** (a) 保持 `pub(open)`，在文档中陈述契约。(b) 用只有本模块能构造的令牌类型封住 trait。(c) 把实现移入 `def`，这会形成依赖环。"
 
-#: manual/design/def.md:113
+#: manual/design/def.md:109
 msgid "**Choice: (a).** (b) puts an internal type into a public trait signature for a promise that documentation can state as well, and (c) is impossible. The contract is: implementing `Floating` outside this module is not supported and not covered by the compatibility promise; the tutorial therefore shows no such implementation, and the generic predicates `is_finite`, `is_infinite`, `is_nan` and `is_zero` are unchanged."
 msgstr "**选择：(a)。** (b) 为了一个文档同样能陈述的承诺，把内部类型放进公开 trait 的签名；(c) 不可能。契约是：在本模块之外实现 `Floating` 不受支持，也不在兼容性承诺之内；因此教程不展示这样的实现，泛型谓词 `is_finite`、`is_infinite`、`is_nan` 和 `is_zero` 不变。"
 
-#: manual/design/def.md:120
+#: manual/design/def.md:116
 msgid "`Sign` merges the two zeros"
 msgstr "`Sign` 合并两个零"
 
-#: manual/design/def.md:122
-msgid "`signum` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
+#: manual/design/def.md:118
+msgid "`signum` answers which side of zero the value occupies, rather than exposing the sign bit. Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
 msgstr "`signum` 回答的是“值位于零的哪一侧”，而不是“符号位是什么”。把 $-0$ 和 $+0$ 合并为 `Zero`，使 `signum` 成为所表示值的函数，从而在各种表示之间保持一致，也与同样忽略带符号零的 [`semantic`](semantic.md) 投影一致。符号位仍可通过具体的包观测到。标量实现对 NaN 返回 `Zero`，因为 NaN 在数轴上没有位置；关心这一点的调用方应先检查 `is_nan`。"
 
-#: manual/design/def.md:130
+#: manual/design/def.md:126
 msgid "Intervals are not `Floating`"
 msgstr "区间不是 `Floating`"
 
-#: manual/design/def.md:132
+#: manual/design/def.md:128
 msgid ""
-"Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `signum` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
-"e \\{0\\}$. The names of those predicates are the scalar ones, so the interval meaning could not be told from the call site. `Interval` therefore does not implement `Floating`; its package spells the questions the way IEEE 1788-2015 does (`is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3, `is_member` for a point) and re-rounds with `with_precision`, which always rounds outward."
-msgstr ""
-"直到 0.11，`Interval` 都实现了 `Floating`，而每个观测量都必须按区间的含义去读：`signum` 对“包含 0”返回 `Zero`，对空集则中止；通过它定义的 `is_zero` 表示“包含 0”，`is_nan` 表示“为空”，`with_precision` 则忽略它的舍入模式。于是，为标量写的泛型函数给出的答案对任何单个数都不成立：$[-1, 1]$ 的 `is_zero` 为真，但 $[-1, 1] \\n"
-"e \\{0\\}$。这些谓词的名字就是标量的名字，所以从调用处看不出区间的含义。因此 `Interval` 不再实现 `Floating`；它所在的包按 IEEE 1788-2015 的方式拼写这些问题（`is_empty`、`is_entire`、`is_common_interval`、`is_singleton`、表 10.3 的各比较、对点使用 `is_member`），并用总是向外舍入的 `with_precision` 重新舍入。"
+"`Interval` does not implement `Floating`. If it did, scalar observations would have interval meanings hidden at the call site: `signum` would return `Zero` for an interval that contains $0$ and would abort on the empty set, `is_nan` would mean \"empty\", and `is_zero` of $[-1, 1]$ would be true even though $[-1, 1] \\n"
+"e \\{0\\}$. The names of these predicates are scalar names, so this ambiguity cannot be resolved by the generic call. The interval package instead spells its questions using the terms of IEEE 1788-2015: `is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3 and `is_member` for a point. Its `with_precision` always rounds outward; it does not use a scalar rounding direction."
+msgstr "`Interval` does not implement `Floating`. If it did, scalar observations would have interval meanings hidden at the call site: `signum` would return `Zero` for an interval that contains $0$ and would abort on the empty set, `is_nan` would mean \"empty\", and `is_zero` of $[-1, 1]$ would be true even though $[-1, 1] \\\ne \\{0\\}$. The names of these predicates are scalar names, so this ambiguity cannot be resolved by the generic call. The interval package instead spells its questions using the terms of IEEE 1788-2015: `is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3 and `is_member` for a point. Its `with_precision` always rounds outward; it does not use a scalar rounding direction."
 
-#: manual/design/def.md:145
+#: manual/design/def.md:140
 msgid "`PartialOrder` is the IEEE four-way relation"
 msgstr "`PartialOrder` 是 IEEE 的四路关系"
 
-#: manual/design/def.md:147
+#: manual/design/def.md:142
 msgid "**Problem.** Comparison results must be expressible for NaN operands."
 msgstr "**问题。** 比较结果必须能够表达 NaN 操作数的情形。"
 
-#: manual/design/def.md:149
+#: manual/design/def.md:144
 msgid "**Options.** (a) Return `Int` through MoonBit's `Compare`. (b) Return `Option[Int]`. (c) Return a four-valued enum."
 msgstr "**可选方案。** (a) 通过 MoonBit 的 `Compare` 返回 `Int`。(b) 返回 `Option[Int]`。(c) 返回一个四值枚举。"
 
-#: manual/design/def.md:152
+#: manual/design/def.md:147
 msgid "**Choice: (c).** Let $\\preceq$ be \"less or equal\" on floating-point data. It is not an order on the whole set:"
 msgstr "**选择：(c)。** 设 $\\preceq$ 为浮点数据上的“小于或等于”。它在整个集合上并不是一个序："
 
-#: manual/design/def.md:163
+#: manual/design/def.md:158
 msgid "Restricted to non-NaN data, $\\preceq$ is reflexive, transitive and total, hence a total *preorder*, and its quotient by \"equal\" is the total order of the extended reals. With NaN it is not even a preorder, so no `Int`-valued `Compare` instance can represent it lawfully: whichever integer is chosen for an unordered pair, a sort based on it would treat NaN as comparable. An enum with an explicit `Unordered` keeps the information and forces callers to handle it in a `match`. `Option[Int]` would carry the same information but give \"no answer\" the generic meaning of absence, and would lose the name."
 msgstr "限制在非 NaN 数据上时，$\\preceq$ 是自反、传递且完全的，因此是一个全*预序*，它按“等于”所得的商就是扩展实数的全序。加入 NaN 后它连预序都不是，因此任何以 `Int` 为值的 `Compare` 实例都无法合规地表示它：无论为无序对选择哪个整数，基于它的排序都会把 NaN 当作可比较的。带有显式 `Unordered` 的枚举保留了这一信息，并迫使调用方在 `match` 中处理它。`Option[Int]` 虽能携带同样的信息，却会赋予“无答案”以“缺失”这一泛泛含义，并且失去了名称。"
 
-#: manual/design/def.md:172
+#: manual/design/def.md:167
 msgid "The concrete packages additionally provide relations that *are* total, for tasks that need one: `Binary::total_order` implements the IEEE `totalOrder` predicate (clause 5.10), and `Binary::compare` (the `Compare` instance) is a total preorder that places every NaN above every number. These are different relations from `PartialOrder`, chosen per call site."
 msgstr "具体的包还额外提供了*确实*是完全的关系，供需要全序的任务使用：`Binary::total_order` 实现了 IEEE 的 `totalOrder` 谓词（第 5.10 条），而 `Binary::compare`（`Compare` 实例）是一个把所有 NaN 置于所有数之上的全预序。它们是与 `PartialOrder` 不同的关系，按调用处的需要选择。"
 
-#: manual/design/def.md:178
+#: manual/design/def.md:173
 msgid "Re-exporting the arithmetic types"
 msgstr "重新导出算术类型"
 
-#: manual/design/def.md:180
+#: manual/design/def.md:175
 msgid "`ArithmeticContext`, `ArithmeticError`, `RoundingMode`, `FpClass` and the certification types are owned by Luna-Flow/arithmetic, which defines the contextual and checked traits that `floating` implements. `def` re-exports them with `pub using` rather than defining look-alikes, so a value of `@def.RoundingMode` *is* a value of `@lf_arith.RoundingMode` and no conversion layer exists between the two repositories."
 msgstr "`ArithmeticContext`、`ArithmeticError`、`RoundingMode`、`FpClass` 以及认证相关类型归 Luna-Flow/arithmetic 所有，该库定义了 `floating` 所实现的 contextual 与 checked trait。`def` 用 `pub using` 重新导出它们，而不是定义外观相似的副本，因此 `@def.RoundingMode` 的值*就是* `@lf_arith.RoundingMode` 的值，两个仓库之间不存在转换层。"
 
-#: manual/design/def.md:189
+#: manual/design/def.md:184
 msgid "The `Floating` laws"
 msgstr "`Floating` 定律"
 
-#: manual/design/def.md:191
-msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = p$ for $p \\ge 1$ (for $p < 1$, `Binary` and `@decimal.Decimal` abort and `@decimal_gda.Decimal` uses $q = 1$). The three scalar implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception stated below (F5). The laws are the contract between the three implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
+#: manual/design/def.md:186
+msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$. For $p \\ge 1$, let $q = p$; for $p < 1$, `Binary` and `@decimal.Decimal` abort, while `@decimal_gda.Decimal` uses $q = 1$. The three scalar implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception stated below (F5). The laws are the contract between the three implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
 msgstr "下面的定律就是该 trait 的契约。它们针对值 $x$、精度 $p$ 和方向 $m$ 陈述；$q = p$（$p \\ge 1$ 时；$p < 1$ 时，`Binary` 和 `@decimal.Decimal` 中止，`@decimal_gda.Decimal` 使用 $q = 1$）。三个标量实现满足 (F1)–(F5) 和 (F6)，其中指数范围的例外见下文 (F5) 之后。这些定律是三个实现与本库泛型代码之间的契约，并不是邀请在别处实现该 trait（见[为什么 `Floating` 被声明为开放](#why-floating-is-declared-open)）。"
 
-#: manual/design/def.md:210
-msgid "**The exponent range of `Binary`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types keep a stored range of their own (the exponent of the least digit at least $-2147483645$, the adjusted exponent at most $2147483646$: `decimal_value_e_tiny`, `decimal_value_e_max`, `gda_value_e_tiny`, `gda_value_e_max`), and a result beyond it overflows or underflows by the direction as for `Binary`, so for them (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. `Binary` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
+#: manual/design/def.md:206
+msgid "**Stored exponent ranges.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. Each decimal type keeps a stored range: the exponent of the least digit is at least $-2147483645$, and the adjusted exponent is at most $2147483646$ (`decimal_value_e_tiny`, `decimal_value_e_max`, `gda_value_e_tiny`, `gda_value_e_max`). A result beyond that range overflows or underflows according to the direction, so (F5) holds when the rounded result is in range."
 msgstr "**`Binary` 的指数范围。** (F5) 是在 $\\mathbb{F}_{\\beta,q}$ 上陈述的，其指数无界。十进制类型保有各自的存储范围（最低位的指数至少为 $-2147483645$，调整后指数至多为 $2147483646$：`decimal_value_e_tiny`、`decimal_value_e_max`、`gda_value_e_tiny`、`gda_value_e_max`），超出该范围的结果会像 `Binary` 那样按方向上溢或下溢，因此对它们而言，只要 $\\circ_{m,q}([\\![x]\\!])$ 位于该范围内，(F5) 就成立。`Binary` 即使在 `with_precision` 中也保持其实现范围：令 $E = 2^{30} - 1$（`binary_value_e_max`，而 `binary_value_e_min` 是 $1 - E$）。若舍入结果的最高位位于 $2^{E}$ 之上则上溢：对 `RoundTiesToEven`、`RoundTiesToAway` 以及在该侧指向远离零方向的定向模式，上溢为无穷，否则为具有 $q$ 位的最大有限值。若某值低于 $2^{-E-(q-2)}$（以 $q$ 位存储的最小正值），则被舍入为 $0$ 或该值。因此对 `Binary`，只要 $\\circ_{m,q}([\\![x]\\!])$ 位于该范围内，(F5) 就成立。例如，$3 \\cdot 2^{E-1}$ 以一位和 `RoundTowardPositive` 重新表示时变为 $+\\infty$，而不是 $2^{E+1}$。"
 
-#: manual/design/def.md:228
+#: manual/design/def.md:214
+msgid "`Binary` keeps its implementation range in `with_precision`. Let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
+msgstr "`Binary` keeps its implementation range in `with_precision`. Let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
+
+#: manual/design/def.md:226
 msgid "For non-finite scalars, `with_precision` keeps the class and the sign and only changes the stored precision, so (F4) still holds. For scalars \"the side of $0$\" is `Zero` for $[\\![x]\\!] = 0$."
 msgstr "对于非有限标量，`with_precision` 保持类别和符号，只改变存储的精度，因此 (F4) 仍然成立。对标量而言，当 $[\\![x]\\!] = 0$ 时“$0$ 的哪一侧”为 `Zero`。"
 
-#: manual/design/def.md:231
+#: manual/design/def.md:229
 msgid "Consequences of (F5)"
 msgstr "(F5) 的推论"
 
-#: manual/design/def.md:233
+#: manual/design/def.md:231
 msgid "Rounding is the identity on its target set: if $t \\in \\mathbb{F}_{\\beta,q}$ then $\\circ_{m,q}(t) = t$ for every direction, because $t$ is its own neighbour. Hence"
 msgstr "舍入在其目标集合上是恒等映射：若 $t \\in \\mathbb{F}_{\\beta,q}$，则对每个方向都有 $\\circ_{m,q}(t) = t$，因为 $t$ 就是它自己的相邻元素。因此"
 
-#: manual/design/def.md:241
+#: manual/design/def.md:239
 msgid "and in particular raising the precision never changes a value, since $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$ for $p \\le p'$."
 msgstr "特别地，提高精度从不改变值，因为当 $p \\le p'$ 时 $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$。"
 
-#: manual/design/def.md:244
+#: manual/design/def.md:242
 msgid "Lowering the precision in two steps is *not* the same as lowering it once in general. For the directed modes it is. Take $q \\le p$ and $m =$ `TowardZero`, write $\\circ_k$ for $\\circ_{m,k}$, and let $a = \\circ_q(t)$, the element of $\\mathbb{F}_{\\beta,q}$ with the sign of $t$ and the largest magnitude not exceeding $|t|$. Then"
 msgstr "一般而言，分两步降低精度与一次降低*并不*相同。对定向模式则相同。取 $q \\le p$ 和 $m =$ `TowardZero`，把 $\\circ_{m,k}$ 记作 $\\circ_k$，并令 $a = \\circ_q(t)$，即 $\\mathbb{F}_{\\beta,q}$ 中与 $t$ 同号且绝对值不超过 $|t|$ 的最大元素。则"
 
-#: manual/design/def.md:260
+#: manual/design/def.md:258
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
-"abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `Binary::with_precision`, which takes one.) Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
-msgstr ""
-"用“$\\le t$ 的最大元素”进行同样的论证适用于 $\\n"
-"abla$，用“$\\ge t$ 的最小元素”适用于 $\\Delta$，用“绝对值 $\\ge |t|$ 的最小元素”适用于 `AwayFromZero`：每个到 $\\mathbb{F}_{\\beta,q}$ 的定向舍入，都可以经由任何包含 $\\mathbb{F}_{\\beta,q}$ 的更细集合 $\\mathbb{F}_{\\beta,p}$ 分解。对 `ToNearestEven`，该恒等式不成立（双重舍入）。[^double-rounding] （trait 方法 `Floating::with_precision` 没有模式参数，按就近偶数舍入；示例调用接受模式的固有方法 `Binary::with_precision`。） 取二进制下的 $t = 1.0100001_2 = 161/128$。当 $p = 3$ 时，相邻元素为 $1.25$ 和 $1.5$，$t$ 舍入为 $1.25$，而它恰好位于 $q = 2$ 时的相邻元素 $1$ 和 $1.5$ 的正中间；平局取偶数系数，即 $1$。而把 $t$ 直接舍入到两位得到 $1.5$，因为 $t > 1.25$："
+"abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] The trait method `Floating::with_precision` rounds to nearest even; the example uses the inherent `Binary::with_precision`, which accepts a direction. Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
+msgstr "用“$\\le t$ 的最大元素”进行同样的论证适用于 $\\\nabla$，用“$\\ge t$ 的最小元素”适用于 $\\Delta$，用“绝对值 $\\ge |t|$ 的最小元素”适用于 `AwayFromZero`：每个到 $\\mathbb{F}_{\\beta,q}$ 的定向舍入，都可以经由任何包含 $\\mathbb{F}_{\\beta,q}$ 的更细集合 $\\mathbb{F}_{\\beta,p}$ 分解。对 `ToNearestEven`，该恒等式不成立（双重舍入）。[^double-rounding] （trait 方法 `Floating::with_precision` 没有模式参数，按就近偶数舍入；示例调用接受模式的固有方法 `Binary::with_precision`。） 取二进制下的 $t = 1.0100001_2 = 161/128$。当 $p = 3$ 时，相邻元素为 $1.25$ 和 $1.5$，$t$ 舍入为 $1.25$，而它恰好位于 $q = 2$ 时的相邻元素 $1$ 和 $1.5$ 的正中间；平局取偶数系数，即 $1$。而把 $t$ 直接舍入到两位得到 $1.5$，因为 $t > 1.25$： $, with \"smallest element $ $\" for $ $, and with \"smallest magnitude $ $\" for `AwayFromZero`: every directed rounding to $ $ factors through any finer set $ $ that contains $ $. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] The trait method `Floating::with_precision` rounds to nearest even; the example uses the inherent `Binary::with_precision`, which accepts a direction. Take $ $ in binary. With $ $ the neighbours are $ $ and $ $, and $ $ rounds to $ $, which is exactly halfway between the $ $ neighbours $ $; the tie goes to the even coefficient, $ $. Rounding $ $ directly to two bits gives $ $ because $"
 
 #: manual/design/def.md:288
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
