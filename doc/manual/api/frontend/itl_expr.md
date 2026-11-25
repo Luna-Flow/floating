@@ -101,9 +101,9 @@ Operands and expected values are read as follows. An interval literal is
 `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by
 `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`).
 A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float
-`0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` aborts
-`execute_case`, so `nan` is usable only as a numeric expected value or as the
-candidate of `isMember`. Decimal and hexadecimal bounds are rounded to
+`0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` is not an
+interval and gives a `Diagnostic`, so `nan` is usable only as a numeric expected
+value or as the candidate of `isMember`. Decimal and hexadecimal bounds are rounded to
 nearest-even at `precision` bits, the lower bound as well as the upper one.
 This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup
 constructor of the target type as two floating constants, so a bound is the
@@ -155,9 +155,10 @@ Support is decided from the operation name before any operand is read, so
 `nums2interval 1.0 2.0`, `rootn [1.0,8.0] 3` and `rsqrt [1.0,4.0]` are
 unsupported and do not count against `RunSummary::success`.
 
-`execute_case` aborts when an interval literal has a lower bound above the
-upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of
-`-inf` (the literal `[1e400,1e400]` included, which reads as `[inf,inf]`).
+An interval literal that is not an interval (a lower bound above the upper
+bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`, the
+literal `[1e400,1e400]` included, which reads as `[inf,inf]`) is reported as a
+`Diagnostic` like any other unreadable literal.
 
 ### `summarize_results`
 

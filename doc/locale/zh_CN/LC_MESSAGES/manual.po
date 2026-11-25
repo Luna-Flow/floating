@@ -265,7 +265,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/differential/interval_mpfr.md:31
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:519
-#: manual/api/frontend/itl_expr.md:288
+#: manual/api/frontend/itl_expr.md:289
 #: manual/api/frontend/mpfr_expr.md:543
 #: manual/api/frontend/testfloat_expr.md:423
 #: manual/api/internal.md:506
@@ -1988,7 +1988,7 @@ msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果属于�
 #: manual/api/decimal_gda.md:1740
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:468
-#: manual/api/frontend/itl_expr.md:275
+#: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:530
 #: manual/api/frontend/testfloat_expr.md:377
 #: manual/api/internal/conformance.md:296
@@ -4557,7 +4557,7 @@ msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值
 #: manual/api/decimal.md:2497
 #: manual/api/decimal_gda.md:1957
 #: manual/api/frontend/gda_expr.md:521
-#: manual/api/frontend/itl_expr.md:290
+#: manual/api/frontend/itl_expr.md:291
 #: manual/api/frontend/mpfr_expr.md:545
 #: manual/api/frontend/testfloat_expr.md:425
 #: manual/api/internal.md:508
@@ -7114,7 +7114,7 @@ msgid "These accessors return the option values."
 msgstr "这些访问器返回选项值。"
 
 #: manual/api/frontend/gda_expr.md:314
-#: manual/api/frontend/itl_expr.md:172
+#: manual/api/frontend/itl_expr.md:173
 #: manual/api/frontend/testfloat_expr.md:301
 #: manual/getting_started.md:13
 msgid "Results"
@@ -7254,8 +7254,8 @@ msgid "`precision` (default `53`, must be within `1` and `268435456`) is the sig
 msgstr "`precision`（默认 `53`，必须在 `1` 与 `268435456` 之间）是用例所在区间格式的有效数字精度：界以 `precision` 位读取，区间结果（`intersection`、`convexHull`、`pow` 和 `atan2` 的结果除外）和 `mid` 使用 `@interval.IntervalContext::new(precision=precision, e_max=1023)` 舍入，其指数范围与 binary64 相同。默认值 `53` 即 `IntervalContext::binary64()`，也就是 ITF1788 数据所用的格式。"
 
 #: manual/api/frontend/itl_expr.md:100
-msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` aborts `execute_case`, so `nan` is usable only as a numeric expected value or as the candidate of `isMember`. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by `Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so a literal of any length is rounded once."
-msgstr "操作数和期望值按如下方式读取。区间字面量为 `[lo,hi]`、`[empty]`、`[entire]` 或 `[nai]`，后面可选地跟 `_dec`，其中 `dec` 为 `com`、`dac`、`def`、`trv`、`ill` 之一（默认 `com`）。界为可带符号的 `inf`/`infinity` 或 `nan`、十六进制浮点数 `0x…p…`，或十进制文本。读取器接受 `nan`，但 `[lo,hi]` 中的 `nan` 界会使 `execute_case` 中止，因此 `nan` 只能用作数值型期望值，或用作 `isMember` 的候选值。十进制和十六进制界以 `precision` 位按就近舍入（偶数优先）舍入，下界和上界都是如此。这是 ITF1788 的约定：其生成器把 `[lo,hi]` 作为目标类型的两个浮点常量传给 inf-sup 构造函数，因此界是该格式中最接近的数，而不是 IEEE 1788 `textToInterval` 对区间字面量字符串所做的向外舍入；测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`）。十进制界由 `Binary::from_string_ctx` 一次性读取，十六进制界由 `Binary::from_hex_ctx` 读取，因此任意长度的字面量都只舍入一次。"
+msgid "Operands and expected values are read as follows. An interval literal is `[lo,hi]`, `[empty]`, `[entire]` or `[nai]`, optionally followed by `_dec` with `dec` one of `com`, `dac`, `def`, `trv`, `ill` (default `com`). A bound is `inf`/`infinity` or `nan` with an optional sign, a hexadecimal float `0x…p…`, or decimal text. The reader accepts `nan`, but a `nan` bound inside `[lo,hi]` is not an interval and gives a `Diagnostic`, so `nan` is usable only as a numeric expected value or as the candidate of `isMember`. Decimal and hexadecimal bounds are rounded to nearest-even at `precision` bits, the lower bound as well as the upper one. This is the ITF1788 convention: its generator passes `[lo,hi]` to the inf-sup constructor of the target type as two floating constants, so a bound is the nearest number of the format, not the outward rounding that IEEE 1788 `textToInterval` applies to an interval literal string; the corpus relies on it (`isSingleton [17.1, 17.1] = true`). A decimal bound is read once, by `Binary::from_string_ctx`, and a hexadecimal one by `Binary::from_hex_ctx`, so a literal of any length is rounded once."
+msgstr "操作数和期望值按如下方式读取。区间字面量为 `[lo,hi]`、`[empty]`、`[entire]` 或 `[nai]`，后面可选地跟 `_dec`，其中 `dec` 为 `com`、`dac`、`def`、`trv`、`ill` 之一（默认 `com`）。界为可带符号的 `inf`/`infinity` 或 `nan`、十六进制浮点数 `0x…p…`，或十进制文本。读取器接受 `nan`，但 `[lo,hi]` 中的 `nan` 界不是区间，会得到一个 `Diagnostic`，因此 `nan` 只能用作数值型期望值，或用作 `isMember` 的候选值。十进制和十六进制界以 `precision` 位按就近舍入（偶数优先）舍入，下界和上界都是如此。这是 ITF1788 的约定：其生成器把 `[lo,hi]` 作为目标类型的两个浮点常量传给 inf-sup 构造函数，因此界是该格式中最接近的数，而不是 IEEE 1788 `textToInterval` 对区间字面量字符串所做的向外舍入；测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`）。十进制界由 `Binary::from_string_ctx` 一次性读取，十六进制界由 `Binary::from_hex_ctx` 读取，因此任意长度的字面量都只舍入一次。"
 
 #: manual/api/frontend/itl_expr.md:116
 msgid "The case is dispatched on its operation and expected value:"
@@ -7386,50 +7386,50 @@ msgid "Support is decided from the operation name before any operand is read, so
 msgstr "是否支持在读取任何操作数之前就根据运算名决定，因此 `nums2interval 1.0 2.0`、`rootn [1.0,8.0] 3` 和 `rsqrt [1.0,4.0]` 都不受支持，且不会影响 `RunSummary::success`。"
 
 #: manual/api/frontend/itl_expr.md:158
-msgid "`execute_case` aborts when an interval literal has a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf` (the literal `[1e400,1e400]` included, which reads as `[inf,inf]`)."
-msgstr "当区间字面量的下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf` 时（包括读作 `[inf,inf]` 的字面量 `[1e400,1e400]`），`execute_case` 会中止。"
+msgid "An interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`, the literal `[1e400,1e400]` included, which reads as `[inf,inf]`) is reported as a `Diagnostic` like any other unreadable literal."
+msgstr "不是区间的区间字面量（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`，包括读作 `[inf,inf]` 的字面量 `[1e400,1e400]`）和其他无法读取的字面量一样，作为 `Diagnostic` 报告。"
 
-#: manual/api/frontend/itl_expr.md:164
+#: manual/api/frontend/itl_expr.md:165
 msgid "`summarize_results(results)` counts a list of results."
 msgstr "`summarize_results(results)` 对一组结果进行计数。"
 
-#: manual/api/frontend/itl_expr.md:170
+#: manual/api/frontend/itl_expr.md:171
 msgid "`total_cases` is the length of the list."
 msgstr "`total_cases` 是列表的长度。"
 
-#: manual/api/frontend/itl_expr.md:176
+#: manual/api/frontend/itl_expr.md:177
 msgid "`ItlDisposition` says whether a case was executed."
 msgstr "`ItlDisposition` 说明一个用例是否被执行。"
 
-#: manual/api/frontend/itl_expr.md:188
+#: manual/api/frontend/itl_expr.md:189
 msgid "`ItlResult` is the outcome of one case."
 msgstr "`ItlResult` 是一个用例的结果。"
 
-#: manual/api/frontend/itl_expr.md:198
+#: manual/api/frontend/itl_expr.md:199
 msgid "These methods return the case id, the disposition, whether the case passed, and a message: empty on success, `\"expected E, got A\"` on a mismatch (intervals printed by `DecoratedInterval::to_string`; `\"output N: expected E, got A; \"` for each wrong result of `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2`), and a short reason or the offending text otherwise."
 msgstr "这些方法返回用例 id、处置结果、该用例是否通过，以及一条消息：成功时为空，不匹配时为 `\"expected E, got A\"`（区间由 `DecoratedInterval::to_string` 打印；`mulRev`、`mulRevTen`、`mulRevToPair`、`powRev1`、`powRev2`、`atan2Rev1`、`atan2Rev2` 的每个错误结果为 `\"output N: expected E, got A; \"`），其他情况下为简短的原因或出错的文本。"
 
-#: manual/api/frontend/itl_expr.md:212
+#: manual/api/frontend/itl_expr.md:213
 msgid "`RunSummary` aggregates a list of results."
 msgstr "`RunSummary` 汇总一组结果。"
 
-#: manual/api/frontend/itl_expr.md:222
+#: manual/api/frontend/itl_expr.md:223
 msgid "These methods return the number of results, the number of executed cases, and how many of those passed and failed."
 msgstr "这些方法返回结果数、已执行的用例数，以及其中通过和失败的数目。"
 
-#: manual/api/frontend/itl_expr.md:234
+#: manual/api/frontend/itl_expr.md:235
 msgid "These methods return the number of cases that were not executed, by disposition."
 msgstr "这些方法按处置类别返回未执行的用例数。"
 
-#: manual/api/frontend/itl_expr.md:244
+#: manual/api/frontend/itl_expr.md:245
 msgid "`results` returns a copy of the results in the order they were given; `success` is the overall verdict."
 msgstr "`results` 按给定顺序返回结果的副本；`success` 是总体判定。"
 
-#: manual/api/frontend/itl_expr.md:252
+#: manual/api/frontend/itl_expr.md:253
 msgid "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ and $\\text{executable} = \\text{passed} + \\text{failed}$. `success()` is true when no executable case failed **and** there is no diagnostic case; unsupported cases do not affect it."
 msgstr "$\\text{total} = \\text{executable} + \\text{unsupported} + \\text{diagnostic}$ 且 $\\text{executable} = \\text{passed} + \\text{failed}$。当没有可执行用例失败**并且**没有诊断用例时，`success()` 为真；不受支持的用例不影响它。"
 
-#: manual/api/frontend/itl_expr.md:279
+#: manual/api/frontend/itl_expr.md:280
 msgid "These methods compare all fields of two cases and render a case for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法比较两个用例的所有字段，并为 `Debug` 渲染一个用例。新代码中请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -19074,8 +19074,8 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**确定性。** 解析与执行只依赖于文本和 `precision`；结果不依赖于用例的执行顺序，因此调用者可以自由地筛选或重排用例。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`），也会因超出 1 到 268435456 的 `precision` 参数而中止。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition, an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) included; it aborts on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入，包括不是区间的区间字面量（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`）；它只会因超出 1 到 268435456 的 `precision` 参数而中止。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
 
 #: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
