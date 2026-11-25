@@ -48,6 +48,35 @@ class StickyRowsTest(unittest.TestCase):
         self.fail("row not found")
 
 
+class Pm1RowsTest(unittest.TestCase):
+    def test_series_agrees_with_decimal_functions(self) -> None:
+        import decimal
+
+        context = decimal.Context(prec=200, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+        x = decimal.Decimal("1.5E-20")
+        # expm1 by the exponential of CPython: 2^x - 1 loses 20 digits of 200, 150 remain
+        direct = context.subtract(context.power(decimal.Decimal(2), x), decimal.Decimal(1))
+        series = generator.pm1_value("exp2m1", x)
+        self.assertLess(abs(direct - series) / series, decimal.Decimal("1E-120"))
+        direct_log = context.divide(context.ln(context.add(decimal.Decimal(1), x)), context.ln(decimal.Decimal(2)))
+        series_log = generator.pm1_value("log2p1", x)
+        self.assertLess(abs(direct_log - series_log) / series_log, decimal.Decimal("1E-120"))
+
+    def test_rows_straddle_the_midpoint(self) -> None:
+        import decimal
+
+        rows = generator.pm1_rows()
+        self.assertEqual(len(rows), len(generator.PM1_OPERATIONS) * len(generator.PM1_ADJUSTED))
+        for operation, precision, x_text, expected in rows:
+            self.assertEqual(precision, 3)
+            self.assertEqual(len(decimal.Decimal(x_text).as_tuple().digits), generator.PM1_SIGNIFICANT)
+            first_order = generator.pm1_slope(operation) * decimal.Decimal(x_text)
+            true_value = generator.pm1_value(operation, decimal.Decimal(x_text))
+            midpoint = decimal.Decimal(f"1.235E{true_value.adjusted()}")
+            # first order and true value are on different sides of the midpoint
+            self.assertNotEqual(first_order < midpoint, true_value < midpoint)
+
+
 class BallRowsTest(unittest.TestCase):
     def test_one_tenth_at_53_bits(self) -> None:
         rows = {(r[0], r[1]): r for r in generator.ball_rows()}
