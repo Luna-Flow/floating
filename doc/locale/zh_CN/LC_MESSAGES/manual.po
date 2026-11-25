@@ -27834,8 +27834,8 @@ msgid "def tutorial"
 msgstr "def 教程"
 
 #: manual/tutorial/def.md:3
-msgid "The goal of this tutorial is to write code that works with every number type of `floating` at once: you inspect values through the `Floating` trait, test their class with the generic predicates, read IEEE comparison results as `PartialOrder`, and reuse the arithmetic context and error types that `def` re-exports. `def` itself does no arithmetic; the concrete packages ([`binary`](binary.md), [`decimal`](decimal.md), [`decimal_gda`](decimal_gda.md)) do. Intervals ([`interval`](interval.md)) are not `Floating`. The laws behind the trait are in the [design page](../design/def.md)."
-msgstr "本教程的目标是编写能同时适用于 `floating` 所有数值类型的代码：通过 `Floating` trait 检视值，用泛型谓词检验其类别，把 IEEE 比较结果读作 `PartialOrder`，并复用 `def` 重新导出的算术上下文与错误类型。`def` 本身不做任何算术；算术由具体的包（[`binary`](binary.md)、[`decimal`](decimal.md)、[`decimal_gda`](decimal_gda.md)）完成。区间（[`interval`](interval.md)）不是 `Floating`。该 trait 背后的定律见[设计页面](../design/def.md)。"
+msgid "In this tutorial you will write one summary function for every scalar number type in `floating`, round values through the shared `Floating` trait, read an IEEE comparison as `PartialOrder`, and handle a checked error. The `def` package provides the shared vocabulary and re-exports arithmetic types. The `def` package does no arithmetic; the concrete packages ([`binary`](binary.md), [`decimal`](decimal.md), [`decimal_gda`](decimal_gda.md)) perform arithmetic. Intervals ([`interval`](interval.md)) are not `Floating`. The [design page](../design/def.md) gives the trait laws."
+msgstr "本教程将编写一个适用于 `floating` 每种标量数值类型的摘要函数，通过共享的 `Floating` trait 舍入值，把 IEEE 比较读作 `PartialOrder`，并处理一个 checked 错误。`def` 包提供共享词汇并重新导出算术类型。`def` 包不执行算术；算术由具体包（[`binary`](binary.md)、[`decimal`](decimal.md)、[`decimal_gda`](decimal_gda.md)）执行。区间（[`interval`](interval.md)）不是 `Floating`。trait 定律见[设计页面](../design/def.md)。"
 
 #: manual/tutorial/def.md:14
 msgid "ask any value for its class, sign or precision"
@@ -27874,16 +27874,16 @@ msgid "Write one function for every representation"
 msgstr "为所有表示编写同一个函数"
 
 #: manual/tutorial/def.md:52
-msgid "A function bounded by `F : @def.Floating` accepts binary, IEEE decimal and GDA decimal values. Call the trait methods in their qualified form, `@def.Floating::classify(x)`, because MoonBit no longer turns trait methods into dot methods of a type parameter."
-msgstr "以 `F : @def.Floating` 为约束的函数可以接受二进制、IEEE 十进制和 GDA 十进制值。请以限定形式 `@def.Floating::classify(x)` 调用 trait 方法，因为 MoonBit 不再把 trait 方法变成类型参数的点方法。"
+msgid "A function bounded by `F : @def.Floating` accepts binary, IEEE decimal and GDA decimal values. Call trait methods in their qualified form, such as `@def.Floating::classify(x)`, when the receiver has a type parameter."
+msgstr "以 `F : @def.Floating` 为约束的函数可以接受二进制、IEEE 十进制和 GDA 十进制值。当接收者是类型参数时，请以限定形式（例如 `@def.Floating::classify(x)`）调用 trait 方法。"
 
-#: manual/tutorial/def.md:89
+#: manual/tutorial/def.md:88
 msgid "Change precision generically"
 msgstr "泛型地改变精度"
 
-#: manual/tutorial/def.md:91
-msgid "`with_precision` rounds to the requested number of significant digits of the value's own radix, bits for binary and digits for decimal, to nearest with ties to even. The trait method takes no rounding mode; a concrete type has its own `with_precision` method that does:"
-msgstr "`with_precision` 舍入到所要求的有效数字位数，位数以值自身的基数计：二进制为位，十进制为十进制数字，就近舍入、偶数优先。trait 方法不带舍入模式；具体类型有自己的、带舍入模式的 `with_precision` 方法："
+#: manual/tutorial/def.md:90
+msgid "`with_precision` rounds to the requested number of significant digits in the value's radix: bits for binary and digits for decimal. It rounds to the nearest value, with ties to even. The trait method has no rounding-direction argument, so use the concrete type's `with_precision` method when you need a different direction:"
+msgstr "`with_precision` 按值的基数舍入到所要求的有效数字位数：二进制按位数计，十进制按十进制数字计。它采用就近舍入，恰好居中时取偶数。trait 方法没有舍入方向参数；需要其他方向时，请使用具体类型的 `with_precision` 方法："
 
 #: manual/tutorial/def.md:111
 msgid "Eleven is `1011` in binary; three significant bits round it to `1100`, which `to_string` prints as $3 \\cdot 2^2$."
@@ -27894,16 +27894,16 @@ msgid "Read an IEEE comparison"
 msgstr "读取 IEEE 比较结果"
 
 #: manual/tutorial/def.md:116
-msgid "Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value `Unordered` reports a NaN operand:"
-msgstr "遵循 IEEE 754 的比较返回一个 `PartialOrder`，其第四个值 `Unordered` 表示有 NaN 操作数："
+msgid "An IEEE 754 comparison returns a `PartialOrder`. Its fourth value, `Unordered`, reports that at least one operand is NaN:"
+msgstr "IEEE 754 比较返回一个 `PartialOrder`。它的第四个值 `Unordered` 表示至少有一个操作数是 NaN："
 
 #: manual/tutorial/def.md:143
 msgid "Normalize before comparing representations"
 msgstr "比较表示之前先规范化"
 
 #: manual/tutorial/def.md:145
-msgid "Decimal values with the same value can differ in their stored exponent (`1.5` and `1.500` belong to one *cohort*). `normalized` picks the canonical member, so the printed forms agree:"
-msgstr "值相同的十进制数，其存储的指数可能不同（`1.5` 和 `1.500` 属于同一个*同值类*）。`normalized` 选取规范成员，从而使打印形式一致："
+msgid "Decimal values with the same value can have different stored exponents (`1.5` and `1.500` belong to one *cohort*). `normalized` returns the canonical member of the cohort, so their printed forms agree:"
+msgstr "值相同的十进制数可能有不同的存储指数（`1.5` 和 `1.500` 属于同一个*同值类*）。`normalized` 返回该同值类的规范成员，因此它们的打印形式一致："
 
 #: manual/tutorial/def.md:165
 msgid "Use the re-exported arithmetic types"
@@ -27926,8 +27926,8 @@ msgid "`PartialOrder` is not an ordering you can sort with: `Unordered` breaks t
 msgstr "`PartialOrder` 不是可以用来排序的序：`Unordered` 破坏了三分律。排序请使用具体包提供的全序（`Binary::total_order_compare`、`Decimal::total_order_compare`）。"
 
 #: manual/tutorial/def.md:208
-msgid "`with_precision` reports no flags and ignores context exponent limits (a `Binary` still overflows at its implementation range of about $2^{\\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations of the concrete package."
-msgstr "`with_precision` 不报告标志，也忽略上下文的指数界限（`Binary` 仍会在其约为 $2^{\\pm 2^{30}}$ 的实现范围处上溢）。当舍入必须可观测时，请使用具体包的 `*_ctx` 运算。"
+msgid "`with_precision` reports no flags and ignores context exponent limits. A `Binary` still overflows at its implementation range of about $2^{\\pm 2^{30}}$. When rounding must be observed, use the `*_ctx` operations of the concrete package."
+msgstr "`with_precision` 不报告标志，也忽略上下文的指数界限。`Binary` 仍会在其约为 $2^{\\pm 2^{30}}$ 的实现范围处上溢。当舍入必须可观测时，请使用具体包的 `*_ctx` 运算。"
 
 #: manual/tutorial/def.md:212
 msgid "`with_precision(x, 0)` is an error for `Binary` and `@decimal.Decimal`: they abort. Only `@decimal_gda.Decimal` clamps the precision to 1."

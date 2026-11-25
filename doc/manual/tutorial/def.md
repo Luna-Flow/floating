@@ -1,13 +1,13 @@
 # def tutorial
 
-The goal of this tutorial is to write code that works with every number type
-of `floating` at once: you inspect values through the `Floating` trait, test
-their class with the generic predicates, read IEEE comparison results as
-`PartialOrder`, and reuse the arithmetic context and error types that `def`
-re-exports. `def` itself does no arithmetic; the concrete packages
-([`binary`](binary.md), [`decimal`](decimal.md),
-[`decimal_gda`](decimal_gda.md)) do. Intervals ([`interval`](interval.md)) are not `Floating`. The laws
-behind the trait are in the [design page](../design/def.md).
+In this tutorial you will write one summary function for every scalar number
+type in `floating`, round values through the shared `Floating` trait, read an
+IEEE comparison as `PartialOrder`, and handle a checked error. The `def` package provides
+the shared vocabulary and re-exports arithmetic types. The `def` package does
+no arithmetic; the concrete packages ([`binary`](binary.md),
+[`decimal`](decimal.md), [`decimal_gda`](decimal_gda.md)) perform arithmetic.
+Intervals ([`interval`](interval.md)) are not `Floating`. The [design
+page](../design/def.md) gives the trait laws.
 
 | I want to | Use |
 | --- | --- |
@@ -50,9 +50,8 @@ test "quick start: observe a value" {
 ### Write one function for every representation
 
 A function bounded by `F : @def.Floating` accepts binary, IEEE decimal and GDA
-decimal values. Call the trait methods in their qualified form,
-`@def.Floating::classify(x)`, because MoonBit no longer turns trait methods
-into dot methods of a type parameter.
+decimal values. Call trait methods in their qualified form, such as
+`@def.Floating::classify(x)`, when the receiver has a type parameter.
 
 ```moonbit
 ///|
@@ -88,10 +87,11 @@ test "one summary for four representations" {
 
 ### Change precision generically
 
-`with_precision` rounds to the requested number of significant digits of the
-value's own radix, bits for binary and digits for decimal, to nearest with ties
-to even. The trait method takes no rounding mode; a concrete type has its own
-`with_precision` method that does:
+`with_precision` rounds to the requested number of significant digits in the
+value's radix: bits for binary and digits for decimal. It rounds to the nearest
+value, with ties to even. The trait method has no rounding-direction argument,
+so use the concrete type's `with_precision` method when you need a different
+direction:
 
 ```moonbit
 ///|
@@ -113,8 +113,8 @@ Eleven is `1011` in binary; three significant bits round it to `1100`, which
 
 ### Read an IEEE comparison
 
-Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value
-`Unordered` reports a NaN operand:
+An IEEE 754 comparison returns a `PartialOrder`. Its fourth value, `Unordered`,
+reports that at least one operand is NaN:
 
 ```moonbit
 ///|
@@ -142,9 +142,9 @@ test "four-way comparison" {
 
 ### Normalize before comparing representations
 
-Decimal values with the same value can differ in their stored exponent
-(`1.5` and `1.500` belong to one *cohort*). `normalized` picks the canonical
-member, so the printed forms agree:
+Decimal values with the same value can have different stored exponents
+(`1.5` and `1.500` belong to one *cohort*). `normalized` returns the canonical
+member of the cohort, so their printed forms agree:
 
 ```moonbit
 ///|
@@ -205,9 +205,9 @@ test "handle a checked result through def" {
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages
   (`Binary::total_order_compare`, `Decimal::total_order_compare`) for sorting.
-- `with_precision` reports no flags and ignores context exponent limits (a
+- `with_precision` reports no flags and ignores context exponent limits. A
   `Binary` still overflows at its implementation range of about
-  $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
+  $2^{\pm 2^{30}}$. When rounding must be observed, use the `*_ctx` operations
   of the concrete package.
 - `with_precision(x, 0)` is an error for `Binary` and `@decimal.Decimal`: they
   abort. Only `@decimal_gda.Decimal` clamps the precision to 1.
