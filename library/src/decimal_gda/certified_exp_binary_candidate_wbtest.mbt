@@ -93,3 +93,20 @@ test "midpoint candidate exp matches CPython decimal in standard contexts" {
 test "midpoint candidate exp with large arguments in wide exponent contexts" {
   exp_rows_check(3)
 }
+
+///|
+// oracle: A
+// source: the rows of group 4 of certified_exp_rows_wbtest.mbt: decimal32, decimal64 and decimal128 with five rounding modes and arguments within 3 of the overflow threshold ln(10) * (emax + 1) and the underflow threshold -ln(10) * (-etiny), around the guards 3 * (emax + 1) and 3 * (1 - etiny) of the coarse decision, and from -1000 to -150; CPython `decimal` exp 200 digits wider rounded to the context (value, cohort, flags)
+// shares: Decimal::from_string (reads the argument) and Decimal::to_string (prints the result), both of which have their own level A tests; normalization_flags_text
+test "exp at the overflow and underflow thresholds of decimal32, decimal64 and decimal128" {
+  exp_rows_check(4)
+}
+
+///|
+// oracle: A
+// source: the rows of group 5 of certified_exp_rows_wbtest.mbt: the rows of group 4 beyond the guards 3 * (emax + 1) and -3 * (1 - etiny) on which exp gives Infinity (round-down, round-floor, round-05up) instead of the largest finite number (GDA 1.70, Overflow, page 53) and zero (round-up, round-ceiling) instead of the smallest subnormal; CPython `decimal` exp 200 digits wider rounded to the context; fails until issue 796 is fixed
+// shares: Decimal::from_string (reads the argument) and Decimal::to_string (prints the result), both of which have their own level A tests; normalization_flags_text
+#skip("known defect: issue 796, exp ignores the rounding direction beyond the coarse guards")
+test "exp beyond the coarse guards follows the rounding direction (issue 796)" {
+  exp_rows_check(5)
+}
