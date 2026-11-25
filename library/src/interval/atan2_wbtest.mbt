@@ -1,24 +1,27 @@
 ///|
-// oracle: S
-// source: containment only: atan2(1,0) contains the double 1.5707963267948966 (RD(pi/2)), atan2(0,1) contains 0, the hull over the branch cut contains -3 and 3, and the try_ form is Ok; no end value is checked
-// shares: Interval::from_double, from_bounds, is_member, atan2 and try_atan2 (the code under test)
+// oracle: A
+// source: written out by hand: pi = 3.14159265358979323846..., so the 53-bit numbers around pi/2 = 1.57079632679489661923... are 0x1921FB54442D18p-52 (below) and 0x1921FB54442D19p-52 (above), and RU(pi) = 0x1921FB54442D19p-51; atan2(1, 0) is the hull of pi/2 at 53 bits, atan2(0, 1) is the point 0, the hull over the branch cut (y in [-1, 1], x = -1, IEEE 1788-2015 Table 9.1 note f) is [-RU(pi), RU(pi)], and the try_ form gives the same
+// shares: Interval::from_double, from_bounds and Binary::from_hex (inputs and expected ends); atan2 and try_atan2 are the code under test
 test "certified atan2 handles axes and branch cut" {
   let zero = Interval::from_double(0.0, precision=53)
   let one = Interval::from_double(1.0, precision=53)
   let minus_one = Interval::from_double(-1.0, precision=53)
-  assert_true(
-    one.atan2(zero).is_member(@binary.Binary::from_double(1.5707963267948966)),
-  )
-  assert_true(zero.atan2(one).is_member(@binary.Binary::zero()))
+  let hex = fn(text : String) { @binary.Binary::from_hex(text, 64).unwrap() }
+  let quarter_turn = one.atan2(zero)
+  assert_eq(quarter_turn.lower_bound().compare(hex("0x1921FB54442D18p-52")), 0)
+  assert_eq(quarter_turn.upper_bound().compare(hex("0x1921FB54442D19p-52")), 0)
+  let origin = zero.atan2(one)
+  assert_true(origin.lower_bound().is_zero() && origin.upper_bound().is_zero())
   let crossing = Interval::from_bounds(
     @binary.Binary::from_double(-1.0),
     @binary.Binary::from_double(1.0),
     precision=53,
   ).atan2(minus_one)
-  assert_true(crossing.is_member(@binary.Binary::from_double(-3.0)))
-  assert_true(crossing.is_member(@binary.Binary::from_double(3.0)))
-  assert_true(one.try_atan2(zero) is Ok(_))
-  assert_true(crossing.try_atan2(minus_one) is Ok(_))
+  assert_eq(crossing.lower_bound().compare(hex("-0x1921FB54442D19p-51")), 0)
+  assert_eq(crossing.upper_bound().compare(hex("0x1921FB54442D19p-51")), 0)
+  let tried = one.try_atan2(zero).unwrap()
+  assert_true(tried.lower_bound().compare(quarter_turn.lower_bound()) == 0)
+  assert_true(tried.upper_bound().compare(quarter_turn.upper_bound()) == 0)
 }
 
 ///|

@@ -18,8 +18,11 @@ fn rev_dec(lo : Double, hi : Double, d : Decoration) -> DecoratedInterval {
 }
 
 ///|
-/// The six examples of IEEE 1788-2015 10.5.5, with the components closed as
-/// `mulRevToPair` returns them.
+// The six examples of IEEE 1788-2015 10.5.5, with the components closed as
+// `mulRevToPair` returns them.
+// oracle: A
+// source: the six examples of IEEE 1788-2015 10.5.5 written as literals ([1, 2] /set [0, 0] is empty, [0, 2] /set [0, 0] is Entire, [1, 2] /set [1, 1] = [1, 2], [1, 1] /set [1, +inf) = (0, 1] whose closure is [0, 1], [1, 2] /set [-1, 1] = (-inf, -1] U [1, +inf), [1, 1] /set Entire = (-inf, 0) U (0, +inf) whose closures share 0), and the empty operands
+// shares: rev_box, rev_dec (Binary::from_double and Interval::from_bounds, DecoratedInterval::new) and Interval::empty and entire build the inputs; the equality of intervals compares; mul_rev and mul_rev_to_pair are the code under test
 test "mul_rev_to_pair: the examples of 10.5.5" {
   let empty = Interval::empty()
   // [1, 2] /set [0, 0] = empty
@@ -48,6 +51,9 @@ test "mul_rev_to_pair: the examples of 10.5.5" {
 }
 
 ///|
+// oracle: A
+// source: worked out by hand with exact dyadic values from the set c /set b: for b = [-2, 4] and c = [3, 5] the components are x <= 3 / -2 = -1.5 and x >= 3 / 4 = 0.75; for c = [-5, -3] they are x <= -3 / 4 = -0.75 and x >= -3 / -2 = 1.5; when 0 is a bound of b there is one component ([0.75, +inf) for b = [0, 4], (-inf, -1.5] for b = [-2, 0])
+// shares: rev_box, rev_dec (Binary::from_double and Interval::from_bounds, DecoratedInterval::new) and Interval::empty and entire build the inputs; the equality of intervals compares; mul_rev and mul_rev_to_pair are the code under test
 test "mul_rev_to_pair: the two components are ordered, whichever side of zero c lies" {
   // c > 0, b = [-2, 4]: x <= 3 / -2 = -1.5 or x >= 3 / 4
   let (u, v) = rev_box(-2.0, 4.0).mul_rev_to_pair(rev_box(3.0, 5.0))
@@ -65,6 +71,9 @@ test "mul_rev_to_pair: the two components are ordered, whichever side of zero c 
 }
 
 ///|
+// oracle: A
+// source: worked out by hand from the set arithmetic: [-1, 1] /set [1, 1] = (-inf, -1] U [1, +inf), whose hull is Entire; the prior [0, 0.5] meets the set in nothing, the prior [0.5, 3] in [1, 3], the prior [-3, 3] in [-3, -1] U [1, 3] with hull [-3, 3], the prior [-3, -2] in [-3, -2]
+// shares: rev_box, rev_dec (Binary::from_double and Interval::from_bounds, DecoratedInterval::new) and Interval::empty and entire build the inputs; the equality of intervals compares; mul_rev and mul_rev_to_pair are the code under test
 test "mul_rev: the hull is taken of the set, which is not the intersection of the hull" {
   // [-1, 1] /set [1, 1] = (-inf, -1] U [1, +inf); the prior [0, 0.5] meets it
   // in nothing, although hull(c /set b) = Entire contains the prior
@@ -80,6 +89,9 @@ test "mul_rev: the hull is taken of the set, which is not the intersection of th
 }
 
 ///|
+// oracle: A
+// source: worked out by hand from the open end: [1, 1] /set [1, +inf) = (0, 1] never attains 0, so the priors [-1, 0] and [0, 0] give Empty and [0, 0.5] gives [0, 0.5]; with 0 in c = [0, 1] the point 0 is attained, so [1, +inf) /set c with the prior [-1, 0] is [0, 0]; for b = (-inf, -1]: the set is [-1, 0), the prior [0, 1] gives Empty and the prior [-2, 0] gives [-1, 0]
+// shares: rev_box, rev_dec (Binary::from_double and Interval::from_bounds, DecoratedInterval::new) and Interval::empty and entire build the inputs; the equality of intervals compares; mul_rev and mul_rev_to_pair are the code under test
 test "mul_rev: a component open at 0 is not met by a prior that only touches 0" {
   // [1, 1] /set [1, +inf) = (0, 1]: 0 is never attained
   let b = rev_box(1.0, rev_inf)
@@ -102,6 +114,9 @@ test "mul_rev: a component open at 0 is not met by a prior that only touches 0" 
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 12.12.3 and 11.7.1: 0 not in b gives the decorated quotient (decoration the min of the inputs: com, def) and an empty second output with trv; 0 in b gives trv outputs; an empty input gives trv outputs, NaI gives NaI; mul_rev is trivially decorated (trv) whatever the inputs, its interval part is the bare result ([1, 4] and [1, 3] here)
+// shares: rev_box, rev_dec (Binary::from_double and Interval::from_bounds, DecoratedInterval::new) and Interval::empty and entire build the inputs; the equality of intervals compares; mul_rev and mul_rev_to_pair are the code under test
 test "decorated mul_rev_to_pair follows 12.12.3 and mul_rev is trivially decorated (11.7.1)" {
   // 0 not in b: u is the decorated quotient c / b, v is Empty and trv
   let (u, v) = rev_dec(1.0, 2.0, Com).mul_rev_to_pair(rev_dec(2.0, 4.0, Com))
@@ -145,6 +160,9 @@ test "decorated mul_rev_to_pair follows 12.12.3 and mul_rev is trivially decorat
 }
 
 ///|
+// oracle: A
+// source: worked out by hand at 8 bits: [-3, 3] /set [1, 1] = (-inf, -1/3] U [1/3, +inf), and 1/3 lies between 170 * 2^-9 = 0.33203125 and 171 * 2^-9 (1/3 = 0.0101...b), so the lower end of the positive component is 170 * 2^-9 and the upper end of the negative one its negative; the precision of the result is 8
+// shares: Binary::from_int and Interval::from_bounds, from_int build the inputs; Binary::make builds the expected end; mul_rev_to_pair is the code under test
 test "mul_rev: results enclose c /set b at a small precision" {
   // 1 / 3 is not representable: the lower bound rounds down
   let b = Interval::from_bounds(
@@ -154,10 +172,15 @@ test "mul_rev: results enclose c /set b at a small precision" {
   )
   let c = Interval::from_int(1, precision=8)
   let (u, v) = b.mul_rev_to_pair(c)
-  let third = @binary.Binary::from_int(1, precision=64) /
-    @binary.Binary::from_int(3, precision=64)
-  assert_true(v.lower_bound().compare(third) <= 0)
-  assert_true(u.upper_bound().compare(third.neg()) >= 0)
+  // 1/3 = 0.0101..b lies between 170 * 2^-9 = 0.33203125 and 171 * 2^-9 at 8 bits: the lower
+  // bound of v is the first, the upper bound of u is its negative
+  let third_down = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(170UL),
+    -9,
+    8,
+  )
+  assert_eq(v.lower_bound().compare(third_down), 0)
+  assert_eq(u.upper_bound().compare(third_down.neg()), 0)
   assert_true(v.lower_bound().compare(@binary.Binary::zero()) > 0)
   assert_eq(v.precision(), 8)
 }

@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 11.5 and 10.5.7: the intersection and the convex hull of com inputs are trv; [1, 3] meet [2.1, 4] = [2.1, 3] (lower end the double 2.1, upper end 3) and the hull of [1, 3] and [2.1, 4] is [1, 4]
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "ITF1788 minimal decorated set operations" {
   let one = @binary.Binary::from_int(1, precision=32)
   let three = @binary.Binary::from_int(3, precision=32)
@@ -16,15 +19,30 @@ test "ITF1788 minimal decorated set operations" {
   let intersection = left.intersection(right)
   assert_eq(intersection.decoration(), Trv)
   assert_eq(intersection.interval().upper_bound().compare(three), 0)
+  // [1, 3] meet [2.1, 4] is [2.1, 3] (the double 2.1 is the lower end), and the hull is [1, 4]
+  assert_eq(
+    intersection
+    .interval()
+    .lower_bound()
+    .compare(@binary.Binary::from_double(2.1, precision=64)),
+    0,
+  )
   let hull = left.convex_hull(right)
   assert_eq(hull.decoration(), Trv)
-  assert_true(hull.interval().is_member(one))
-  assert_true(
-    hull.interval().is_member(@binary.Binary::from_int(4, precision=32)),
+  assert_eq(hull.interval().lower_bound().compare(one), 0)
+  assert_eq(
+    hull
+    .interval()
+    .upper_bound()
+    .compare(@binary.Binary::from_int(4, precision=32)),
+    0,
   )
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 clause 11: NaI plus a value is NaI, NaI is neither empty nor entire, is not equal to itself and is not a subset; an empty interval given with decoration com is stored with decoration trv
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated NaI propagates and empty canonicalizes" {
   let nai = DecoratedInterval::nai(precision=32)
   let value = DecoratedInterval::new(Interval::from_int(1, precision=32))
@@ -42,6 +60,9 @@ test "decorated NaI propagates and empty canonicalizes" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 clause 11 and Table 9.1: sin on Entire stays def with image [-1, 1], tan of Entire is trv, pow of [-2, -1] to 2 is empty with trv
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated power and trigonometric functions preserve IEEE domain grades" {
   let entire = DecoratedInterval::new(
     Interval::entire(precision=53),
@@ -75,6 +96,9 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 clause 11: the decoration of a result is the minimum of the operand grades and that of the operation (dac for dac and com inputs on defined operations; trv for intersection, convex hull, cancelPlus and cancelMinus); only decorations are checked
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated arithmetic applies operand and operation grades" {
   let left = DecoratedInterval::new(
     Interval::from_bounds(
@@ -104,6 +128,9 @@ test "decorated arithmetic applies operand and operation grades" {
 }
 
 ///|
+// oracle: A
+// source: written out from the domains of Table 9.1 and IEEE 1788-2015 clause 11: recip, sqrt, ln, log2, log10 and pown(-2) over [-1, 1] are trv; neg, abs, sqr, exp, exp2, exp10, sin and cos of [1, 2] stay def; only decorations are checked
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated unary domains downgrade without losing enclosures" {
   let crossing = DecoratedInterval::new(
     Interval::from_bounds(
@@ -136,6 +163,9 @@ test "decorated unary domains downgrade without losing enclosures" {
 }
 
 ///|
+// oracle: A
+// source: written out from the NaI rule of IEEE 1788-2015 clause 11: any NaI operand of a unary, binary or ternary operation gives NaI
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated NaI propagates through unary binary and ternary operations" {
   let nai = DecoratedInterval::nai(precision=53)
   let value = DecoratedInterval::new(Interval::from_int(2, precision=53))
@@ -149,6 +179,9 @@ test "decorated NaI propagates through unary binary and ternary operations" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand: 2^2000 in a binary64 context overflows (overflow and inexact flags), 2^-2000 underflows (underflow and inexact), combining the flags is their union, NaI keeps the decoration ill and sets no flag; the rounded values themselves are not asserted
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated context rounding preserves grade and accumulates flags" {
   let context = IntervalContext::binary64()
   let overflow_source = DecoratedInterval::new(
@@ -185,8 +218,11 @@ fn decorated_test_interval(
 }
 
 ///|
-/// rootn(x, n) with n < 0 is x^(-1/n), which is undefined at 0, so an argument
-/// containing 0 is not inside the domain and the decoration is trv.
+// rootn(x, n) with n < 0 is x^(-1/n), which is undefined at 0, so an argument
+// containing 0 is not inside the domain and the decoration is trv.
+// oracle: A
+// source: written out from the domain of rootn (IEEE 1788-2015 Table 9.1): for a negative degree rootn is undefined at 0, so an interval containing 0 is trv, an interval away from 0 and a positive degree give com
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated rootn with a negative degree over 0 is trv" {
   let zero = @binary.Binary::zero(precision=53)
   let one = @binary.Binary::one(precision=53)
@@ -211,8 +247,11 @@ test "decorated rootn with a negative degree over 0 is trv" {
 }
 
 ///|
-/// A pole of tanpi at an endpoint gives a half-unbounded image; the argument
-/// is not inside the domain, so the decoration is trv, not dac.
+// A pole of tanpi at an endpoint gives a half-unbounded image; the argument
+// is not inside the domain, so the decoration is trv, not dac.
+// oracle: A
+// source: written out from the pole of tanpi at 1/2 (Table 9.1): an interval with the pole as an endpoint has an infinite end and is trv, one with the pole inside is trv, [-1/4, 1/4] is com
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorated tanpi with a pole at an endpoint is trv" {
   let zero = @binary.Binary::zero(precision=53)
   let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 53)
@@ -238,8 +277,11 @@ test "decorated tanpi with a pole at an endpoint is trv" {
 }
 
 ///|
-/// IEEE 1788-2015 11.5.3: the comparisons of decorations follow the
-/// propagation order com > dac > def > trv > ill.
+// IEEE 1788-2015 11.5.3: the comparisons of decorations follow the
+// propagation order com > dac > def > trv > ill.
+// oracle: A
+// source: written out from IEEE 1788-2015 11.5.3: the order is ill < trv < def < dac < com; the test compares the operators with the indices of that literal list
+// shares: Binary::from_int, from_double, Interval::from_bounds, from_int and DecoratedInterval::new build the inputs; Decoration compare and the booleans compare; the decorated operations are the code under test
 test "decorations compare in the propagation order" {
   let ascending = [Ill, Trv, Def, Dac, Com]
   for i in 0..<ascending.length() {

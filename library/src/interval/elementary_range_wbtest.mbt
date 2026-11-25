@@ -61,18 +61,33 @@ test "ln of a value just above 1 at high precision terminates" {
 }
 
 ///|
-// oracle: S
-// source: inclusion only, as the comment of the test says: for x = 2^-300 the enclosures of asinh(x) and atanh(x) have a lower end in [0, x], an upper end of at least 2^-301 and finite; no tight end is checked
-// shares: Interval::exact, asinh, atanh (the code under test), lower_bound, upper_bound, compare and classify
+// oracle: A
+// source: worked out by hand for x = 2^-300 at 53 bits: asinh(x) = x - x^3 / 6 lies strictly between the predecessor (2^53 - 1) * 2^-353 and x, atanh(x) = x + x^3 / 3 strictly between x and the successor (2^52 + 1) * 2^-352 (x^3 is below 2^-52 x), so every enclosure holds those hulls; the ends are finite
+// shares: Interval::exact and Binary::make build the inputs and the expected ends; Binary::compare and classify compare; asinh and atanh are the code under test
 test "asinh and atanh of a tiny argument terminate" {
   let x = elementary_range_power(-300, 53)
   let zero = @binary.Binary::zero()
   // asinh(x) and atanh(x) lie within a relative 2^-500 of x. The enclosures
   // are not tight for such tiny arguments, so only inclusion is checked.
-  for y in [Interval::exact(x).asinh(), Interval::exact(x).atanh()] {
+  let successor = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
+    -352,
+    53,
+  )
+  let predecessor = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 53) - 1UL),
+    -353,
+    53,
+  )
+  for
+    case in [
+      (Interval::exact(x).asinh(), predecessor, x),
+      (Interval::exact(x).atanh(), x, successor),
+    ] {
+    let (y, lower, upper) = case
     assert_true(y.lower_bound().compare(zero) >= 0)
-    assert_true(y.lower_bound().compare(x) <= 0)
-    assert_true(y.upper_bound().compare(elementary_range_power(-301, 53)) >= 0)
+    assert_true(y.lower_bound().compare(lower) <= 0)
+    assert_true(y.upper_bound().compare(upper) >= 0)
     assert_eq(y.upper_bound().classify(), FpClass::Finite)
   }
 }

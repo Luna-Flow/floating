@@ -1,17 +1,25 @@
 ///|
-// oracle: S
-// source: containment only: 0 is a member of expm1 and of log1p of [-0.125, 0.25] (both are 0 at 0, monotone); no end value is checked
-// shares: Interval::from_bounds, Binary::from_double, is_member; expm1 and log1p are the code under test
+// oracle: A
+// source: the exact 53-bit hulls of expm1 and log1p at the ends of [-0.125, 0.25] (both functions increase), computed with Python decimal at 80 digits (Decimal.exp, Decimal.ln, rounded outward to 53 bits by Fraction arithmetic; no value is near a rounding boundary): expm1(-1/8) in [-0x1e14aed893eef4p-56, -0x1e14aed893eef3p-56], expm1(1/4) in [0x122d78f0fa0619p-54, 0x122d78f0fa061ap-54], log1p(-1/8) in [-0x11178e8227e47cp-55, -0x11178e8227e47bp-55], log1p(1/4) in [0x1c8ff7c79a9a21p-55, 0x1c8ff7c79a9a22p-55]; a valid enclosure contains [RD(f(-1/8)), RU(f(1/4))] and the result is checked to lie within 4 units of the last place of it
+// shares: Interval::from_bounds, Binary::from_double and Binary::from_hex (inputs and expected ends); expm1 and log1p are the code under test
 test "expm1 and log1p preserve certified containment" {
   let source = Interval::from_bounds(
     @binary.Binary::from_double(-0.125, precision=53),
     @binary.Binary::from_double(0.25, precision=53),
     precision=53,
   )
+  let hex = fn(text : String) { @binary.Binary::from_hex(text, 64).unwrap() }
   let expm1 = source.expm1()
-  assert_true(expm1.is_member(@binary.Binary::from_double(0.0)))
+  // the exact hull is [RD(expm1(-1/8)), RU(expm1(1/4))]: contained, and at most 4 ulp wider
+  assert_true(expm1.lower_bound().compare(hex("-0x1e14aed893eef4p-56")) <= 0)
+  assert_true(expm1.upper_bound().compare(hex("0x122d78f0fa061ap-54")) >= 0)
+  assert_true(expm1.lower_bound().compare(hex("-0x1e14aed893eef8p-56")) >= 0)
+  assert_true(expm1.upper_bound().compare(hex("0x122d78f0fa061ep-54")) <= 0)
   let log1p = source.log1p()
-  assert_true(log1p.is_member(@binary.Binary::from_double(0.0)))
+  assert_true(log1p.lower_bound().compare(hex("-0x11178e8227e47cp-55")) <= 0)
+  assert_true(log1p.upper_bound().compare(hex("0x1c8ff7c79a9a22p-55")) >= 0)
+  assert_true(log1p.lower_bound().compare(hex("-0x11178e8227e480p-55")) >= 0)
+  assert_true(log1p.upper_bound().compare(hex("0x1c8ff7c79a9a26p-55")) <= 0)
 }
 
 ///|

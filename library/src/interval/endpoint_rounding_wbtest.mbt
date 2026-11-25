@@ -23,22 +23,34 @@ fn endpoint_rounding_unit_interval() -> Interval {
 }
 
 ///|
-// oracle: S
-// source: identity: normalizing the interval [1, 1 + 2^-52], whose ends are 53-bit numbers, returns the same set and precision
-// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
+// oracle: A
+// source: written out by hand: the ends 1 and 1 + 2^-52 = (2^52 + 1) * 2^-52 of [1, 1 + 2^-52] are 53-bit numbers, so normalizing returns exactly those two ends at precision 53
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input and the expected end; the operation under test is the code under test
 test "normalized keeps the interval" {
   let x = endpoint_rounding_unit_interval()
-  assert_true(x.normalized().equal(x))
-  assert_eq(x.normalized().precision(), 53)
+  let y = x.normalized()
+  assert_true(y.equal(x))
+  assert_eq(y.lower_bound().compare(@binary.Binary::one()), 0)
+  assert_eq(
+    y.upper_bound().compare(endpoint_rounding_value((1UL << 52) + 1UL, -52, 53)),
+    0,
+  )
+  assert_eq(y.precision(), 53)
 }
 
 ///|
-// oracle: S
-// source: identity: re-quantizing at 53 bits an interval whose ends are 53-bit numbers returns it
-// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
+// oracle: A
+// source: written out by hand: the ends 1 and (2^52 + 1) * 2^-52 are 53-bit numbers, so re-quantizing at 53 bits returns exactly those two ends
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input and the expected end; the operation under test is the code under test
 test "with_precision at the same precision keeps the interval" {
   let x = endpoint_rounding_unit_interval()
-  assert_true(x.with_precision(53).equal(x))
+  let y = x.with_precision(53)
+  assert_true(y.equal(x))
+  assert_eq(y.lower_bound().compare(@binary.Binary::one()), 0)
+  assert_eq(
+    y.upper_bound().compare(endpoint_rounding_value((1UL << 52) + 1UL, -52, 53)),
+    0,
+  )
 }
 
 ///|
