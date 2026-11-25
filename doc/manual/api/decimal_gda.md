@@ -537,8 +537,8 @@ invalid parameter, and `new` aborts with the same message.
   differ by at most one, so that the range of results is balanced. A range such as
   `e_min=-50, e_max=60` is rejected. The same passage requires `Elimit` to exceed five times
   the maximum coefficient length when there is one. The context has no maximum coefficient
-  length, and 913 rows of the official decTest corpus run with an `e_max` below four times the
-  precision, so the library does not enforce that requirement.
+  length, and 636 rows of the pinned `official` and `official0` decTest corpora (525 and 111) run with
+  an `e_max` below four times the precision, so the library does not enforce that requirement.
 
 `clamp` and `extended` are not parameters of the context in the GDA text. They are decNumber
 extensions that the library keeps, and the official decTest files use both.
