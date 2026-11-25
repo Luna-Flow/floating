@@ -1,8 +1,10 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0); CPython 3.13.16 fractions, struct and integers; MPFR 4.2.2 (Homebrew, called from a C program), executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: three data_check rows: 0 is a line of the pinned MPFR corpus; sqrt(2^-1022) = 2^-511 exactly; the third
 //   result 0x105D327678185Dp-563 is the 53 bit nearest to sqrt(0x10BC83C8308CB2p-1074), shown by exact squares
-//   of the neighbours at half a unit (Python Fractions, in this review)
+//   of the neighbours at half a unit (Python Fractions, per the evidence header)
 // shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
 //   (the code under test); the expected value is read from the row
 test "MPFR sqrt parser and executor retain hexadecimal precision semantics" {
@@ -41,7 +43,7 @@ test "MPFR sqrt parser rejects incomplete data_check rows" {
 
 ///|
 // oracle: A
-// source: the three rows are lines of the pinned MPFR corpus and were recomputed with Python Fractions in this review:
+// source: the three rows are lines of the pinned MPFR corpus and were recomputed with Python Fractions per the evidence header:
 //   (3/2)^3 = 27/8 at 11 bits to nearest, (2047/1024)^-3 at 24 bits toward zero, and -(0x1fffffffffffff p-52)^15
 //   at 53 bits toward negative infinity
 // shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
@@ -67,7 +69,7 @@ test "MPFR pow parser executes the IEEE 754-2019 rounding modes" {
 ///|
 // oracle: A
 // source: exp(0) = 1, tanpi(1/4) = 1 and hypot(3,4) = 5 are exact identities; MPFR 4.2.2 (installed here) returns the
-//   same three values in this review
+//   same three values per the evidence header
 // shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
 //   (the code under test); the expected value is read from the row
 test "MPFR elementary parser executes certified exact identities" {
@@ -106,7 +108,7 @@ test "MPFR elementary parser rejects a missing second operand" {
 
 ///|
 // oracle: A
-// source: sin(-0) and atan2(-0, 1) are -0 (MPFR 4.2.2, run in this review); a row that expects +0 must fail and one
+// source: sin(-0) and atan2(-0, 1) are -0 (MPFR 4.2.2, run per the evidence header); a row that expects +0 must fail and one
 //   that expects -0 must pass, so the verdicts are false, true, false, true
 // shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
 //   (the code under test); the expected value is read from the row
@@ -170,7 +172,7 @@ test "MPFR strtofr parser rejects malformed rows" {
 ///|
 // oracle: A
 // source: 2.5 at one digit is 2 to nearest even, 3 ties away, 2 toward zero; 0.125 at two digits is 12 to nearest even
-//   and 13 upward (CPython decimal quantize, in this review); 125 at three digits is exact; the exponent column
+//   and 13 upward (CPython decimal quantize, per the evidence header); 125 at three digits is exact; the exponent column
 //   is the scientific exponent, as in the rows of the pinned mpfr-4.2.2-decimal-output.txt; 0x1999999999999a
 //   p-56 is the double 0.1 and its shortest form has one digit, 0.5 has one digit
 // shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row

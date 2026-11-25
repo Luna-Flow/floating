@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: the intersection row is the line of testdata/interval/smoke.itl; the convexHull row is the hull of [1,3] and
@@ -111,7 +113,7 @@ test "ITL bounds are floating constants of the target format" {
 
 ///|
 // oracle: A
-// source: exact arithmetic in this review (Python Fractions): the 130 digit constant is 1 + 2^-53 + 1e-130, above the
+// source: exact arithmetic per the evidence header (Python Fractions): the 130 digit constant is 1 + 2^-53 + 1e-130, above the
 //   tie 1 + 2^-53 between 1 and 1 + 2^-52, so the nearest 53 bit number is 1 + 2^-52 = 0x1.0000000000001p0
 //   (CPython float.hex agrees); the former two step reading gave 1
 // shares: Binary::from_string_ctx (the reader whose rounding the block checks)
@@ -142,7 +144,7 @@ test "ITL names the literal the library rejects" {
 
 ///|
 // oracle: A
-// source: exact arithmetic in this review (Python Fractions, directed rounding to 113 bits): 1 + 2^-100 is exact at
+// source: exact arithmetic per the evidence header (Python Fractions, directed rounding to 113 bits): 1 + 2^-100 is exact at
 //   113 bits and encloses to [1, 1+2^-52] at 53; the bound 0.1 at 113 bits is
 //   0x1.999999999999999999999999999ap-4; (1+2^-52)^2 = 1 + 2^-51 + 2^-104 is exact; adding 2^-200 gives the 113
 //   bit enclosure [1 + 2^-51 + 2^-104, 1 + 2^-51 + 2^-104 + 2^-112]; the midpoint of [1, 1 + 2^-100] is 1 +
@@ -292,7 +294,7 @@ test "ITL trigonometric reverse functions: bare, with a prior, and decorated" {
 ///|
 // oracle: A
 // source: tools/itl_pow_reverse_oracle.py hull(), an oracle that shares no code with interval (260 digit enclosures,
-//   exact classification of the ends), was run on the five rows in this review and returns exactly the written
+//   exact classification of the ends), was run on the five rows per the evidence header and returns exactly the written
 //   results; three rows are also lines of the pinned pow_rev.itl
 // shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
 //   and the interval operation under test
@@ -315,7 +317,7 @@ test "ITL powRev1: exact ends, a rounded end and the zero part" {
 ///|
 // oracle: A
 // source: tools/itl_pow2_reverse_oracle.py hull(), an oracle that shares no code with interval, was run on the five
-//   rows in this review and returns exactly the written results
+//   rows per the evidence header and returns exactly the written results
 // shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
 //   and the interval operation under test
 test "ITL powRev2: exact ends, an open end and the base 0" {

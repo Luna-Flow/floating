@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 // Tests of the harness itself. Oracle: none needed, the vectors are written out
 // (level A, literals). They check that the harness judges the operation under
 // test, not the operation followed by a rounding of the harness: a result that
@@ -149,7 +151,7 @@ fn harness_pack(
 // oracle: A
 // source: bit patterns recomputed with Python struct (binary16, binary32, binary64) and with the layout of binary128
 //   by hand (exponent field 0x3fff gives 1, largest finite 0x7ffe with an all ones fraction, smallest subnormal
-//   2^-16494) in this review; the infinities are +inf 0x7f800000 and -inf 0xfc00
+//   2^-16494) per the evidence header; the infinities are +inf 0x7f800000 and -inf 0xfc00
 // shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
 //   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "pack_exact writes the bit fields of each format (literals, level A)" {
@@ -203,7 +205,7 @@ test "pack_exact writes the bit fields of each format (literals, level A)" {
 
 ///|
 // oracle: A
-// source: values checked with Python struct in this review: 4095 needs 12 bits and packs to 4096 in binary16 (so it is
+// source: values checked with Python struct per the evidence header: 4095 needs 12 bits and packs to 4096 in binary16 (so it is
 //   not exact), 2^16 does not fit, 2^-25 and 3 * 2^-25 are below or between the subnormal grid of binary16,
 //   2^128 and 2^-150 in binary32; a NaN has no bit fields here (the verdict of the harness)
 // shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity

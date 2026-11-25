@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0), executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: counts and fields written out from the source: two rows, the first with the directives precision 9 and
@@ -39,7 +41,7 @@ test "gda parser reports malformed quotes with source" {
 // oracle: A
 // source: a doubled quote inside a quoted token stands for one quote; basx558 and basx560 are rows of
 //   testdata/decimal_gda/official/base.decTest, the others are written out; the eight rows were run with CPython
-//   decimal (libmpdec 4.0.0) in this review (the seven toSci rows give NaN Conversion_syntax, '1' + '2' is 3)
+//   decimal (libmpdec 4.0.0) per the evidence header (the seven toSci rows give NaN Conversion_syntax, '1' + '2' is 3)
 //   and agree
 // shares: the interpreter's decimal reader for the executed rows (the code under test)
 test "gda parser reads a doubled quote inside a quoted token (issue #63)" {

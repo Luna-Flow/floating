@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0); CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: rows written out: 1.20 + 2 = 3.20 (the finer exponent is kept), 3 * 4 = 12, compare 2 3 = -1, samequantum
@@ -57,7 +59,7 @@ test "gda interpreter shards merge to serial totals" {
 // oracle: A
 // source: decimal32 word #7C00016E is a quiet NaN whose low declet 0x16E is a non-canonical encoding of the digits
 //   888: its canonical form is #7C00006E (declet 0x06E) and copy leaves the word unchanged; the declet pair was
-//   decoded and re-encoded with tools/decimal_interchange_oracle.py (Python, not this library) in this review:
+//   decoded and re-encoded with tools/decimal_interchange_oracle.py (Python, not this library) per the evidence header:
 //   0x16E decodes to 888 and 888 encodes to 0x06E
 // shares: the interchange word reader and writer of the interpreter (the code under test)
 test "gda interpreter preserves raw interchange copy semantics" {
@@ -232,7 +234,7 @@ test "gda interpreter reports an invalid context as a diagnostic row" {
 ///|
 // oracle: A
 // source: rows written out: a 67 digit operand read exactly and rounded once to 9 digits gives 1.00000001E+66 Inexact
-//   Rounded for add 0 and plus; the rows were also run with CPython decimal (libmpdec 4.0.0) in this review,
+//   Rounded for add 0 and plus; the rows were also run with CPython decimal (libmpdec 4.0.0) per the evidence header,
 //   with the same context and flags, and agree
 // shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
 //   results are compared with the row as text), and the context it builds from the directives; all of them are

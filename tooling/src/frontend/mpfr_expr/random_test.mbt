@@ -1,6 +1,8 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
-// source: twelve rows written out and recomputed with Python Fractions in this review: 1 + 2^-30 at 24 bits (to
+// source: twelve rows written out and recomputed with Python Fractions per the evidence header: 1 + 2^-30 at 24 bits (to
 //   nearest 1, toward zero 1, upward 0x800001p-23), 2^-100 * 2^-100 underflows to 0 with flags x and u, 2^200
 //   toward zero overflows to the largest finite 0xffffffp104 (flags x and o), 1/0 = inf (flag z), sqrt(-1) = nan
 //   (flag v), 3*5+7 = 0x16, 2049 at 11 bits ties away 0x401p1, 2.5 in one digit 2e0 and the shortest form of 0.1
