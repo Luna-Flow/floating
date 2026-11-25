@@ -162,6 +162,11 @@ test "bits, bytes and power-of-two radixes on 64-bit limbs" {
 }
 
 ///|
+// oracle: B, E
+// source: B: the reassembled product of both routes (the 64-bit words and the 32-bit view) equals the core BigInt product of the integers of the operand limbs (replaces the comparison with bin_coeff_mul_schoolbook). E: the digit fill of the 32-bit view equals the fill of the 64-bit words, digit by digit, on the same operands
+// shares: bin_coeff_ntt_convolution_mod and the residues it gives both routes (the two reassemblies read the same residues), dispatch_test_value (the operands only), bin_coeff_test_big (the product is read limb by limb)
+// primitives: bin_coeff_ntt_convolution_mod and bin_coeff_ntt_digit_length: level A in the `conv` and `fill` rows of the NTT table (coeff_ntt_oracle_wbtest.mbt, operands up to 1,000 limbs, CPython)
+// underneath: bin_coeff_ntt_fill_words, the 64-bit-limb digit fill: level A, the `fill` rows of the NTT table, which run it with both primes and the shapes of regression_value; the 32-bit-view fill is Wasm only and has no oracle of its own (open point 1 of x-kern), its agreement with the 64-bit fill on lengths 1 to 40 limbs is all this block states
 test "NTT conversions on 64-bit limbs and on the 32-bit view agree" {
   let random = { words_state: 0x4A4A_91B1_E7E7_0C0CUL, }
   for left_len in [1, 2, 3, 9, 40] {
@@ -193,22 +198,26 @@ test "NTT conversions on 64-bit limbs and on the 32-bit view agree" {
           left, right, false, transform_length, coefficient_count, bin_coeff_ntt_prime2,
           bin_coeff_ntt_root2, bin_coeff_ntt_nprime2, bin_coeff_ntt_r2_prime2, bin_coeff_ntt_r_prime2,
         )
-        let expected = bin_coeff_mul_schoolbook(left, right)
+        let expected = bin_coeff_test_big(left) * bin_coeff_test_big(right)
         assert_eq(
-          bin_coeff_ntt_reconstruct_words(
-            residues1,
-            residues2,
-            coefficient_count,
-            bin_coeff_word_len(left) + bin_coeff_word_len(right),
+          bin_coeff_test_big(
+            bin_coeff_ntt_reconstruct_words(
+              residues1,
+              residues2,
+              coefficient_count,
+              bin_coeff_word_len(left) + bin_coeff_word_len(right),
+            ),
           ),
           expected,
         )
         assert_eq(
-          bin_coeff_ntt_reconstruct_limb32(
-            residues1,
-            residues2,
-            coefficient_count,
-            bin_coeff_limb_len(left) + bin_coeff_limb_len(right),
+          bin_coeff_test_big(
+            bin_coeff_ntt_reconstruct_limb32(
+              residues1,
+              residues2,
+              coefficient_count,
+              bin_coeff_limb_len(left) + bin_coeff_limb_len(right),
+            ),
           ),
           expected,
         )

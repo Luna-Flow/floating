@@ -95,6 +95,10 @@ fn bin_ntt_route_shapes() -> Array[(String, Int32, Int32)] {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_ntt, the two-prime number-theoretic transform, a different algorithm from the Toom-3 and Karatsuba routes that Coeff::mul takes on these shapes, on the balanced, ratio 2, ratio above 2 and product-limit shapes of bin_ntt_route_shapes and four operand patterns
+// shares: bin_coeff_from_words and the Coeff limb layout (both products are read through Coeff::equal)
+// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`) on the balanced shapes 4,095 to 7,169, 14,336 to 15,361 and 30,719 to 30,721 limbs and on the unbalanced shapes 8,191 x 4,096, 8,192 x 4,096, 10,240 x 4,096, 12,288 x 4,096, 13,000 x 4,097, 15,360 x 7,680 and 30,000 x 4,096; not on the shapes at the product limit of the other tiers, nor on (limit - 4,096) x 4,096 and (limit - 4,097) x 4,096, whose NTT product rests on the convolution rows of the NTT table (operands up to 1,000 limbs) and on this block's agreement with the other routes; patterns: the table draws regression_value shapes, not these four patterns
 #skip("full list: the binary gate runs it with --include-skipped, in the three states")
 test "the default product equals the NTT product on every shape and pattern" {
   let mut cases = 0
@@ -150,6 +154,10 @@ test "Toom-3 and the Karatsuba blocks, called directly, equal the NTT product" {
 /// ratio above 2, one at the limit, two operand patterns, and Toom-3 called
 /// directly once. The full list is the two `#skip` tests above, run by the binary
 /// gate.
+// oracle: B
+// source: bin_coeff_mul_ntt, the two-prime number-theoretic transform, a different algorithm from the Toom-3 and Karatsuba routes that Coeff::mul takes on these shapes, on the balanced, ratio 2, ratio above 2 and product-limit shapes of bin_ntt_route_shapes and four operand patterns
+// shares: bin_coeff_from_words and the Coeff limb layout (both products are read through Coeff::equal)
+// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`) on the balanced shapes 4,095 to 7,169, 14,336 to 15,361 and 30,719 to 30,721 limbs and on the unbalanced shapes 8,191 x 4,096, 8,192 x 4,096, 10,240 x 4,096, 12,288 x 4,096, 13,000 x 4,097, 15,360 x 7,680 and 30,000 x 4,096; not on the shapes at the product limit of the other tiers, nor on (limit - 4,096) x 4,096 and (limit - 4,097) x 4,096, whose NTT product rests on the convolution rows of the NTT table (operands up to 1,000 limbs) and on this block's agreement with the other routes; patterns: the table draws regression_value shapes, not these four patterns
 test "the default product equals the NTT product: balanced above 4,096, below, with ratio above 2 and at the product limit" {
   let half = Int32::max(bin_coeff_ntt_mul_min_product_words / 2, 4096)
   for shape in [(4097, 4097), (half - 1, half - 1), (12288, 4096), (half, half)] {
