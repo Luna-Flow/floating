@@ -158,18 +158,21 @@ Before-rounding tininess detection (IEEE 754-2019 7.5) is the only rule. So the
 predefined `ArithmeticContext::decimal64()` maps exactly to
 `DecimalContext::decimal64()`.
 
-The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
-context to decNumber's range. Precision and both exponent limits must be within
-$999\,999$ in magnitude; otherwise the result is NaN with `invalid_operation`
-(the private check is `math_context_is_restricted` in `library/src/decimal`).
+The mathematical functions `exp`, `ln`, `log10` and `pow` restrict their
+context to decNumber's range: precision (by default, see
+`DecimalContext::elementary_precision_limit`) and both exponent limits must lie
+within $999\,999$ in magnitude, otherwise the result is NaN with
+`not_computed`, and the `try_` forms, which the pipeline calls, return `Err`
+(private check `math_context_is_restricted` in `library/src/decimal`).
 This implementation limit is `DEC_MAX_MATH`, not a rule of the GDA operation
 text. decTest requires it (`power.decTest` powx4001 to powx4005 and the
 matching rows of `exp`, `ln` and `log10`), and GDA's Invalid context condition
-permits it.[^gda] The default unbounded exponent range therefore disables these
-functions, as the API page and tutorial point out. `power` and `pown` with an
-integral exponent, and `power` with exponent $0.5$ (a square root), are the
-exceptions. Like arithmetic operations, they accept contexts up to
-$\pm 999\,999\,999$.
+permits it.[^gda] A precision of 1,000 digits or more without an explicit
+`e_max` (the default range is then beyond 999,999) therefore disables them,
+which the API page and tutorial point out. `pow` and `pown` with an integral
+exponent, and `pow` with exponent $0.5$ (a square root), are the exceptions in
+the exponent limits: like arithmetic operations, they accept contexts up to
+$\pm 999\,999\,999$; the precision limit applies to them as to the others.
 
 [^gda]: M. Cowlishaw, *General Decimal Arithmetic Specification*, version
     1.70, "Context" (the Invalid context condition under "Exceptional
@@ -181,7 +184,8 @@ The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic
 report `ArithmeticDiagnostics`, six Booleans combined by
 `ArithmeticDiagnostics::combine` with field-wise OR. The private helper
 `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to
-diagnostics by keeping the six shared coordinates. Let this projection be
+diagnostics by keeping the three shared coordinates (`inexact`, `overflow`,
+`underflow`) and leaving the other three false. Let this projection be
 $\pi : \mathbb{F} \to \{0,1\}^{6}$. A coordinate projection commutes with
 field-wise OR:
 
@@ -212,7 +216,9 @@ undergo successful steps $1, \dots, n$ with raised flags $r_1, \dots, r_n$
 (including `with_context` and `apply`), with no `clear_flags` in between and
 with plain steps only (a step with a pipeline as its right operand also joins
 the flags of that pipeline, `raised` with its `raised` and `flags` with its
-`flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then
+`flags`; the `flags` of an operand can exceed its `raised`, so the equation
+below then holds only with the `flags` of those operands also joined on the
+right side). Then
 
 $$
 F_n = r_0 \lor r_1 \lor \dots \lor r_n, \qquad r = r_n .
@@ -267,8 +273,9 @@ $F$.
 method uses `record` or `record_result`. `clear_flags` updates only the two
 flag fields. $\square$
 
-Therefore, the first error is the one reported, the value and flags stay as
-they were before the failing step, and `result()` returns $\mathrm{Err}(e)$.
+Therefore, the first error is the one reported, the value remains that before
+the failing step (and the flags too, except that a step with a pipeline operand
+joins the flags of the operand), and `result()` returns $\mathrm{Err}(e)$.
 Without an error, `result()` returns $\mathrm{Ok}((v, F))$, the writer monad's
 output.
 
@@ -295,13 +302,12 @@ decimal operation.
 - It exposes no alternate exception handling. IEEE flags never stop the
   pipeline. Stop-or-divert handling for an operation on a signal is the
   [`decimal_gda_checked`](decimal_gda_checked.md) contract.
-- It has no operators, no pipeline-to-pipeline operations and no implicit
-  context changes.
+- It has no operators, no operation that combines two contexts (the context of
+  the left pipeline wins), and no implicit context changes.
 - Only certification failures of elementary functions become errors. If a
   delegated operation aborts, the pipeline aborts; the state model cannot turn
   an abort into an error.
-- It defines no accuracy of its own. Flags report what `decimal` returned,
-  including its documented deviations, such as `inexact` on the exact power
-  $0.0016^{0.25} = 0.2$.
+- It defines no accuracy of its own. Flags report exactly what `decimal`
+  returned.
 - Its context is the IEEE decimal context of `decimal`. GDA contexts that
   retain status flags belong to `decimal_gda`.
