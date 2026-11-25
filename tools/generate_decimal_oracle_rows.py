@@ -8,6 +8,8 @@ Writes `library/src/decimal/oracle_repair_rows_wbtest.mbt`, tables only:
   (precision 34, half-even, no clamp).
 * `sticky_446_rows`: the sum of a 34-digit-or-shorter high operand and a far smaller one (the sticky
   absorption of issue 446), in the loop order of the test, from CPython `decimal`.
+* `pm1_tiny_rows`: `(operation, precision, x, expected)`, tiny arguments of exp2m1, exp10m1, log2p1 and
+  log10p1 placed next to a rounding midpoint, from series at 150 digits in CPython `decimal`.
 * `ball_rows`: `(text, precision, lower C, lower k, upper C, upper k)`, the two directed
   roundings of the exact decimal value to `precision` bits, as the signed integer `C` with
   value `C * 2^k`, by exact integer arithmetic (`generate_decimal_to_bin_rows.round_to_bits`).
@@ -115,6 +117,68 @@ def sticky_rows() -> list[str]:
     return rows
 
 
+PM1_PRECISION = 3
+PM1_ADJUSTED = (-16, -20, -24, -30, -40)
+PM1_OPERATIONS = ("exp2m1", "exp10m1", "log2p1", "log10p1")
+PM1_WORK = decimal.Context(prec=160, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+PM1_SIGNIFICANT = 60
+
+
+def pm1_value(operation: str, x: decimal.Decimal) -> decimal.Decimal:
+    """f(x) for tiny x to about 150 digits: the series of expm1 and log1p, with the slope of the base."""
+    work = PM1_WORK
+    base = decimal.Decimal(2 if operation.endswith("2m1") or operation == "log2p1" else 10)
+    ln_base = work.ln(base)
+    if operation.startswith("exp"):
+        y = work.multiply(x, ln_base)
+        total = decimal.Decimal(0)
+        term = decimal.Decimal(1)
+        for k in range(1, 12):
+            term = work.divide(work.multiply(term, y), decimal.Decimal(k))
+            total = work.add(total, term)
+        return total
+    total = decimal.Decimal(0)
+    power = decimal.Decimal(1)
+    for k in range(1, 12):
+        power = work.multiply(power, x)
+        term = work.divide(power, decimal.Decimal(k))
+        total = work.add(total, term if k % 2 == 1 else -term)
+    return work.divide(total, ln_base)
+
+
+def pm1_slope(operation: str) -> decimal.Decimal:
+    base = decimal.Decimal(2 if operation.endswith("2m1") or operation == "log2p1" else 10)
+    ln_base = PM1_WORK.ln(base)
+    return ln_base if operation.startswith("exp") else PM1_WORK.divide(decimal.Decimal(1), ln_base)
+
+
+def pm1_rows() -> list[tuple[str, int, str, str]]:
+    """Tiny arguments whose first-order value c x lies a few 10^-20 relative below or above a midpoint of
+    the p-digit grid, so that the relative correction d of f(x) = c x (1 + d) (d about +c x / 2 for the
+    exponentials, -x / 2 for the logarithms) puts the true value on the other side of the midpoint. A
+    shortcut whose enclosure of the factor (1 +- 2^k) is narrower than |d| rounds such a value wrongly;
+    the correct bound (2^k >= 4 |x|) cannot decide it. Expected value: f(x) to 150 digits, rounded once
+    half-even to PM1_PRECISION digits."""
+    rounding = decimal.Context(prec=PM1_PRECISION, rounding=decimal.ROUND_HALF_EVEN, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+    rows = []
+    for operation in PM1_OPERATIONS:
+        slope = pm1_slope(operation)
+        for adjusted in PM1_ADJUSTED:
+            # the midpoint 1.235 x 10^(adjusted) between the grid points 1.23 and 1.24 (3 digits)
+            midpoint = decimal.Decimal(f"1.235E{adjusted}")
+            x0 = PM1_WORK.divide(midpoint, slope)
+            # d = y / 2 with y = c x for expm1 (y = ln b x), d = -x / 2 for log1p
+            correction = PM1_WORK.divide(midpoint if operation.startswith("exp") else x0, decimal.Decimal(2))
+            direction = 1 if operation.startswith("exp") else -1
+            # c x = M (1 - direction * 3 |d| / 2): f(x) = c x (1 + direction |d|) crosses M by |d| / 2
+            first_order = PM1_WORK.multiply(midpoint, 1 - PM1_WORK.multiply(decimal.Decimal(direction * 3), correction) / 2)
+            x_exact = PM1_WORK.divide(first_order, slope)
+            x_text = format(PM1_WORK.create_decimal(x_exact).quantize(decimal.Decimal(1).scaleb(x_exact.adjusted() - PM1_SIGNIFICANT + 1), context=PM1_WORK), "f")
+            x = decimal.Decimal(x_text)
+            rows.append((operation, PM1_PRECISION, str(x), library_text(rounding.plus(pm1_value(operation, x)))))
+    return rows
+
+
 def exact_parts(text: str) -> tuple[bool, int, int]:
     """(negative, numerator, denominator) of the exact decimal value of `text`."""
     value = decimal.Decimal(text)
@@ -202,6 +266,9 @@ def render() -> str:
     out += ["]", "", "///|", "let sticky_446_rows : Array[String] = ["]
     for text in sticky_rows():
         out.append(f"  {quote(text)},")
+    out += ["]", "", "///|", "let pm1_tiny_rows : Array[(String, Int32, String, String)] = ["]
+    for operation, precision, x_text, expected in pm1_rows():
+        out.append(f"  ({quote(operation)}, {precision}, {quote(x_text)}, {quote(expected)}),")
     out += ["]", "", "///|", "let ball_rows : Array[(String, Int32, String, Int32, String, Int32)] = ["]
     for text, p, lo_c, lo_k, hi_c, hi_k in ball_rows():
         out.append(f"  ({quote(text)}, {p}, {quote(str(lo_c))}, {lo_k}, {quote(str(hi_c))}, {hi_k}),")

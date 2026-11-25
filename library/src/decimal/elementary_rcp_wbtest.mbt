@@ -153,9 +153,8 @@ test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
 }
 
 ///|
-// oracle: E
-// source: the plain certified loop (decimal_certified_unary_result with the interval sqrt then recip), the general route that decimal_certified_scaled_result replaces; value, cohort and flags compared
-// underneath: the general route is level A on rsqrt by the table of elementary_rcp_rows_wbtest.mbt (fractions.Fraction exact results and MPFR 4.2.2 enclosures, tools/generate_decimal_rcp_rows.py); the operands of this block are not all rows of it
+// oracle: S
+// source: equivalence of the scaled loop with the plain certified loop (decimal_certified_unary_result with the interval sqrt then recip), the general route that decimal_certified_scaled_result replaces; value, cohort and flags compared, no expected value written out. The level A table of elementary_rcp_rows_wbtest.mbt (fractions.Fraction exact results and MPFR 4.2.2 enclosures, tools/generate_decimal_rcp_rows.py) covers rsqrt, but the operands of this block are not all rows of it
 // shares: decimal_certified_unary_result and the interval sqrt and recip (both sides use them)
 test "rsqrt by the scaled loop equals the plain certified loop" {
   // `decimal_certified_scaled_result` encloses 1/sqrt(x 10^-2k) and shifts
@@ -309,9 +308,8 @@ test "compound at Int32.min_value" {
 }
 
 ///|
-// oracle: E
-// source: decimal_compound_certified (the certified loop through exp(n log1p(x))), the general route that the anchored result of try_compound_ctx replaces; value and flags compared
-// underneath: compound is level A by the table of elementary_rcp_rows_wbtest.mbt (exact rationals by fractions.Fraction and brackets of the rational (1 + x)^n, tools/generate_decimal_rcp_rows.py, never MPFR's compound); the tiny operands and the n at the Int32 ends of this block are not all rows of it
+// oracle: S
+// source: equivalence of the anchored result of try_compound_ctx with decimal_compound_certified (the certified loop through exp(n log1p(x))), the general route it replaces; value and flags compared, no expected value written out. Compound is level A in the table of elementary_rcp_rows_wbtest.mbt (exact rationals by fractions.Fraction and brackets of the rational (1 + x)^n, tools/generate_decimal_rcp_rows.py, never MPFR's compound), but the tiny operands and the n at the Int32 ends of this block are not all rows of it
 // shares: decimal_compound_certified and the interval functions (both sides use them)
 test "compound of a tiny x is anchored and agrees with the certified loop" {
   // (1 + x)^n - 1 has the sign of n x and magnitude below 10^(adj(x) + 12),
