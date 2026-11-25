@@ -30,6 +30,7 @@ import interval_forward_oracle as forward  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TARGET = REPO_ROOT / "library/src/interval/point_elementary_table_wbtest.mbt"
+BIG_TARGET = REPO_ROOT / "library/src/interval/point_elementary_big_table_wbtest.mbt"
 SEED = 20261125
 PRECISIONS = (24, 53, 64, 128, 200)
 TOPS = (-30, -8, -3, -1, 0, 1, 2, 3, 5, 8, 12, 20)
@@ -72,6 +73,11 @@ def generate_rows(seed: int = SEED) -> list[Row]:
     return rows
 
 
+def big_rows() -> list[Row]:
+    """The two extreme precisions of issue 449: ln 3 at 32,000 bits and exp 1 at 160,000 bits."""
+    return [("ln", 32_000, forward.hex_value(3, 0)), ("exp", 160_000, forward.hex_value(1, 0))]
+
+
 def input_text(rows: list[Row]) -> str:
     return "\n".join(f"{op} {p} {x}" for op, p, x in rows) + "\n"
 
@@ -87,19 +93,25 @@ def run_oracle(rows: list[Row], prefix: Path, cc: str) -> list[tuple[str, str]]:
     return [(lo, hi) for lo, hi in pairs]
 
 
-def render(rows: list[Row], values: list[tuple[str, str]]) -> str:
+def render(rows: list[Row], values: list[tuple[str, str]], big: bool = False) -> str:
+    name = "point_elementary_big_table" if big else "point_elementary_table"
+    inputs = (
+        "ln 3 at 32,000 bits and exp 1 at 160,000 bits (issue 449)"
+        if big
+        else "exp and ln of p-bit operands (p = 24, 53, 64, 128, 200) of magnitudes 2^-30 to 2^30, small integers and 2^-1073741000"
+    )
     lines = [
         "///|",
         "// oracle-file: A",
         "// producer: tools/interval_point_elementary_oracle.py (MPFR through tools/interval_forward_oracle.c)",
-        "// input: exp and ln of p-bit operands (p = 24, 53, 64, 128, 200) of magnitudes 2^-30 to 2^30, small integers and 2^-1073741000;",
+        f"// input: {inputs};",
         "//   for each row the two directed roundings (down, up) of the exact result to p bits",
         "// library-ran: no",
         "// shares: nothing; the table is read with Binary::from_hex and String::split only",
         "// check: python3 tools/interval_point_elementary_oracle.py --check",
         "",
         "///|",
-        "fn point_elementary_table() -> String {",
+        f"fn {name}() -> String {{",
         "  (",
     ]
     for (op, p, x), (lo, hi) in zip(rows, values):
@@ -124,13 +136,18 @@ def main(argv: list[str] | None = None) -> int:
         print("interval_point_elementary_oracle: MPFR is required to write the table")
         return 2
     rows = generate_rows()
-    text = render(rows, run_oracle(rows, args.prefix, args.cc))
+    big = big_rows()
+    outputs = [
+        (TARGET, render(rows, run_oracle(rows, args.prefix, args.cc))),
+        (BIG_TARGET, render(big, run_oracle(big, args.prefix, args.cc), big=True)),
+    ]
     if args.write:
-        TARGET.write_text(text)
-        print(f"wrote {TARGET.relative_to(REPO_ROOT)}: {len(rows)} rows")
+        for target, text in outputs:
+            target.write_text(text)
+            print(f"wrote {target.relative_to(REPO_ROOT)}")
         return 0
-    if not TARGET.exists() or TARGET.read_text() != text:
-        print("the generated file differs from the oracle; run --write and review")
+    if any(not target.exists() or target.read_text() != text for target, text in outputs):
+        print("a generated file differs from the oracle; run --write and review")
         return 1
     return 0
 

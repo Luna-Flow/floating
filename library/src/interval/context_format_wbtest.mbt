@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: IEEE 754-2019 3.3: emin = 1 - emax, so (24, 127) has emin -126 and (15) has -14; the default context of the library has the maximum exponent 2^30 - 1 = 1073741823 (the design limit of the exponent range, written as a literal) and emin = 1 - emax = -1073741822
+// shares: IntervalContext accessors only
 test "IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e_max" {
   let c = IntervalContext::new(precision=24, e_max=127)
   assert_eq(c.precision(), 24)
@@ -6,8 +9,8 @@ test "IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e
   assert_eq(c.e_min(), -126)
   let d = IntervalContext::new()
   assert_eq(d.precision(), 53)
-  assert_eq(d.e_max(), @binary.binary_value_e_max)
-  assert_eq(d.e_min(), @binary.BinaryContext::new().e_min())
+  assert_eq(d.e_max(), 1073741823)
+  assert_eq(d.e_min(), -1073741822)
   assert_eq(c.with_precision(11).precision(), 11)
   assert_eq(c.with_precision(11).e_max(), 127)
   assert_eq(c.with_e_max(15).e_min(), -14)
