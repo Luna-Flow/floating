@@ -28,6 +28,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/decimal/to_binary_rows_wbtest.mbt"
 MODES = ["ToNearestEven", "TowardZero", "AwayFromZero", "TowardNegative", "TowardPositive"]
+# the modes of Decimal::to_binary (IEEE 754-2019 4.3), for the grid of `grid_rows`
+GRID_MODES = ["ToNearestEven", "ToNearestAway", "TowardZero", "TowardNegative", "TowardPositive"]
 CHUNK_ROWS = 100
 ROW_TYPE = "(String, Int32, String, String, Int32)"
 
@@ -55,6 +57,8 @@ def round_to_bits(numerator: int, denominator: int, precision: int, negative: bo
         if mode == "ToNearestEven":
             twice = 2 * r
             up = twice > den or (twice == den and q & 1 == 1)
+        elif mode == "ToNearestAway":
+            up = 2 * r >= den
         elif mode == "TowardZero":
             up = False
         elif mode == "AwayFromZero":

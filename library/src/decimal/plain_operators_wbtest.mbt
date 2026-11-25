@@ -10,6 +10,9 @@ fn plain_d(text : String, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
+// oracle: S
+// source: the identities x + 0 = x, 0 + x = x, x - 0 = x and x * 1 = x at and near both ends of the stored exponent range; the operands are the expected values (equality with the operand) and no result is written out
+// shares: Decimal::from_string, Decimal::zero, Decimal::one and the plain operators (the code under test)
 test "a finite value plus or minus zero is the value at the ends of the exponent range (#548)" {
   let zero = Decimal::zero()
   for
@@ -104,6 +107,9 @@ test "a result beyond the working range overflows or underflows like a context r
 }
 
 ///|
+// oracle: S
+// source: the same identities for generated values of 1, 2, 34 and 100 digits at and near both ends of the working range and of the default range of a context given by the precision alone, both signs, with zeros; the operand is the expected value and no result is written out
+// shares: Decimal::from_string, Decimal::zero, Decimal::one and the plain operators (the code under test)
 test "the identities x + 0 = x, x - 0 = x, x * 1 = x hold over the stored range" {
   // generated values at and near both ends of the working range and of the
   // default range max(999999, 1000 p) of a context given by p alone, with 1, 2,

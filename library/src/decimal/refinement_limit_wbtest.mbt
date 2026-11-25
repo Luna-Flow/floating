@@ -79,6 +79,9 @@ test "refinement limit: a hard-to-round exp fails below a threshold and succeeds
 }
 
 ///|
+// oracle: S
+// source: the documented rule that a limit of zero, one or a negative number stops the certified loop after one step (DecimalContext::refinement_limit), pinned for the hard input exp(5E-34) at 34 digits: a certification failure with refinements 1; the count is the implementation's own choice and nothing independent is written out
+// shares: DecimalContext::new, with_refinement_limit, Decimal::from_string, try_exp_ctx and certification_failure_detail (the code under test)
 test "refinement limit: 0, 1 and negative limits are one step" {
   let x = refinement_hard_input()
   let base = refinement_context(34)
