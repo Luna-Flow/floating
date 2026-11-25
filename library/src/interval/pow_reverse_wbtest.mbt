@@ -39,6 +39,9 @@ fn pw_class_is_dyadic(cls : PowClass, value : Double) -> Bool {
 }
 
 ///|
+// oracle: A
+// source: roots worked by hand and written as literals: 0.25^(1/-2) = 2, 8^(1/3) = 2, 8^2 = 64, 2^-1 = 1/2, 81^(1/4) = 3, 16^(1/-4) = 1/2, 2.25^(1/2) = 3/2, 9^(1/-2) = 1/3 (rational, denominator 3); 2^(1/2), 10^(1/3) and 2^(1/3) are irrational by unique factorisation; (2^1000 + 1)^2 has the root 2^1000 + 1; a coefficient of pow_int_budget + 11 bits gives Unknown (the documented budget, an engineering limit)
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over the budget" {
   let p = 53
   let n = fn(x : Double) { pw_num(x, p) }
@@ -84,6 +87,9 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
 }
 
 ///|
+// oracle: A
+// source: written out by hand: 1/3 at 8 bits lies between 1.0101010b * 2^-2 = 0.33203125 and 1.0101011b * 2^-2 = 0.333984375; 1/3 is above 1/4 and below 1/2, above the double nearest to it (which lies below 1/3) and below the next double; 1024/3 lies between 341 and 342; 1/3 is above -1
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 test "rational class: comparison and directed rounding of 2^E / D" {
   // 1/3 at 8 bits: 0.0101010101..b, RD = 1.0101010 * 2^-2, RU = 1.0101011 * 2^-2
   let three = @binary.BinCoeff::from_uint64(3UL)
@@ -217,9 +223,12 @@ test "pow_rev1: the open ends at 0 and at 1 against a prior that touches them" {
 }
 
 ///|
-/// The band between the exponent range (about |t| = 2^30 ln 2) and 2^40: the end
-/// `c^(1/beta)` is beyond the range and is clamped at once, without `exp` of a huge
-/// argument and without refinement.
+// The band between the exponent range (about |t| = 2^30 ln 2) and 2^40: the end
+// `c^(1/beta)` is beyond the range and is clamped at once, without `exp` of a huge
+// argument and without refinement.
+// oracle: A
+// source: worked out by hand: c^(2^e) for e = 31, 35, 40 is beyond the range above (c > 1) or below (c < 1), so the result has the upper end +inf and the lower end 0 or the upper end 2^(e_min - p + 1) (the smallest positive number of the precision), and the priors that start at 2^1e9 give Empty; the cases are the table of the test
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 return at once" {
   let p = 53
   let ctx = @binary.BinaryContext::new(precision=p)
@@ -469,12 +478,15 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
 }
 
 ///|
-/// Exact dyadic ends in the subnormal range whose coefficient has more than one bit: a
-/// stored value at `P` bits is a multiple of the quantum `2^(e_min - P + 1)`, so the datum
-/// needs `P >= e_min - exponent + 1` (the lowest bit, not the leading bit). Both ends are
-/// point sets, so the result is `[v, v]` for every prior that contains `v` and Empty for a
-/// prior one float off. Before the fix (head 1238bec0) none of these calls returned within
-/// 40 s.
+// Exact dyadic ends in the subnormal range whose coefficient has more than one bit: a
+// stored value at `P` bits is a multiple of the quantum `2^(e_min - P + 1)`, so the datum
+// needs `P >= e_min - exponent + 1` (the lowest bit, not the leading bit). Both ends are
+// point sets, so the result is `[v, v]` for every prior that contains `v` and Empty for a
+// prior one float off. Before the fix (head 1238bec0) none of these calls returned within
+// 40 s.
+// oracle: A
+// source: worked out by hand with e_min = 2 - 2^30: c2 = 3 * 2^-536870914 squared is 9 * 2^-1073741828 = 9 * 2^(e_min - 6), and c3 gives 9 * 2^(e_min - 78) as well; at p = 53 the lower end is 0 and the upper end the smallest positive number (the grid argument), at p = 113 the result is exact; the priors one float off give Empty
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
   for p in [53, 113] {
     let ctx = @binary.BinaryContext::new(precision=p)
@@ -625,6 +637,9 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 clause 11 and Table 10.1: the decorated pow_rev1 of [2, 2] and [4, 4] is [2, 2] with decoration trv (a reverse operation is trivially decorated), NaI in any operand gives NaI, and the default prior gives the whole set [0, +inf) for the base [-1, 1] and the result [1/2, 2]
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 test "decorated and the unbounded forms" {
   let p = 53
   let d = fn(lo : Double, hi : Double, dec : Decoration) {

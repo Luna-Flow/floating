@@ -25,6 +25,9 @@ fn huge_trig_encloses(value : Interval, expected : @binary.Binary) -> Bool {
 }
 
 ///|
+// oracle: A
+// source: the values of sin, cos and tan of the exact argument 2^70000 rounded to 53 bits are 8820792975108590 * 2^-53, 7291913005385218 * 2^-55 and 5447859831360224 * 2^-50 (written in the test with one fewer bit), computed with MPFR 4.2.2 (mpfr_sin, mpfr_cos, mpfr_tan, RNDN, 64-bit exact argument) for this audit and as the rows of the binary table; each enclosure must contain its value and be narrower than 2^-40 (a tolerance, the end values are not pinned)
+// shares: huge_trig_argument and Binary::make build the operands and the expected values; huge_trig_encloses compares; sin, cos, tan and try_ forms are the code under test
 test "sin, cos, tan of 2^70000 are tight beyond the old cutoff" {
   let x = huge_trig_argument(70000)
   // sin, cos, tan of 2^70000 at p = 113 rounded to 53 bits: the values of the
