@@ -3,6 +3,13 @@
 /// multiplication gives, the reciprocal of a negative power keeping the cohort of
 /// the division (issue 284). Expected values: Python `decimal` (libmpdec 4.0.0) as
 /// oracle, checked against the clause by hand.
+// oracle: A
+// source: GDA 1.70 power (the exponent of an exact result is the one repeated multiplication gives); the rows were run
+//   with CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort and flags, as the doc
+//   comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter keeps the cohort of the reciprocal in an exact negative power" {
   let source =
     #|extended: 1

@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: hand arithmetic: 2 + 3 * 4 = 14 on the nested invocation
+// shares: nothing (the evaluation functions of the block are the callbacks)
 test "numeric expression evaluates nested invocations" {
   let span = @numeric_expr.SourceSpan::new("example.expr", line=2, column=4)
   let expression = @numeric_expr.Expr::invoke(
@@ -36,6 +39,10 @@ test "numeric expression evaluates nested invocations" {
 }
 
 ///|
+// oracle: A
+// source: written out: the failing literal keeps the source name bad.expr and the line 7 and the column 3 it was built
+//   with
+// shares: nothing
 test "numeric expression preserves literal source failures" {
   let span = @numeric_expr.SourceSpan::new("bad.expr", line=7, column=3)
   let result : Result[Int32, @numeric_expr.EvalError[String]] = @numeric_expr.evaluate(

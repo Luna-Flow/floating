@@ -46,6 +46,11 @@ fn harness_judge(
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: 1 + 2^-25 has 26 bits and is not a binary32 number, so the harness fails it with or
+//   without the inexact flag
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "the harness fails a result that is not a number of the format" {
   // f32 sqrt: the vector says 1.0, inexact. 1 + 2^-25 has 26 bits.
   let wide = harness_value("0x2000001p-25")
@@ -65,6 +70,11 @@ test "the harness fails a result that is not a number of the format" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: 1 + 2^-52 is a binary64 number and not a binary32 number, so a conversion that returns
+//   it unrounded fails whatever the flags
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "the harness fails a conversion that is not rounded to the destination format" {
   // f64_to_f32 of 1 + 2^-52: the vector says 1.0, inexact; 1 + 2^-52 is a
   // number of binary64 and not of binary32
@@ -88,6 +98,11 @@ test "the harness fails a conversion that is not rounded to the destination form
 }
 
 ///|
+// oracle: A
+// source: verdict written out: 2^-30 is below the smallest binary16 subnormal 2^-24, so it is not a number of the
+//   format and the judged result fails
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "the harness fails a result below the smallest subnormal of the format" {
   // f16 sqrt: 2^-30 is below 2^-24, the smallest subnormal of binary16; the
   // vector (invented for the test) says zero, underflow and inexact
@@ -98,6 +113,12 @@ test "the harness fails a result below the smallest subnormal of the format" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: sqrt(1) = 1 is exact, the vector flag 01 (inexact) is wrong on purpose and the flag
+//   column must match the flags of the operation exactly, with an extra or a missing flag failing; a wrong value
+//   fails with the right flags
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "the harness compares the flags of the operation and nothing else" {
   let one = harness_value("0x1p0")
   let none = @binary.BinaryFlags::new()
@@ -125,6 +146,12 @@ fn harness_pack(
 }
 
 ///|
+// oracle: A
+// source: bit patterns recomputed with Python struct (binary16, binary32, binary64) and with the layout of binary128
+//   by hand (exponent field 0x3fff gives 1, largest finite 0x7ffe with an all ones fraction, smallest subnormal
+//   2^-16494) in this review; the infinities are +inf 0x7f800000 and -inf 0xfc00
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "pack_exact writes the bit fields of each format (literals, level A)" {
   let b16 = @binary.BinaryInterchangeFormat::Binary16
   let b32 = @binary.BinaryInterchangeFormat::Binary32
@@ -175,6 +202,12 @@ test "pack_exact writes the bit fields of each format (literals, level A)" {
 }
 
 ///|
+// oracle: A
+// source: values checked with Python struct in this review: 4095 needs 12 bits and packs to 4096 in binary16 (so it is
+//   not exact), 2^16 does not fit, 2^-25 and 3 * 2^-25 are below or between the subnormal grid of binary16,
+//   2^128 and 2^-150 in binary32; a NaN has no bit fields here (the verdict of the harness)
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "pack_exact refuses what is not a number of the format" {
   let b16 = @binary.BinaryInterchangeFormat::Binary16
   let b32 = @binary.BinaryInterchangeFormat::Binary32
@@ -198,6 +231,11 @@ test "pack_exact refuses what is not a number of the format" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: a NaN expected (any payload in the vector) accepts only a NaN result, and a number
+//   expected rejects a NaN result
+// shares: harness_value (Binary::from_hex builds the actual result) and harness_inexact, the NaN and the infinity
+//   built with Binary::div_ctx (they only supply a flag set or a special value to be judged)
 test "the harness compares a NaN column with a quiet NaN and nothing more" {
   let context = @binary.BinaryContext::new(precision=24)
   let (nan, _) = @binary.Binary::from_int(0).div_ctx(

@@ -56,6 +56,14 @@ fn external_protocol_from_env() -> ExternalProtocol {
 /// all cases of the file when unset). Every implementation is validated
 /// against the reference results before it is timed.
 #skip("performance benchmark")
+// oracle: A, S
+// source: the reference file named by EXTBENCH_REFERENCE, written by tools/external_baseline.py with the C harness
+//   tools/external_baseline.c (MPFR for binary, libmpdec for decimal_gda); every implementation is validated
+//   against its canonical text, read by the parser of canonical.mbt and not by the library. Without a reference
+//   file nothing is validated: the block says so (EXTBENCH_NOT_VALIDATED) and the verdict is level S. The block
+//   is #skip (performance benchmark) and needs the environment variables
+// shares: binary_spec and decimal_spec (build the timed implementations and their validation); the library reads the
+//   operand file, the reference file is read by canonical_binary and canonical_decimal only
 async test "external baseline floating" {
   let inputs_path = match env_text("EXTBENCH_INPUTS") {
     Some(path) => path

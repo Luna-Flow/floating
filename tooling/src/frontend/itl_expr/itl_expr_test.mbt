@@ -1,4 +1,9 @@
 ///|
+// oracle: A
+// source: the intersection row is the line of testdata/interval/smoke.itl; the convexHull row is the hull of [1,3] and
+//   [2,4], [1,4], with decoration trv (written out)
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL parser and executor run minimal set cases" {
   let source =
     #|testcase minimal {
@@ -16,6 +21,11 @@ test "ITL parser and executor run minimal set cases" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 decorations: the sum of two bounded common intervals is com, so the expected def is wrong and
+//   the case must fail (a verdict written out, with the word expected in the message)
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL decorated expectations reject a wrong decoration" {
   let source =
     #|testcase decorated_mismatch {
@@ -29,6 +39,11 @@ test "ITL decorated expectations reject a wrong decoration" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: the four operations (nums2interval, rootn, rsqrt and a made-up name) are not in the
+//   executor's table of supported operations, so every case is unsupported and none is a diagnostic (a property
+//   of the harness, no numeric value is involved)
+// shares: nothing (the counts are compared with literals)
 test "ITL unknown operations are unsupported whatever their operands" {
   let source =
     #|testcase unknown {
@@ -48,6 +63,11 @@ test "ITL unknown operations are unsupported whatever their operands" {
 }
 
 ///|
+// oracle: A
+// source: the add row is a line of libieeep1788_tests_elem.itl and the sub row is [5,6] - [1,2] = [5-2,6-1] = [3,5] by
+//   hand; the claim is that two statements with comments are two cases
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL trailing line comments do not merge statements" {
   let source =
     #|testcase comments {
@@ -65,6 +85,12 @@ test "ITL trailing line comments do not merge statements" {
 }
 
 ///|
+// oracle: A
+// source: 0.1 and 0.2 are the binary64 numbers 0x1.999999999999ap-4 and 0x1.999999999999ap-3 (Python float.hex in this
+//   review); the singleton [17.1,17.1] is a point by definition; the cancelPlus row is a line of
+//   libieeep1788_tests_cancel.itl
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL bounds are floating constants of the target format" {
   // ITF1788 passes `[l,u]` to the inf-sup constructor of the target type as
   // two floating constants, so a decimal bound is the nearest binary64 number.
@@ -84,6 +110,11 @@ test "ITL bounds are floating constants of the target format" {
 }
 
 ///|
+// oracle: A
+// source: exact arithmetic in this review (Python Fractions): the 130 digit constant is 1 + 2^-53 + 1e-130, above the
+//   tie 1 + 2^-53 between 1 and 1 + 2^-52, so the nearest 53 bit number is 1 + 2^-52 = 0x1.0000000000001p0
+//   (CPython float.hex agrees); the former two step reading gave 1
+// shares: Binary::from_string_ctx (the reader whose rounding the block checks)
 test "ITL reads a decimal constant once: 1 + 2^-53 + 1e-130 is above the tie (double rounding)" {
   // 1 + 2^-53 is the tie between 1 and 1 + 2^-52 at 53 bits, and the 1e-130
   // puts the constant just above it, so the nearest number is 1 + 2^-52. The
@@ -98,6 +129,9 @@ test "ITL reads a decimal constant once: 1 + 2^-53 + 1e-130 is above the tie (do
 }
 
 ///|
+// oracle: A
+// source: written out: the malformed literal 1.2.3 is not a number, so the case fails and the message names it
+// shares: nothing
 test "ITL names the literal the library rejects" {
   let source = "testcase bad {\n  inf [1.2.3,4] = 1.0;\n}\n"
   let cases = @itl_expr.parse_itl(source).unwrap()
@@ -107,6 +141,14 @@ test "ITL names the literal the library rejects" {
 }
 
 ///|
+// oracle: A
+// source: exact arithmetic in this review (Python Fractions, directed rounding to 113 bits): 1 + 2^-100 is exact at
+//   113 bits and encloses to [1, 1+2^-52] at 53; the bound 0.1 at 113 bits is
+//   0x1.999999999999999999999999999ap-4; (1+2^-52)^2 = 1 + 2^-51 + 2^-104 is exact; adding 2^-200 gives the 113
+//   bit enclosure [1 + 2^-51 + 2^-104, 1 + 2^-51 + 2^-104 + 2^-112]; the midpoint of [1, 1 + 2^-100] is 1 +
+//   2^-101
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL results are rounded at the requested precision (issue #62)" {
   let source =
     #|testcase precision {
@@ -135,6 +177,13 @@ test "ITL results are rounded at the requested precision (issue #62)" {
 }
 
 ///|
+// oracle: A
+// source: five rows (ceil, floor twice, sign twice) are lines of libieeep1788_tests_elem.itl; the three others (trunc,
+//   roundTiesToEven, roundTiesToAway) are written from the same decoration rule and have neighbours in the
+//   corpus: trunc [1.1,1.9]_com = [1,1]_com, roundTiesToEven [-1.6,-1.5]_com = [-2,-2]_dac and roundTiesToEven
+//   [-1.6,-1.4]_com = [-2,-1]_def
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL integer functions of IEEE 1788-2015 Table 9.1 with their decorations" {
   let source =
     #|testcase integer_functions {
@@ -155,6 +204,12 @@ test "ITL integer functions of IEEE 1788-2015 Table 9.1 with their decorations" 
 }
 
 ///|
+// oracle: A
+// source: the first six rows are lines of libieeep1788_tests_rev.itl and libieeep1788_tests_mul_rev.itl; the last case
+//   changes the second output of the first mulRevToPair row to [empty], which is wrong because the true second
+//   part is [0x1.999999999999Ap-3, infinity]; verdict written out
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL reverse multiplication: one-output, ternary and two-output forms" {
   let source =
     #|testcase reverse_multiplication {
@@ -183,6 +238,13 @@ test "ITL reverse multiplication: one-output, ternary and two-output forms" {
 }
 
 ///|
+// oracle: A
+// source: written from the definitions of IEEE 1788-2015 10.5.4 by hand: sqrRev [1,4] = [-2,2]; with prior [0,1.2]
+//   gives [1,1.2]; absRev [1,3] = [-3,3] decorated trv; absRev with prior [-2,0.5] gives [-2,-1]; pownRev
+//   [16,81] 4 = [-3,3] and with prior [-1,2.5] gives [2,2.5]; x^-2 in [1,inf) means |x| <= 1, x /= 0; with prior
+//   [0,0] it is empty; the coshRev row is a line of libieeep1788_tests_rev.itl
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL algebraic reverse functions: bare, with a prior, and decorated" {
   let source =
     #|testcase algebraic_reverse {
@@ -204,6 +266,11 @@ test "ITL algebraic reverse functions: bare, with a prior, and decorated" {
 }
 
 ///|
+// oracle: A
+// source: six rows are lines of libieeep1788_tests_rev.itl; the cosRevBin row is written by hand (cos x = 1 with x in
+//   [-1,1] means x = 0, decorated trv)
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL trigonometric reverse functions: bare, with a prior, and decorated" {
   let source =
     #|testcase trigonometric_reverse {
@@ -223,6 +290,12 @@ test "ITL trigonometric reverse functions: bare, with a prior, and decorated" {
 }
 
 ///|
+// oracle: A
+// source: tools/itl_pow_reverse_oracle.py hull(), an oracle that shares no code with interval (260 digit enclosures,
+//   exact classification of the ends), was run on the five rows in this review and returns exactly the written
+//   results; three rows are also lines of the pinned pow_rev.itl
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL powRev1: exact ends, a rounded end and the zero part" {
   let source =
     #|testcase pow_reverse_1 {
@@ -240,6 +313,11 @@ test "ITL powRev1: exact ends, a rounded end and the zero part" {
 }
 
 ///|
+// oracle: A
+// source: tools/itl_pow2_reverse_oracle.py hull(), an oracle that shares no code with interval, was run on the five
+//   rows in this review and returns exactly the written results
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL powRev2: exact ends, an open end and the base 0" {
   let source =
     #|testcase pow_reverse_2 {
@@ -257,6 +335,13 @@ test "ITL powRev2: exact ends, an open end and the base 0" {
 }
 
 ///|
+// oracle: A
+// source: tools/itl_atan2_reverse_oracle.py hull() (IEEE 1788-2015 10.5.4, exact hulls, the forward definition checked
+//   in the tool), an oracle that shares no code with interval, was run on the seven undecorated rows in this
+//   review and returns exactly the written results; the decorated row follows from the trv decoration of reverse
+//   operations
+// shares: Binary::from_hex_ctx and from_string_ctx (the executor reads the operand and the expected bounds with them)
+//   and the interval operation under test
 test "ITL atan2Rev1 and atan2Rev2: axis angles, the branch cut and the empty set" {
   let source =
     #|testcase atan2_reverse {

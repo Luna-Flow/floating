@@ -218,6 +218,13 @@ fn canonical_decimal(text : String) -> String? {
 ///|
 // Oracle: level A (expected texts written out, for MPFR `%Ra` output and for
 // the text the library prints).
+// oracle: A
+// source: expected texts written out, for the MPFR %Ra output and for the text of to_hex: 3/2 as 0b11p-1, -3/8 as
+//   -0b11p-3, the sign of zero, specials, the exponent beyond Int32; the odd part
+//   0b101111110010000111100100010000000000001110101100111p946 of 0x1.7e43c8800759cp+996 is 0x17e43c8800759c
+//   shifted right by 2 bits with exponent 944+2, recomputed with Python integers in this review (51 bits, last
+//   bit 1); the parser under test reads no library function
+// shares: nothing
 test "canonical binary text: the formats of MPFR and of to_hex agree on one value" {
   // 3/2: MPFR prints 0x1.8p+0, the library 0x3p-1
   assert_eq(canonical_binary("0x1.8p+0"), Some("0b11p-1"))
@@ -263,6 +270,11 @@ test "canonical binary text: the formats of MPFR and of to_hex agree on one valu
 ///|
 // Oracle: level A (expected texts written out, for libmpdec `mpd_to_sci`
 // output and for the text of the library).
+// oracle: A
+// source: expected texts written out, for the libmpdec to-scientific text and the text of the library: the coefficient
+//   digits are kept with trailing zeros (cohort) and the sign of zero is kept; the parser under test reads no
+//   library function
+// shares: nothing
 test "canonical decimal text: one value, the cohort and the sign of zero are kept" {
   assert_eq(canonical_decimal("1.234E+5"), Some("1234E2"))
   assert_eq(canonical_decimal("123400"), Some("123400E0"))

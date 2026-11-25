@@ -1,4 +1,8 @@
 ///|
+// oracle: A
+// source: counts written out from the four results of the block: two executable (one pass, one fail), one unsupported,
+//   one diagnostic; skipped is unsupported plus diagnostic, so 2
+// shares: nothing
 test "shared conformance summary folds dispositions" {
   let summary = RunSummary::from_results(4, [
     CaseResult::executable("pass", true),
@@ -72,6 +76,10 @@ test "success ignores skipped cases and success_with_counts does not" {
 }
 
 ///|
+// oracle: A
+// source: written out: a shard count of 0 is refused; shard 1 of 3 selects the ordinals congruent to 1 modulo 3 among
+//   0 to 9 (1, 4, 7); the block states the rule ordinal % 3 == 1, which is the definition
+// shares: nothing
 test "shared shard specification validates and selects ordinals" {
   assert_true(ShardSpec::try_new(0, 0) is Err(_))
   let shard = ShardSpec::new(3, 1)

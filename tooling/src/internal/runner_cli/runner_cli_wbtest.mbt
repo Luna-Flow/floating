@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out: the argument list names --json, --shard-count=3 and --shard-index 1 and leaves the word input
+// shares: nothing
 test "common runner options parse JSON and shard flags" {
   let options = parse_common_options([
     "runner", "--json", "--shard-count=3", "--shard-index", "1", "input",
@@ -10,6 +13,10 @@ test "common runner options parse JSON and shard flags" {
 }
 
 ///|
+// oracle: A
+// source: the expected JSON text is written out character by character: a quote inside a string is escaped with a
+//   backslash (RFC 8259) and the integer 2 is a bare number
+// shares: nothing
 test "JSON helpers escape string values" {
   let value = json_object([
     ("message", json_string("quote: \"")),
@@ -19,6 +26,10 @@ test "JSON helpers escape string values" {
 }
 
 ///|
+// oracle: A
+// source: written out: the option that follows is --json, so --shard-count and --shard-index each lack a value and the
+//   message is the option name followed by requires a value
+// shares: nothing
 test "separated shard options do not take the next option as their value" {
   for option in ["--shard-count", "--shard-index"] {
     match parse_common_options(["runner", option, "--json"]) {
@@ -29,6 +40,9 @@ test "separated shard options do not take the next option as their value" {
 }
 
 ///|
+// oracle: A
+// source: written out: moon.mod is a file of the module directory and does not end in .decTest, the message names it
+// shares: the file system (the module directory holds moon.mod)
 test "collect_files rejects a named file without the suffix" {
   // Tests run in the module directory `tooling/`: `moon.mod` is a file there and
   // the repository's `testdata/` is one level up.
@@ -39,6 +53,10 @@ test "collect_files rejects a named file without the suffix" {
 }
 
 ///|
+// oracle: A
+// source: written out: of the two paths, testdata/decimal is a directory and is skipped and smoke.decTest is a file of
+//   the repository, so one file is listed; no file name in testdata ends in the suffix decimal
+// shares: the file system (the repository testdata directory)
 test "collect_files lists each file once and skips directories" {
   let files = collect_files(
     ["../testdata/decimal", "../testdata/decimal_gda/smoke.decTest"],

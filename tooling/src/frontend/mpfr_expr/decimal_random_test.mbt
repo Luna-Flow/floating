@@ -1,4 +1,12 @@
 ///|
+// oracle: A
+// source: exp(1), ln(2), sqrt(2) (rootn 2), 3^-2 and 2^0.5 at 7 digits half_even are 2.718282, 0.6931472, 1.414214,
+//   0.1111111 and 1.414214 (CPython decimal, libmpdec 4.0.0, in this review); atan(1) = pi/4 = 0.7853982 at 7
+//   digits; exp(30) at 3 digits overflows to Infinity (libmpdec agrees); exp(-8E+4) rounded toward positive
+//   infinity is the smallest subnormal 1E-10001 with flags x and u (libmpdec returns 0E-10001 here, which is not
+//   the rounded up value of a positive number; the row follows from the direction of rounding)
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "decimal random rows compare value, cohort and flags under a context" {
   let source =
     #|# mpfr-decimal-random-v2
@@ -21,6 +29,11 @@ test "decimal random rows compare value, cohort and flags under a context" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: the last digit 3 instead of 2, the cohort 2.7182820 against 2.718282, a missing flag x
+//   and an extra flag u each differ from exp(1) = 2.718282 Inexact
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "decimal random executor reports a value, cohort or flag difference" {
   let source =
     #|t.1 exp half_even 7 96 1 - 0 2.718283 x
@@ -52,6 +65,11 @@ test "decimal random parser keeps every digit of an operand" {
 }
 
 ///|
+// oracle: A
+// source: written out: each of eleven rows breaks the format (a missing flag field, unknown operation, unknown
+//   rounding name, unsupported rounding names up and half_down, precision 0, a non numeric operand, an unknown
+//   flag letter, a missing operand for pow, emax 0) and gives one diagnostic
+// shares: nothing
 test "decimal random parser rejects malformed rows" {
   for
     row in [

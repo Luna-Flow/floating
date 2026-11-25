@@ -1,4 +1,8 @@
 ///|
+// oracle: A
+// source: hand arithmetic: -6/-8 reduces to 3/4 by the common factor 2 and the sign moves to the numerator, 0/-9 is
+//   0/1, 6/8 equals 3/4
+// shares: nothing
 test "exact rational constructor owns normalization invariant" {
   let rational = ExactRat::new(-6N, -8N)
   assert_eq(rational.numerator, 3N)

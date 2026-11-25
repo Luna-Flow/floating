@@ -8,6 +8,14 @@
 /// `Infinity`, `99e-9999999999 + 1` is `1.0000000` with Rounded, and
 /// `99e-9999999999 * 1` is `0E-1000000006` with Clamped), and the verdict of each
 /// passing row is judged as text.
+// oracle: A
+// source: decNumber 3.68 (DECSUBSET=1, built outside the repository) on the same rows, as stated in the doc comment of
+//   the block: 0.9e9999999999 + 1 is Infinity, 99e-9999999999 + 1 is 1.0000000 Rounded, 99e-9999999999 * 1 is
+//   0E-1000000006 Clamped; CPython decimal (libmpdec 4.0.0) gives the same three result texts in this review (it
+//   reports more flags, since it raises them for the conversion of the operand, which the rows do not carry)
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter reads an exponent field beyond 2e9 as written" {
   let source =
     #|precision: 8
@@ -31,6 +39,13 @@ test "gda interpreter reads an exponent field beyond 2e9 as written" {
 }
 
 ///|
+// oracle: A
+// source: classification written out from the row syntax: a result token '?' means the value is not compared (kind
+//   value-not-checked) and a row with a result token is compared as text; q1 raises Invalid_operation in both
+//   libmpdec and the interpreter (123.456 at exponent -999999999 needs more than 9 digits), q2 is 1 + 1 = 2
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter reports the rows whose value is not checked" {
   let source =
     #|extended: 0

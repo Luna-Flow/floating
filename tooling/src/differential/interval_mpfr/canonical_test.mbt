@@ -42,6 +42,10 @@ fn canonical_bound(x : @binary.Binary) -> String {
 
 ///|
 // Oracle: level A (expected texts written out by hand).
+// oracle: A
+// source: expected texts written out by hand: 3/2 is 0b11p-1, -3/8 is -0b11p-3, 8 is 0b1p3, the signs of zero and the
+//   specials; they are the form of the C tool tools/mpfr_ours.h
+// shares: Binary::from_double, zero, from_hex, inf and nan (build the bounds that are printed)
 test "canonical_bound: the texts tools/mpfr_ours.h prints" {
   let p = 8
   assert_eq(

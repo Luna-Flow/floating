@@ -31,6 +31,13 @@ let decimal_corpus : String =
   #|d1.add.2 add 9.99 9.99 -> 19 Inexact Rounded
 
 ///|
+// oracle: A
+// source: batch sizes (3 then 1 of four rows) and ids written out; the corpus rows are written in the block: the first
+//   three binary rows are 1 + 2^-30 at 24 bits (to nearest gives 1; rounding up gives 0x800001p-23 = 1 + 2^-23;
+//   row 2 carries the wrong value 0x2p0 on purpose) and the fourth is 2^-100 * 2^-100, which underflows to 0 at
+//   24 bits (all checked with Python Fractions in this review); the verdicts are written: rows 0, 1 and 3 agree,
+//   row 2 differs
+// shares: execute_batch runs the library on each row (the code under test); the expected texts are the corpus rows
 test "a binary corpus splits into batches and runs every case" {
   let batches = split_corpus(binary_corpus, 3).unwrap()
   assert_eq(batches.length(), 2)
@@ -46,6 +53,11 @@ test "a binary corpus splits into batches and runs every case" {
 }
 
 ///|
+// oracle: A
+// source: three rows written in the block with their own contexts: 1.234 + 1.234 = 2.468 is 2.47 at 3 digits half_even
+//   (the row 2.48 is wrong on purpose), and 9.99 + 9.99 = 19.98 is 19 at 2 digits rounding down; verdicts
+//   written (rows 0 and 2 agree, row 1 differs)
+// shares: execute_batch runs the library on each row (the code under test)
 test "a decTest corpus keeps each row with its own context" {
   let batches = split_corpus(decimal_corpus, 10).unwrap()
   assert_eq(batches.length(), 1)
@@ -57,6 +69,10 @@ test "a decTest corpus keeps each row with its own context" {
 }
 
 ///|
+// oracle: A
+// source: the failing row of the written corpus is the third (1.add.2, wrong value on purpose); halving four rows down
+//   to one takes 2 steps (4, 2, 1) and leaves that row, written out
+// shares: halves and execute_batch (the code under test and the library run on the rows)
 test "the shrinker halves a failing batch down to one case" {
   let batch = split_corpus(binary_corpus, 10).unwrap()[0]
   let mut current = batch
@@ -74,12 +90,19 @@ test "the shrinker halves a failing batch down to one case" {
 }
 
 ///|
+// oracle: A
+// source: verdicts written out: a text without a corpus header is not a corpus, and a batch size of 0 is invalid
+// shares: nothing
 test "a non-corpus file and a bad batch size are rejected" {
   assert_true(split_corpus("nothing here", 10) is Err(_))
   assert_true(split_corpus(binary_corpus, 0) is Err(_))
 }
 
 ///|
+// oracle: A
+// source: the expected text is written out character by character: the count of differing cases out of the total, then
+//   the id: message pairs joined by ' | '; an all-pass list reads 'all cases agree'
+// shares: nothing
 test "failure text names the first failing cases" {
   let text = failure_text(["a", "b", "c"], ["", "boom", "bang"])
   assert_eq(text, "2 of 3 cases differ; b: boom | c: bang")

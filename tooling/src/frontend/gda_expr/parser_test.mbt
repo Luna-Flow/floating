@@ -1,4 +1,8 @@
 ///|
+// oracle: A
+// source: counts and fields written out from the source: two rows, the first with the directives precision 9 and
+//   rounding half_up, the second with precision 16, and the operands 1.20 and 2 with quotes removed
+// shares: nothing (the parser under test reads the text)
 test "gda parser snapshots directives and lowers calls" {
   let source =
     #|precision: 9
@@ -17,6 +21,9 @@ test "gda parser snapshots directives and lowers calls" {
 }
 
 ///|
+// oracle: A
+// source: written out: the text x add '1 2 -> 3 has an unterminated quote on line 1 of bad.decTest, one diagnostic
+// shares: nothing
 test "gda parser reports malformed quotes with source" {
   let result = @gda_expr.parse_dectest("bad.decTest", "x add '1 2 -> 3\n")
   match result {
@@ -29,6 +36,12 @@ test "gda parser reports malformed quotes with source" {
 }
 
 ///|
+// oracle: A
+// source: a doubled quote inside a quoted token stands for one quote; basx558 and basx560 are rows of
+//   testdata/decimal_gda/official/base.decTest, the others are written out; the eight rows were run with CPython
+//   decimal (libmpdec 4.0.0) in this review (the seven toSci rows give NaN Conversion_syntax, '1' + '2' is 3)
+//   and agree
+// shares: the interpreter's decimal reader for the executed rows (the code under test)
 test "gda parser reads a doubled quote inside a quoted token (issue #63)" {
   let source =
     #|precision: 9
@@ -61,6 +74,9 @@ test "gda parser reads a doubled quote inside a quoted token (issue #63)" {
 }
 
 ///|
+// oracle: A
+// source: written out: '1'' leaves the quote open (the doubled quote is an escape), so the row is a parse error
+// shares: nothing
 test "gda parser rejects a quoted token ended by a doubled quote" {
   let result = @gda_expr.parse_dectest("bad.decTest", "x toSci '1'' -> NaN\n")
   assert_true(result is Err(_))

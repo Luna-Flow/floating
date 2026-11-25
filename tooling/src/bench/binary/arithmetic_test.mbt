@@ -199,6 +199,10 @@ fn binary_spec(
 }
 
 ///|
+// oracle: S
+// source: no expected value: the block only requires that each benchmark spec compiles (the unwrap of the compile
+//   result), so the verdict is the absence of a compile error
+// shares: binary_spec and BenchSpec::compile (the code under test)
 test "binary benchmark plans compile" {
   for operation in [BinaryOperation::Add, Mul, Div] {
     ignore(binary_spec(operation).compile().unwrap())

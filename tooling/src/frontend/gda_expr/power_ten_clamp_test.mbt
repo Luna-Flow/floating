@@ -3,6 +3,12 @@
 /// is folded down, with `Clamped` (issue 287). A power of ten took a shortcut that
 /// skipped it. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
 /// checked against the clause by hand.
+// oracle: A
+// source: GDA 1.70 Clamped (an exponent above Etop under clamp is folded down); the rows were run with CPython decimal
+//   (libmpdec 4.0.0) in this review and agree in value, cohort and flags, as the doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter folds down a power of ten under clamp" {
   let source =
     #|extended: 1

@@ -1,5 +1,14 @@
 ///|
 #skip("performance benchmark")
+// oracle: A, S
+// source: the check inside the timed run (assert_eq failed_count 0): the core/decimal and full/checked results are
+//   compared with the sum, product or quotient computed by core BigInt on the same integer operands (operands
+//   are exact integers at precision equal to the sum of their bit lengths plus 4, and the dividend is a multiple
+//   of the divisor, so no rounding is involved: BigInt is not this library); kernel/coefficient is that BigInt
+//   arithmetic itself and is only timed; the MAREMARK_HOTSPOT lines are timing output with no expected value
+//   (level S). The block is #skip (performance benchmark); the correctness oracles for rounded results are the
+//   corpora of the gates and bench/external
+// shares: Decimal::from_bigint (builds the operands and the reference value from the BigInt), Decimal::compare
 async test "decimal kernel core and full paths" {
   for operation in [DecimalOperation::Add, Mul, Div] {
     let name = operation.name()

@@ -177,6 +177,10 @@ fn decimal_spec(
 }
 
 ///|
+// oracle: S
+// source: no expected value: the block only requires that each benchmark spec compiles (the unwrap of the compile
+//   result), so the verdict is the absence of a compile error
+// shares: decimal_spec and BenchSpec::compile (the code under test)
 test "decimal benchmark plans compile" {
   for operation in [DecimalOperation::Add, Mul, Div] {
     ignore(decimal_spec(operation).compile().unwrap())

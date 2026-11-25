@@ -172,6 +172,13 @@ fn bound_verdict(
 /// of the result, and the operands as the library read them, with MPFR's.
 /// Prints `INTERVALDIFF_FAIL` per differing row and `INTERVALDIFF_SUMMARY`; the test fails
 /// when any row differs. Without the two variables it does nothing.
+// oracle: A
+// source: the oracle rows named by INTERVALDIFF_ORACLE, written by the MPFR and MPFI C tool
+//   tools/interval_mpfr_oracle.c (tightest results and directed roundings); elementary rows are judged for
+//   enclosure of the tightest result and for the excess width. Without the two variables the block returns at
+//   once and checks nothing
+// shares: read_operand and read_bound (the library reads the operands and the oracle bounds from the rows),
+//   bound_verdict (has its own block), canonical_bound
 async test "interval against the MPFR oracle: tightest results, directed roundings" {
   guard @env.get_env_var("INTERVALDIFF_INPUTS") is Some(inputs_path) else {
     return
@@ -290,6 +297,12 @@ async test "interval against the MPFR oracle: tightest results, directed roundin
 ///|
 // Oracle: level A (the verdicts are worked out by hand: units of the last place of
 // the oracle bound 1.5 at 8 bits are 2^-7).
+// oracle: A
+// source: verdicts worked out by hand from the definition: the oracle bound 1.5 at 8 bits has the unit in the last
+//   place 2^-7; a lower bound 3 units below encloses and is accurate, 5000 units below is too wide, a bound
+//   above the oracle bound does not enclose, a zero oracle bound is met exactly, an infinite upper bound only by
+//   infinity
+// shares: Binary::ulp, sub, mul, add, neg, from_int, from_double, zero and inf (build the bounds being judged)
 test "bound_verdict: enclosing, equal, a little wider, too wide, zero and infinite bounds" {
   let p = 8
   let one_and_a_half = @binary.Binary::from_double(1.5, precision=p)
@@ -330,6 +343,9 @@ test "bound_verdict: enclosing, equal, a little wider, too wide, zero and infini
 
 ///|
 // Oracle: level A (written-out texts).
+// oracle: A
+// source: the three input and output texts are written out: -0 in the echo reads as 0, other texts do not change
+// shares: nothing
 test "identify_zeros: -0 is 0 in the echo of the operands, nothing else changes" {
   assert_eq(identify_zeros("-0:0,0b1p0:-0"), "0:0,0b1p0:0")
   assert_eq(identify_zeros("-0b1p0:0b11p1"), "-0b1p0:0b11p1")
