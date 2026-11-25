@@ -29,7 +29,7 @@ text, so `binary` does not need to be imported.
 
 All seven parsers split the text at `\n`, trim each line, and skip empty lines
 and lines starting with `#`. Fields are separated by spaces, tabs or carriage
-returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of
+returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`, and absent from the `shortest` rows of `mpfr-decimal-output-v1`) is one of
 
 | Field | `BinaryRoundingMode` |
 | --- | --- |

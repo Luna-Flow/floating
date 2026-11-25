@@ -90,8 +90,8 @@ decoration logic.
 
 ### Reading bounds
 
-Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a
-binary exponent, then rounded to the working precision. Decimal bounds are
+Hexadecimal bounds `0x…p…` (the significand may have a point and a sign) are parsed exactly as a
+significand and a binary exponent, then rounded to the working precision. Decimal bounds are
 read by `Binary::from_string_ctx`, which rounds the exact decimal value once to
 nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the
 ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup
@@ -146,9 +146,9 @@ so a caller may filter or reorder cases freely.
 
 **Totality.** Every completed statement becomes a case or a parse diagnostic,
 and `execute_case` reports every unreadable input through a disposition; it
-aborts only on an interval literal that is not an interval (a lower bound above
+aborts on an interval literal that is not an interval (a lower bound above
 the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of
-`-inf`). Statement boundaries come from a line ending
+`-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending
 in `;` once its `//` comment is removed, so a trailing `// …` after `;` does
 not merge the statement with the next one.
 

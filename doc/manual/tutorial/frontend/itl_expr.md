@@ -153,9 +153,9 @@ test "dispositions" {
 - **Corpus runs.** `just conformance run interval` fetches the pinned ITF1788
   corpus when `testdata/interval/itf1788` is missing, builds the native runner
   and runs the phases listed in
-  `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic
-  case fails a phase only with `--strict-supported`, which this command does not
-  pass; see
+  `testdata/interval/interpreter_stages.json`. A diagnostic case fails a phase;
+  an unsupported case fails it only with `--strict-supported`, which this
+  command does not pass; see
   [verification](../../verification.md).
 - **Filtering by operation.** The CLI's `--operation NAME` option keeps only
   cases of that operation; in code, filter `cases` by `operation()` before

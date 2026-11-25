@@ -124,7 +124,7 @@ The case is dispatched on its operation and expected value:
 | ternary | `fma` | interval | equal sets |
 | integer power | `pown` (second operand an integer) | interval | equal sets |
 | reverse | `sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, each also as `…Bin` (the prior interval comes before the integer power of `pownRev`) | interval | equal sets |
-| reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`) | `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` | interval (two for `mulRevToPair`) | equal sets |
+| reverse (`mulRev` and `mulRevToPair` two operands, the others three) or two results (`mulRevToPair`) | `mulRev`, `mulRevTen`, `mulRevToPair`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` | interval (two for `mulRevToPair`) | equal sets |
 | binary | `add`, `sub`, `mul`, `div`, `pow`, `atan2`, `min`, `max`, `intersection`, `convexHull`, `cancelPlus`, `cancelMinus` | interval | equal sets |
 
 "Equal sets" means: both NaI, or both empty, or equal lower bounds and equal
