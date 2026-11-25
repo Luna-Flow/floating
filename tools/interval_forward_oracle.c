@@ -3,7 +3,7 @@
  *
  * Reads rows `op precision x [y]` (x and y exact, hexadecimal as `[-]0x<hex>p<exp>`, parsed exactly)
  * and writes, per row, `lo hi`: the two directed roundings (RNDD, RNDU) of op(x) or op(x, y) to
- * `precision` bits as MPFR writes them (`%Ra`). Operations: asin acos atan tan cot exp ln pow atan2 (first operand the ordinate).
+ * `precision` bits as MPFR writes them (`%Ra`). Operations: asin acos atan tan cot exp ln pow atan2 (first operand the ordinate) sinpi cospi.
  * Nothing of it is shared with `binary` or `interval`.
  *
  *   interval_forward_oracle INPUT OUTPUT
@@ -33,6 +33,8 @@ static int apply(const char *op, mpfr_t out, mpfr_t x, mpfr_t y, mpfr_rnd_t rnd)
   if (strcmp(op, "atan") == 0) return mpfr_atan(out, x, rnd);
   if (strcmp(op, "tan") == 0) return mpfr_tan(out, x, rnd);
   if (strcmp(op, "cot") == 0) return mpfr_cot(out, x, rnd);
+  if (strcmp(op, "sinpi") == 0) return mpfr_sinpi(out, x, rnd);
+  if (strcmp(op, "cospi") == 0) return mpfr_cospi(out, x, rnd);
   if (strcmp(op, "exp") == 0) return mpfr_exp(out, x, rnd);
   if (strcmp(op, "ln") == 0) return mpfr_log(out, x, rnd);
   if (strcmp(op, "pow") == 0) return mpfr_pow(out, x, y, rnd);

@@ -8,6 +8,9 @@ fn relation_interval(lo : Int32, hi : Int32) -> Interval {
 }
 
 ///|
+// oracle: A
+// source: written out from the endpoint definitions of IEEE 1788-2015 10.5.10 (Table 10.3: subset, less, precedes, strictPrecedes, disjoint, interior, strictLess; Table 10.4 for an empty operand): the empty interval is a subset of every interval, less of itself and not less than a nonempty interval, precedes every interval; [1, 2] precedes [2, 4] but does not strictly precede it; the empty interval is disjoint from Entire; Entire is interior to and strictly less than itself
+// shares: relation_interval (Interval::from_bounds with from_int bounds), Interval::empty and entire build the inputs
 test "IEEE 1788 set relations follow endpoint definitions" {
   let empty = Interval::empty(precision=32)
   let entire = Interval::entire(precision=32)
@@ -25,6 +28,9 @@ test "IEEE 1788 set relations follow endpoint definitions" {
 }
 
 ///|
+// oracle: A
+// source: written out from the endpoint definitions of IEEE 1788-2015 10.5.10 (Table 10.3: interior, where an infinite end may be shared, and strictLess): (-inf, 0] is interior to (-inf, 1] and [0, +inf) to [-1, +inf), and (-inf, 0] is strictly less than (-inf, 1]
+// shares: Binary::inf, zero, one, from_int and Interval::from_bounds build the inputs
 test "IEEE 1788 interior permits shared infinite endpoints" {
   let precision = 32
   let negative_infinity = @binary.Binary::inf(negative=true, precision~)

@@ -69,6 +69,9 @@ fn fab_expected_max_200() -> @binary.Binary {
 }
 
 ///|
+// oracle: A
+// source: written out in the header of the file: c + 2^-1073741902 = (253 * 2^120 + 1) * 2^-1073741902, the hexadecimal FD, 29 zeros, 1 (128 bits), the product being far below the unit of c; the product is positive so the lower bound is c itself
+// shares: fab_value, fab_hex and fab_zeros (Binary::make and BinCoeff::parse) build the operands and the expected end; Binary::compare compares them
 test "fma with a product far below the range floor adds one p-bit unit, not 2^e_min" {
   // c = 253 * 2^-1073741782 (8 bits, a normal value), p = 128: its unit is
   // 2^-1073741902; the product is about 2^-2147483600
@@ -83,6 +86,9 @@ test "fma with a product far below the range floor adds one p-bit unit, not 2^e_
 }
 
 ///|
+// oracle: A
+// source: written out in the header of the file: c + 2^-1073741902 = (253 * 2^120 + 1) * 2^-1073741902 at 128 bits, the addend lying far below the unit of c; the lower bound is c itself
+// shares: fab_value, fab_hex and fab_zeros (Binary::make and BinCoeff::parse) build the operands and the expected end; Binary::compare compares them
 test "add of a value far below the range floor is rounded to the unit of the precision" {
   let precision = 128
   let c = fab_value(253UL, -1073741782, precision)
@@ -95,6 +101,9 @@ test "add of a value far below the range floor is rounded to the unit of the pre
 }
 
 ///|
+// oracle: A
+// source: written out in the header of the file: the largest finite number of 200 bits is (2^200 - 1) * 2^(e_max + 1 - 200), 50 hexadecimal digits F times 2^1073741624, the lower bound of a result above the range; the upper bound is +inf
+// shares: fab_hex and fab_zeros (Binary::make and BinCoeff::parse) build the expected end; Interval::from_int, Binary::make and Interval::from_bounds build the operands; Binary::compare and classify compare
 test "fma of a product above the range has the largest finite number of the precision as its lower bound" {
   // 3 * 2^(e_max - 1) times 3 is above the range: its lower bound was the largest
   // finite number of the 4 bits of the exact product, not of the precision
@@ -122,6 +131,9 @@ test "fma of a product above the range has the largest finite number of the prec
 }
 
 ///|
+// oracle: A
+// source: worked out by hand: 7 * 2^1000000 + 5 * 2^-1000000 and 7 * 2^1000000 - 5 * 2^-1000000 have the tightest ends 7 * 2^1000000 (the lower bound of the sum, the upper bound of the difference, 7 needs 3 bits); the operand of cancel_minus [5 * 2^-1000000, 7 * 2^1000000] is wider than the point 7 * 2^1000000, so the cancelMinus is Entire (12.12.5: Entire when width(x) < width(y))
+// shares: Binary::make builds the operands and the expected ends; Interval::from_bounds builds the intervals; Binary::compare compares
 test "add, sub and cancel with endpoints of an inflated precision stay cheap and tight" {
   let precision = 128
   let big = @binary.Binary::make(

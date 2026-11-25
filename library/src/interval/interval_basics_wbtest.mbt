@@ -197,77 +197,53 @@ test "interval basics: product, quotient, powers, fma and width are the exact hu
 }
 
 ///|
-fn trig_corpus(precision : Int32) -> Array[Interval] {
-  let values : Array[@binary.Binary] = []
-  for
-    d in [
-      -5.3, -3.0, -2.5, -1.5, -1.0, -0.75, -0.5, -0.1, -0.0, 0.0, 0.2, 0.5, 0.6,
-      1.0, 1.25, 1.5, 1.75, 2.0, 2.4, 3.0, 3.5, 4.5, 7.0,
-    ] {
-    values.push(@binary.Binary::from_double(d, precision~))
-  }
-  let out : Array[Interval] = [empty_interval(precision)]
-  for i in 0..<values.length() {
-    for j in i..<values.length() {
-      match Interval::try_from_bounds(values[i], values[j], precision~) {
-        Ok(v) => out.push(v)
-        Err(_) => ()
-      }
+// oracle: A
+// source: the hulls of sinpi and cospi over 253 intervals of 22 dyadic values (-21/4 to 7), and of atan2 over the boxes of 7 values and of the grid -2, -1, 0, 1, 2 (the whole range [-RU(pi), RU(pi)] across the half-line y = 0, x < 0, and the box of the origin empty), at 5 and 24 bits, from the directed p-bit values of MPFR at the endpoints, the extrema and the corners and axis points of the box (tools/interval_corner_oracle.py, table corner_table_wbtest.mbt); this replaces the comparison with the pre-#378 copies of the four-call selection, which shared the point functions try_sinpi_ctx, try_cospi_ctx and the certified atan2; the sign of a zero bound is checked by the zero sign tests
+// shares: Binary::from_hex and String::split read the table; Interval::from_bounds builds the operands
+test "corner selection: sinpi, cospi and atan2 are the hulls of the directed point values" {
+  let mut count = 0
+  for line in corner_table().split("\n") {
+    let line = line.to_owned()
+    if line == "" {
+      continue
     }
-  }
-  out
-}
-
-///|
-fn same_try(
-  a : Result[Interval, @def.ArithmeticError],
-  b : Result[Interval, @def.ArithmeticError],
-) -> Unit raise {
-  // Bit for bit, including the sign of a zero endpoint.
-  match (a, b) {
-    (Ok(x), Ok(y)) => {
-      assert_eq(x, y)
-      assert_eq(x.lo_.to_string(), y.lo_.to_string())
-      assert_eq(x.hi_.to_string(), y.hi_.to_string())
-      assert_eq(x.lo_.is_sign_minus(), y.lo_.is_sign_minus())
-      assert_eq(x.hi_.is_sign_minus(), y.hi_.is_sign_minus())
+    let f = line.split(" ").map(fn(s) { s.to_owned() }).collect()
+    let precision = point_table_precision(f[1])
+    let bound = fn(i : Int32) { basics_table_bound(f[i], precision) }
+    let (result, last) = if f[0] == "atan2" {
+      let y = Interval::from_bounds(bound(2), bound(3), precision~)
+      let x = Interval::from_bounds(bound(4), bound(5), precision~)
+      (y.try_atan2(x).unwrap(), 6)
+    } else {
+      let a = Interval::from_bounds(bound(2), bound(3), precision~)
+      (
+        if f[0] == "sinpi" {
+          a.try_sinpi().unwrap()
+        } else {
+          a.try_cospi().unwrap()
+        },
+        4,
+      )
     }
-    (Err(_), Err(_)) => ()
-    _ => fail("result kinds differ")
-  }
-}
-
-///|
-test "corner selection: sinpi and cospi match the four-call original" {
-  for precision in [24, 80] {
-    for a in trig_corpus(precision) {
-      same_try(a.try_sinpi(), a.old_try_sinpi_interval())
-      same_try(a.try_cospi(), a.old_try_cospi_interval())
+    if f[last] == "empty" {
+      assert_true(result.is_empty(), msg=line)
+    } else {
+      assert_true(basics_table_same(bound(last), result.lo_), msg=line)
+      assert_true(basics_table_same(bound(last + 1), result.hi_), msg=line)
     }
+    count += 1
   }
-}
-
-///|
-test "corner selection: atan2 matches the corner-and-axis hull" {
-  for precision in [24] {
-    let corpus = trig_corpus(precision).filter(fn(v) { v.precision_ >= 0 })
-    // a coarser sub-sample keeps the quadratic loop cheap
-    let mut i = 0
-    for a in corpus {
-      i += 1
-      if i % 13 != 0 {
-        continue
-      }
-      let mut j = 0
-      for b in corpus {
-        j += 1
-        if j % 11 != 1 {
-          continue
-        }
-        same_try(a.try_atan2(b), a.old_try_atan2_interval(b))
-      }
-    }
-  }
+  assert_eq(count, 3028)
+  let empty = empty_interval(24)
+  let one = Interval::from_bounds(
+    @binary.Binary::one(precision=24),
+    @binary.Binary::one(precision=24),
+    precision=24,
+  )
+  assert_true(empty.try_sinpi().unwrap().is_empty())
+  assert_true(empty.try_cospi().unwrap().is_empty())
+  assert_true(empty.try_atan2(one).unwrap().is_empty())
+  assert_true(one.try_atan2(empty).unwrap().is_empty())
 }
 
 ///|
@@ -301,25 +277,6 @@ fn euclid_gcd(a : Int32, b : Int32) -> Int32 {
     y = t
   }
   x
-}
-
-///|
-test "corner selection: atan2 on every box of a sign-complete grid" {
-  let precision = 24
-  let grid = [-2.0, -1.0, 0.0, 1.0, 2.0].map(fn(d) {
-    @binary.Binary::from_double(d, precision~)
-  })
-  let boxes : Array[Interval] = []
-  for i in 0..<grid.length() {
-    for j in i..<grid.length() {
-      boxes.push(Interval::from_bounds(grid[i], grid[j], precision~))
-    }
-  }
-  for a in boxes {
-    for b in boxes {
-      same_try(a.try_atan2(b), a.old_try_atan2_interval(b))
-    }
-  }
 }
 
 ///|

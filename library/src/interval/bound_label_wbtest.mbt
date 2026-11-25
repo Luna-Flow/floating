@@ -114,17 +114,26 @@ fn bl_corpus(divisor : Int32) -> Unit raise {
 }
 
 ///|
+// oracle: S
+// source: the invariant of the representation, not a value (IEEE 1788-2015 10.2: the bounds are numbers of the format of the interval): every bound of the result of every public operation on a seeded corpus has at most p significant bits, lies on the grid of p bits and carries the label p; bl_fits states the rule in the test and does not call the code that enforces it
+// shares: db_interval and db_operand build the corpus (Binary::make and Interval::from_bounds); every public operation of the package is the code under test; the written-out cases of the same file give the values
 test "labels of the bounds: every operation, sample" {
   bl_corpus(30)
 }
 
 ///|
+// oracle: S
+// source: the invariant of the representation, not a value (IEEE 1788-2015 10.2: the bounds are numbers of the format of the interval): every bound of the result of every public operation on a seeded corpus has at most p significant bits, lies on the grid of p bits and carries the label p; bl_fits states the rule in the test and does not call the code that enforces it
+// shares: db_interval and db_operand build the corpus (Binary::make and Interval::from_bounds); every public operation of the package is the code under test; the written-out cases of the same file give the values
 #skip("long run: the interval gate runs it with --include-skipped")
 test "labels of the bounds: every operation, long" {
   bl_corpus(1)
 }
 
 ///|
+// oracle: A
+// source: worked out by hand from the rounding of IEEE 1788-2015 12.12.7 and written in the test: the hull of sqrt 3 +- 1024 ulp keeps 53-bit labels; [1 - 2^-100, 1 + 2^-100] rounded outward to 24 bits is [1 - 2^-24, 1 + 2^-23] = [0xffffffp-24, 0x800001p-23]; 2^(e_min - 30) at 24 bits has the lower end 0 and the upper end 2^(e_min - 23), the smallest positive number of 24 bits; zeros, infinities and the empty interval carry p; equality does not read a label
+// shares: Binary::make, from_int, one and sqrt build the inputs; Interval::from_midpoint_radius, from_bounds, entire and empty are the code under test; to_exact_string prints the ends
 test "labels of the bounds: written-out cases" {
   // (1) the ends of Interval::from_midpoint_radius(sqrt 3, 1024 ulp, 53): numbers of 53 bits
   // whose coefficient has a trailing zero bit were labelled 52
