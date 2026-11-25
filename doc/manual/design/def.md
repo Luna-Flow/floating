@@ -2,16 +2,13 @@
 
 ## Design goal
 
-`def` gives the three scalar representations of `floating` (binary `Binary`,
-IEEE decimal `@decimal.Decimal` and GDA decimal `@decimal_gda.Decimal`) one
-vocabulary for the things they have in common: what class a
-value belongs to, what its sign is, at what precision it is stored, how to move
-it to another precision, and which representative of its value it is. It also
-names the result of an IEEE comparison and re-exports the context and error
-types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The
-package is deliberately thin: it states contracts and contains no numerical
-algorithm. The [API page](../api/def.md) lists the items; the
-[tutorial](../tutorial/def.md) shows them in use.
+`def` gives `Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal` a shared
+vocabulary for classification, sign, precision, re-precision and normal form.
+It also names the four-way result of an IEEE comparison and re-exports the
+context and error types from [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/).
+The package states these contracts; numerical algorithms remain in the scalar
+packages. See the [API page](../api/def.md) for the items and the
+[tutorial](../tutorial/def.md) for examples.
 
 ## Mathematical background
 
@@ -25,8 +22,9 @@ $$
 [\![x]\!] = (-1)^{s}\, c\, \beta^{e}.
 $$
 
-Several triples denote the same real: $(0, 15, -1)$ and $(0, 150, -2)$ both
-denote $1.5$ in radix ten, and $(0, 0, e)$ and $(1, 0, e)$ both denote $0$.
+Different triples can denote the same real. In radix ten, $(0, 15, -1)$ and
+$(0, 150, -2)$ both denote $1.5$; $(0, 0, e)$ and $(1, 0, e)$ both denote
+$0$.
 Non-finite scalars denote $\pm\infty$ or are NaN, which denotes no number.
 
 For a precision $p \ge 1$ let
@@ -44,7 +42,7 @@ element $\ge t$, `TowardZero` to the one of these two with the smaller
 magnitude, `AwayFromZero` to the larger, and `ToNearestEven` to the nearer one,
 ties going to the even coefficient.[^ieee-rounding]
 
-[^ieee-rounding]: IEEE 754-2019, clause 4.3 (rounding-direction attributes).
+[^ieee-rounding]: IEEE 754-2019 4.3 (rounding-direction attributes).
     `AwayFromZero` is not an IEEE binary attribute; it corresponds to the GDA
     rounding `Up` (Cowlishaw, *General Decimal Arithmetic Specification*).
 
@@ -57,8 +55,7 @@ trichotomy, with $-0 = +0$ and $-\infty < t < +\infty$ for every finite $t$;
 *unordered* holds exactly when at least one operand is NaN, including when both
 are the same NaN. `PartialOrder` is this four-valued relation as a datatype.
 
-[^ieee-compare]: IEEE 754-2019, clause 5.11 (details of comparison predicates)
-    and Table 5.1. The quiet and signaling predicates differ only in whether a
+[^ieee-compare]: IEEE 754-2019 5.11 and Table 5.1. The quiet and signaling predicates differ only in whether a
     quiet-NaN operand signals invalid operation, which is why `binary`
     returns the relation together with `BinaryFlags`.
 
@@ -66,11 +63,10 @@ are the same NaN. `PartialOrder` is this four-valued relation as a datatype.
 
 ### A small trait instead of a numeric tower
 
-**Problem.** Generic code must be able to ask any representation a few
-questions, but the representations do not share arithmetic laws: binary and
-decimal operations round in different radices and GDA operations thread a sticky
-context. Intervals are deliberately not among them (see [Intervals are not
-`Floating`](#intervals-are-not-floating)).
+**Problem.** Generic code needs a small set of observations, but the scalar
+representations do not share arithmetic laws. Binary and decimal operations
+round in different radices, and GDA operations thread a sticky context. Intervals
+are not scalar values (see [Intervals are not `Floating`](#intervals-are-not-floating)).
 
 **Options.** (a) A broad "real number" trait with arithmetic, ordering and
 parsing. (b) A trait with only representation-independent observations and
@@ -119,8 +115,8 @@ such implementation, and the generic predicates `is_finite`, `is_infinite`,
 
 ### `Sign` merges the two zeros
 
-`signum` answers "on which side of zero is the value", not "what is the sign
-bit". Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted
+`signum` answers which side of zero the value occupies, rather than exposing the
+sign bit. Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted
 value, so it agrees across representations and with the
 [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign
 bit stays observable through the concrete packages. The scalar implementations
@@ -129,15 +125,13 @@ care test `is_nan` first.
 
 ### Intervals are not `Floating`
 
-Up to 0.11 `Interval` implemented `Floating`, and every observation had to be
-read with an interval meaning: `signum` returned `Zero` for "contains 0" and
-aborted on the empty set, `is_zero` through it meant "contains 0", `is_nan`
-meant "empty", and `with_precision` ignored its rounding mode. A generic
-function written for scalars then gave answers that were true of no single
-number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \ne \{0\}$. The names of
-those predicates are the scalar ones, so the interval meaning could not be
-told from the call site. `Interval` therefore does not implement `Floating`;
-its package spells the questions the way IEEE 1788-2015 does (`is_empty`,
+`Interval` does not implement `Floating`. If it did, scalar observations would
+have interval meanings hidden at the call site: `signum` would return `Zero` for
+an interval that contains $0$, `is_nan` would mean "empty", and `is_zero` of
+$[-1, 1]$ would be true even though $[-1, 1] \ne \{0\}$. The names of these
+predicates are scalar names, so this ambiguity cannot be resolved by the generic
+call. The interval package instead spells its questions using the terms of
+IEEE 1788-2015: (`is_empty`,
 `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table
 10.3, `is_member` for a point) and re-rounds with `with_precision`, which always
 rounds outward.
@@ -189,8 +183,9 @@ layer exists between the two repositories.
 ### The `Floating` laws
 
 The laws below are the contract of the trait. They are stated for a value $x$,
-a precision $p$ and a direction $m$; $q = p$ for $p \ge 1$ (for $p < 1$,
-`Binary` and `@decimal.Decimal` abort and `@decimal_gda.Decimal` uses $q = 1$). The three scalar
+a precision $p$ and a direction $m$. For $p \ge 1$, let $q = p$; for $p < 1$,
+`Binary` and `@decimal.Decimal` abort, while `@decimal_gda.Decimal` uses $q = 1$.
+The three scalar
 implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception
 stated below (F5). The laws are the contract between the three implementations and the generic
 code of this library; they are not an invitation to implement the trait
@@ -207,13 +202,15 @@ $$
 \end{aligned}
 $$
 
-**The exponent range of `Binary`.** (F5) is stated over
-$\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types keep a stored
-range of their own (the exponent of the least digit at least $-2147483645$, the adjusted
-exponent at most $2147483646$: `decimal_value_e_tiny`, `decimal_value_e_max`,
-`gda_value_e_tiny`, `gda_value_e_max`), and a result beyond it overflows or underflows by
-the direction as for `Binary`, so for them (F5) holds whenever $\circ_{m,q}([\![x]\!])$ lies in that range.
-`Binary` keeps its implementation range even in `with_precision`: let
+**Stored exponent ranges.** (F5) is stated over $\mathbb{F}_{\beta,q}$, whose
+exponent is unbounded. Each decimal type keeps a stored range: the exponent of
+the least digit is at least $-2147483645$, and the adjusted exponent is at most
+$2147483646$ (`decimal_value_e_tiny`, `decimal_value_e_max`,
+`gda_value_e_tiny`, `gda_value_e_max`). A result beyond that range overflows or
+underflows according to the direction, so (F5) holds when the rounded result is
+in range.
+
+`Binary` keeps its implementation range in `with_precision`. Let
 $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is
 $1 - E$). A rounded result whose leading bit would lie
 above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway`
@@ -262,7 +259,9 @@ The same argument with "largest element $\le t$" works for $\nabla$, with
 $\ge |t|$" for `AwayFromZero`: every directed rounding to $\mathbb{F}_{\beta,q}$
 factors through any finer set $\mathbb{F}_{\beta,p}$ that contains
 $\mathbb{F}_{\beta,q}$. For
-`ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `Binary::with_precision`, which takes one.) Take
+`ToNearestEven` the identity fails (double rounding).[^double-rounding] The
+trait method `Floating::with_precision` rounds to nearest even; the example
+uses the inherent `Binary::with_precision`, which accepts a direction. Take
 $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$
 and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the
 $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$.
