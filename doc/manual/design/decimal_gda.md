@@ -1066,8 +1066,8 @@ algorithm never adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6`
 padded to $p$ digits with `Inexact` and `Rounded` in every rounding algorithm,
 as `power.decTest` rows powx2039 and powx2040 show for $1^y$ in `ceiling`.
 
-`exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with a positive
-integer exponent above 999,999,999 accept only
+`exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with an
+integer exponent above 999,999,999 or below $-1\,999\,999\,997$ accept only
 contexts with $p$, $E_{\max}$ and $-E_{\min}$ at most 999,999
 (`math_context_is_restricted`) and raise `InvalidContext` otherwise. This is
 an implementation limit, decNumber's `DEC_MAX_MATH`, and not a rule of the GDA
