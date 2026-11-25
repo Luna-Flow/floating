@@ -16,6 +16,9 @@ fn pm1_render(result : BinaryChecked) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: exp2m1(+0) = +0, exp2m1(+inf) = +inf, exp2m1(-inf) = -1, exp2m1(1) = 1, log2p1(1) = 1, log2p1(-1) is -inf with divideByZero, below -1 and -inf invalid
+// shares: pm1_render (prints the outcome as sign, exponent and coefficient text)
 test "checked exp2m1, exp10m1, log2p1 and log10p1 map the exception flags" {
   let context = @binary.BinaryContext::binary64()
   let value = fn(x : @binary.Binary) { BinaryChecked::ok(x) }
