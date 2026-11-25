@@ -471,7 +471,7 @@ test "BinaryChecked hypot and atan2 signal only for signaling NaN" {
 ///|
 // oracle: A
 // source: written out from IEEE 754-2019 7.4 and 7.5: overflow and underflow deliver a default result, so exp(1000), exp(-1000), sinh, cosh and 10^400.5 are Ok in binary64
-// shares: nothing
+// shares: BinaryChecked::from_double (builds the operands) and the methods under test; the result is read through is_ok only
 test "elementary BinaryChecked methods keep range exceptions in Ok" {
   // 7.4 and 7.5: overflow and underflow deliver a default result.
   let binary64 = @binary.BinaryContext::binary64()
