@@ -413,5 +413,86 @@ class RealRepositoryTest(unittest.TestCase):
             self.assertTrue(units[heavy].keyed, heavy)
 
 
+DRY_RUN = (
+    "moonc build-package ./library/src/def/alias.mbt ./library/src/def/types.mbt -pkg Luna-Flow/floating/def -o x.mi\n"
+    "moonc build-package ./library/src/interval/a.mbt -pkg Luna-Flow/floating/interval -o y.mi\n"
+    "moonc build-package ./library/src/interval/a.mbt ./library/src/interval/a_wbtest.mbt -whitebox-test -pkg Luna-Flow/floating/interval\n"
+    "moonc build-package ./library/src/interval/README.mbt.md -doctest-only ./library/src/interval/a.mbt -blackbox-test -pkg i_bb\n"
+)
+
+
+class TestFileRuleTest(unittest.TestCase):
+    def test_names(self) -> None:
+        for name in ("a_wbtest.mbt", "a_nonjs_wbtest.mbt", "a_test.mbt", "README.mbt.md"):
+            self.assertTrue(nu.is_test_file(name), name)
+        for name in ("a.mbt", "test.mbt", "testing.mbt", "moon.pkg", "luna_limbs.c", "rows.txt", "pkg.generated.mbti"):
+            self.assertFalse(nu.is_test_file(name), name)
+
+    def test_a_dry_run_that_follows_the_naming_has_no_test_file_in_a_library_build(self) -> None:
+        self.assertEqual(nu.test_files_in_library_builds(DRY_RUN), [])
+
+    def test_a_library_build_that_compiles_a_test_file_is_found(self) -> None:
+        bad = DRY_RUN + "moonc build-package ./library/src/def/x.mbt ./library/src/def/x_wbtest.mbt -pkg Luna-Flow/floating/def\n"
+        self.assertEqual(nu.test_files_in_library_builds(bad), ["./library/src/def/x_wbtest.mbt"])
+
+
+class DigestTest(unittest.TestCase):
+    """The digest of a unit on a scratch tree: which edits change it."""
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        for name in ("def", "binary", "interval"):
+            directory = self.root / "library" / "src" / name
+            directory.mkdir(parents=True)
+            (directory / "moon.pkg").write_text("")
+            (directory / "a.mbt").write_text("fn f() -> Int { 1 }\n")
+            (directory / "a_wbtest.mbt").write_text("test \"t\" { }\n")
+            (directory / "README.mbt.md").write_text("doc\n")
+        self.unit = nu.Unit("u", (f"{L}/interval",), True)
+
+    def digest(self, refine: bool = True) -> str:
+        return nu.digest_unit(self.root, self.unit, graph(), refine)
+
+    def edit(self, package: str, name: str) -> None:
+        path = self.root / "library" / "src" / package / name
+        path.write_text(path.read_text() + "// edit\n")
+
+    def test_test_files_of_imported_packages_do_not_change_it(self) -> None:
+        before = self.digest()
+        for package in ("def", "binary"):
+            self.edit(package, "a_wbtest.mbt")
+            self.edit(package, "README.mbt.md")
+        self.assertEqual(self.digest(), before)
+
+    def test_a_new_test_file_of_an_imported_package_does_not_change_it(self) -> None:
+        before = self.digest()
+        (self.root / "library/src/binary/b_test.mbt").write_text("test \"n\" { }\n")
+        self.assertEqual(self.digest(), before)
+
+    def test_sources_and_pkg_files_of_imported_packages_change_it(self) -> None:
+        for package, name in (("def", "a.mbt"), ("binary", "moon.pkg"), ("binary", "a.mbt")):
+            before = self.digest()
+            self.edit(package, name)
+            self.assertNotEqual(self.digest(), before, f"{package}/{name}")
+
+    def test_every_file_of_the_unit_own_package_changes_it(self) -> None:
+        for name in ("a.mbt", "a_wbtest.mbt", "README.mbt.md", "moon.pkg"):
+            before = self.digest()
+            self.edit("interval", name)
+            self.assertNotEqual(self.digest(), before, name)
+
+    def test_without_the_rule_a_test_file_of_an_imported_package_changes_it(self) -> None:
+        before = self.digest(refine=False)
+        self.edit("def", "a_wbtest.mbt")
+        self.assertNotEqual(self.digest(refine=False), before)
+
+    def test_the_rule_is_in_the_key(self) -> None:
+        a = nu.unit_key(self.unit, "c", "x", "m", "w", "t", "v", "", nu.RULE_ALL)[0]
+        b = nu.unit_key(self.unit, "c", "x", "m", "w", "t", "v", "", nu.RULE_IMPORTED_TESTS_OUT)[0]
+        self.assertNotEqual(a, b)
+
+
 if __name__ == "__main__":
     unittest.main()
