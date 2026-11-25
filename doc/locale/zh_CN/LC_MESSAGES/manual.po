@@ -7350,8 +7350,8 @@ msgid "`sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, e
 msgstr "`sqrRev`、`absRev`、`coshRev`、`pownRev`、`sinRev`、`cosRev`、`tanRev`，每个也有 `…Bin` 形式（先验区间位于 `pownRev` 的整数幂之前）"
 
 #: manual/api/frontend/itl_expr.md:127
-msgid "reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`)"
-msgstr "反向（`mulRev` 为两个操作数，其余为三个）或两个结果（`mulRevToPair`）"
+msgid "reverse (`mulRev` and `mulRevToPair` two operands, the others three) or two results (`mulRevToPair`)"
+msgstr "反向（`mulRev` 和 `mulRevToPair` 为两个操作数，其余为三个）或两个结果（`mulRevToPair`）"
 
 #: manual/api/frontend/itl_expr.md:127
 msgid "interval (two for `mulRevToPair`)"
@@ -7452,10 +7452,10 @@ msgstr "通用行语法"
 #: manual/api/frontend/mpfr_expr.md:30
 msgid ""
 "All seven parsers split the text at `\\n"
-"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of"
+"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`, and absent from the `shortest` rows of `mpfr-decimal-output-v1`) is one of"
 msgstr ""
 "七个解析器都在 `\\n"
-"` 处切分文本，修剪每一行，并跳过空行和以 `#` 开头的行。字段以空格、制表符或回车符分隔。行号从 1 开始。舍入字段（除 `mpfr-decimal-random-v2` 外的每种格式中）为以下之一"
+"` 处切分文本，修剪每一行，并跳过空行和以 `#` 开头的行。字段以空格、制表符或回车符分隔。行号从 1 开始。舍入字段（除 `mpfr-decimal-random-v2` 外的每种格式中，但 `mpfr-decimal-output-v1` 的 `shortest` 行没有该字段）为以下之一"
 
 #: manual/api/frontend/mpfr_expr.md:34
 msgid "Field"
@@ -19042,8 +19042,8 @@ msgid "Reading bounds"
 msgstr "读取端点"
 
 #: manual/design/frontend/itl_expr.md:93
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
-msgstr "十六进制界 `0x…p…` 被精确解析为一个整数有效数字和一个二进制指数，然后舍入到工作精度。十进制界由 `Binary::from_string_ctx` 读取，无论数字有多少位，它都把精确的十进制值一次性就近舍入（偶数优先）到 $p$ 位。采用就近舍入而非向外舍入是 ITF1788 的约定，并不是 IEEE 1788 区间字面量：ITF1788 生成器把 `[l,u]` 输出为目标类型的 inf-sup 构造函数作用于该类型的两个浮点常量，因此十进制界表示该格式中最接近的数。测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`；界为 `5.1` 的 `cancelPlus` 用例期望的界也是由最接近的 binary64 数算出的）。若像 `textToInterval` 那样向外读取这些界，cancellation、power、atan2 和 integer-power 阶段中都会有严格用例失败。"
+msgid "Hexadecimal bounds `0x…p…` (the significand may have a point and a sign) are parsed exactly as a significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
+msgstr "十六进制界 `0x…p…`（有效数字可以带小数点和符号）被精确解析为一个有效数字和一个二进制指数，然后舍入到工作精度。十进制界由 `Binary::from_string_ctx` 读取，无论数字有多少位，它都把精确的十进制值一次性就近舍入（偶数优先）到 $p$ 位。采用就近舍入而非向外舍入是 ITF1788 的约定，并不是 IEEE 1788 区间字面量：ITF1788 生成器把 `[l,u]` 输出为目标类型的 inf-sup 构造函数作用于该类型的两个浮点常量，因此十进制界表示该格式中最接近的数。测试语料依赖这一点（`isSingleton [17.1, 17.1] = true`；界为 `5.1` 的 `cancelPlus` 用例期望的界也是由最接近的 binary64 数算出的）。若像 `textToInterval` 那样向外读取这些界，cancellation、power、atan2 和 integer-power 阶段中都会有严格用例失败。"
 
 #: manual/design/frontend/itl_expr.md:105
 msgid "Decorations only when the case states one"
@@ -19074,8 +19074,8 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**确定性。** 解析与执行只依赖于文本和 `precision`；结果不依赖于用例的执行顺序，因此调用者可以自由地筛选或重排用例。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts only on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`). Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它只会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`）。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`），也会因超出 1 到 268435456 的 `precision` 注记而中止。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
 
 #: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
@@ -19186,8 +19186,8 @@ msgid "`identical` on `Binary` compares the stored representation, which is cano
 msgstr "`Binary` 上的 `identical` 比较的是存储表示，而对于给定的值和精度，该表示是规范的，因此它能区分 $+0$ 与 $-0$ 以及 NaN 载荷。`compare == 0` 是数值相等的扩展：任意 NaN 与任意 NaN 比较相等，且 $+0 = -0$。"
 
 #: manual/design/frontend/mpfr_expr.md:62
-msgid "An unbounded exponent range"
-msgstr "无界指数范围"
+msgid "No exponent range of its own"
+msgstr "自身没有指数范围"
 
 #: manual/design/frontend/mpfr_expr.md:64
 msgid "MPFR's default exponent range is far wider than any IEEE format, and the data contains results such as $2^{-563}$ computed from subnormal-range binary64 inputs. Executing in the context of the precision alone (`e_max` 1073741823, gradual underflow) tests rounding of the significand in isolation: range effects (overflow, underflow, subnormals) are covered by the TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats have real limits. Consequently an underflow or overflow flag in a power or elementary row is a failure: it can only come from a defect."
@@ -28596,8 +28596,8 @@ msgid "A case the executor does not implement is `Unsupported`, whatever its ope
 msgstr "执行器未实现的用例是 `Unsupported`，无论其操作数如何（包括 `nums2interval 1.0 2.0`）；已知运算的用例若其操作数无法读取，则为 `Diagnostic`。两者都不算作失败，但诊断会使 `success()` 为 false："
 
 #: manual/tutorial/frontend/itl_expr.md:153
-msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic case fails a phase only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
-msgstr "**语料运行。** 当 `testdata/interval/itf1788` 缺失时，`just conformance run interval` 会获取固定版本的 ITF1788 语料，构建 native 运行器，并运行 `testdata/interval/interpreter_stages.json` 中列出的各阶段。不支持的用例或诊断用例只有在使用 `--strict-supported` 时才会使阶段失败，而此命令不传该选项；参见[验证](../../verification.md)。"
+msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. A diagnostic case fails a phase; an unsupported case fails it only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
+msgstr "**语料运行。** 当 `testdata/interval/itf1788` 缺失时，`just conformance run interval` 会获取固定版本的 ITF1788 语料，构建 native 运行器，并运行 `testdata/interval/interpreter_stages.json` 中列出的各阶段。诊断用例会使阶段失败；不支持的用例只有在使用 `--strict-supported` 时才会使阶段失败，而此命令不传该选项；参见[验证](../../verification.md)。"
 
 #: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
@@ -31472,6 +31472,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:943
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "An unbounded exponent range"
+#~ msgstr "无界指数范围"
 
 #~ msgid "`execute_case` does not abort on case content."
 #~ msgstr "`execute_case` 不会因用例内容而中止。"

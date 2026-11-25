@@ -7350,8 +7350,8 @@ msgid "`sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, e
 msgstr "`sqrRev`、`absRev`、`coshRev`、`pownRev`、`sinRev`、`cosRev`、`tanRev`。それぞれ `…Bin` 形式もあります（`pownRev` では先行区間が整数べきの前に来ます）"
 
 #: manual/api/frontend/itl_expr.md:127
-msgid "reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`)"
-msgstr "逆演算（`mulRev` はオペランド 2 つ、それ以外は 3 つ）または結果 2 つ（`mulRevToPair`）"
+msgid "reverse (`mulRev` and `mulRevToPair` two operands, the others three) or two results (`mulRevToPair`)"
+msgstr "逆演算（`mulRev` と `mulRevToPair` はオペランド 2 つ、それ以外は 3 つ）または結果 2 つ（`mulRevToPair`）"
 
 #: manual/api/frontend/itl_expr.md:127
 msgid "interval (two for `mulRevToPair`)"
@@ -7452,10 +7452,10 @@ msgstr "共通の行構文"
 #: manual/api/frontend/mpfr_expr.md:30
 msgid ""
 "All seven parsers split the text at `\\n"
-"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of"
+"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`, and absent from the `shortest` rows of `mpfr-decimal-output-v1`) is one of"
 msgstr ""
 "7 つのパーサーはいずれも、テキストを `\\n"
-"` で分割し、各行をトリムし、空行と `#` で始まる行を読み飛ばします。フィールドは空白、タブ、キャリッジリターンで区切られます。行番号は 1 から始まります。丸めフィールド（`mpfr-decimal-random-v2` 以外のすべての形式）は次のいずれかです"
+"` で分割し、各行をトリムし、空行と `#` で始まる行を読み飛ばします。フィールドは空白、タブ、キャリッジリターンで区切られます。行番号は 1 から始まります。丸めフィールド（`mpfr-decimal-random-v2` 以外のすべての形式。ただし `mpfr-decimal-output-v1` の `shortest` 行にはありません）は次のいずれかです"
 
 #: manual/api/frontend/mpfr_expr.md:34
 msgid "Field"
@@ -19042,8 +19042,8 @@ msgid "Reading bounds"
 msgstr "端点の読み取り"
 
 #: manual/design/frontend/itl_expr.md:93
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
-msgstr "16 進数の下端と上端 `0x…p…` は、整数の仮数部と 2 進指数として厳密に解析され、その後作業精度に丸められます。10 進数の下端と上端は `Binary::from_string_ctx` で読み取られ、桁数にかかわらず、厳密な 10 進値を $p$ ビットへ 1 回だけ最近接偶数丸めします。外向きではなく最近接に丸めるのは ITF1788 の規約であり、IEEE 1788 の区間リテラルではありません。ITF1788 の生成器は `[l,u]` を、対象型の 2 つの浮動小数点定数に対象型の inf-sup コンストラクタを適用する式として出力するため、10 進の下端または上端はその形式で最も近い数を表します。コーパスはこれを前提にしています（`isSingleton [17.1, 17.1] = true`。また `5.1` を含む `cancelPlus` のケースは、最も近い binary64 の数から計算した下端と上端を期待しています）。`textToInterval` のようにこれらを外向きに読むと、cancellation、power、atan2、integer-power の各フェーズで厳格なケースが失敗します。"
+msgid "Hexadecimal bounds `0x…p…` (the significand may have a point and a sign) are parsed exactly as a significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
+msgstr "16 進数の下端と上端 `0x…p…`（仮数部には小数点と符号を付けられます）は、仮数部と 2 進指数として厳密に解析され、その後作業精度に丸められます。10 進数の下端と上端は `Binary::from_string_ctx` で読み取られ、桁数にかかわらず、厳密な 10 進値を $p$ ビットへ 1 回だけ最近接偶数丸めします。外向きではなく最近接に丸めるのは ITF1788 の規約であり、IEEE 1788 の区間リテラルではありません。ITF1788 の生成器は `[l,u]` を、対象型の 2 つの浮動小数点定数に対象型の inf-sup コンストラクタを適用する式として出力するため、10 進の下端または上端はその形式で最も近い数を表します。コーパスはこれを前提にしています（`isSingleton [17.1, 17.1] = true`。また `5.1` を含む `cancelPlus` のケースは、最も近い binary64 の数から計算した下端と上端を期待しています）。`textToInterval` のようにこれらを外向きに読むと、cancellation、power、atan2、integer-power の各フェーズで厳格なケースが失敗します。"
 
 #: manual/design/frontend/itl_expr.md:105
 msgid "Decorations only when the case states one"
@@ -19074,8 +19074,8 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**決定性。** 解析と実行はテキストと `precision` のみに依存します。結果はケースを実行する順序に依存しないため、呼び出し側はケースを自由にフィルタリングしたり並べ替えたりできます。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts only on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`). Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**全域性。** 完結したすべての文はケースまたは解析診断になり、`execute_case` は読み取れない入力をすべて処理区分を通じて報告します。中断（abort）するのは、区間にならない区間リテラル（下端が上端より大きい、`nan` の下端または上端がある、下端が `+inf`、上端が `-inf`）の場合だけです。文の境界は、`//` コメントを取り除いた後に `;` で終わる行によって決まるので、`;` の後に続く `// …` があっても、その文が次の文と結合されることはありません。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**全域性。** 完結したすべての文はケースまたは解析診断になり、`execute_case` は読み取れない入力をすべて処理区分を通じて報告します。中断（abort）するのは、区間にならない区間リテラル（下端が上端より大きい、`nan` の下端または上端がある、下端が `+inf`、上端が `-inf`）の場合と、1 から 268435456 の範囲外の `precision` 注釈の場合です。文の境界は、`//` コメントを取り除いた後に `;` で終わる行によって決まるので、`;` の後に続く `// …` があっても、その文が次の文と結合されることはありません。"
 
 #: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
@@ -19186,8 +19186,8 @@ msgid "`identical` on `Binary` compares the stored representation, which is cano
 msgstr "`Binary` に対する `identical` は格納された表現を比較します。この表現は与えられた値と精度に対して正準なので、$+0$ と $-0$、および NaN のペイロードを区別します。`compare == 0` は数値的な等価性を拡張したもので、すべての NaN はすべての NaN と等しく、$+0 = -0$ となります。"
 
 #: manual/design/frontend/mpfr_expr.md:62
-msgid "An unbounded exponent range"
-msgstr "非有界な指数範囲"
+msgid "No exponent range of its own"
+msgstr "独自の指数範囲を持たない"
 
 #: manual/design/frontend/mpfr_expr.md:64
 msgid "MPFR's default exponent range is far wider than any IEEE format, and the data contains results such as $2^{-563}$ computed from subnormal-range binary64 inputs. Executing in the context of the precision alone (`e_max` 1073741823, gradual underflow) tests rounding of the significand in isolation: range effects (overflow, underflow, subnormals) are covered by the TestFloat corpus through [`testfloat_expr`](testfloat_expr.md), where formats have real limits. Consequently an underflow or overflow flag in a power or elementary row is a failure: it can only come from a defect."
@@ -28596,8 +28596,8 @@ msgid "A case the executor does not implement is `Unsupported`, whatever its ope
 msgstr "エグゼキュータが実装していないケースは、オペランドが何であっても `Unsupported` です（`nums2interval 1.0 2.0` も含みます）。既知の演算のケースでオペランドを読み取れないものは `Diagnostic` です。どちらも失敗には数えられませんが、診断があると `success()` は false になります。"
 
 #: manual/tutorial/frontend/itl_expr.md:153
-msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic case fails a phase only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
-msgstr "**コーパスの実行。** `just conformance run interval` は、`testdata/interval/itf1788` がなければ固定された ITF1788 コーパスを取得し、native ランナーをビルドして、`testdata/interval/interpreter_stages.json` に列挙されたフェーズを実行します。サポートされないケースや診断ケースがフェーズを失敗させるのは `--strict-supported` を指定した場合だけで、このコマンドはそれを渡しません。[検証](../../verification.md) を参照してください。"
+msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. A diagnostic case fails a phase; an unsupported case fails it only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
+msgstr "**コーパスの実行。** `just conformance run interval` は、`testdata/interval/itf1788` がなければ固定された ITF1788 コーパスを取得し、native ランナーをビルドして、`testdata/interval/interpreter_stages.json` に列挙されたフェーズを実行します。診断ケースはフェーズを失敗させます。サポートされないケースがフェーズを失敗させるのは `--strict-supported` を指定した場合だけで、このコマンドはそれを渡しません。[検証](../../verification.md) を参照してください。"
 
 #: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
@@ -31472,6 +31472,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:943
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "An unbounded exponent range"
+#~ msgstr "非有界な指数範囲"
 
 #~ msgid "`execute_case` does not abort on case content."
 #~ msgstr "`execute_case` はケースの内容によって異常終了しません。"
