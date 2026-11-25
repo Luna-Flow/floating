@@ -16,17 +16,8 @@ library/src/interval/interval_decorated_wbtest.mbt::decorations compare in the p
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, long	?
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, sample	?
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: written-out cases	?
-library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus at the bottom of the range: the cases of the issue	?
-library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus decide on the exact values near the bottom of the range	?
-library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5	?
-library/src/interval/cancel_bottom_wbtest.mbt::equal widths give a point, with a canonical zero	?
 library/src/interval/center_radius_containment_wbtest.mbt::intervals built near the bottom of the range contain their centers	?
 library/src/interval/center_radius_containment_wbtest.mbt::the interval of a center near the bottom of the range contains the center	?
-library/src/interval/certified_rounding_wbtest.mbt::decorated log1p uses its shifted IEEE domain	?
-library/src/interval/certified_rounding_wbtest.mbt::expm1 and log1p preserve certified containment	?
-library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_coefficient contains coefficients wider than the precision	?
-library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int contains integers wider than the precision	?
-library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int stays exact when the precision is wide enough	?
 library/src/interval/context_format_wbtest.mbt::IntervalContext presets are the interchange formats	?
 library/src/interval/context_format_wbtest.mbt::IntervalContext::try_new rejects what no format has	?
 library/src/interval/context_format_wbtest.mbt::interval constructors report a precision outside 1..binary_precision_max	?
@@ -40,8 +31,6 @@ library/src/interval/context_rounding_wbtest.mbt::apply_ctx does not raise under
 library/src/interval/context_rounding_wbtest.mbt::apply_ctx raises underflow for a tiny inexact endpoint	?
 library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx keeps exact and normal centers	?
 library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest once	?
-library/src/interval/decorated_ill_issue443_wbtest.mbt::new with the decoration ill returns NaI (#443)	?
-library/src/interval/decorated_ill_issue443_wbtest.mbt::the other forbidden combinations of 11.5.2 are repaired (#443)	?
 library/src/interval/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
 library/src/interval/directed_bounds_wbtest.mbt::gradual underflow of a short exact result keeps the correctly rounded bound	?
 library/src/interval/directed_bounds_wbtest.mbt::overflow of a short exact result keeps the correctly rounded bound	?

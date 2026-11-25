@@ -45,6 +45,9 @@ fn cn_interval(
 }
 
 ///|
+// oracle: A
+// source: two cases of the issue worked by hand at the bottom of the range: x = [u, 2u], y = [u, 3u]: cancelPlus bounds 4u > 3u so Entire (width 1u < 2u); x = [u, 3u], y = [u, 5u]: cancelMinus bounds 0 > -2u so Entire (width 2u < 4u); IEEE 1788-2015 10.5.6, 12.12.5
+// shares: cn_interval and cn_value (Binary::make, Interval::from_bounds), is_entire; cancel_plus and cancel_minus are the code under test
 test "cancel_plus and cancel_minus at the bottom of the range: the cases of the issue" {
   let e_min = @binary.binary_value_e_min
   let u = e_min - 60
@@ -59,6 +62,9 @@ test "cancel_plus and cancel_minus at the bottom of the range: the cases of the 
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 10.5.6: equal widths give a point: cancelMinus([1u,3u],[0,2u]) = [1u,1u], cancelPlus([1u,3u],[-2u,0]) = [1u,1u], cancelMinus([3u,5u],[3u,5u]) = [0,0]; 12.12.8 gives a zero lower end as -0 and a zero upper end as +0
+// shares: cn_interval and cn_value (Binary::make, Interval::from_bounds), is_zero, is_sign_minus; cancel_plus and cancel_minus are the code under test
 test "equal widths give a point, with a canonical zero" {
   let e_min = @binary.binary_value_e_min
   let u = e_min - 60
@@ -82,48 +88,54 @@ test "equal widths give a point, with a canonical zero" {
 }
 
 ///|
-/// The oracle: the exact end values by `add_ctx` in 600 bits.
-fn cn_check(x : Interval, y : Interval, plus : Bool) -> Unit {
-  let wide = @binary.BinaryContext::new(precision=600)
-  let (lo, hi) = if plus {
-    (
-      x.lower_bound().add_ctx(y.upper_bound(), wide).0,
-      x.upper_bound().add_ctx(y.lower_bound(), wide).0,
-    )
+/// The expected result of cancel_minus(x, y) (and of cancel_plus(x, -y)) for x = [a, a + d] * 2^e and
+/// y = [b, b + d + delta] * 2^e, by integer algebra on the coefficients. Below the range floor the
+/// numbers of a p-bit format lie on the grid of the quantum 2^(e_min - p + 1), a multiple of `unit`
+/// units of 2^e; the constructor rounds the lower end of an operand down and the upper end up to that
+/// grid (IEEE 1788-2015 12.12.7), so the operands are [floor(a / unit), ceil((a + d) / unit)] * unit and
+/// the same for y; the result ends are the exact differences of the operand ends, and the result is
+/// Entire when the lower end lies above the upper end (10.5.6).
+fn cn_check_integers(
+  z : Interval,
+  a : Int64,
+  b : Int64,
+  d : Int64,
+  delta : Int64,
+  exponent : Int32,
+  p : Int32,
+) -> Unit {
+  let quantum_exponent = @binary.binary_value_e_min - p + 1
+  let unit = if exponent < quantum_exponent {
+    1L << (quantum_exponent - exponent)
   } else {
-    (
-      x.lower_bound().sub_ctx(y.lower_bound(), wide).0,
-      x.upper_bound().sub_ctx(y.upper_bound(), wide).0,
-    )
+    1L
   }
-  let z = if plus { x.cancel_plus(y) } else { x.cancel_minus(y) }
-  if lo.compare(hi) > 0 {
+  let floor_unit = fn(c : Int64) { c / unit * unit }
+  let ceil_unit = fn(c : Int64) { (c + unit - 1L) / unit * unit }
+  let lo = floor_unit(a) - floor_unit(b)
+  let hi = ceil_unit(a + d) - ceil_unit(b + d + delta)
+  if lo > hi {
     if !z.is_entire() {
       abort(
-        "expected Entire: lo \{lo} hi \{hi} got \{z.lower_bound()} \{z.upper_bound()}",
+        "expected Entire: a=\{a} b=\{b} d=\{d} delta=\{delta} e=\{exponent} p=\{p}",
       )
     }
   } else {
-    let p = Int32::max(x.precision(), y.precision())
-    let down = lo.with_precision(
-      p,
-      @binary.BinaryRoundingMode::RoundTowardNegative,
-    )
-    let up = hi.with_precision(
-      p,
-      @binary.BinaryRoundingMode::RoundTowardPositive,
-    )
+    let expected = cn_interval(lo, hi, exponent, p)
     if z.is_entire() ||
-      z.lower_bound().compare(down) != 0 ||
-      z.upper_bound().compare(up) != 0 {
+      z.lower_bound().compare(expected.lower_bound()) != 0 ||
+      z.upper_bound().compare(expected.upper_bound()) != 0 {
       abort(
-        "ends: expected \{down} \{up}, got \{z.lower_bound()} \{z.upper_bound()}",
+        "ends differ: a=\{a} b=\{b} d=\{d} delta=\{delta} e=\{exponent} p=\{p} got \{z.lower_bound()} \{z.upper_bound()}",
       )
     }
   }
 }
 
 ///|
+// oracle: A
+// source: integer algebra written in cn_check_integers on the coefficients (x = [a, a + d] * 2^e, y = [b, b + d + delta] * 2^e with e just below e_min, 20-bit coefficients): the operand ends are rounded outward to the grid of the quantum 2^(e_min - p + 1) (12.12.7; at 53 bits this is coarser than 2^e for part of the exponents), the result ends are the exact differences of the operand ends, and the result is Entire when the lower end is above the upper end (IEEE 1788-2015 10.5.6, 12.12.5); cancelPlus(x, y) = cancelMinus(x, -y)
+// shares: cn_interval and cn_value (Binary::make, Interval::from_bounds), cn_next (the xorshift of the inputs); cancel_plus and cancel_minus are the code under test
 test "cancel_plus and cancel_minus decide on the exact values near the bottom of the range" {
   let state = Ref(0x9e3779b97f4a7c15UL)
   let e_min = @binary.binary_value_e_min
@@ -140,10 +152,10 @@ test "cancel_plus and cancel_minus decide on the exact values near the bottom of
     // widths d and d + delta: Entire exactly when delta > 0
     let x = cn_interval(a, a + d, exponent, p)
     let y = cn_interval(b, b + d + delta, exponent, p)
-    cn_check(x, y, false)
+    cn_check_integers(x.cancel_minus(y), a, b, d, delta, exponent, p)
     // cancel_plus(x, y) = cancel_minus(x, -y)
     let y_neg = cn_interval(-(b + d + delta), -b, exponent, p)
-    cn_check(x, y_neg, true)
+    cn_check_integers(x.cancel_plus(y_neg), a, b, d, delta, exponent, p)
     if delta > 0L {
       entire += 1
     }
@@ -180,6 +192,9 @@ test "away from the bottom of the range cancel_minus is the exact difference of 
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 10.5.6 and 12.12.5: x empty with y bounded gives Empty; y empty with x nonempty, an unbounded operand, or both empty and unbounded, have no Level 1 value and are Entire at Level 2; written out
+// shares: cn_interval, cn_value (Binary::make), Interval::empty, entire, from_bounds and Binary::inf build the inputs; cancel_plus and cancel_minus are the code under test
 test "cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5" {
   let bounded = cn_interval(1L, 3L, 0, 53)
   let empty = Interval::empty(precision=53)
