@@ -18211,7 +18211,7 @@ msgstr "def 設計"
 
 #: manual/design/def.md:5
 msgid "`def` gives `Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal` a shared vocabulary for classification, sign, precision, re-precision and normal form. It also names the four-way result of an IEEE comparison and re-exports the context and error types from [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The package states these contracts; numerical algorithms remain in the scalar packages. See the [API page](../api/def.md) for the items and the [tutorial](../tutorial/def.md) for examples."
-msgstr "`def` gives `Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal` a shared vocabulary for classification, sign, precision, re-precision and normal form. It also names the four-way result of an IEEE comparison and re-exports the context and error types from [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). The package states these contracts; numerical algorithms remain in the scalar packages. See the [API page](../api/def.md) for the items and the [tutorial](../tutorial/def.md) for examples."
+msgstr "`def` は `Binary`、`@decimal.Decimal`、`@decimal_gda.Decimal` に、分類、符号、精度、再精度化、正規形のための共通の語彙を与えます。また、IEEE 比較の四通りの結果に名前を付け、[Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) のコンテキスト型とエラー型を再エクスポートします。このパッケージは契約を述べるだけで、数値アルゴリズムはスカラーのパッケージに残ります。項目は [API ページ](../api/def.md)、例は[チュートリアル](../tutorial/def.md)を参照してください。"
 
 #: manual/design/def.md:15
 msgid "Values and their meaning"
@@ -18233,11 +18233,13 @@ msgstr "精度 $p \\ge 1$ に対して"
 msgid ""
 "be the numbers with at most $p$ significant radix-$\\beta$ digits and an unbounded exponent. A rounding function $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ for a direction $m$ (`RoundingMode`) maps a real to a neighbouring element of $\\mathbb{F}_{\\beta,p}$: $\\n"
 "abla$ (`TowardNegative`) to the largest element $\\le t$, $\\Delta$ (`TowardPositive`) to the smallest element $\\ge t$, `TowardZero` to the one of these two with the smaller magnitude, `AwayFromZero` to the larger, and `ToNearestEven` to the nearer one, ties going to the even coefficient.[^ieee-rounding]"
-msgstr "を、有効な基数 $\\beta$ の桁が高々 $p$ 桁で指数が非有界な数の集合とします。方向 $m$（`RoundingMode`）の丸め関数 $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ は、実数を $\\mathbb{F}_{\\beta,p}$ の隣接する元に写します。$\\\nabla$（`TowardNegative`）は $\\le t$ である最大の元へ、$\\Delta$（`TowardPositive`）は $\\ge t$ である最小の元へ、`TowardZero` はこの二つのうち絶対値の小さい方へ、`AwayFromZero` は大きい方へ、`ToNearestEven` は近い方へ写し、同距離の場合は係数が偶数の方を選びます。[^ieee-rounding] $ (`TowardNegative`) to the largest element $ $, $ $ (`TowardPositive`) to the smallest element $"
+msgstr ""
+"を、有効な基数 $\\beta$ の桁が高々 $p$ 桁で指数が非有界な数の集合とします。方向 $m$（`RoundingMode`）の丸め関数 $\\circ_{m,p} : \\mathbb{R} \\to \\mathbb{F}_{\\beta,p}$ は、実数を $\\mathbb{F}_{\\beta,p}$ の隣接する元に写します。$\\n"
+"abla$（`TowardNegative`）は $\\le t$ である最大の元へ、$\\Delta$（`TowardPositive`）は $\\ge t$ である最小の元へ、`TowardZero` はこの二つのうち絶対値の小さい方へ、`AwayFromZero` は大きい方へ、`ToNearestEven` は近い方へ写し、同距離の場合は係数が偶数の方を選びます。[^ieee-rounding]"
 
 #: manual/design/def.md:45
 msgid "IEEE 754-2019 4.3 (rounding-direction attributes). `AwayFromZero` is not an IEEE binary attribute; it corresponds to the GDA rounding `Up` (Cowlishaw, *General Decimal Arithmetic Specification*)."
-msgstr "IEEE 754-2019, 4.3 節（丸め方向属性）。`AwayFromZero` は IEEE の二進属性ではなく、GDA の丸め `Up` に対応します（Cowlishaw, *General Decimal Arithmetic Specification*）。"
+msgstr "IEEE 754-2019 4.3（丸め方向属性）。`AwayFromZero` は IEEE の二進属性ではなく、GDA の丸め `Up` に対応します（Cowlishaw, *General Decimal Arithmetic Specification*）。"
 
 #: manual/design/def.md:49
 msgid "The IEEE comparison relation"
@@ -18249,7 +18251,7 @@ msgstr "IEEE 754 は、任意の浮動小数点データの組についてちょ
 
 #: manual/design/def.md:58
 msgid "IEEE 754-2019 5.11 and Table 5.1. The quiet and signaling predicates differ only in whether a quiet-NaN operand signals invalid operation, which is why `binary` returns the relation together with `BinaryFlags`."
-msgstr "IEEE 754-2019, 5.11 節（比較述語の詳細）および表 5.1。quiet な述語と signaling な述語の違いは quiet NaN のオペランドが無効演算を通知するかどうかだけであり、そのため `binary` は関係を `BinaryFlags` とともに返します。"
+msgstr "IEEE 754-2019 5.11 および表 5.1。quiet な述語と signaling な述語の違いは quiet NaN のオペランドが無効演算を通知するかどうかだけであり、そのため `binary` は関係を `BinaryFlags` とともに返します。"
 
 #: manual/design/def.md:64
 msgid "A small trait instead of a numeric tower"
@@ -18257,7 +18259,7 @@ msgstr "数値の塔ではなく小さなトレイト"
 
 #: manual/design/def.md:66
 msgid "**Problem.** Generic code needs a small set of observations, but the scalar representations do not share arithmetic laws. Binary and decimal operations round in different radices, and GDA operations thread a sticky context. Intervals are not scalar values (see [Intervals are not `Floating`](#intervals-are-not-floating))."
-msgstr "**問題。** ジェネリックなコードはどの表現に対してもいくつかの問いを発せられなければなりませんが、表現どうしは算術法則を共有していません。二進と十進の演算は異なる基数で丸め、GDA の演算はスティッキーなコンテキストを受け渡します。区間は意図的にこれに含めません（[区間は `Floating` ではない](#intervals-are-not-floating)を参照）。"
+msgstr "**問題。** ジェネリックなコードはどの表現に対してもいくつかの問いを発せられなければなりませんが、表現どうしは算術法則を共有していません。二進と十進の演算は異なる基数で丸め、GDA の演算はスティッキーなコンテキストを受け渡します。区間はスカラー値ではありません（[区間は `Floating` ではない](#intervals-are-not-floating)を参照）。"
 
 #: manual/design/def.md:71
 msgid "**Options.** (a) A broad \"real number\" trait with arithmetic, ordering and parsing. (b) A trait with only representation-independent observations and re-precision. (c) No shared trait."
@@ -18307,7 +18309,9 @@ msgstr "区間は `Floating` ではない"
 msgid ""
 "`Interval` does not implement `Floating`. If it did, scalar observations would have interval meanings hidden at the call site: `signum` would return `Zero` for an interval that contains $0$ and would abort on the empty set, `is_nan` would mean \"empty\", and `is_zero` of $[-1, 1]$ would be true even though $[-1, 1] \\n"
 "e \\{0\\}$. The names of these predicates are scalar names, so this ambiguity cannot be resolved by the generic call. The interval package instead spells its questions using the terms of IEEE 1788-2015: `is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3 and `is_member` for a point. Its `with_precision` always rounds outward; it does not use a scalar rounding direction."
-msgstr "`Interval` does not implement `Floating`. If it did, scalar observations would have interval meanings hidden at the call site: `signum` would return `Zero` for an interval that contains $0$ and would abort on the empty set, `is_nan` would mean \"empty\", and `is_zero` of $[-1, 1]$ would be true even though $[-1, 1] \\\ne \\{0\\}$. The names of these predicates are scalar names, so this ambiguity cannot be resolved by the generic call. The interval package instead spells its questions using the terms of IEEE 1788-2015: `is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3 and `is_member` for a point. Its `with_precision` always rounds outward; it does not use a scalar rounding direction."
+msgstr ""
+"`Interval` は `Floating` を実装しません。実装すると、スカラーの観察が呼び出し箇所に隠れた区間の意味を持つことになります。`signum` は $0$ を含む区間に対して `Zero` を返し、空集合では異常終了し、`is_nan` は「空」を意味し、$[-1, 1]$ の `is_zero` は $[-1, 1] \\n"
+"e \\{0\\}$ であるにもかかわらず真になります。これらの述語の名前はスカラーの名前なので、ジェネリックな呼び出しではこの曖昧さを解消できません。区間パッケージは代わりに IEEE 1788-2015 の用語で問いを表します。`is_empty`、`is_entire`、`is_common_interval`、`is_singleton`、表 10.3 の比較、そして点に対する `is_member` です。その `with_precision` は常に外向きに丸め、スカラーの丸め方向は使いません。"
 
 #: manual/design/def.md:140
 msgid "`PartialOrder` is the IEEE four-way relation"
@@ -18347,15 +18351,15 @@ msgstr "`Floating` の法則"
 
 #: manual/design/def.md:186
 msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$. For $p \\ge 1$, let $q = p$; for $p < 1$, `Binary` and `@decimal.Decimal` abort, while `@decimal_gda.Decimal` uses $q = 1$. The three scalar implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception stated below (F5). The laws are the contract between the three implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
-msgstr "以下の法則がこのトレイトの契約です。値 $x$、精度 $p$、方向 $m$ について述べ、$p \\ge 1$ のとき $q = p$ とします（$p < 1$ では、`Binary` と `@decimal.Decimal` は異常終了し、`@decimal_gda.Decimal` は $q = 1$ を使います）。3 つのスカラー実装は (F1)–(F5) と (F6) を満たし、(F5) の後に述べる指数範囲の例外があります。これらの法則は 3 つの実装とこのライブラリの汎用コードとの間の契約であり、他の場所でこのトレイトを実装するよう勧めるものではありません（[`Floating` を open として宣言する理由](#why-floating-is-declared-open)を参照）。"
+msgstr "以下の法則がこのトレイトの契約です。値 $x$、精度 $p$、方向 $m$ について述べます。$p \\ge 1$ のときは $q = p$ とし、$p < 1$ のときは `Binary` と `@decimal.Decimal` は異常終了し、`@decimal_gda.Decimal` は $q = 1$ を使います。3 つのスカラー実装は (F1)–(F5) と (F6) を満たし、(F5) の後に述べる指数範囲の例外があります。これらの法則は 3 つの実装とこのライブラリの汎用コードとの間の契約であり、他の場所でこのトレイトを実装するよう勧めるものではありません（[`Floating` を open として宣言する理由](#why-floating-is-declared-open)を参照）。"
 
 #: manual/design/def.md:206
 msgid "**Stored exponent ranges.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. Each decimal type keeps a stored range: the exponent of the least digit is at least $-2147483645$, and the adjusted exponent is at most $2147483646$ (`decimal_value_e_tiny`, `decimal_value_e_max`, `gda_value_e_tiny`, `gda_value_e_max`). A result beyond that range overflows or underflows according to the direction, so (F5) holds when the rounded result is in range."
-msgstr "**`Binary` の指数範囲。** (F5) は指数が非有界な $\\mathbb{F}_{\\beta,q}$ 上で述べられています。10 進型は保存される範囲を独自に持ち（最下位桁の指数は $-2147483645$ 以上、調整指数は $2147483646$ 以下です：`decimal_value_e_tiny`、`decimal_value_e_max`、`gda_value_e_tiny`、`gda_value_e_max`）、それを超える結果は `Binary` と同様に丸め方向に応じてオーバーフローまたはアンダーフローするので、10 進型については $\\circ_{m,q}([\\![x]\\!])$ がその範囲内にあれば (F5) が成り立ちます。`Binary` は `with_precision` においても実装上の範囲を保ちます。$E = 2^{30} - 1$（`binary_value_e_max`。`binary_value_e_min` は $1 - E$）とします。丸めた結果の先頭ビットが $2^{E}$ より上にくる場合はオーバーフローします。`RoundTiesToEven`、`RoundTiesToAway`、およびその側でゼロから離れる向きの方向付き丸めでは無限大に、それ以外では $q$ ビットの最大の有限値になります。$q$ ビットで格納できる最小の正の値 $2^{-E-(q-2)}$ より下にある値は、$0$ またはその値に丸められます。したがって `Binary` では、$\\circ_{m,q}([\\![x]\\!])$ がその範囲内にあれば (F5) が成り立ちます。たとえば $3 \\cdot 2^{E-1}$ を 1 ビットと `RoundTowardPositive` で表し直すと、$2^{E+1}$ ではなく $+\\infty$ になります。"
+msgstr "**保存される指数範囲。** (F5) は指数が非有界な $\\mathbb{F}_{\\beta,q}$ 上で述べられています。各 10 進型は保存される範囲を持ち、最下位桁の指数は $-2147483645$ 以上、調整指数は $2147483646$ 以下です（`decimal_value_e_tiny`、`decimal_value_e_max`、`gda_value_e_tiny`、`gda_value_e_max`）。この範囲を超える結果は方向に応じてオーバーフローまたはアンダーフローするので、丸めた結果が範囲内にあれば (F5) が成り立ちます。"
 
 #: manual/design/def.md:214
 msgid "`Binary` keeps its implementation range in `with_precision`. Let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
-msgstr "`Binary` keeps its implementation range in `with_precision`. Let $E = 2^{30} - 1$ (`binary_value_e_max`, and `binary_value_e_min` is $1 - E$). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `RoundTiesToEven`, `RoundTiesToAway` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value that lies below $2^{-E-(q-2)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `RoundTowardPositive` becomes $+\\infty$ instead of $2^{E+1}$."
+msgstr "`Binary` は `with_precision` においても実装上の範囲を保ちます。$E = 2^{30} - 1$（`binary_value_e_max`。`binary_value_e_min` は $1 - E$）とします。丸めた結果の先頭ビットが $2^{E}$ より上にくる場合はオーバーフローします。`RoundTiesToEven`、`RoundTiesToAway`、およびその側でゼロから離れる向きの方向付き丸めでは無限大に、それ以外では $q$ ビットの最大の有限値になります。$q$ ビットで格納できる最小の正の値 $2^{-E-(q-2)}$ より下にある値は、$0$ またはその値に丸められます。したがって `Binary` では、$\\circ_{m,q}([\\![x]\\!])$ がその範囲内にあれば (F5) が成り立ちます。たとえば $3 \\cdot 2^{E-1}$ を 1 ビットと `RoundTowardPositive` で表し直すと、$2^{E+1}$ ではなく $+\\infty$ になります。"
 
 #: manual/design/def.md:226
 msgid "For non-finite scalars, `with_precision` keeps the class and the sign and only changes the stored precision, so (F4) still holds. For scalars \"the side of $0$\" is `Zero` for $[\\![x]\\!] = 0$."
@@ -18381,7 +18385,9 @@ msgstr "一般には、精度を二段階で下げることは一度に下げる
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
 "abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] The trait method `Floating::with_precision` rounds to nearest even; the example uses the inherent `Binary::with_precision`, which accepts a direction. Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
-msgstr "「$\\le t$ である最大の元」を用いた同じ議論は $\\\nabla$ に、「$\\ge t$ である最小の元」を用いれば $\\Delta$ に、「絶対値が $\\ge |t|$ である最小の元」を用いれば `AwayFromZero` に通用します。$\\mathbb{F}_{\\beta,q}$ へのすべての方向付き丸めは、$\\mathbb{F}_{\\beta,q}$ を含む任意のより細かい集合 $\\mathbb{F}_{\\beta,p}$ を経由して分解できます。`ToNearestEven` ではこの恒等式は成り立ちません（二重丸め）。[^double-rounding] （trait メソッド `Floating::with_precision` はモードを持たず最近接偶数丸めです。例では、モードを受け取る固有の `Binary::with_precision` を呼びます。） 二進で $t = 1.0100001_2 = 161/128$ を考えます。$p = 3$ では隣接元は $1.25$ と $1.5$ であり、$t$ は $1.25$ に丸められますが、これは $q = 2$ の隣接元 $1$ と $1.5$ のちょうど中間です。同距離なので係数が偶数の $1$ が選ばれます。一方、$t > 1.25$ なので $t$ を直接 2 ビットに丸めると $1.5$ になります。 $, with \"smallest element $ $\" for $ $, and with \"smallest magnitude $ $\" for `AwayFromZero`: every directed rounding to $ $ factors through any finer set $ $ that contains $ $. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] The trait method `Floating::with_precision` rounds to nearest even; the example uses the inherent `Binary::with_precision`, which accepts a direction. Take $ $ in binary. With $ $ the neighbours are $ $ and $ $, and $ $ rounds to $ $, which is exactly halfway between the $ $ neighbours $ $; the tie goes to the even coefficient, $ $. Rounding $ $ directly to two bits gives $ $ because $"
+msgstr ""
+"「$\\le t$ である最大の元」を用いた同じ議論は $\\n"
+"abla$ に、「$\\ge t$ である最小の元」を用いれば $\\Delta$ に、「絶対値が $\\ge |t|$ である最小の元」を用いれば `AwayFromZero` に通用します。$\\mathbb{F}_{\\beta,q}$ へのすべての方向付き丸めは、$\\mathbb{F}_{\\beta,q}$ を含む任意のより細かい集合 $\\mathbb{F}_{\\beta,p}$ を経由して分解できます。`ToNearestEven` ではこの恒等式は成り立ちません（二重丸め）。[^double-rounding] トレイトメソッド `Floating::with_precision` は最近接偶数丸めです。例では、方向を受け取る固有の `Binary::with_precision` を使います。 二進で $t = 1.0100001_2 = 161/128$ を考えます。$p = 3$ では隣接元は $1.25$ と $1.5$ であり、$t$ は $1.25$ に丸められますが、これは $q = 2$ の隣接元 $1$ と $1.5$ のちょうど中間です。同距離なので係数が偶数の $1$ が選ばれます。一方、$t > 1.25$ なので $t$ を直接 2 ビットに丸めると $1.5$ になります。"
 
 #: manual/design/def.md:288
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
