@@ -437,6 +437,12 @@ fn exact_division_by_power_of_ten_result(
     precision,
     ctx.decimal_rounding,
   )
+  // At the top of the stored range (`e_max` = `decimal_value_e_max`) the
+  // rounding above overflows by itself and returns the infinity of the
+  // rounding mode with no flag; the result is the overflow of the context.
+  if rounded_value.class == FpClass::Infinity {
+    return Some(decimal_overflow_result(negative, ctx))
+  }
   if exact_discards {
     let prefinal = if exact_result_is_subnormal(exact_unrounded, precision, ctx) {
       exact_unrounded

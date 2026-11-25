@@ -197,7 +197,10 @@ fn add_finite_values_ctx(
       // non-extended context rounds each operand to the precision first, so an
       // operand cannot round past e_max inside the operation.
       let overflow_is_certain = low.negative == high.negative ||
-        (precision >= 2 && high_adjusted >= ctx.e_max + 2)
+        (
+          precision >= 2 &&
+          high_adjusted.to_int64() >= ctx.e_max.to_int64() + 2L
+        )
 
       if base_flags.overflow && overflow_is_certain {
         return (base, base_flags)
