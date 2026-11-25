@@ -4,13 +4,38 @@ fn total_forms_pow2(exponent : Int32, precision : Int32) -> @binary.Binary {
 }
 
 ///|
+/// The ends of the row `op` of the table of the two extreme precisions (MPFR).
+fn total_forms_big_row(op : String) -> (@binary.Binary, @binary.Binary) {
+  for line in point_elementary_big_table().split("\n") {
+    let line = line.to_owned()
+    if line == "" {
+      continue
+    }
+    let f = line.split(" ").map(fn(s) { s.to_owned() }).collect()
+    if f[0] == op {
+      return (
+        @binary.Binary::from_hex(f[3], 170_000).unwrap(),
+        @binary.Binary::from_hex(f[4], 170_000).unwrap(),
+      )
+    }
+  }
+  abort("no row " + op)
+}
+
+///|
 /// Issue 449: the plain `ln` aborted from about 32,000 bits of
 /// precision ("certified log series did not converge"). The plain form is the
 /// `try_` form with a fallback, so it returns an enclosure at any precision and
 /// equals the `try_` form whenever that succeeds.
+// oracle: A, S
+// source: the two ends of ln 3 at 32,000 bits are the directed roundings (down, up) of the exact value computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_big_table_wbtest.mbt); the checks of the width, of exp(ln 3) containing 3 and of agreement with try_ln are self-consistency (S)
+// shares: Binary::from_hex (reads the table)
 test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
   let x = Interval::from_int(3, precision=32_000)
   let y = x.ln()
+  let (lo, hi) = total_forms_big_row("ln")
+  assert_true(y.lower_bound().compare(lo) == 0)
+  assert_true(y.upper_bound().compare(hi) == 0)
   assert_true(y.is_common_interval())
   assert_true(y.width().compare(total_forms_pow2(-31_990, 32_000)) <= 0)
   // exp(ln 3) must contain 3.
@@ -23,8 +48,14 @@ test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
 }
 
 ///|
+// oracle: A, S
+// source: the two ends of exp 1 at 160,000 bits are the directed roundings (down, up) of the exact value computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_big_table_wbtest.mbt); the width bound is a quality check (S)
+// shares: Binary::from_hex (reads the table)
 test "exp at 160,000 bits returns an enclosure (issue 449)" {
   let y = Interval::from_int(1, precision=160_000).exp()
+  let (lo, hi) = total_forms_big_row("exp")
+  assert_true(y.lower_bound().compare(lo) == 0)
+  assert_true(y.upper_bound().compare(hi) == 0)
   assert_true(y.is_common_interval())
   assert_true(y.width().compare(total_forms_pow2(-159_990, 160_000)) <= 0)
 }

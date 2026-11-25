@@ -40,7 +40,6 @@ library/src/interval/certified_rounding_wbtest.mbt::expm1 and log1p preserve cer
 library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_coefficient contains coefficients wider than the precision	?
 library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int contains integers wider than the precision	?
 library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int stays exact when the precision is wide enough	?
-library/src/interval/context_format_wbtest.mbt::IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e_max	?
 library/src/interval/context_format_wbtest.mbt::IntervalContext presets are the interchange formats	?
 library/src/interval/context_format_wbtest.mbt::IntervalContext::try_new rejects what no format has	?
 library/src/interval/context_format_wbtest.mbt::interval constructors report a precision outside 1..binary_precision_max	?
@@ -115,7 +114,6 @@ library/src/interval/interval_basics_wbtest.mbt::corner selection: sinpi and cos
 library/src/interval/interval_basics_wbtest.mbt::interval basics: division matches the 4-division original	?
 library/src/interval/interval_basics_wbtest.mbt::interval basics: multiplication matches the 4/8-product original	?
 library/src/interval/interval_basics_wbtest.mbt::interval basics: pown matches the original powers	?
-library/src/interval/interval_basics_wbtest.mbt::is_common_interval terminates and classifies the shapes	none
 library/src/interval/interval_basics_wbtest.mbt::try_sin/cos/tan: huge arguments around the cutoff stay sound	?
 library/src/interval/interval_literal_wbtest.mbt::interval literals: exponents at and beyond the limits of the converters	?
 library/src/interval/interval_literal_wbtest.mbt::interval literals: huge exponents	?
@@ -141,7 +139,6 @@ library/src/interval/mul_rev_wbtest.mbt::mul_rev: the hull is taken of the set, 
 library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the examples of 10.5.5	?
 library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the two components are ordered, whichever side of zero c lies	?
 library/src/interval/midpoint_radius_endpoints_wbtest.mbt::away from the bottom of the range the endpoints are unchanged	?
-library/src/interval/midpoint_radius_endpoints_wbtest.mbt::the first case of the issue	none
 library/src/interval/observers_wbtest.mbt::observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals	?
 library/src/interval/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?
 library/src/interval/observers_wbtest.mbt::try_new reports an invalid center or radius	?
@@ -173,9 +170,7 @@ library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are the 
 library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are unchanged away from the bottom of the range	?
 library/src/interval/radius_width_smallest_wbtest.mbt::radius and width of the interval of the issue	?
 library/src/interval/total_forms_wbtest.mbt::atanh of an interval meeting the closure of the domain at one point	?
-library/src/interval/total_forms_wbtest.mbt::exp at 160,000 bits returns an enclosure (issue 449)	?
 library/src/interval/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S
-library/src/interval/total_forms_wbtest.mbt::ln at 32,000 bits returns a tight enclosure (issue 449)	?
 library/src/interval/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^1000000000 returns at once	?
