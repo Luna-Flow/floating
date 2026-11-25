@@ -266,8 +266,11 @@ test "directed bounds at the two ends of the exponent range" {
 }
 
 ///|
-/// The two corner cases named by value (level A, worked out by hand): an exact result of fewer
-/// bits than the working precision.
+// The two corner cases named by value (level A, worked out by hand): an exact result of fewer
+// bits than the working precision.
+// oracle: A
+// source: worked by hand: 2^(e_min - 3) + 2^(e_min - 3) = 2^(e_min - 2) is exact (one bit) in every directed rounding mode at 53 bits, so each mode returns it (IEEE 754-2019 4.3.2)
+// shares: Binary::make builds the operands and the expected value; directed_add is the code under test
 test "gradual underflow of a short exact result keeps the correctly rounded bound" {
   let e_min = @binary.binary_value_e_min
   // 2^(e_min - 3) + 2^(e_min - 3) = 2^(e_min - 2): one bit, below the normal
@@ -282,6 +285,9 @@ test "gradual underflow of a short exact result keeps the correctly rounded boun
 }
 
 ///|
+// oracle: A
+// source: worked by hand from IEEE 754-2019 4.3.2 and 7.4: 2^e_max + 2^e_max = 2^(e_max + 1) exceeds the largest finite number (2^53 - 1) * 2^(e_max - 52) of 53 bits, so rounding toward positive gives +infinity and rounding toward negative gives that largest finite number
+// shares: Binary::make builds the operands and the expected value; directed_add is the code under test
 test "overflow of a short exact result keeps the correctly rounded bound" {
   let e_max = @binary.binary_value_e_max
   // 2^e_max + 2^e_max = 2^(e_max + 1): one bit, above the largest finite value

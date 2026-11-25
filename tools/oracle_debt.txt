@@ -27,34 +27,7 @@ library/src/interval/context_format_wbtest.mbt::panic Interval::empty aborts on 
 library/src/interval/context_format_wbtest.mbt::panic Interval::from_bounds aborts on precision 0	?
 library/src/interval/context_format_wbtest.mbt::panic Interval::with_precision aborts on precision 0	?
 library/src/interval/context_format_wbtest.mbt::try_new rejects a precision outside 1..=binary_precision_max	?
-library/src/interval/context_rounding_wbtest.mbt::apply_ctx does not raise underflow for exact tiny endpoints	?
-library/src/interval/context_rounding_wbtest.mbt::apply_ctx raises underflow for a tiny inexact endpoint	?
-library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx keeps exact and normal centers	?
-library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest once	?
 library/src/interval/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
-library/src/interval/directed_bounds_wbtest.mbt::gradual underflow of a short exact result keeps the correctly rounded bound	?
-library/src/interval/directed_bounds_wbtest.mbt::overflow of a short exact result keeps the correctly rounded bound	?
-library/src/interval/elementary_composed_wbtest.mbt::decorated composed functions lower partial domains	?
-library/src/interval/elementary_composed_wbtest.mbt::hyperbolic family preserves zero and domain hulls	?
-library/src/interval/elementary_composed_wbtest.mbt::pi-scaled extensions contain exact axis values	?
-library/src/interval/elementary_composed_wbtest.mbt::pi-scaled intervals classify endpoint and interior poles exactly	?
-library/src/interval/elementary_composed_wbtest.mbt::rootn and hypot preserve exact identities	?
-library/src/interval/elementary_composed_wbtest.mbt::stable expm1 and log1p intervals retain tiny singleton inputs	?
-library/src/interval/elementary_range_wbtest.mbt::asinh and atanh of a tiny argument terminate	?
-library/src/interval/elementary_range_wbtest.mbt::exp2 encloses integer endpoints beyond the exponent range	?
-library/src/interval/elementary_range_wbtest.mbt::ln of a value just above 1 at high precision terminates	?
-library/src/interval/endpoint_rounding_wbtest.mbt::convex_hull with Empty is the other operand	?
-library/src/interval/endpoint_rounding_wbtest.mbt::normalized keeps the interval	?
-library/src/interval/endpoint_rounding_wbtest.mbt::pow_int_checked by one keeps the interval	?
-library/src/interval/endpoint_rounding_wbtest.mbt::pow_nat_checked of Empty is Empty	?
-library/src/interval/endpoint_rounding_wbtest.mbt::with_precision at the same precision keeps the interval	?
-library/src/interval/endpoint_rounding_wbtest.mbt::with_precision rounds each endpoint outward	?
-library/src/interval/equality_wbtest.mbt::== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.3)	?
-library/src/interval/equality_wbtest.mbt::== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored	A
-library/src/interval/equality_wbtest.mbt::from_int and from_coefficient default to 53 bits	A
-library/src/interval/exp_overflow_edge_wbtest.mbt::exp of an interval across the overflow threshold keeps the lower end	?
-library/src/interval/exponent_range_wbtest.mbt::interval exponentials enclose results beyond the binary exponent range	?
-library/src/interval/exponent_range_wbtest.mbt::interval products clamp outward at the binary exponent range	?
 library/src/interval/far_addend_bottom_wbtest.mbt::add of a value far below the range floor is rounded to the unit of the precision	?
 library/src/interval/far_addend_bottom_wbtest.mbt::add, sub and cancel with endpoints of an inflated precision stay cheap and tight	?
 library/src/interval/far_addend_bottom_wbtest.mbt::fma of a product above the range has the largest finite number of the precision as its lower bound	?

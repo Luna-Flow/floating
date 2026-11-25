@@ -4,6 +4,9 @@ fn composed_singleton(value : Double) -> Interval {
 }
 
 ///|
+// oracle: A, S
+// source: containment of the exact values rootn(8, 3) = 2, rootn(-8, 3) = -2 and hypot(3, 4) = 5 (S: membership only, no end value); the Empty result of rootn(-1, 2) is by the domain of Table 9.1 (a square root of a negative number), written out (A)
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "rootn and hypot preserve exact identities" {
   let eight = composed_singleton(8.0).rootn(3)
   assert_true(eight.is_member(@binary.Binary::from_double(2.0)))
@@ -18,6 +21,9 @@ test "rootn and hypot preserve exact identities" {
 }
 
 ///|
+// oracle: S
+// source: containment only: sinpi(0) contains 0, cospi(0) contains 1, sinpi(2^40) contains 0, cospi(2^40) contains 1 (these are exact values of the point functions at integers); no end value is checked
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "pi-scaled extensions contain exact axis values" {
   assert_true(composed_singleton(0.0).sinpi().is_member(@binary.Binary::zero()))
   assert_true(composed_singleton(0.0).cospi().is_member(@binary.Binary::one()))
@@ -29,6 +35,9 @@ test "pi-scaled extensions contain exact axis values" {
 }
 
 ///|
+// oracle: A
+// source: worked by hand from IEEE 1788-2015 Table 9.1 (tanpi(x) = tan(pi x), poles at x = 1/2 + k): tanpi([0, 1/2]) = [0, +inf), tanpi([1/2, 1]) = (-inf, 0], tanpi([1/4, 3/4]) contains the pole in its interior so it is Entire, tanpi([0.5]) is Empty (the pole is not in the domain)
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "pi-scaled intervals classify endpoint and interior poles exactly" {
   let upper_pole = Interval::from_bounds(
       @binary.Binary::zero(precision=53),
@@ -63,6 +72,9 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
 }
 
 ///|
+// oracle: S
+// source: sign check only: for x = 2^-200 > 0, expm1(x) > 0 and log1p(x) > 0, so the enclosures must not contain 0 and their lower ends are positive; no end value is checked
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "stable expm1 and log1p intervals retain tiny singleton inputs" {
   let tiny_value = @binary.Binary::make(@binary.BinCoeff::one(), -200, 53)
   let tiny = Interval::exact(tiny_value)
@@ -75,6 +87,9 @@ test "stable expm1 and log1p intervals retain tiny singleton inputs" {
 }
 
 ///|
+// oracle: A, S
+// source: containment of the exact values sinh(0) = 0, tanh(0) = 0, cosh(0) = 1, asinh(0) = 0 (S: membership only); acosh(0.5) is Empty because acosh is defined for x >= 1 (Table 9.1, written out, A)
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "hyperbolic family preserves zero and domain hulls" {
   let zero = composed_singleton(0.0)
   assert_true(zero.sinh().is_member(@binary.Binary::zero()))
@@ -85,6 +100,9 @@ test "hyperbolic family preserves zero and domain hulls" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 Table 9.1 and 11.6, 11.7: rootn(-1, 2) and acosh(-1) are outside the domain, so the decoration is trv; sinh(0) is defined and continuous, so com; tanpi(0.5) is Empty with trv; an empty decorated interval is trv; NaI has the decoration ill
+// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
 test "decorated composed functions lower partial domains" {
   let negative = DecoratedInterval::new(composed_singleton(-1.0))
   assert_eq(negative.rootn(2).decoration(), Trv)
