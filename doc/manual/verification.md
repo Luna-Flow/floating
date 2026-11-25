@@ -588,7 +588,7 @@ attribute to a definition goes into a residue that is part of every key. When in
   TestFloat frontend and to an initialiser. For every edit that a vector or corpus can see, the whole
   selection is also run on the mutated build, and a unit that fails there must not have been reused
   (the check that shares no code with the keys); comment-only and formatting-only edits must change no
-  key.
+  key. `python3 tools/verify_mutation.py --stages` does the same for the whole-stage units of the `decimal` and `decimal_gda` gates, on keys: an edit or a comment in a package a stage reaches, an edited corpus row and a comment in the oracle program must change the key of exactly the stages that read them, an edit outside every stage must change none, and the edited oracle row must make the stage fail.
 
 ### The ledger
 
@@ -638,9 +638,9 @@ stage on every run with only seven units); the seed is printed, and a sampled st
 although its key is recorded as passing is a defect of the system (status 70). `just verify binary`
 runs the stages this way; `--full-kernel` runs them in full.
 
-### The stages of the interval and GDA gates
+### The stages of the interval, GDA and decimal gates
 
-`just verify interval` and `just verify decimal_gda` run three whole stages as units, with the same
+`just verify interval`, `just verify decimal_gda` and `just verify decimal` run four whole stages as units, with the same
 ledger, `REUSED` lines, 2 % sampling and exit status 70 as the kernel stages. Two are `moon test`
 stages (the reverse trigonometric reference tests of `interval`, and the package tests of
 `decimal_gda`): the key is the content of the packages and of everything they import inside the two
@@ -648,7 +648,7 @@ modules, read from `moon.pkg`, with the module files, the command, the build com
 --dry-run`, the toolchain and the verifier. A package whose closure imports the file system, the
 environment or async is not keyed, because a test that cannot import them cannot read a data file at
 run time; and a `moon test` run that selects no test, or a package that is not found, fails instead
-of passing. The third is a Python stage (the oracle checks of the interval gate, about two minutes):
+of passing. The other two are Python stages (the oracle checks of the interval gate, about two minutes, and the table of the decimal kernel oracle of the `decimal` gate, which recomputes the committed rows of `library/src/internal/decimal_kernel` from CPython integers and compares them):
 its key is a declared set of files and directories written in `tools/stage_units.py`, chosen from an
 audit of one run and rounded up to whole directories, with the `sys.version` of the interpreter of the
 stage command (asked of that interpreter, not taken from the verifier) and the directory of the audit
