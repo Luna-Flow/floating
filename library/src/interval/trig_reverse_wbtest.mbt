@@ -147,7 +147,7 @@ test "sin_rev, the corner cases of the comparison of a prior end with a piece en
 ///|
 // oracle: A, S
 // source: the piece ends are the multiples of pi written out: asin(1/2) = pi/6 and pi - pi/6 = 5 pi/6, from ref_pi_ratio (pi by Machin's formula in Python integers, divided exactly by the ratio, rounded outward: tools/interval_pi_oracle.py), rounded to p bits in both directions; the cut cases at 0 and 3, the empty cases, the default prior and the pass-through cases are written out by hand from IEEE 1788-2015 10.5.4 (sinRev); the checks of Entire, Empty and the prior itself have no numeric value (S)
-// shares: Interval::from_bounds, with_precision (directed rounding of the table value to p bits), Interval ==, is_entire
+// shares: Interval::from_bounds, Binary::from_double, with_precision and Interval == (to build inputs and round the table values to p bits), ref_pi_ratio (Binary::from_hex and with_precision on the Python bounds), is_entire, is_empty
 test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
   for p in tr_precisions {
     let half = tr_num(0.5, p)
@@ -228,7 +228,7 @@ test "sin_rev: a prior spanning very many periods needs only the pieces at its t
 ///|
 // oracle: A, S
 // source: the ends are pi, 2 pi (from ref_pi_interval, Python Machin, scaled by an exact integer and rounded to p bits) and acos(1/2) = pi/3 (ref_pi_ratio, the bounds of pi divided exactly by 3); the exact ends 0, 3, 4, 6, 7 and the empty cases are written out by hand from IEEE 1788-2015 10.5.4 (cosRev); the merge case at the end checks only that the result is not Empty (S)
-// shares: Interval::from_bounds, with_precision, Interval::exact times an integer and 0.5 (exact at 400 bits)
+// shares: Interval::from_bounds, Binary::from_double, with_precision, Interval ==, is_entire and is_empty (to build inputs and round the values to p bits); ref_pi_interval and ref_pi_ratio (Binary::from_hex and with_precision on the Python bounds); Interval::exact times an integer and 0.5 (exact at 400 bits) for the multiples of pi/2
 test "cos_rev: the corner cases, the pieces and the shortcuts" {
   for p in tr_precisions {
     let zero = tr_num(0.0, p)
@@ -301,7 +301,7 @@ test "cos_rev: the corner cases, the pieces and the shortcuts" {
 ///|
 // oracle: A, S
 // source: the ends are k pi/2 (ref_pi_interval, Python Machin, scaled by an exact integer and rounded to p bits) and atan(1) = pi/4 (ref_pi_ratio, the bounds of pi divided exactly by 4); the exact ends 0, 1.2, 3 and the empty cases are written out by hand from IEEE 1788-2015 10.5.4 (tanRev, the pole excluded); the default prior cases check Entire only (S)
-// shares: Interval::from_bounds, with_precision, Interval::exact times an integer and 0.5 (exact at 400 bits)
+// shares: Interval::from_bounds, Binary::from_double, with_precision, Interval ==, is_entire and is_empty (to build inputs and round the values to p bits); ref_pi_interval and ref_pi_ratio (Binary::from_hex and with_precision on the Python bounds); Interval::exact times an integer and 0.5 (exact at 400 bits) for the multiples of pi/2
 test "tan_rev: the corner cases, the poles and the default prior" {
   for p in tr_precisions {
     let zero = tr_num(0.0, p)
