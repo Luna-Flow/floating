@@ -4,26 +4,33 @@ fn with_precision_power(exponent : Int32, precision : Int32) -> @binary.Binary {
 }
 
 ///|
-/// `Interval::with_precision` rebuilt a bounded interval from `center()` and
-/// `radius()`. The center adds the endpoints in round-to-nearest mode, which
-/// replaced an addend far below the larger one
-/// with a sticky surrogate (of the exact route that the directed sums replaced), while the radius drops that addend. Once the new
-/// precision stored the surrogate exactly, `center - radius` landed above the
-/// original lower endpoint and the result lost it.
+// `Interval::with_precision` rebuilt a bounded interval from `center()` and
+// `radius()`. The center adds the endpoints in round-to-nearest mode, which
+// replaced an addend far below the larger one
+// with a sticky surrogate (of the exact route that the directed sums replaced), while the radius drops that addend. Once the new
+// precision stored the surrogate exactly, `center - radius` landed above the
+// original lower endpoint and the result lost it.
+// oracle: A
+// source: worked out by hand: the bounds 2^-200000 and 1 are powers of two, which every precision of at least one bit holds, so with_precision(70000) is the same interval and the lower bound keeps its exponent -200000
+// shares: with_precision_power (Binary::make) and Binary::one build the inputs; Binary::compare and exponent2 compare
 test "Interval::with_precision keeps a far lower endpoint" {
   let lo = with_precision_power(-200000, 53)
   let hi = @binary.Binary::one(precision=53)
   let x = Interval::from_bounds(lo, hi, precision=53)
   assert_true(x.is_member(lo))
   let y = x.with_precision(70000)
-  assert_true(y.is_member(lo))
-  assert_true(y.is_member(hi))
+  // both endpoints are powers of two, which every precision holds: the same set
+  assert_eq(y.lower_bound().compare(lo), 0)
+  assert_eq(y.upper_bound().compare(hi), 0)
   assert_eq(y.lower_bound().exponent2(), -200000)
 }
 
 ///|
-/// The margin is 65536 bits, so only a target precision wide enough to store
-/// the surrogate exposed the bug; cover both sides of it.
+// The margin is 65536 bits, so only a target precision wide enough to store
+// the surrogate exposed the bug; cover both sides of it.
+// oracle: A
+// source: worked out by hand: the bounds are +-1 and +-2^-gap, powers of two, which every precision of at least one bit holds, so with_precision(p) is the same interval for every p in 1, 8, 53, 65,535, 65,536, 65,539, 70,000, 131,072, and its precision is max(1, p)
+// shares: with_precision_power (Binary::make) and Binary::one build the inputs; Binary::compare and Interval::precision compare
 test "Interval::with_precision encloses across the far addend margin" {
   let hi = @binary.Binary::one(precision=53)
   for gap in [65535, 65540, 70003, 200000, 1000000] {
@@ -33,8 +40,10 @@ test "Interval::with_precision encloses across the far addend margin" {
       let x = Interval::from_bounds(low, high, precision=53)
       for precision in [1, 8, 53, 65535, 65536, 65539, 70000, 131072] {
         let y = x.with_precision(precision)
-        assert_true(y.is_member(x.lower_bound()))
-        assert_true(y.is_member(x.upper_bound()))
+        // the bounds are +-1 and +-2^-gap, powers of two, which every precision of at
+        // least one bit holds: the same set
+        assert_eq(y.lower_bound().compare(x.lower_bound()), 0)
+        assert_eq(y.upper_bound().compare(x.upper_bound()), 0)
         assert_eq(y.precision(), Int32::max(1, precision))
       }
     }
@@ -42,8 +51,11 @@ test "Interval::with_precision encloses across the far addend margin" {
 }
 
 ///|
-/// Widening a wide interval must be exact: the endpoints already fit, so the
-/// result has to be the same set, not a center-and-radius reconstruction.
+// Widening a wide interval must be exact: the endpoints already fit, so the
+// result has to be the same set, not a center-and-radius reconstruction.
+// oracle: A
+// source: worked out by hand: the bounds 2^-200000 and 1 fit every wider precision, so the widened interval has the same two bounds
+// shares: with_precision_power (Binary::make) and Binary::one build the inputs; Binary::compare compares
 test "Interval::with_precision widening keeps a wide interval exact" {
   let lo = with_precision_power(-200000, 53)
   let hi = @binary.Binary::one(precision=53)
@@ -99,8 +111,11 @@ test "Interval::with_precision does not widen ordinary intervals" {
 }
 
 ///|
-/// Re-quantizing at the interval's own precision is the identity, and empty and
-/// unbounded intervals keep their shape.
+// Re-quantizing at the interval's own precision is the identity, and empty and
+// unbounded intervals keep their shape.
+// oracle: A
+// source: written out from the definition: re-quantizing at the own precision is the identity, the empty interval stays empty and Entire stays Entire at 70,000 bits
+// shares: with_precision_power (Binary::make) and Interval::from_bounds, empty and entire build the inputs; Interval::equal, is_empty and is_entire compare
 test "Interval::with_precision keeps degenerate intervals" {
   let x = Interval::from_bounds(
     with_precision_power(-3, 53),

@@ -36,11 +36,14 @@ fn int_fn_apply_decorated(
 }
 
 ///|
-/// Expected values come from the definitions of IEEE 1788-2015 Table 9.1
-/// (footnotes h, i, j) and 11.2, not from the implementation: the result is
-/// `[f(lo), f(hi)]`; the decoration of a `com` input is `def` when `f` is not
-/// constant on the box, `dac` when it is constant but a point of discontinuity
-/// of `f` on the real line lies in the box, and `com` otherwise.
+// Expected values come from the definitions of IEEE 1788-2015 Table 9.1
+// (footnotes h, i, j) and 11.2, not from the implementation: the result is
+// `[f(lo), f(hi)]`; the decoration of a `com` input is `def` when `f` is not
+// constant on the box, `dac` when it is constant but a point of discontinuity
+// of `f` on the real line lies in the box, and `com` otherwise.
+// oracle: A
+// source: written out from IEEE 1788-2015 Table 9.1 (footnotes h, i, j: sign, ceil, floor, trunc and the two roundings and their jumps) and the decoration rules of clause 11: the result is [f(lo), f(hi)] and the decoration is def when f is not constant on the box, dac when it is constant but a jump of f lies in the box, com otherwise; every row of the test is one hand-written case
+// shares: int_fn_box, int_fn_apply and Binary::from_double, from_int, inf build the inputs; Interval::from_bounds, DecoratedInterval::new and the functions under test
 test "integer functions: bounds and decorations at each position of a jump" {
   // (function, lo, hi, result lo, result hi, decoration of the result)
   let cases : Array[(String, Double, Double, Double, Double, Decoration)] = [
@@ -114,6 +117,9 @@ test "integer functions: bounds and decorations at each position of a jump" {
 }
 
 ///|
+// oracle: A
+// source: written out from the decoration rules of IEEE 1788-2015 clause 11: the decoration of the result never exceeds that of the input (def and trv stay), NaI gives NaI, and the empty interval is empty with decoration trv
+// shares: int_fn_box, int_fn_apply and Binary::from_double, from_int, inf build the inputs; Interval::from_bounds, DecoratedInterval::new and the functions under test
 test "integer functions: the input decoration caps the result (min-rule), NaI and empty" {
   for name in ["sign", "ceil", "floor", "trunc", "even", "away"] {
     let x = int_fn_box(0.25, 0.25)
@@ -139,6 +145,9 @@ test "integer functions: the input decoration caps the result (min-rule), NaI an
 }
 
 ///|
+// oracle: A
+// source: written out from Table 9.1 of IEEE 1788-2015 (sign is constant on a half line without 0, ceil of [1, +inf) is [1, +inf), floor of Entire is Entire, sign of Entire is [-1, 1]) and the decoration rules of clause 11 (def for ceil of [1, +inf), dac for sign of a half line)
+// shares: int_fn_box, int_fn_apply and Binary::from_double, from_int, inf build the inputs; Interval::from_bounds, DecoratedInterval::new and the functions under test
 test "integer functions: unbounded boxes" {
   let inf = @binary.Binary::inf(precision=53)
   let ninf = @binary.Binary::inf(negative=true, precision=53)
@@ -163,6 +172,9 @@ test "integer functions: unbounded boxes" {
 }
 
 ///|
+// oracle: A
+// source: written out from Table 9.1 and 12.12.8: ceil of [-0.5, -0.25] is [0, 0] with the upper bound +0 (the zero is not -0), and the result keeps the precision 200
+// shares: int_fn_box, int_fn_apply and Binary::from_double, from_int, inf build the inputs; Interval::from_bounds, DecoratedInterval::new and the functions under test
 test "integer functions: results are exact at a large precision and zero bounds are +0" {
   let x = Interval::from_bounds(
     @binary.Binary::from_double(-0.5, precision=200),
