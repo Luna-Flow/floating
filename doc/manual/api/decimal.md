@@ -205,7 +205,7 @@ plain operators. They are the largest and smallest values allowed by the
 also be representable. This range lets `x + 0 == x`, `x - 0 == x` and
 `x * 1 == x` hold for every stored value.
 
-Exact constructors (`make`, `try_make`, `parse`, `from_string`) refuse values
+Exact constructors (`make`, `try_make`, `from_string`) refuse values
 outside these implementation limits. Constructors from integers and
 floating-point inputs cannot produce such a value. Operations that round (the
 plain operators and `with_precision`) overflow to infinity or the largest finite
@@ -235,7 +235,7 @@ from `c`.
 | Coefficient length | Result |
 | --- | --- |
 | At most $p$ digits | Keeps exponent $q$ and is not reduced: `make(100, 0, 5)` is `100`; `make(0, 5, 5)` is `0E+5`. |
-| More than $p$ digits | Rounds to exactly $p$ digits with `mode` (default `RoundTiesToEven`) and is not reduced: `make(1000000, 0, 3)` is `100E+4`. |
+| More than $p$ digits | Rounds to exactly $p$ digits with `mode` (default `RoundTiesToEven`) and is not reduced: `make(1000000, 0, 3)` is `1.00E+6`. |
 
 No context exponent range applies. After rounding, the value must satisfy the
 [implementation limits on stored values](#decimal_value_e_max-decimal_value_e_tiny). `make` aborts with a
@@ -364,8 +364,7 @@ An inexact conversion has
 `precision` digits because the preferred exponent is the least possible. A
 value beyond the exponent range, or far below it, overflows or underflows
 without its digits being formed. An in-range value is correctly rounded at any
-binary exponent, at a cost that does not grow with the exponent. A binary
-exponent beyond $2^{22}$ is refused with NaN and `invalid_operation`.
+binary exponent, at a cost that does not grow with the exponent.
 
 `to_binary_ctx(ctx)` rounds the exact decimal value once under a
 `BinaryContext`. The destination may be binary16 through binary128, or a
@@ -580,7 +579,7 @@ an `e_max` at least the exponent of the product makes `mul_ctx` exact.
 > Certified elementary functions accept contexts with $e_{\max}\le999{,}999$
 > and $p\le999{,}999$. For $p\le999$, `DecimalContext::new` defaults to the
 > largest range inside that limit. A larger range, from explicit `e_max` or
-> $p\ge1000$, makes them return NaN with `invalid_operation`.
+> $p\ge1000$, makes them return NaN with `not_computed`.
 
 ### `DecimalContext::decimal32`, `decimal64`, `decimal128`
 
@@ -647,7 +646,7 @@ evaluations: `Some(n)` allows `n` evaluations (a value below 1 counts as 1),
 `Some(12)` is the default, and `None` removes this count limit. If the function
 does not decide a result within the limit, `try_*_ctx` returns the
 `CertificationFailure` error with the refinement count; the plain and `*_ctx`
-forms return NaN with `invalid_operation`. With `None`, evaluation stops when
+forms return NaN with `not_computed`. With `None`, evaluation stops when
 the working precision exceeds the larger of 8,000,000 bits and 256 times the
 initial working precision. The default changes no result. This field takes
 part in `==`, so contexts that differ only in this limit are unequal.
@@ -793,7 +792,7 @@ pub struct DecimalFlags {
 | `underflow` | the result is tiny and inexact |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `division_by_zero` | finite operands produce an exact infinite result ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
-| `invalid_operation` | the result is not usefully definable (signaling NaN, $\infty-\infty$, $0\times\infty$, $0/0$, bad quantize, text that is not a number, a context outside the range an elementary function supports) |
+| `invalid_operation` | the result is not usefully definable (signaling NaN, $\infty-\infty$, $0\times\infty$, $0/0$, bad quantize, text that is not a number) |
 | `not_computed` | the library cannot compute a result within an implementation limit (a context beyond the elementary kernels, an operand beyond their range, an exact sum with an exponent gap beyond the work bound, or an undecided certification): the value is a NaN, `invalid_operation` is not raised, and the `try_` form returns `Err` of the certification-failure kind |
 
 IEEE 754-2019 7.2 to 7.6 defines the five IEEE flags; `not_computed` is an additional library
@@ -981,7 +980,7 @@ operand raises `invalid_operation`.
 
 Near the underflow threshold, the single rounding determines the result. In
 decimal32, the exact product `3.000001E-45 * 1.500001E-45` is
-$4.5000045000015\cdot 10^{-90}$. It is a normal number even though its exact
+$4.500004500001\cdot 10^{-90}$. It is a normal number even though its exact
 exponent is below $E_{\text{tiny}}=-101$, and rounds once to seven digits as
 `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is
 $5.0000000000005\cdot 10^{-102}$, which is subnormal. Its guarded quotient
@@ -1523,7 +1522,7 @@ test "decimal identical compares the representation" {
 }
 ```
 
-### `Decimal::min`, `max`, `clamp`, `clamp_checked`
+### `Decimal::min_num`, `max_num`, `clamp`, `clamp_checked`
 
 Select values by numeric order without a context.
 
@@ -1534,7 +1533,7 @@ pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-`min` and `max` select the other operand when exactly one is a quiet NaN. They
+`min_num` and `max_num` select the other operand when exactly one is a quiet NaN. They
 return a quiet NaN when both operands are NaNs or either operand is signaling,
 and return the receiver when the values tie.
 
@@ -1639,9 +1638,9 @@ precision served is 80,807,093 digits. Integral powers in `decimal` support coun
 these are adopted decNumber implementation limits, not limits imposed by GDA
 1.70. Integer powers above those counts use bounded square-and-multiply when
 the exact exponent coefficient has at most 4,096 decimal digits. Larger
-coefficients return NaN with `invalid_operation` before expansion. Thus
-`pow_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
-`pow_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
+coefficients are decided without expansion (see below). Thus
+`pow_ctx(2, 1E+9)` returns `inf` with `overflow` under `DecimalContext::new()`,
+and so does `pow_ctx(2, 1E+9999999)`, without expanding the exponent. The same
 large input to `decimal_gda` still follows the GDA adapter's decNumber count
 limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda`
 therefore intentionally differ on this input. Non-integral powers such as
@@ -2280,7 +2279,7 @@ non-canonical declet, out-of-range BID coefficient, and unused bit of an
 infinity or NaN is replaced by its canonical form. It is idempotent.
 `is_canonical` tests whether the bits are already canonical.
 
-### `DecimalInterchange::copy`, `copy_abs`, `copy_negate`, `copy_sign`
+### `DecimalInterchange::copy`, `abs`, `neg`, `copy_sign`
 
 These functions change only the sign bit of the stored bits.
 
@@ -2438,7 +2437,7 @@ members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and
 is greater than every number. Use `total_order_compare` to tell representations
 apart.
 
-### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
+### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
 
 These are the derived `Eq` methods of the context, flag and enum types.
 
