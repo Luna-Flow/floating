@@ -20,7 +20,7 @@ class EnclosureRowsTest(unittest.TestCase):
         self.assertEqual(gen.gap_exponent("0x1p0", "0x9p-3"), "-3")
         self.assertEqual(gen.gap_exponent("-0x1p0", "-0x7p-3"), "-3")
         with self.assertRaises(ValueError):
-            gen.gap_exponent("0x1p0", "0x3p0")
+            gen.gap_exponent("0x1p0", "0x4p0")
 
     def test_input_lines_pair_downward_and_upward(self) -> None:
         lines = gen.input_lines([("ln", "0x2p0", 80)])
