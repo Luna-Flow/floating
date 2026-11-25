@@ -35,7 +35,7 @@ Usage: python3 tools/verify_mutation.py [--worktree DIR] [--only NAME ...] [--ke
 kernel stages, then an edit of a package source (all seven must run and a stage must fail), of a
 package test file and a comment-only edit (all seven run: the key is of file content, coarser than
 code, allowed) and an edit of `binary` (none runs).
-`--stages` checks the whole-stage units of the `decimal` and `decimal_gda` gates (`stage_units.py`):
+`--stages` checks the whole-stage units of the `decimal`, `decimal_gda` and `interval` gates (`stage_units.py`):
 the key of every unit is formed before and after each edit and the set of units whose key changed
 must be exactly the expected one (a code edit and a comment edit of a package the unit reaches, an edit
 of a corpus row, an edit outside the reach: none); an edited oracle row must also make the stage fail.
@@ -365,14 +365,17 @@ def kernel_rows(scratch: Path, work: Path) -> list[dict[str, object]]:
 # units whose key must change, written out from the import graph and the declared files.
 GDA_PACKAGE_TESTS = "DECIMAL_GDA: package tests"
 KERNEL_ORACLE_TABLE = "DECIMAL: kernel oracle table"
-STAGE_SCOPES = ("decimal_gda", "decimal")
+IEEE_1788 = "INTERVAL: IEEE 1788"
+REVERSE_TRIG = "INTERVAL: reverse trigonometric reference"
+ORACLE_CHECKS = "INTERVAL: oracle checks"
+STAGE_SCOPES = ("decimal_gda", "decimal", "interval")
 
 
 @dataclasses.dataclass(frozen=True)
 class StageMutation:
     mutation: Mutation
     expected: frozenset[str]  # stage units whose key must change
-    must_fail: str = ""  # a command (relative to the repository) that must fail on the edited tree
+    must_fail: tuple[str, ...] = ()  # a command (arguments of the interpreter, relative to the repository) that must fail on the edited tree
 
 
 def _stage_mutations() -> list[StageMutation]:
@@ -385,22 +388,55 @@ def _stage_mutations() -> list[StageMutation]:
     )
     return [
         # decimal_gda imports `binary`, so an edit there reaches the GDA package tests too
-        StageMutation(dataclasses.replace(gda, name="gda-source"), frozenset({GDA_PACKAGE_TESTS})),
+        StageMutation(dataclasses.replace(gda, name="gda-source"), frozenset({GDA_PACKAGE_TESTS, IEEE_1788})),
         StageMutation(
             Mutation("gda-comment", gda.path, "a comment appended to a source file of the package (the key is of file content)", r"^$", "", "\n// a comment appended\n", "comment"),
-            frozenset({GDA_PACKAGE_TESTS}),
+            frozenset({GDA_PACKAGE_TESTS, IEEE_1788}),
         ),
-        StageMutation(dataclasses.replace(binary, name="binary-edit"), frozenset({GDA_PACKAGE_TESTS})),
+        # `binary` is imported by `decimal_gda`, by `interval` and so by the conformance executable
+        StageMutation(dataclasses.replace(binary, name="binary-edit"), frozenset({GDA_PACKAGE_TESTS, REVERSE_TRIG, IEEE_1788})),
         StageMutation(
             Mutation("oracle-program", "tools/decimal_kernel_oracle.py", "a comment appended to the oracle program", r"^$", "", "\n# a comment appended\n", "comment"),
             frozenset({KERNEL_ORACLE_TABLE}),
         ),
         # the rows file lives in `internal/decimal_kernel`, which `decimal_gda` imports: the key is of file
         # content, so the GDA package tests rerun too (coarser than code, allowed)
-        StageMutation(row, frozenset({KERNEL_ORACLE_TABLE, GDA_PACKAGE_TESTS}), must_fail="tools/decimal_kernel_oracle.py"),
-        # `decimal` is not imported by `decimal_gda`: none of the stage units reaches it
+        StageMutation(row, frozenset({KERNEL_ORACLE_TABLE, GDA_PACKAGE_TESTS, IEEE_1788}), must_fail=("tools/decimal_kernel_oracle.py", "--check")),
+        # `decimal` is not imported by `decimal_gda` but it is by the conformance executable
         StageMutation(
-            Mutation("decimal-outside", "library/src/decimal/classify.mbt", "a comment appended to a source file of `decimal` (outside every stage unit)", r"^$", "", "\n// a comment appended\n", "comment"),
+            Mutation("decimal-cli-only", "library/src/decimal/classify.mbt", "a comment appended to a source file of `decimal` (only the conformance executable imports it)", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset({IEEE_1788}),
+        ),
+        # the interval corpus run: a package of the executable, a package it imports, a corpus row (the
+        # generated corpus is read by the stage and by the oracle checks), a tool file the runner imports,
+        # a tool file only the oracle checks use, and an edit that no stage unit reaches
+        StageMutation(
+            Mutation("itl-frontend", "tooling/src/frontend/itl_expr/itl_expr.mbt", "a comment appended to the source of the interval frontend", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset({IEEE_1788}),
+        ),
+        StageMutation(
+            Mutation("interval-source", "library/src/interval/interval_decorated.mbt", "a comment appended to a source file of `interval` (the reverse trigonometric tests and the executable import it)", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset({REVERSE_TRIG, IEEE_1788}),
+        ),
+        StageMutation(
+            Mutation(
+                "itl-corpus-row", "testdata/interval/generated/atan2_rev.itl", "the expected hull of the first atan2Rev1 row of the generated corpus", r"^$",
+                "    atan2Rev1 [-infinity,-0x1.0000000000000p+1] [-infinity,-0x1.0000000000000p+2] [entire] = [empty];",
+                "    atan2Rev1 [-infinity,-0x1.0000000000000p+1] [-infinity,-0x1.0000000000000p+2] [entire] = [entire];", "key-only",
+            ),
+            frozenset({IEEE_1788, ORACLE_CHECKS}),
+            must_fail=("tools/conformance.py", "run", "--backend", "interval", "--phase", "atan2-reverse", "--strict-supported"),
+        ),
+        StageMutation(
+            Mutation("itl-runner", "tools/run_itl_interpreter.py", "a comment appended to the runner of the interval corpus", r"^$", "", "\n# a comment appended\n", "comment"),
+            frozenset({IEEE_1788}),
+        ),
+        StageMutation(
+            Mutation("itl-oracle-checks", "tools/itl_oracle_checks.py", "a comment appended to the oracle check program", r"^$", "", "\n# a comment appended\n", "comment"),
+            frozenset({ORACLE_CHECKS}),
+        ),
+        StageMutation(
+            Mutation("outside-every-unit", "tooling/src/bench/binary/moon.pkg", "a comment appended to the package file of a benchmark package that no stage unit imports", r"^$", "", "\n// a comment appended\n", "comment"),
             frozenset(),
         ),
     ]
@@ -437,6 +473,10 @@ def stage_rows(scratch: Path, work: Path) -> list[dict[str, object]]:
     ledger = work / "stage-keys.jsonl"
     # the `moon test --dry-run` of a moon stage needs the modules of the scratch tree (the gates' first stage)
     subprocess.run(run_ci.DEPENDENCY_STAGE.command, cwd=scratch, check=True, capture_output=True)
+    # the interval corpus is fetched, not committed: the scratch tree gets the copy of this checkout
+    corpus = REPO_ROOT / "testdata" / "interval" / "itf1788"
+    if corpus.is_dir() and not (scratch / "testdata" / "interval" / "itf1788").exists():
+        shutil.copytree(corpus, scratch / "testdata" / "interval" / "itf1788")
     before = stage_keys(scratch, ledger)
     rows: list[dict[str, object]] = []
     for item in _stage_mutations():
@@ -448,7 +488,7 @@ def stage_rows(scratch: Path, work: Path) -> list[dict[str, object]]:
             path.write_text(apply_mutation(original, mutation), encoding="utf-8")
             after = stage_keys(scratch, ledger)
             if item.must_fail:
-                failed = subprocess.run([sys.executable, item.must_fail, "--check"], cwd=scratch, capture_output=True).returncode != 0
+                failed = subprocess.run([sys.executable, *item.must_fail], cwd=scratch, capture_output=True).returncode != 0
         finally:
             path.write_text(original, encoding="utf-8")
         problems = judge_stage(item.expected, before, after, bool(item.must_fail), failed)
