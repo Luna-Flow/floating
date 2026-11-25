@@ -1,7 +1,7 @@
 ///|
-// oracle: A
+// oracle: A, S
 // source: IEEE 754-2019 3.3: emin = 1 - emax, so (24, 127) has emin -126 and (15) has -14; the default context of the library has the maximum exponent 2^30 - 1 = 1073741823 (the design limit of the exponent range, written as a literal) and emin = 1 - emax = -1073741822
-// shares: IntervalContext accessors only
+// shares: IntervalContext::new, with_precision, with_e_max and the accessors (the code under test is the same functions; the expected values are literals); the default e_max 2^30 - 1 and e_min -(2^30 - 2) are the library's own limit, not a value of a standard, so those two checks are S
 test "IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e_max" {
   let c = IntervalContext::new(precision=24, e_max=127)
   assert_eq(c.precision(), 24)
