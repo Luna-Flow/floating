@@ -1082,7 +1082,7 @@ states the limit and the operands it applies to.
 
 In subset arithmetic `ln` returns the correctly rounded result, as in the
 extended arithmetic. The legacy subset test row `ln116` encodes a result one
-unit in the last place above it and is a recorded deviation of the corpus (see
+unit in the last place larger in magnitude and is a recorded deviation of the corpus (see
 [conformance](../conformance/decimal_gda.md)).
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
