@@ -275,3 +275,69 @@ test "ITL atan2Rev1 and atan2Rev2: axis angles, the branch cut and the empty set
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+// oracle: A
+// source: the expected dispositions are written out by hand: each literal below is not an interval by the definition of a nonempty interval in IEEE 1788-2015 (a lower bound above the upper one, a NaN bound, [+inf,+inf], [-inf,-inf]), and `[1e400,1e400]` reads as [+inf,+inf] in binary64
+// shares: nothing (only the public parse_itl, execute_case and ItlResult accessors; the verdict is a variant tag compared with a literal)
+test "ITL an interval literal that is not an interval is a diagnostic" {
+  let bad = ["[2,1]", "[nan,1]", "[inf,inf]", "[1e400,1e400]", "[-inf,-inf]"]
+  for literal in bad {
+    let source = "testcase bad {\n  add \{literal} [1.0,2.0] = [1.0,2.0];\n}"
+    let cases = @itl_expr.parse_itl(source).unwrap()
+    let result = @itl_expr.execute_case(cases[0])
+    guard result.disposition() is Diagnostic("invalid interval operand") else {
+      fail("expected the diagnostic for " + literal)
+    }
+    assert_false(result.passed())
+    assert_eq(result.message(), literal)
+  }
+}
+
+///|
+// oracle: A
+// source: expected dispositions written out by hand (same definition as above), one operation per executor path of execute_case that reads an interval literal
+// shares: nothing (public accessors only)
+test "ITL a bad interval is a diagnostic on every executor path" {
+  let source =
+    #|testcase paths {
+    #|  pown [2,1] 2 = [1.0,4.0];
+    #|  fma [2,1] [1.0,2.0] [1.0,2.0] = [1.0,2.0];
+    #|  sqr [nan,1] = [1.0,2.0];
+    #|  mulRev [inf,inf] [1.0,2.0] [1.0,2.0] = [1.0,2.0];
+    #|  isMember 1.0 [2,1] = true;
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  assert_eq(cases.length(), 5)
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    match result.disposition() {
+      Diagnostic(_) => ()
+      _ => fail("expected a diagnostic for " + case.operation())
+    }
+    assert_false(result.passed())
+  }
+}
+
+///|
+// oracle: A
+// source: counts written out by hand: three good cases pass, the one bad case between them is a diagnostic; the sums are 1+2, 3+4 as binary64 numbers that are exact
+// shares: nothing (public summary accessors)
+test "ITL a bad case does not stop the cases after it" {
+  let source =
+    #|testcase run {
+    #|  add [1.0,1.0] [2.0,2.0] = [3.0,3.0];
+    #|  add [2,1] [2.0,2.0] = [3.0,3.0];
+    #|  add [3.0,3.0] [4.0,4.0] = [7.0,7.0];
+    #|  add [-inf,-inf] [4.0,4.0] = [7.0,7.0];
+    #|  add [5.0,5.0] [4.0,4.0] = [9.0,9.0];
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  let summary = @itl_expr.summarize_results(
+    cases.map(fn(case) { @itl_expr.execute_case(case) }),
+  )
+  assert_eq(summary.total_cases(), 5)
+  assert_eq(summary.passed_cases(), 3)
+  assert_eq(summary.diagnostic_cases(), 2)
+  assert_eq(summary.failed_cases(), 0)
+}
