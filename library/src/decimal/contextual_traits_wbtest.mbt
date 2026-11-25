@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out: the machine epsilon of decimal64 (p 16) is 10^(1-16) = 1E-15
+// shares: epsilon_contextual and Decimal::to_string (the code under test)
 test "Decimal contextual format follows decimal64" {
   let context = @lf_arith.ArithmeticContext::decimal64()
   let epsilon : Decimal = @lf_arith.NumericFormatContextual::epsilon_contextual(
@@ -8,6 +11,9 @@ test "Decimal contextual format follows decimal64" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1/3 in 16 digits is 0.3333333333333333 and inexact
+// shares: div_contextual and to_string (the code under test)
 test "Decimal contextual division preserves rounding diagnostics" {
   let context = @lf_arith.ArithmeticContext::decimal64()
   let numerator = Decimal::from_int(1, precision=16)
@@ -20,6 +26,9 @@ test "Decimal contextual division preserves rounding diagnostics" {
 }
 
 ///|
+// oracle: A
+// source: written out by the rounding rules of IEEE 754-2019 4.3 at 3 digits: 1.239 toward zero 1.23, 1.231 toward positive 1.24, -1.231 toward positive -1.23; 1E+200 beyond emax 96 of decimal32 is infinity with overflow; not-a-decimal is an error
+// shares: parse_checked, Decimal::from_string_ctx and from_arithmetic_context (the code under test)
 test "Decimal checked parsing uses the arithmetic context" {
   let context = @lf_arith.ArithmeticContext::new(
     3,
@@ -69,6 +78,9 @@ test "Decimal checked parsing uses the arithmetic context" {
 }
 
 ///|
+// oracle: S
+// source: a setter and its getter: with_rounding then rounding returns the value set
+// shares: DecimalContext::with_rounding and rounding (the code under test)
 test "IEEE context has explicit rounding updates" {
   let ctx = DecimalContext::decimal64()
   let directed = ctx.with_rounding(DecimalRoundingMode::RoundTowardPositive)
@@ -76,6 +88,9 @@ test "IEEE context has explicit rounding updates" {
 }
 
 ///|
+// oracle: A
+// source: written out from the decimal32 format (IEEE 754-2019 3.6): precision 7, emin -95, emax 96
+// shares: from_arithmetic_context and the accessors (the code under test)
 test "Decimal contextual conversion preserves exponent bounds and clamp" {
   let arithmetic = @lf_arith.ArithmeticContext::new(
     7,
@@ -90,6 +105,9 @@ test "Decimal contextual conversion preserves exponent bounds and clamp" {
 }
 
 ///|
+// oracle: A
+// source: written out: 2^10 = 1024 has adjusted exponent 3, above emax 2, so the result is infinite
+// shares: pow_nat_checked and classify (the code under test)
 test "Decimal checked powers preserve arithmetic exponent bounds" {
   let context = @lf_arith.ArithmeticContext::new(7, e_min=-1, e_max=2)
   let result = @lf_arith.PowNatChecked::pow_nat_checked(
@@ -101,6 +119,9 @@ test "Decimal checked powers preserve arithmetic exponent bounds" {
 }
 
 ///|
+// oracle: A
+// source: written out: (-1)^n is -1 for odd n and 1 for even n; 12345679 and 2147483647 and 999999999 are odd, 12345678 and 999999998 and -2147483648 are even (the exponent must not be rounded to seven digits, issue 51)
+// shares: pow_int_checked, pow_nat_checked and to_string (the code under test)
 test "Decimal checked integer powers use the exact exponent" {
   // An exponent longer than the context precision must not be rounded
   // before use: rounding 12345679 to seven digits makes it even (#51).
@@ -127,6 +148,9 @@ test "Decimal checked integer powers use the exact exponent" {
 }
 
 ///|
+// oracle: A
+// source: written out: the limits 1..=999999999 and the message text, emin = 1 - emax (IEEE 754-2019 3.3), emin alone gives emax = 1 - emin (-95 gives 96), a rounding direction without an equivalent in the decimal formats is rejected, and precision 0 is raised to 1
+// shares: from_arithmetic_context, add_contextual and the accessors (the code under test)
 test "Decimal context translation rejects out of range bounds" {
   let zero_precision = @lf_arith.ArithmeticContext::new(0)
   let zero_context = DecimalContext::from_arithmetic_context(zero_precision).unwrap()

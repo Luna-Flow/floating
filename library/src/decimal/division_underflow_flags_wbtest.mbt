@@ -4,6 +4,9 @@
 /// 10^e_min is no longer subnormal, but it was tiny and underflows (IEEE
 /// 754-2019 7.5), and a quotient that rounds to zero below Etiny is clamped.
 /// Expected values from Python `decimal` where it applies.
+// oracle: A
+// source: Python decimal (CPython, libmpdec) on the four quotients with the contexts of the test (decimal32; precision 1 emax 24 rounding down; precision 3 emax 6): values 1.000000E-95, 0E-23, 0E-101, 0E-7 with Inexact and Underflow, re-run for this declaration; the tininess before rounding of IEEE 754-2019 7.5 agrees for these rows
+// shares: Decimal::from_string, div_ctx and DecimalFlags (the code under test)
 test "division reports the underflow flags of the quotient" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   // Tiny under both rules: 9.99999899...E-96 rounds to 9.999999E-96 at p = 7.

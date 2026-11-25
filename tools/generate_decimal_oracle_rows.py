@@ -209,6 +209,64 @@ def ball_rows() -> list[tuple[str, int, int, int, int, int]]:
     return rows
 
 
+OUTWARD_TEXTS = (
+    "1E-30", "-1E-30", "123.456E-400", "-7.25E-3000", "9.99E+300", "-3.5E+250", "0.1",
+    "-0.1", "1E-5000", "2E+5000",
+)
+OUTWARD_DIGITS = (8, 32, 60)
+OUTWARD_BITS = 200
+OUTWARD_WIDE = 80
+
+
+def exact_dyadic(coefficient: int, exponent2: int) -> decimal.Decimal:
+    """The exact decimal value of coefficient * 2^exponent2 (any sign), in a context wide enough to hold it."""
+    wide = decimal.Context(prec=20000, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+    if exponent2 >= 0:
+        return wide.create_decimal(coefficient << exponent2)
+    return wide.divide(wide.create_decimal(coefficient * 5 ** (-exponent2)), wide.create_decimal(10 ** (-exponent2)))
+
+
+def directed(value: decimal.Decimal, digits: int, rounding: str) -> decimal.Decimal:
+    context = decimal.Context(prec=digits, rounding=rounding, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+    return context.plus(value)
+
+
+def outward_rows() -> list[tuple[str, int, str, str, str, str]]:
+    """(text, digits, lo_min, lo_max, hi_min, hi_max) for the 200-bit directed binary endpoints of the text:
+    the outward endpoint `lo` (rounded down to about `digits` digits) satisfies lo_min <= lo <= lo_max, and
+    hi_min <= hi <= hi_max for the upper one. lo_max is the exact lower endpoint rounded down to 80 digits (lo
+    is on a coarser grid and not above the exact endpoint), lo_min is the exact one rounded down to `digits`
+    digits and one unit of that grid further (the trimming error is far below one unit); hi likewise."""
+    rows = []
+    wide = decimal.Context(prec=20000, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
+    for text in OUTWARD_TEXTS:
+        negative, numerator, denominator = exact_parts(text)
+        lo_c, lo_k = to_bin.round_to_bits(numerator, denominator, OUTWARD_BITS, negative, "TowardNegative")
+        hi_c, hi_k = to_bin.round_to_bits(numerator, denominator, OUTWARD_BITS, negative, "TowardPositive")
+        lower = exact_dyadic(lo_c, lo_k)
+        upper = exact_dyadic(hi_c, hi_k)
+        for digits in OUTWARD_DIGITS:
+            floor_d = directed(lower, digits, decimal.ROUND_FLOOR)
+            ceil_d = directed(upper, digits, decimal.ROUND_CEILING)
+            lo_min = wide.subtract(floor_d, wide.create_decimal((0, (1,), floor_d.as_tuple().exponent)))
+            hi_max = wide.add(ceil_d, wide.create_decimal((0, (1,), ceil_d.as_tuple().exponent)))
+            lo_max = directed(lower, OUTWARD_WIDE, decimal.ROUND_FLOOR)
+            hi_min = directed(upper, OUTWARD_WIDE, decimal.ROUND_CEILING)
+            rows.append(tuple([text, digits] + [library_text(v) for v in (lo_min, lo_max, hi_min, hi_max)]))
+    return rows
+
+
+def outward_binary_rows() -> list[tuple[str, int, int, int, int]]:
+    """(text, lower C, lower k, upper C, upper k): the 200-bit directed endpoints of each text."""
+    rows = []
+    for text in OUTWARD_TEXTS:
+        negative, numerator, denominator = exact_parts(text)
+        lo_c, lo_k = to_bin.round_to_bits(numerator, denominator, OUTWARD_BITS, negative, "TowardNegative")
+        hi_c, hi_k = to_bin.round_to_bits(numerator, denominator, OUTWARD_BITS, negative, "TowardPositive")
+        rows.append((text, lo_c, lo_k, hi_c, hi_k))
+    return rows
+
+
 def prime_to_ten(divisor: int) -> int:
     while divisor % 2 == 0:
         divisor //= 2
@@ -504,6 +562,16 @@ def render() -> str:
             f"({quote(t)}, {p}, {quote(str(lc))}, {lk}, {quote(str(hc))}, {hk}),"
             for t, p, lc, lk, hc, hk in ball_rows()
         ],
+    )
+    out += table_lines(
+        "outward_rows",
+        "(String, Int32, (String, String, String, String))",
+        [f"({quote(t)}, {d}, ({quote(a)}, {quote(c)}, {quote(e)}, {quote(f)}))," for t, d, a, c, e, f in outward_rows()],
+    )
+    out += table_lines(
+        "outward_binary_rows",
+        "(String, String, Int32, String, Int32)",
+        [f"({quote(t)}, {quote(str(lc))}, {lk}, {quote(str(hc))}, {hk})," for t, lc, lk, hc, hk in outward_binary_rows()],
     )
     out += table_lines(
         "word_divisor_rows",

@@ -3,6 +3,9 @@
 /// raises underflow. The shortcut for an addend far below the result grid must
 /// not be taken when applying the context to the large operand already shows
 /// a tiny (subnormal) value.
+// oracle: A
+// source: Python decimal (CPython, libmpdec, Context(prec=3, Emax=5, Emin=-4)): 2E-8 + 19E-6 and 2E-8 - (-19E-6) are 0.000019 with Inexact and Underflow (tiny: adjusted exponent -5 below emin -4)
+// shares: Decimal::from_string, add_ctx, sub_ctx and DecimalFlags (the code under test)
 test "add of a tiny value and a far smaller addend raises underflow" {
   let ctx = DecimalContext::new(precision=3, e_max=5)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }

@@ -421,14 +421,8 @@ library/src/binary/to_integer_wbtest.mbt::convertToInteger handles every width a
 library/src/binary/to_integer_wbtest.mbt::convertToInteger rounds, checks the range, and reports flags	A
 library/src/binary/trig_midpoint_sweep_wbtest.mbt::midpoint form equals the two-ended form on the tiny and near-multiple sweep	E
 library/src/binary/trig_reduction_wbtest.mbt::trigonometric bounds are bit-identical to the pre-#378 path	E
-library/src/decimal/add_tiny_addend_underflow_wbtest.mbt::add of a tiny value and a far smaller addend raises underflow	?
-library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 rounding away from zero is not a zero (#332)	?
-library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 underflowing to zero keeps the least exponent (#332)	?
-library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 zero exponent follows the context, not 0 (#332)	?
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
-library/src/decimal/binary_zero_wbtest.mbt::binary conversions keep the sign of zero (IEEE 754 5.4.2, 6.3)	?
-library/src/decimal/class_of_wbtest.mbt::Decimal::class_of matches class_name for every class in every format	?
 library/src/decimal/coeff_kernel_wbtest.mbt::BigInt-free ln constants preserve the old scaled integers	?
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient finite-expansion predicate matches bigint predicate	?
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient repr power-of-ten rounding matches BigInt path	?
@@ -450,31 +444,6 @@ library/src/decimal/coeff_kernel_wbtest.mbt::decimal unary finalize and zero com
 library/src/decimal/coeff_kernel_wbtest.mbt::repr gda normalization rounds to the precision and reduces, as libmpdec	?
 library/src/decimal/coeff_kernel_wbtest.mbt::repr normalization gives the libmpdec result and flags on finite values	?
 library/src/decimal/coeff_kernel_wbtest.mbt::scaleb count extracts exponent-zero integers from coeff repr	?
-library/src/decimal/compare_nan_wbtest.mbt::decimal compare orders NaN after every number instead of aborting	?
-library/src/decimal/compare_predicates_wbtest.mbt::decimal comparison predicates: the negation pairs are complements	?
-library/src/decimal/compare_predicates_wbtest.mbt::decimal comparison predicates: value and flag for every relation	?
-library/src/decimal/context_limits_wbtest.mbt::DecimalContext::try_new accepts the limits and rejects one beyond	?
-library/src/decimal/context_limits_wbtest.mbt::DecimalContext::try_new messages state the limits	?
-library/src/decimal/context_limits_wbtest.mbt::decimal implementation limits have the documented values	?
-library/src/decimal/context_new_wbtest.mbt::DecimalContext::new builds the format of a precision and an e_max	?
-library/src/decimal/context_new_wbtest.mbt::DecimalContext::try_new names the invalid parameter	?
-library/src/decimal/context_new_wbtest.mbt::panic DecimalContext::new aborts on e_max above the limit	?
-library/src/decimal/context_new_wbtest.mbt::panic DecimalContext::new aborts on e_max below one	?
-library/src/decimal/context_new_wbtest.mbt::panic DecimalContext::new aborts on precision 0	?
-library/src/decimal/context_new_wbtest.mbt::panic DecimalContext::new aborts on precision above the limit	?
-library/src/decimal/context_new_wbtest.mbt::panic DecimalContext::with_e_max aborts on e_max 0	?
-library/src/decimal/context_new_wbtest.mbt::the exponent range of a precision alone is max(999999, 1000 p) (IEEE 754-2019 3.7)	?
-library/src/decimal/context_new_wbtest.mbt::the interchange presets are the formats of IEEE 754-2019 3.6	?
-library/src/decimal/context_new_wbtest.mbt::the setters keep the context valid	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal checked integer powers use the exact exponent	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal checked parsing uses the arithmetic context	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal checked powers preserve arithmetic exponent bounds	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal context translation rejects out of range bounds	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal contextual conversion preserves exponent bounds and clamp	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal contextual division preserves rounding diagnostics	?
-library/src/decimal/contextual_traits_wbtest.mbt::Decimal contextual format follows decimal64	?
-library/src/decimal/contextual_traits_wbtest.mbt::IEEE context has explicit rounding updates	?
-library/src/decimal/conversion_syntax_wbtest.mbt::DecimalFlags::has_error reports a failed parse	?
 library/src/decimal/convert_format_wbtest.mbt::binary to decimal: 2^5000000 in a wide context, and the work bound of an unlimited precision	?
 library/src/decimal/convert_format_wbtest.mbt::binary to decimal: an exact conversion returns the cohort member closest to the preferred exponent 0 (IEEE 754-2019 5.4.2, 5.2)	A
 library/src/decimal/convert_format_wbtest.mbt::binary to decimal: every format pair and rounding direction, preferred exponent (IEEE 754-2019 5.4.2)	A
@@ -487,11 +456,6 @@ library/src/decimal/convert_format_wbtest.mbt::decimal to binary: every format p
 library/src/decimal/convert_format_wbtest.mbt::decimal to binary: the MPFR mpfr_strtofr rows	A
 library/src/decimal/convert_format_wbtest.mbt::decimal to decimal: convertFormat keeps the quantum of the source (IEEE 754-2019 5.4.2)	A
 library/src/decimal/convert_format_wbtest.mbt::from_binary and to_binary keep their results	?
-library/src/decimal/division_double_rounding_wbtest.mbt::decimal division rounds once near a manufactured midpoint	?
-library/src/decimal/division_underflow_flags_wbtest.mbt::division reports the underflow flags of the quotient	?
-library/src/decimal/division_wbtest.mbt::bounded division rounds a long coefficient at context precision	?
-library/src/decimal/division_wbtest.mbt::exact division honors decimal tie rounding	?
-library/src/decimal/division_wbtest.mbt::exact division preserves the preferred cohort	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal atan certifies tiny decimal128 arguments	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary domains and atan2 signed zeros are explicit	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary extensions honor context rounding	?
@@ -582,8 +546,6 @@ library/src/decimal/interchange_wbtest.mbt::interchange decoders refuse a text o
 library/src/decimal/log_zero_wbtest.mbt::logarithms of zero signal division by zero (IEEE 754 9.2.1)	A
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::NaN propagation keeps a payload the clamped format can hold (#152)	A
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::payload operations follow IEEE 754 9.7 (#151)	A
-library/src/decimal/outward_endpoints_issue334_wbtest.mbt::outward endpoints enclose the exact expansion	B
-library/src/decimal/outward_endpoints_issue334_wbtest.mbt::wide-range expm1 of a tiny argument is fast and unchanged	A
 library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt::add, subtract and fma judge overflow on the rounded result (#264)	A
 library/src/decimal/parse_format_wbtest.mbt::decimal parse keeps p digits when rounding carries into 10^p	A
 library/src/decimal/parse_format_wbtest.mbt::decimal parse keeps the IEEE preferred cohort at its precision	A
@@ -643,10 +605,8 @@ library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power iden
 library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power negative exponent on zero raises division by zero	A
 library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power special values for one and infinite exponents	A
 library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power special values for zero exponents	A
-library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt::power delivers a folded-down result only when the exponent had to be altered (#267)	?
 library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt::an integer power just below 10^Emin is subnormal although it rounds to 10^Emin (#268)	A
 library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt::an inexact subnormal integer power raises Underflow (#342)	A
-library/src/decimal/power_ten_clamp_issue287_wbtest.mbt::a power of ten above Etop is delivered folded down (#287)	?
 library/src/decimal/power_underflow_rounding_issue168_wbtest.mbt::decimal integer powers below Etiny round in the rounding direction (#168)	A
 library/src/decimal/preferred_cohort_issue150_wbtest.mbt::integer and binary constructors return the IEEE preferred cohort (#150)	A
 library/src/decimal/refinement_limit_wbtest.mbt::refinement limit: contexts that differ only in the limit are different	A
@@ -673,14 +633,12 @@ library/src/decimal/subnormal_rounding_wbtest.mbt::decimal rounds normal results
 library/src/decimal/tanpi_zero_sign_wbtest.mbt::tanpi of an integer takes the sign of sinpi over cospi	A
 library/src/decimal/tininess_default_issue217_wbtest.mbt::decimal contexts detect tininess before rounding (#217)	A
 library/src/decimal/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: the reported cases do not panic	A
-library/src/decimal/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: to_binary at both ends of the exponent range, every rounding mode	B
 library/src/decimal/to_binary_parts_wbtest.mbt::to_binary at large exponents equals exact integer arithmetic (not the old code)	A
 library/src/decimal/to_binary_rounding_wbtest.mbt::to_binary rounds the exact value once	A
 library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format extends adjusted exponent without wrapping	A
 library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format preserves maximum zero exponent	A
 library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format preserves minimum finite exponent	A
 library/src/decimal/to_integer_wbtest.mbt::convertToInteger ignores the precision and the exponent range of the context	A
-library/src/decimal/to_integer_wbtest.mbt::convertToInteger rounds in every direction with the exact flags (IEEE 754-2019 5.8)	?
 library/src/decimal/to_integral_wbtest.mbt::to_integral keeps integral parts longer than the precision	A
 library/src/decimal/to_integral_wbtest.mbt::to_integral returns integers longer than the precision unchanged	A
 library/src/decimal/total_order_wbtest.mbt::total_order and total_order_mag follow IEEE 754-2019 5.10	A

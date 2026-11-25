@@ -19,6 +19,9 @@ fn atan2_zero_show(y : String, x : String, ctx : DecimalContext) -> String {
 /// the zero carries the exponent `etiny = e_min - p + 1`, as it does for every
 /// other function (`expm1`, `atan`, `asin`, ...). `atan2` returned the exponent
 /// 0 for a ratio that is not an exact decimal (#332).
+// oracle: A
+// source: written out from IEEE 754-2019 5.2 (an inexact result takes the cohort member of least exponent; etiny = emin - p + 1 = -383 - 16 + 1 = -398 for decimal64) and the magnitude of the value: atan2(1E-500, 9) is about 1.1E-501, far below the least subnormal 1E-398, so a nearest result is a zero with exponent -398, inexact and underflow; the sign follows the ordinate
+// shares: Decimal::from_string, atan2_ctx, atan_ctx and to_string (the code under test)
 test "atan2 underflowing to zero keeps the least exponent (#332)" {
   let ctx = DecimalContext::decimal64()
   // The ratio 1E-500 / 9 is not a decimal: the certified path decides it.
@@ -47,6 +50,9 @@ test "atan2 underflowing to zero keeps the least exponent (#332)" {
 }
 
 ///|
+// oracle: A
+// source: row m20261118.atan2.349 of the MPFR decimal oracle (precision 2, emin -17, etiny -18) and the same rule worked out for precision 5 emin -3 (etiny -7), both with the true value far below the least subnormal
+// shares: Decimal::from_string, atan2_ctx and to_string (the code under test)
 test "atan2 zero exponent follows the context, not 0 (#332)" {
   // Row m20261118.atan2.349 of the MPFR decimal oracle: precision 2,
   // e_min = -17 so etiny = -18.
@@ -76,6 +82,9 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
 }
 
 ///|
+// oracle: A
+// source: written out from the rounding directions of IEEE 754-2019 4.3 for a value below the least subnormal 1E-398 (precision 16): toward positive (up) gives +1E-398, toward negative of a negative value gives -1E-398, toward negative of a positive value gives 0E-398; each inexact and underflow
+// shares: Decimal::from_string, atan2_ctx and to_string (the code under test)
 test "atan2 rounding away from zero is not a zero (#332)" {
   // Directed rounding away from zero gives the smallest subnormal, whose
   // exponent was never affected.

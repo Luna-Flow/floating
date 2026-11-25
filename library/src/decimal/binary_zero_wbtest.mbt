@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 5.4.2 and 6.3 (a conversion of a zero keeps its sign): -0 gives -0, +0 gives 0, in both directions and for a zero with exponent -3
+// shares: Binary::negative_zero, zero and neg (they build the operands), Decimal::from_binary, to_binary, from_string and is_negative_zero (the code under test)
 test "binary conversions keep the sign of zero (IEEE 754 5.4.2, 6.3)" {
   let negative = @binary.Binary::negative_zero(precision=53)
   let positive = @binary.Binary::zero(precision=53)

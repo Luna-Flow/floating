@@ -114,6 +114,9 @@ fn issue287_check(
 /// clamp fold-down. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, checked against the
 /// package contract by hand (IEEE 754 has no clamped condition); the oracle is not the specification.
 /// The package has no Clamped flag (IEEE 754 has none): what these rows observe is the delivered value and cohort member (the fold-down itself); the Clamped flag is asserted by the same rows in `decimal_gda`'s test of the same name.
+// oracle: A
+// source: 40 rows of Python decimal (libmpdec 4.0.0, CPython, Context(prec, Emax, Emin = 1 - Emax, clamp = 1), power, flags x i z o u): re-run for this declaration and all 40 rows agree with the file; the fold-down of a power of ten above Etop = Emax - p + 1 is the rule of GDA 1.70 (Clamped)
+// shares: Decimal::from_string, pow_ctx and DecimalFlags (the code under test); the flag letters are formatted by the test
 test "a power of ten above Etop is delivered folded down (#287)" {
   let rows : Array[
     (

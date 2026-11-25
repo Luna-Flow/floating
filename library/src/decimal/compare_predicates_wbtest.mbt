@@ -198,6 +198,9 @@ fn compare_predicate_table() -> Array[
 /// The value is true exactly when the relation is among the true relations of
 /// the table, and invalid is raised on a signaling NaN by every predicate and on a
 /// quiet NaN by the signaling predicates only; no other flag is ever raised.
+// oracle: A, S
+// source: the relation letters of every operand pair and the true relations of each of the 22 predicates written out from IEEE 754-2019 5.11 Tables 5.1 and 5.2 (L less, E equal, G greater, U unordered), and the rule that every predicate raises invalid on a signaling NaN and the signaling ones also on a quiet NaN; the first loop that compares compare_quiet with compare_signaling is self-consistency (S)
+// shares: Decimal::from_string, quiet_nan, signaling_nan and the predicates (the code under test)
 test "decimal comparison predicates: value and flag for every relation" {
   assert_eq(compare_predicate_table().length(), 22)
   for pair in compare_operand_pairs() {
@@ -243,6 +246,9 @@ test "decimal comparison predicates: value and flag for every relation" {
 ///|
 /// The negation pairs the standard states: the value is the complement and the
 /// flags are the same, on every relation.
+// oracle: S
+// source: the negation pairs of IEEE 754-2019 5.11 written out (eleven pairs) with the rule that the value of a predicate is the complement of its negation and the flags equal; both sides are library predicates, so this is self-consistency (S); the counts 10 and 12 of Tables 5.1 and 5.2 are written out (A)
+// shares: the 22 predicates (the code under test) on both sides
 test "decimal comparison predicates: the negation pairs are complements" {
   let pairs = [
     ("compareQuietEqual", "compareQuietNotEqual"),
