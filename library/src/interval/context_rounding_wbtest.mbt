@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: worked by hand from IEEE 754-2019 3.3, 4.3.1 and 7.5: in a 4-bit context with e_max = 3 (e_min = -2, subnormal grid 2^-5) the center 2^-6 + 2^-20 is nearest to 2^-5 on that grid, rounded once, with the inexact and underflow flags and no overflow
+// shares: IntervalContext::new, Interval::from_bounds, Interval::from_int, endpoint_rounding_value (a test helper that builds m * 2^e), IntervalFlags and Binary::from_int build the inputs and read the flags; midpoint_ctx and apply_ctx are the code under test
 test "midpoint_ctx rounds to nearest once" {
   // 2^-6 + 2^-20 lies in the subnormal range of a 4-bit context with
   // e_min = -2 (grid 2^-5); the nearest grid point is 2^-5, not 0.
@@ -58,6 +61,9 @@ test "midpoint_ctx applies e_max" {
 }
 
 ///|
+// oracle: A
+// source: worked by hand from IEEE 754-2019 3.3: -3 and 2^-5 are exact numbers of a 4-bit context with e_max = 3 (2^-5 is the smallest subnormal), so the center is unchanged and no flag is raised
+// shares: IntervalContext::new, Interval::from_bounds, Interval::from_int, endpoint_rounding_value (a test helper that builds m * 2^e), IntervalFlags and Binary::from_int build the inputs and read the flags; midpoint_ctx and apply_ctx are the code under test
 test "midpoint_ctx keeps exact and normal centers" {
   let ctx = IntervalContext::new(precision=4, e_max=3)
   let (m, flags) = Interval::from_int(-3, precision=53).midpoint_ctx(ctx)
@@ -70,6 +76,9 @@ test "midpoint_ctx keeps exact and normal centers" {
 }
 
 ///|
+// oracle: A
+// source: worked by hand from IEEE 754-2019 7.5 in a 4-bit context with e_max = 3: 2^-3 (1 + 2^-10) is below 2^e_min = 2^-2 and not on the subnormal grid 2^-5, so rounding down gives 2^-3 with the inexact and underflow flags
+// shares: IntervalContext::new, Interval::from_bounds, Interval::from_int, endpoint_rounding_value (a test helper that builds m * 2^e), IntervalFlags and Binary::from_int build the inputs and read the flags; midpoint_ctx and apply_ctx are the code under test
 test "apply_ctx raises underflow for a tiny inexact endpoint" {
   // 2^-3 (1 + 2^-10) is below 2^e_min = 2^-2; rounding it down to 4 bits
   // gives 2^-3, which is on the subnormal grid, so only the first step is
@@ -85,6 +94,9 @@ test "apply_ctx raises underflow for a tiny inexact endpoint" {
 }
 
 ///|
+// oracle: A, S
+// source: worked by hand from IEEE 754-2019 7.5: 2^-5 is an exact subnormal of the 4-bit context (no flag), and 17 * 2^-4 = 1.0625 needs 5 bits so it is inexact in the normal range without underflow; the containment check of the exact endpoint is self-consistency (S)
+// shares: IntervalContext::new, Interval::from_bounds, Interval::from_int, endpoint_rounding_value (a test helper that builds m * 2^e), IntervalFlags and Binary::from_int build the inputs and read the flags; midpoint_ctx and apply_ctx are the code under test
 test "apply_ctx does not raise underflow for exact tiny endpoints" {
   let ctx = IntervalContext::new(precision=4, e_max=3)
   let tiny = endpoint_rounding_value(1UL, -5, 53)

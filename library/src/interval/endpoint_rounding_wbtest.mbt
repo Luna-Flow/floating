@@ -23,6 +23,9 @@ fn endpoint_rounding_unit_interval() -> Interval {
 }
 
 ///|
+// oracle: S
+// source: identity: normalizing the interval [1, 1 + 2^-52], whose ends are 53-bit numbers, returns the same set and precision
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
 test "normalized keeps the interval" {
   let x = endpoint_rounding_unit_interval()
   assert_true(x.normalized().equal(x))
@@ -30,12 +33,18 @@ test "normalized keeps the interval" {
 }
 
 ///|
+// oracle: S
+// source: identity: re-quantizing at 53 bits an interval whose ends are 53-bit numbers returns it
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
 test "with_precision at the same precision keeps the interval" {
   let x = endpoint_rounding_unit_interval()
   assert_true(x.with_precision(53).equal(x))
 }
 
 ///|
+// oracle: A
+// source: worked by hand: at 8 bits 1 stays and 1 + 2^-52 rounds up to 1 + 2^-7 = 129 * 2^-7 (IEEE 1788-2015 12.12.7, outward rounding of the ends)
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
 test "with_precision rounds each endpoint outward" {
   let x = endpoint_rounding_unit_interval()
   // At 8 bits, 1 stays and 1 + 2^-52 rounds up to 1 + 2^-7.
@@ -46,6 +55,9 @@ test "with_precision rounds each endpoint outward" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 10.5.7: convexHull(x, empty) = x, written out
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test
 test "convex_hull with Empty is the other operand" {
   let x = endpoint_rounding_unit_interval()
   assert_true(Interval::empty().convex_hull(x).equal(x))
@@ -53,6 +65,9 @@ test "convex_hull with Empty is the other operand" {
 }
 
 ///|
+// oracle: A
+// source: x^1 = x for every x (IEEE 1788-2015 Table 9.1, pown with exponent 1), written out
+// shares: endpoint_rounding_unit_interval (Interval::from_bounds on Binary::one and endpoint_rounding_value, a helper that builds m * 2^e) builds the input; the operation under test is the code under test; ArithmeticContext::new
 test "pow_int_checked by one keeps the interval" {
   let x = endpoint_rounding_unit_interval()
   let ctx = @lf_arith.ArithmeticContext::new(53)
@@ -61,6 +76,9 @@ test "pow_int_checked by one keeps the interval" {
 }
 
 ///|
+// oracle: A
+// source: the power of the empty set is the empty set for every exponent, including 0 (IEEE 1788-2015 Table 9.1, an extension is Empty on Empty), written out
+// shares: Interval::empty and ArithmeticContext::new build the inputs; the checked powers are the code under test
 test "pow_nat_checked of Empty is Empty" {
   let ctx = @lf_arith.ArithmeticContext::new(53)
   for n in [0U, 1U, 2U, 5U] {

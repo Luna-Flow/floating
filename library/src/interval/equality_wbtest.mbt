@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: IEEE 1788-2015 10.6.4 equal(x, y): equal as sets, so [1,3] at 24 and 113 bits are equal, empty equals empty, entire equals entire, a +0 bound and a -0 bound are the same set; identical compares the representation, written out
+// shares: Interval::from_bounds, Binary::from_int, empty and entire build the inputs; == and identical are the code under test
 test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.3)" {
   let a = Interval::from_bounds(
     @binary.Binary::from_int(1, precision=24),
@@ -30,6 +33,9 @@ test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 11.5.3 and 11.6: the comparison of decorated intervals is the comparison of the interval parts, NaI is never equal, not even to itself; identical compares the decoration too; written out
+// shares: DecoratedInterval::new, nai and Interval::from_int build the inputs; == and identical are the code under test
 test "== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored" {
   let x = Interval::from_int(2, precision=53)
   let com = DecoratedInterval::new(x, decoration=Com)
@@ -46,6 +52,9 @@ test "== on decorated intervals is the equal relation: NaI is never equal, decor
 }
 
 ///|
+// oracle: A, S
+// source: explicit precisions are written out (precision 16 gives 16, 53 gives 53, 5 and 2^30 are exact at 53 bits so the interval is a singleton); the default of from_coefficient without a precision is the library's own documented default of 53 bits, a design value and not a standard value (S)
+// shares: Interval::from_int, from_coefficient, precision and is_singleton (the code under test)
 test "from_int and from_coefficient default to 53 bits" {
   assert_eq(Interval::from_int(5, precision=53).precision(), 53)
   assert_eq(
