@@ -62,6 +62,9 @@ fn issue226_check_flags(
 }
 
 ///|
+// oracle: A
+// source: the table issue226_rows: 550 rows (values, eight rounding directions, four destination types) recomputed with exact rational arithmetic (Python Fraction, one rounding function per direction, destination ranges Int, Int64, UInt, UInt64) by tools/check_decimal_to_integer_rows.py, which fails when a row differs; the flags follow IEEE 754-2019 5.8 (invalid for NaN, infinity and out of range, inexact only for the exact operations when rounding changed the value)
+// shares: Decimal::from_string, to_int_ctx, to_int64_ctx, to_uint_ctx, to_uint64_ctx (the code under test); the flag letters are formatted by the test
 test "convertToInteger rounds in every direction with the exact flags (IEEE 754-2019 5.8)" {
   for row in issue226_rows {
     let (text, mode, i32, i64, u32, u64, changed) = row

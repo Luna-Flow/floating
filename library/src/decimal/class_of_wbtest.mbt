@@ -53,6 +53,9 @@ fn dcls_cases(
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 5.7.2 (class: sNaN, qNaN, infinities, normal, subnormal when the adjusted exponent is below emin, zero) and the formats of 3.6 Table 3.6 (decimal32 emin -95 etiny -101 p 7 emax 96, decimal64 -383 -398 16 384, decimal128 -6143 -6176 34 6144): each of the twenty operand texts has the class named beside it, at the smallest and largest subnormal, the smallest normal, the largest finite and the zeros of both signs
+// shares: Decimal::from_string and class_of (the code under test); the text of the operands is built from the format parameters by string interpolation
 test "Decimal::class_of matches class_name for every class in every format" {
   let formats : Array[(DecimalContext, Int32, Int32, Int32, Int32)] = [
     (DecimalContext::decimal32(), -95, -101, 7, 96),
