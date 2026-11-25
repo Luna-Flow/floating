@@ -89,5 +89,8 @@ test "asinh and atanh of a tiny argument terminate" {
     assert_true(y.lower_bound().compare(lower) <= 0)
     assert_true(y.upper_bound().compare(upper) >= 0)
     assert_eq(y.upper_bound().classify(), FpClass::Finite)
+    // and no wider than the hull [lower, upper] (one unit of the last place), the measured width
+    assert_true(y.lower_bound().compare(lower) >= 0)
+    assert_true(y.upper_bound().compare(upper) <= 0)
   }
 }

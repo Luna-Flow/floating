@@ -101,6 +101,9 @@ test "hyperbolic forms keep relative accuracy for a tiny argument" {
     assert_true(y.lower_bound().compare(@binary.Binary::zero()) > 0)
     assert_true(y.lower_bound().compare(lower) <= 0)
     assert_true(y.upper_bound().compare(upper) >= 0)
+    // and no wider than the hull [lower, upper] (one unit of the last place), the measured width
+    assert_true(y.lower_bound().compare(lower) >= 0)
+    assert_true(y.upper_bound().compare(upper) <= 0)
     assert_true(y.width().compare(tiny) <= 0)
   }
 }

@@ -34,6 +34,9 @@ fn q_pow3(exponent : Int32) -> @binary.Binary {
 }
 
 ///|
+// oracle: A
+// source: written out by hand from the unique factorisation of the operands: ln(c) / ln(a) is 2 for (16, 4), -1 for (1/2, 2), 1/2 for (1/2, 1/4), -1/3 for (1/2, 8), 2/3 for (4, 8), 0 for c = 1, 2 for (9, 3) and (9/16, 3/4), 3/2 for (27, 9), 2/3 for (9, 27), 1/2 for (5, 25); irrational when exactly one odd part is 1 or the odd parts are different primes' powers ((9, 3/2), (3, 2), (2, 3), (3, 5), (15, 3))
+// shares: q_num, q_pow3 (Binary::from_double, coeff_pow_small and Binary::make), pw_ival and Interval::from_bounds build the inputs; the class and the interval comparisons compare; quot_end_class and pow_rev2 are the code under test
 test "pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm" {
   // both odd parts 1: j / i
   assert_true(q_dyadic_is(quot_end_class(q_num(16.0), q_num(4.0)), 2.0))
@@ -67,6 +70,9 @@ test "pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm"
 }
 
 ///|
+// oracle: A
+// source: written out by hand: ln(3^40000) / ln(3) = 40000 and its inverse is 1/40000 (the 63,400-bit operand is decided by 40,000 exact steps); 3^50000 has more bits than the documented budget, so the class is Unknown (an engineering limit, as documented)
+// shares: q_num, q_pow3 (Binary::from_double, coeff_pow_small and Binary::make), pw_ival and Interval::from_bounds build the inputs; the class and the interval comparisons compare; quot_end_class and pow_rev2 are the code under test
 test "pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown" {
   // 3 against 3^40000 (63,400 bits): 40000 Euclid steps, exact
   let cls = quot_end_class(q_pow3(40000), q_num(3.0))
@@ -127,6 +133,9 @@ test "pow_rev2 rational ends: comparison and directed rounding" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand from the definition of pow_rev2 (IEEE 1788-2015 Table 10.1) with literal double bounds including infinities: a in [1/4, 1/2], c in [1/2, 1] gives [0, 1]; c in [2, 4] gives [-2, -1/2]; c in [2, +inf) gives (-inf, -1/2]; a = [2, +inf), c = [2, 4] gives (0, 2] (0 is not attained, so the priors [-3, 0] and [0, 0] give Empty and [0, 5] gives [0, 2]; with c = [1, 4], 0 is attained); the base 0 with c = 0 gives (0, +inf); 1 in a and in c gives every exponent; the point base 1 gives every exponent only if 1 is in c
+// shares: q_num, q_pow3 (Binary::from_double, coeff_pow_small and Binary::make), pw_ival and Interval::from_bounds build the inputs; the class and the interval comparisons compare; quot_end_class and pow_rev2 are the code under test
 test "pow_rev2: the examples of the corpus and open ends against a prior touching 0" {
   let p = 53
   let x = pw_ival
@@ -243,6 +252,9 @@ test "pow_rev2: extreme bases, results and prior ends return at once" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand: the exponent beta with 3^beta = 3^40000 is 40000, so pow_rev2 of the base [3, 3] and the result [3^40000, 3^40000] is [40000, 40000]
+// shares: q_num, q_pow3 (Binary::from_double, coeff_pow_small and Binary::make), pw_ival and Interval::from_bounds build the inputs; the class and the interval comparisons compare; quot_end_class and pow_rev2 are the code under test
 test "pow_rev2: a 63,400-bit odd part: 3^40000 against 3, and 3^50000 beyond the budget" {
   let p = 53
   let three = pw_ival(3.0, 3.0, p)
@@ -255,6 +267,9 @@ test "pow_rev2: a 63,400-bit odd part: 3^40000 against 3, and 3^50000 beyond the
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 clause 11 (a reverse operation is trivially decorated, trv) and the definition of the precision: the result of 24-bit operands has precision 24, the decorated result of com inputs is trv, and a NaI operand gives NaI; the interval value is not checked here
+// shares: q_num, q_pow3 (Binary::from_double, coeff_pow_small and Binary::make), pw_ival and Interval::from_bounds build the inputs; the class and the interval comparisons compare; quot_end_class and pow_rev2 are the code under test
 test "pow_rev2: the result keeps the precision of the operands and a decorated form is trv" {
   let p = 24
   let a = pw_ival(0.25, 0.5, p)

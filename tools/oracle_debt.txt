@@ -3,44 +3,17 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/interval/context_format_wbtest.mbt::IntervalContext presets are the interchange formats	?
-library/src/interval/context_format_wbtest.mbt::IntervalContext::try_new rejects what no format has	?
-library/src/interval/context_format_wbtest.mbt::interval constructors report a precision outside 1..binary_precision_max	?
-library/src/interval/context_format_wbtest.mbt::panic IntervalContext::new aborts on a precision beyond the limit	?
-library/src/interval/context_format_wbtest.mbt::panic IntervalContext::with_precision aborts on an illegal precision	?
-library/src/interval/context_format_wbtest.mbt::panic Interval::empty aborts on a negative precision	?
-library/src/interval/context_format_wbtest.mbt::panic Interval::from_bounds aborts on precision 0	?
-library/src/interval/context_format_wbtest.mbt::panic Interval::with_precision aborts on precision 0	?
-library/src/interval/context_format_wbtest.mbt::try_new rejects a precision outside 1..=binary_precision_max	?
 library/src/interval/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
-library/src/interval/huge_argument_trig_wbtest.mbt::sin, cos, tan of 2^70000 are tight beyond the old cutoff	?
 library/src/interval/interval_basics_wbtest.mbt::try_sin/cos/tan: huge arguments around the cutoff stay sound	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: exponents at and beyond the limits of the converters	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: huge exponents	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: rejections name the broken rule	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: the length limit gives Entire	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: the order of two bounds of different radices that is undecided	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: the table of the independent oracle	?
-library/src/interval/interval_literal_wbtest.mbt::interval literals: the vectors of Tables 9.4 and 12.1	?
-library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown	?
-library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 rational ends: comparison and directed rounding	?
-library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: a 63,400-bit odd part: 3^40000 against 3, and 3^50000 beyond the budget	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: bases and results at the edge of the stored range, at 53 and 113 bits	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: extreme bases, results and prior ends return at once	?
-library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the examples of the corpus and open ends against a prior touching 0	?
-library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the result keeps the precision of the operands and a decorated form is trv	?
-library/src/interval/pow_reverse_wbtest.mbt::classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over the budget	?
-library/src/interval/pow_reverse_wbtest.mbt::decorated and the unbounded forms	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: an exact end in the subnormal range returns at once	?
-library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: an exact subnormal end with a wide coefficient is exact	?
-library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 return at once	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: extreme exponents, operands and prior ends return at once	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the edge of the exponent range, at 53 and 113 bits	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the examples that fix the definition, with exact and rounded ends	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the open ends at 0 and at 1 against a prior that touches them	?
-library/src/interval/pow_reverse_wbtest.mbt::rational class: comparison and directed rounding of 2^E / D	?
 library/src/interval/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^1000000000 returns at once	?

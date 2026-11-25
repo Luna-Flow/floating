@@ -102,6 +102,12 @@ test "stable expm1 and log1p intervals retain tiny singleton inputs" {
   assert_true(expm1.upper_bound().compare(successor) >= 0)
   assert_true(log1p.lower_bound().compare(predecessor) <= 0)
   assert_true(log1p.upper_bound().compare(tiny_value) >= 0)
+  // and no wider: the measured enclosures are the hulls [x, succ(x)] and [pred(x), x] themselves (one
+  // unit of the last place), so a wider enclosure is a loss of tightness
+  assert_true(expm1.lower_bound().compare(tiny_value) >= 0)
+  assert_true(expm1.upper_bound().compare(successor) <= 0)
+  assert_true(log1p.lower_bound().compare(predecessor) >= 0)
+  assert_true(log1p.upper_bound().compare(tiny_value) <= 0)
 }
 
 ///|
