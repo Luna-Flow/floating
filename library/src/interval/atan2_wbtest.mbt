@@ -23,7 +23,7 @@ test "certified atan2 handles axes and branch cut" {
 
 ///|
 // oracle: A
-// source: the upper end is RU_53(pi) = 0x1921FB54442D19p-51 (the 53-bit number just above pi = 3.14159265358979323846..., pi to 40 digits as in tools/interval_pi_oracle.py) and the lower end is zero, because atan2 of [-0,0] and the whole line is [0, pi]; IEEE 1788-2015 12.12.8 gives the zero a Level 1 value of 0
+// source: the upper end is RU_53(pi) = 0x1921FB54442D19p-51 (the 53-bit number just above pi = 3.14159265358979323846...; the number just below is 0x1921FB54442D18p-51) and the lower end is zero, because atan2 of [-0,0] and the whole line is [0, pi]; IEEE 1788-2015 12.12.8 gives the zero a Level 1 value of 0
 // shares: Binary::negative_zero, Interval::from_bounds, entire, apply_ctx, IntervalContext::binary64 and expected_binary64 (Binary::from_hex)
 test "atan2 identifies signed zero endpoints with the real interval zero" {
   let ordinate = Interval::from_bounds(

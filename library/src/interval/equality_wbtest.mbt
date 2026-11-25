@@ -1,6 +1,6 @@
 ///|
 // oracle: A
-// source: IEEE 1788-2015 10.6.4 equal(x, y): equal as sets, so [1,3] at 24 and 113 bits are equal, empty equals empty, entire equals entire, a +0 bound and a -0 bound are the same set; identical compares the representation, written out
+// source: IEEE 1788-2015 10.5.10 and Table 10.3 equal(x, y): equal as sets, so [1,3] at 24 and 113 bits are equal, empty equals empty, entire equals entire, a +0 bound and a -0 bound are the same set; identical compares the representation, written out
 // shares: Interval::from_bounds, Binary::from_int, empty and entire build the inputs; == and identical are the code under test
 test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.3)" {
   let a = Interval::from_bounds(
@@ -34,7 +34,7 @@ test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.
 
 ///|
 // oracle: A
-// source: IEEE 1788-2015 11.5.3 and 11.6: the comparison of decorated intervals is the comparison of the interval parts, NaI is never equal, not even to itself; identical compares the decoration too; written out
+// source: IEEE 1788-2015 12.12.9: the comparison of decorated intervals is the comparison of the interval parts and equal(NaI, NaI) is false; identical compares the decoration too; written out
 // shares: DecoratedInterval::new, nai and Interval::from_int build the inputs; == and identical are the code under test
 test "== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored" {
   let x = Interval::from_int(2, precision=53)
