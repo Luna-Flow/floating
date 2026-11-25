@@ -75,8 +75,8 @@ These constructors enclose an integer through `Interval::from_int` /
 `precision` outside 1 to `binary_precision_max`.
 
 ```mbti
-pub fn IntervalChecked::from_int(Int, precision? : Int) -> Self
-pub fn IntervalChecked::from_coefficient(@binary.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn IntervalChecked::from_int(Int32, precision? : Int32) -> Self
+pub fn IntervalChecked::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 ```
 
 The default precision is **53 bits**. The integer is converted exactly and
@@ -91,8 +91,8 @@ enough for the integer to get a point.
 These constructors enclose a finite `Double` or `Float`.
 
 ```mbti
-pub fn IntervalChecked::from_double(Double, precision? : Int) -> Self
-pub fn IntervalChecked::from_float(Float, precision? : Int) -> Self
+pub fn IntervalChecked::from_double(Double, precision? : Int32) -> Self
+pub fn IntervalChecked::from_float(Float, precision? : Int32) -> Self
 ```
 
 The source is converted exactly (at least 53 or 24 bits) and then rounded
@@ -105,7 +105,7 @@ source value. A NaN or infinite source gives a `DomainError`
 `exact(x, precision~)` encloses a finite `Binary`.
 
 ```mbti
-pub fn IntervalChecked::exact(@binary.Binary, precision? : Int) -> Self
+pub fn IntervalChecked::exact(@binary.Binary, precision? : Int32) -> Self
 ```
 
 `precision` defaults to `x.precision()`. The bounds are `x` rounded down and up
@@ -118,7 +118,7 @@ to that precision, so the result contains `x`. A non-finite `x` gives a
 \textit{hi}]$.
 
 ```mbti
-pub fn IntervalChecked::from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Self
+pub fn IntervalChecked::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
 ```
 
 `precision` defaults to the larger bound precision; `lo` is rounded down and
@@ -135,7 +135,7 @@ precision 53); it fails only with a `DomainError` for a `precision` outside 1
 to `binary_precision_max`.
 
 ```mbti
-pub fn IntervalChecked::entire(precision? : Int) -> Self
+pub fn IntervalChecked::entire(precision? : Int32) -> Self
 ```
 
 ```moonbit
@@ -207,7 +207,7 @@ These methods are `map` of the `Interval` method of the same name.
 pub fn IntervalChecked::neg(Self) -> Self
 pub fn IntervalChecked::abs(Self) -> Self
 pub fn IntervalChecked::normalized(Self) -> Self
-pub fn IntervalChecked::with_precision(Self, Int) -> Self
+pub fn IntervalChecked::with_precision(Self, Int32) -> Self
 ```
 
 `neg` and `abs` are the exact interval images $\{-t\}$ and $\{|t|\}$;
@@ -274,7 +274,7 @@ optional prior is passed on.
 ```mbti
 pub fn IntervalChecked::sqr_rev(Self, x? : Self) -> Self
 pub fn IntervalChecked::abs_rev(Self, x? : Self) -> Self
-pub fn IntervalChecked::pown_rev(Self, Int, x? : Self) -> Self
+pub fn IntervalChecked::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn IntervalChecked::cosh_rev(Self, x? : Self) -> Self
 ```
 
@@ -361,7 +361,7 @@ pub fn IntervalChecked::cancel_minus(Self, Self) -> Self
 Luna-Flow/arithmetic trait `PowIntChecked`.
 
 ```mbti
-pub fn IntervalChecked::pown(Self, Int) -> Self
+pub fn IntervalChecked::pown(Self, Int32) -> Self
 ```
 
 The context is `ArithmeticContext::new(x.precision())`; `interval` uses only
@@ -379,7 +379,7 @@ non-negative exponent is a `pown`, and the trait form
 `rootn(n)` encloses the real $n$-th root with `Interval::try_rootn`.
 
 ```mbti
-pub fn IntervalChecked::rootn(Self, Int) -> Self
+pub fn IntervalChecked::rootn(Self, Int32) -> Self
 ```
 
 Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the

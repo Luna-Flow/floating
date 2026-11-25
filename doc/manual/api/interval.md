@@ -237,8 +237,8 @@ $[c - r, c + r]$ from a center and a radius (IEEE 1788-2015 12.12.7). `Interval:
 same interval, or an `ArithmeticError` where `from_midpoint_radius` aborts.
 
 ```mbti
-pub fn Interval::from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int) -> Self
-pub fn Interval::try_from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn Interval::try_from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the precisions of `center` and
@@ -263,9 +263,9 @@ IEEE 1788-2015 `textToInterval` (10.5.8, 12.12.7, 13.2): the interval literal `s
 value at `precision` bits.
 
 ```mbti
-pub let interval_literal_max_length : Int
-pub fn Interval::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecoratedInterval::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub let interval_literal_max_length : Int32
+pub fn Interval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecoratedInterval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The portable literals of 12.11 are accepted, with the case ignored and no whitespace except the spaces and tabs
@@ -324,8 +324,8 @@ test "from_string" {
 from its endpoints, rounded outward to the requested precision.
 
 ```mbti
-pub fn Interval::from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Self
-pub fn Interval::try_from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn Interval::try_from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the endpoint precisions. Infinite
@@ -350,8 +350,8 @@ test "from_bounds" {
 `Interval::exact` builds the singleton $\{x\}$ of a finite `Binary`.
 
 ```mbti
-pub fn Interval::exact(@binary.Binary, precision? : Int) -> Self
-pub fn Interval::try_exact(@binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::exact(@binary.Binary, precision? : Int32) -> Self
+pub fn Interval::try_exact(@binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is that of `x`. When `x` has more significant bits than
@@ -365,8 +365,8 @@ aborts `exact` and makes `try_exact` return a domain error.
 an integer.
 
 ```mbti
-pub fn Interval::from_int(Int, precision~ : Int) -> Self
-pub fn Interval::from_coefficient(@binary.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn Interval::from_int(Int32, precision~ : Int32) -> Self
+pub fn Interval::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 ```
 
 The precision of `from_int` is required and counts bits (it was 53 by default). `from_coefficient` takes a non-negative
@@ -383,10 +383,10 @@ These functions build the singleton of the exact binary value of a `Double`
 or `Float`.
 
 ```mbti
-pub fn Interval::from_double(Double, precision? : Int) -> Self
-pub fn Interval::try_from_double(Double, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::from_float(Float, precision? : Int) -> Self
-pub fn Interval::try_from_float(Float, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_double(Double, precision? : Int32) -> Self
+pub fn Interval::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_float(Float, precision? : Int32) -> Self
+pub fn Interval::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Default precisions are 53 and 24. The conversion to `Binary` is exact; a
@@ -400,8 +400,8 @@ encloses the binary value, not the decimal literal it was written as:
 `Interval::entire` returns Entire and `Interval::empty` returns Empty.
 
 ```mbti
-pub fn Interval::entire(precision? : Int) -> Self
-pub fn Interval::empty(precision? : Int) -> Self
+pub fn Interval::entire(precision? : Int32) -> Self
+pub fn Interval::empty(precision? : Int32) -> Self
 ```
 
 The default precision is 53.
@@ -514,7 +514,7 @@ test "observers" {
 `precision` returns the precision tag.
 
 ```mbti
-pub fn Interval::precision(Self) -> Int
+pub fn Interval::precision(Self) -> Int32
 ```
 
 ### `Interval::is_empty`, `Interval::is_entire`, `Interval::is_common_interval`, `Interval::is_singleton`
@@ -541,7 +541,7 @@ $\underline{x} = \overline{x}$. To ask whether an interval contains 0, use
 it.
 
 ```mbti
-pub fn Interval::with_precision(Self, Int) -> Self
+pub fn Interval::with_precision(Self, Int32) -> Self
 ```
 
 The endpoints are rounded outward: the lower bound toward $-\infty$ and the
@@ -860,7 +860,7 @@ exponent $n$.
 
 ```mbti
 pub fn Interval::sqr(Self) -> Self
-pub fn Interval::pown(Self, Int) -> Self
+pub fn Interval::pown(Self, Int32) -> Self
 ```
 
 Unlike `x * x`, these use the same point twice, so `[-1, 2].sqr()` is
@@ -968,7 +968,7 @@ $[-2, 2] \cap [0, 1.2] = [0, 1.2]$.
 ```mbti
 pub fn Interval::sqr_rev(Self, x? : Self) -> Self
 pub fn Interval::abs_rev(Self, x? : Self) -> Self
-pub fn Interval::pown_rev(Self, Int, x? : Self) -> Self
+pub fn Interval::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn Interval::cosh_rev(Self, x? : Self) -> Self
 ```
 
@@ -1404,8 +1404,8 @@ $\{\xi^{1/n}\}$: for even $n$ over $\xi \ge 0$, for odd $n$ over all reals,
 and for negative $n$ the reciprocal of the root.
 
 ```mbti
-pub fn Interval::rootn(Self, Int) -> Self
-pub fn Interval::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::rootn(Self, Int32) -> Self
+pub fn Interval::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `rootn(x, 0)` is Empty; `try_rootn(x, 0)` is a domain
@@ -1593,8 +1593,8 @@ test "inverse and hyperbolic functions" {
 `e_max`; `e_min` is `1 - e_max` (IEEE 754-2019 3.3).
 
 ```mbti
-pub fn IntervalContext::new(precision? : Int, e_max? : Int) -> Self
-pub fn IntervalContext::try_new(precision? : Int, e_max? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn IntervalContext::new(precision? : Int32, e_max? : Int32) -> Self
+pub fn IntervalContext::try_new(precision? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The defaults are precision 53 and, for `e_max`, the implementation limit
@@ -1613,8 +1613,8 @@ These return the same format with another precision, or another largest
 exponent (and `e_min = 1 - e_max`); they abort when the result is not legal.
 
 ```mbti
-pub fn IntervalContext::with_precision(Self, Int) -> Self
-pub fn IntervalContext::with_e_max(Self, Int) -> Self
+pub fn IntervalContext::with_precision(Self, Int32) -> Self
+pub fn IntervalContext::with_e_max(Self, Int32) -> Self
 ```
 
 ### `IntervalContext::binary16`, `IntervalContext::binary32`, `IntervalContext::binary64`, `IntervalContext::binary128`
@@ -1635,9 +1635,9 @@ pub fn IntervalContext::binary128() -> Self
 These return the parameters of a context.
 
 ```mbti
-pub fn IntervalContext::precision(Self) -> Int
-pub fn IntervalContext::e_min(Self) -> Int
-pub fn IntervalContext::e_max(Self) -> Int
+pub fn IntervalContext::precision(Self) -> Int32
+pub fn IntervalContext::e_min(Self) -> Int32
+pub fn IntervalContext::e_max(Self) -> Int32
 ```
 
 ### `IntervalFlags::new`, `IntervalFlags::combine`, `IntervalFlags::inexact`, `IntervalFlags::overflow`, `IntervalFlags::underflow`
@@ -1755,7 +1755,7 @@ otherwise the decoration is made canonical, so `new(entire())` is decorated
 tests for it.
 
 ```mbti
-pub fn DecoratedInterval::nai(precision? : Int) -> Self
+pub fn DecoratedInterval::nai(precision? : Int32) -> Self
 pub fn DecoratedInterval::is_nai(Self) -> Bool
 ```
 
@@ -1836,7 +1836,7 @@ pub fn DecoratedInterval::neg(Self) -> Self
 pub fn DecoratedInterval::abs(Self) -> Self
 pub fn DecoratedInterval::recip(Self) -> Self
 pub fn DecoratedInterval::sqr(Self) -> Self
-pub fn DecoratedInterval::pown(Self, Int) -> Self
+pub fn DecoratedInterval::pown(Self, Int32) -> Self
 pub fn DecoratedInterval::fma(Self, Self, Self) -> Self
 pub fn DecoratedInterval::min(Self, Self) -> Self
 pub fn DecoratedInterval::max(Self, Self) -> Self
@@ -1869,7 +1869,7 @@ pub fn DecoratedInterval::log2(Self) -> Self
 pub fn DecoratedInterval::log10(Self) -> Self
 pub fn DecoratedInterval::log1p(Self) -> Self
 pub fn DecoratedInterval::pow(Self, Self) -> Self
-pub fn DecoratedInterval::rootn(Self, Int) -> Self
+pub fn DecoratedInterval::rootn(Self, Int32) -> Self
 pub fn DecoratedInterval::hypot(Self, Self) -> Self
 ```
 
@@ -1913,7 +1913,7 @@ input (the interval or the prior) is NaI, else the bare result decorated `Trv`.
 ```mbti
 pub fn DecoratedInterval::sqr_rev(Self, x? : Self) -> Self
 pub fn DecoratedInterval::abs_rev(Self, x? : Self) -> Self
-pub fn DecoratedInterval::pown_rev(Self, Int, x? : Self) -> Self
+pub fn DecoratedInterval::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn DecoratedInterval::cosh_rev(Self, x? : Self) -> Self
 ```
 
@@ -2222,8 +2222,8 @@ pub impl @arithmetic.DivChecked for Interval
 pub impl @arithmetic.PowNatChecked for Interval
 pub impl @arithmetic.PowIntChecked for Interval
 pub fn Interval::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::pow_nat_checked(Self, UInt, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Only `ctx.precision` is used: the operands are re-rounded to it with

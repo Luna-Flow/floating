@@ -29,7 +29,7 @@ target.
 `run(arguments)` executes one invocation and returns the exit code.
 
 ```mbti
-pub fn run(Array[String]) -> Int
+pub fn run(Array[String]) -> Int32
 ```
 
 `arguments[0]` is the program name and is ignored. Options:

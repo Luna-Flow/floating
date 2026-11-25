@@ -71,8 +71,8 @@ arguments.
 
 ```mbti
 pub fn CommonOptions::json(Self) -> Bool
-pub fn CommonOptions::shard_count(Self) -> Int
-pub fn CommonOptions::shard_index(Self) -> Int
+pub fn CommonOptions::shard_count(Self) -> Int32
+pub fn CommonOptions::shard_index(Self) -> Int32
 pub fn CommonOptions::remaining(Self) -> Array[String]
 ```
 
@@ -93,7 +93,7 @@ test "common options" {
 `parse_int(name, text)` parses an `Int` for the option `name`.
 
 ```mbti
-pub fn parse_int(String, String) -> Result[Int, String]
+pub fn parse_int(String, String) -> Result[Int32, String]
 ```
 
 It delegates to `@string.parse_int` from `moonbitlang/core/string`, so it
@@ -149,7 +149,7 @@ These functions format a message as `source:line:column: message`.
 
 ```mbti
 pub fn format_diagnostic(@conformance.SourceLocation, String) -> String
-pub fn format_diagnostic_at(String, Int, String, column? : Int) -> String
+pub fn format_diagnostic_at(String, Int32, String, column? : Int32) -> String
 ```
 
 `format_diagnostic_at(source, line, message, column?)` builds the location
@@ -173,11 +173,11 @@ test "diagnostic format" {
 These functions build `Json` values for runner reports.
 
 ```mbti
-pub fn json_int(Int) -> Json
-pub fn json_string(String) -> Json
-pub fn json_bool(Bool) -> Json
-pub fn json_strings(Array[String]) -> Json
-pub fn json_object(Array[(String, Json)]) -> Json
+pub fn json_int(Int32) -> @json.Json
+pub fn json_string(String) -> @json.Json
+pub fn json_bool(Bool) -> @json.Json
+pub fn json_strings(Array[String]) -> @json.Json
+pub fn json_object(Array[(String, @json.Json)]) -> @json.Json
 ```
 
 `json_int` stores the integer with its exact decimal representation, so it
@@ -189,7 +189,7 @@ fields; a repeated key keeps its first position and its last value.
 `json_stringify(value)` prints a value as compact JSON with escaped strings.
 
 ```mbti
-pub fn json_stringify(Json) -> String
+pub fn json_stringify(@json.Json) -> String
 ```
 
 ```moonbit nocheck

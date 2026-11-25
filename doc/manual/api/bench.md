@@ -103,7 +103,7 @@ calibrations, validations and oracle outcomes (`passed_count`,
 practical_delta_pct, seed)` compares two implementations on one dataset.
 
 ```mbti
-pub fn paired_hotspot(Array[@model.Observation], String, Int, String, String, Double, UInt64) -> Result[@stats.Comparison, @stats.BootstrapError]
+pub fn paired_hotspot(Array[@model.Observation], String, Int32, String, String, Double, UInt64) -> Result[@stats.Comparison, @stats.BootstrapError]
 ```
 
 It selects the valid confirmatory observations of each implementation for the
@@ -190,7 +190,7 @@ was computed from.
 practical_delta_pct)` picks the fastest candidate for one dataset.
 
 ```mbti
-pub fn tune_dataset(Array[@model.Observation], String, Int, Array[String], Double) -> TuneDecision?
+pub fn tune_dataset(Array[@model.Observation], String, Int32, Array[String], Double) -> TuneDecision?
 ```
 
 For every candidate it takes the valid confirmatory observations of the case

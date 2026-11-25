@@ -81,10 +81,10 @@ These constructors build a successful wrapper from a MoonBit number through the
 matching `Binary` constructor.
 
 ```mbti
-pub fn BinaryChecked::from_int(Int, precision? : Int) -> Self
-pub fn BinaryChecked::from_coefficient(@binary.BinCoeff, precision? : Int, negative? : Bool) -> Self
-pub fn BinaryChecked::from_double(Double, precision? : Int) -> Self
-pub fn BinaryChecked::from_float(Float, precision? : Int) -> Self
+pub fn BinaryChecked::from_int(Int32, precision? : Int32) -> Self
+pub fn BinaryChecked::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn BinaryChecked::from_double(Double, precision? : Int32) -> Self
+pub fn BinaryChecked::from_float(Float, precision? : Int32) -> Self
 ```
 
 | Constructor | Default `precision` | Delegates to |
@@ -176,7 +176,7 @@ pub fn BinaryChecked::neg(Self) -> Self
 pub fn BinaryChecked::abs(Self) -> Self
 pub fn BinaryChecked::ulp(Self) -> Self
 pub fn BinaryChecked::normalized(Self) -> Self
-pub fn BinaryChecked::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn BinaryChecked::with_precision(Self, Int32, @binary.BinaryRoundingMode) -> Self
 ```
 
 `with_precision(p, mode)` rounds to $p$ bits in direction `mode` with
@@ -326,9 +326,9 @@ under a context: a negative argument is a `DomainError`.
 These methods raise a value to an integer power.
 
 ```mbti
-pub fn BinaryChecked::pow_nat(Self, UInt) -> Self
-pub fn BinaryChecked::pown(Self, Int) -> Self
-pub fn BinaryChecked::pown_ctx(Self, Int, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::pow_nat(Self, UInt32) -> Self
+pub fn BinaryChecked::pown(Self, Int32) -> Self
+pub fn BinaryChecked::pown_ctx(Self, Int32, @binary.BinaryContext) -> Self
 ```
 
 `pow_nat(n)` calls the Luna-Flow/arithmetic trait method
@@ -345,8 +345,8 @@ negative exponent and a `DomainError` for a signaling NaN base.
 `rootn(n)` computes the real $n$-th root with `Binary::try_rootn_ctx`.
 
 ```mbti
-pub fn BinaryChecked::rootn(Self, Int) -> Self
-pub fn BinaryChecked::rootn_ctx(Self, Int, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::rootn(Self, Int32) -> Self
+pub fn BinaryChecked::rootn_ctx(Self, Int32, @binary.BinaryContext) -> Self
 ```
 
 `rootn` uses `BinaryContext::new(precision=p)` at the operand's precision; `rootn_ctx` the
@@ -394,8 +394,8 @@ signaling NaN; a `DivisionByZero` error for $\operatorname{rSqrt}(\pm 0)$.
 $(1 + x)^n$, delegated to [`Binary::try_compound_ctx`](binary.md#binarycompound-binarycompound_ctx-binarytry_compound_ctx).
 
 ```mbti
-pub fn BinaryChecked::compound(Self, Int) -> Self
-pub fn BinaryChecked::compound_ctx(Self, Int, @binary.BinaryContext) -> Self
+pub fn BinaryChecked::compound(Self, Int32) -> Self
+pub fn BinaryChecked::compound_ctx(Self, Int32, @binary.BinaryContext) -> Self
 ```
 
 Errors: a `DomainError` below $-1$ ($-\infty$ included) and for a signaling NaN;

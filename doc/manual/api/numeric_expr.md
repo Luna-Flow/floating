@@ -46,7 +46,7 @@ line and column are all equal.
 `SourceSpan::new(source, line?, column?)` creates a span.
 
 ```mbti
-pub fn SourceSpan::new(String, line? : Int, column? : Int) -> Self
+pub fn SourceSpan::new(String, line? : Int32, column? : Int32) -> Self
 ```
 
 `line` and `column` default to `0`, which means "unknown". The values are
@@ -58,8 +58,8 @@ These accessors return the three components of a span.
 
 ```mbti
 pub fn SourceSpan::source(Self) -> String
-pub fn SourceSpan::line(Self) -> Int
-pub fn SourceSpan::column(Self) -> Int
+pub fn SourceSpan::line(Self) -> Int32
+pub fn SourceSpan::column(Self) -> Int32
 ```
 
 ```moonbit

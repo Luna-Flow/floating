@@ -179,7 +179,7 @@ of the vectors in file order, and their number.
 pub fn TestFloatDocument::source(Self) -> String
 pub fn TestFloatDocument::spec(Self) -> TestFloatSpec
 pub fn TestFloatDocument::cases(Self) -> Array[TestFloatCase]
-pub fn TestFloatDocument::case_count(Self) -> Int
+pub fn TestFloatDocument::case_count(Self) -> Int32
 ```
 
 ### `TestFloatCase`
@@ -199,7 +199,7 @@ the 1-based line number of the vector in the parsed text.
 
 ```mbti
 pub fn TestFloatCase::id(Self) -> String
-pub fn TestFloatCase::line(Self) -> Int
+pub fn TestFloatCase::line(Self) -> Int32
 ```
 
 ```moonbit
@@ -234,7 +234,7 @@ and the message.
 
 ```mbti
 pub fn ParseDiagnostic::source(Self) -> String
-pub fn ParseDiagnostic::line(Self) -> Int
+pub fn ParseDiagnostic::line(Self) -> Int32
 pub fn ParseDiagnostic::message(Self) -> String
 ```
 
@@ -283,7 +283,7 @@ pub struct RunOptions {
 `RunOptions::new(shard_count?, shard_index?)` builds the options.
 
 ```mbti
-pub fn RunOptions::new(shard_count? : Int, shard_index? : Int) -> Self
+pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32) -> Self
 ```
 
 Defaults: one shard, index 0. `RunOptions::new` aborts unless
@@ -294,8 +294,8 @@ Defaults: one shard, index 0. `RunOptions::new` aborts unless
 These accessors return the shard count and index.
 
 ```mbti
-pub fn RunOptions::shard_count(Self) -> Int
-pub fn RunOptions::shard_index(Self) -> Int
+pub fn RunOptions::shard_count(Self) -> Int32
+pub fn RunOptions::shard_index(Self) -> Int32
 ```
 
 ## Results
@@ -342,10 +342,10 @@ These methods return the number of vectors in the document, the number this
 shard executed, and how many of those passed and failed.
 
 ```mbti
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::selected_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::selected_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
 ```
 
 ### `RunSummary::results`, `RunSummary::success`

@@ -255,7 +255,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/cli/mpfr_expr_cli.md:76
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:59
-#: manual/api/decimal.md:2494
+#: manual/api/decimal.md:2492
 #: manual/api/decimal_checked.md:419
 #: manual/api/decimal_gda.md:1961
 #: manual/api/decimal_gda_checked.md:318
@@ -592,7 +592,7 @@ msgid "Example"
 msgstr "示例"
 
 #: manual/api/binary.md:46
-#: manual/api/binary.md:729
+#: manual/api/binary.md:730
 #: manual/api/decimal.md:594
 #: manual/api/decimal_gda.md:594
 msgid "Context"
@@ -764,124 +764,124 @@ msgstr "值类型"
 msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
 msgstr "一个二进制浮点值：有限的二进有理数、带符号的无穷或 NaN，并带有工作精度。其表示是内部类型（`@binary_kernel.BinRepr`，与 `BinCoeff` 的系数类似），不承诺兼容性，只在包内读取；一个值就是一个堆对象。"
 
-#: manual/api/binary.md:239
+#: manual/api/binary.md:240
 msgid "A finite value is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API is normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr "有限值为 $(-1)^s \\cdot c \\cdot 2^{e}$，其中 $s$ 为符号位，$c$ 为 `BinCoeff`，$e$ = `exponent2()`。通过本 API 构建的每个值都是规范化的：非零的 $c$ 是奇数（2 的因子移入 $e$），零具有 $c = 0$ 和 $e = 0$ 并保留其符号，且 $c$ 至多有 `precision()` 位。精度是值的属性：普通运算以其操作数中较大的精度工作，上下文式运算则将上下文精度标记到结果上。"
 
-#: manual/api/binary.md:247
+#: manual/api/binary.md:248
 msgid "`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`, so two values are equal when they are the same number, whatever their precisions (`one(precision=53) == one(precision=24)`, `-0 == +0`), and every NaN equals every other NaN. This is the total preorder in which `<`, `<=` and sorting work (every NaN equal to every NaN and above every number), the rule of `Decimal` too. It is not IEEE equality: use `compare_quiet_equal` (IEEE Std 754-2019 5.6.1, 5.11) when a NaN must be unordered. `Binary` has no `Hash`. `identical` is the structural question."
 msgstr "`==` 与 `compare` 一致：`a == b` 恰好在 `a.compare(b) == 0` 时成立，所以两个值是同一个数时相等，不论精度如何（`one(precision=53) == one(precision=24)`、`-0 == +0`），并且每个 NaN 与其他每个 NaN 相等。这是 `<`、`<=` 和排序所用的全预序（每个 NaN 与每个 NaN 相等，且在每个数之上），`Decimal` 也是这条规则。它不是 IEEE 相等：当 NaN 必须无序时，使用 `compare_quiet_equal`（IEEE Std 754-2019 5.6.1、5.11）。`Binary` 没有 `Hash`。`identical` 是结构性的判断。"
 
-#: manual/api/binary.md:261
+#: manual/api/binary.md:262
 msgid "The structural equality of two values: the same class, sign (the sign of a zero included), coefficient, exponent and precision, and for a NaN the same signaling bit and payload. It distinguishes `-0` from `+0`, a value of precision 53 from the same value of precision 24, and two NaNs of different kind or payload, and a NaN is identical to an identical NaN. It is what `==` was before 0.12; use it where a result is checked as a datum (a test of the sign of a zero or of the precision stamped by a contextual operation), and `==` where the number is meant."
 msgstr "两个值的结构相等：类别、符号（包括零的符号）、系数、指数和精度都相同，对 NaN 则信号位和有效载荷也相同。它区分 `-0` 与 `+0`、精度 53 的值与精度 24 的同一个值、以及种类或有效载荷不同的两个 NaN；NaN 与一个相同的 NaN 是 identical。它就是 0.12 之前的 `==`；在把结果当作数据检查时使用它（检查零的符号或上下文运算盖上的精度的测试），在意指数时用 `==`。"
 
-#: manual/api/binary.md:271
+#: manual/api/binary.md:272
 msgid "Builds a finite value $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rounded to `precision` bits."
 msgstr "构建舍入到 `precision` 位的有限值 $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$。"
 
-#: manual/api/binary.md:278
+#: manual/api/binary.md:279
 msgid "The arguments are the coefficient, the exponent $e$ and the precision. When the coefficient has more significant bits than the precision it is rounded with `mode` (default `RoundTiesToEven`). The result is normalized. A precision outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is replaced as an overflow or underflow would be: above it by $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$; below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$ by $\\pm 0$ or, for a mode that rounds away from zero (and for nearest when the value exceeds half of it, or equals it under `RoundTiesToAway`), by that subnormal. `make` rounds precision and range together, in `mode`: a value between the smallest subnormal and $2^{e_{\\min}}$ keeps only the bits on the subnormal grid $2^{e_{\\min} - p + 1}$ (at least one), so the stored value never has a bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `apply_ctx` additionally reports the flags."
 msgstr "参数依次为系数、指数 $e$ 和精度。当系数的有效位数多于精度时，按 `mode`（默认为 `RoundTiesToEven`）舍入。结果是规范化的。超出 `1..=binary_precision_max` 的精度会中止。超出实现指数范围的值会像发生上溢或下溢时那样被替换：高于该范围时替换为 $\\pm\\infty$，或者对向零舍入的模式替换为最大有限绝对值 $(2^p - 1)\\,2^{e_{\\max} - p + 1}$；低于实现的最小次正规数 $2^{e_{\\min} - p + 1}$ 时替换为 $\\pm 0$，或者对远离零舍入的模式（以及值超过其一半、或在 `RoundTiesToAway` 下等于其一半时的就近舍入）替换为该次正规数。`make` 把精度和范围放在一起舍入，按 `mode`：介于最小次正规数与 $2^{e_{\\min}}$ 之间的值只保留次正规网格 $2^{e_{\\min} - p + 1}$ 上的位（至少一位），所以存储的值在该网格之下没有任何位。这只在绝对值接近 $2^{-2^{30}}$ 时才有影响；`apply_ctx` 还会额外报告标志。"
 
-#: manual/api/binary.md:295
+#: manual/api/binary.md:296
 msgid "Build a value from an integer."
 msgstr "由整数构建值。"
 
-#: manual/api/binary.md:302
+#: manual/api/binary.md:303
 msgid "The default precision is 53. The integer is rounded to nearest-even when it has more significant bits than the precision; `from_int(n)` is exact for every `Int` at the default precision."
 msgstr "默认精度为 53。当整数的有效位多于精度时，按就近舍入（偶数优先）处理；在默认精度下，`from_int(n)` 对每个 `Int` 都是精确的。"
 
-#: manual/api/binary.md:308
+#: manual/api/binary.md:309
 msgid "Decode a host binary64 or binary32 value exactly."
 msgstr "精确解码宿主的 binary64 或 binary32 值。"
 
-#: manual/api/binary.md:315
+#: manual/api/binary.md:316
 msgid "The defaults are 53 and 24 bits, so the conversion is exact. `from_double` preserves signed zeros, infinities, the NaN sign, the quiet/signaling distinction and the NaN payload (the fraction field without the quiet bit). `from_float` first widens the `Float` to a `Double` on the host and then decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps the low $p - 2$ bits of the payload of the widened binary64 encoding (the binary32 payload times $2^{29}$), so at the default precision 24 the payload is 0 and a signaling NaN is quiet, and on the native target a signaling `Float` NaN arrives as a quiet NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is $3602879701896397 \\cdot 2^{-55}$, not one tenth. Use `from_string` to round a decimal literal directly."
 msgstr "默认值分别为 53 位和 24 位，因此转换是精确的。`from_double` 保留有符号零、无穷、NaN 的符号、静默/信号之分以及 NaN 载荷（不含 quiet 位的小数字段）。`from_float` 先在宿主上将 `Float` 扩宽为 `Double`，再对其解码：数值、零和无穷不受影响，但 NaN 保留的是扩宽后 binary64 编码载荷的低 $p - 2$ 位（binary32 载荷乘以 $2^{29}$），因此在默认精度 24 下载荷为 0，信号 NaN 变为静默 NaN，并且在 native 目标上，信号 `Float` NaN 到达时已成为静默 NaN。若要逐位精确地解码 binary32 NaN，请将 `BinaryInterchange::from_hex` 与 `Binary32` 一起使用。所得的值是宿主已经舍入过的值：`from_double(0.1)` 为 $3602879701896397 \\cdot 2^{-55}$，而不是十分之一。若要直接舍入十进制字面量，请使用 `from_string`。"
 
-#: manual/api/binary.md:329
+#: manual/api/binary.md:330
 msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr "构建常量 $+0$、$-0$、$1$ 和 $\\pm\\infty$。"
 
-#: manual/api/binary.md:338
+#: manual/api/binary.md:339
 msgid "The default precision is 53, and it must be within `1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` is $-\\infty$; the default is $+\\infty$, as `Decimal::inf` has it."
 msgstr "默认精度为 53，并且必须在 `1..=binary_precision_max` 之内（见 `binary_precision_max`）。`inf(negative=true)` 为 $-\\infty$；默认值为 $+\\infty$，与 `Decimal::inf` 相同。"
 
-#: manual/api/binary.md:344
+#: manual/api/binary.md:345
 msgid "Build NaNs."
 msgstr "构建 NaN。"
 
-#: manual/api/binary.md:352
+#: manual/api/binary.md:353
 msgid "`nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a nonzero payload (the default and a requested 0 both become 1)."
 msgstr "`nan()` 是 payload 为 0 的正静默 NaN。信号 NaN 的 payload 总是非零（默认值和请求的 0 都会变为 1）。"
 
-#: manual/api/binary.md:355
+#: manual/api/binary.md:356
 msgid "A NaN of precision $p$ has $p - 2$ payload bits (IEEE 754-2019 6.2.1: the trailing significand field has $p - 1$ bits and the first is the quiet bit), so none for $p \\le 2$. `quiet_nan` and `signaling_nan` abort when the payload is wider, and `signaling_nan` aborts for $p < 3$, where no signaling NaN exists (a signaling NaN needs a non-zero payload bit). Conversions never abort: a payload that the destination cannot hold keeps its low bits (6.2.3), and a signaling NaN whose payload does not survive becomes quiet. This is the rule of `with_precision`, `from_double`, `from_float`, `from_hex` (a `snan` literal below precision 3 is a quiet NaN), every operation that returns a quiet NaN under a context (the payload is cut to the context precision) and the interchange encodings."
 msgstr "精度为 $p$ 的 NaN 有 $p - 2$ 位 payload（IEEE 754-2019 6.2.1：尾数字段有 $p - 1$ 位，其中第一位是 quiet 位），所以 $p \\le 2$ 时没有 payload 位。payload 更宽时，`quiet_nan` 和 `signaling_nan` 会中止；$p < 3$ 时 `signaling_nan` 也会中止，因为那里不存在信号 NaN（信号 NaN 需要一个非零的 payload 位）。转换从不中止：目标无法容纳的 payload 保留其低位（6.2.3），payload 未能保留的信号 NaN 变为静默 NaN。这条规则适用于 `with_precision`、`from_double`、`from_float`、`from_hex`（精度低于 3 时 `snan` 字面量是静默 NaN）、在某个上下文下返回静默 NaN 的每个运算（payload 被截断到上下文精度）以及交换格式编码。"
 
-#: manual/api/binary.md:367
+#: manual/api/binary.md:368
 #: manual/api/decimal_gda.md:310
 msgid "Observing a value"
 msgstr "观察值"
 
-#: manual/api/binary.md:371
+#: manual/api/binary.md:372
 msgid "Report the class and sign of a value."
 msgstr "报告值的类别和符号。"
 
-#: manual/api/binary.md:379
+#: manual/api/binary.md:380
 msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
 msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`（零属于 `Finite`）。`signum` 对所有零和所有 NaN 为 `Zero`，否则为 `Positive` 或 `Negative`。`is_negative` 返回符号位本身，它对 $-0$、$-\\infty$ 和负 NaN 是置位的。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero` 通过 `Floating` trait 作用于 `Binary`；下一节的方法不经过 trait 给出相同的答案。"
 
-#: manual/api/binary.md:388
+#: manual/api/binary.md:389
 msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
 msgstr "IEEE 754-2019 第 5.7.2 条的十值类别及其谓词。"
 
-#: manual/api/binary.md:399
+#: manual/api/binary.md:400
 msgid "`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass): `SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when the exponent of its leading bit is at least the context's $e_{\\min}$ and subnormal when it is below; a `Binary` carries no format, so the context decides, and `BinaryInterchangeFormat::context` gives the one of a binary interchange format. A context given by its precision alone has the implementation limit `binary_value_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly for the normal and subnormal classes; `is_finite` is true for zeros, subnormals and normals, `is_infinite` for the two infinities and `is_nan` for both NaNs. None of them rounds or raises a flag, and `classify` keeps its three-valued meaning."
 msgstr "`class_of` 返回 [`IeeeClass`](def.md#ieeeclass) 十个值之一：`SignalingNaN`、`QuietNaN`、`NegativeInfinity`、`NegativeNormal`、`NegativeSubnormal`、`NegativeZero`、`PositiveZero`、`PositiveSubnormal`、`PositiveNormal` 和 `PositiveInfinity`。非零有限值在其最高位的指数不小于上下文的 $e_{\\min}$ 时是正规数，小于时是次正规数；`Binary` 不带格式，所以由上下文决定，二进制交换格式对应的上下文由 `BinaryInterchangeFormat::context` 给出。仅由精度给出的上下文以实现极限 `binary_value_e_min` 作为 `e_min`。`is_normal` 和 `is_subnormal` 恰好对正规类和次正规类为真；`is_finite` 对零、次正规数和正规数为真，`is_infinite` 对两个无穷为真，`is_nan` 对两种 NaN 为真。它们都不舍入，也不产生标志，`classify` 仍是三值的含义。"
 
-#: manual/api/binary.md:415
+#: manual/api/binary.md:416
 msgid "Special-value predicates."
 msgstr "特殊值谓词。"
 
-#: manual/api/binary.md:425
+#: manual/api/binary.md:426
 msgid "`nan_payload` is zero for a value that is not a NaN."
 msgstr "对非 NaN 的值，`nan_payload` 为零。"
 
-#: manual/api/binary.md:429
+#: manual/api/binary.md:430
 msgid "Return the stored representation."
 msgstr "返回存储的表示。"
 
-#: manual/api/binary.md:437
+#: manual/api/binary.md:438
 msgid "For a finite value the number is `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ with the sign applied. The coefficient and exponent of an infinity or NaN carry no meaning."
 msgstr "对有限值，其数值为 `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ 再带上符号。无穷或 NaN 的系数和指数没有意义。"
 
-#: manual/api/binary.md:441
+#: manual/api/binary.md:442
 msgid "`coefficient()` builds a `BinCoeff` on each call for a value of at most 128 coefficient bits (the value stores its coefficient as one or two machine words), so it allocates there; for a wider value it returns the stored coefficient. A loop that reads the coefficient of many small values pays one allocation per call. `Binary` has no public word reader; the result's `BinCoeff::to_uint64` gives the value when it fits 64 bits. The exponent of the leading bit, which is what most callers read the coefficient for, is `ilogb()`, which does not allocate."
 msgstr "对于系数至多 128 位的值，`coefficient()` 每次调用都会构造一个 `BinCoeff`（该值把系数存为一个或两个机器字），所以在这里会分配内存；对于更宽的值，它返回已存储的系数。对许多小值逐个读取系数的循环，每次调用付出一次分配。`Binary` 没有公开的字读取器；结果的 `BinCoeff::to_uint64` 在值适合 64 位时给出该值。多数调用者读取系数是为了得到最高位的指数，这个指数是 `ilogb()`，它不分配内存。"
 
-#: manual/api/binary.md:452
+#: manual/api/binary.md:453
 msgid "Returns the canonical representation of a finite value at its own precision."
 msgstr "返回有限值在其自身精度下的规范表示。"
 
-#: manual/api/binary.md:458
+#: manual/api/binary.md:459
 msgid "Values built through the public API are already canonical, so this is the identity on them; infinities and NaNs are returned unchanged."
 msgstr "通过公共 API 构建的值已经是规范的，因此对它们而言这是恒等操作；无穷和 NaN 原样返回。"
 
-#: manual/api/binary.md:463
+#: manual/api/binary.md:464
 msgid "Rounds a value to a new working precision."
 msgstr "将值舍入到新的工作精度。"
 
-#: manual/api/binary.md:469
+#: manual/api/binary.md:470
 msgid "A finite value with more significant bits than the new precision is rounded in the given direction (a `BinaryRoundingMode`, ties to away included). Zeros and infinities only change their precision attribute; a NaN keeps the low $p-2$ bits of its payload at the new precision $p$, and a signaling NaN whose payload does not survive becomes quiet. No flags are reported; use `apply_ctx` when they matter."
 msgstr "有效位多于新精度的有限值按给定方向舍入（一个 `BinaryRoundingMode`，ties-to-away 也包括在内）。零和无穷只改变其精度属性；NaN 在新精度 $p$ 下保留其载荷的低 $p-2$ 位，载荷未能保留的信号 NaN 变为静默 NaN。不报告标志；需要标志时请使用 `apply_ctx`。"
 
-#: manual/api/binary.md:475
+#: manual/api/binary.md:476
 msgid "Returns the unit in the last place of a finite value at its own precision."
 msgstr "返回有限值在其自身精度下的最后一位单位（ulp）。"
 
-#: manual/api/binary.md:481
+#: manual/api/binary.md:482
 msgid ""
 "For $x \\n"
 "e 0$ with leading-bit exponent $t = \\lfloor \\log_2 |x| \\rfloor$ the result is $2^{t-p+1}$. For zero it is $2^{1-p}$, and for an infinity or NaN it is a quiet NaN. The spacing ignores any context exponent range, so it is not the subnormal spacing of an IEEE format."
@@ -889,143 +889,143 @@ msgstr ""
 "对于 $x \\n"
 "e 0$，记最高位指数为 $t = \\lfloor \\log_2 |x| \\rfloor$，结果为 $2^{t-p+1}$。对零为 $2^{1-p}$，对无穷或 NaN 为静默 NaN。该间距忽略任何上下文指数范围，因此它不是 IEEE 格式中的次正规间距。"
 
-#: manual/api/binary.md:509
+#: manual/api/binary.md:510
 msgid "Plain arithmetic"
 msgstr "普通算术"
 
-#: manual/api/binary.md:513
+#: manual/api/binary.md:514
 msgid "The four operations and negation, also available as `+`, `-`, `*`, `/` and unary `-`."
 msgstr "四则运算与取负，也可以通过 `+`、`-`、`*`、`/` 和一元 `-` 使用。"
 
-#: manual/api/binary.md:529
+#: manual/api/binary.md:530
 msgid "The result is the exact sum, difference, product or quotient rounded once to nearest-even at the larger operand precision, with the implementation exponent range. Special values follow IEEE 754: NaNs propagate (the first NaN operand, quieted), $\\infty - \\infty$, $0 \\cdot \\infty$, $0/0$ and $\\infty/\\infty$ are NaN, and a nonzero number divided by zero is a signed infinity. Flags are discarded; use the [contextual forms](#contextual-arithmetic) to observe them. `neg` flips the sign bit of every value, including zeros and NaNs, and never rounds."
 msgstr "结果是精确的和、差、积或商，以较大的操作数精度、在实现指数范围内就近舍入（偶数优先）一次。特殊值遵循 IEEE 754：NaN 会传播（取第一个 NaN 操作数并静默化），$\\infty - \\infty$、$0 \\cdot \\infty$、$0/0$ 和 $\\infty/\\infty$ 为 NaN，非零数除以零得到带符号无穷。标志被丢弃；要观察标志请使用[上下文式形式](#contextual-arithmetic)。`neg` 翻转每个值的符号位，包括零和 NaN，并且从不舍入。"
 
-#: manual/api/binary.md:540
+#: manual/api/binary.md:541
 msgid "Clear or copy the sign bit."
 msgstr "清除或复制符号位。"
 
-#: manual/api/binary.md:547
+#: manual/api/binary.md:548
 msgid "Both are quiet IEEE sign-bit operations: they never round, never raise a flag and keep NaN payloads. `x.copy_sign(y)` has the magnitude of `x` and the sign bit of `y`."
 msgstr "二者都是静默的 IEEE 符号位运算：从不舍入，从不触发标志，并保留 NaN payload。`x.copy_sign(y)` 具有 `x` 的绝对值和 `y` 的符号位。"
 
-#: manual/api/binary.md:553
+#: manual/api/binary.md:554
 msgid "Correctly rounded square root."
 msgstr "正确舍入的平方根。"
 
-#: manual/api/binary.md:559
+#: manual/api/binary.md:560
 msgid "`x.sqrt()` rounds $\\sqrt{x}$ to nearest-even at the precision of `x`: it is `sqrt_ctx` under the working context and never fails. An invalid operation (IEEE 754-2019 7.2: a negative nonzero argument, $-\\infty$ included, or a signaling NaN) is a quiet NaN, and the flag is read through `sqrt_ctx(...).1.invalid_operation()`. $\\sqrt{-0} = -0$, and a quiet NaN of either sign gives a quiet NaN. For a square root at another precision or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative` and `RoundTowardPositive` enclose $\\sqrt{x}$ and coincide when the root is exact."
 msgstr "`x.sqrt()` 以 `x` 的精度将 $\\sqrt{x}$ 就近舍入（偶数优先）：它是工作上下文下的 `sqrt_ctx`，从不失败。无效运算（IEEE 754-2019 7.2：负的非零参数，包括 $-\\infty$，或信号 NaN）得到静默 NaN，原因通过 `sqrt_ctx(...).1.invalid_operation()` 读取。$\\sqrt{-0} = -0$，任一符号的静默 NaN 给出静默 NaN。需要其他精度或舍入方向的平方根时使用 `sqrt_ctx`：它在 `RoundTowardNegative` 与 `RoundTowardPositive` 下的结果夹住 $\\sqrt{x}$，平方根精确时两者相等。"
 
-#: manual/api/binary.md:570
+#: manual/api/binary.md:571
 msgid "Raise a value to an integer power."
 msgstr "计算值的整数次幂。"
 
-#: manual/api/binary.md:576
+#: manual/api/binary.md:577
 msgid "The result is $x^n$ correctly rounded to nearest-even at the precision of `x`, computed as in `pown_ctx`, and never fails. A zero base with a negative exponent is an infinity (the sign of the base for an odd exponent; `pown_ctx(...).1.division_by_zero()` is the pole), and a signaling NaN base a quiet NaN for every exponent, zero included (IEEE 754-2019 §9.2.1 excludes it from $x^0 = 1$; `invalid_operation` through `pown_ctx`); $x^0 = 1$ for every other $x$, a quiet NaN included."
 msgstr "结果是以 `x` 的精度就近舍入（偶数优先）的正确舍入 $x^n$，计算方式同 `pown_ctx`，从不失败。零底数配负指数为无穷（奇数指数时取底数的符号；`pown_ctx(...).1.division_by_zero()` 表示极点），信号 NaN 底数对任意指数（包括零）都为静默 NaN（IEEE 754-2019 §9.2.1 将其排除在 $x^0 = 1$ 之外；通过 `pown_ctx` 得到 `invalid_operation`）；对其余任意 $x$（包括静默 NaN），$x^0 = 1$。"
 
-#: manual/api/binary.md:586
+#: manual/api/binary.md:587
 msgid "Fused multiply-add: $x \\cdot y + z$ with a single rounding."
 msgstr "融合乘加：只舍入一次的 $x \\cdot y + z$。"
 
-#: manual/api/binary.md:592
+#: manual/api/binary.md:593
 msgid "The precision is the largest of the three operand precisions. See [`fma_ctx`](#binaryfma_ctx) for the special cases."
 msgstr "精度为三个操作数精度中的最大者。特殊情形参见 [`fma_ctx`](#binaryfma_ctx)。"
 
-#: manual/api/binary.md:597
+#: manual/api/binary.md:598
 msgid "IEEE 754 remainder $x - n y$, where $n$ is the integer nearest $x/y$ with ties to even."
 msgstr "IEEE 754 余数 $x - n y$，其中 $n$ 是最接近 $x/y$ 的整数，平局时取偶数。"
 
-#: manual/api/binary.md:604
+#: manual/api/binary.md:605
 msgid "The result is exact whenever it fits the larger operand precision, which is always the case for operands of that precision (the proof is on the [design page](../design/binary.md#ieee-remainder-is-exact)). See [`remainder_ctx`](#binaryremainder_ctx)."
 msgstr "只要结果能以较大的操作数精度表示，它就是精确的；对于该精度的操作数，这总是成立（证明见[设计文档](../design/binary.md#ieee-remainder-is-exact)）。参见 [`remainder_ctx`](#binaryremainder_ctx)。"
 
-#: manual/api/binary.md:623
+#: manual/api/binary.md:624
 msgid "Contexts, rounding and flags"
 msgstr "上下文、舍入与标志"
 
-#: manual/api/binary.md:627
+#: manual/api/binary.md:628
 msgid "The rounding-direction attribute of a context."
 msgstr "上下文的舍入方向属性。"
 
-#: manual/api/binary.md:639
+#: manual/api/binary.md:640
 msgid "These are the five IEEE 754-2019 rounding-direction attributes (clauses 4.3.1 and 4.3.2); `RoundTiesToAway` is not required of a binary format but is defined. There is no away-from-zero mode: `@lf_arith.RoundingMode::AwayFromZero` has no IEEE 754-2019 counterpart and is refused by `from_arithmetic` and `from_arithmetic_context`. Each mode is a monotone map $\\mathbb{R} \\to F \\cup \\{\\pm\\infty\\}$; the [design page](../design/binary.md#rounding-functions) defines them."
 msgstr "这些是 IEEE 754-2019 的五种舍入方向属性（4.3.1 和 4.3.2 条）；`RoundTiesToAway` 对二进制格式不是必需的，但有定义。没有远离零的模式：`@lf_arith.RoundingMode::AwayFromZero` 在 IEEE 754-2019 中没有对应项，会被 `from_arithmetic` 和 `from_arithmetic_context` 拒绝。每种模式都是一个单调映射 $\\mathbb{R} \\to F \\cup \\{\\pm\\infty\\}$；[设计页面](../design/binary.md#rounding-functions)对它们作了定义。"
 
-#: manual/api/binary.md:649
+#: manual/api/binary.md:650
 msgid "Convert to and from `@lf_arith.RoundingMode`."
 msgstr "与 `@lf_arith.RoundingMode` 相互转换。"
 
-#: manual/api/binary.md:656
+#: manual/api/binary.md:657
 msgid "`to_arithmetic(RoundTiesToAway)` is `None`, because `@lf_arith.RoundingMode` has no ties-to-away mode, and `from_arithmetic(AwayFromZero)` is `None`, because IEEE 754-2019 4.3 has no such attribute; the other modes map one to one."
 msgstr "`to_arithmetic(RoundTiesToAway)` 为 `None`，因为 `@lf_arith.RoundingMode` 没有 ties-to-away 模式，`from_arithmetic(AwayFromZero)` 为 `None`，因为 IEEE 754-2019 4.3 没有这样的属性；其他模式一一对应。"
 
-#: manual/api/binary.md:662
+#: manual/api/binary.md:663
 msgid "When a nonzero result counts as tiny for the underflow flag."
 msgstr "非零结果在何种情况下对下溢标志而言算作微小。"
 
-#: manual/api/binary.md:671
+#: manual/api/binary.md:672
 msgid "`BeforeRounding` calls a result tiny when the exact value has $|x| < 2^{e_{\\min}}$. `AfterRounding` calls it tiny when $x$ rounded to $p$ bits with an unbounded exponent range has magnitude below $2^{e_{\\min}}$ (IEEE 754-2019 clause 7.5). The default is `AfterRounding`. Underflow is signaled only for a tiny result that is also inexact."
 msgstr "`BeforeRounding` 在精确值满足 $|x| < 2^{e_{\\min}}$ 时认为结果微小。`AfterRounding` 在 $x$ 以无界指数范围舍入到 $p$ 位后绝对值低于 $2^{e_{\\min}}$ 时认为结果微小（IEEE 754-2019 第 7.5 条）。默认为 `AfterRounding`。只有既微小又不精确的结果才会触发下溢。"
 
-#: manual/api/binary.md:679
+#: manual/api/binary.md:680
 msgid "The format and the attributes of one operation: the precision $p$, the exponent $e_{\\max}$ (with $e_{\\min} = 1 - e_{\\max}$, IEEE 754-2019 3.3), the rounding-direction attribute and the tininess rule."
 msgstr "一次运算的格式和属性：精度 $p$、指数 $e_{\\max}$（其中 $e_{\\min} = 1 - e_{\\max}$，IEEE 754-2019 3.3）、舍入方向属性和 tininess 规则。"
 
-#: manual/api/binary.md:689
+#: manual/api/binary.md:690
 msgid "A context is an immutable value; there is no global or thread state. $e_{\\min}$ and $e_{\\max}$ are exponents of the leading bit, as in IEEE 754: a normal number satisfies $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$, the largest finite value is $(2 - 2^{1-p})\\,2^{e_{\\max}}$ and the smallest positive subnormal is $2^{e_{\\min}-p+1}$. A context has no separate $e_{\\min}$: it is $1 - e_{\\max}$. Without an `e_max` the context is the extendable precision format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\\max}$ is `binary_value_e_max`."
 msgstr "上下文是不可变的值；不存在全局或线程状态。与 IEEE 754 一样，$e_{\\min}$ 和 $e_{\\max}$ 是最高位的指数：正规数满足 $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$，最大有限值为 $(2 - 2^{1-p})\\,2^{e_{\\max}}$，最小正次正规数为 $2^{e_{\\min}-p+1}$。上下文没有单独的 $e_{\\min}$：它就是 $1 - e_{\\max}$。没有 `e_max` 时，上下文是仅由 $p$ 指定的 IEEE 754-2019 3.7 的可扩展精度格式，$e_{\\max}$ 为 `binary_value_e_max`。"
 
-#: manual/api/binary.md:700
+#: manual/api/binary.md:701
 msgid "Build a context."
 msgstr "构建上下文。"
 
-#: manual/api/binary.md:707
+#: manual/api/binary.md:708
 msgid "Defaults: $p = 53$, `e_max = binary_value_e_max`, `RoundTiesToEven`, `AfterRounding`; `new()` is therefore the extendable format of 53 bits, and every operation of the package runs in it. `new` aborts when $p$ is outside $[1, 2^{28}]$ or $e_{\\max}$ is outside $[1, 2^{30}-1]$, naming the parameter; `try_new` returns a `domain_error` in those cases. $e_{\\max} \\ge 1$ is what makes $e_{\\min} = 1 - e_{\\max} \\le e_{\\max}$; IEEE 754-2019 3.7 NOTE 3 recommends $p \\ge 3$ and $e_{\\max} \\ge 2$, which are not enforced. There is no one-sided or asymmetric range: `unbounded(p)` and the `e_min` argument no longer exist."
 msgstr "默认值：$p = 53$，`e_max = binary_value_e_max`，`RoundTiesToEven`，`AfterRounding`；因此 `new()` 是 53 位的可扩展格式，本包的每个运算都能在其中运行。当 $p$ 超出 $[1, 2^{28}]$ 或 $e_{\\max}$ 超出 $[1, 2^{30}-1]$ 时，`new` 会中止并指出该参数；这些情况下 `try_new` 返回 `domain_error`。$e_{\\max} \\ge 1$ 保证 $e_{\\min} = 1 - e_{\\max} \\le e_{\\max}$；IEEE 754-2019 3.7 的注 3 建议 $p \\ge 3$ 且 $e_{\\max} \\ge 2$，但不强制执行。不存在单侧或不对称的范围：`unbounded(p)` 和 `e_min` 参数都不再存在。"
 
-#: manual/api/binary.md:718
+#: manual/api/binary.md:719
 msgid "Contexts of the IEEE 754 interchange formats."
 msgstr "IEEE 754 交换格式的上下文。"
 
-#: manual/api/binary.md:727
+#: manual/api/binary.md:728
 msgid "Each is `BinaryInterchangeFormat::context` of the format:"
 msgstr "每个都是相应格式的 `BinaryInterchangeFormat::context`："
 
-#: manual/api/binary.md:738
+#: manual/api/binary.md:739
 msgid "Converts an `@lf_arith.ArithmeticContext`."
 msgstr "转换一个 `@lf_arith.ArithmeticContext`。"
 
-#: manual/api/binary.md:744
+#: manual/api/binary.md:745
 msgid "Precision and rounding are copied; the `clamp` field has no binary meaning and is ignored; tininess is `AfterRounding`. A given `e_min` must equal $1 - e_{\\max}$, and `e_min` alone gives $e_{\\max} = 1 - e_{\\min}$. The result is an `Err` for `AwayFromZero`, an `e_min` that is not $1 - e_{\\max}$, and a precision or `e_max` outside the limits of `try_new`."
 msgstr "精度和舍入被复制；`clamp` 字段在二进制中没有意义，被忽略；tininess 为 `AfterRounding`。给定的 `e_min` 必须等于 $1 - e_{\\max}$，仅给出 `e_min` 时得到 $e_{\\max} = 1 - e_{\\min}$。对于 `AwayFromZero`、不等于 $1 - e_{\\max}$ 的 `e_min`，以及超出 `try_new` 限制的精度或 `e_max`，结果为 `Err`。"
 
-#: manual/api/binary.md:752
+#: manual/api/binary.md:753
 msgid "Read the fields of a context."
 msgstr "读取上下文的字段。"
 
-#: manual/api/binary.md:762
+#: manual/api/binary.md:763
 msgid "`e_min` is always $1 - e_{\\max}$; both are plain integers."
 msgstr "`e_min` 恒为 $1 - e_{\\max}$；二者都是普通整数。"
 
-#: manual/api/binary.md:766
+#: manual/api/binary.md:767
 msgid "Copy a context with one parameter changed."
 msgstr "复制上下文并更改一个参数。"
 
-#: manual/api/binary.md:775
+#: manual/api/binary.md:776
 msgid "`with_precision` and `with_e_max` abort outside the limits of `new`; there is no `try_with_*`."
 msgstr "`with_precision` 和 `with_e_max` 在超出 `new` 的限制时中止；没有 `try_with_*`。"
 
-#: manual/api/binary.md:780
+#: manual/api/binary.md:781
 msgid "Read and set the refinement limit of the certified elementary functions."
 msgstr "读取和设置认证初等函数的细化限制。"
 
-#: manual/api/binary.md:787
+#: manual/api/binary.md:788
 msgid "Every certified elementary function (`exp`, `ln`, the trigonometric, hyperbolic and inverse functions, `pow`, `rootn`, `hypot`, `atan2` and their `try_*_ctx` forms) evaluates an enclosure at a growing working precision until both ends round alike. The limit is the number of refinement steps: `Some(n)` allows `n` of them (a value below 1 counts as 1), the default is `Some(12)`, and `None` removes the count limit. When the limit is reached without a decision, `try_*_ctx` returns the `CertificationFailure` error with the refinement count, and the plain and `*_ctx` forms return a quiet NaN with `not_computed`. With `None` the loop still stops when the working precision passes a cap, the larger of 8,000,000 bits and 256 times the first working precision, at most 1,000,000,000 bits, and the trigonometric work limit of 8,000,000 bits still refuses an argument that would need more. The default changes no result. The field takes part in `==`: two contexts that differ only in the limit are different."
 msgstr "每个认证初等函数（`exp`、`ln`、三角函数、双曲函数和反函数、`pow`、`rootn`、`hypot`、`atan2` 及其 `try_*_ctx` 形式）都在不断增大的工作精度下求包含区间，直到两端舍入结果相同。该限制是细化步数：`Some(n)` 允许 `n` 步（小于 1 的值按 1 计），默认为 `Some(12)`，`None` 则取消步数限制。达到限制仍未能判定时，`try_*_ctx` 返回带细化次数的 `CertificationFailure` 错误，普通形式和 `*_ctx` 形式返回带 `not_computed` 的静默 NaN。使用 `None` 时，循环仍会在工作精度超过上限时停止，该上限取 8,000,000 位与首个工作精度的 256 倍中较大者，至多为 1,000,000,000 位；三角函数 8,000,000 位的工作上限仍会拒绝需要更多位的参数。默认值不改变任何结果。该字段参与 `==`：仅限制不同的两个上下文是不同的。"
 
-#: manual/api/binary.md:821
+#: manual/api/binary.md:822
 msgid "The five IEEE 754 exception flags raised by one or more operations, and `not_computed`, which reports a result the library could not compute."
 msgstr "由一个或多个运算触发的五个 IEEE 754 异常标志，以及 `not_computed`，后者表示库无法计算出的结果。"
 
@@ -4538,23 +4538,23 @@ msgstr "派生相等：`DecimalContext::equal`、`DecimalContext::not_equal`、`
 msgid "These are the derived `Eq` methods of the context, flag and enum types."
 msgstr "这些是上下文、标志与枚举类型的派生 `Eq` 方法。"
 
-#: manual/api/decimal.md:2459
+#: manual/api/decimal.md:2457
 msgid "Contexts compare field by field (precision, rounding, exponent limits, refinement limit); flag sets compare all six fields. `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is equal to `DecimalContext::decimal64()`."
 msgstr "上下文逐字段比较（精度、舍入、指数界限、细化上限）；标志集比较全部六个字段。`DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` 等于 `DecimalContext::decimal64()`。"
 
-#: manual/api/decimal.md:2464
+#: manual/api/decimal.md:2462
 msgid "`Show` and `Debug`: `Decimal::to_string`, `output`, `to_repr`"
 msgstr "`Show` 与 `Debug`：`Decimal::to_string`、`output`、`to_repr`"
 
-#: manual/api/decimal.md:2466
+#: manual/api/decimal.md:2464
 msgid "`Decimal` implements `Show` and `Debug`."
 msgstr "`Decimal` 实现了 `Show` 和 `Debug`。"
 
-#: manual/api/decimal.md:2475
+#: manual/api/decimal.md:2473
 msgid "`to_string` formats a value in scientific notation without a context. Finite values use the scientific-string rule of [`to_sci_string`](#decimalto_sci_string-to_eng_string), so trailing zeros and the exponent are visible: `1.20`, `1E+3`, `1.2E-7`. Special values are written in lower case: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same text to a logger. `to_repr` is the derived structural representation used by `debug_inspect` and `assert_eq`."
 msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值。有限值使用 [`to_sci_string`](#decimalto_sci_string-to_eng_string) 的科学记数字符串规则，因此尾随零和指数均可见：`1.20`、`1E+3`、`1.2E-7`。特殊值以小写书写：`inf`、`-inf`、`nan`、`snan`、`-nan12`。`output` 将相同文本写入 logger。`to_repr` 是 `debug_inspect` 和 `assert_eq` 所使用的派生结构表示。"
 
-#: manual/api/decimal.md:2496
+#: manual/api/decimal.md:2494
 #: manual/api/decimal_gda.md:1963
 #: manual/api/frontend/gda_expr.md:521
 #: manual/api/frontend/itl_expr.md:291

@@ -233,7 +233,8 @@ compatibility promise and is read only inside the package; a value is one heap
 object.
 
 ```mbti
-pub struct Binary(@binary_kernel.BinRepr) derive(@debug.Debug)
+#derive(@debug.Debug)
+pub struct Binary(@binary_kernel.BinRepr)
 ```
 
 A finite value is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
@@ -700,8 +701,8 @@ format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\max}$ is
 Build a context.
 
 ```mbti
-pub fn BinaryContext::new(precision=precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
-pub fn BinaryContext::try_new(precision=precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::try_new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Defaults: $p = 53$, `e_max = binary_value_e_max`, `RoundTiesToEven`,
@@ -822,9 +823,8 @@ The five IEEE 754 exception flags raised by one or more operations, and
 `not_computed`, which reports a result the library could not compute.
 
 ```mbti
-pub struct BinaryFlags {
-  // private fields
-} derive(Eq, @debug.Debug)
+#derive(Eq)
+pub struct BinaryFlags(FlagBits)
 ```
 
 Two flag sets are `==` when all six flags agree.
@@ -1339,7 +1339,7 @@ Parse a decimal literal with correct rounding (IEEE
 `convertFromDecimalCharacter`).
 
 ```mbti
-pub fn Binary::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Binary::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Binary::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
@@ -1358,7 +1358,7 @@ Formats a value with a fixed number of significant decimal digits (IEEE
 `convertToDecimalCharacter`).
 
 ```mbti
-pub fn Binary::to_decimal_string_ctx(Self, Int, BinaryContext) -> (String, BinaryFlags)
+pub fn Binary::to_decimal_string_ctx(Self, Int32, BinaryContext) -> (String, BinaryFlags)
 ```
 
 The output is `[-]d.ddd…e±x` with exactly `digits` significant digits
@@ -1401,7 +1401,7 @@ quiet NaN or an infinity; a signaling NaN is quieted with `invalid_operation`.
 Read and write the exact value with a hexadecimal coefficient.
 
 ```mbti
-pub fn Binary::from_hex(String, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Binary::from_hex(String, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Binary::from_hex_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn Binary::to_hex(Self) -> String
 ```
@@ -1468,13 +1468,13 @@ pub(all) enum BinaryInterchangeFormat {
 The parameters of a format.
 
 ```mbti
-pub fn BinaryInterchangeFormat::precision(Self) -> Int
-pub fn BinaryInterchangeFormat::e_min(Self) -> Int
-pub fn BinaryInterchangeFormat::e_max(Self) -> Int
-pub fn BinaryInterchangeFormat::bias(Self) -> Int
-pub fn BinaryInterchangeFormat::exponent_field_width(Self) -> Int
-pub fn BinaryInterchangeFormat::trailing_significand_field_width(Self) -> Int
-pub fn BinaryInterchangeFormat::storage_width(Self) -> Int
+pub fn BinaryInterchangeFormat::precision(Self) -> Int32
+pub fn BinaryInterchangeFormat::e_min(Self) -> Int32
+pub fn BinaryInterchangeFormat::e_max(Self) -> Int32
+pub fn BinaryInterchangeFormat::bias(Self) -> Int32
+pub fn BinaryInterchangeFormat::exponent_field_width(Self) -> Int32
+pub fn BinaryInterchangeFormat::trailing_significand_field_width(Self) -> Int32
+pub fn BinaryInterchangeFormat::storage_width(Self) -> Int32
 ```
 
 | Format | `storage_width` $k$ | `exponent_field_width` $w$ | `trailing_significand_field_width` $p-1$ | `precision` $p$ | `bias` $= e_{\max}$ | `e_min` $= 1 - e_{\max}$ |
@@ -1922,9 +1922,9 @@ keep the plain test.
 The real $n$-th root $x^{1/n}$.
 
 ```mbti
-pub fn Binary::rootn(Self, Int) -> Self
-pub fn Binary::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
-pub fn Binary::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn Binary::rootn(Self, Int32) -> Self
+pub fn Binary::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn Binary::try_rootn_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
 $n = 0$ is a domain case, an invalid operation, for every $x$, a quiet NaN and $\pm 0$ included (IEEE 754-2019 Table 9.1, "n = 0: invalid operation"); it is not `division_by_zero`, which IEEE 754-2019 7.3 keeps for an exact infinite result on finite operands, here $\operatorname{rootn}(\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid_operation`. Every other `Int` degree is supported, including
@@ -1973,9 +1973,9 @@ The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$
 (interest and growth rates, without the rounding of `1 + x`).
 
 ```mbti
-pub fn Binary::compound(Self, Int) -> Self
-pub fn Binary::compound_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
-pub fn Binary::try_compound_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn Binary::compound(Self, Int32) -> Self
+pub fn Binary::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn Binary::try_compound_ctx(Self, Int32, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
 The special values of §9.2.1 are decided first, a signaling NaN before any of
@@ -2496,8 +2496,8 @@ pub impl @arithmetic.CompareChecked for Binary
 pub impl @arithmetic.PowNatChecked for Binary
 pub impl @arithmetic.PowIntChecked for Binary
 pub fn Binary::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Binary::pow_nat_checked(Self, UInt, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Binary::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Binary::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Binary::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Each converts the `ArithmeticContext` with

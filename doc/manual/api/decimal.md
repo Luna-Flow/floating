@@ -190,8 +190,8 @@ These constants give the implementation limits on the exponents of stored finite
 values.
 
 ```mbti
-pub let decimal_value_e_max : Int
-pub let decimal_value_e_tiny : Int
+pub let decimal_value_e_max : Int32
+pub let decimal_value_e_tiny : Int32
 ```
 
 A finite `Decimal` can have an exponent no smaller than
@@ -225,8 +225,8 @@ rounding it to a precision. `try_make` returns the same result through
 `Result`.
 
 ```mbti
-pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> Self
-pub fn Decimal::try_make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `Decimal::make(c, q, p, mode~)` represents $c \cdot 10^q$, with the sign taken
@@ -247,13 +247,13 @@ Both also reject $p$ outside `1..=999999999`.
 Construct zeros, one, infinities and NaNs.
 
 ```mbti
-pub fn Decimal::zero(precision? : Int) -> Self
-pub fn Decimal::negative_zero(precision? : Int) -> Self
-pub fn Decimal::one(precision? : Int) -> Self
-pub fn Decimal::inf(negative? : Bool, precision? : Int) -> Self
-pub fn Decimal::nan(precision? : Int) -> Self
-pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
-pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
+pub fn Decimal::zero(precision? : Int32) -> Self
+pub fn Decimal::negative_zero(precision? : Int32) -> Self
+pub fn Decimal::one(precision? : Int32) -> Self
+pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::nan(precision? : Int32) -> Self
+pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 ```
 
 The default precision is 34. `zero`, `negative_zero` and `one` use exponent
@@ -272,8 +272,8 @@ to a narrower format keeps its low digits. The precision must be within
 Convert an integer to a `Decimal`.
 
 ```mbti
-pub fn Decimal::from_int(Int, precision? : Int) -> Self
-pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
+pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
+pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
 ```
 
 Both implement convertFromInt (IEEE 754-2019 5.4.1) with preferred exponent 0
@@ -288,8 +288,8 @@ exponent 0.
 Convert a binary floating-point value to a `Decimal`.
 
 ```mbti
-pub fn Decimal::from_double(Double, precision? : Int) -> Self
-pub fn Decimal::from_float(Float, precision? : Int) -> Self
+pub fn Decimal::from_double(Double, precision? : Int32) -> Self
+pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 ```
 
 A finite `Double` is a dyadic rational $m \cdot 2^{k}$ and therefore has a
@@ -311,8 +311,8 @@ Convert between `Decimal` and the binary
 [`Binary`](binary.md).
 
 ```mbti
-pub fn Decimal::from_binary(@binary.Binary, precision~ : Int, mode? : DecimalRoundingMode) -> Self
-pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int32, mode? : DecimalRoundingMode) -> Self
+pub fn Decimal::to_binary(Self, precision~ : Int32, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 ```
 
 `from_binary(x, precision~, mode~)` is exact whenever the decimal expansion of
@@ -398,7 +398,7 @@ choose its representative with `Integral::normalize`, or use `lift_to`.
 `from_string` converts decimal text to a `Decimal` and keeps its exponent.
 
 ```mbti
-pub fn Decimal::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The accepted syntax is an optional sign, digits with an optional decimal
@@ -507,9 +507,9 @@ These constants bound the context parameters accepted by
 `DecimalContext::try_new`.
 
 ```mbti
-pub let decimal_context_e_max_limit : Int
-pub let decimal_context_e_min_limit : Int
-pub let decimal_precision_max : Int
+pub let decimal_context_e_max_limit : Int32
+pub let decimal_context_e_min_limit : Int32
+pub let decimal_precision_max : Int32
 ```
 
 | Constant | Value | Meaning |
@@ -533,8 +533,8 @@ Construct an IEEE 754-2019 decimal-format context from a precision and `e_max`.
 `new` aborts for invalid parameters; `try_new` returns a `Result`.
 
 ```mbti
-pub fn DecimalContext::new(precision? : Int, e_max? : Int, rounding? : DecimalRoundingMode) -> Self
-pub fn DecimalContext::try_new(precision? : Int, e_max? : Int, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::try_new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 | Parameter | Default | Meaning |
@@ -623,10 +623,10 @@ adopted from decNumber `decContext.h`.
 Read the precision, rounding direction and exponent limits of a context.
 
 ```mbti
-pub fn DecimalContext::precision(Self) -> Int
+pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
-pub fn DecimalContext::e_min(Self) -> Int
-pub fn DecimalContext::e_max(Self) -> Int
+pub fn DecimalContext::e_min(Self) -> Int32
+pub fn DecimalContext::e_max(Self) -> Int32
 ```
 
 The context's `e_min` is always $1-e_{\max}$.
@@ -711,8 +711,8 @@ test "the precision limit of the elementary functions" {
 Derive a context by replacing its precision, exponent range or rounding direction.
 
 ```mbti
-pub fn DecimalContext::with_precision(Self, Int) -> Self
-pub fn DecimalContext::with_e_max(Self, Int) -> Self
+pub fn DecimalContext::with_precision(Self, Int32) -> Self
+pub fn DecimalContext::with_e_max(Self, Int32) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 ```
 
@@ -934,7 +934,7 @@ the value.
 
 ```mbti
 pub fn Decimal::normalized(Self) -> Self
-pub fn Decimal::with_precision(Self, Int, DecimalRoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, DecimalRoundingMode) -> Self
 ```
 
 `normalized` returns the reduced member of the cohort: it removes all trailing
@@ -1338,7 +1338,7 @@ Compare two values numerically with `compare`. `Compare`, `==` and the
 comparison operators use this ordering.
 
 ```mbti
-pub fn Decimal::compare(Self, Self) -> Int
+pub fn Decimal::compare(Self, Self) -> Int32
 ```
 
 `compare` returns $-1$, 0 or 1 by numeric value. It treats $-0$ and $+0$ as
@@ -1368,7 +1368,7 @@ test "decimal numeric order is a total preorder" {
 Use `compare_checked` for IEEE numeric comparison that returns an error for NaN.
 
 ```mbti
-pub fn Decimal::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 ```
 
 When neither operand is NaN, it returns `Ok(compare(x, y))`. Otherwise it
@@ -1477,7 +1477,7 @@ a three-way comparison.
 ```mbti
 pub fn Decimal::total_order(Self, Self) -> Bool
 pub fn Decimal::total_order_mag(Self, Self) -> Bool
-pub fn Decimal::total_order_compare(Self, Self) -> Int
+pub fn Decimal::total_order_compare(Self, Self) -> Int32
 ```
 
 `total_order(x, y)` is true when `x` is ordered at or before `y`.
@@ -1527,8 +1527,8 @@ test "decimal identical compares the representation" {
 Select values by numeric order without a context.
 
 ```mbti
-pub fn Decimal::min(Self, Self) -> Self
-pub fn Decimal::max(Self, Self) -> Self
+pub fn Decimal::min_num(Self, Self) -> Self
+pub fn Decimal::max_num(Self, Self) -> Self
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
@@ -1695,12 +1695,12 @@ limit because it is a basic operation (IEEE 754-2019 5.4.1).
 
 ```mbti
 pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::pown_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rootn_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::hypot_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::try_pown_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::try_rootn_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_rootn_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_hypot_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
@@ -2390,8 +2390,8 @@ These functions implement the checked traits of `Luna-Flow/arithmetic`.
 ```mbti
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::pow_nat_checked(Self, UInt, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub impl @arithmetic.ParseChecked for Decimal
 pub impl @arithmetic.DivChecked for Decimal
 pub impl @arithmetic.CompareChecked for Decimal
@@ -2448,8 +2448,6 @@ pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
-pub fn DecimalSignal::equal(Self, Self) -> Bool
-pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 pub fn DecimalInterchangeFormat::equal(Self, Self) -> Bool
 pub fn DecimalInterchangeFormat::not_equal(Self, Self) -> Bool
 pub fn DecimalInterchangeEncoding::equal(Self, Self) -> Bool

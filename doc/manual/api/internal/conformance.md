@@ -44,7 +44,7 @@ pub struct SourceLocation {
 `SourceLocation::new(source, line, column?)` creates a location.
 
 ```mbti
-pub fn SourceLocation::new(String, Int, column? : Int) -> Self
+pub fn SourceLocation::new(String, Int32, column? : Int32) -> Self
 ```
 
 `column` defaults to `1`. Line and column are clamped to at least `1`, so a
@@ -56,8 +56,8 @@ These accessors return the components.
 
 ```mbti
 pub fn SourceLocation::source(Self) -> String
-pub fn SourceLocation::line(Self) -> Int
-pub fn SourceLocation::column(Self) -> Int
+pub fn SourceLocation::line(Self) -> Int32
+pub fn SourceLocation::column(Self) -> Int32
 ```
 
 ```moonbit nocheck
@@ -144,8 +144,8 @@ pub struct ShardSpec {
 `ShardSpec::new` aborts with the same message instead of returning `Err`.
 
 ```mbti
-pub fn ShardSpec::try_new(Int, Int) -> Result[Self, String]
-pub fn ShardSpec::new(Int, Int) -> Self
+pub fn ShardSpec::try_new(Int32, Int32) -> Result[Self, String]
+pub fn ShardSpec::new(Int32, Int32) -> Self
 ```
 
 Errors: `"shard count must be positive"` when `count <= 0`, and
@@ -156,8 +156,8 @@ Errors: `"shard count must be positive"` when `count <= 0`, and
 These accessors return the count $n$ and the index $i$.
 
 ```mbti
-pub fn ShardSpec::count(Self) -> Int
-pub fn ShardSpec::index(Self) -> Int
+pub fn ShardSpec::count(Self) -> Int32
+pub fn ShardSpec::index(Self) -> Int32
 ```
 
 ### `ShardSpec::selects`
@@ -166,7 +166,7 @@ pub fn ShardSpec::index(Self) -> Int
 shard, that is when $k \bmod n = i$.
 
 ```mbti
-pub fn ShardSpec::selects(Self, Int) -> Bool
+pub fn ShardSpec::selects(Self, Int32) -> Bool
 ```
 
 Ordinals are expected to be non-negative. MoonBit's `%` keeps the sign of
@@ -202,7 +202,7 @@ pub struct RunSummary {
 `total` as the number of cases before shard selection.
 
 ```mbti
-pub fn RunSummary::from_results(Int, Array[CaseResult]) -> Self
+pub fn RunSummary::from_results(Int32, Array[CaseResult]) -> Self
 ```
 
 Each result is counted once: an `Executable` result as passed or failed
@@ -226,11 +226,11 @@ an empty summary.
 These accessors return the run-level counters.
 
 ```mbti
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::selected_cases(Self) -> Int
-pub fn RunSummary::executable_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::selected_cases(Self) -> Int32
+pub fn RunSummary::executable_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
 ```
 
 `total_cases` is the caller's total (the maximum over merged parts);
@@ -241,10 +241,10 @@ pub fn RunSummary::failed_cases(Self) -> Int
 These accessors return the skip counters, in total and per disposition.
 
 ```mbti
-pub fn RunSummary::skipped_cases(Self) -> Int
-pub fn RunSummary::diagnostic_cases(Self) -> Int
-pub fn RunSummary::legacy_cases(Self) -> Int
-pub fn RunSummary::unsupported_cases(Self) -> Int
+pub fn RunSummary::skipped_cases(Self) -> Int32
+pub fn RunSummary::diagnostic_cases(Self) -> Int32
+pub fn RunSummary::legacy_cases(Self) -> Int32
+pub fn RunSummary::unsupported_cases(Self) -> Int32
 ```
 
 ### `RunSummary::results`, `RunSummary::success`, `RunSummary::success_with_counts`
