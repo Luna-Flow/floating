@@ -95,7 +95,7 @@ def render() -> str:
         "let ref_pi_hi_hex : String = \"0x%x%s\"" % (hi, "p-%d" % FRACTION_BITS),
         "",
         "///|",
-        "fn ref_pi_ratio(num : Int, den : Int, precision : Int32) -> Interval {",
+        "fn ref_pi_ratio(num : Int32, den : Int32, precision : Int32) -> Interval {",
         "  let (lo_hex, hi_hex) = match (num, den) {",
         *[line for a, b in RATIOS for line in (
             "    (%d, %d) => (" % (a, b),
