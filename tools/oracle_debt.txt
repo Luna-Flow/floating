@@ -388,7 +388,6 @@ library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of exactly -2^30 is the exact
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of non-integers around the smallest subnormal	A
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 true underflow to zero threshold carries inexact and underflow	B
 library/src/binary/exp_overflow_edge_wbtest.mbt::exp at the overflow threshold rounds by the clause 7.4 rules on both sides	?
-library/src/binary/expm1_overflow_window_wbtest.mbt::expm1 overflows from x log2(e) = e_max + 1 on, like exp	C
 library/src/binary/exponent_range_wbtest.mbt::context precision is limited	A
 library/src/binary/exponent_range_wbtest.mbt::exact results inside the implementation range are unchanged	A
 library/src/binary/exponent_range_wbtest.mbt::plain construction honours the rounding mode at the range limits	A
@@ -409,7 +408,6 @@ library/src/binary/fma_wbtest.mbt::fma rounds the exact sum once	A
 library/src/binary/fma_wbtest.mbt::fma special values follow IEEE 754 and SoftFloat	A
 library/src/binary/huge_argument_trig_wbtest.mbt::sin, cos and tan of 2^k against MPFR at the exact argument	A
 library/src/binary/hyperbolic_single_exp_wbtest.mbt::hyperbolic bounds contain the high-precision old enclosure	C
-library/src/binary/hypot_range_wbtest.mbt::hypot of operands beyond 2^29 in exponent is correctly rounded	C
 library/src/binary/hypot_range_wbtest.mbt::hypot with a zero operand is the other magnitude, exact, at any exponent	A
 library/src/binary/hypot_signaling_nan_wbtest.mbt::hypot of an infinity and a signaling NaN is a quiet NaN with invalid	C
 library/src/binary/ieee754_wbtest.mbt::IEEE 754 after-rounding tininess uses the precision-rounded value	A
@@ -466,7 +464,6 @@ library/src/binary/pm1_functions_wbtest.mbt::exp2m1 of a huge integer rounds lik
 library/src/binary/pm1_functions_wbtest.mbt::exp2m1 of an integer is the correctly rounded 2^n - 1 in every direction	C
 library/src/binary/pm1_functions_wbtest.mbt::log2p1 and log10p1 are exact at 2^k - 1 and 10^k - 1	C
 library/src/binary/pm1_functions_wbtest.mbt::log2p1 and log10p1 special values and domain	A
-library/src/binary/pm1_functions_wbtest.mbt::the four functions decide underflow and overflow like the reference	C
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow exact subnormal regression row	A
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow of a power of two with a half-integer exponent rounds the exact result	B
 library/src/binary/pow_rootn_wbtest.mbt::Binary pow decides parity of large integer exponents	A
@@ -479,8 +476,6 @@ library/src/binary/pow_rootn_wbtest.mbt::Binary rootn returns exact results for 
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow keeps its quiet NaN shortcuts and propagation	C
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow signals a signaling NaN base or exponent in every shortcut	C
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_pow_ctx on a signaling NaN	A
-library/src/binary/pown_subnormal_tininess_wbtest.mbt::pown directed rounding between half and the smallest subnormal	C
-library/src/binary/pown_subnormal_tininess_wbtest.mbt::pown tininess after rounding at the implementation subnormal limit	C
 library/src/binary/range_extremes_wbtest.mbt::hyperbolic bounds agree with the old kernel where exp leaves the range	C
 library/src/binary/range_extremes_wbtest.mbt::sign-aware corners agree with the old ones when products overflow and quotients underflow	E
 library/src/binary/range_extremes_wbtest.mbt::trigonometric bounds agree with the old path around pi/4 and at extreme exponents	C
@@ -504,12 +499,9 @@ library/src/binary/rootn_integer_wbtest.mbt::rootn gate: both sides of every pre
 library/src/binary/rootn_integer_wbtest.mbt::rootn of large degrees keeps the certified loop	C
 library/src/binary/rootn_zero_degree_wbtest.mbt::rootn of zero with a negative degree is the divideByZero case	A
 library/src/binary/rootn_zero_degree_wbtest.mbt::rootn with degree zero is invalid for every operand and never divideByZero	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound is the correctly rounded (1 + x)^n	C
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound of a tiny x is the neighbour of 1 chosen by the direction	A
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound special values	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::powr of a positive x is pow, exact and correctly rounded	C
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::powr special values	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::rsqrt of a power of four is exact, other values are correctly rounded	C
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::rsqrt special values	A
 library/src/binary/scale_wbtest.mbt::logB returns the leading-bit exponent	A
 library/src/binary/scale_wbtest.mbt::scaleB rounds once with range handling	A
@@ -528,9 +520,6 @@ library/src/binary/to_integer_wbtest.mbt::convertToInteger handles every width a
 library/src/binary/to_integer_wbtest.mbt::convertToInteger rounds, checks the range, and reports flags	A
 library/src/binary/trig_midpoint_sweep_wbtest.mbt::midpoint form equals the two-ended form on the tiny and near-multiple sweep	E
 library/src/binary/trig_reduction_wbtest.mbt::trigonometric bounds are bit-identical to the pre-#378 path	E
-library/src/binary/underflow_siblings_wbtest.mbt::exp family decides underflow and overflow like the reference	C
-library/src/binary/underflow_siblings_wbtest.mbt::pow decides underflow and overflow like the reference	C
-library/src/binary/underflow_siblings_wbtest.mbt::pown and rootn decide underflow and overflow like the reference	C
 library/src/binary_checked/binary_checked_wbtest.mbt::checked context arithmetic short-circuits errors	?
 library/src/binary_checked/binary_checked_wbtest.mbt::checked context methods preserve target precision	?
 library/src/binary_checked/binary_checked_wbtest.mbt::checked elementary operations compose successful values	?
