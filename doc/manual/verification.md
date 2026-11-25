@@ -640,7 +640,7 @@ runs the stages this way; `--full-kernel` runs them in full.
 
 ### The stages of the interval, GDA and decimal gates
 
-`just verify interval`, `just verify decimal_gda` and `just verify decimal` run four whole stages as units, with the same
+`just verify interval`, `just verify decimal_gda` and `just verify decimal` run five whole stages as units, with the same
 ledger, `REUSED` lines, 2 % sampling and exit status 70 as the kernel stages. Two are `moon test`
 stages (the reverse trigonometric reference tests of `interval`, and the package tests of
 `decimal_gda`): the key is the content of the packages and of everything they import inside the two
@@ -702,8 +702,21 @@ need the ITF1788 corpus, which the continuous-integration runner does not have, 
 not run there; two tests that run on every interpreter show that a stage that reads only declared
 files, and a stage that imports only standard-library modules, are recorded.
 
-The stages that stay full are listed by `verify`: the interval corpus (it needs the
-split of the interval frontend into arms), the differential stage of the interval gate, and the three
+The fifth is the interval corpus run (the IEEE 1788 stage): a Python runner that builds
+`tooling/src/cli` and runs the executable on the corpus files, so no audit hook can see what it reads.
+Its key is the content of the packages that the executable imports inside the two modules, the module
+files, the build commands of `moon --dry-run` for the executable, the wrapper, the content of
+`testdata/interval/`, the content of every file of `tools/` that the runner can import (read from the
+syntax tree; a dynamic or relative import disables the unit), the interpreter's version, the toolchain,
+the verifier and the environment. A pass needs exit status 0 and exactly one `PASS  TOTAL  n/n passed`
+line with n above zero. The key is of source files, not of compiled code, so any edit of those
+packages reruns the stage; the stage is mostly the build of the executable (the 22,892 cases run in
+under a second), which is what a reuse skips. In a fresh worktree the first recorded key may never be
+formed again: the toolchain digest counts the stub files under `.mooncakes`, which exist only after the
+dependency stage ran. The cost is one false rerun, never a false reuse.
+
+The stages that stay full are listed by `verify`: the differential stage of the interval gate (it
+builds a C oracle against the host's MPFR and GMP), and the three
 short stages of the GDA gate (the frontend tests and the two decTest corpora, about seven seconds).
 
 ### What it does not cover
