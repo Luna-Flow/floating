@@ -517,8 +517,6 @@ library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 und
 library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 zero exponent follows the context, not 0 (#332)	?
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
-library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi tiny ratio equals atanpi of the ratio on both sides of the threshold	?
-library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi with both operands of extreme exponent equals the moderate ratio	?
 library/src/decimal/binary_zero_wbtest.mbt::binary conversions keep the sign of zero (IEEE 754 5.4.2, 6.3)	?
 library/src/decimal/class_of_wbtest.mbt::Decimal::class_of matches class_name for every class in every format	?
 library/src/decimal/coeff_kernel_wbtest.mbt::BigInt-free ln constants preserve the old scaled integers	?
@@ -538,8 +536,6 @@ library/src/decimal/coeff_kernel_wbtest.mbt::decimal math finite division repr p
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal math small-int division repr pipeline matches bigint divide normalization	?
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal plain add keeps the preferred exponent of an exact sum	?
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal plain division keeps GDA quotient units through normalization	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal repr math normalization and multiplication match bigint path	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal scaleb repr construction matches bigint path	?
 library/src/decimal/coeff_kernel_wbtest.mbt::decimal unary finalize and zero compare stay coefficient-native	?
 library/src/decimal/coeff_kernel_wbtest.mbt::repr gda normalization rounds to the precision and reduces, as libmpdec	?
 library/src/decimal/coeff_kernel_wbtest.mbt::repr normalization gives the libmpdec result and flags on finite values	?
@@ -581,7 +577,6 @@ library/src/decimal/convert_format_wbtest.mbt::decimal to binary: every format p
 library/src/decimal/convert_format_wbtest.mbt::decimal to binary: the MPFR mpfr_strtofr rows	A
 library/src/decimal/convert_format_wbtest.mbt::decimal to decimal: convertFormat keeps the quantum of the source (IEEE 754-2019 5.4.2)	A
 library/src/decimal/convert_format_wbtest.mbt::from_binary and to_binary keep their results	?
-library/src/decimal/division_double_rounding_wbtest.mbt::decimal division keeps the context-free and contextual paths equal	?
 library/src/decimal/division_double_rounding_wbtest.mbt::decimal division rounds once near a manufactured midpoint	?
 library/src/decimal/division_underflow_flags_wbtest.mbt::division reports the underflow flags of the quotient	?
 library/src/decimal/division_wbtest.mbt::bounded division rounds a long coefficient at context precision	?
@@ -600,9 +595,7 @@ library/src/decimal/elementary_extensions_wbtest.mbt::Decimal tanh and expm1 cer
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal tiny elementary arguments certify all issue 170 families	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal try power exposes certified evaluation as Result	?
 library/src/decimal/elementary_outcomes_wbtest.mbt::decimal checked tier: the two kinds of Err stay apart	?
-library/src/decimal/elementary_outcomes_wbtest.mbt::decimal elementary functions: domain, could-not-compute and ordinary outcomes	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::acosPi special values (9.2.1, Table 9.1)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::anchored results agree with the certified loop in all modes and ranges	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::anchors: both sides in all eight modes (precision 16)	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::asinPi special values (9.2.1, Table 9.1)	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::atan2Pi: quiet and signaling NaN operands	?
@@ -613,9 +606,7 @@ library/src/decimal/elementary_pi_inverse_wbtest.mbt::checked tier methods	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::exact results are at the preferred exponent 0 (9.2.2)	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::pi inverse generated rows: exact and certified results, cohort and flags	A
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::tiny and huge operands: relative width of the enclosure	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::tiny operands: the scaled evaluation equals the plain certified loop	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::underflow of the Pi functions follows the context (Table 9.1)	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 2^n - 1 beyond the exact gate rounds like 2^n	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 NaN operands: quiet NaN propagates, signaling NaN signals invalid	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 enclosures stay relatively tight down to 10^-1999997	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 exact results are rounded with the flags of the context	?
@@ -628,16 +619,13 @@ library/src/decimal/elementary_pm1_wbtest.mbt::pm1 restricted contexts and opera
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 special values follow 9.2.1 in every rounding mode	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 the 10^n - 1 cluster is decided without forming 10^n	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 the power range refactor keeps pow results	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 the tiny-argument shortcut gives the Ziv loop's result	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 zero results keep the sign of the operand in every mode	?
 library/src/decimal/elementary_range_wbtest.mbt::certified results far outside the decimal range stay bounded	?
 library/src/decimal/elementary_range_wbtest.mbt::hyperbolic functions overflow without expanding huge endpoints	?
 library/src/decimal/elementary_rcp_wbtest.mbt::compound at Int32.min_value	?
-library/src/decimal/elementary_rcp_wbtest.mbt::compound of a tiny x is anchored and agrees with the certified loop	?
 library/src/decimal/elementary_rcp_wbtest.mbt::compound special values (9.2.1)	?
 library/src/decimal/elementary_rcp_wbtest.mbt::powr special values (9.2.1) and the pow agreement	?
 library/src/decimal/elementary_rcp_wbtest.mbt::rcp generated rows: exact and certified results, cohort and flags	A
-library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt by the scaled loop equals the plain certified loop	?
 library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)	?
 library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt special values (9.2.1, Table 9.1)	?
 library/src/decimal/elementary_special_values_wbtest.mbt::decimal atan2 handles zero and infinite operands	A
@@ -705,7 +693,6 @@ library/src/decimal/pi_source_wbtest.mbt::decimal quarter pi multiples equal qua
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap above 2^31 - 1 between a small and a large exponent	A
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic	A
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the exact context cannot panic through the exponent gap	A
-library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the sticky absorption gives the result of the exact aligned sum	E
 library/src/decimal/plain_ctx_wbtest.mbt::plain add, subtract, multiply and divide equal the general route (long operands)	E
 library/src/decimal/plain_ctx_wbtest.mbt::plain add, subtract, multiply and divide equal the general route (short operands)	E
 library/src/decimal/plain_ctx_wbtest.mbt::plain paths at the end of the range with a rounding carry	E

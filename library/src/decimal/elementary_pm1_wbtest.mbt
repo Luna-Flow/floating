@@ -601,6 +601,9 @@ test "pm1 the 10^n - 1 cluster is decided without forming 10^n" {
 }
 
 ///|
+// oracle: S
+// source: the identity exp2m1(n) = exp2(n) after rounding for n beyond the exact gate, argued in the comment above (no boundary of the rounding is 2^n or 2^n - 1); the sibling function exp2 is the comparison, no expected value is written out; the exact cases and MPFR rows of exp2m1 are level A in elementary_pm1_rows_wbtest.mbt (tools/generate_decimal_pm1_rows.py)
+// shares: Decimal::from_int, exp2m1_ctx and exp2_ctx (the code under test on both sides), pm1_ctx
 test "pm1 2^n - 1 beyond the exact gate rounds like 2^n" {
   // For n > 4 (p + 2), 2^n has D >= p + 3 digits; every rounding boundary of
   // a D-digit integer is a multiple of 5 * 10^(D - p - 1), and neither 2^n nor
@@ -733,6 +736,10 @@ fn pm1_call_power(
 }
 
 ///|
+// oracle: E
+// source: the certified Ziv loop (decimal_certified_unary_result with the interval evaluation of exp2m1, exp10m1, log2p1 and log10p1), the general route that decimal_pm1_tiny_scaled replaces; value and flags compared when the shortcut decides
+// underneath: the general route is level A on this function class by the table of elementary_pm1_rows_wbtest.mbt (fractions.Fraction exact cases and MPFR 4.2.2 enclosures, tools/generate_decimal_pm1_rows.py), whose operands go down to the order of E-100; the operands of this block go to E-6176, beyond the rows
+// shares: decimal_certified_unary_result, the interval functions and DecimalPm1::evaluate (both sides use them)
 test "pm1 the tiny-argument shortcut gives the Ziv loop's result" {
   // `decimal_pm1_tiny_scaled` is a cheaper enclosure of the same value; when
   // it decides, its result and flags must be those of the certified loop.

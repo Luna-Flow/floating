@@ -6,6 +6,8 @@ Writes `library/src/decimal/oracle_repair_rows_wbtest.mbt`, tables only:
 * `gap_446_rows`: plain `+` and `-` of two operands of 34 digits whose exponents are far apart
   (issue 446), expected text from CPython `decimal` (libmpdec) in the plain working context
   (precision 34, half-even, no clamp).
+* `sticky_446_rows`: the sum of a 34-digit-or-shorter high operand and a far smaller one (the sticky
+  absorption of issue 446), in the loop order of the test, from CPython `decimal`.
 * `ball_rows`: `(text, precision, lower C, lower k, upper C, upper k)`, the two directed
   roundings of the exact decimal value to `precision` bits, as the signed integer `C` with
   value `C * 2^k`, by exact integer arithmetic (`generate_decimal_to_bin_rows.round_to_bits`).
@@ -55,6 +57,15 @@ BALL_TEXTS = (
 BALL_PRECISIONS = (53, 128, 200, 640)
 
 
+STICKY_PRECISIONS = (1, 2, 5, 34)
+STICKY_HIGH = (1, 9, 12345, 5000000000000, 9999999999999999999999999999999999, 1000000000000000000000000000000000)
+STICKY_LOW = (1, 5, 99)
+
+
+def sticky_gaps(precision: int) -> tuple[int, ...]:
+    return (precision - 1, precision, precision + 1, precision + 2, precision + 3, precision + 7, precision + 40, 5000)
+
+
 def plain_context() -> decimal.Context:
     return decimal.Context(
         prec=PRECISION,
@@ -79,6 +90,28 @@ def gap_rows() -> list[tuple[str, str]]:
         a = decimal.Decimal(f"{a_coeff}E{a_exp}")
         b = decimal.Decimal(f"{b_coeff}E{b_exp}")
         rows.append((library_text(context.add(a, b)), library_text(context.subtract(a, b))))
+    return rows
+
+
+def sticky_rows() -> list[str]:
+    """Expected text of `high + low` for the loop order of the sticky absorption test of issue 446:
+    precision, high coefficient, low coefficient, gap, high negative, low negative (innermost).
+    Operands are rounded to `precision` digits (half-even), as `Decimal::make` does, and the sum is
+    rounded once in a context of that precision."""
+    rows = []
+    for precision in STICKY_PRECISIONS:
+        context = decimal.Context(
+            prec=precision, rounding=decimal.ROUND_HALF_EVEN, Emax=EMAX, Emin=-EMAX, clamp=0, traps=[]
+        )
+        for high in STICKY_HIGH:
+            for low in STICKY_LOW:
+                for gap in sticky_gaps(precision):
+                    for high_negative in (False, True):
+                        for low_negative in (False, True):
+                            exponent = -gap - len(str(low)) - len(str(high))
+                            a = context.create_decimal(f"{'-' if high_negative else ''}{high}E0")
+                            b = context.create_decimal(f"{'-' if low_negative else ''}{low}E{exponent}")
+                            rows.append(library_text(context.add(a, b)))
     return rows
 
 
@@ -166,6 +199,9 @@ def render() -> str:
     ]
     for plus, minus in gap_rows():
         out.append(f"  ({quote(plus)}, {quote(minus)}),")
+    out += ["]", "", "///|", "let sticky_446_rows : Array[String] = ["]
+    for text in sticky_rows():
+        out.append(f"  {quote(text)},")
     out += ["]", "", "///|", "let ball_rows : Array[(String, Int32, String, Int32, String, Int32)] = ["]
     for text, p, lo_c, lo_k, hi_c, hi_k in ball_rows():
         out.append(f"  ({quote(text)}, {p}, {quote(str(lo_c))}, {lo_k}, {quote(str(hi_c))}, {hi_k}),")

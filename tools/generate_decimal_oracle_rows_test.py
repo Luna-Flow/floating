@@ -19,6 +19,35 @@ class GapRowsTest(unittest.TestCase):
         self.assertEqual(rows[7][0], "6.000000000000000000000000000000000E+400000")
 
 
+class StickyRowsTest(unittest.TestCase):
+    def test_row_count_and_shape(self) -> None:
+        rows = generator.sticky_rows()
+        expected = sum(
+            len(generator.STICKY_HIGH) * len(generator.STICKY_LOW) * len(generator.sticky_gaps(p)) * 4
+            for p in generator.STICKY_PRECISIONS
+        )
+        self.assertEqual(len(rows), expected)
+
+    def test_first_rows(self) -> None:
+        rows = generator.sticky_rows()
+        # precision 1, high 1, low 1, gap 0: 1 + 1E-3 rounds to 1 at one digit; signs (+,+) (+,-) (-,+) (-,-)
+        self.assertEqual(rows[:4], ["1", "1", "-1", "-1"])
+
+    def test_sticky_absorption_example(self) -> None:
+        # precision 2, high 12345 (rounded to 1.2E+4), low far below: the sum stays 1.2E+4
+        rows = generator.sticky_rows()
+        index = 0
+        for p in generator.STICKY_PRECISIONS:
+            for h in generator.STICKY_HIGH:
+                for lo in generator.STICKY_LOW:
+                    for _gap in generator.sticky_gaps(p):
+                        if p == 2 and h == 12345 and lo == 1 and _gap == 5000:
+                            self.assertEqual(rows[index], "1.2E+4")
+                            return
+                        index += 4
+        self.fail("row not found")
+
+
 class BallRowsTest(unittest.TestCase):
     def test_one_tenth_at_53_bits(self) -> None:
         rows = {(r[0], r[1]): r for r in generator.ball_rows()}
