@@ -101,9 +101,10 @@ fn fmt(x : @interval.Interval) -> String {
 `Interval` is a closed interval with `Binary` endpoints and a precision tag.
 
 ```mbti
+#derive(@debug.Debug)
 pub struct Interval {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 A non-empty value satisfies $\underline{x} \le \overline{x}$, has no NaN
@@ -123,7 +124,7 @@ and [`Interval::identical`](#intervalidentical).
 ```mbti
 pub struct DecoratedInterval {
   // private fields
-} derive(Eq)
+}
 ```
 
 The decoration is kept canonical: an empty interval always carries `Trv`, an
@@ -136,13 +137,14 @@ carries `Ill`.
 `Ill < Trv < Def < Dac < Com`.
 
 ```mbti
+#derive(Compare, Eq, @debug.Debug)
 pub(all) enum Decoration {
   Ill
   Trv
   Def
   Dac
   Com
-} derive(Compare, Eq, @debug.Debug)
+}
 ```
 
 For a decorated result $(\boldsymbol{y}, d)$ of a function $f$ evaluated on
@@ -217,9 +219,10 @@ when $e \ge e_{\min}$. See [Contexts and flags](#contexts-and-flags).
 `IntervalContext`.
 
 ```mbti
+#derive(Eq)
 pub struct IntervalFlags {
   // private fields
-} derive(Eq)
+}
 ```
 
 `inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint)

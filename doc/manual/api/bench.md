@@ -173,10 +173,10 @@ test "regression verdict" {
 
 ```mbti
 pub struct TuneDecision {
-  dataset_id : Int
+  dataset_id : Int32
   candidate_id : String
   median_us : Double
-  valid_samples : Int
+  valid_samples : Int32
 }
 ```
 

@@ -49,9 +49,10 @@ fn show(s : @semantic.SemanticScalar) -> String {
 positive denominator.
 
 ```mbti
+#derive(Eq)
 pub struct ExactRational {
   // private fields
-} derive(Eq)
+}
 ```
 
 The fields are private, so every value is built by `ExactRational::new` or
@@ -124,11 +125,12 @@ test "exact rationals are reduced" {
 `SemanticScalar` is the meaning of one floating-point datum.
 
 ```mbti
+#derive(Eq)
 pub(all) enum SemanticScalar {
   Rational(ExactRational)
   Infinity(@def.Sign)
   NaN
-} derive(Eq)
+}
 ```
 
 `Rational` holds every finite value, including both signed zeros as $0/1$.
@@ -202,10 +204,11 @@ test "project binary and decimal values" {
 `SemanticInterval` is a closed interval given by two semantic endpoints.
 
 ```mbti
+#derive(Eq)
 pub struct SemanticInterval {
   lower : SemanticScalar
   upper : SemanticScalar
-} derive(Eq)
+}
 ```
 
 The fields are public and read-only outside the package. The type does not
@@ -256,6 +259,7 @@ test "project intervals" {
 `SemanticError` is the representation-independent error vocabulary.
 
 ```mbti
+#derive(Eq)
 pub(all) enum SemanticError {
   DivisionByZero
   ParseError
@@ -264,7 +268,7 @@ pub(all) enum SemanticError {
   UnsupportedOperation
   UnorderedComparison
   CertificationFailure
-} derive(Eq)
+}
 ```
 
 It mirrors `ArithmeticErrorKind` of Luna-Flow/arithmetic without messages and
@@ -288,10 +292,11 @@ the `CertificationFailureDetail` are discarded.
 `SemanticResult[T]` is a semantic value or a semantic error.
 
 ```mbti
+#derive(Eq)
 pub(all) enum SemanticResult[T] {
   Value(T)
   Error(SemanticError)
-} derive(Eq)
+}
 ```
 
 ### `semantic_scalar_result`, `semantic_interval_result`

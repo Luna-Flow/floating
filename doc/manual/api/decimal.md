@@ -55,9 +55,10 @@ subnormal is $E_{\text{tiny}} = e_{\min} - p + 1$.
 `Decimal` is an immutable decimal floating-point value.
 
 ```mbti
+#derive(@debug.Debug)
 pub struct Decimal {
   // private fields
-} derive(@debug.Debug)
+}
 ```
 
 A `Decimal` represents a finite value $(-1)^s c\,10^q$ (including $\pm 0$),
@@ -484,9 +485,10 @@ rule. It is the `Show` implementation; see
 `DecimalContext` stores the arithmetic parameters used by context operations.
 
 ```mbti
+#derive(Eq)
 pub struct DecimalContext {
   // private fields
-} derive(Eq)
+}
 ```
 
 An IEEE 754-2019 decimal format has precision $p$, maximum adjusted exponent
@@ -729,6 +731,7 @@ aborts when its argument is outside the limits accepted by `new`.
 attributes for decimal formats, using the spellings of `BinaryRoundingMode`.
 
 ```mbti
+#derive(Eq)
 pub(all) enum DecimalRoundingMode {
   RoundTiesToEven
   RoundTiesToAway
@@ -781,9 +784,10 @@ option for the binary after-rounding rule.
 `DecimalFlags` records the conditions raised by one operation.
 
 ```mbti
+#derive(Eq)
 pub struct DecimalFlags {
   // private fields
-} derive(Eq)
+}
 ```
 
 | Flag | Set when |
@@ -2131,6 +2135,7 @@ test "decimal certified elementary functions" {
 `DecimalInterchangeFormat` names an IEEE 754 decimal interchange format.
 
 ```mbti
+#derive(Eq)
 pub(all) enum DecimalInterchangeFormat {
   Decimal32
   Decimal64
@@ -2148,6 +2153,7 @@ pub fn DecimalInterchangeFormat::context(Self) -> DecimalContext
 bits.
 
 ```mbti
+#derive(Eq)
 pub(all) enum DecimalInterchangeEncoding {
   DPD
   BID

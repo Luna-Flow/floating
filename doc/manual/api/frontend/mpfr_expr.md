@@ -434,9 +434,10 @@ name the failing case of a batch.
 `ParseDiagnostic` is one invalid line.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `ParseDiagnostic::source`, `ParseDiagnostic::line`, `ParseDiagnostic::message`

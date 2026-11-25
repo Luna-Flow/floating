@@ -33,6 +33,7 @@ The examples use the aliases `@testfloat_expr` and `@binary`.
 `TestFloatOperation` lists the TestFloat functions the executor supports.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum TestFloatOperation {
   Add
   Subtract
@@ -46,13 +47,14 @@ pub(all) enum TestFloatOperation {
   ToInt64
   ToUInt32
   ToUInt64
+  ConvertFormat(@binary.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less
   EqualSignaling
   LessEqualQuiet
   LessQuiet
-} derive(Eq, @debug.Debug)
+}
 ```
 
 | Constructor | TestFloat name | Operands | `binary` method |
@@ -72,9 +74,10 @@ pub(all) enum TestFloatOperation {
 `TestFloatSpec` is the configuration of one TestFloat run.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct TestFloatSpec {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `TestFloatSpec::parse`
@@ -222,9 +225,10 @@ test "vector ids" {
 `ParseDiagnostic` is one invalid line.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `ParseDiagnostic::source`, `ParseDiagnostic::line`, `ParseDiagnostic::message`
