@@ -672,7 +672,6 @@ library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt exact results take the pref
 library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt special values (9.2.1, Table 9.1)	?
 library/src/decimal/elementary_special_values_wbtest.mbt::decimal atan2 handles zero and infinite operands	A
 library/src/decimal/elementary_special_values_wbtest.mbt::decimal cosh log2 and log1p of infinities	A
-library/src/decimal/etiny_direct_wbtest.mbt::etiny and etop equal the exponent bounds they replace	C
 library/src/decimal/exact_division_diff_wbtest.mbt::exact division with the finite-expansion decision equals the gcd route	E
 library/src/decimal/exact_division_diff_wbtest.mbt::the shared empty flag set is never written	S
 library/src/decimal/exp_after_rounding_tininess_issue333_wbtest.mbt::exp far below the range is tiny when etiny = e_min (#333)	A
@@ -704,7 +703,6 @@ library/src/decimal/from_binary_bounded_issue467_wbtest.mbt::issue 467: the cost
 library/src/decimal/huge_argument_trig_wbtest.mbt::cospi next to zero is decided before the loop in every direction	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::sin of 1E+20000 beyond the old cutoff	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::sinpi, cospi, tanpi of a huge even integer are exact without expanding it	A
-library/src/decimal/hypot_signaling_nan_wbtest.mbt::hypot of an infinity and a signaling NaN is a quiet NaN	C
 library/src/decimal/ieee_ops_rows_exec_wbtest.mbt::IEEE operations on legal contexts agree with the Python decimal oracle	A
 library/src/decimal/interchange_wbtest.mbt::BID NaN payloads are integers across formats	A
 library/src/decimal/interchange_wbtest.mbt::BID NaN payloads do not depend on the value precision	S
@@ -735,7 +733,6 @@ library/src/decimal/parse_format_wbtest.mbt::decimal parsing preserves coefficie
 library/src/decimal/pi_source_wbtest.mbt::decimal pi enclosure equals 4 atan(1) bit for bit	E
 library/src/decimal/pi_source_wbtest.mbt::decimal quarter pi multiples equal quarters of the atan(1) interval	E
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap above 2^31 - 1 between a small and a large exponent	A
-library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx	C
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic	A
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the exact context cannot panic through the exponent gap	A
 library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the sticky absorption gives the result of the exact aligned sum	E
@@ -744,7 +741,6 @@ library/src/decimal/plain_ctx_wbtest.mbt::plain add, subtract, multiply and divi
 library/src/decimal/plain_ctx_wbtest.mbt::plain paths at the end of the range with a rounding carry	E
 library/src/decimal/plain_ctx_wbtest.mbt::plain paths decline what they do not cover	A
 library/src/decimal/plain_ctx_wbtest.mbt::plain sums and products at an exact tie	E?
-library/src/decimal/plain_ctx_wbtest.mbt::the one-limb termination test equals the general one	C
 library/src/decimal/plain_operators_wbtest.mbt::a finite value plus or minus zero is the value at the ends of the exponent range (#548)	S
 library/src/decimal/plain_operators_wbtest.mbt::a result beyond the working range overflows or underflows like a context result	A
 library/src/decimal/plain_operators_wbtest.mbt::an inexact result has the least exponent: p digits, not reduced	A
@@ -755,7 +751,6 @@ library/src/decimal/plain_operators_wbtest.mbt::the plain result has the larger 
 library/src/decimal/plain_operators_wbtest.mbt::the sign of a zero product is the xor of the signs (#553)	A
 library/src/decimal/plain_operators_wbtest.mbt::two nonzero values with an exponent gap above 2,000,000,000 add exactly	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 348: large integer exponents are correctly rounded	A
-library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 348: pown at the Int32 minimum	C
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: exact powers of ten with a non-integral exponent	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: non-exact powers of ten are unchanged	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 350: no clamped for an inexact pown result near 1	A
@@ -809,9 +804,7 @@ library/src/decimal/power_ten_clamp_issue287_wbtest.mbt::a power of ten above Et
 library/src/decimal/power_underflow_rounding_issue168_wbtest.mbt::decimal integer powers below Etiny round in the rounding direction (#168)	A
 library/src/decimal/preferred_cohort_issue150_wbtest.mbt::integer and binary constructors return the IEEE preferred cohort (#150)	A
 library/src/decimal/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
-library/src/decimal/refinement_limit_wbtest.mbt::refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on	C
 library/src/decimal/refinement_limit_wbtest.mbt::refinement limit: contexts that differ only in the limit are different	A
-library/src/decimal/refinement_limit_wbtest.mbt::refinement limit: default is Some(12) and matches the explicit value	C
 library/src/decimal/remainder_internal_flags_wbtest.mbt::a zero-quotient remainder is clamped only at its result	A
 library/src/decimal/remainder_wbtest.mbt::IEEE remainder keeps an infinite quotient intermediate	A
 library/src/decimal/remainder_wbtest.mbt::remainder avoids materializing a million-digit quotient	A
@@ -837,7 +830,6 @@ library/src/decimal/tanpi_zero_sign_wbtest.mbt::tanpi of an integer takes the si
 library/src/decimal/tininess_default_issue217_wbtest.mbt::decimal contexts detect tininess before rounding (#217)	A
 library/src/decimal/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: the reported cases do not panic	A
 library/src/decimal/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: to_binary at both ends of the exponent range, every rounding mode	B
-library/src/decimal/to_binary_parts_wbtest.mbt::decimal_to_certified_ball bounds are the two directed conversions	C
 library/src/decimal/to_binary_parts_wbtest.mbt::to_binary at large exponents equals exact integer arithmetic (not the old code)	A
 library/src/decimal/to_binary_parts_wbtest.mbt::to_binary equals the previous implementation in every mode	E
 library/src/decimal/to_binary_rounding_wbtest.mbt::to_binary rounds the exact value once	A

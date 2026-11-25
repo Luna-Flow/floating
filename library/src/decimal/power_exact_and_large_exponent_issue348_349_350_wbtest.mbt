@@ -204,20 +204,32 @@ test "issue 348: large integer exponents are correctly rounded" {
 
 ///|
 /// Issue 348: `pown_ctx` with the `Int32` minimum goes through the same path.
+/// Expected values: the same Python `decimal` rows (120 digits, rounded once
+/// to decimal64 in each mode) as the `pow_ctx` test above, not `pow_ctx`
+/// itself.
+// oracle: A
+// source: expected strings for (1 + 10^-30)^(-2^31) at decimal64 in the five directed or nearest modes, from CPython decimal at 120 digits rounded once (the exact power, 1 - 2.147483648E-21 + ..., is 10^-80 or more away from every decimal64 rounding boundary); flags inexact only
+// shares: nothing
 test "issue 348: pown at the Int32 minimum" {
   let x = Decimal::from_string("1.000000000000000000000000000001").unwrap()
-  for mode in ["half_even", "down", "floor", "ceiling", "up"] {
-    let ctx = issue348_decimal64(issue348_mode(mode))
-    let (value, flags) = x.pown_ctx(-2147483648, ctx)
-    let (power, power_flags) = x.pow_ctx(
-      Decimal::from_string("-2147483648").unwrap(),
-      ctx,
+  let rows : Array[(String, String)] = [
+    ("half_even", "1.000000000000000"),
+    ("down", "0.9999999999999999"),
+    ("floor", "0.9999999999999999"),
+    ("ceiling", "1.000000000000000"),
+    ("up", "1.000000000000000"),
+  ]
+  for row in rows {
+    let (mode, expected) = row
+    let (value, flags) = x.pown_ctx(
+      -2147483648,
+      issue348_decimal64(issue348_mode(mode)),
     )
-    assert_eq(issue348_text(value), issue348_text(power))
-    assert_eq(issue348_flags_text(flags), issue348_flags_text(power_flags))
+    assert_eq(
+      (mode, issue348_text(value), issue348_flags_text(flags)),
+      (mode, expected, "x...."),
+    )
   }
-  let (value, _) = x.pown_ctx(-2147483648, issue348_decimal64(Floor))
-  assert_eq(issue348_text(value), "0.9999999999999999")
 }
 
 ///|
