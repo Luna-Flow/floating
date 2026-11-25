@@ -21,17 +21,21 @@ test "rootn and hypot preserve exact identities" {
 }
 
 ///|
-// oracle: S
-// source: containment only: sinpi(0) contains 0, cospi(0) contains 1, sinpi(2^40) contains 0, cospi(2^40) contains 1 (these are exact values of the point functions at integers); no end value is checked
-// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
+// oracle: A
+// source: written out by hand: sinpi(0) = 0, cospi(0) = 1, and at the even integer 2^40 sinpi = 0 and cospi = 1 (sin(k pi) = 0, cos(2 m pi) = 1); these are exact, so the tightest enclosure is the point
+// shares: Interval::from_double, Interval::exact, Binary::from_double and Binary::make build the inputs; Binary::compare compares the ends; the composed functions are the code under test
 test "pi-scaled extensions contain exact axis values" {
-  assert_true(composed_singleton(0.0).sinpi().is_member(@binary.Binary::zero()))
-  assert_true(composed_singleton(0.0).cospi().is_member(@binary.Binary::one()))
+  let point = fn(x : Interval, value : @binary.Binary) -> Unit raise {
+    assert_eq(x.lower_bound().compare(value), 0)
+    assert_eq(x.upper_bound().compare(value), 0)
+  }
+  point(composed_singleton(0.0).sinpi(), @binary.Binary::zero())
+  point(composed_singleton(0.0).cospi(), @binary.Binary::one())
   let huge_integer = Interval::exact(
     @binary.Binary::make(@binary.BinCoeff::one(), 40, 53),
   )
-  assert_true(huge_integer.sinpi().contains_zero())
-  assert_true(huge_integer.cospi().is_member(@binary.Binary::one()))
+  point(huge_integer.sinpi(), @binary.Binary::zero())
+  point(huge_integer.cospi(), @binary.Binary::one())
 }
 
 ///|
@@ -72,9 +76,9 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
 }
 
 ///|
-// oracle: S
-// source: sign check only: for x = 2^-200 > 0, expm1(x) > 0 and log1p(x) > 0, so the enclosures must not contain 0 and their lower ends are positive; no end value is checked
-// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
+// oracle: A
+// source: worked out by hand for x = 2^-200 at 53 bits: expm1(x) = x + x^2 / 2 + ... lies strictly between x and its successor (2^52 + 1) * 2^-252, and log1p(x) = x - x^2 / 2 + ... strictly between the predecessor (2^53 - 1) * 2^-253 and x (x^2 is below 2^-52 x), so every enclosure holds those hulls; the enclosures do not contain 0 and their lower ends are positive
+// shares: Interval::exact and Binary::make build the inputs and the expected ends; Binary::compare compares; the composed functions are the code under test
 test "stable expm1 and log1p intervals retain tiny singleton inputs" {
   let tiny_value = @binary.Binary::make(@binary.BinCoeff::one(), -200, 53)
   let tiny = Interval::exact(tiny_value)
@@ -84,18 +88,36 @@ test "stable expm1 and log1p intervals retain tiny singleton inputs" {
   assert_false(log1p.contains_zero())
   assert_true(expm1.lower_bound().signum() == @def.Sign::Positive)
   assert_true(log1p.lower_bound().signum() == @def.Sign::Positive)
+  let successor = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
+    -252,
+    53,
+  )
+  let predecessor = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 53) - 1UL),
+    -253,
+    53,
+  )
+  assert_true(expm1.lower_bound().compare(tiny_value) <= 0)
+  assert_true(expm1.upper_bound().compare(successor) >= 0)
+  assert_true(log1p.lower_bound().compare(predecessor) <= 0)
+  assert_true(log1p.upper_bound().compare(tiny_value) >= 0)
 }
 
 ///|
-// oracle: A, S
-// source: containment of the exact values sinh(0) = 0, tanh(0) = 0, cosh(0) = 1, asinh(0) = 0 (S: membership only); acosh(0.5) is Empty because acosh is defined for x >= 1 (Table 9.1, written out, A)
-// shares: Interval::from_double, Interval::exact, Binary::from_double, Binary::make and is_member build the inputs and test membership; the composed functions are the code under test
+// oracle: A
+// source: written out by hand: sinh(0) = 0, tanh(0) = 0, cosh(0) = 1, asinh(0) = 0 are exact, so the tightest enclosure is the point; acosh(0.5) is Empty because acosh is defined for x >= 1 (Table 9.1)
+// shares: Interval::from_double and composed_singleton build the inputs; Binary::compare compares the ends; the composed functions are the code under test
 test "hyperbolic family preserves zero and domain hulls" {
   let zero = composed_singleton(0.0)
-  assert_true(zero.sinh().is_member(@binary.Binary::zero()))
-  assert_true(zero.tanh().is_member(@binary.Binary::zero()))
-  assert_true(zero.cosh().is_member(@binary.Binary::one()))
-  assert_true(zero.asinh().is_member(@binary.Binary::zero()))
+  let point = fn(x : Interval, value : @binary.Binary) -> Unit raise {
+    assert_eq(x.lower_bound().compare(value), 0)
+    assert_eq(x.upper_bound().compare(value), 0)
+  }
+  point(zero.sinh(), @binary.Binary::zero())
+  point(zero.tanh(), @binary.Binary::zero())
+  point(zero.cosh(), @binary.Binary::one())
+  point(zero.asinh(), @binary.Binary::zero())
   assert_true(composed_singleton(0.5).acosh().is_empty())
 }
 

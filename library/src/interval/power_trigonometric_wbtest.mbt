@@ -27,6 +27,9 @@ fn assert_binary64_bounds(
 }
 
 ///|
+// oracle: A
+// source: the end values are the directed 53-bit hulls of 0.1^0.1 (RD 0x196B230BCDC434p-53) and 0.5^0.1 (RU 0x1DDB680117AB13p-53), checked with MPFR 4.2.2 (mpfr_pow at RNDD and RNDU of the exact double operands) for this audit and the cases of the ITF1788 power tests; the rest is written out from the domain of the general power (Table 9.1): 0^0 has no value (Empty), 0^[1, 2] = {0}, a negative base with the exponent 2 is outside the domain (Empty)
+// shares: elementary_test_interval (Binary::from_double and Interval::from_bounds), expected_binary64 (Binary::from_hex) and assert_binary64_bounds (apply_ctx with IntervalContext::binary64, Binary::compare) build the inputs and compare; the elementary function under test is the code under test
 test "IEEE 1788 general power follows the nonnegative real domain" {
   let base = elementary_test_interval(0.1, 0.5)
   let exponent = elementary_test_interval(0.1, 0.1)
@@ -46,6 +49,9 @@ test "IEEE 1788 general power follows the nonnegative real domain" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand from the general power over the reals (Table 9.1): [-0, 0.5]^[-1, 0.1] has the lower bound 0 (the point 0 gives 0^0.1 = 0 and the base 0.5 gives 0.5^0.1 below 1) and the upper bound +inf (0^-1 is unbounded); the signed zero is the real 0
+// shares: elementary_test_interval (Binary::from_double and Interval::from_bounds), expected_binary64 (Binary::from_hex) and assert_binary64_bounds (apply_ctx with IntervalContext::binary64, Binary::compare) build the inputs and compare; the elementary function under test is the code under test
 test "general power treats negative zero as the real interval endpoint zero" {
   let negative_zero = @binary.Binary::negative_zero(precision=53)
   let base = Interval::from_bounds(
@@ -58,6 +64,9 @@ test "general power treats negative zero as the real interval endpoint zero" {
 }
 
 ///|
+// oracle: A
+// source: the end values of sin and cos of [-0.7, 0.1] (-0x149D6E694619B9p-53, 0x198EAECB8BCB2Dp-56 and 0x187996529F9D92p-53, 0x1p0), of sin(RD(pi)) = 0x11A62633145C06p-105 and 0x11A62633145C07p-105 and of cos(RD(pi/2)) at -106 are the directed 53-bit values of the ITF1788 sine and cosine tests, checked with MPFR 4.2.2 (mpfr_sin and mpfr_cos at RNDD and RNDU of the exact operands) for this audit; the upper end 1 of sin [1, 2] is written by hand (the peak pi/2 lies inside)
+// shares: elementary_test_interval (Binary::from_double and Interval::from_bounds), expected_binary64 (Binary::from_hex) and assert_binary64_bounds (apply_ctx with IntervalContext::binary64, Binary::compare) build the inputs and compare; the elementary function under test is the code under test
 test "certified sine and cosine match ITF1788 directed endpoints" {
   let source = elementary_test_interval(-0.7, 0.1)
   assert_binary64_bounds(
@@ -83,6 +92,9 @@ test "certified sine and cosine match ITF1788 directed endpoints" {
 }
 
 ///|
+// oracle: A
+// source: the end values of tan [-0.33333, 0.1] (-0x1628F4FD931FEFp-54, 0x19AF8877430B81p-56) and of tan(RD(pi/2)) (0x1D02967C31CDB4p1, 0x1D02967C31CDB5p1) are the directed 53-bit values of the ITF1788 tangent tests, checked with MPFR 4.2.2 (mpfr_tan at RNDD and RNDU of the exact operands) for this audit; an interval holding both neighbours of pi/2 straddles the pole, so tan is Entire (written out)
+// shares: elementary_test_interval (Binary::from_double and Interval::from_bounds), expected_binary64 (Binary::from_hex) and assert_binary64_bounds (apply_ctx with IntervalContext::binary64, Binary::compare) build the inputs and compare; the elementary function under test is the code under test
 test "certified tangent detects poles and matches monotone branches" {
   let source = elementary_test_interval(-0.33333, 0.1)
   assert_binary64_bounds(
@@ -103,6 +115,9 @@ test "certified tangent detects poles and matches monotone branches" {
 }
 
 ///|
+// oracle: A,S
+// source: tan of Entire is Entire and sin of Entire is [-1, 1], cos at 2^8,100,000 is [-1, 1] (written out by hand: no range reduction is possible, the whole range is the conservative answer); the failure record of try_cos (operation cos, stage RangeReduction, reason ResourceLimit, refinements 0, work precision above 53) is the implementation's own description and is checked for self-consistency only (level S)
+// shares: elementary_test_interval (Binary::from_double and Interval::from_bounds), expected_binary64 (Binary::from_hex) and assert_binary64_bounds (apply_ctx with IntervalContext::binary64, Binary::compare) build the inputs and compare; the elementary function under test is the code under test
 test "trigonometric unbounded and extreme arguments degrade conservatively" {
   assert_true(Interval::entire(precision=53).tan().is_entire())
   assert_true(
