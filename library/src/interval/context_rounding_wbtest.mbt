@@ -14,7 +14,7 @@ test "midpoint_ctx rounds to nearest once" {
 ///|
 // oracle: A
 // source: written out from IEEE 754-2019 3.3, 4.3.1 and 7.4: the largest finite number of precision p and e_max is (2 - 2^(1-p)) * 2^e_max, (2^53 - 1) * 2^-42 for (53, 10) and 15 for (4, 3), written as literals; 2^20 overflows e_max = 10; 15.5 is the tie between 15 and 16 and ties to even gives 16, which overflows; 15.25 rounds to 15
-// shares: IntervalContext::new, endpoint_rounding_value (a test helper that builds m * 2^e) and Binary::make
+// shares: IntervalContext::new, Interval::from_bounds, Binary::from_int, Binary::make, endpoint_rounding_value (a test helper that builds m * 2^e) and IntervalFlags (to build the inputs and read the flags)
 test "midpoint_ctx applies e_max" {
   let ctx = IntervalContext::new(precision=53, e_max=10)
   let big = @binary.Binary::from_int(1 << 20, precision=53)
@@ -103,7 +103,7 @@ test "apply_ctx does not raise underflow for exact tiny endpoints" {
 ///|
 // oracle: A
 // source: IEEE 1788-2015 12.12.8 (mid of Empty is NaN, of a half-bounded interval the finite number of largest magnitude, of a zero midpoint +0), with the largest finite number 15 of a 4-bit format with e_max = 3 written out
-// shares: IntervalContext::new and Interval::from_bounds only
+// shares: IntervalContext::new, Interval::from_bounds, Interval::empty, Binary::from_int, Binary::one, Binary::zero and the helpers pos_inf and neg_inf (to build the inputs)
 test "midpoint_ctx follows the IEEE 1788 mid cases" {
   // IEEE 1788-2015 12.12.8: NaN for Empty, 0 for Entire, the finite number
   // of largest magnitude for a half-bounded interval, +0 for a zero midpoint.

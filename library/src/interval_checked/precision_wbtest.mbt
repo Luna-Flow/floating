@@ -1,7 +1,7 @@
 ///|
 // oracle: S
 // source: only Err or Ok is checked, for a precision outside 1..binary_precision_max and for the accepted values 16 and binary_precision_max; the contract of the limits, no numeric value
-// shares: binary_precision_max (a limit of the code, not of a standard)
+// shares: binary_precision_max (a limit of the code, not of a standard); Binary::one, BinCoeff::one and Binary::from_int build the inputs; the checked constructors are the code under test
 test "the checked constructors return an error for a precision outside the limits" {
   let one = @binary.Binary::one(precision=53)
   for p in [0, -1, @binary.binary_precision_max + 1] {

@@ -98,7 +98,7 @@ test "away from the bottom of the range the endpoints are unchanged" {
 ///|
 // oracle: A
 // source: written out in the comment of the test, computed with CPython fractions: the exact c - r rounded down and c + r rounded up to 53 bits on the grid below the range floor (checked again with a Python Fraction program for this audit: 4156949235071075 * 2^-1073741872 and 8313898470154599 * 2^-1073741873)
-// shares: ne_value (a test helper that builds m * 2^e) and Binary::to_string (prints the ends)
+// shares: ne_value (a test helper that builds m * 2^e with Binary::make) and Binary::to_string (prints the ends); Interval::from_midpoint_radius is the code under test
 test "the first case of the issue" {
   // center 133022375522373997 * 2^-1073741877 (57 bits, stored at 200), radius
   // 389 * 2^-1073741869, 53 bits. The hull rounded outward to 53 bits (the bound is

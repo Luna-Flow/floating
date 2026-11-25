@@ -34,7 +34,7 @@ fn total_forms_big_row(op : String) -> (@binary.Binary, @binary.Binary) {
 /// equals the `try_` form whenever that succeeds.
 // oracle: A, S
 // source: the two ends of ln 3 at 32,000 bits are the directed roundings (down, up) of the exact value computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_big_table_wbtest.mbt); the checks of the width, of exp(ln 3) containing 3 and of agreement with try_ln are self-consistency (S)
-// shares: Binary::from_hex (reads the table)
+// shares: Binary::from_hex and String::split read the table; Interval::from_int, lower_bound, upper_bound, width, is_member, exp and try_ln are used for the inputs and for the self-consistency checks (S)
 test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
   let x = Interval::from_int(3, precision=32_000)
   let y = x.ln()
@@ -55,7 +55,7 @@ test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
 ///|
 // oracle: A, S
 // source: the two ends of exp 1 at 160,000 bits are the directed roundings (down, up) of the exact value computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_big_table_wbtest.mbt); the width bound is a quality check (S)
-// shares: Binary::from_hex (reads the table)
+// shares: Binary::from_hex and String::split read the table; Interval::from_int, lower_bound, upper_bound, width and is_common_interval are used for the input and the quality check (S)
 test "exp at 160,000 bits returns an enclosure (issue 449)" {
   let y = Interval::from_int(1, precision=160_000).exp()
   let (lo, hi) = total_forms_big_row("exp")

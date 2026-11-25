@@ -325,7 +325,7 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
 // which reached it through the decimal elementary functions).
 // oracle: A
 // source: written out by hand from IEEE 1788-2015 10.6.3 (isCommonInterval) and the definition of a common interval (nonempty and bounded): [-1, 1] and the point [1, 1] are common; Empty, Entire, [1, inf) and (-inf, 1] are not
-// shares: nothing
+// shares: Binary::one, Binary::inf, Interval::from_bounds, Interval::exact, Interval::empty and Interval::entire (to build the inputs)
 test "is_common_interval terminates and classifies the shapes" {
   let one = @binary.Binary::one(precision=53)
   let inf = @binary.Binary::inf(precision=53)
