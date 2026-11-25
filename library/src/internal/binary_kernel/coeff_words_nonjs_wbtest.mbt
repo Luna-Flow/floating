@@ -498,7 +498,7 @@ test "panic the window row rejects a word shift beyond its contract" {
 /// larger arrays.
 // oracle: B
 // source: core BigInt multiplication of the integers of the operand limbs: the whole result array, every limb outside the row left at 0x5A5A, for the product and for the loop of rows (replaces the comparison with bin_coeff_words_school)
-// shares: window_test_array (the operands only)
+// shares: window_test_array (the operands only) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (limbs to BigInt by shift and addition of core; level A in "bin_limbs_big reads the limbs least significant first")
 test "the limb product equals the schoolbook product and the loop of rows it replaces" {
   let random = { words_state: 0x7F4A7C159E3779B9UL, }
@@ -556,7 +556,7 @@ test "the limb product equals the schoolbook product and the loop of rows it rep
 /// largest limbs everywhere (every column carries).
 // oracle: B
 // source: core BigInt multiplication of the all-ones operands, (2^(64 an) - 1)(2^(64 bn) - 1), built from shifts, against the whole dirty result
-// shares: nothing
+// shares: bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "the limb product writes every result limb: dirty result, one-limb operands, all-ones" {
   for an in [1, 2, 9] {
