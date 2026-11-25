@@ -65,7 +65,7 @@ fn exp_rows_check(group : Int32) -> Unit raise {
 ///|
 // oracle: A
 // source: the rows of group 0 of certified_exp_rows_wbtest.mbt (see the header of that file): CPython `decimal` exp evaluated 200 digits wider and rounded to the context, value, cohort and flags; random arguments of 1 to 40 digits in precisions 1 to 100
-// shares: the argument is parsed by `Decimal::from_string` (input only)
+// shares: Decimal::from_string (reads the argument) and Decimal::to_string (prints the result), both of which have their own level A tests; normalization_flags_text
 test "binary candidate exp matches CPython decimal on random arguments" {
   exp_rows_check(0)
 }
@@ -73,7 +73,7 @@ test "binary candidate exp matches CPython decimal on random arguments" {
 ///|
 // oracle: A
 // source: the rows of group 1 of certified_exp_rows_wbtest.mbt: the argument is ln(m) for a midpoint m between two results, rounded to precision + 60 digits by CPython `decimal`, so exp lies within 10^-(precision + 50) of a rounding boundary; the expected value is CPython exp 200 digits wider rounded half even to the precision
-// shares: the argument is parsed by `Decimal::from_string` (input only)
+// shares: Decimal::from_string (reads the argument) and Decimal::to_string (prints the result), both of which have their own level A tests; normalization_flags_text
 test "binary candidate exp at arguments whose result is near a rounding boundary" {
   exp_rows_check(1)
 }
@@ -81,7 +81,7 @@ test "binary candidate exp at arguments whose result is near a rounding boundary
 ///|
 // oracle: A
 // source: the rows of group 2 of certified_exp_rows_wbtest.mbt: decimal32, decimal64, decimal128 and odd contexts, subset and extended, every rounding rule, CPython `decimal` exp 200 digits wider rounded by the context (value, cohort, flags); the previous test also compared attempt counts with the previous loop, which is a performance property and is dropped
-// shares: nothing (the rounding mode is decoded by a test-local helper)
+// shares: Decimal::from_string (reads the argument), Decimal::to_string (prints the result), normalization_flags_text; the rounding mode is decoded by a test-local helper
 test "midpoint candidate exp matches CPython decimal in standard contexts" {
   exp_rows_check(2)
 }
@@ -89,7 +89,7 @@ test "midpoint candidate exp matches CPython decimal in standard contexts" {
 ///|
 // oracle: A
 // source: the rows of group 3 of certified_exp_rows_wbtest.mbt: arguments from -3.00E+6 to 2999999 on and around the 10^3 bound between the midpoint route and the series, precisions 3, 16, 34, exponent range +-999999, CPython `decimal` exp 200 digits wider rounded to the context; the row -3.00E+6 never finished before the issue found by the random differential run was fixed
-// shares: nothing
+// shares: Decimal::from_string (reads the argument), Decimal::to_string (prints the result), normalization_flags_text
 test "midpoint candidate exp with large arguments in wide exponent contexts" {
   exp_rows_check(3)
 }

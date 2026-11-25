@@ -47,7 +47,7 @@ fn from_binary_mode(name : String) -> DecimalRoundingMode {
 ///|
 // oracle: A
 // source: the rows of from_binary_rows_wbtest.mbt (see the header of that file): CPython integers and `decimal` (libmpdec) round the exact value of coefficient * 2^exponent2 to the precision in each of the eight rules; the rows cover the powers of two and of ten and their neighbours at exponent2 0, 1, -1, +-shift and +-2000 and random coefficients of 1 to 300 bytes, precision 1 to 1000
-// shares: nothing (the coefficient bytes and the mode name are decoded by test-local helpers)
+// shares: Decimal::to_string (prints the result) ; (the coefficient bytes and the mode name are decoded by test-local helpers)
 test "from_binary_raw equals the table of CPython decimal roundings" {
   let mut bad = 0
   for row in from_binary_rows {
@@ -84,7 +84,7 @@ test "from_binary_raw equals the table of CPython decimal roundings" {
 ///|
 // oracle: A
 // source: written out. A binary zero converts to a zero of the requested precision (the digit count of a zero coefficient is 1, exponent 0, no sign for +0); an infinity keeps its class and sign; a binary NaN converts to a NaN (GDA 1.70 page 11 and IEEE 754-2019 5.4.2 conversions keep the class)
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "from_binary_raw of zero, infinity and nan" {
   for precision in [1, 16, 34] {
     let zero = Decimal::from_binary_raw(
@@ -111,7 +111,7 @@ test "from_binary_raw of zero, infinity and nan" {
 ///|
 // oracle: A
 // source: written out: value = c * 2^e2 with c odd; the exact decimal has exponent 0 for e2 >= 0 (the cohort is not reduced) and exponent e2 for e2 < 0 (c * 5^k has no trailing zero), never above 0; the digits are checked by hand (2^10 = 1024, 2^-10 = 0.0009765625, 125 * 2^-3 = 15.625), precision 34 holds them exactly
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "from_binary_raw keeps the exponent at 0, 1 and -1 by name" {
   let cases : Array[(UInt64, Int32, String, Int32)] = [
     (1UL, 0, "1", 0),

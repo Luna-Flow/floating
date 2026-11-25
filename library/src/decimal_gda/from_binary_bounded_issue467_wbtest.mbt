@@ -110,7 +110,7 @@ test "issue 467: the bounded form gives the result of the exact expansion" {
 ///|
 // oracle: A, S
 // source: written out from CPython `decimal`: 3 * 2^e at 34 digits half even for e = -100000000, -1000000, 1000000, 100000000, 1000000000, computed at 120 and at 200 digits (both agree) as `Decimal(3) * Decimal(2) ** e`; the sign and the digit count are properties (S)
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "issue 467: the cost does not depend on the binary exponent" {
   let wide = @binary.BinaryContext::new(precision=53)
   let three = @binary.Binary::from_int(3, precision=53)

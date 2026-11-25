@@ -180,7 +180,7 @@ test "sqrt plain equals the general route (long operands)" {
 /// general route.
 // oracle: A
 // source: 12 rows of the official squareroot.decTest (sqtx1204, 1228, 1268, 8010, 8112, 8525, 8526, 8543, 8544, 8634, 8641, 8654) written out with operand, precision, e_max and expected result, as the comment above the block says
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "sqrt plain on the exact rows that raise Rounded without Inexact" {
   // (operand, precision, e_max, expected, plain path expected to answer)
   let rows : Array[(String, Int32, Int32, String)] = [
@@ -222,7 +222,7 @@ test "sqrt plain on the exact rows that raise Rounded without Inexact" {
 /// 12.53...); `sqrt(2)`, `sqrt(0.5)`, `sqrt(1E+1)` and the carry `sqrt(9999)`.
 // oracle: A
 // source: written out by hand at two digits: sqrt(156) has root 12 and remainder 12, below the midpoint, giving 12; sqrt(157) has remainder 13, above, giving 13; sqrt(2) = 1.4, sqrt(0.5) = 0.71, sqrt(10) = 3.2 and the carry sqrt(9999)
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "sqrt plain at the rounding boundary and at a carry" {
   let ctx = GdaContext::new(precision=2, e_min=-99, e_max=99)
   for
@@ -250,7 +250,7 @@ test "sqrt plain at the rounding boundary and at a carry" {
 /// the exponent halved towards minus infinity), and two inexact ones.
 // oracle: A
 // source: written out from the ideal exponent rule of GDA 1.70 square-root (the exponent of an exact root is half the exponent of the operand, rounded toward minus infinity): sqrt(100) = 10, sqrt(1E+4) = 1E+2, sqrt(0.01) = 0.1, sqrt(2.25) = 1.5, sqrt(1.00E+2) = 10, two inexact cases
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "sqrt plain keeps the ideal exponent of exact roots" {
   let ctx = GdaContext::new(precision=9, e_min=-999, e_max=999)
   for
