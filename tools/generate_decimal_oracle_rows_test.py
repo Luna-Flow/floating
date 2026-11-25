@@ -70,7 +70,7 @@ class Pm1RowsTest(unittest.TestCase):
         for operation, precision, x_text, expected in rows:
             self.assertEqual(precision, 3)
             self.assertEqual(len(decimal.Decimal(x_text).as_tuple().digits), generator.PM1_SIGNIFICANT)
-            first_order = generator.pm1_slope(operation) * decimal.Decimal(x_text)
+            first_order = generator.PM1_WORK.multiply(generator.pm1_slope(operation), decimal.Decimal(x_text))
             true_value = generator.pm1_value(operation, decimal.Decimal(x_text))
             midpoint = decimal.Decimal(f"1.235E{true_value.adjusted()}")
             # first order and true value are on different sides of the midpoint
