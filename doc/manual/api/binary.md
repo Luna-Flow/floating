@@ -2,16 +2,16 @@
 
 ## Purpose
 
-`binary` is the binary floating-point core of `floating`. A `Binary` is
-a signed dyadic number $(-1)^s \cdot c \cdot 2^{e}$ with an arbitrary-precision
-coefficient, an attached working precision, and the IEEE 754 special values
-(signed zero, infinities, quiet and signaling NaNs with payloads). Every
-arithmetic operation rounds the exact result once. A `BinaryContext` gives the
-precision, exponent range, rounding direction and tininess rule of one
-operation, and the `*_ctx` methods return the IEEE status flags with the value.
-The [tutorial](../tutorial/binary.md) shows the common workflows and the
+`binary` is the binary floating-point core of `floating`. A `Binary` represents
+a signed dyadic number $(-1)^s \cdot c \cdot 2^{e}$ with an
+arbitrary-precision coefficient and an attached working precision. It also has
+the IEEE 754 special values: signed zeros, infinities, and quiet or signaling
+NaNs with payloads. Every arithmetic operation rounds the exact result once.
+`BinaryContext` sets an operation's precision, exponent range, rounding
+direction and tininess rule. The `*_ctx` methods return the value with the IEEE
+status flags. The [tutorial](../tutorial/binary.md) shows common workflows; the
 [design page](../design/binary.md) derives the rounding, range and
-certification rules used below. The verified IEEE 754 scope is listed in
+certification rules used here. The verified IEEE 754 scope is listed in
 [conformance](../conformance/binary.md).
 
 Throughout this page, $p$ is a precision in bits, $\circ(x)$ is the rounding of
@@ -31,17 +31,16 @@ import {
 }
 ```
 
-The examples call the package as `@binary.`. `@lf_arith` is
-`Luna-Flow/arithmetic`: its `RoundingMode`, `ArithmeticContext` and
-`ArithmeticError` types appear in several signatures, where the interface file
-prints the package as `@arithmetic`. `@def` is `Luna-Flow/floating/def`, which
+The examples call the package as `@binary.`. `@lf_arith` is `Luna-Flow/arithmetic`. Its `RoundingMode`,
+`ArithmeticContext` and `ArithmeticError` types appear in signatures; the
+interface file prints their package as `@arithmetic`. `@def` is `Luna-Flow/floating/def`, which
 provides `Sign`, `PartialOrder` and the `Floating` trait. No helper functions
 are shared between examples.
 
 ## Three ways to call an operation
 
-Most operations come in up to three forms with one numerical algorithm behind
-them.
+Where present, the plain, contextual and checked forms use one numerical
+algorithm.
 
 | Form | Example | Context | Result |
 | --- | --- | --- | --- |
@@ -49,12 +48,12 @@ them.
 | contextual | `x.add_ctx(y, ctx)`, `x.exp_ctx(ctx)` | the given `BinaryContext` | `(value, flags)` |
 | checked | `x.try_exp_ctx(ctx)`, `DivChecked::div_checked(x, y, ctx)` | the given context | `Result` with an `@lf_arith.ArithmeticError` |
 
-The plain form of a binary operation works at the larger precision of the two
-operands (the largest of three for `fma`). Its context is the extendable
-precision format of IEEE 754-2019 3.7 given by $p$ alone (see `BinaryContext`),
-whose exponent range is the implementation range below, so it overflows to an
-infinity and underflows to a signed zero or a tiny value only at about
-$2^{\pm 2^{30}}$.
+A plain binary operation uses the larger precision of its two operands; `fma`
+uses the largest precision of its three operands. It uses the extendable
+precision format of IEEE 754-2019 3.7 specified by $p$ alone (see
+`BinaryContext`). Its exponent range is the implementation range below, so
+overflow produces infinity and underflow produces a signed zero or a tiny value
+only at about $2^{\pm 2^{30}}$.
 
 ## Values and limits
 
@@ -68,23 +67,27 @@ pub let binary_value_e_max : Int32
 pub let binary_value_e_min : Int32
 ```
 
-They are $2^{30}-1 = 1073741823$ and $1 - (2^{30}-1) = -1073741822$, so
-$e_{\min} = 1 - e_{\max}$ as IEEE 754-2019 3.3 requires of every format. A
-context given by its precision alone, and every plain operation, uses them as
-$e_{\max}$ and $e_{\min}$: a result whose leading bit would lie above $e_{\max}$
-overflows, and below $e_{\min}$ the value is subnormal with quantum
-$2^{e_{\min}-p+1}$. The range of a context given by its precision alone is this range, so every
-stored value is a member of that context.
+The constants are $2^{30}-1 = 1073741823$ and
+$1 - (2^{30}-1) = -1073741822$. Thus $e_{\min} = 1 - e_{\max}$, as IEEE 754-2019 3.3 requires of every
+format.
+
+A context given by its precision alone, and every plain operation, uses these
+constants for $e_{\max}$ and $e_{\min}$. A result whose leading bit lies above
+$e_{\max}$ overflows. Below $e_{\min}$, it is subnormal with quantum
+$2^{e_{\min}-p+1}$. The context given by its precision alone has this same
+range, and every stored value is a member of that context.
 
 ### `binary_precision_max`
 
-The largest precision a `BinaryContext` accepts and the largest precision a
-`Binary` may carry. Every constructor that takes a precision checks it
-against `1..=binary_precision_max`: a value-returning constructor aborts with a
-message that names the constructor, the range and the offending value, and a
-constructor that returns a `Result` (`from_string`, `from_hex`) or a `BinaryChecked` (its
-constructors) returns an `ArithmeticError` of kind
-`DomainError`. A precision is never replaced by another one.
+The largest precision accepted by `BinaryContext` and the largest precision
+carried by `Binary`.
+
+Every constructor that accepts a precision checks it against
+`1..=binary_precision_max`. A value-returning constructor aborts and reports the
+constructor, the range and the invalid value. A constructor that returns a
+`Result` (`from_string`, `from_hex`) or a `BinaryChecked` returns an
+`ArithmeticError` of kind `DomainError`. A precision is never replaced by
+another one.
 
 ```mbti
 pub let binary_precision_max : Int32
@@ -97,40 +100,42 @@ every coefficient exponent inside the 32-bit `Int` range.
 
 ### `BinCoeff`
 
-A non-negative arbitrary-precision integer, used as the coefficient of a
-`Binary` and as the bit pattern of an interchange encoding.
+`BinCoeff` is a non-negative arbitrary-precision integer used as a `Binary`
+coefficient and as the bit pattern of an interchange encoding.
 
 ```mbti
 type BinCoeff
 ```
 
 The inner type `@binary_kernel.Coeff` belongs to the internal package
-`internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import.
-It carries no compatibility promise and a user cannot call a method on it, read
-it, compare it or build one: from outside the module a `BinCoeff` is abstract.
-Neither its constructor nor its field is visible outside `binary`; the other
-packages of the library reach the kernel type through the bridge `to_kernel` and
-`from_kernel` (below).
-The value is exact: on the native, LLVM and Wasm targets an inline
-64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host
-`bigint`; the representation is not observable, and the algorithm selection
-(schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is
-described in the [design page](../design/binary.md#the-coefficient-kernel).
-`Debug` prints the integer value.
+`internal/binary_kernel`; only code in `Luna-Flow/floating` can import that
+package. The inner type carries no compatibility promise. Outside the module,
+`BinCoeff` is abstract: its constructor and field are hidden, and callers cannot
+name, read, compare or construct the kernel value. Other packages in the library
+use the two functions to pass the kernel value to or from `BinCoeff`.
+
+The coefficient is exact. On native, LLVM and Wasm targets, it uses an inline
+64-bit or 128-bit word or an array of 64-bit limbs; on JavaScript, it uses a host
+`bigint`. Callers cannot observe the representation. The [design page](../design/binary.md#the-coefficient-kernel)
+describes the algorithm selection: schoolbook, Karatsuba, Toom-3,
+number-theoretic transform and staged division. `Debug` prints the integer.
 
 ### `BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)
 
-The bridge between `BinCoeff` and the kernel type, for the packages of this
-module only. Code outside `Luna-Flow/floating` cannot name the kernel type and
-has no use for them; they carry no compatibility promise, and the kernel type
-they exchange may change in any release.
+`to_kernel` and `from_kernel` are bridge functions between `BinCoeff` and the
+kernel type for use by packages in this module. Code outside `Luna-Flow/floating` cannot name the kernel type.
+The functions carry no compatibility promise because the type they exchange
+may change in any release.
 
 ```mbti
 pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff
 pub fn BinCoeff::from_kernel(@binary_kernel.Coeff) -> Self
 ```
 
-Both carry `#internal`, which changes neither the generated interface nor the documentation tool, so this heading and the doc comments are what mark them as internal. Both are free: `BinCoeff` is a one-field tuple structure over the kernel type, and the bridge reads and wraps that field.
+`to_kernel` and `from_kernel` carry `#internal`, which changes neither the
+generated interface nor the documentation tool; the heading and doc comments
+mark them as internal. Both are free functions. `BinCoeff` is a one-field tuple structure
+over the kernel type, so the bridge reads or wraps that field.
 
 ### `BinCoeff::zero`, `BinCoeff::one`, `BinCoeff::from_uint64`
 
@@ -152,11 +157,12 @@ pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 ```
 
-`parse` reads a digit string in base `radix` (default 10, letters for digits
-above 9, an optional leading `+`); an empty string, a `-` sign, a digit
-outside the radix or a radix outside $[2, 36]$ is an `Err`. `to_string` prints
-base 10 and `to_radix_string` any radix in $[2, 36]$, in lower case without a
-prefix; it aborts for another radix.
+`parse` reads digits in base `radix`, which defaults to 10. Letters represent
+digits above 9, and one leading `+` is optional. It returns `Err` for an empty
+string, a `-` sign, a digit outside the radix, or a radix outside $[2, 36]$.
+
+`to_string` prints base 10. `to_radix_string` prints in any radix in
+$[2, 36]$, using lower-case letters and no prefix; it aborts for another radix.
 
 ### `BinCoeff::from_bytes_be`, `BinCoeff::to_bytes_be`
 
@@ -167,12 +173,12 @@ pub fn BinCoeff::from_bytes_be(BytesView) -> Self
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
 ```
 
-`to_bytes_be` uses the minimal number of bytes; leading zero bytes are ignored
-by `from_bytes_be`.
+`to_bytes_be` uses the fewest bytes needed to represent the coefficient.
+`from_bytes_be` ignores leading zero bytes.
 
 ### `BinCoeff::to_uint64`
 
-Returns the value as a `UInt64`, or `None` when it needs more than 64 bits.
+Return the value as a `UInt64`, or `None` if it needs more than 64 bits.
 
 ```mbti
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
@@ -187,7 +193,8 @@ pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::bit_length(Self) -> Int32
 ```
 
-`bit_length` is $\lfloor \log_2 c \rfloor + 1$ for $c > 0$ and $0$ for zero.
+`bit_length` returns $\lfloor \log_2 c \rfloor + 1$ for $c > 0$, and $0$ for
+zero.
 
 ### `BinCoeff::compare`, `BinCoeff::equal`
 
@@ -198,17 +205,17 @@ pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 ```
 
-`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which for
-natural numbers is the same as equality of representations. The operators
-`<`, `<=`, `>`, `>=`, `==` and `!=` use them (see
-[Trait implementations](#trait-implementations)).
+Compare two coefficients and test whether they are equal. `compare` returns
+$-1$, $0$ or $1$. For natural numbers, `equal` compares values, which is the
+same as comparing their representations. The operators `<`, `<=`, `>`, `>=`,
+`==` and `!=` use these methods; see [Trait implementations](#trait-implementations).
 
-`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted
+`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted
 trait methods are listed under [Trait implementations](#trait-implementations).
-It has no arithmetic, shifts, bit operations or GCD: they are internal to the
-library (the package `internal/binary_kernel`), and arithmetic on values is done
-with `Binary` or, on a coefficient read with `coefficient()`, after
-converting it with `to_string` or `to_bytes_be`.
+Outside `binary`, the public type has no arithmetic, shift, bitwise or GCD
+operations; those operations are internal to `internal/binary_kernel`. Use `Binary` for arithmetic
+on values. To export a coefficient read with `coefficient()`, call
+`to_string` or `to_bytes_be`.
 
 ```moonbit
 ///|
@@ -226,32 +233,36 @@ test "BinCoeff converts and compares exact natural numbers" {
 
 ### `Binary`
 
-A binary floating-point value: a finite dyadic number, a signed infinity or a
-NaN, with a working precision. Its representation is an internal type
-(`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no
-compatibility promise and is read only inside the package; a value is one heap
-object.
+`Binary` represents a finite dyadic number, a signed infinity or a NaN, and
+carries a working precision. Its representation, `@binary_kernel.BinRepr`, is
+internal, carries no compatibility promise and is read only inside the package.
+Like `BinCoeff`, the representation uses an internal kernel type. A value is
+one heap object.
 
 ```mbti
 #derive(@debug.Debug)
 pub struct Binary(@binary_kernel.BinRepr)
 ```
 
-A finite value is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
-`BinCoeff` and $e$ = `exponent2()`. Every value built through this API is
-normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero
+A finite `Binary` is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
+`BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero
+$c$ is odd (factors of two are moved into $e$), a zero
 has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()`
-bits. The precision is an attribute of the value: plain operations work at the
+bits. The precision of a value is the largest precision used by a plain operation at the
 larger precision of their operands, and contextual operations stamp the
 context precision on their result.
 
-`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`, so two values
-are equal when they are the same number, whatever their precisions
-(`one(precision=53) == one(precision=24)`, `-0 == +0`), and every NaN equals every
-other NaN. This is the total preorder in which `<`, `<=` and sorting work (every NaN
-equal to every NaN and above every number), the rule of `Decimal` too. It is not IEEE
-equality: use `compare_quiet_equal` (IEEE Std 754-2019 5.6.1, 5.11) when a NaN must be
-unordered. `Binary` has no `Hash`. `identical` is the structural question.
+`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`. This
+comparison tests whether the values are the same number, regardless of
+precision: for example,
+`one(precision=53) == one(precision=24)` and `-0 == +0`. Every NaN equals every
+other NaN.
+
+The `<`, `<=` and sorting order is a total preorder: every NaN compares equal
+to every other NaN and above every number. `Decimal` uses the same rule. IEEE
+equality leaves a NaN unordered; use `compare_quiet_equal` (IEEE 754-2019 5.6.1,
+5.11) when that is required. `Binary` has no `Hash`. Use `identical` to
+compare representations.
 
 ### `Binary::identical`
 
@@ -259,37 +270,43 @@ unordered. `Binary` has no `Hash`. `identical` is the structural question.
 pub fn Binary::identical(Self, Self) -> Bool
 ```
 
-The structural equality of two values: the same class, sign (the sign of a zero
-included), coefficient, exponent and precision, and for a NaN the same signaling
-bit and payload. It distinguishes `-0` from `+0`, a value of precision 53 from the
-same value of precision 24, and two NaNs of different kind or payload, and a NaN
-is identical to an identical NaN. It is what `==` was before 0.12; use it where a
-result is checked as a datum (a test of the sign of a zero or of the precision
-stamped by a contextual operation), and `==` where the number is meant.
+`identical` compares the representation: class, sign (including the sign of a
+zero), coefficient, exponent and precision. For a NaN it also compares the
+signaling bit and payload. It distinguishes `-0` from `+0`, precision 53 from
+precision 24 for the same value, and NaNs with different kinds or payloads.
+
+Use `identical` when a result is checked as a datum, such as when its zero sign
+or the precision stamped by a contextual operation matters. Use `==` when the
+number is what matters.
 
 ### `Binary::make`
 
-Builds a finite value $(-1)^{\text{negative}} \cdot c \cdot 2^{e}$ rounded to
+Builds a finite number $(-1)^{\text{negative}} \cdot c \cdot 2^{e}$ rounded to
 `precision` bits.
 
 ```mbti
 pub fn Binary::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
 ```
 
-The arguments are the coefficient, the exponent $e$ and the precision. When
-the coefficient has more significant bits than the precision it is rounded
-with `mode` (default `RoundTiesToEven`). The result is normalized. A precision
-outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is
-replaced as an overflow or underflow would be: above it by $\pm\infty$ or, for
-a mode that rounds toward zero, the largest finite magnitude
-$(2^p - 1)\,2^{e_{\max} - p + 1}$; below the smallest implementation subnormal
-$2^{e_{\min} - p + 1}$ by $\pm 0$ or, for a mode that rounds away from zero
-(and for nearest when the value exceeds half of it, or equals it under `RoundTiesToAway`), by that subnormal.
-`make` rounds precision and range together, in `mode`: a value between the
-smallest subnormal and $2^{e_{\min}}$ keeps only the bits on the subnormal
-grid $2^{e_{\min} - p + 1}$ (at least one), so the stored value never has a bit
-below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `apply_ctx`
-additionally reports the flags.
+The arguments are the coefficient, exponent $e$ and precision. If the
+coefficient has more significant bits than the precision, `make` rounds it
+with `mode`, which defaults to `RoundTiesToEven`. The result is in canonical
+form. A precision outside `1..=binary_precision_max` aborts.
+
+If a value lies outside the implementation exponent range, `make` replaces it
+as an overflow or underflow would. Above the range, it returns $\pm\infty$ or,
+for a mode that rounds toward zero, the largest finite magnitude
+$(2^p - 1)\,2^{e_{\max} - p + 1}$. Below the smallest implementation subnormal
+$2^{e_{\min} - p + 1}$, it returns $\pm 0$ or, for a mode that rounds away from
+zero, that subnormal. With `RoundTiesToEven` and `RoundTiesToAway`, it returns the subnormal when
+the value exceeds half of it. `RoundTiesToAway` also returns the subnormal when
+the value equals half.
+
+`make` rounds precision and range together in `mode`. For a value between the
+smallest subnormal and $2^{e_{\min}}$, it keeps only bits on the subnormal grid
+$2^{e_{\min} - p + 1}$, with at least one bit. The stored value therefore has
+no bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$.
+`apply_ctx` also reports the flags.
 
 ### `Binary::from_coefficient`, `Binary::from_int`
 
@@ -300,9 +317,9 @@ pub fn Binary::from_coefficient(BinCoeff, precision? : Int32, negative? : Bool) 
 pub fn Binary::from_int(Int32, precision? : Int32) -> Self
 ```
 
-The default precision is 53. The integer is rounded to nearest-even when it
-has more significant bits than the precision; `from_int(n)` is exact for every
-`Int` at the default precision.
+Both constructors default to precision 53. When the integer has more
+significant bits than the precision, the constructor rounds to nearest-even.
+`from_int(n)` is exact for every `Int` at the default precision.
 
 ### `Binary::from_double`, `Binary::from_float`
 
@@ -313,15 +330,20 @@ pub fn Binary::from_double(Double, precision? : Int32) -> Self
 pub fn Binary::from_float(Float, precision? : Int32) -> Self
 ```
 
-The defaults are 53 and 24 bits, so the conversion is exact. `from_double`
-preserves signed zeros, infinities, the NaN sign, the quiet/signaling
-distinction and the NaN payload (the fraction field without the quiet bit).
-`from_float` first widens the `Float` to a `Double` on the host and then
-decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps
-the low $p - 2$ bits of the payload of the widened binary64 encoding (the binary32 payload times
-$2^{29}$), so at the default precision 24 the payload is 0 and a signaling NaN is quiet, and on the native target a signaling `Float` NaN arrives as a quiet
-NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs
-bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is
+The default precisions are 53 and 24 bits, so these conversions are exact.
+`from_double` preserves signed zeros, infinities, the NaN sign, the quiet and
+signaling distinction, and the NaN payload (the fraction field without the
+quiet bit).
+
+`from_float` first converts the `Float` to a host `Double`, then decodes it.
+Numbers, zeros and infinities are unaffected. For a NaN, it keeps the low $p - 2$ bits of the binary64 payload after
+conversion (the binary32 payload times $2^{29}$). At the default precision
+of 24, the payload is 0 and a signaling NaN becomes quiet. On the native
+target, a signaling `Float` NaN arrives as a quiet NaN. Use
+`BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs
+bit-exactly.
+
+The value of `from_double(0.1)` is the value that the host already rounded,
 $3602879701896397 \cdot 2^{-55}$, not one tenth. Use `from_string` to round a
 decimal literal directly.
 
@@ -336,9 +358,9 @@ pub fn Binary::one(precision? : Int32) -> Self
 pub fn Binary::inf(negative? : Bool, precision? : Int32) -> Self
 ```
 
-The default precision is 53, and it must be within
-`1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` is
-$-\infty$; the default is $+\infty$, as `Decimal::inf` has it.
+The default precision is 53 and must be in `1..=binary_precision_max` (see
+`binary_precision_max`). `inf(negative=true)` returns $-\infty$; the default
+returns $+\infty$, as `Decimal::inf` does.
 
 ### `Binary::nan`, `Binary::quiet_nan`, `Binary::signaling_nan`
 
@@ -350,20 +372,21 @@ pub fn Binary::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int
 pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 ```
 
-`nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a
-nonzero payload (the default and a requested 0 both become 1).
+`nan()` returns a positive quiet NaN with payload 0. A signaling NaN has a
+nonzero payload; the default and a requested payload of 0 both become 1.
 
-A NaN of precision $p$ has $p - 2$ payload bits (IEEE 754-2019 6.2.1: the
-trailing significand field has $p - 1$ bits and the first is the quiet bit), so
-none for $p \le 2$. `quiet_nan` and `signaling_nan` abort when the payload is
-wider, and `signaling_nan` aborts for $p < 3$, where no signaling NaN exists
-(a signaling NaN needs a non-zero payload bit). Conversions never abort: a
-payload that the destination cannot hold keeps its low bits (6.2.3), and a
-signaling NaN whose payload does not survive becomes quiet. This is the rule of
-`with_precision`, `from_double`, `from_float`, `from_hex` (a `snan` literal below
-precision 3 is a quiet NaN), every operation that returns a quiet NaN under a
-context (the payload is cut to the context precision) and the interchange
-encodings.
+A NaN of precision $p$ has $p - 2$ payload bits. IEEE 754-2019 6.2.1 gives the
+trailing significand field $p - 1$ bits, the first of which is the quiet bit;
+there are no payload bits when $p \le 2$. `quiet_nan` and `signaling_nan` abort
+if the payload is too wide. `signaling_nan` also aborts when $p < 3$, because a
+signaling NaN needs a nonzero payload bit.
+
+Conversions do not abort when the payload is wider than the destination: they
+keep its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its
+payload does not survive. This rule applies to `with_precision`, `from_double`,
+`from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet
+NaN), operations that return a quiet NaN under a context (which cut the payload
+to the context precision), and interchange encodings.
 
 ## Observing a value
 
@@ -377,16 +400,19 @@ pub fn Binary::signum(Self) -> @def.Sign
 pub fn Binary::is_sign_minus(Self) -> Bool
 ```
 
-`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum`
-is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise.
-`is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\infty$
-and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and
-`@def.is_zero` work on `Binary` through the `Floating` trait; the
-methods of the next section give the same answers without the trait.
+`classify` returns `Finite`, `Infinity` or `NaN`; zero is `Finite`. `signum`
+returns `Zero` for every zero and NaN, and `Positive` or `Negative` otherwise.
+`is_sign_minus` returns the sign bit, which is set for $-0$, $-\infty$ and
+negative NaNs.
+
+The `Floating` trait supplies `@def.is_finite`, `@def.is_nan`,
+`@def.is_infinite` and `@def.is_zero` for `Binary`. The next section lists
+methods that return the same answers without the trait.
 
 ### `Binary::class_of`, `Binary::is_normal`, `Binary::is_subnormal`, `Binary::is_finite`, `Binary::is_infinite`, `Binary::is_nan`
 
-The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates.
+Return the ten-valued class of IEEE 754-2019 5.7.2 and classify normal and
+subnormal values.
 
 ```mbti
 pub fn Binary::class_of(Self, BinaryContext) -> @def.IeeeClass
@@ -397,19 +423,32 @@ pub fn Binary::is_infinite(Self) -> Bool
 pub fn Binary::is_nan(Self) -> Bool
 ```
 
-`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass):
-`SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`,
-`NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`,
-`PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when
-the exponent of its leading bit is at least the context's $e_{\min}$ and
-subnormal when it is below; a `Binary` carries no format, so the context
-decides, and `BinaryInterchangeFormat::context` gives the one of a binary
-interchange format. A context given by its precision alone has the implementation limit
-`binary_value_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly
-for the normal and subnormal classes; `is_finite` is true for zeros,
-subnormals and normals, `is_infinite` for the two infinities and `is_nan` for
-both NaNs. None of them rounds or raises a flag, and `classify` keeps its
-three-valued meaning.
+`class_of` returns a value of [`IeeeClass`](def.md#ieeeclass), as shown in the table.
+
+| Input | Class |
+| --- | --- |
+| signaling NaN | `SignalingNaN` |
+| quiet NaN | `QuietNaN` |
+| negative infinity | `NegativeInfinity` |
+| negative normal value | `NegativeNormal` |
+| negative subnormal value | `NegativeSubnormal` |
+| negative zero | `NegativeZero` |
+| positive zero | `PositiveZero` |
+| positive subnormal value | `PositiveSubnormal` |
+| positive normal value | `PositiveNormal` |
+| positive infinity | `PositiveInfinity` |
+
+A nonzero finite number is normal when the exponent of its leading bit is at
+least the context's $e_{\min}$; below that exponent, it is subnormal. `Binary`
+carries no format, so the context determines the class. Use
+`BinaryInterchangeFormat::context` for the context of a binary interchange
+format. A context given by its precision alone has the implementation limit
+`binary_value_e_min` as `e_min`.
+
+`is_normal` and `is_subnormal` return true exactly for the normal and subnormal
+classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite`
+is true for either infinity, and `is_nan` for either NaN. These methods do not
+round or raise a flag. `classify` keeps its three-valued meaning.
 
 ### `Binary::is_zero`, `Binary::is_negative_zero`, `Binary::is_quiet_nan`, `Binary::is_signaling_nan`, `Binary::nan_payload`
 
@@ -423,7 +462,7 @@ pub fn Binary::is_signaling_nan(Self) -> Bool
 pub fn Binary::nan_payload(Self) -> BinCoeff
 ```
 
-`nan_payload` is zero for a value that is not a NaN.
+`nan_payload` is zero for any value other than a NaN.
 
 ### `Binary::coefficient`, `Binary::exponent2`, `Binary::precision`
 
@@ -435,29 +474,29 @@ pub fn Binary::exponent2(Self) -> Int32
 pub fn Binary::precision(Self) -> Int32
 ```
 
-For a finite value the number is `coefficient()` $\times 2^{\texttt{exponent2()}}$
-with the sign applied. The coefficient and exponent of an infinity or NaN
-carry no meaning.
+For a finite number, apply the sign to `coefficient()` $\times
+2^{\texttt{exponent2()}}$. The coefficient and exponent returned for an
+infinity or NaN have no meaning.
 
-`coefficient()` builds a `BinCoeff` on each call for a value of at most 128
-coefficient bits (the value stores its coefficient as one or two machine
-words), so it allocates there; for a wider value it returns the stored
-coefficient. A loop that reads the coefficient of many small values pays one
-allocation per call. `Binary` has no public word reader; the result's
-`BinCoeff::to_uint64` gives the value when it fits 64 bits. The exponent of the
-leading bit, which is what most callers read the coefficient for, is
-`ilogb()`, which does not allocate.
+For a value with at most 128 coefficient bits, `coefficient()` builds a
+`BinCoeff` from the one or two machine words that store the coefficient, so the
+call allocates. A wider value returns its stored coefficient. A loop that reads
+coefficients from small values therefore allocates once per call.
+
+`Binary` has no public word reader. Use `BinCoeff::to_uint64` when the
+coefficient fits in 64 bits. To read the exponent of the leading bit without
+building the coefficient, use `ilogb()`; it does not allocate.
 
 ### `Binary::normalized`
 
-Returns the canonical representation of a finite value at its own precision.
+Return the canonical representation of a finite number at its own precision.
 
 ```mbti
 pub fn Binary::normalized(Self) -> Self
 ```
 
-Values built through the public API are already canonical, so this is the
-identity on them; infinities and NaNs are returned unchanged.
+Public constructors already return canonical values, so `normalized` leaves
+them unchanged. It also returns infinities and NaNs unchanged.
 
 ### `Binary::with_precision`
 
@@ -467,22 +506,27 @@ Rounds a value to a new working precision.
 pub fn Binary::with_precision(Self, Int32, BinaryRoundingMode) -> Self
 ```
 
-A finite value with more significant bits than the new precision is rounded
-in the given direction (a `BinaryRoundingMode`, ties to away included). Zeros and infinities only change their
-precision attribute; a NaN keeps the low $p-2$ bits of its payload at the new precision $p$, and a signaling NaN whose payload does not survive becomes quiet. No flags are reported; use `apply_ctx` when they matter.
+A finite number with more significant bits than the new precision is rounded
+in the given direction, including ties to away, as specified by
+`BinaryRoundingMode`. A zero or infinity keeps its value and takes the new
+precision. A NaN keeps the low $p-2$ bits of its payload at precision $p$; a
+signaling NaN becomes quiet if its payload does not survive.
+
+`with_precision` reports no flags. Use `apply_ctx` when flags matter.
 
 ### `Binary::ulp`
 
-Returns the unit in the last place of a finite value at its own precision.
+Returns the unit in the last place of a finite number at its own precision.
 
 ```mbti
 pub fn Binary::ulp(Self) -> Self
 ```
 
-For $x \ne 0$ with leading-bit exponent $t = \lfloor \log_2 |x| \rfloor$ the
-result is $2^{t-p+1}$. For zero it is $2^{1-p}$, and for an infinity or NaN it
-is a quiet NaN. The spacing ignores any context exponent range, so it is not
-the subnormal spacing of an IEEE format.
+For $x \ne 0$, let $t = \lfloor \log_2 |x| \rfloor$ be the exponent of its
+leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an
+infinity or NaN it returns a quiet NaN. Its spacing uses the value's precision
+and does not depend on a context's exponent range, so it is not the subnormal
+spacing of an IEEE format.
 
 ```moonbit
 ///|
