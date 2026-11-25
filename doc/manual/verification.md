@@ -719,6 +719,21 @@ The stages that stay full are listed by `verify`: the differential stage of the 
 builds a C oracle against the host's MPFR and GMP), and the three
 short stages of the GDA gate (the frontend tests and the two decTest corpora, about seven seconds).
 
+### The native tests of the quick gate
+
+`tools/native_units.py` runs `moon test --target native` of the packages as units (the six heavy
+packages one each, the rest in one unit). The key of a unit hashes every file of the packages of the
+unit itself, and of the packages it only imports every file except the test files: `_wbtest.mbt`,
+`_test.mbt` and `.mbt.md`. Moon compiles those into the test executables of their own package, never
+into a package that imports it, so an edit of a test file of `interval` reruns the `interval` unit and
+not `decimal` or `decimal_gda`. The program checks the naming against moon's own dry run: a build of a
+package that is not a test build and names a test file turns the rule off, and the key says which rule
+was used. Replayed over 30 consecutive commits of `main` (2026-11-25, 139e339b to 526b2a3e), the rule
+reduced the units that would run from 61 to 27 and the release run time of the blocks they hold from 777 s
+to 417 s. A key per test block was measured and rejected: only release builds write C that can be
+fingerprinted, every block of the heavy packages reaches a shared mutable cache, and reading the C of
+the packages above a changed one cost more than the reuse saved.
+
 ### What it does not cover
 
 The decimal gate (`just gate decimal` runs generated `moon test` fixtures on native, Wasm, Wasm-GC
