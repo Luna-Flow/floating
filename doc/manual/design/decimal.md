@@ -379,7 +379,8 @@ discarded, $Q = 0$, and only $s = D$ can reach the midpoint: the code then
 compares $C$ with $5\cdot 10^{D-1}$. A carry that turns $10^{p}-1$ into
 $10^{p}$ is removed by one exact division by 10 and an exponent increment.
 
-The finalizer raises `inexact` whenever $R \ne 0$.
+The finalizer drops trailing zeros before rounding and raises `inexact` whenever
+$R \ne 0$.
 
 #### Division
 
