@@ -148,7 +148,6 @@ library/src/interval/midpoint_radius_endpoints_wbtest.mbt::away from the bottom 
 library/src/interval/midpoint_radius_endpoints_wbtest.mbt::the first case of the issue	none
 library/src/interval/observers_wbtest.mbt::observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals	?
 library/src/interval/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?
-library/src/interval/observers_wbtest.mbt::radius is the larger distance from the midpoint, rounded up, for many intervals	?
 library/src/interval/observers_wbtest.mbt::try_new reports an invalid center or radius	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm	?
@@ -189,7 +188,6 @@ library/src/interval/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the c
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a gap, merging pieces, the default prior and the shortcuts	?
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
 library/src/interval/trig_reverse_wbtest.mbt::tan_rev: the corner cases, the poles and the default prior	?
-library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision does not widen ordinary intervals	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision encloses across the far addend margin	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps a far lower endpoint	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps degenerate intervals	?

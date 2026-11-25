@@ -56,48 +56,40 @@ test "Interval::with_precision widening keeps a wide interval exact" {
 }
 
 ///|
-/// Ordinary intervals at ordinary precisions must not grow: the result is the
-/// tightest representable enclosure, the endpoints rounded outward one by one.
+// oracle: A
+// source: end values written out, computed with Python integers and fractions (round the lower end down and the upper end up to p significant bits): 1 + 2^-52 rounds up to 1 + 2^-7, 1 + 2^-15, 1 + 2^-23 at p = 8, 16, 24 and is exact at 53 and 113 bits; 100001 (17 bits) rounds down to 99840 at 8 bits and 100000 at 16 bits and is exact from 24 bits; powers of two are exact at every precision (two intervals: [1,2], [-1/8,1/8], [2^-60,2^70]); rows are (lo, hi, p, expected lo, expected hi)
+// shares: Interval::from_bounds, Binary::from_double and Interval::equal (building and comparing only)
 test "Interval::with_precision does not widen ordinary intervals" {
-  let candidates = [
-    (with_precision_power(0, 53), with_precision_power(1, 53)),
-    (
-      @binary.Binary::one(precision=53),
-      @binary.Binary::make(
-        @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
-        -52,
-        53,
-      ),
-    ),
-    (with_precision_power(-3, 53).neg(), with_precision_power(-3, 53)),
-    (with_precision_power(-60, 24), with_precision_power(70, 24)),
-    (
-      Interval::from_int(100001, precision=53).lower_bound(),
-      with_precision_power(20, 53),
-    ),
+  let rows : Array[(Double, Double, Int, Double, Double)] = [
+    (1.0, 2.0, 8, 1.0, 2.0),
+    (1.0, 2.0, 113, 1.0, 2.0),
+    (1.0, 1.0000000000000002, 8, 1.0, 1.0078125),
+    (1.0, 1.0000000000000002, 16, 1.0, 1.000030517578125),
+    (1.0, 1.0000000000000002, 24, 1.0, 1.0000001192092896),
+    (1.0, 1.0000000000000002, 53, 1.0, 1.0000000000000002),
+    (1.0, 1.0000000000000002, 113, 1.0, 1.0000000000000002),
+    (-0.125, 0.125, 8, -0.125, 0.125),
+    (-0.125, 0.125, 113, -0.125, 0.125),
+    (8.673617379884035e-19, 1.1805916207174113e+21, 8, 8.673617379884035e-19, 1.1805916207174113e+21),
+    (8.673617379884035e-19, 1.1805916207174113e+21, 113, 8.673617379884035e-19, 1.1805916207174113e+21),
+    (100001.0, 1048576.0, 8, 99840.0, 1048576.0),
+    (100001.0, 1048576.0, 16, 100000.0, 1048576.0),
+    (100001.0, 1048576.0, 24, 100001.0, 1048576.0),
+    (100001.0, 1048576.0, 53, 100001.0, 1048576.0),
   ]
-  for pair in candidates {
-    let (lo, hi) = pair
-    let x = Interval::from_bounds(lo, hi, precision=53)
-    for precision in [8, 16, 24, 53, 113] {
-      let y = x.with_precision(precision)
-      let tightest = Interval::from_bounds(
-        x
-        .lower_bound()
-        .with_precision(
-          precision,
-          @binary.BinaryRoundingMode::RoundTowardNegative,
-        ),
-        x
-        .upper_bound()
-        .with_precision(
-          precision,
-          @binary.BinaryRoundingMode::RoundTowardPositive,
-        ),
-        precision~,
-      )
-      assert_true(y.equal(tightest))
-    }
+  for row in rows {
+    let (lo, hi, precision, expected_lo, expected_hi) = row
+    let x = Interval::from_bounds(
+      @binary.Binary::from_double(lo),
+      @binary.Binary::from_double(hi),
+      precision=53,
+    )
+    let tightest = Interval::from_bounds(
+      @binary.Binary::from_double(expected_lo, precision~),
+      @binary.Binary::from_double(expected_hi, precision~),
+      precision~,
+    )
+    assert_true(x.with_precision(precision).equal(tightest))
   }
 }
 

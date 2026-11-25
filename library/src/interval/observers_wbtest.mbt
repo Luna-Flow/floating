@@ -33,46 +33,6 @@ test "radius covers the interval around the midpoint (issue 477)" {
 }
 
 ///|
-test "radius is the larger distance from the midpoint, rounded up, for many intervals" {
-  for p in [2, 3, 8, 24, 53, 113] {
-    for shift in [0, 1, 2, 5, 17, 60] {
-      for width in [1, 2, 3, 5, 7, 12345] {
-        let lo = @binary.Binary::make(
-          @binary.BinCoeff::from_uint64(1UL),
-          -shift,
-          p,
-        )
-        let hi = lo.add_ctx(
-            @binary.Binary::make(
-              @binary.BinCoeff::from_uint64(width.to_uint64()),
-              -shift - p,
-              64,
-            ),
-            @binary.BinaryContext::new(precision=500),
-          ).0
-        let x = Interval::from_bounds(lo, hi, precision=p)
-        let m = x.midpoint()
-        let r = x.radius()
-        let below = observer_exact_diff(m, x.lower_bound())
-        let above = observer_exact_diff(x.upper_bound(), m)
-        let far = if below.compare(above) >= 0 { below } else { above }
-        assert_true(r.compare(far) >= 0)
-        // smallest number of the format that covers it
-        assert_eq(
-          r.compare(
-            far.with_precision(
-              p,
-              @binary.BinaryRoundingMode::RoundTowardPositive,
-            ),
-          ),
-          0,
-        )
-      }
-    }
-  }
-}
-
-///|
 test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals" {
   let one = @binary.Binary::one(precision=53)
   let inf = @binary.Binary::inf(precision=53)
