@@ -197,22 +197,6 @@ library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precisi
 library/src/interval/zero_sign_wbtest.mbt::12.12.8: literals of a zero bound, the point 0, a bound rounded to zero, and decorated forms	?
 library/src/interval/zero_sign_wbtest.mbt::12.12.8: midpoint_ctx returns +0 for the midpoint 0 in every context	?
 library/src/interval/zero_sign_wbtest.mbt::12.12.8: the sign of a zero from inf, sup, mid, rad, wid, mag and mig	?
-library/src/interval_checked/ieee1788_bounds_wbtest.mbt::IEEE 1788 rejects infinity singleton bounds	?
-library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked elementary mirrors preserve domain errors	?
-library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked exact construction shares Interval validation	?
-library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked trigonometric mirrors preserve certification failures	?
-library/src/interval_checked/parity_wbtest.mbt::atan2_rev1 exists on the checked tier and agrees with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::atan2_rev2 exists on the checked tier and agrees with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::from_string exists on the checked tier and agrees with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::mul_rev and mul_rev_to_pair exist on the checked tier and agree with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::pow_rev1 exists on the checked tier and agrees with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::pow_rev2 exists on the checked tier and agrees with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::sin_rev, cos_rev and tan_rev exist on the checked tier and agree with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::sqr_rev, abs_rev, cosh_rev and pown_rev exist on the checked tier and agree with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::the integer functions of Table 9.1 exist on the checked tier and agree with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::the interval operations of 1788 Table 9.1 and 10.5.6 to 10.5.7 exist on the checked tier and agree with the plain tier	?
-library/src/interval_checked/parity_wbtest.mbt::the new checked operations keep the first error	?
-library/src/interval_checked/precision_wbtest.mbt::the checked constructors return an error for a precision outside the limits	?
 library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 across the shortcut boundary agrees with atan of the quotient	C
 library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
 library/src/binary/atan_fixed_leaf_wbtest.mbt::fixed-point atan leaf at the tiny-argument threshold, both sides	E
