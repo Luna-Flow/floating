@@ -7334,7 +7334,7 @@ msgid "`sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, e
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:127
-msgid "reverse (`mulRev` two operands, the others three) or two results (`mulRevToPair`)"
+msgid "reverse (`mulRev` and `mulRevToPair` two operands, the others three) or two results (`mulRevToPair`)"
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:127
@@ -7436,7 +7436,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:30
 msgid ""
 "All seven parsers split the text at `\\n"
-"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`) is one of"
+"`, trim each line, and skip empty lines and lines starting with `#`. Fields are separated by spaces, tabs or carriage returns. Line numbers start at 1. A rounding field (in every format but `mpfr-decimal-random-v2`, and absent from the `shortest` rows of `mpfr-decimal-output-v1`) is one of"
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:34
@@ -18929,7 +18929,7 @@ msgid "Reading bounds"
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:93
-msgid "Hexadecimal bounds `0x…p…` are parsed exactly as an integer significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
+msgid "Hexadecimal bounds `0x…p…` (the significand may have a point and a sign) are parsed exactly as a significand and a binary exponent, then rounded to the working precision. Decimal bounds are read by `Binary::from_string_ctx`, which rounds the exact decimal value once to nearest-even at $p$ bits, whatever the number of digits. Rounding to nearest rather than outward is the ITF1788 convention, not an IEEE 1788 interval literal: the ITF1788 generator emits `[l,u]` as the inf-sup constructor of the target type applied to two floating constants of that type, so a decimal bound denotes the nearest number of the format. The corpus relies on this (`isSingleton [17.1, 17.1] = true`, and the `cancelPlus` cases with bound `5.1` expect the bounds computed from the nearest binary64 number). Reading such bounds outward, as `textToInterval` would, fails strict cases in the cancellation, power, atan2 and integer-power phases."
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:105
@@ -18961,7 +18961,7 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts only on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`). Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
 msgstr ""
 
 #: manual/design/frontend/itl_expr.md:157
@@ -19073,7 +19073,7 @@ msgid "`identical` on `Binary` compares the stored representation, which is cano
 msgstr ""
 
 #: manual/design/frontend/mpfr_expr.md:62
-msgid "An unbounded exponent range"
+msgid "No exponent range of its own"
 msgstr ""
 
 #: manual/design/frontend/mpfr_expr.md:64
@@ -28441,7 +28441,7 @@ msgid "A case the executor does not implement is `Unsupported`, whatever its ope
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:153
-msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. An unsupported or diagnostic case fails a phase only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
+msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus when `testdata/interval/itf1788` is missing, builds the native runner and runs the phases listed in `testdata/interval/interpreter_stages.json`. A diagnostic case fails a phase; an unsupported case fails it only with `--strict-supported`, which this command does not pass; see [verification](../../verification.md)."
 msgstr ""
 
 #: manual/tutorial/frontend/itl_expr.md:160
