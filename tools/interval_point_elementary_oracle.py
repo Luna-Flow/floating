@@ -115,7 +115,11 @@ def render(rows: list[Row], values: list[tuple[str, str]], big: bool = False) ->
         "  (",
     ]
     for (op, p, x), (lo, hi) in zip(rows, values):
-        lines.append(f"    #|{op} {p} {x} {lo} {hi}")
+        if big:
+            # the ends have up to 40,000 hexadecimal digits: one line each (a line has at most 65,535 columns)
+            lines += [f"    #|{op} {p} {x}", f"    #|{lo}", f"    #|{hi}"]
+        else:
+            lines.append(f"    #|{op} {p} {x} {lo} {hi}")
     lines += ["  )", "}", ""]
     return "\n".join(lines)
 

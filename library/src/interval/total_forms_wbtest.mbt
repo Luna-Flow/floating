@@ -6,18 +6,23 @@ fn total_forms_pow2(exponent : Int32, precision : Int32) -> @binary.Binary {
 ///|
 /// The ends of the row `op` of the table of the two extreme precisions (MPFR).
 fn total_forms_big_row(op : String) -> (@binary.Binary, @binary.Binary) {
+  // three lines per row: `op p x`, the lower end, the upper end
+  let lines : Array[String] = []
   for line in point_elementary_big_table().split("\n") {
     let line = line.to_owned()
-    if line == "" {
-      continue
+    if line != "" {
+      lines.push(line)
     }
-    let f = line.split(" ").map(fn(s) { s.to_owned() }).collect()
-    if f[0] == op {
+  }
+  let mut i = 0
+  while i + 2 < lines.length() {
+    if lines[i].split(" ").next().unwrap().to_owned() == op {
       return (
-        @binary.Binary::from_hex(f[3], 170_000).unwrap(),
-        @binary.Binary::from_hex(f[4], 170_000).unwrap(),
+        @binary.Binary::from_hex(lines[i + 1], 170_000).unwrap(),
+        @binary.Binary::from_hex(lines[i + 2], 170_000).unwrap(),
       )
     }
+    i += 3
   }
   abort("no row " + op)
 }

@@ -320,19 +320,10 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
 }
 
 ///|
-/// The general kernel GCD, without the power-of-two shortcut of `coeff_gcd`
-/// (the reference of its test).
-fn coeff_gcd_kernel(
-  left : @binary.BinCoeff,
-  right : @binary.BinCoeff,
-) -> @binary.BinCoeff {
-  @binary.BinCoeff::from_kernel(left.to_kernel().gcd(right.to_kernel()))
-}
-
-///|
 // oracle: A
 // source: written out by hand from IEEE 1788-2015 10.6.3 (isCommonInterval) and the definition of a common interval (nonempty and bounded): [-1, 1] and the point [1, 1] are common; Empty, Entire, [1, inf) and (-inf, 1] are not
 // shares: nothing
+///|
 /// `is_common_interval` once called itself after `is_bounded` was folded into
 /// it, so every caller looped forever (found by the documentation examples,
 /// which reached it through the decimal elementary functions).
