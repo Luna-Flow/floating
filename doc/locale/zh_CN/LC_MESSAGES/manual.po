@@ -4624,20 +4624,16 @@ msgid "`from_int` and `from_bigint` parse the integer's decimal string, so an in
 msgstr "`from_int` 和 `from_bigint` 会解析整数的十进制字符串，因此超过精度的整数会舍入并设置标志。`from_double` 先将二进制值转换为 17 位有效数字的十进制数，`from_float` 则转换为 9 位（足以唯一确定该二进制值），然后用 `from_decimal` 舍入到上下文中。因此，`from_double(0.1, decimal64)` 的结果是 `0.1000000000000000`，并设置 `inexact`。"
 
 #: manual/api/decimal_checked.md:108
-#, fuzzy
-#| msgid "This is a conversion in two roundings, not the correctly rounded value of the binary number. With a context precision above 17 (decimal128) the result keeps only 17 digits: `from_double(0.1, decimal128)` is `0.10000000000000001`, not the exact `0.1000000000000000055511151231257827`, and its flags describe only the second rounding. With a precision below 17 the half modes can round twice (a 17-digit midpoint created by the first rounding). For the exact binary value use `from_decimal(Decimal::from_double(x, precision=p), context)` with `p` at least the context precision plus one, or with `p = 767`, which holds every `Double` exactly."
 msgid "This is a conversion in two roundings, not the correctly rounded value of the binary number. With a context precision above 17 (decimal128) the result keeps only 17 digits: `from_double(0.1, decimal128)` is `0.10000000000000001`, not the exact `0.1000000000000000055511151231257827`, and its flags describe only the second rounding. With a precision below 17 the half modes can round twice (a 17-digit midpoint created by the first rounding). For the exact binary value use `from_decimal(Decimal::from_double(x, precision=p), context)` with `p = 767`, which holds every `Double` exactly."
-msgstr "这是经过两次舍入的转换，而不是该二进制数的正确舍入值。当上下文精度高于 17（decimal128）时，结果只保留 17 位数字：`from_double(0.1, decimal128)` 为 `0.10000000000000001`，而不是精确的 `0.1000000000000000055511151231257827`，并且其标志只描述第二次舍入。当精度低于 17 时，half 模式可能舍入两次（第一次舍入产生了一个 17 位的中点）。如需精确的二进制值，请使用 `from_decimal(Decimal::from_double(x, precision=p), context)`，其中 `p` 至少为上下文精度加一，或取 `p = 767`，它能精确容纳每个 `Double`。"
+msgstr "这是经过两次舍入的转换，而不是该二进制数的正确舍入值。当上下文精度高于 17（decimal128）时，结果只保留 17 位数字：`from_double(0.1, decimal128)` 为 `0.10000000000000001`，而不是精确的 `0.1000000000000000055511151231257827`，并且其标志只描述第二次舍入。当精度低于 17 时，half 模式可能舍入两次（第一次舍入产生了一个 17 位的中点）。如需精确的二进制值，请使用 `from_decimal(Decimal::from_double(x, precision=p), context)`，并取 `p = 767`，它能精确容纳每个 `Double`。"
 
 #: manual/api/decimal_checked.md:143
 msgid "Read the components of the state."
 msgstr "读取状态的各个分量。"
 
 #: manual/api/decimal_checked.md:152
-#, fuzzy
-#| msgid "`raised()` is $r$, the flags of the latest successful step only. `flags()` is $F$, the bitwise OR of the flags of every successful step since construction or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep the state reached before the failing step."
 msgid "`raised()` is $r$, the flags of the latest successful step only. `flags()` is $F$, the bitwise OR of the flags of every successful step since construction or the last `clear_flags`. After an error, `value` keeps the value reached before the failing step. So do `raised` and `flags` for a method without a pipeline operand. A method with pipeline operands (the binary methods and `fma`) also takes their flags: `flags` gains theirs, and `raised` is theirs when an operand holds the error, otherwise the earlier `raised` joined with theirs."
-msgstr "`raised()` 即 $r$，仅为最近一次成功步骤的标志。`flags()` 即 $F$，是自构造或上次 `clear_flags` 以来所有成功步骤标志的按位 OR。出错之后，`value`、`raised` 和 `flags` 保持失败步骤之前所达到的状态。"
+msgstr "`raised()` 即 $r$，仅为最近一次成功步骤的标志。`flags()` 即 $F$，是自构造或上次 `clear_flags` 以来所有成功步骤标志的按位 OR。出错之后，`value` 保持失败步骤之前所达到的值。没有流水线操作数的方法，其 `raised` 和 `flags` 也是如此。带有流水线操作数的方法（二元方法和 `fma`）还会取用它们的标志：`flags` 并入它们的标志；当某个操作数持有错误时，`raised` 就是它们的对应标志，否则是先前的 `raised` 与它们的对应标志之并。"
 
 #: manual/api/decimal_checked.md:162
 msgid "`result` returns the value with the accumulated flags, or the error."
@@ -4680,10 +4676,8 @@ msgid "Operations that cannot fail"
 msgstr "不会失败的运算"
 
 #: manual/api/decimal_checked.md:241
-#, fuzzy
-#| msgid "These methods apply the corresponding IEEE decimal operation to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`."
 msgid "These methods apply the corresponding IEEE decimal operation to the current value, and to the pipeline operands of the methods that take them, under the stored context of the left pipeline. A right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`."
-msgstr "这些方法在左侧流水线所存储的上下文下，对当前值和一个流水线操作数应用对应的 IEEE 十进制运算。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。"
+msgstr "这些方法在左侧流水线所存储的上下文下，对当前值应用对应的 IEEE 十进制运算；带有流水线操作数的方法，也对这些操作数应用。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。"
 
 #: manual/api/decimal_checked.md:248
 msgid "`DecimalChecked::from_decimal(x, ctx)` lifts a plain value by applying the context. A signaling NaN is quieted and raises `invalid_operation` during this lift. To use the operand exactly, as IEEE 754-2019 5.1 does (operands exact, one rounding of the result), lift it in a context wide enough to hold it, for example `decimal128`; lifting it in the context of the left pipeline rounds it first and then the result, two roundings. At three digits, half-even, `1.00 + 0.24500001` is `1.25` with the operand lifted in a wide context, and `1.24` with the operand lifted at three digits (it becomes `0.245` with `inexact`, and `1.00 + 0.245` is a tie that rounds to even); each is right for what was asked."
@@ -4736,10 +4730,8 @@ msgid "The General Decimal Arithmetic `min` and `max` operations are in `decimal
 msgstr "General Decimal Arithmetic 的 `min` 和 `max` 运算位于 `decimal_gda`，不属于这个 IEEE 包装器。"
 
 #: manual/api/decimal_checked.md:291
-#, fuzzy
-#| msgid "An operation on a state with an error returns it unchanged. Otherwise the context operation produces $(v', r') = \\mathrm{op}(v, c)$ and the new state is $(v', c, r', F \\lor r', \\text{none})$. An invalid operation returns NaN with `invalid_operation`; division by zero returns an infinity with `division_by_zero`; overflow returns an infinity or the largest finite value with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
 msgid "An operation on a state with an error returns it unchanged. Otherwise the context operation produces $(v', r') = \\mathrm{op}(v, c)$ and the new state is $(v', c, r', F \\lor r', \\text{none})$ for a method without a pipeline operand. For the binary methods and `fma`, whose operands have raised flags $r_o$ and accumulated flags $F_o$ (joined over the operands of `fma`), it is $(v', c, r' \\lor r_o, F \\lor r' \\lor F_o, \\text{none})$. An invalid operation returns NaN with `invalid_operation`; division by zero returns an infinity with `division_by_zero`; overflow returns an infinity or the largest finite value with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
-msgstr "对带有错误的状态执行运算时，原状态保持不变。否则，上下文运算产生 $(v', r') = \\mathrm{op}(v, c)$，新状态为 $(v', c, r', F \\lor r', \\text{none})$。无效运算返回带有 `invalid_operation` 的 NaN；除以零返回带有 `division_by_zero` 的无穷；上溢返回无穷或最大有限值，并设置 `overflow` 和 `inexact`，这符合 IEEE 754 十进制算术。"
+msgstr "对带有错误的状态执行运算时，原状态保持不变。否则，上下文运算产生 $(v', r') = \\mathrm{op}(v, c)$，对没有流水线操作数的方法，新状态为 $(v', c, r', F \\lor r', \\text{none})$。对于二元方法和 `fma`，设其操作数的 raised 标志为 $r_o$、累积标志为 $F_o$（`fma` 则对各操作数取并），新状态为 $(v', c, r' \\lor r_o, F \\lor r' \\lor F_o, \\text{none})$。无效运算返回带有 `invalid_operation` 的 NaN；除以零返回带有 `division_by_zero` 的无穷；上溢返回无穷或最大有限值，并引发 `overflow` 和 `inexact`，这符合 IEEE 754 十进制算术。"
 
 #: manual/api/decimal_checked.md:321
 msgid "Operations that can record an error"
@@ -4754,16 +4746,12 @@ msgid "The results follow `decimal`, including its exact result for some non-int
 msgstr "结果遵循 `decimal` 的行为，包括在细化前确定某些非整数幂的精确结果；参见[初等函数](decimal.md#elementary-functions)。例如，$0.0016^{0.25} = 0.2$ 是精确结果。`atan2` 的零和无穷操作数返回 IEEE 值；`atan2` 的参数为 $+\\infty$ 和 1 时，结果为 $\\pi/2$，且不精确。定义域违规也会返回带标志的 IEEE 值：负数的 `ln` 返回带有 `invalid_operation` 的 NaN，`tanpi(0.5)` 返回带有 `division_by_zero` 的无穷。"
 
 #: manual/api/decimal_checked.md:378
-#, fuzzy
-#| msgid "These methods record an error only when `try_*_ctx` returns `Err` with a `CertificationFailure`, meaning the correctly rounded result could not be certified within the refinement budget. In that case the new state is $(v, c, r, F, \\mathrm{Some}(e))$; the value and flags from before the step remain."
 msgid "These methods record an error only when `try_*_ctx` returns `Err` with a `CertificationFailure`, meaning the correctly rounded result could not be certified within the refinement budget. In that case the new state is $(v, c, r, F, \\mathrm{Some}(e))$; the value and flags from before the step remain. For `powr`, `pow`, `hypot`, `atan2` and `atan2pi`, which take a pipeline operand, the flags of the operand still join `raised` and `flags` as described under Observation."
-msgstr "只有当 `try_*_ctx` 返回带有 `CertificationFailure` 的 `Err` 时，这些方法才会记录错误；这表示在细化预算内无法认证正确舍入的结果。此时新状态为 $(v, c, r, F, \\mathrm{Some}(e))$；步骤之前的值和标志保持不变。"
+msgstr "只有当 `try_*_ctx` 返回带有 `CertificationFailure` 的 `Err` 时，这些方法才会记录错误；这表示在细化预算内无法认证正确舍入的结果。此时新状态为 $(v, c, r, F, \\mathrm{Some}(e))$；步骤之前的值和标志保持不变。对于带有流水线操作数的 `powr`、`pow`、`hypot`、`atan2` 和 `atan2pi`，操作数的标志仍按“观察”一节所述并入 `raised` 和 `flags`。"
 
 #: manual/api/decimal_checked.md:386
-#, fuzzy
-#| msgid "[!IMPORTANT] As an implementation limit (`DEC_MAX_MATH` in decNumber, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require context precision and exponent limits within 999,999. A context with `e_max` above 999,999, or with precision of 1,000 digits or more and no explicit `e_max`, returns NaN with `not_computed`; the `try_` forms return `Err` with a certification failure. Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` no greater than 999,999. `pow` and `pown` with an integral exponent, and `pow` with exponent `0.5`, are not restricted."
 msgid "[!IMPORTANT] As an implementation limit (`DEC_MAX_MATH` in decNumber, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require, by default, context precision and exponent limits within 999,999. A context with `e_max` above 999,999, or with precision of 1,000 digits or more and no explicit `e_max`, returns NaN with `not_computed`; the `try_` forms return `Err` with a certification failure. Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` no greater than 999,999. `pow` and `pown` with an integral exponent, and `pow` with exponent `0.5`, are not restricted in `e_max`, but like the others they are held to the context's `elementary_precision_limit` (999,999 digits by default; `with_elementary_precision_limit(None)` removes it)."
-msgstr "[!IMPORTANT] 作为实现限制（decNumber 中的 `DEC_MAX_MATH`，由 decTest 套件要求，并为 GDA Invalid context 条件所允许），这些运算要求上下文精度和指数限制均不超过 999,999。当 `e_max` 大于 999,999，或精度至少为 1,000 位且未显式指定 `e_max` 时，运算返回带有 `not_computed` 的 NaN；对应的 `try_` 形式返回带有认证失败的 `Err`。请使用 `decimal32()`、`decimal64()`、`decimal128()`，或显式指定不大于 999,999 的 `e_max`。整数指数下的 `pow` 和 `pown`，以及指数为 `0.5` 的 `pow` 不受此限制。"
+msgstr "[!IMPORTANT] 作为实现限制（decNumber 中的 `DEC_MAX_MATH`，由 decTest 套件要求，并为 GDA Invalid context 条件所允许），这些运算默认要求上下文精度和指数限制均不超过 999,999。当 `e_max` 大于 999,999，或精度至少为 1,000 位且未显式指定 `e_max` 时，运算返回带有 `not_computed` 的 NaN；对应的 `try_` 形式返回带有认证失败的 `Err`。请使用 `decimal32()`、`decimal64()`、`decimal128()`，或显式指定不大于 999,999 的 `e_max`。整数指数下的 `pow` 和 `pown`，以及指数为 `0.5` 的 `pow`，在 `e_max` 上不受此限制，但与其他运算一样受上下文的 `elementary_precision_limit` 约束（默认 999,999 位；`with_elementary_precision_limit(None)` 可取消）。"
 
 #: manual/api/decimal_gda.md:1
 msgid "decimal_gda API"
@@ -17005,7 +16993,7 @@ msgstr "累积标志是各步标志的并"
 
 #: manual/design/decimal_checked.md:213
 msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`; the `flags` of an operand can exceed its `raised`, so the equation below then holds only with the `flags` of those operands also joined on the right side). Then"
-msgstr "**定理。** 设流水线以标志 $r_0$（来自 `from_decimal`、`parse` 或数值构造器）构造，随后经历成功步骤 $1, \\dots, n$，这些步骤引发标志 $r_1, \\dots, r_n$（包括 `with_context` 和 `apply`），中间没有 `clear_flags`，且只使用普通步骤（若步骤的右操作数是流水线，还会合并该流水线的标志：将 `raised` 与其 `raised` 合并，将 `flags` 与其 `flags` 合并；操作数的 `flags` 可能超过其 `raised`，因此下式只有在右侧也合并这些操作数的 `flags` 时才成立）。那么"
+msgstr "**定理。** 设一条流水线以标志 $r_0$ 构造（来自 `from_decimal`、`parse` 或数值构造函数），随后经历成功的步骤 $1, \\dots, n$，其引发的标志为 $r_1, \\dots, r_n$（包括 `with_context` 和 `apply`），其间没有 `clear_flags`，且只含普通步骤（以流水线作右操作数的步骤还会并入该流水线的标志，`raised` 并入其 `raised`，`flags` 并入其 `flags`；操作数的 `flags` 可能多于其 `raised`，所以下面的等式此时只有在右边也并入这些操作数的 `flags` 之后才成立）。则"
 
 #: manual/design/decimal_checked.md:227
 msgid "*Proof.* Every constructor sets $r = F = r_0$, which is the case $n = 0$. If $F_{k} = \\bigvee_{i \\le k} r_i$, a successful step $k+1$ goes through `record` (or the identical update in `with_context`) and sets $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ by associativity, and $r = r_{k+1}$. $\\square$"
@@ -27418,10 +27406,8 @@ msgid "Elementary functions need a bounded context"
 msgstr "初等函数需要有界上下文"
 
 #: manual/tutorial/decimal_checked.md:164
-#, fuzzy
-#| msgid "Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …) follow the General Decimal Arithmetic restriction to precision and exponent limits within $\\pm 999\\,999$. Use one of the interchange contexts or explicit bounds; with a range above 999,999 they return NaN with `invalid_operation`:"
 msgid "Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …) follow the General Decimal Arithmetic restriction to precision and exponent limits within $\\pm 999\\,999$. Use one of the interchange contexts or explicit bounds; with a range above 999,999 they record an error (a certification failure) in the pipeline:"
-msgstr "数学函数（`exp`、`ln`、`pow`、三角函数族……）遵循通用十进制算术的限制，精度和指数界须在 $\\pm 999\\,999$ 以内。请使用某个交换格式上下文或显式的界；范围超过 999,999 时，它们会返回带 `invalid_operation` 的 NaN："
+msgstr "数学函数（`exp`、`ln`、`pow`、三角函数族……）遵循通用十进制算术的限制，精度和指数界须在 $\\pm 999\\,999$ 以内。请使用某个交换格式上下文或显式的界；范围超过 999,999 时，它们会在流水线中记录一个错误（认证失败）："
 
 #: manual/tutorial/decimal_checked.md:187
 msgid "Start from a Luna-Flow/arithmetic context"
@@ -31529,6 +31515,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 
 #~ msgid "No accuracy of its own: the flags describe exactly what `decimal` reported, including its documented deviations (for example `inexact` on the exact power $0.0016^{0.25} = 0.2$)."
 #~ msgstr "没有自身的精度保证：标志如实描述 `decimal` 所报告的内容，包括其已记录的偏差（例如对精确的幂 $0.0016^{0.25} = 0.2$ 给出 `inexact`）。"
+
 #~ msgid "It defines no accuracy of its own. Flags report what `decimal` returned, including its documented deviations, such as `inexact` on the exact power $0.0016^{0.25} = 0.2$."
 #~ msgstr "本包没有自己的精度保证。标志报告 `decimal` 返回的内容，包括其已记录的偏差，例如对精确幂 $0.0016^{0.25} = 0.2$ 引发 `inexact`。"
 
