@@ -1,18 +1,18 @@
 # binary tutorial
 
-This tutorial teaches you to compute with `Binary`, the arbitrary-precision
-binary floating-point type of `floating`: build exact values, run a
-calculation in an IEEE 754 format such as binary32 with its status flags,
-read and write interchange bits and decimal text, and call correctly rounded
-elementary functions. Every example compiles and shows its output. The
-mathematics behind the rounding rules is on the
-[design page](../design/binary.md), and every function is listed in the
-[API reference](../api/binary.md).
+Use `Binary`, the arbitrary-precision binary floating-point type in
+`floating`, to construct values exactly, run a calculation in an IEEE 754 format
+such as binary32 and inspect its flags, exchange interchange bit patterns,
+and print decimal text. Then use correctly rounded elementary functions and
+directed rounding to evaluate and enclose results. Each example compiles and
+shows its output. The
+[design page](../design/binary.md) explains the rounding rules; the
+[API reference](../api/binary.md) lists each function.
 
 | I want to | Use |
 | --- | --- |
 | build an exact binary value | [`Binary::make`, `from_int`](#build-exact-values) |
-| read decimal text without double rounding | [`Binary::from_string`](#build-exact-values) |
+| read decimal text without double rounding | [`Binary::from_string`](#read-decimal-input-without-double-rounding) |
 | compute in binary16/32/64/128 and see the IEEE flags | [`add_ctx` and the other `*_ctx` methods](#compute-in-an-ieee-format-and-keep-the-flags) |
 | decode or encode interchange bit patterns | [`BinaryInterchange`](#read-and-write-interchange-bits) |
 | convert a value from one binary format to another, with flags | `convert_format` ([Read and write interchange bits](#read-and-write-interchange-bits)) |
@@ -65,9 +65,9 @@ the IEEE flags; here `inexact` says that one third is not a binary number.
 
 ### Build exact values
 
-A finite `Binary` is $c \cdot 2^{e}$ with an integer coefficient $c$ and
-an exponent $e$. `make` takes both plus a precision; `to_string` prints the
-stored form `c p e`, which is exact.
+A finite `Binary` has value $c \cdot 2^{e}$, where $c$ is an integer
+coefficient and $e$ is an exponent. `make` builds a value from the coefficient,
+exponent and precision; `to_string` prints its exact stored form `c p e`.
 
 ```moonbit
 ///|
@@ -85,10 +85,12 @@ test "exact dyadic values" {
 }
 ```
 
-Read decimal input with `from_string`, which rounds the decimal value itself.
-Converting through a host `Double` rounds twice when you want a precision
-other than 53 bits, and `from_double` faithfully keeps the host's binary
-approximation:
+### Read decimal input without double rounding
+
+Parse decimal text with `from_string` to round the decimal value directly to
+the requested precision. Converting through a host `Double` first rounds to 53
+bits, which can double-round when you want another precision. `from_double`
+keeps the host's binary approximation:
 
 ```moonbit
 ///|
@@ -106,9 +108,9 @@ test "decimal input" {
 
 ### Compute in an IEEE format and keep the flags
 
-A `BinaryContext` fixes the precision, exponent range, rounding direction and
-tininess rule of an operation. The `*_ctx` methods return the value and the
-flags of that one operation; combine flags yourself to accumulate them.
+Set an operation's precision, exponent range, rounding direction and tininess
+rule with `BinaryContext`. Each `*_ctx` method returns the value and flags for
+that operation. Combine the flags to accumulate them across operations.
 
 ```moonbit
 ///|
@@ -151,9 +153,10 @@ test "overflow depends on the rounding direction" {
 
 ### Read and write interchange bits
 
-Use `BinaryInterchange` when a file or protocol carries binary16, binary32,
-binary64 or binary128 bit patterns. It never goes through a host `Double`,
-so signaling NaNs, payloads and binary128 survive.
+Use `BinaryInterchange` to read or write binary16, binary32, binary64 or
+binary128 bit patterns in a file or protocol. It converts the bit patterns
+without a host `Double`. This preserves signaling NaNs, payloads and binary128
+values.
 
 ```moonbit
 ///|
@@ -170,13 +173,13 @@ test "binary32 bits in and out" {
 }
 ```
 
-Encoding rounds into the format, so it returns flags as well. Decoding is
-always exact.
+Encoding rounds the value into the selected format and returns flags.
+Decoding is always exact.
 
 ### Classify a value
 
-`class_of` returns the ten-valued class of IEEE 754-2019 clause 5.7.2. A
-`Binary` has no format of its own, so the context says where the subnormal
+`class_of` returns one of the ten classes in IEEE 754-2019 5.7.2. Because a
+`Binary` has no format of its own, its context determines where the subnormal
 range starts.
 
 ```moonbit
@@ -193,15 +196,15 @@ test "classify in binary32" {
 }
 ```
 
-The same value is normal in a context with a lower `e_min`. `is_finite`,
-`is_infinite` and `is_nan` need no context.
+With a lower `e_min`, the same value is normal. `is_finite`, `is_infinite` and
+`is_nan` need no context.
 
 ### Print decimal text
 
-`to_shortest_string_ctx` gives the shortest decimal that reads back as the
-same value in a format; for binary64 it matches the host formatter.
-`to_decimal_string_ctx` gives a fixed number of significant digits, rounded
-in the context's direction, and reports whether digits were dropped.
+Use `to_shortest_string_ctx` for the shortest decimal that reads back as the
+same value in a format; in binary64 it matches the host formatter.
+`to_decimal_string_ctx` prints a fixed number of significant digits, rounded
+in the context's direction, and reports whether it dropped digits.
 
 ```moonbit
 ///|
@@ -220,21 +223,26 @@ test "decimal output" {
 }
 ```
 
-Every binary number has a finite decimal expansion, so 55 digits print the
+Every binary number has a finite decimal expansion. Here, 55 digits print the
 binary64 value of `0.1` exactly.
 
 ### Call elementary functions
 
 Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx`
-form. All three return the correctly rounded result, and all three return a
-quiet NaN with `invalid_operation` for a domain error (in `Ok` for `try_*_ctx`).
-They differ only in how an exhausted refinement budget is reported: the plain and
-`*_ctx` forms return a quiet NaN with `not_computed`, while `try_*_ctx`
-returns an `@lf_arith.ArithmeticError` that says what went wrong. The budget is
-twelve refinement steps by default; `context.with_refinement_limit(Some(n))`
-changes the count and `with_refinement_limit(None)` removes it (the working
-precision then stops at a cap of at least 8,000,000 bits), for a rare input that
-sits very close to a rounding boundary.
+form. Each returns the correctly rounded result. A domain error returns a quiet
+NaN with `invalid_operation`; `try_*_ctx` returns that value in `Ok`.
+An operation takes a refinement step when it evaluates again at higher working
+precision. Its refinement limit sets how many such steps it may take. The
+three forms differ in how they report reaching that limit.
+
+If an operation reaches its refinement limit before it can determine the
+correctly rounded result, the plain and `*_ctx` forms return a quiet NaN with
+`not_computed`. The `try_*_ctx` form returns an `@lf_arith.ArithmeticError`
+describing the failure. The default limit is twelve refinement steps. Change
+it with `context.with_refinement_limit(Some(n))`; call
+`with_refinement_limit(None)` to remove the step count limit. The working
+precision then has an upper bound of at least 8,000,000 bits. This limit
+matters for a rare input very close to a rounding boundary.
 
 ```moonbit
 ///|
@@ -256,16 +264,15 @@ test "certified elementary functions" {
 }
 ```
 
-`sinpi(0.5)` is exactly one, and the function knows it: exact results raise no
-`inexact` flag.
+`sinpi(0.5)` is exactly one, so exact results raise no `inexact` flag.
 
 ## Going further
 
 ### Enclose a real number with directed rounding
 
-Rounding toward negative and toward positive infinity brackets the exact
-result. This is how you build a guaranteed enclosure without an interval
-library:
+Rounding the exact result toward negative and positive infinity gives lower
+and upper bounds. Together, they give a guaranteed enclosure without an
+interval type:
 
 ```moonbit
 ///|
@@ -288,14 +295,14 @@ test "an enclosure of the square root of two" {
 }
 ```
 
-`interval` computes with inf-sup intervals (a lower bound and an upper bound);
-the midpoint–radius form is a view of them (`from_midpoint_radius`, `midpoint`,
-`radius`); see the [interval tutorial](interval.md).
+The [interval tutorial](interval.md) shows how `interval` computes with
+inf-sup intervals, which have a lower and upper bound. It also covers their
+midpoint–radius view: `from_midpoint_radius`, `midpoint` and `radius`.
 
 ### Use fused and exact IEEE operations
 
-`fma` rounds $x y + z$ once, so it recovers the rounding error of a product.
-`remainder` is always exact for operands of one precision.
+`fma` rounds $x y + z$ once, which lets you recover the rounding error of a
+product. `remainder` is always exact when its operands have the same precision.
 
 ```moonbit
 ///|
@@ -312,14 +319,15 @@ test "fma recovers the rounding error of a product" {
 }
 ```
 
-The two-product error term is the basis of compensated algorithms (Kahan
-summation, double-double arithmetic); the design page shows why it is exact.
+The two-product error term is the basis of compensated algorithms such as
+Kahan summation and double-double arithmetic. The design page explains why
+the error is exact.
 
 ### Watch underflow and tininess
 
-IEEE 754 lets an implementation detect tininess before or after rounding,
-and the choice changes the underflow flag for values just below the smallest
-normal number. `BinaryContext` lets you choose:
+IEEE 754 allows tininess detection before or after rounding. For a value just
+below the smallest normal number, the choice changes the underflow flag.
+Choose the rule with `BinaryContext`:
 
 ```moonbit
 ///|
@@ -342,16 +350,16 @@ test "tininess before and after rounding" {
 }
 ```
 
-The value is the same; only the flag differs. Hardware differs too: x86
-detects tininess after rounding and ARM before rounding, and TestFloat checks
-both rules.
+Both operations return the same value, but their underflow flags differ.
+Hardware differs too: x86 detects tininess after rounding and ARM before
+rounding; TestFloat checks both rules.
 
 ### Write generic code
 
-`Binary` implements the `@def.Floating` trait shared by all scalar cores of
-`floating`, and the checked and contextual traits of `@lf_arith`. Code
-written against those traits runs on `Binary`, `Decimal` and the other
-cores:
+Write a function against `@def.Floating` or the checked and contextual traits
+of `@lf_arith`. `Binary` implements these traits, which are shared by the
+scalar cores of `floating`; the same code can run on `Binary`, `Decimal` and
+the other cores:
 
 ```moonbit
 ///|
@@ -379,53 +387,64 @@ test "generic reciprocal on Binary" {
 }
 ```
 
-The contextual traits turn the IEEE `division_by_zero` and
-`invalid_operation` flags into errors and report the other flags as
-diagnostics. For a whole pipeline that stops at the first error, use
-[`binary_checked`](binary_checked.md).
+The contextual traits return errors for IEEE `division_by_zero` and
+`invalid_operation` flags, and report the other flags as diagnostics. To stop a
+whole pipeline at its first error, use the [`binary_checked`](binary_checked.md)
+tutorial.
 
-### Performance
+### Choose one precision
 
-Precision costs time roughly like integer multiplication of that many bits.
-The coefficient kernel switches automatically from schoolbook to Karatsuba,
-Toom-3 and number-theoretic transforms, so thousands of bits are practical.
-Elementary functions refine their working precision until the result is
-certain, and the first attempt succeeds for almost every input. Pick one
-precision for an algorithm instead of widening and narrowing repeatedly. The
-[performance page](../performance/binary.md) records measurements.
+Pick one precision for an algorithm instead of changing it repeatedly.
+Operation cost grows with precision roughly like the cost of
+multiplying integers with the same number of bits. The coefficient kernel
+switches automatically from schoolbook to Karatsuba, Toom-3 and
+number-theoretic transforms, so thousands of bits are practical. Elementary
+functions refine their working precision until the result is certain, and the
+first attempt succeeds for almost every input. The [performance
+page](../performance/binary.md) records measurements, and the design page
+explains the algorithms and refinement.
 
 ## Common pitfalls
 
-- **`==` is the numerical comparison of `compare`.** `1` at 53 bits is `==`
-  to `1` at 24 bits, $-0 = +0$, and every NaN equals every NaN. It is not IEEE
-  equality: use `compare_quiet_equal` for the IEEE predicate, and `identical`
-  for the structural question (sign of zero, precision, kind of NaN).
-- **`compare` puts NaN last.** It never aborts: every NaN compares equal to
-  every NaN and greater than every number, so `nan > x` is true. Use
+- **`==` uses `compare`'s numerical relation.** A 53-bit `1` is `==` to a
+  24-bit `1`; $-0 = +0$; and all NaNs compare equal. Use
+  `compare_quiet_equal` for IEEE equality; `identical` compares zero sign,
+  precision and NaN kind.
+
+- **`compare` orders NaN last.** It does not abort. Every NaN compares equal
+  to every NaN and greater than every number, so `nan > x` is true. Use
   `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be
   unordered.
-- **Plain operators ignore your format.** `x + y` works at the larger operand
-  precision with an exponent range of about $2^{\pm 2^{30}}$; it never
-  overflows at binary32 limits. Use `add_ctx` with a format context.
-- **`from_double(0.1)` is not one tenth.** It is the binary64 value the host
-  already rounded. Parse decimal text with `from_string`.
-- **`to_string` is not decimal.** It prints `3602879701896397p-55`. Use
-  `to_shortest_string` or `to_decimal_string_ctx` for people.
+
+- **Plain operators ignore your format.** `x + y` uses the larger operand
+  precision and an exponent range of about $2^{\pm 2^{30}}$. It does not
+  overflow at binary32 limits. Use `add_ctx` with a format context.
+
+- **`from_double(0.1)` is not one tenth.** The host has already rounded it to
+  binary64. Parse decimal text with `from_string`.
+
+- **`to_string` prints binary notation.** It prints
+  `3602879701896397p-55`. Use `to_shortest_string` or
+  `to_decimal_string_ctx` for decimal output.
+
 - **`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and
-  `0x3p-1` are both $1.5$, but `0x1.8` is rejected, and an inexact conversion
-  looks like an exact one; use `from_hex_ctx` (or `from_string_ctx` for decimal
-  text) when the rounding direction or the flags matter.
-- **`with_precision` hides flags.** Use `apply_ctx` when you need to know that
-  narrowing was inexact or overflowed.
-- **The sign of a zero is an input.** IEEE 754 special cases read it:
-  `atan2` of $(-0, -1)$ is $-\pi$ but of $(+0, -1)$ is $+\pi$, `tanpi(1)` is
-  $-0$, and $(-0)^{-1}$ is $-\infty$. Keep zeros as they come; normalising
-  $-0$ to $+0$ changes these results.
+  `0x3p-1` are both $1.5$, but `0x1.8` is rejected. An inexact conversion
+  looks exact. Use `from_hex_ctx` or `from_string_ctx` for decimal text when
+  rounding direction or flags matter.
+
+- **`with_precision` hides flags.** Use `apply_ctx` to check whether narrowing
+  was inexact or overflowed.
+
+- **The sign of zero is an input.** IEEE 754 special cases use it: `atan2` of
+  $(-0, -1)$ is $-\pi$, but of $(+0, -1)$ is $+\pi$; `tanpi(1)` is $-0$; and
+  $(-0)^{-1}$ is $-\infty$. Keep the sign: changing $-0$ to $+0$ changes
+  these results.
 
 ## Next steps
 
 - [binary design](../design/binary.md): the error model, how correct
-  rounding is decided, overflow and tininess, certified elementary functions.
+  rounding is decided, overflow and tininess, and how elementary functions
+  determine a correctly rounded result.
 - [binary API](../api/binary.md): every item with its special values.
 - [binary conformance](../conformance/binary.md): the TestFloat and MPFR
   evidence.
