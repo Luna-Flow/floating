@@ -250,19 +250,36 @@ test "corner selection: atan2 matches the corner-and-axis hull" {
 }
 
 ///|
+// oracle: B
+// source: the expected gcd of each pair of small integers comes from the Euclidean algorithm written in the test on Int (a different algorithm from the shift and big-integer gcd of the code); the two large cases are written out: gcd(3 * 2^200, 2^150) = 2^150 (3 is odd, so the power of two is the whole common factor), in both orders
+// shares: BinCoeff::from_uint64, coeff_shift_left, coeff_one and BinCoeff compare (constructing and comparing exact integers)
+// primitives: BinCoeff::from_uint64 and compare, exact on the integers used
 test "coeff_gcd: power-of-two shortcut equals the general gcd" {
   let nums = [1, 2, 3, 4, 6, 8, 12, 40, 96, 1024, 1536, 65536, 1000003]
   for a in nums {
     for b in nums {
       let x = @binary.BinCoeff::from_uint64(a.to_uint64())
       let y = @binary.BinCoeff::from_uint64(b.to_uint64())
-      assert_eq(coeff_gcd(x, y).compare(coeff_gcd_kernel(x, y)), 0)
+      let expected = @binary.BinCoeff::from_uint64(euclid_gcd(a, b).to_uint64())
+      assert_eq(coeff_gcd(x, y).compare(expected), 0)
     }
   }
   let big = coeff_shift_left(@binary.BinCoeff::from_uint64(3UL), 200)
   let pow = coeff_shift_left(coeff_one(), 150)
-  assert_eq(coeff_gcd(big, pow).compare(coeff_gcd_kernel(big, pow)), 0)
-  assert_eq(coeff_gcd(pow, big).compare(coeff_gcd_kernel(pow, big)), 0)
+  assert_eq(coeff_gcd(big, pow).compare(pow), 0)
+  assert_eq(coeff_gcd(pow, big).compare(pow), 0)
+}
+
+///|
+fn euclid_gcd(a : Int32, b : Int32) -> Int32 {
+  let mut x = a
+  let mut y = b
+  while y != 0 {
+    let t = x % y
+    x = y
+    y = t
+  }
+  x
 }
 
 ///|

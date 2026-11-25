@@ -230,9 +230,12 @@ test "atan2_rev1 exists on the checked tier and agrees with the plain tier" {
   let rx = parity_result(0, 9)
   assert_true(parity_value(rb.atan2_rev1(zero)) == parity_expect(0.0, 0.0))
   assert_true(
-    parity_value(rb.atan2_rev1(wide)) == @interval.Interval::entire(precision=53),
+    parity_value(rb.atan2_rev1(wide)) ==
+    @interval.Interval::entire(precision=53),
   )
-  assert_true(parity_value(rb.atan2_rev1(wide, x=rx)) == parity_expect(0.0, 9.0))
+  assert_true(
+    parity_value(rb.atan2_rev1(wide, x=rx)) == parity_expect(0.0, 9.0),
+  )
   let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
@@ -254,9 +257,12 @@ test "atan2_rev2 exists on the checked tier and agrees with the plain tier" {
     parity_value(rb.atan2_rev2(zero)) == @interval.Interval::empty(precision=53),
   )
   assert_true(
-    parity_value(rb.atan2_rev2(wide)) == @interval.Interval::entire(precision=53),
+    parity_value(rb.atan2_rev2(wide)) ==
+    @interval.Interval::entire(precision=53),
   )
-  assert_true(parity_value(rb.atan2_rev2(wide, x=rx)) == parity_expect(0.0, 9.0))
+  assert_true(
+    parity_value(rb.atan2_rev2(wide, x=rx)) == parity_expect(0.0, 9.0),
+  )
   let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )

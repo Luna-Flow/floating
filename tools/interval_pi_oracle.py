@@ -21,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 TARGET = REPO_ROOT / "library/src/interval/pi_reference_wbtest.mbt"
 FRACTION_BITS = 2048
 GUARD_BITS = 128
+RATIOS = ((1, 6), (5, 6), (1, 3), (1, 4))  # pi * a / b, the values asin(1/2), pi - asin(1/2), acos(1/2), atan(1)
 MARGIN = 1 << 16  # in units of 2^-(FRACTION_BITS + GUARD_BITS); far above the series error
 
 
@@ -69,6 +70,11 @@ def check_rounding_claim(lo: int, hi: int, max_precision: int = FRACTION_BITS) -
             raise ValueError(f"[RD(lo), RU(hi)] at p = {p} bits is {up - down} units wide, not 1")
 
 
+def ratio_bounds(lo: int, hi: int, num: int, den: int) -> tuple[int, int]:
+    """Integers (over 2^FRACTION_BITS) bounding pi * num / den from below and above."""
+    return (lo * num) // den, -((-hi * num) // den)
+
+
 def render() -> str:
     lo, hi = pi_bounds()
     check_rounding_claim(lo, hi)
@@ -76,7 +82,7 @@ def render() -> str:
         "///|",
         "// oracle-file: A",
         "// producer: tools/interval_pi_oracle.py",
-        "// input: pi by Machin's formula in Python integers, 2048 fractional bits, outward margin",
+        "// input: pi by Machin's formula in Python integers, 2048 fractional bits, outward margin; pi * a / b for the ratios 1/6, 5/6, 1/3, 1/4 by exact integer division, rounded outward",
         "// library-ran: no",
         "// shares: Binary::from_hex (reads the literal, exact at 2200 bits) and Binary::with_precision (directed rounding to p bits); ref_pi_interval(p) is [RD(pi), RU(pi)] at p bits (p <= 2048), which the generator proves for every p from 2 to 2048",
         "//   from_hex is right on these inputs by the hexadecimal reader tests of the binary package (hex.mbt and its tables), with_precision by the rounding tests of binary and by certified_pi_wbtest.mbt, which compares the result with the Python bounds for 11 precisions",
@@ -87,6 +93,32 @@ def render() -> str:
         "",
         "///|",
         "let ref_pi_hi_hex : String = \"0x%x%s\"" % (hi, "p-%d" % FRACTION_BITS),
+        "",
+        "///|",
+        "fn ref_pi_ratio(num : Int, den : Int, precision : Int32) -> Interval {",
+        "  let (lo_hex, hi_hex) = match (num, den) {",
+        *[line for a, b in RATIOS for line in (
+            "    (%d, %d) => (" % (a, b),
+            "      \"0x%x%s\"," % (ratio_bounds(lo, hi, a, b)[0], "p-%d" % FRACTION_BITS),
+            "      \"0x%x%s\"," % (ratio_bounds(lo, hi, a, b)[1], "p-%d" % FRACTION_BITS),
+            "    )",
+        )],
+        "    _ => abort(\"ref_pi_ratio: no bounds of this ratio\")",
+        "  }",
+        "  let lo = @binary.Binary::from_hex(lo_hex, 2200).unwrap()",
+        "  let hi = @binary.Binary::from_hex(hi_hex, 2200).unwrap()",
+        "  Interval::from_bounds(",
+        "    lo.with_precision(",
+        "      precision,",
+        "      @binary.BinaryRoundingMode::RoundTowardNegative,",
+        "    ),",
+        "    hi.with_precision(",
+        "      precision,",
+        "      @binary.BinaryRoundingMode::RoundTowardPositive,",
+        "    ),",
+        "    precision~,",
+        "  )",
+        "}",
         "",
         "///|",
         "fn ref_pi_interval(precision : Int32) -> Interval {",

@@ -1,119 +1,54 @@
 ///|
-/// `exp` of an interval by the route before the point shortcut: one certified call per end.
-fn Interval::interval_exp_two_calls(
-  self : Interval,
-) -> Result[Interval, @def.ArithmeticError] {
-  self.try_certified_monotone(true, fn(value, context) {
-    value.try_exp_ctx(context)
-  })
+fn point_table_hex(text : String) -> @binary.Binary {
+  @binary.Binary::from_hex(text, 2200).unwrap()
 }
 
 ///|
-/// `ln` of an interval by the route before the point shortcut.
-fn Interval::interval_ln_two_calls(
-  self : Interval,
-) -> Result[Interval, @def.ArithmeticError] {
-  if self.is_empty() {
-    return Ok(self)
+fn point_table_precision(text : String) -> Int32 {
+  let mut n = 0
+  for c in text {
+    n = n * 10 + (c.to_int() - 48)
   }
-  let zero = @binary.Binary::zero(precision=self.precision_)
-  if self.hi_.compare(zero) <= 0 {
-    return Ok(empty_interval(self.precision_))
-  }
-  let upward = @binary.BinaryContext::new(
-    precision=self.precision_,
-    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
-  )
-  let upper = self.hi_.try_ln_ctx(upward)
-  if self.lo_.compare(zero) <= 0 {
-    return upper.map(fn(result) {
-      store_interval(neg_inf(self.precision_), result.0, self.precision_)
-    })
-  }
-  let downward = @binary.BinaryContext::new(
-    precision=self.precision_,
-    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
-  )
-  self.lo_
-  .try_ln_ctx(downward)
-  .bind(fn(lower) {
-    upper.map(fn(upper_result) {
-      store_interval(lower.0, upper_result.0, self.precision_)
-    })
-  })
+  n
 }
 
 ///|
-fn point_pair_same(
-  a : Result[Interval, @def.ArithmeticError],
-  b : Result[Interval, @def.ArithmeticError],
-) -> Bool {
-  match (a, b) {
-    (Ok(x), Ok(y)) =>
-      x.is_empty() == y.is_empty() &&
-      x.precision() == y.precision() &&
-      (
-        x.is_empty() ||
-        (
-          x.lo_.classify() == y.lo_.classify() &&
-          x.hi_.classify() == y.hi_.classify() &&
-          x.lo_.precision() == y.lo_.precision() &&
-          x.hi_.precision() == y.hi_.precision() &&
-          (x.lo_.classify() != FpClass::Finite || x.lo_.compare(y.lo_) == 0) &&
-          (x.hi_.classify() != FpClass::Finite || x.hi_.compare(y.hi_) == 0)
-        )
-      )
-    (Err(x), Err(y)) => x.message == y.message
-    _ => false
-  }
-}
-
-///|
-// Oracle (level C, stated by the audit of 2026-11-21): the expected value is
-// the two-call route, which goes through `try_exp_ctx` and `try_ln_ctx` (the
-// code under test also calls them for a point) and shares `binary_exp_bounds`
-// and `binary_ln_bounds`. It proves that the point shortcut agrees with the
-// general route, not that either is right. Independent values: the test below
-// (level A, p = 53), and the MPFR rows of `testdata/binary/mpfr-4.2.2-
-// elementary.txt` for p = 24, 53, 113 and |x| up to about 2^5; nothing at
-// level A covers p = 64, 128, 200, |x| up to 2^40, or the exponent-range ends
-// used here.
-test "exp and ln of a point interval equal the two-call route" {
-  let mut seed = 5UL
-  let mut checked = 0
-  for p in [24, 53, 64, 128, 200] {
-    let values : Array[@binary.Binary] = []
-    for top in [-30, -8, -3, -1, 0, 1, 2, 3, 5, 8, 12, 20, 30] {
-      for _ in 0..<4 {
-        seed += 1UL
-        let coefficient = @binary.Binary::from_int(
-          (seed * 2654435761UL % 4294967291UL).to_int() + 3,
-          precision=p,
-        )
-        let scale = @binary.Binary::make(@binary.BinCoeff::one(), top - 31, p)
-        let value = coefficient.mul(scale)
-        values.push(if seed % 2UL == 0UL { value } else { value.neg() })
-      }
+// oracle: A
+// source: the two directed roundings (down, up) to p bits of the exact exp(x) and ln(x), computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_table_wbtest.mbt); the interval of a point must have exactly these ends; exp and ln of a point at p = 24, 53, 64, 128, 200 with magnitudes 2^-30 to 2^30, small integers and the exponent-range end 2^-1073741000 (and ln at 2^1073741000); ln of a point at or below 0 is Empty by the domain x > 0 of IEEE 1788-2015 Table 9.1
+// shares: nothing (Binary::from_hex and String::split read the table)
+test "exp and ln of a point interval are the MPFR directed bounds" {
+  let mut count = 0
+  for line in point_elementary_table().split("\n") {
+    let line = line.to_owned()
+    if line == "" {
+      continue
     }
-    for k in [-5, -2, 0, 1, 3] {
-      values.push(@binary.Binary::from_int(k, precision=p))
+    let f = line.split(" ").map(fn(s) { s.to_owned() }).collect()
+    let p = point_table_precision(f[1])
+    let x = point_table_hex(f[2])
+    let interval = Interval::from_bounds(x, x, precision=p)
+    let got = if f[0] == "exp" {
+      interval.try_exp().unwrap()
+    } else {
+      interval.try_ln().unwrap()
     }
-    values.push(@binary.Binary::make(@binary.BinCoeff::one(), 40, p))
-    values.push(@binary.Binary::make(@binary.BinCoeff::one(), 1073741000, p))
-    values.push(@binary.Binary::make(@binary.BinCoeff::one(), -1073741000, p))
-    values.push(@binary.Binary::zero(precision=p))
-    for value in values {
-      let interval = Interval::from_bounds(value, value, precision=p)
+    assert_true(got.lo_.compare(point_table_hex(f[3])) == 0, msg=line)
+    assert_true(got.hi_.compare(point_table_hex(f[4])) == 0, msg=line)
+    count += 1
+  }
+  assert_true(count >= 400)
+  for p in [24, 53, 128] {
+    for
+      x in [
+        @binary.Binary::zero(precision=p),
+        @binary.Binary::from_int(-3, precision=p),
+        @binary.Binary::make(@binary.BinCoeff::one(), -1073741000, p).neg(),
+      ] {
       assert_true(
-        point_pair_same(interval.try_exp(), interval.interval_exp_two_calls()),
+        Interval::from_bounds(x, x, precision=p).try_ln().unwrap().is_empty(),
       )
-      assert_true(
-        point_pair_same(interval.try_ln(), interval.interval_ln_two_calls()),
-      )
-      checked += 1
     }
   }
-  assert_true(checked >= 300)
 }
 
 ///|
