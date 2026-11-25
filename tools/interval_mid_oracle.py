@@ -211,6 +211,15 @@ def rows() -> list[tuple[Dyadic, Dyadic, int]]:
             b = a
         lo, hi = ordered(a, b)
         out.append((lo, hi, p))
+    # a lower bound 2^-shift and an upper bound that lies `width` units of 2^-(shift + p) above it,
+    # rounded up to a number of p bits as an interval constructor does: the center needs more bits
+    # than the format and the radius is the larger distance from the rounded midpoint
+    for p in (2, 3, 8, 24, 53, 113):
+        for shift in (0, 1, 2, 5, 17, 60):
+            for width in (1, 2, 3, 5, 7, 12345):
+                lo = (1, -shift)
+                hi = round_to(add(lo, (width, -shift - p)), p, "up")
+                out.append((lo, hi, p))
     # only intervals whose bounds are numbers of the format (a bound that is not one is rounded
     # outward by the constructor, which is not what this table tests)
     return [row for row in out if valid(row[0], row[2]) and valid(row[1], row[2])]
