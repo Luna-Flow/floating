@@ -15,6 +15,9 @@ test "decimal division rounds once near a manufactured midpoint" {
 }
 
 ///|
+// oracle: S
+// source: the operator / against div_ctx with a default-rounding context of the same precision, two entry points of one function; no expected value is written out. The block `decimal division rounds once near a manufactured midpoint` of this file pins the value 0.00018009 for the first pair at precision 5 (written out)
+// shares: Decimal::from_string, Decimal::div and Decimal::div_ctx (the code under test on both sides)
 test "decimal division keeps the context-free and contextual paths equal" {
   let cases = [
     ("15", "83294"),

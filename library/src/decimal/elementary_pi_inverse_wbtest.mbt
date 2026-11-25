@@ -396,6 +396,10 @@ fn pii_anchor_cases() -> Array[(String, String, String)] {
 }
 
 ///|
+// oracle: E
+// source: the plain Ziv loop (decimal_certified_unary_result and decimal_certified_binary_result with the interval atan, acos, try_atan2 and decimal_pi_ball), the general route that the anchored fast paths replace; value, flags and error compared
+// underneath: the general route is checked at level A on this function class by the table of elementary_pi_inverse_rows_wbtest.mbt (MPFR 4.2.2 enclosures and Niven values, tools/generate_decimal_pi_inverse_rows.py); that table covers atanPi, acosPi and atan2Pi in every rounding direction, but the anchor operands of this block are not all rows of it, so the equivalence is not proved for them by that table
+// shares: decimal_certified_unary_result, decimal_certified_binary_result, decimal_pi_ball and the interval functions (both sides use them)
 test "anchored results agree with the certified loop in all modes and ranges" {
   // The anchor paths of atanPi (large |x|), acosPi (tiny |x|) and atan2Pi
   // (extreme ratios) are one-sided neighbours of 1/2 or 1. In every mode, on
@@ -528,6 +532,10 @@ test "tiny and huge operands: relative width of the enclosure" {
 }
 
 ///|
+// oracle: E
+// source: the plain certified loop (decimal_certified_unary_result and decimal_certified_binary_result with the interval asin, atan, try_atan2 and decimal_pi_ball), the general route that the scaled evaluation replaces; value, cohort and flags compared
+// underneath: the general route is checked at level A on this function class by the table of elementary_pi_inverse_rows_wbtest.mbt (MPFR 4.2.2, tools/generate_decimal_pi_inverse_rows.py), which has asinPi, atanPi and atan2Pi rows with operands of the order of E-300; the operands E-120 and E-150 of this block are not rows of it
+// shares: decimal_certified_unary_result, decimal_certified_binary_result, decimal_pi_ball and the interval functions (both sides use them)
 test "tiny operands: the scaled evaluation equals the plain certified loop" {
   // For a tiny x the loop encloses (s / pi) (1 +- x^2) and shifts it by 10^adj;
   // the result, cohort and flags must be those of the unscaled enclosure.

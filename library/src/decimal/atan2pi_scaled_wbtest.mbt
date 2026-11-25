@@ -16,6 +16,9 @@ fn atan2pi_scaled_same(
 }
 
 ///|
+// oracle: S
+// source: identities between public functions, atan2pi(y, 1) = atanpi(y) and atan2pi(k y, k) = atan2pi(y, 1), for the same context and rounding direction; no expected value is written out. The values of atan2pi on both sides of the scaled condition are level A in the block `atan2pi generated rows` of this file (Python decimal at 450 digits, tools/generate_decimal_atan2pi_scaled_rows.py)
+// shares: pii_call, pm1_ctx, and atan2pi and atanpi themselves (the code under test on both sides)
 test "atan2pi tiny ratio equals atanpi of the ratio on both sides of the threshold" {
   for mode in pm1_modes {
     for p in [7, 16, 34] {
@@ -45,6 +48,9 @@ test "atan2pi tiny ratio equals atanpi of the ratio on both sides of the thresho
 }
 
 ///|
+// oracle: S
+// source: scale invariance, atan2pi(y E-e, x E-e) = atan2pi(y, x) (also with x negative), same context and rounding direction; no expected value is written out. The values of atan2pi at extreme exponents are level A in the block `atan2pi generated rows` of this file (rows 3E-1999996 / 2E-1999996 and 5E-5000 / 4E-5000)
+// shares: pii_call, pm1_ctx and atan2pi itself (the code under test on both sides)
 test "atan2pi with both operands of extreme exponent equals the moderate ratio" {
   for mode in pm1_modes {
     let ctx = pm1_ctx(16, mode, -383, 384, true, "b")

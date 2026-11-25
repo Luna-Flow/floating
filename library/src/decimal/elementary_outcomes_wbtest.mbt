@@ -305,6 +305,9 @@ fn elementary_outcome_table() -> Array[
 }
 
 ///|
+// oracle: A, S
+// source: A for the kinds of outcome: a domain operand gives a NaN with invalid_operation and without not_computed (IEEE 754-2019 7.2, written as the table of operands), a restricted context gives an Err or a NaN with not_computed and without invalid_operation (the documented limit of DecimalContext, not a standard clause); S for the ordinary case, which only asserts no NaN, no flag, and that the plain and the try form agree
+// shares: the 39 elementary functions of the table themselves (both forms), Decimal::from_string, Decimal::signaling_nan and DecimalContext::new
 test "decimal elementary functions: domain, could-not-compute and ordinary outcomes" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let ctx = DecimalContext::decimal64()

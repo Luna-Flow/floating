@@ -1,49 +1,4 @@
 ///|
-fn normalize_decimal_parts_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  ctx : DecimalContext,
-  apply_etiny~ : Bool = true,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx_repr(
-    negative,
-    coeff_from_bigint(abs_bigint(magnitude)),
-    exponent10,
-    ctx,
-    apply_etiny~,
-  )
-}
-
-///|
-fn huge_shift_rounded_unit(
-  coefficient : BigInt,
-  negative : Bool,
-  mode : DecimalRound,
-) -> BigInt {
-  guard !coefficient.is_zero() else { return bigint_zero() }
-  match mode {
-    Down | HalfEven | HalfUp | HalfDown => bigint_zero()
-    Up | ZeroFiveUp => bigint_one()
-    Ceiling => if negative { bigint_zero() } else { bigint_one() }
-    Floor => if negative { bigint_one() } else { bigint_zero() }
-  }
-}
-
-///|
-fn normalize_decimal_parts_math_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx(negative, magnitude, exponent10, {
-    ..ctx,
-    decimal_rounding: DecimalRound::HalfEven,
-  })
-}
-
-///|
 fn reference_ln_atanh_scaled(
   numerator : BigInt,
   denominator : BigInt,
@@ -770,125 +725,6 @@ fn decimal_div_finite_work_bigint_expected(
 }
 
 ///|
-fn decimal_mul_finite_work_bigint_expected(
-  lhs : Decimal,
-  rhs : Decimal,
-  work_ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_math_ctx(
-    lhs.negative != rhs.negative,
-    lhs.coefficient.to_bigint() * rhs.coefficient.to_bigint(),
-    lhs.exponent10 + rhs.exponent10,
-    work_ctx,
-  )
-}
-
-///|
-fn finalize_scaleb_finite_ctx_bigint_expected(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  if !value.coefficient.is_zero() && adjusted_exponent(value) > ctx.e_max {
-    return (
-      Decimal::inf(negative=value.negative, precision=value.precision_),
-      { ..DecimalFlags::new(), overflow: true, inexact: true, },
-    )
-  }
-  let tiny = etiny(ctx)
-  if value.exponent10 < tiny {
-    let shift = tiny - value.exponent10
-    let (magnitude_repr, inexact) = round_positive_decimal_div_pow10_repr(
-      value.coefficient,
-      shift,
-      value.negative,
-      ctx.decimal_rounding,
-    )
-    let mut flags = { ..DecimalFlags::new(), }
-    if inexact {
-      flags = { ..flags, inexact: true, underflow: true, }
-    }
-    let magnitude = magnitude_repr.to_bigint()
-    if magnitude_repr.is_zero() {
-      return (
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        { ..flags, },
-      )
-    }
-    if magnitude_repr.digits10() > precision {
-      return finalize_scaleb_finite_ctx_bigint_expected(
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        ctx,
-      )
-    }
-    return (
-      finite_with_exponent(value.negative, magnitude, tiny, precision),
-      flags,
-    )
-  }
-  finalize_finite_ctx(value, DecimalFlags::new(), ctx)
-}
-
-///|
-fn scaleb_finite_result_ctx_bigint_expected(
-  value : Decimal,
-  count : Int32,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  let target_exponent = BigInt::from_int(value.exponent10) +
-    BigInt::from_int(count)
-  if value.coefficient.is_zero() {
-    return (
-      finite_with_exponent(
-        value.negative,
-        bigint_zero(),
-        target_exponent.to_int(),
-        precision,
-      ),
-      DecimalFlags::new(),
-    )
-  }
-  let adjusted = target_exponent +
-    BigInt::from_int(value.coefficient.digits10() - 1)
-  if adjusted > BigInt::from_int(ctx.e_max) {
-    return (
-      Decimal::inf(negative=value.negative, precision=value.precision_),
-      { ..DecimalFlags::new(), overflow: true, inexact: true, },
-    )
-  }
-  let tiny = etiny(ctx)
-  if target_exponent < BigInt::from_int(tiny) {
-    let shift_big = BigInt::from_int(tiny) - target_exponent
-    if shift_big > BigInt::from_int(value.coefficient.digits10() + 2) {
-      let magnitude = huge_shift_rounded_unit(
-        coeff_bigint(value.coefficient),
-        value.negative,
-        ctx.decimal_rounding,
-      )
-      let flags = {
-        ..DecimalFlags::new(),
-        inexact: !value.coefficient.is_zero(),
-        underflow: !value.coefficient.is_zero(),
-      }
-      return (
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        flags,
-      )
-    }
-  }
-  finalize_scaleb_finite_ctx_bigint_expected(
-    finite_with_exponent(
-      value.negative,
-      value.coefficient.to_bigint(),
-      target_exponent.to_int(),
-      precision,
-    ),
-    ctx,
-  )
-}
-
-///|
 test "decimal div_ctx repr pipeline matches bigint divide normalization" {
   let ctx = DecimalContext::new(
     precision=6,
@@ -950,6 +786,18 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
 }
 
 ///|
+fn normalization_flags_text(flags : DecimalFlags) -> String {
+  (if flags.inexact { "x" } else { "." }) +
+  (if flags.underflow { "u" } else { "." }) +
+  (if flags.overflow { "o" } else { "." }) +
+  (if flags.division_by_zero { "z" } else { "." }) +
+  (if flags.invalid_operation { "i" } else { "." })
+}
+
+///|
+// oracle: A
+// source: expected text and flags written out from CPython decimal (libmpdec), Context(prec=6, rounding=ROUND_HALF_EVEN, Emax=20, Emin=-19, clamp=1): plus(Decimal("1234500E-3")) = 1234.50 and multiply(12.5, -0.08) = -1.000, no inexact, underflow or overflow flag; the earlier oracle called normalize_decimal_parts_math_ctx and a BigInt twin of the work function, wrappers of the code under test
+// shares: Decimal::from_string, Decimal::to_string and normalization_flags_text (they build the operands and read the results as text)
 test "decimal repr math normalization and multiplication match bigint path" {
   let work_ctx = DecimalContext::new(
     precision=6,
@@ -957,59 +805,38 @@ test "decimal repr math normalization and multiplication match bigint path" {
     rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_normalize_finite_work(value, work_ctx),
-    normalize_decimal_parts_math_ctx(
-      value.negative,
-      coeff_bigint(value.coefficient),
-      value.exponent10,
-      work_ctx,
-    ),
+  let (normalized, normalized_flags) = decimal_normalize_finite_work(
+    value, work_ctx,
   )
-
+  assert_eq(normalized.to_string(), "1234.50")
+  assert_eq(normalization_flags_text(normalized_flags), ".....")
   let lhs = Decimal::from_string("12.5", precision=8).unwrap()
   let rhs = Decimal::from_string("-0.08", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_mul_finite_work(lhs, rhs, work_ctx),
-    decimal_mul_finite_work_bigint_expected(lhs, rhs, work_ctx),
-  )
-  assert_decimal_and_flags_eq(
-    lhs.mul_ctx(rhs, work_ctx),
-    normalize_decimal_parts_ctx(
-      lhs.negative != rhs.negative,
-      lhs.coefficient.to_bigint() * rhs.coefficient.to_bigint(),
-      lhs.exponent10 + rhs.exponent10,
-      work_ctx,
-    ),
-  )
+  let (product, product_flags) = decimal_mul_finite_work(lhs, rhs, work_ctx)
+  assert_eq(product.to_string(), "-1.000")
+  assert_eq(normalization_flags_text(product_flags), ".....")
+  let (plain, plain_flags) = lhs.mul_ctx(rhs, work_ctx)
+  assert_eq(plain.to_string(), "-1.000")
+  assert_eq(normalization_flags_text(plain_flags), ".....")
 }
 
 ///|
+// oracle: A
+// source: expected text and flags written out from CPython decimal (libmpdec), Context(prec=4, rounding=ROUND_HALF_UP, Emax=6, Emin=-5, clamp=1).scaleb(Decimal("12.34"), n): n = -2 gives 0.1234 with no flag, n = -10 gives 0E-8 with inexact and underflow (the result is below Etiny = -8); ROUND_HALF_UP is RoundTiesToAway; the earlier oracle was a BigInt twin of the function under test
+// shares: Decimal::from_string, Decimal::to_string and normalization_flags_text (they build the operand and read the result as text)
 test "decimal scaleb repr construction matches bigint path" {
   let ctx = DecimalContext::new(
     precision=4,
     e_max=6,
     rounding=DecimalRoundingMode::RoundTiesToAway,
   )
-  let regular = Decimal::from_string("12.34", precision=8).unwrap()
-  let tiny = Decimal::from_string("12.34", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    scaleb_finite_result_ctx(regular, -2, ctx),
-    scaleb_finite_result_ctx_bigint_expected(regular, -2, ctx),
-  )
-  assert_decimal_and_flags_eq(
-    scaleb_finite_result_ctx(tiny, -10, ctx),
-    scaleb_finite_result_ctx_bigint_expected(tiny, -10, ctx),
-  )
-}
-
-///|
-fn normalization_flags_text(flags : DecimalFlags) -> String {
-  (if flags.inexact { "x" } else { "." }) +
-  (if flags.underflow { "u" } else { "." }) +
-  (if flags.overflow { "o" } else { "." }) +
-  (if flags.division_by_zero { "z" } else { "." }) +
-  (if flags.invalid_operation { "i" } else { "." })
+  let operand = Decimal::from_string("12.34", precision=8).unwrap()
+  let (regular, regular_flags) = scaleb_finite_result_ctx(operand, -2, ctx)
+  assert_eq(regular.to_string(), "0.1234")
+  assert_eq(normalization_flags_text(regular_flags), ".....")
+  let (tiny, tiny_flags) = scaleb_finite_result_ctx(operand, -10, ctx)
+  assert_eq(tiny.to_string(), "0E-8")
+  assert_eq(normalization_flags_text(tiny_flags), "xu...")
 }
 
 ///|
