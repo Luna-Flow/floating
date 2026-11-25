@@ -5782,7 +5782,7 @@ msgstr "适用于"
 
 #: manual/api/decimal_gda.md:1142
 msgid "`exp`, `ln`, `log10`, `power` with a non-integer exponent other than 0.5, and `power` with an integer exponent above 999,999,999 or below $-1\\,999\\,999\\,997$"
-msgstr "`exp`、`ln`、`log10`、指数为 0.5 以外的指数为 0.5 以外的非整数的 `power`，以及指数为大于 999,999,999 或小于 $-1\\,999\\,999\\,997$ 的整数的 `power`"
+msgstr "`exp`、`ln`、`log10`、指数为 0.5 以外的非整数的 `power`，以及指数为大于 999,999,999 或小于 $-1\\,999\\,999\\,997$ 的整数的 `power`"
 
 #: manual/api/decimal_gda.md:1143
 msgid "a nonzero operand has at most 999,999 digits"
@@ -27591,7 +27591,7 @@ msgstr "调用初等函数"
 
 #: manual/tutorial/decimal_gda.md:202
 msgid "`sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to even, whatever the context's rounding algorithm says. `power` with a non-integer exponent is also correctly rounded, but under the context's own rounding algorithm. `exp`, `ln`, `log10`, `power` with a non-integer exponent other than 0.5 and `power` with an integer exponent above 999,999,999 or below $-1\\,999\\,999\\,997$ only accept contexts with precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the decTest suite requires and GDA's Invalid context condition permits; the operation text of the specification states no such bound); the decimal32/64/128 presets qualify, but the default of `GdaContext::new` (exponent range ±999,999,999) does not:"
-msgstr "`sqrt`、`exp`、`ln` 和 `log10` 是正确舍入的，并且无论上下文的舍入算法如何，总是采用半值取偶舍入。非整数指数的 `power` 同样是正确舍入的，但使用上下文自身的舍入算法。`exp`、`ln`、`log10`、指数为 0.5 以外的指数为 0.5 以外的非整数的 `power`，以及指数为大于 999,999,999 或小于 $-1\\,999\\,999\\,997$ 的整数的 `power`，只接受精度、`e_max` 和 `-e_min` 都不超过 999,999 的上下文（这是 decNumber 的限制，decTest 套件要求它，GDA 的 Invalid context 条件允许它；规范的运算正文并未规定这样的界）；decimal32/64/128 预设满足这一条件，而 `GdaContext::new` 的默认值（指数范围 ±999,999,999）不满足："
+msgstr "`sqrt`、`exp`、`ln` 和 `log10` 是正确舍入的，并且无论上下文的舍入算法如何，总是采用半值取偶舍入。非整数指数的 `power` 同样是正确舍入的，但使用上下文自身的舍入算法。`exp`、`ln`、`log10`、指数为 0.5 以外的非整数的 `power`，以及指数为大于 999,999,999 或小于 $-1\\,999\\,999\\,997$ 的整数的 `power`，只接受精度、`e_max` 和 `-e_min` 都不超过 999,999 的上下文（这是 decNumber 的限制，decTest 套件要求它，GDA 的 Invalid context 条件允许它；规范的运算正文并未规定这样的界）；decimal32/64/128 预设满足这一条件，而 `GdaContext::new` 的默认值（指数范围 ±999,999,999）不满足："
 
 #: manual/tutorial/decimal_gda.md:237
 msgid "GDA 1.70, page 30 (exp) and page 31 (ln, log10), allows an inexact result to be up to 1 ulp from the correctly rounded result; this package returns the correctly rounded result. GDA 1.70, page 39 (square-root), specifies half-even rounding for an inexact square root, and this package also returns the correctly rounded result. GDA 1.70, page 35 (power), allows up to 1 ulp of error for a non-integer exponent; this package returns the correctly rounded result."
