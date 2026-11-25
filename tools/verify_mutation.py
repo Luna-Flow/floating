@@ -393,7 +393,8 @@ def _stage_mutations() -> list[StageMutation]:
             Mutation("gda-comment", gda.path, "a comment appended to a source file of the package (the key is of file content)", r"^$", "", "\n// a comment appended\n", "comment"),
             frozenset({GDA_PACKAGE_TESTS, IEEE_1788}),
         ),
-        # `binary` is imported by `decimal_gda`, by `interval` and so by the conformance executable
+        # `binary` is imported by `decimal_gda`, by `interval` and so by the conformance executable;
+        # `interval` imports `decimal_kernel` (the rows file below) and `decimal_gda` imports `interval`
         StageMutation(dataclasses.replace(binary, name="binary-edit"), frozenset({GDA_PACKAGE_TESTS, REVERSE_TRIG, IEEE_1788})),
         StageMutation(
             Mutation("oracle-program", "tools/decimal_kernel_oracle.py", "a comment appended to the oracle program", r"^$", "", "\n# a comment appended\n", "comment"),
@@ -401,7 +402,7 @@ def _stage_mutations() -> list[StageMutation]:
         ),
         # the rows file lives in `internal/decimal_kernel`, which `decimal_gda` imports: the key is of file
         # content, so the GDA package tests rerun too (coarser than code, allowed)
-        StageMutation(row, frozenset({KERNEL_ORACLE_TABLE, GDA_PACKAGE_TESTS, IEEE_1788}), must_fail=("tools/decimal_kernel_oracle.py", "--check")),
+        StageMutation(row, frozenset({KERNEL_ORACLE_TABLE, GDA_PACKAGE_TESTS, REVERSE_TRIG, IEEE_1788}), must_fail=("tools/decimal_kernel_oracle.py", "--check")),
         # `decimal` is not imported by `decimal_gda` but it is by the conformance executable
         StageMutation(
             Mutation("decimal-cli-only", "library/src/decimal/classify.mbt", "a comment appended to a source file of `decimal` (only the conformance executable imports it)", r"^$", "", "\n// a comment appended\n", "comment"),
@@ -415,8 +416,8 @@ def _stage_mutations() -> list[StageMutation]:
             frozenset({IEEE_1788}),
         ),
         StageMutation(
-            Mutation("interval-source", "library/src/interval/interval_decorated.mbt", "a comment appended to a source file of `interval` (the reverse trigonometric tests and the executable import it)", r"^$", "", "\n// a comment appended\n", "comment"),
-            frozenset({REVERSE_TRIG, IEEE_1788}),
+            Mutation("interval-source", "library/src/interval/interval_decorated.mbt", "a comment appended to a source file of `interval` (the reverse trigonometric tests, `decimal_gda` and the executable import it)", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset({GDA_PACKAGE_TESTS, REVERSE_TRIG, IEEE_1788}),
         ),
         StageMutation(
             Mutation(
