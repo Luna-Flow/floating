@@ -145,10 +145,10 @@ same bounds.
 so a caller may filter or reorder cases freely.
 
 **Totality.** Every completed statement becomes a case or a parse diagnostic,
-and `execute_case` reports every unreadable input through a disposition; it
-aborts on an interval literal that is not an interval (a lower bound above
-the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of
-`-inf`) and on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending
+and `execute_case` reports every unreadable input through a disposition, an
+interval literal that is not an interval (a lower bound above the upper bound,
+a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) included;
+it aborts on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending
 in `;` once its `//` comment is removed, so a trailing `// …` after `;` does
 not merge the statement with the next one.
 
