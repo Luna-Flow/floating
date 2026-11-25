@@ -650,6 +650,133 @@ class RunStageTest(Fixture):
         self.assertEqual(self.tally.reused, 0)
 
 
+SPEC_CONF = su.StageSpec("T: conformance", "conformance", (f"{L}/low",), ("data/",), "tools/entry.py")
+TOTAL_OK = "PASS  sets  20/20 passed\nPASS  TOTAL  22,892/22,892 passed, 0.5s\n"
+
+
+class ToolImportTest(unittest.TestCase):
+    @staticmethod
+    def reader(files: dict[str, str]):  # noqa: ANN205
+        return lambda path: files.get(path)
+
+    def test_the_closure_follows_imports_between_tool_files_only(self) -> None:
+        files = {"tools/entry.py": "import a, os\nfrom b import f\n", "tools/a.py": "import c.d\n", "tools/b.py": "x = 1\n", "tools/c.py": "", "tools/unused.py": ""}
+        found, problems = su.tool_import_closure("tools/entry.py", self.reader(files))
+        self.assertEqual((found, problems), (["tools/a.py", "tools/b.py", "tools/c.py", "tools/entry.py"], []))
+
+    def test_a_cycle_ends_and_a_missing_entry_is_a_problem(self) -> None:
+        files = {"tools/entry.py": "import a\n", "tools/a.py": "import entry\n"}
+        self.assertEqual(su.tool_import_closure("tools/entry.py", self.reader(files))[0], ["tools/a.py", "tools/entry.py"])
+        self.assertTrue(su.tool_import_closure("tools/none.py", self.reader({}))[1])
+
+    def test_an_import_in_a_function_is_followed(self) -> None:
+        files = {"tools/entry.py": "def f():\n    import a\n", "tools/a.py": ""}
+        self.assertIn("tools/a.py", su.tool_import_closure("tools/entry.py", self.reader(files))[0])
+
+    def test_dynamic_and_relative_imports_are_problems(self) -> None:
+        for text in ("__import__('a')\n", "import importlib\n", "import runpy\n", "exec('x')\n", "import os\nos.x.import_module('a')\n", "from . import a\n"):
+            _, problems = su.tool_import_closure("tools/entry.py", self.reader({"tools/entry.py": text, "tools/a.py": ""}))
+            self.assertTrue(problems, text)
+
+    def test_a_file_that_does_not_parse_is_a_problem(self) -> None:
+        self.assertTrue(su.tool_import_closure("tools/entry.py", self.reader({"tools/entry.py": "def (:\n"}))[1])
+
+
+class JudgeConformanceTest(unittest.TestCase):
+    def test_only_one_total_line_with_all_cases_passed_is_a_pass(self) -> None:
+        self.assertEqual(su.judge_conformance(0, TOTAL_OK), (0, ""))
+        self.assertEqual(su.conformance_cases(TOTAL_OK), 22892)
+        for status, text in ((1, TOTAL_OK), (0, ""), (0, "PASS  TOTAL  0/0 passed\n"), (0, "PASS  TOTAL  3/4 passed\n"), (0, TOTAL_OK + TOTAL_OK), (0, "FAIL  TOTAL  3/4 passed\n")):
+            self.assertNotEqual(su.judge_conformance(status, text)[0], 0, text)
+
+
+class ConformanceFixture(Fixture):
+    def setUp(self) -> None:
+        super().setUp()
+        for name, text in {"tools/entry.py": "import helper\n", "tools/helper.py": "x = 1\n", "data/c.itl": "c\n"}.items():
+            (self.root / name).write_text(text)
+        patcher = patch.dict(su.SPECS, {"t": (SPEC_CONF,)})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.stages = [("T: conformance", ("python3", "tools/entry.py"))]
+
+
+class ConformanceKeyTest(ConformanceFixture):
+    def changed(self, before: su.Plan, after: su.Plan) -> bool:
+        return before.keys["T: conformance"] != after.keys["T: conformance"]
+
+    def test_every_input_of_the_stage_reaches_its_key(self) -> None:
+        for name in ("library/src/def/a.mbt", "library/src/low/b.mbt", "data/c.itl", "tools/entry.py", "tools/helper.py", "moon.work", "tools/run_moon_clean_exec.sh", su.AUDIT_FILE):
+            base = self.plan()
+            self.edit(name, "# edit\n")
+            self.assertTrue(self.changed(base, self.plan()), name)
+        base = self.plan()
+        (self.root / "data/new.itl").write_text("n")
+        self.assertTrue(self.changed(base, self.plan()))
+        base = self.plan()
+        self.assertTrue(self.changed(base, self.plan(dry="another build")))
+        self.assertTrue(self.changed(base, self.plan(version="3.14.0 (other)")))
+
+    def test_what_the_stage_does_not_reach_changes_nothing(self) -> None:
+        base = self.plan()
+        self.edit("library/src/other/d.mbt")
+        self.edit("tools/unrelated.py")
+        self.edit("elsewhere/y.txt")
+        self.assertFalse(self.changed(base, self.plan()))
+
+    def test_a_cli_package_that_imports_the_file_system_is_still_keyed(self) -> None:
+        (self.root / "library/src/low/moon.pkg").write_text(f'import {{ "{L}/def" "moonbitlang/x/fs" }}\n')
+        self.assertIn("T: conformance", self.plan().keys)  # the files it reads are the declared data
+
+    def test_a_dynamic_import_or_a_missing_interpreter_or_dry_run_disables_reuse(self) -> None:
+        (self.root / "tools/helper.py").write_text("import importlib\n")
+        self.assertIn("cannot be listed", self.plan().disabled)
+        (self.root / "tools/helper.py").write_text("x = 1\n")
+        self.assertIn("T: conformance", self.plan(version="").unit_disabled)
+        self.assertIn("could not print", self.plan(dry="").disabled)
+
+
+class ConformanceRunTest(ConformanceFixture):
+    def setUp(self) -> None:
+        super().setUp()
+        original = su.unchanged
+        su.unchanged = lambda plan, unit: True  # type: ignore[assignment]
+        self.addCleanup(setattr, su, "unchanged", original)
+        self.lines: list[str] = []
+        self.tally = su.Tally()
+        self.commits: dict[str, int] = {}
+
+    def run_one(self, plan: su.Plan, execute) -> int:  # noqa: ANN001
+        return su.run_stage(plan, plan.units[0], execute, self.tally, self.commits, self.lines.append, environ={})
+
+    def test_a_pass_is_recorded_reused_and_not_executed_again(self) -> None:
+        plan = self.plan()
+        self.assertEqual(self.run_one(plan, lambda c, e: (0, TOTAL_OK)), 0)
+        self.assertIsNotNone(plan.ledger.result(plan.keys["T: conformance"]))
+        self.assertTrue(any("22892 tests" in line for line in self.lines))
+        again = self.plan()
+        again.actions["T: conformance"] = "reuse"
+        calls: list[int] = []
+        self.assertEqual(self.run_one(again, lambda c, e: calls.append(1) or (1, "")), 0)
+        self.assertEqual(calls, [])
+        self.assertTrue(any(line.startswith("REUSED") for line in self.lines))
+
+    def test_a_run_that_executed_nothing_fails_and_is_not_recorded(self) -> None:
+        plan = self.plan()
+        self.assertEqual(self.run_one(plan, lambda c, e: (0, "")), 1)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: conformance"]))
+
+    def test_a_sampled_rerun_that_fails_is_a_defect_of_the_system(self) -> None:
+        plan = self.plan()
+        plan.actions["T: conformance"] = "sample"
+        self.assertEqual(self.run_one(plan, lambda c, e: (1, "PASS  TOTAL  1/2 passed\n")), inc.EXIT_DEFECT)
+
+    def test_the_stage_gets_no_audit_environment(self) -> None:
+        seen: list[object] = []
+        self.run_one(self.plan(), lambda c, e: seen.append(e) or (0, TOTAL_OK))
+        self.assertEqual(seen, [None])
+
+
 class RealRepositoryTest(unittest.TestCase):
     def test_the_specs_name_stages_of_the_gates_and_declare_files_that_exist(self) -> None:
         import run_ci
@@ -667,6 +794,18 @@ class RealRepositoryTest(unittest.TestCase):
             for spec in specs:
                 if spec.kind == "moon":
                     self.assertEqual(su.nu.impure_imports(spec.packages, packages), [], spec.stage)
+
+    def test_the_conformance_spec_names_real_packages_and_a_closed_tool_closure(self) -> None:
+        packages = su.nu.discover_packages(su.nu.REPO_ROOT)
+        for specs in su.SPECS.values():
+            for spec in specs:
+                if spec.kind == "conformance":
+                    for package in spec.packages:
+                        self.assertIn(package, packages)
+                    read = lambda p: (su.nu.REPO_ROOT / p).read_text() if (su.nu.REPO_ROOT / p).is_file() else None  # noqa: E731
+                    files, problems = su.tool_import_closure(spec.entry, read)
+                    self.assertEqual(problems, [], spec.stage)
+                    self.assertIn("tools/conformance_cli.py", files)
 
 
 if __name__ == "__main__":

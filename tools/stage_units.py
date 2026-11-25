@@ -29,6 +29,18 @@ process. A stage that launches a process (any event that starts or replaces one)
 Python process, raises a `ctypes` event or reads outside the repository beyond the interpreter's own
 files still runs and passes, but its result is not recorded (and the report says so).
 
+Conformance stages (`kind == "conformance"`): a Python runner that builds `tooling/src/cli` with `moon`
+and runs the executable on corpus files (the interval corpus run). The key is the content of the packages
+of the stage and of everything they import inside the two modules, the module files, the build commands
+of `moon ... --dry-run` for the executable with the target directory the runner gives it, the wrapper,
+the content of the declared data directories, the content of every file of `tools/` that the entry can
+import (read from the syntax tree; a dynamic or relative import disables the unit), the `sys.version` of
+the stage's interpreter, the toolchain, the verifier and the environment. The stage is not run under the
+audit hook (it starts processes, which the hook never records), so its inputs are the declared ones and
+the packages: the executable reads only the files the runner names on its command line, and the runner
+reads the declared directories. The cli imports the file system, so the purity test of `moon` stages
+does not apply. A pass needs exit status 0 and exactly one `PASS  TOTAL  n/n passed` line with n > 0.
+
 Everything that cannot be read (a `moon.pkg`, the dry run, the toolchain) disables reuse for the
 stage, which then runs as in the gate. Stages of these gates that are not here stay full stages:
 `verify.py` lists them.
@@ -38,9 +50,11 @@ The functions are pure unless their name says they touch files or processes.
 
 from __future__ import annotations
 
+import ast
 import dataclasses
 import os
 import random
+import re
 import shutil
 import socket
 import subprocess
@@ -51,6 +65,7 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 import code_fingerprint as cf
+import conformance_cli
 import incremental as inc
 import kernel_units as ku
 import native_units as nu
@@ -61,6 +76,7 @@ AUDIT_DIR = "tools/stage_audit"
 AUDIT_FILE = f"{AUDIT_DIR}/sitecustomize.py"
 IGNORED_PARTS = ("__pycache__", ".git")
 DEFAULT_RATE = ku.DEFAULT_RATE
+BUILT_KINDS = ("moon", "conformance")  # the stage runs `moon`: the build commands and the wrapper are inputs
 
 
 @dataclasses.dataclass(frozen=True)
@@ -69,13 +85,19 @@ class StageSpec:
 
     stage: str
     kind: str  # "moon" or "python"
-    packages: tuple[str, ...] = ()  # moon: the packages whose closure is the key
-    declared: tuple[str, ...] = ()  # python: the files and directories (with a trailing `/`) the stage may read
+    packages: tuple[str, ...] = ()  # moon, conformance: the packages whose closure is the key
+    declared: tuple[str, ...] = ()  # python, conformance: the files and directories (with a trailing `/`) the stage may read
+    entry: str = ""  # conformance: the Python entry whose static import closure in `tools/` is part of the key
 
+
+CLI_PACKAGE = f"{nu.TOOLING}/cli"
 
 # Stage name -> spec. The keys of the stages of a scope that are not here run as in the gate.
 SPECS: dict[str, tuple[StageSpec, ...]] = {
     "interval": (
+        # The corpus run of the interval frontend: the Python runner builds `tooling/src/cli` and runs it on
+        # the corpus files. Kind `conformance`: see the module doc.
+        StageSpec("INTERVAL: IEEE 1788", "conformance", (CLI_PACKAGE,), ("testdata/interval/",), "tools/conformance.py"),
         # `moon test` of six white-box files of `interval`; the tests import only pure packages.
         StageSpec("INTERVAL: reverse trigonometric reference", "moon", (f"{L}/interval",)),
         # Python only: recomputes the generated corpora and the refinements from `decimal` and
@@ -145,6 +167,79 @@ def covered(path: str, declared: Sequence[str]) -> bool:
         elif path == item:
             return True
     return False
+
+
+def tool_import_closure(entry: str, read: Callable[[str], str | None]) -> tuple[list[str], list[str]]:
+    """The files of `tools/` that a Python entry can import, read from the syntax tree: `entry` and,
+    transitively, every `import x` / `from x import y` whose top-level name is a file `tools/x.py`
+    (`read(path)` gives the text of a repository-relative path or None). Returns (files, problems);
+    a dynamic import (`__import__`, `importlib`, `exec`, `eval`, `runpy`) or a relative import is a
+    problem: the closure is not complete and the unit must not be keyed. Importing more than a run
+    uses (every backend of `conformance.py`) only makes the key coarser."""
+    files: list[str] = []
+    problems: list[str] = []
+    todo = [entry]
+    while todo:
+        path = todo.pop()
+        if path in files:
+            continue
+        text = read(path)
+        if text is None:
+            problems.append(f"{path} does not exist")
+            continue
+        files.append(path)
+        try:
+            tree = ast.parse(text)
+        except SyntaxError as error:
+            problems.append(f"{path} does not parse: {error.msg}")
+            continue
+        for node in ast.walk(tree):
+            names: list[str] = []
+            if isinstance(node, ast.Import):
+                names = [a.name.split(".")[0] for a in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    problems.append(f"{path} has a relative import")
+                elif node.module:
+                    names = [node.module.split(".")[0]]
+            elif isinstance(node, ast.Name) and node.id in DYNAMIC_NAMES:
+                problems.append(f"{path} uses {node.id}")
+            elif isinstance(node, ast.Attribute) and node.attr in DYNAMIC_ATTRIBUTES:
+                problems.append(f"{path} uses .{node.attr}")
+            for name in names:
+                if name in DYNAMIC_MODULES:
+                    problems.append(f"{path} imports {name}")
+                if read(f"tools/{name}.py") is not None:
+                    todo.append(f"tools/{name}.py")
+    return sorted(files), sorted(set(problems))
+
+
+DYNAMIC_NAMES = frozenset({"__import__", "exec", "eval", "importlib", "runpy"})
+DYNAMIC_ATTRIBUTES = frozenset({"import_module", "__import__", "run_path", "run_module", "spec_from_file_location"})
+DYNAMIC_MODULES = frozenset({"importlib", "runpy", "imp", "pkgutil"})
+CONFORMANCE_TOTAL = re.compile(r"^PASS\s+TOTAL\s+([\d,]+)/([\d,]+) passed", re.MULTILINE)
+
+
+def judge_conformance(status: int, output: str) -> tuple[int, str]:
+    """(exit status, why) of a conformance run from its status and output. The runner can exit 0
+    having run nothing (no phase selected, a build that printed no summary), so a pass needs a
+    `PASS  TOTAL  n/n passed` line with n > 0 and no `FAIL` summary line."""
+    if status != 0:
+        return status, f"the runner exited {status}"
+    totals = CONFORMANCE_TOTAL.findall(output)
+    if len(totals) != 1:
+        return 1, f"the runner printed {len(totals)} `PASS  TOTAL` lines, expected one"
+    passed, total = (int(t.replace(",", "")) for t in totals[0])
+    if total == 0:
+        return 1, "the runner ran 0 cases"
+    if passed != total:
+        return 1, f"{passed} of {total} cases passed"
+    return 0, ""
+
+
+def conformance_cases(output: str) -> int:
+    totals = CONFORMANCE_TOTAL.findall(output)
+    return int(totals[0][1].replace(",", "")) if totals else 0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -277,13 +372,13 @@ def key_parts(
         "content": content,
         "declared": inc.digest(*unit.spec.declared),
         "packages": inc.digest(*unit.spec.packages),
-        "modules": modules if unit.spec.kind == "moon" else "",
-        "compile": inc.digest(compile_commands) if unit.spec.kind == "moon" else "",
-        "wrapper": wrapper if unit.spec.kind == "moon" else "",
+        "modules": modules if unit.spec.kind in BUILT_KINDS else "",
+        "compile": inc.digest(compile_commands) if unit.spec.kind in BUILT_KINDS else "",
+        "wrapper": wrapper if unit.spec.kind in BUILT_KINDS else "",
         "hook": hook,
         "toolchain": toolchain,
         "verifier": verifier,
-        "python": python_version if unit.spec.kind == "python" else "",
+        "python": python_version if unit.spec.kind in ("python", "conformance") else "",
         "ambient": inc.digest(ambient),
     }
     return inc.digest(*(f"{k}={v}" for k, v in sorted(parts.items()))), parts
@@ -338,13 +433,18 @@ def hook_files(repo_root: Path) -> list[Path]:
 def content_files(repo_root: Path, unit: StageUnit, packages: Mapping[str, nu.Package]) -> list[Path]:
     """The files whose content is the key of the unit, sorted."""
     files: list[Path] = []
-    if unit.spec.kind == "moon":
+    if unit.spec.kind in BUILT_KINDS:
         directories: list[str] = []
         for member in unit.spec.packages:
             directories += nu.unit_files(nu.Unit(unit.name, (member,), True), packages)
         files += nu.directory_files(repo_root, sorted(set(directories)))
         files += nu.module_files(repo_root)
-    else:
+    if unit.spec.kind == "conformance":
+        tools, problems = tool_import_closure(unit.spec.entry, lambda p: (repo_root / p).read_text(encoding="utf-8") if (repo_root / p).is_file() else None)
+        if problems:
+            raise ValueError(f"the tools of {unit.name} cannot be listed: {problems[:3]}")
+        files += [repo_root / p for p in tools]
+    if unit.spec.kind in ("python", "conformance"):
         for item in unit.spec.declared:
             target = repo_root / item.rstrip("/")
             if item.endswith("/"):
@@ -409,7 +509,7 @@ def make_plan(
                     plan.unit_disabled[unit.name] = f"its closure imports {bad}: tests could read files or the environment"
                     continue
             python_version = ""
-            if unit.spec.kind == "python":
+            if unit.spec.kind in ("python", "conformance"):
                 python_version = ask_version(unit.command)
                 if not python_version:
                     plan.unit_disabled[unit.name] = f"its interpreter '{unit.command[0] if unit.command else ''}' could not be asked for its version"
@@ -417,8 +517,10 @@ def make_plan(
             files = content_files(repo_root, unit, plan.packages)
             plan.digests[unit.name] = cf.hash_tree(files, repo_root)
             compile_commands = ""
-            if unit.spec.kind == "moon":
-                compile_commands = ku.dry_run_commands(unit.command, repo_root, run)
+            if unit.spec.kind in BUILT_KINDS:
+                compile_commands = (
+                    conformance_build_dry_run(repo_root, run) if unit.spec.kind == "conformance" else ku.dry_run_commands(unit.command, repo_root, run)
+                )
                 if not compile_commands:
                     plan.disabled = f"moon could not print the build of '{unit.name}'"
                     return plan
@@ -436,6 +538,20 @@ def make_plan(
     for unit in units:
         plan.actions[unit.name] = drawn.get(unit.name, "run")
     return plan
+
+
+def conformance_build_dry_run(repo_root: Path, run: Callable[..., str] | None = None) -> str:
+    """The commands `moon` would run to build the conformance executable (`conformance_cli.build_command`
+    with the target directory the runner gives it), paths made relative; '' when moon cannot print them."""
+    execute = run or _run_in
+    environment = dict(os.environ, CODEX_MOON_TARGET_DIR=str(conformance_cli.SHARED_TARGET_DIR))
+    output = execute([*conformance_cli.build_command(), "--dry-run"], cwd=repo_root, env=environment)
+    return "\n".join(l.replace(str(repo_root), "<repo>") for l in output.splitlines() if l.strip())
+
+
+def _run_in(command: Sequence[str], cwd: Path, env: Mapping[str, str]) -> str:
+    result = subprocess.run(list(command), cwd=cwd, env=dict(env), capture_output=True, text=True)
+    return result.stdout + result.stderr if result.returncode == 0 else ""
 
 
 def unchanged(plan: Plan, unit: StageUnit) -> bool:
@@ -524,6 +640,9 @@ def run_stage(
         if unit.spec.kind == "moon":
             status, why = nu.judge(raw_status, output)
             tests = nu.test_count(output)
+        elif unit.spec.kind == "conformance":
+            status, why = judge_conformance(raw_status, output)
+            tests = conformance_cases(output)
         else:
             status, why, tests = raw_status, f"exit {raw_status}", 0
         audit = parse_audit(log.read_text(encoding="utf-8") if log else "")
