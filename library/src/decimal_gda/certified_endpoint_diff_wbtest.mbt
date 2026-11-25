@@ -54,7 +54,7 @@ fn endpoint_pattern_bytes(pattern : String, length : Int32) -> Bytes {
 ///|
 // oracle: B, A
 // source: the digits of the integer are given by core `BigInt::to_string` (a decimal conversion of another implementation, MoonBit core) for random byte strings, leading zero bytes, and powers of two with their neighbours; and, at the edges, by the rows `limb_edge_rows` (digit count, first and last 20 digits of CPython integers) for lengths 1 to 20000 bytes including 8917 and 8918, where the capacity computation of the old code wrapped
-// shares: `finite_with_exponent_repr` and `Decimal::to_string` print the result (both have level A tests of their own); `dec_coeff_zero` for the empty string
+// shares: `finite_with_exponent_repr` and `Decimal::to_string` print the result (the printers of the result; the expected text is the CPython text); `dec_coeff_zero` for the empty string
 // primitives: Decimal::to_string, finite_with_exponent_repr
 test "decimal limbs of big-endian bytes equal the big integer conversion" {
   let state = Ref(0x9E3779B97F4A7C15UL)
