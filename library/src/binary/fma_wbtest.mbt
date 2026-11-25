@@ -210,6 +210,10 @@ fn fma_reference(
 }
 
 ///|
+// oracle: B
+// source: fma_reference: the exact product of the two coefficients added to the third operand after aligning the exponents, with one rounding by Binary::apply_ctx (a different algorithm from the fused kernel under test), on 4000 operand triples from a fixed linear congruential sequence, five directions, precision 24 and 53, e_max 1023
+// shares: Binary::make, finite_normalized and Coeff arithmetic build and add the exact sum; Binary::apply_ctx rounds it; the fused fma_ctx is the code under test
+// primitives: Coeff::mul, Coeff::add, Coeff::sub_checked, Coeff::shift_left (level A through the coefficient tests), Binary::apply_ctx (rounds through binary_round_dyadic; level A through round_rows_wbtest.mbt)
 test "fma agrees with an exact-sum reference on random operands" {
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,

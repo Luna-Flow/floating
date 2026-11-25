@@ -472,6 +472,9 @@ test "asin single evaluation contains the high-precision old enclosure" {
 }
 
 ///|
+// oracle: S
+// source: old_atan2_finite_bounds, the previous enclosure kept in this file, at w + 128 bits as the containing reference and at w bits for the width check; agreement of the new and the old kernel
+// shares: binary_atan2_finite_bounds (the code under test), old_atan2_finite_bounds, atan_check_contains and atan_check_width
 test "atan2 single evaluation contains the high-precision old enclosure" {
   let values = atan_corpus_thinned()
   for w in [64] {
@@ -518,6 +521,9 @@ fn atan_ziv_attempts(
 }
 
 ///|
+// oracle: S
+// source: the number of Ziv attempts and series evaluations of the new and the old enclosure code on the same corpus; the old code is kept in this file as the baseline; no value is compared, the assertion is that the new one is never worse
+// shares: atan_ziv_attempts, binary_atan_finite_bounds, old_atan_finite_bounds, binary_asin_bounds, old_asin_bounds (all counted, none checked for value)
 test "atan and asin Ziv attempts and series counts, new versus old" {
   let mut new_attempts = 0
   let mut old_attempts = 0

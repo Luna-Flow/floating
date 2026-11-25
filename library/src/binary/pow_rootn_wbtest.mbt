@@ -25,6 +25,10 @@ fn assert_exact_result(
 }
 
 ///|
+// oracle: A, B
+// source: rootn(8, -3) = 1/2, rootn(-8, -3) = -1/2 and rootn(2^130, 65) = 4 written out (exact, no flags); 27^(-1/3) = 1/3 is Binary::one() divided by 3 in binary64 with Binary::div_ctx (inexact)
+// shares: pow_rootn_dyadic builds 1/2 and 2^130; assert_exact_result compares value and flags; Binary::div_ctx for 1/3
+// primitives: Binary::div_ctx (level A through arith_rows_wbtest.mbt)
 test "Binary rootn returns exact results for negative degrees" {
   let half = pow_rootn_dyadic(1UL, -1)
   for context in pow_rootn_contexts() {

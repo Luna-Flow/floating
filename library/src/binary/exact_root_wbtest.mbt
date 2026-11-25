@@ -69,6 +69,10 @@ test "binary_exact_nth_root_coefficient detects wide perfect powers" {
 }
 
 ///|
+// oracle: A, B
+// source: the exact roots by construction: the argument is the square, cube or fourth power of the 3001-bit coefficient 2^3000 + 1 (built with Coeff::square and Coeff::pow_nat), so the root is the coefficient that was squared; the reciprocal case is Binary::one() divided by that root with Binary::div_ctx
+// shares: Coeff::square, Coeff::pow_nat and Binary::make_coeff build the arguments; assert_exact_result compares value and an empty flag set; Binary::div_ctx for the reciprocal
+// primitives: Coeff::square and Coeff::pow_nat (level A through the coefficient tests), Binary::div_ctx (level A through arith_rows_wbtest.mbt)
 test "Binary rootn and pow return exact roots of coefficients over 4096 bits" {
   let root = Coeff::one().shift_left(3000).add(Coeff::one())
   let expected = Binary::make_coeff(root, 0, 3001)

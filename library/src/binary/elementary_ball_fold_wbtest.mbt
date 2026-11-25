@@ -121,6 +121,9 @@ test "exp burst kernel equals the kernel with two products per chunk" {
 }
 
 ///|
+// oracle: S
+// source: burst_trig_fold, the fold of both components, run on the same random balls; the claim is that the one-component forms agree with it
+// shares: burst_trig_fold_one and burst_trig_fold (both are the code under test), Binary::compare
 test "trig fold of one component equals the component of the full fold" {
   let mut seed = 9001UL
   for f in [128, 1100, 2200] {

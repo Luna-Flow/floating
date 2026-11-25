@@ -51,6 +51,9 @@ fn pow_contexts() -> Array[BinaryContext] {
 }
 
 ///|
+// oracle: A, S
+// source: written out: pow(qNaN, 0) = 1 and pow(+1, qNaN) = 1 without a flag (IEEE 754-2019 9.2.1), any other quiet NaN case returns a quiet NaN with the sign kept and no flag, a signaling NaN gives a quiet NaN with invalid and no other flag (6.2); the payload expected is nan_payload_in, which calls binary_convert_nan, so the payload truncation is a consistency claim (S)
+// shares: nan_payload_in (calls binary_convert_nan, the NaN conversion that the code under test also uses), pow_nan_operand builds the operands, Binary::to_string, the flag accessors
 test "pow signals a signaling NaN base or exponent in every shortcut" {
   let others : Array[(String, Binary)] = [
     ("0", Binary::zero()),
@@ -113,6 +116,9 @@ test "pow signals a signaling NaN base or exponent in every shortcut" {
 }
 
 ///|
+// oracle: A, S
+// source: written out: pow(qNaN, 0) = 1 and pow(+1, qNaN) = 1 without a flag (IEEE 754-2019 9.2.1), any other quiet NaN case returns a quiet NaN with the sign kept and no flag, a signaling NaN gives a quiet NaN with invalid and no other flag (6.2); the payload expected is nan_payload_in, which calls binary_convert_nan, so the payload truncation is a consistency claim (S)
+// shares: nan_payload_in (calls binary_convert_nan, the NaN conversion that the code under test also uses), pow_nan_operand builds the operands, Binary::to_string, the flag accessors
 test "pow keeps its quiet NaN shortcuts and propagation" {
   let q = pow_nan_operand("-qnan", 9UL, 53)
   for context in pow_contexts() {

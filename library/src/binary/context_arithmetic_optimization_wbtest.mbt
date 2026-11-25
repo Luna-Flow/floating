@@ -203,6 +203,9 @@ test "optimized binary split shift matches remainder oracle" {
 }
 
 ///|
+// oracle: S
+// source: binary_add_aligned_legacy_for_test, the earlier add path kept in this file, run on the same operands (exact alignment of the two coefficients and one rounding); the claim is agreement of two code paths, not correctness against an external value
+// shares: binary_round_dyadic and Coeff arithmetic (both paths); Binary::add_ctx is the code under test
 test "far exponent addition matches exact alignment around cutoff" {
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,
@@ -282,6 +285,9 @@ test "wide exponent gaps stay on bounded coefficient paths" {
 }
 
 ///|
+// oracle: S
+// source: binary_round_dyadic_legacy_for_test, the earlier control flow kept in this file, run on the same magnitudes, exponents and contexts; agreement of two code paths
+// shares: BinaryContext and the rounding modes; the previous code path and the current one both build on Coeff arithmetic
 test "optimized dyadic rounding matches legacy control flow" {
   let wide = Coeff::one()
     .shift_left(257)
@@ -332,6 +338,9 @@ test "optimized dyadic rounding matches legacy control flow" {
 }
 
 ///|
+// oracle: S
+// source: binary_round_rational_legacy_for_test, the earlier control flow kept in this file, run on the same numerators, denominators and contexts; agreement of two code paths
+// shares: BinaryContext and the rounding modes; the previous code path and the current one both build on Coeff arithmetic
 test "optimized rational rounding reuses equivalent target split" {
   let wide_numerator = Coeff::one()
     .shift_left(257)
@@ -388,6 +397,10 @@ test "optimized rational rounding reuses equivalent target split" {
 }
 
 ///|
+// oracle: B
+// source: binary_pow_exact_magnitude: the exact power of the coefficient, rounded once (a different algorithm from the leading-bit chain under test), on four coefficients up to 130 bits, exponents -15 to 15, all five directions, binary16 with both tininess rules
+// shares: binary_exponent_magnitude reads the exponent; the pow under test and the reference both end in the rounding functions
+// primitives: Coeff::pow_nat, binary_round_dyadic (level A through round_rows_wbtest.mbt), binary_round_rational (level A through arith_rows_wbtest.mbt, division)
 test "single-track pow matches exact oracle across rounding modes" {
   let coefficients = [
     Coeff::from_uint64(3UL),
@@ -446,6 +459,9 @@ test "single-track pow matches exact oracle across rounding modes" {
 }
 
 ///|
+// oracle: S
+// source: the operation counters of binary_pow_magnitude_with_stats on one input; the limits (at most 4, 4, 0, 2 and no fallback) are the design bounds chosen when the chain was written; no value is compared
+// shares: binary_pow_magnitude_with_stats (the code under test) and its stats summary
 test "single-track pow uses leading-bit chain without ordinary fallback" {
   let base = finite_from_parts(
     false,
@@ -471,6 +487,10 @@ test "single-track pow uses leading-bit chain without ordinary fallback" {
 }
 
 ///|
+// oracle: B
+// source: binary_pow_exact_magnitude: the exact power of the coefficient, rounded once (a different algorithm from the leading-bit chain under test), on 256 operands from a fixed linear congruential sequence
+// shares: binary_exponent_magnitude reads the exponent; the pow under test and the reference both end in the rounding functions
+// primitives: Coeff::pow_nat, binary_round_dyadic (level A through round_rows_wbtest.mbt), binary_round_rational (level A through arith_rows_wbtest.mbt, division)
 test "single-track pow fixed-seed differential" {
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,

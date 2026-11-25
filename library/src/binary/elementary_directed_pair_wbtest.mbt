@@ -52,6 +52,9 @@ fn directed_pair_agrees(
 }
 
 ///|
+// oracle: S
+// source: the two calls try_exp_ctx toward negative and toward positive infinity on the same operand; the claim is that the pair function agrees with them (an Err must carry the same message)
+// shares: try_exp_ctx (the code under test, as the reference and inside the pair), directed_pair_agrees
 test "exp directed pair equals the two directed calls on every operand" {
   let mut ok = 0
   let mut errors = 0
@@ -84,6 +87,9 @@ test "exp directed pair equals the two directed calls on every operand" {
 }
 
 ///|
+// oracle: S
+// source: the two calls try_ln_ctx toward negative and toward positive infinity on the same operand; the claim is that the pair function agrees with them (an Err must carry the same message)
+// shares: try_ln_ctx (the code under test, as the reference and inside the pair), directed_pair_agrees
 test "ln directed pair equals the two directed calls on every operand" {
   let mut ok = 0
   let mut errors = 0

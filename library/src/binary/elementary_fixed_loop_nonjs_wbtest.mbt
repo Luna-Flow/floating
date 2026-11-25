@@ -150,6 +150,9 @@ fn fixed_ln_inputs(
 }
 
 ///|
+// oracle: S
+// source: binary_ln_artanh_loop_reference, the earlier Coeff loop kept in this file, on the same exact values; agreement of two implementations of one recurrence
+// shares: the artanh recurrence and Coeff arithmetic (both loops)
 test "fixed ln bounds equal the Coeff loop on exact values" {
   let seed = Ref(0x2545F4914F6CDD1DUL)
   let top_zero = Ref(0)

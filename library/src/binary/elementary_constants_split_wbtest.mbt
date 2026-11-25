@@ -123,6 +123,9 @@ test "dropping terms from the splitting breaks containment" {
 }
 
 ///|
+// oracle: S
+// source: the direct computations binary_pi_series_compute, binary_pi_split_bounds and binary_ln2_split_bounds named by their threshold; the claim is which kernel the dispatcher runs, not the value
+// shares: binary_constant_test_same compares the enclosures; the dispatchers and kernels are the code under test
 test "constants dispatch to the splitting from the threshold" {
   let below = binary_constants_split_min_precision - 1
   let at = binary_constants_split_min_precision

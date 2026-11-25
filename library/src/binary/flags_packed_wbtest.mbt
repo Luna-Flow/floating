@@ -38,6 +38,9 @@ fn packed_flags_from(mask : Int32) -> BinaryFlags {
 }
 
 ///|
+// oracle: A
+// source: the six booleans written from the bits of the mask (inexact 1, underflow 2, overflow 4, division by zero 8, invalid 16, not computed 32), the bitwise or of two masks, and the TestFloat mask as the five low bits; the printed form is compared with the derived Debug text of a record of six booleans (the previous representation, PackedFlagsReference)
+// shares: packed_flags_from builds the flags from the mask (the code under test), BinaryFlags accessors, combine, == and to_testfloat_bits, @debug.to_string of both sides
 test "every combination of the six flags reads, combines and prints as the record did" {
   for mask in 0..<64 {
     let flags = packed_flags_from(mask)

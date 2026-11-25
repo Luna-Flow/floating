@@ -247,6 +247,9 @@ test "rootn by an integer root: perfect powers plus or minus one, both sides of 
 }
 
 ///|
+// oracle: S
+// source: rootn_compare against the certified loop (binary_rootn_certified_loop) on the same operand; the claim is that the integer-root path agrees with the loop on both sides of each bound and at the exponent limits
+// shares: binary_rootn_certified_loop and try_rootn_ctx (the code under test, on both sides), Binary::make_coeff builds the operands
 test "rootn by an integer root at the exponent limits and the subnormal boundary" {
   let contexts = rootn_small_contexts()
   let top_limits = [
@@ -303,6 +306,9 @@ test "rootn by an integer root at the exponent limits and the subnormal boundary
 }
 
 ///|
+// oracle: S
+// source: the certified loop (binary_rootn_certified_loop) on the same operand; the claim is that large degrees still take it
+// shares: binary_rootn_certified_loop and try_rootn_ctx (the code under test, on both sides)
 test "rootn of large degrees keeps the certified loop" {
   let value = Binary::from_double(7.5, precision=53)
   let context = BinaryContext::binary64()
@@ -320,6 +326,9 @@ test "rootn of large degrees keeps the certified loop" {
 }
 
 ///|
+// oracle: S
+// source: rootn_compare against the certified loop (binary_rootn_certified_loop) on the same operand; the claim is that the integer-root path agrees with the loop on both sides of each bound and at the exponent limits
+// shares: binary_rootn_certified_loop and try_rootn_ctx (the code under test, on both sides), Binary::make_coeff builds the operands
 test "rootn gate: both sides of every precision bound agree with the certified loop" {
   // degree <= 12 at any precision, 13..32 up to 1024 bits, the loop above:
   // the public result equals the loop on both sides of each bound.
