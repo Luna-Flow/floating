@@ -1041,7 +1041,7 @@ fn decimal_certified_exp_coarse_extreme_result(
       guard_coefficient.digits10(),
     )
     if value.compare(guard_value) >= 0 {
-      return Some(decimal_overflow_result(false, decimal_math_result_ctx(ctx)))
+      return Some(decimal_overflow_result(false, ctx))
     }
   }
   None
