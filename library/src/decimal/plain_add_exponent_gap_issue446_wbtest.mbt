@@ -69,7 +69,7 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
   let mut index = 0
   for precision in [1, 2, 5, 34] {
     for hc in coefficients {
-      for lc in [1N, 5N, 99N] {
+      for lc in [1N, 5N, 7N, 99N] {
         for
           gap in [
             precision - 1,
