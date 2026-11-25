@@ -1,4 +1,11 @@
 ///|
+// oracle: A
+// source: rows written out: 1.20 + 2 = 3.20 (the finer exponent is kept), 3 * 4 = 12, compare 2 3 = -1, samequantum
+//   1.0 2.0 = 1 (both exponents are -1); the rows were also run with CPython decimal (libmpdec 4.0.0) in this
+//   review, with the same context and flags, and agree for add, multiply and compare
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter executes decimal operations in process" {
   let source =
     #|precision: 9
@@ -16,6 +23,13 @@ test "gda interpreter executes decimal operations in process" {
 }
 
 ///|
+// oracle: A
+// source: the four rows are sums written out (1+1=2, 2+2=4, 3+3=6, 4+4=8); the counts of two merged shards are
+//   compared with those of the serial run of the same document, so the claim is about the partition and not
+//   about arithmetic
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter shards merge to serial totals" {
   let source =
     #|x1 add 1 1 -> 2
@@ -40,6 +54,12 @@ test "gda interpreter shards merge to serial totals" {
 }
 
 ///|
+// oracle: A
+// source: decimal32 word #7C00016E is a quiet NaN whose low declet 0x16E is a non-canonical encoding of the digits
+//   888: its canonical form is #7C00006E (declet 0x06E) and copy leaves the word unchanged; the declet pair was
+//   decoded and re-encoded with tools/decimal_interchange_oracle.py (Python, not this library) in this review:
+//   0x16E decodes to 888 and 888 encodes to 0x06E
+// shares: the interchange word reader and writer of the interpreter (the code under test)
 test "gda interpreter preserves raw interchange copy semantics" {
   let source =
     #|precision: 7
@@ -55,6 +75,14 @@ test "gda interpreter preserves raw interchange copy semantics" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 quantize (page 36): the operation raises Invalid operation when the coefficient after quantizing
+//   would be longer than precision; here 1.234 at exponent -999999000 would need 999999001 digits against
+//   precision 15; the value is not checked ('?') and the flag is the row; CPython decimal gives
+//   Invalid_operation for the same context
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter rejects impossible extreme quantize before allocation" {
   let source =
     #|precision: 15
@@ -69,6 +97,13 @@ test "gda interpreter rejects impossible extreme quantize before allocation" {
 }
 
 ///|
+// oracle: A
+// source: rows written out: 1.23 + 2.34 = 3.57 at 3 digits, 1.2345 + 2.3456 = 3.5801 at 5 digits, 1/3 = 0.33333
+//   Inexact Rounded at 5 digits rounding floor; the rows were also run with CPython decimal (libmpdec 4.0.0) in
+//   this review, with the same context and flags, and agree
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter invalidates the context cache on directives" {
   let source =
     #|precision: 3
@@ -87,6 +122,13 @@ test "gda interpreter invalidates the context cache on directives" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 square-root (page 39, text extracted with pdftotext): an inexact result is rounded with round-half-
+//   even whatever the context says; sqrt(6.25) = 2.5 needs 2 digits, so at precision 1 with rounding half_up the
+//   result is 2 (not 3), Inexact Rounded
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter applies the 1.70 sqrt rounding rule" {
   let source =
     #|precision: 1
@@ -101,6 +143,13 @@ test "gda interpreter applies the 1.70 sqrt rounding rule" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 context rules (page 9, text extracted with pdftotext): Emin and Emax have magnitudes that differ by
+//   no more than one; precision 0 is not a context; the ranges 0..999999999 and -999999999..0 are the limits of
+//   the decTest contexts; each invalid context of the block violates one of these and the valid one (precision
+//   9, emax 999999999, emin -999999999) runs; the message texts are the interpreter's own wording written out,
+//   not an external oracle
+// shares: nothing (the verdicts and the texts are written out; the contexts are built by the interpreter under test)
 test "gda interpreter reports an invalid context as a diagnostic row" {
   let assert_diagnostic = fn(source : String, expected : String) raise {
     let document = @gda_expr.parse_dectest("context.decTest", source).unwrap()
@@ -181,6 +230,13 @@ test "gda interpreter reports an invalid context as a diagnostic row" {
 }
 
 ///|
+// oracle: A
+// source: rows written out: a 67 digit operand read exactly and rounded once to 9 digits gives 1.00000001E+66 Inexact
+//   Rounded for add 0 and plus; the rows were also run with CPython decimal (libmpdec 4.0.0) in this review,
+//   with the same context and flags, and agree
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter reads long operands without rounding them" {
   let source =
     #|precision: 9

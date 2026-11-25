@@ -4,6 +4,13 @@
 /// power 1 / 1.00000000000000000001 is below 10^Emin = 1 although it rounds to 1.
 /// Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, the side of the
 /// exact power decided with exact rational arithmetic.
+// oracle: A
+// source: GDA 1.70 exceptional conditions (Subnormal is judged on the exact result before rounding; Underflow is
+//   Subnormal with Inexact); the rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in
+//   value, cohort and flags, as the doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter signals Subnormal and Underflow for a power just below Emin" {
   let source =
     #|extended: 1
@@ -29,6 +36,13 @@ test "gda interpreter signals Subnormal and Underflow for a power just below Emi
 /// The 26-digit working value of the exact power is already `1.00000000000000E-9`, so
 /// the final rounding to the context is exact, yet the power itself is inexact.
 /// Expected values: Python `decimal` (libmpdec 4.0.0) as oracle.
+// oracle: A
+// source: GDA 1.70 exceptional conditions (Underflow is Subnormal with Inexact; the power itself is inexact); the rows
+//   were run with CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort and flags, as the
+//   doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter signals Underflow for an inexact subnormal power with a negative exponent" {
   let source =
     #|extended: 1

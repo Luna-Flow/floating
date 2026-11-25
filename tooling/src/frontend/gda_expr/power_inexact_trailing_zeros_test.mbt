@@ -3,6 +3,13 @@
 /// exactly precision digits", trailing zeros included (issue 266). A subset context
 /// (`extended: 0`) strips them (Appendix A, Operation differences). Expected values:
 /// Python `decimal` (libmpdec 4.0.0) as oracle, checked against the clauses by hand.
+// oracle: A
+// source: GDA 1.70 arithmetic operations (an inexact result is rounded to exactly precision digits, trailing zeros
+//   included); the rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort
+//   and flags, as the doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter keeps precision digits in an inexact integer power" {
   let source =
     #|extended: 1

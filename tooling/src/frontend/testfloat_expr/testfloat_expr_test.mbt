@@ -1,4 +1,10 @@
 ///|
+// oracle: A
+// source: four binary16 multiplications written out as bit patterns: 1 * 1 = 1; min normal * 0x3BFF = 2^-14 (1 -
+//   2^-11) is the tie between two subnormals and rounds to even, 0x0400, flags underflow and inexact (03; exact
+//   product shown with Python Fractions); inf * 0 = quiet NaN with invalid (10); -inf * -1 = +inf
+// shares: the hexadecimal reader and the rounding of the library behind the executor (the code under test); the vector
+//   columns are read as bit patterns
 test "TestFloat parser and executor preserve IEEE values and flags" {
   let spec = @testfloat_expr.TestFloatSpec::parse("f16_mul", "rnear_even").unwrap()
   let source =
@@ -20,6 +26,12 @@ test "TestFloat parser and executor preserve IEEE values and flags" {
 }
 
 ///|
+// oracle: A
+// source: bit patterns checked with Python struct in this review: 1 + 2^-52 narrows to 1 with inexact (01), 2^1000
+//   overflows to +inf with overflow and inexact (05), a signaling NaN is quieted with invalid (10), and binary16
+//   0x3E00 is 1.5 = 0x3FF8000000000000 exactly
+// shares: the hexadecimal reader and the rounding of the library behind the executor (the code under test); the vector
+//   columns are read as bit patterns
 test "TestFloat format conversions read the operand in the source format and the result in the destination" {
   // f64_to_f32: 1.0 is exact; 1 + 2^-52 rounds to 1 (inexact); 2^1000 overflows;
   // a signaling NaN is quieted (invalid). The result column is binary32.
@@ -59,6 +71,10 @@ test "TestFloat format conversions read the operand in the source format and the
 }
 
 ///|
+// oracle: A
+// source: written out: a row with three fields where binary16 addition needs four (two operands, result, flags) is one
+//   diagnostic with the message and line 1
+// shares: nothing
 test "TestFloat parser reports malformed vector rows with source positions" {
   let spec = @testfloat_expr.TestFloatSpec::parse("f16_add", "rnear_even").unwrap()
   match
@@ -73,6 +89,11 @@ test "TestFloat parser reports malformed vector rows with source positions" {
 }
 
 ///|
+// oracle: A
+// source: written out: shard 1 of 2 selects 2 of the 4 rows; the rows are correct sums written as bit patterns (1+1 =
+//   2, 2^-24 + 2^-24 = 2^-23, inf + -inf = NaN with invalid, -0 + +0 = +0)
+// shares: the hexadecimal reader and the rounding of the library behind the executor (the code under test); the vector
+//   columns are read as bit patterns
 test "TestFloat execution shards select a deterministic partition" {
   let spec = @testfloat_expr.TestFloatSpec::parse("f16_add", "rnear_even").unwrap()
   let source =

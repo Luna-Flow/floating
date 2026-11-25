@@ -22,6 +22,11 @@ fn observation(
 }
 
 ///|
+// oracle: A
+// source: winners and sample counts read off the written times by hand: dataset 0 has kernel 10 and 11 against full 20
+//   and 21 (kernel faster, two valid samples), dataset 1 has kernel 30 against full 15 (full faster)
+// shares: observation() (builds the observation records from the written times); the analysis functions under test are
+//   not used to build any expected value
 test "auto tune selects the fastest valid candidate" {
   let observations = [
     observation("kernel", 0, 0, 10.0),
@@ -51,6 +56,12 @@ test "auto tune selects the fastest valid candidate" {
 }
 
 ///|
+// oracle: A
+// source: pairs written out: full is twice kernel in blocks 0 and 1 (10 to 20, 11 to 22) and 19/9 in block 2, so every
+//   paired relative delta is 100 percent or more and the bound 90 percent holds; hand arithmetic, the bootstrap
+//   is not recomputed
+// shares: observation() (builds the observation records from the written times); the analysis functions under test are
+//   not used to build any expected value
 test "paired hotspot analysis preserves balanced block pairing" {
   let observations = [
     observation("kernel", 0, 0, 10.0),
@@ -67,6 +78,11 @@ test "paired hotspot analysis preserves balanced block pairing" {
 }
 
 ///|
+// oracle: A
+// source: the verdict is read off the written samples: every candidate time (109 to 111) lies above every baseline
+//   time (99 to 101), a slowdown of about 10 percent against a spread of about 1 percent, which any sound test
+//   reports as a significant regression; the bootstrap itself is not recomputed
+// shares: nothing
 test "immutable baseline comparison rejects a significant regression" {
   let comparison = @bench.confirmatory_regression(
     [100.0, 101.0, 99.0, 100.5, 99.5, 100.0, 101.0, 99.0, 100.0, 100.5],
@@ -106,6 +122,11 @@ test "paired hotspot reports a 95 percent interval" {
 }
 
 ///|
+// oracle: A
+// source: hand arithmetic on the written times: the sample -1 is invalid, the two valid ones 10 and 12 have median 11
+//   and count 2
+// shares: observation() (builds the observation records from the written times); the analysis functions under test are
+//   not used to build any expected value
 test "tune decision counts only the samples behind the median" {
   let observations = [
     observation("kernel", 0, 0, 10.0),
@@ -122,6 +143,13 @@ test "tune decision counts only the samples behind the median" {
 /// practice; the secondary criterion is the interquartile range of their
 /// samples (#60). `a` has median 102 and no spread, `b` median 100 and a wide
 /// spread: outside the threshold the faster `b` wins, inside it the steadier `a`.
+// oracle: A
+// source: the rule written in the doc comment of the block (issue 60) applied by hand to the written samples: a is 102
+//   four times (median 102, no spread), b is 90, 95, 105, 110 (median 100, wide spread); a is 2 percent above b,
+//   so thresholds 0 and 1 percent pick the faster b and 2 and 50 percent pick the steadier a, whatever the order
+//   of candidate_ids
+// shares: observation() (builds the observation records from the written times); the analysis functions under test are
+//   not used to build any expected value
 test "tune_dataset breaks practical ties by interquartile range" {
   let observations = []
   let a = [102.0, 102.0, 102.0, 102.0]
@@ -146,6 +174,12 @@ test "tune_dataset breaks practical ties by interquartile range" {
 ///|
 /// With equal medians and equal spread the smaller candidate id wins, whatever
 /// the order of `candidate_ids`.
+// oracle: A
+// source: the rule written in the doc comment of the block applied by hand: a has median 102, b median 100, both
+//   without spread; within 3 percent they tie and the smaller id a wins in either argument order, within 0 or 1
+//   percent b is faster and wins
+// shares: observation() (builds the observation records from the written times); the analysis functions under test are
+//   not used to build any expected value
 test "tune_dataset ties on median and spread resolve by candidate id" {
   let observations = [
     observation("a", 0, 0, 102.0),

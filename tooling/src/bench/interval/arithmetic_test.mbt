@@ -17,6 +17,8 @@ fn IntervalOperation::name(self : IntervalOperation) -> String {
 ///|
 struct IntervalInput {
   bits : Int32
+  left_big : BigInt
+  right_big : BigInt
   left_binary : @binary.Binary
   right_binary : @binary.Binary
   left : @ivl.Interval
@@ -66,6 +68,8 @@ fn interval_input(operation : IntervalOperation, bits : Int32) -> IntervalInput 
   let right_binary = @binary.Binary::from_coefficient(right_coeff, precision~)
   {
     bits,
+    left_big,
+    right_big,
     left_binary,
     right_binary,
     left: @ivl.Interval::exact(left_binary, precision~),
@@ -76,20 +80,27 @@ fn interval_input(operation : IntervalOperation, bits : Int32) -> IntervalInput 
 }
 
 ///|
-/// Timing harness check, no validation claim (level C): the expected value is
-/// computed with `Binary`, the code that the interval route is built on, so the
-/// comparison shows that the timed paths agree with each other and nothing more.
-/// The oracles for `interval` results are the interval corpora and the
+/// Timing harness check. The expected value is computed with core `BigInt`
+/// (another implementation, level A for integer arithmetic on these operands):
+/// the operands are exact integers and the precision is the sum of their bit
+/// lengths plus 4, so the sum, the product and the quotient (the left operand
+/// of a division is built as a multiple of the right one) are exact. The
+/// oracles for rounded `interval` results are the interval corpora and the
 /// external baseline's differential stage, not this benchmark.
 fn interval_expected(
   operation : IntervalOperation,
   input : IntervalInput,
 ) -> @binary.Binary {
-  match operation {
-    Add => input.left_binary.add(input.right_binary)
-    Mul => input.left_binary.mul(input.right_binary)
-    Div => input.left_binary.div(input.right_binary)
+  let value = match operation {
+    Add => input.left_big + input.right_big
+    Mul => input.left_big * input.right_big
+    Div => input.left_big / input.right_big
   }
+  let coefficient = interval_coeff(value)
+  @binary.Binary::from_coefficient(
+    coefficient,
+    precision=coefficient.bit_length().max(1),
+  )
 }
 
 ///|
@@ -186,6 +197,10 @@ fn interval_spec(
 }
 
 ///|
+// oracle: S
+// source: no expected value: the block only requires that each benchmark spec compiles (the unwrap of the compile
+//   result), so the verdict is the absence of a compile error
+// shares: interval_spec and BenchSpec::compile (the code under test)
 test "interval benchmark plans compile" {
   for operation in [IntervalOperation::Add, Mul, Div] {
     ignore(interval_spec(operation).compile().unwrap())

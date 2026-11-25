@@ -2,6 +2,13 @@
 /// GDA 1.70, *Exceptional conditions*, Clamped: the condition is signaled only if
 /// the exponent of a result has been altered to fit (issue 267). Expected values:
 /// Python `decimal` (libmpdec 4.0.0) as oracle, checked against the clause by hand.
+// oracle: A
+// source: GDA 1.70 Clamped (signaled only when the exponent of the result was altered to fit); the rows were run with
+//   CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort and flags, as the doc comment of
+//   the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter signals Clamped for power only when the result exponent was altered" {
   let source =
     #|extended: 1

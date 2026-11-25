@@ -3,6 +3,13 @@
 /// adjusted exponent of the result after rounding, not on an operand that would
 /// round past Emax on its own (issue 264). Expected values: Python `decimal`
 /// (libmpdec 4.0.0) as oracle, checked against the clause by hand.
+// oracle: A
+// source: GDA 1.70 Overflow condition (judged on the adjusted exponent of the result after rounding; text extracted
+//   with pdftotext); the seven rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in
+//   value and flags, as stated in the doc comment of the block
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter judges overflow on the rounded result of add, subtract and fma" {
   let source =
     #|extended: 1

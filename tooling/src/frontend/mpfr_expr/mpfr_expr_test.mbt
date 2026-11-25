@@ -1,4 +1,10 @@
 ///|
+// oracle: A
+// source: three data_check rows: 0 is a line of the pinned MPFR corpus; sqrt(2^-1022) = 2^-511 exactly; the third
+//   result 0x105D327678185Dp-563 is the 53 bit nearest to sqrt(0x10BC83C8308CB2p-1074), shown by exact squares
+//   of the neighbours at half a unit (Python Fractions, in this review)
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR sqrt parser and executor retain hexadecimal precision semantics" {
   let source =
     #|# Pinned MPFR sqrt data rows
@@ -16,6 +22,9 @@ test "MPFR sqrt parser and executor retain hexadecimal precision semantics" {
 }
 
 ///|
+// oracle: A
+// source: written out: a row with four fields instead of five is one diagnostic with the message and the line number 1
+// shares: nothing
 test "MPFR sqrt parser rejects incomplete data_check rows" {
   match @mpfr_expr.parse_sqrt_data("bad.sqrt", "53 53 n 0x0p0\n") {
     Err([diagnostic]) => {
@@ -31,6 +40,12 @@ test "MPFR sqrt parser rejects incomplete data_check rows" {
 }
 
 ///|
+// oracle: A
+// source: the three rows are lines of the pinned MPFR corpus and were recomputed with Python Fractions in this review:
+//   (3/2)^3 = 27/8 at 11 bits to nearest, (2047/1024)^-3 at 24 bits toward zero, and -(0x1fffffffffffff p-52)^15
+//   at 53 bits toward negative infinity
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR pow parser executes the IEEE 754-2019 rounding modes" {
   let source =
     #|# precision rounding input_coefficient_hex input_exponent2 input_negative exponent expected_coefficient_hex expected_exponent2 expected_negative inexact
@@ -50,6 +65,11 @@ test "MPFR pow parser executes the IEEE 754-2019 rounding modes" {
 }
 
 ///|
+// oracle: A
+// source: exp(0) = 1, tanpi(1/4) = 1 and hypot(3,4) = 5 are exact identities; MPFR 4.2.2 (installed here) returns the
+//   same three values in this review
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR elementary parser executes certified exact identities" {
   let source =
     #|# mpfr-elementary-v1
@@ -67,6 +87,10 @@ test "MPFR elementary parser executes certified exact identities" {
 }
 
 ///|
+// oracle: A
+// source: written out: pow, hypot and atan2 take two operands, so a row with '-' for the second operand is one
+//   diagnostic with this message
+// shares: nothing
 test "MPFR elementary parser rejects a missing second operand" {
   for
     row in [
@@ -81,6 +105,11 @@ test "MPFR elementary parser rejects a missing second operand" {
 }
 
 ///|
+// oracle: A
+// source: sin(-0) and atan2(-0, 1) are -0 (MPFR 4.2.2, run in this review); a row that expects +0 must fail and one
+//   that expects -0 must pass, so the verdicts are false, true, false, true
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR elementary executor compares the sign of zero results" {
   let source =
     #|sin 53 n -0x0p0 - 0 0x0p0 0 0 0
@@ -95,6 +124,12 @@ test "MPFR elementary executor compares the sign of zero results" {
 }
 
 ///|
+// oracle: A
+// source: three rows are lines of the pinned MPFR corpus (0.1 to nearest and toward zero at 24 bits, and the overflow
+//   of 1e323228497); 2049 at 11 bits is the tie between 2048 and 2050 (to nearest even 2048 = 0x1p11, ties away
+//   2050 = 0x401p1) and -0.0 reads as -0, recomputed with Python Fractions
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR strtofr parser executes literals, halfway points and the range limits" {
   let source =
     #|# mpfr-strtofr-v1
@@ -116,6 +151,10 @@ test "MPFR strtofr parser executes literals, halfway points and the range limits
 }
 
 ///|
+// oracle: A
+// source: written out: a row with six fields, an unknown rounding letter q, a non hexadecimal digit and a flag 2 each
+//   give one diagnostic
+// shares: nothing
 test "MPFR strtofr parser rejects malformed rows" {
   for
     row in [
@@ -129,6 +168,13 @@ test "MPFR strtofr parser rejects malformed rows" {
 }
 
 ///|
+// oracle: A
+// source: 2.5 at one digit is 2 to nearest even, 3 ties away, 2 toward zero; 0.125 at two digits is 12 to nearest even
+//   and 13 upward (CPython decimal quantize, in this review); 125 at three digits is exact; the exponent column
+//   is the scientific exponent, as in the rows of the pinned mpfr-4.2.2-decimal-output.txt; 0x1999999999999a
+//   p-56 is the double 0.1 and its shortest form has one digit, 0.5 has one digit
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR decimal output parser executes fixed digits, ties and shortest forms" {
   let source =
     #|# mpfr-decimal-output-v1
@@ -150,6 +196,10 @@ test "MPFR decimal output parser executes fixed digits, ties and shortest forms"
 }
 
 ///|
+// oracle: A
+// source: written out: a row with a missing field, a shortest row without a count, an unknown kind and a non numeric
+//   digit count each give one diagnostic
+// shares: nothing
 test "MPFR decimal output parser rejects malformed rows" {
   for
     row in [
@@ -163,6 +213,11 @@ test "MPFR decimal output parser rejects malformed rows" {
 }
 
 ///|
+// oracle: A
+// source: ln(1 + 2^-1199) at 24 bits to nearest is 2^-1199 to within the precision, inexact (the sum 1 + 2^-1199 read
+//   at 512 bits would be 1 and ln 1 = 0); the operand has 1200 bits
+// shares: the hexadecimal and decimal readers and the operations of the library that the executor runs on each row
+//   (the code under test); the expected value is read from the row
 test "MPFR elementary rows read an operand longer than the result precision exactly" {
   // ln(1 + 2^-1199) at 24 bits, to nearest: 2^-1199 (inexact). The operand has
   // 1200 bits; read at 512 bits it would be 1 and ln 1 = 0.

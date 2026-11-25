@@ -4,6 +4,13 @@
 /// (issue 305). Rows .1081 and .1129 of the random differential (seed 20261118).
 /// Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, checked against the
 /// clause by hand.
+// oracle: A
+// source: GDA 1.70 Clamped (an inexact result of precision digits at an exponent of at most Etop is not folded down);
+//   the rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort and flags,
+//   as the doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter does not flag Clamped on an inexact power that rounds to a power of ten" {
   let source =
     #|extended: 1

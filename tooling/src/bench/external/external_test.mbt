@@ -440,6 +440,11 @@ fn decimal_spec(
 }
 
 ///|
+// oracle: A
+// source: grouping written out from the three-row input text: two cases (binary/add/53 with rows 0 and 1,
+//   decimal_gda/sqrt/16 with one row and an empty second operand), and the case id binary/add/53 reads as
+//   (binary, add, 53)
+// shares: nothing
 test "external input rows group by case" {
   let text =
     #|# external-baseline inputs
@@ -457,6 +462,11 @@ test "external input rows group by case" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the verdicts on the operation names are written out (add and sin are known to the binary plan, nope is
+//   not; mul is known to the decimal plan, sin is not); S: the plans only have to compile
+// shares: parse_cases (reads the rows of the written operand text), binary_spec, decimal_spec and BenchSpec::compile
+//   (the code under test)
 test "external binary and decimal_gda plans compile" {
   let binary = parse_cases(
       (
@@ -477,6 +487,11 @@ test "external binary and decimal_gda plans compile" {
 }
 
 ///|
+// oracle: A
+// source: 0xa5p-3 is 165/8 = 20.625 (written as the double 165.0 / 8.0, exact in binary64), and 1234E-3 prints as
+//   1.234 (the decimal text written out)
+// shares: Binary::from_double and Binary::compare (build and compare the expected binary value), Decimal::to_string
+//   (prints the decimal value)
 test "external operand parsing is exact" {
   let value = binary_value("0xa5p-3", 8)
   let expected = @binary.Binary::from_double(165.0 / 8.0, precision=8)
@@ -488,6 +503,11 @@ test "external operand parsing is exact" {
 ///|
 // Oracle: level A (expected texts written out by hand, not produced by the
 // library).
+// oracle: A
+// source: expected texts written out by hand (0b11p-1 is 3/2, the sign of zero and the cohort 12E-1 against 120E-2 are
+//   part of the text); the verdicts are written, none is produced by the library
+// shares: Binary::from_double, Binary::zero and neg, decimal_value (build the values that are matched against the
+//   written texts)
 test "external validation compares text: the sign of zero, the cohort and a wrong value fail" {
   let one_and_a_half = @binary.Binary::from_double(1.5, precision=8)
   assert_true(binary_matches(["0b11p-1"], [one_and_a_half]))

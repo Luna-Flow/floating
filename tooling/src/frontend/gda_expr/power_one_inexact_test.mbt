@@ -5,6 +5,13 @@
 /// whatever Emax is; row .3705 of the random differential (seed 20261118,
 /// decimal_gda-power). Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
 /// checked against the clause by hand.
+// oracle: A
+// source: GDA 1.70 power (the result is inexact unless the right-hand side is an integer and the result can be
+//   expressed exactly); the rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in
+//   value, cohort and flags, as the doc comment of the block states
+// shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
+//   results are compared with the row as text), and the context it builds from the directives; all of them are
+//   the code under test
 test "gda interpreter signals Inexact for the power of 1 to a non-integer exponent in a small context" {
   let source =
     #|extended: 1
