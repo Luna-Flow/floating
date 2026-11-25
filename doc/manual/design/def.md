@@ -127,14 +127,15 @@ care test `is_nan` first.
 
 `Interval` does not implement `Floating`. If it did, scalar observations would
 have interval meanings hidden at the call site: `signum` would return `Zero` for
-an interval that contains $0$, `is_nan` would mean "empty", and `is_zero` of
-$[-1, 1]$ would be true even though $[-1, 1] \ne \{0\}$. The names of these
+an interval that contains $0$ and would abort on the empty set, `is_nan` would
+mean "empty", and `is_zero` of $[-1, 1]$ would be true even though
+$[-1, 1] \ne \{0\}$. The names of these
 predicates are scalar names, so this ambiguity cannot be resolved by the generic
 call. The interval package instead spells its questions using the terms of
-IEEE 1788-2015: (`is_empty`,
-`is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table
-10.3, `is_member` for a point) and re-rounds with `with_precision`, which always
-rounds outward.
+IEEE 1788-2015: `is_empty`, `is_entire`, `is_common_interval`, `is_singleton`,
+the comparisons of Table 10.3 and `is_member` for a point. Its
+`with_precision` always rounds outward; it does not use a scalar rounding
+direction.
 
 ### `PartialOrder` is the IEEE four-way relation
 
