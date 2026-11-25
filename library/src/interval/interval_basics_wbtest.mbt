@@ -1,66 +1,4 @@
 ///|
-fn basics_corpus(precision : Int32) -> Array[Interval] {
-  let inf = @binary.Binary::inf(precision~)
-  let ninf = @binary.Binary::inf(negative=true, precision~)
-  let values : Array[@binary.Binary] = [ninf]
-  for d in [-7.25, -3.0, -1.0, -0.1, -0.0, 0.0, 0.3, 1.0, 2.5, 3.0] {
-    values.push(@binary.Binary::from_double(d, precision~))
-  }
-  values.push(inf)
-  let out : Array[Interval] = [empty_interval(precision)]
-  for i in 0..<values.length() {
-    for j in i..<values.length() {
-      match Interval::try_from_bounds(values[i], values[j], precision~) {
-        Ok(v) => out.push(v)
-        Err(_) => ()
-      }
-    }
-  }
-  out
-}
-
-///|
-test "interval basics: multiplication matches the 4/8-product original" {
-  for precision in [24, 128] {
-    let corpus = basics_corpus(precision)
-    for a in corpus {
-      for b in corpus {
-        if a.is_empty() || b.is_empty() {
-          continue
-        }
-        let p = Int32::max(a.precision_, b.precision_)
-        let (lo, hi) = multiplication_bounds(a, b, p)
-        let (olo, ohi) = old_multiplication_bounds(a, b, p)
-        assert_eq(lo.to_string(), olo.to_string())
-        assert_eq(hi.to_string(), ohi.to_string())
-        assert_eq(lo.is_sign_minus(), olo.is_sign_minus())
-        assert_eq(hi.is_sign_minus(), ohi.is_sign_minus())
-      }
-    }
-  }
-}
-
-///|
-test "interval basics: division matches the 4-division original" {
-  for precision in [24, 128] {
-    let corpus = basics_corpus(precision)
-    for a in corpus {
-      for b in corpus {
-        if a.is_empty() || b.is_empty() || b.contains_zero() {
-          continue
-        }
-        let p = Int32::max(a.precision_, b.precision_)
-        let r = quotient_interval_nonzero_denominator(a, b, p)
-        let o = old_quotient_interval_nonzero_denominator(a, b, p)
-        assert_eq(r, o)
-        assert_eq(r.lo_.is_sign_minus(), o.lo_.is_sign_minus())
-        assert_eq(r.hi_.is_sign_minus(), o.hi_.is_sign_minus())
-      }
-    }
-  }
-}
-
-///|
 fn sqrt_expected_end(
   coefficient : String,
   exponent : Int32,
@@ -159,20 +97,68 @@ test "interval basics: sqrt endpoints are the directed square roots" {
 }
 
 ///|
-test "interval basics: pown matches the original powers" {
-  for precision in [24, 128] {
-    for a in basics_corpus(precision) {
-      if a.is_empty() {
-        continue
-      }
-      for n in [1, 2, 3, 4, 5] {
-        assert_eq(
-          pown_positive(a, n, precision),
-          old_pown_positive(a, n, precision),
-        )
+fn basics_table_bound(text : String, precision : Int32) -> @binary.Binary {
+  if text == "inf" {
+    @binary.Binary::inf(precision~)
+  } else if text == "-inf" {
+    @binary.Binary::inf(negative=true, precision~)
+  } else {
+    @binary.Binary::from_hex(text, 400).unwrap()
+  }
+}
+
+///|
+/// A bound of the table equals the bound of the interval; the sign of a zero is not compared.
+fn basics_table_same(
+  expected : @binary.Binary,
+  got : @binary.Binary,
+) -> Bool {
+  if expected.classify() == FpClass::Infinity {
+    got.classify() == FpClass::Infinity && expected.is_sign_minus() == got.is_sign_minus()
+  } else {
+    got.classify() == FpClass::Finite && expected.compare(got) == 0
+  }
+}
+
+///|
+// oracle: A
+// source: the hulls of the product, the quotient (denominator without zero) and the integer powers 1 to 5 over boxes made of -inf, -3, -0.1, 0, 0.3, 2.5, inf at 24 and 128 bits, rounded outward, computed with Python fractions (tools/interval_basic_ops_oracle.py, table basic_ops_table_wbtest.mbt: 2,132 rows); this replaces the comparison with the pre-#378 copies of the product, quotient and pown bounds, which shared the directed multiplication, division and power of Binary; the sign of a zero bound is checked by the zero sign tests
+// shares: Binary::from_hex and String::split read the table; Interval::from_bounds, Binary::inf and Binary::from_hex build the operands
+test "interval basics: product, quotient and integer powers are the exact hulls" {
+  let mut count = 0
+  for line in basic_ops_table().split("\n") {
+    let line = line.to_owned()
+    if line == "" {
+      continue
+    }
+    let f = line.split(" ").map(fn(s) { s.to_owned() }).collect()
+    let precision = point_table_precision(f[1])
+    let a = Interval::from_bounds(
+      basics_table_bound(f[2], precision),
+      basics_table_bound(f[3], precision),
+      precision~,
+    )
+    let (lo, hi) = if f[0] == "pown" {
+      let r = pown_positive(a, point_table_precision(f[4]), precision)
+      (r.lo_, r.hi_)
+    } else {
+      let b = Interval::from_bounds(
+        basics_table_bound(f[4], precision),
+        basics_table_bound(f[5], precision),
+        precision~,
+      )
+      if f[0] == "mul" {
+        multiplication_bounds(a, b, precision)
+      } else {
+        let r = quotient_interval_nonzero_denominator(a, b, precision)
+        (r.lo_, r.hi_)
       }
     }
+    assert_true(basics_table_same(basics_table_bound(f[6], precision), lo), msg=line)
+    assert_true(basics_table_same(basics_table_bound(f[7], precision), hi), msg=line)
+    count += 1
   }
+  assert_eq(count, 2132)
 }
 
 ///|
