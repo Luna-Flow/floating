@@ -202,7 +202,8 @@ test "overflow and underflow in decimal32" {
 `sqrt`, `exp`, `ln` and `log10` are correctly rounded and always round half to
 even, whatever the context's rounding algorithm says. `power` with a non-integer
 exponent is also correctly rounded, but under the context's own rounding
-algorithm. `exp`, `ln`, `log10` and non-integer `power` only accept contexts with
+algorithm. `exp`, `ln`, `log10`, non-integer `power` and `power` with an integer exponent
+above 999,999,999 or below $-1\,999\,999\,997$ only accept contexts with
 precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the
 decTest suite requires and GDA's Invalid context condition permits; the
 operation text of the specification states no such bound); the
