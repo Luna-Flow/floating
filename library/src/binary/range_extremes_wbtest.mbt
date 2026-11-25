@@ -92,6 +92,9 @@ test "round core agrees with the old one at the exponent limits and carries" {
 }
 
 ///|
+// oracle: S
+// source: old_hyperbolic_bounds, the previous enclosure kept in this file, at w and w + 128 bits; agreement of the new and the old kernel (an infinite end is a saturation and is not compared)
+// shares: binary_hyperbolic_bounds (the code under test), old_hyperbolic_bounds
 test "hyperbolic bounds agree with the old kernel where exp leaves the range" {
   // exp(x) overflows the implementation range from x about 7.45e8 and
   // underflows from -7.45e8; cosh and sinh are exp(|x|)/2 there.
@@ -150,6 +153,9 @@ test "hyperbolic bounds agree with the old kernel where exp leaves the range" {
 }
 
 ///|
+// oracle: S
+// source: old_trigonometric_bounds_series, the previous enclosure kept in this file, on the same arguments; agreement of the new and the old path
+// shares: binary_trigonometric_bounds_series (the code under test), old_trigonometric_bounds_series, binary_series_agree
 test "trigonometric bounds agree with the old path around pi/4 and at extreme exponents" {
   let pi4 = 0.7853981633974483
   let tiny = Binary::make_coeff(Coeff::one(), -1073741000, 64)

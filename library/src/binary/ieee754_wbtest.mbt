@@ -183,6 +183,9 @@ test "pown_ctx handles Int min without overflow" {
 }
 
 ///|
+// oracle: S
+// source: Binary::make_coeff of the magnitude, the sibling constructor, on 11 integers at five precisions and on Int32 minimum; the claim is that from_int builds what make_coeff builds
+// shares: Binary::make_coeff and Coeff::from_uint64 on both sides
 test "from_int preserves exact and rounded construction semantics" {
   let values = [0, 1, -1, 2, -2, 3, -3, 127, -128, 1024, 10000]
   for precision in [1, 2, 3, 8, 53] {

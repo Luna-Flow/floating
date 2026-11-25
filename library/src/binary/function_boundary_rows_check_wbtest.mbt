@@ -49,6 +49,17 @@ fn fbr_eval(
     "atanpi" => a.atanpi_ctx(context)
     "atan2pi" => a.atan2pi_ctx(b, context)
     "hypot" => a.hypot_ctx(b, context)
+    "sinh" => a.sinh_ctx(context)
+    "tan" => a.tan_ctx(context)
+    "asin" => a.asin_ctx(context)
+    "atanh" => a.atanh_ctx(context)
+    "log1p" => a.log1p_ctx(context)
+    "tanh" => a.tanh_ctx(context)
+    "asinh" => a.asinh_ctx(context)
+    "sin" => a.sin_ctx(context)
+    "sinpi" => a.sinpi_ctx(context)
+    "tanpi" => a.tanpi_ctx(context)
+    "cospi" => a.cospi_ctx(context)
     _ => abort("unknown operation " + op)
   }
 }

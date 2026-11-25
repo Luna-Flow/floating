@@ -18,6 +18,9 @@ fn ilogb_coefficient(bits : Int32) -> Coeff {
 }
 
 ///|
+// oracle: S
+// source: exponent2 plus the bit length of the coefficient minus one (ilogb_reference), the definition of the leading-bit exponent, on coefficient widths 1 to 700 and exponents at both ends of the range
+// shares: exponent2, bit_length and finite_normalized (build the operands)
 test "ilogb equals exponent2 plus the bit length minus one on every width class" {
   let lengths = [
     1, 2, 3, 24, 53, 63, 64, 65, 66, 113, 127, 128, 129, 130, 256, 700,

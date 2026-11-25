@@ -263,6 +263,9 @@ test "Binary acos rejects inputs outside its domain instead of recursing" {
 }
 
 ///|
+// oracle: S
+// source: is_ok only: asin(-17 * 2^-8), atan(4) and atan2(4, 1) in binary32 return Ok; no value is compared
+// shares: try_asin_ctx, try_atan_ctx and try_atan2_ctx (the code under test), Binary::make, Binary::from_int
 test "Binary inverse trigonometric half-angle reduction reaches its certified series domain" {
   let context = BinaryContext::binary32()
   let small_negative = Binary::make(
@@ -290,6 +293,9 @@ test "Binary atan2 preserves axes and quadrants" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: atan2(+-0, +0) and atan2(+-0, x > 0) are +-0 exactly, atan2(+-0, -0) and atan2(+-0, x < 0) are +-pi, a nonzero ordinate over a zero abscissa is +-pi/2; pi and pi/2 at 53 bits are 0x1921fb54442d18 * 2^-51 and 2^-52 (CPython math.pi.hex() is 0x1.921fb54442d18p+1)
+// shares: Binary::from_hex_ctx reads the constants exactly (level A through hex_ctx_rows), assert_identical, the flag accessors
 test "Binary atan2 follows the IEEE signed-zero special cases" {
   let context = BinaryContext::new(precision=53)
   let pz = Binary::zero()
@@ -297,7 +303,9 @@ test "Binary atan2 follows the IEEE signed-zero special cases" {
   let m1 = Binary::from_int(-1)
   let pinf = Binary::inf()
   let ninf = Binary::inf(negative=true)
-  let (pi, _) = m1.acos_ctx(context)
+  // pi and pi / 2 rounded to nearest at 53 bits, written out: 0x1921fb54442d18 * 2^-51
+  // is the double nearest to pi (CPython math.pi.hex() is 0x1.921fb54442d18p+1).
+  let pi = Binary::from_hex_ctx("0x1921fb54442d18p-51", context).unwrap().0
   // atan2(±0, +0) and atan2(±0, x > 0) are ±0, exact.
   for abscissa in [pz, Binary::one(), pinf] {
     let (positive, positive_flags) = pz.atan2_ctx(abscissa, context)
@@ -316,7 +324,7 @@ test "Binary atan2 follows the IEEE signed-zero special cases" {
     assert_identical(negative, pi.neg())
   }
   // A nonzero ordinate over a zero abscissa is still ±π/2.
-  let (half_pi, _) = pinf.atan_ctx(context)
+  let half_pi = Binary::from_hex_ctx("0x1921fb54442d18p-52", context).unwrap().0
   assert_identical(Binary::one().atan2_ctx(nz, context).0, half_pi)
   assert_identical(m1.atan2_ctx(pz, context).0, half_pi.neg())
 }
@@ -386,6 +394,9 @@ test "Binary tanpi at integers takes the sign of sinpi over cospi" {
 }
 
 ///|
+// oracle: A, S
+// source: tanpi(+-1/4) = +-1 exactly and without the inexact flag, written out; the Ok results of sinpi, cospi and tanpi at 1/4 are an is_ok check (S)
+// shares: Binary::from_double builds the argument, Binary::one at the same precision, assert_identical and the inexact flag accessor
 test "Binary pi-scaled quarter is certified across release precisions" {
   for precision in [53, 128, 512] {
     let quarter = Binary::from_double(0.25, precision~)
@@ -412,6 +423,9 @@ test "Binary pi-scaled quarter is certified across release precisions" {
 }
 
 ///|
+// oracle: A, S
+// source: tanpi(1/4) = 1 and tanpi(3/4) = -1 written out (exact); the Ok results of sinpi, cospi and tanpi at the 17 multiples of 1/4 from -2 to 2 are an is_ok check (S)
+// shares: Binary::make, Binary::from_int, Binary::mul and Binary::add build the arguments; assert_identical
 test "Binary pi-scaled exact quadrant reduction covers every quarter boundary" {
   let context = BinaryContext::binary64()
   let quarter = Binary::make(BinCoeff::one(), -2, 53)

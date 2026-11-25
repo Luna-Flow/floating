@@ -72,6 +72,10 @@ fn q441_rows() -> Array[(UInt64, Int32)] {
 }
 
 ///|
+// oracle: B
+// source: q441_oracle: the rounded number of quanta from integer arithmetic on the UInt64 coefficient (floor by shift, remainder against the half), by direction and sign, written in this file; the expected value is then Binary::make with that coefficient at the quantum exponent (an exact construction)
+// shares: Binary::make builds the expected value exactly (no rounding); BinCoeff::from_uint64, exponent2, coefficient, is_sign_minus; q441_quantum_exponent and q441_rows are written in the file
+// primitives: Binary::make on a coefficient that fits at or above the quantum (exact path, no rounding; every table that builds its operands with it passes), BinCoeff::from_uint64
 test "make rounds a value whose lowest bit is below the smallest quantum (#441)" {
   for precision in [4, 5, 24, 53, 113] {
     let q = q441_quantum_exponent(precision)
@@ -108,6 +112,9 @@ test "make rounds a value whose lowest bit is below the smallest quantum (#441)"
 }
 
 ///|
+// oracle: A
+// source: the example of issue 441 written out: Binary::make(3, e_min - 53, 53) added to zero keeps its coefficient and exponent, and the exponent is e_min - 51 (written: binary_value_e_min - 52 + 1)
+// shares: Binary::make, Binary::add with zero, coefficient and exponent2 (the code under test)
 test "the example of #441" {
   let x = Binary::make(BinCoeff::from_uint64(3UL), binary_value_e_min - 53, 53)
   let y = x.add(Binary::zero())

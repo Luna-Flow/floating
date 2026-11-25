@@ -271,6 +271,78 @@ def group_powr() -> list[str]:
     return b.rows
 
 
+def group_tiny_argument() -> list[str]:
+    """Tiny arguments near the implementation subnormal limit (tiny_argument_subnormal_wbtest.mbt)."""
+    b = Builder("tiny_argument")
+    for op in ("expm1", "sinh", "tan", "asin", "atanh", "log1p", "tanh", "asinh", "sin"):
+        for exponent in (-1073741870, -1073741860, -1073741823, -1073741800):
+            for coefficient in (1, 5):
+                for negative in (False, True):
+                    for p in (2, 10, 53, 100):
+                        b.add(op, p, small(coefficient, exponent, negative))
+    return b.rows
+
+
+def group_pi_tiny() -> list[str]:
+    """sinpi, tanpi and cospi of tiny arguments (pi_trig_tiny_argument_wbtest.mbt)."""
+    b = Builder("pi_tiny")
+    for op in ("sinpi", "tanpi", "cospi"):
+        for exponent in (-1073741870, -1073741860, -1073741823, -1073741800):
+            for coefficient in (1, 5):
+                for negative in (False, True):
+                    for p in (2, 10, 53, 100):
+                        b.add(op, p, small(coefficient, exponent, negative))
+    return b.rows
+
+
+def group_pi_inverse_tiny() -> list[str]:
+    """asinpi and atanpi of tiny arguments in the implementation range and in three formats (pi_inverse_wbtest.mbt)."""
+    b = Builder("pi_inverse_tiny")
+    formats = (None, (-14, 15), (-126, 127), (-1022, 1023))
+    for p in (2, 11, 24, 53):
+        for format_ in formats:
+            low = (format_[0] if format_ else -1073741823) - p
+            for offset in (-4, -2, -1, 0, 1, 2, 3, 8, 40):
+                for numerator in (3, 5):
+                    for negative in (False, True):
+                        if low + offset < -1073741823 - 61:
+                            continue
+                        for op in ("asinpi", "atanpi"):
+                            b.add(op, p, small(numerator, low + offset, negative), e_max=format_[1] if format_ else None)
+    return b.rows
+
+
+def group_pm1_exp2m1() -> list[str]:
+    """exp2m1 of integers (pm1_functions_wbtest.mbt)."""
+    b = Builder("pm1_exp2m1")
+    for p in (2, 3, 24, 53, 113):
+        for n in range(-140, 141):
+            if n != 0:
+                b.add("exp2m1", p, small(abs(n), 0, n < 0))
+    return b.rows
+
+
+def group_pm1_exp10m1() -> list[str]:
+    """exp10m1 of the integers 1 to 39 (pm1_functions_wbtest.mbt)."""
+    b = Builder("pm1_exp10m1")
+    for p in (2, 8, 24, 53, 100):
+        for n in range(1, 40):
+            b.add("exp10m1", p, small(n, 0))
+    return b.rows
+
+
+def group_pi_inverse_moderate() -> list[str]:
+    """asinpi, acospi and atanpi of moderate arguments, every rounding direction (pi_inverse_wbtest.mbt)."""
+    b = Builder("pi_inverse_moderate")
+    arguments = ((1, -3, False), (3, -2, False), (7, -3, False), (9, -4, False), (1, -20, False), (255, -9, False), (1023, -10, False), (3, -40, True), (1023, -10, True))
+    for p in (2, 5, 24, 53):
+        for mode in MODES:
+            for numerator, exponent, negative in arguments:
+                for op in ("asinpi", "acospi", "atanpi"):
+                    b.add(op, p, small(numerator, exponent, negative), cycle=False, mode=mode)
+    return b.rows
+
+
 GROUPS = (
     group_underflow_exp,
     group_underflow_pow,
@@ -284,6 +356,12 @@ GROUPS = (
     group_rsqrt,
     group_compound,
     group_powr,
+    group_tiny_argument,
+    group_pi_tiny,
+    group_pi_inverse_tiny,
+    group_pm1_exp2m1,
+    group_pm1_exp10m1,
+    group_pi_inverse_moderate,
 )
 
 

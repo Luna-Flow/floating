@@ -174,6 +174,9 @@ test "fixed-point sine and cosine enclosures contain a tighter series enclosure"
 }
 
 ///|
+// oracle: A
+// source: written out: binary_sin_cos_fixed_series declines zero, NaN, 2, 1.5 and a 160-bit argument at work 100; the general series accepts the last one (the cases are the ones the test lists)
+// shares: binary_sin_cos_fixed_series (the code under test) and binary_sin_cos_series (the sibling that accepts the 160-bit argument), Binary::make_coeff, Binary::from_double
 test "fixed-point sine and cosine decline arguments they do not cover" {
   let work = 100
   assert_true(binary_sin_cos_fixed_series(Binary::zero(), false, work) is None)

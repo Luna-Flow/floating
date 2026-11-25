@@ -15,6 +15,9 @@ fn binary_constant_test_same(
 }
 
 ///|
+// oracle: S
+// source: the uncached binary_ln2_compute, binary_ln10_bounds_compute and binary_pi_bounds_compute at the same precisions; the claim is that the cache returns what the computation returns (hit, miss and eviction paths)
+// shares: the compute functions are the code under test on both sides; binary_constant_test_same compares
 test "certified constant caches return the uncached enclosures" {
   // More distinct precisions than cache entries, visited twice and in a
   // different order, so every lookup path (hit, miss, eviction) is exercised.
@@ -52,6 +55,9 @@ test "certified constant caches return the uncached enclosures" {
 }
 
 ///|
+// oracle: S
+// source: the cache length against binary_constant_cache_entries and the uncached binary_ln2_compute for the value; sizes, not an external value
+// shares: BoundedCache, binary_cached_constant and the compute function (the code under test)
 test "certified constant caches stay bounded and skip very large precisions" {
   for work in 40..<80 {
     ignore(binary_ln2_bounds(work))

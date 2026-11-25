@@ -120,6 +120,9 @@ test "exp splitting tree equals the tree with a power product at every node" {
 }
 
 ///|
+// oracle: S
+// source: split_trig_state_reference, the same recurrence with a power product at every node (kept in this file), on the same cases; agreement of two evaluation orders of one recurrence
+// shares: the recurrence and Coeff arithmetic (both trees); SplitPowers is the code under test
 test "trig splitting tree equals the tree with a power product at every node" {
   for case in split_tree_test_cases() {
     let (numerator, s, terms) = case
@@ -365,6 +368,9 @@ test "stage balls of the real sine series contain the complex stage balls" {
 }
 
 ///|
+// oracle: A, S
+// source: written out: for s = 777 at f = 10, 2^20 - 777^2 = 444847 lies between 666^2 = 443556 and 667^2 = 444889, so the ends are 666 and 667; s = 0 gives 2^f at both ends (the clamp), s above 2^f is declined; the two mutations are compared with the unmutated call (S)
+// shares: burst_cos_from_sine_bounds (the code under test, also as the unmutated reference of the mutation checks), Coeff::from_uint64 and compare
 test "cosine ball from a sine ball: the plus one of the upper end and the clamp" {
   let f = 10
   let one_unit = Coeff::one().shift_left(f)
@@ -375,9 +381,9 @@ test "cosine ball from a sine ball: the plus one of the upper end and the clamp"
   let (low, high) = burst_cos_from_sine_bounds(
     sv, sv, f, burst_trig_no_mutation,
   ).unwrap()
-  let exact = Coeff::one().shift_left(2 * f).sub_checked(sv.square()).unwrap()
-  let (root, remainder) = bin_coeff_sqrt_rem_kernel(exact)
-  assert_true(!remainder.is_zero())
+  // 2^20 - 777^2 = 444847 lies strictly between 666^2 = 443556 and 667^2 = 444889,
+  // so the floor of the root is 666 (written out, not computed).
+  let root = Coeff::from_uint64(666UL)
   assert_eq(low.compare(root), 0)
   assert_eq(high.compare(root.add(Coeff::one())), 0)
   // s = 0 (the clamp): the cosine is at most 1, the upper end is 2^f.

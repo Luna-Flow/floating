@@ -15,6 +15,9 @@
 //           signaling NaN (see 6.2)".
 
 ///|
+// oracle: A, S
+// source: written out: hypot(inf, sNaN) is a quiet NaN with invalid and no other flag, the sign of the signaling NaN, hypot(inf, qNaN) is +inf without a flag (IEEE 754-2019 9.2.1, 6.2); the payload expected is nan_payload_in, which calls binary_convert_nan, so the payload truncation is a consistency claim (S)
+// shares: nan_payload_in (calls binary_convert_nan, the NaN conversion that the code under test also uses), Binary::signaling_nan and quiet_nan build the operands, the flag accessors
 test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
   let contexts = [
     BinaryContext::new(precision=53),

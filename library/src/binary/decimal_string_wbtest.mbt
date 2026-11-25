@@ -7,6 +7,9 @@ fn decimal_string_show(source : String, context : BinaryContext) -> String {
 }
 
 ///|
+// oracle: A
+// source: the binary64 value of each of the 17 literals from CPython float() (correctly rounded strtod; run 2026-11-26, all 17 lines agree); the flags are written from IEEE 754-2019 7.4 (overflow), 7.5 (underflow, tiny and inexact) and 7.6 (inexact)
+// shares: decimal_string_show (Binary::from_string_ctx under test, Display of the value, the flag mask through to_testfloat_bits); the expected text is compared as text
 test "decimal strings round correctly at binary64 hard cases" {
   let context = BinaryContext::binary64()
   let lines = StringBuilder()
@@ -47,6 +50,9 @@ test "decimal strings round correctly at binary64 hard cases" {
 }
 
 ///|
+// oracle: A
+// source: the binary32 results of 1 + 2^-24 (the midpoint of 1 and 1 + 2^-23), its negative and 0.1 in the five rounding directions, written out and checked with a throwaway Python script on fractions (2026-11-26); the flags are written from IEEE 754-2019 7.6 (inexact)
+// shares: decimal_string_show (Binary::from_string_ctx under test, Display of the value, the flag mask through to_testfloat_bits); the expected text is compared as text
 test "decimal strings honour every rounding direction" {
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,
@@ -116,6 +122,9 @@ test "decimal strings parse specials and reject malformed input" {
 }
 
 ///|
+// oracle: A
+// source: 1e300000000, 1e-300000000 and 1e100000 at 53 bits from GNU MPFR 4.2.2 mpfr_set_str (round to nearest, extended exponent range; run 2026-11-26: 6221607060202725p996578376, 6519990545012268p-996578481 = 1629997636253067p-996578479 at the stored precision, 7892964787009086p332140 = 3946482393504543p332141); the flags (inexact only) from IEEE 754-2019 7.6; the name's claim about cost is the test finishing
+// shares: decimal_string_show (Binary::from_string_ctx under test, Display of the value, the flag mask through to_testfloat_bits); the expected text is compared as text
 test "decimal strings with huge exponents stay cheap" {
   let unbounded = BinaryContext::new(precision=53)
   inspect(
@@ -171,6 +180,10 @@ test "decimal strings round-trip the host binary64 shortest form" {
 }
 
 ///|
+// oracle: B
+// source: 1/3 rounded to 200 bits by Binary::div_ctx; the 80-digit string 0.33...3 differs from 1/3 by 10^-80 / 3 (about 2^-267), far below half a unit (2^-201) at 200 bits, so both round to the same value
+// shares: Binary::from_string_ctx is the code under test; Binary::compare and Binary::precision read the result
+// primitives: Binary::div_ctx and Binary::from_int (level A through arith_rows_wbtest.mbt)
 test "arbitrary precision parses agree with exact rational rounding" {
   // 1/3 at 200 bits: the decimal string of many threes approaches 1/3 from
   // below, so it rounds like the binary expansion of 0.333... truncated.

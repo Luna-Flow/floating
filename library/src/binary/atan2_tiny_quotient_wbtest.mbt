@@ -67,6 +67,9 @@ test "atan2 of a quotient below the implementation range rounds like the quotien
 }
 
 ///|
+// oracle: S
+// source: atan_ctx of the exact quotient y / x (x = 2^m), on both sides of the shortcut boundary; the claim is that atan2 agrees with atan on the quotient it builds
+// shares: atan_ctx (the code under test, as the reference) and Binary::make; a2t_text prints value and flags
 test "atan2 across the shortcut boundary agrees with atan of the quotient" {
   // x = 2^m makes y/x exact. For each context the shortcut applies when
   // D = top(y) - top(x) <= e_min - p - 2; the window covers the last distances

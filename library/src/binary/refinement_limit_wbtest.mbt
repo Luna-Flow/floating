@@ -26,6 +26,9 @@ fn refinement_failed(
 }
 
 ///|
+// oracle: S
+// source: the default written as Some(12) (the documented default) and the same call under the explicit limit; no external value
+// shares: BinaryContext::refinement_limit and try_exp_ctx (the code under test)
 test "refinement limit: default is Some(12) and matches the explicit value" {
   let context = BinaryContext::new(precision=53)
   inspect(context.refinement_limit() == Some(12), content="true")
@@ -44,6 +47,9 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 }
 
 ///|
+// oracle: S
+// source: the same try_exp_ctx call under refinement limits 1 to 3 (failure written from the input, refinement_hard_input, which needs the fourth refinement of 117, 175, 262 and 393 bits), 4, the default and None (identical results); the hard input is documented in the test
+// shares: try_exp_ctx and with_refinement_limit (the code under test), refinement_failed
 test "refinement limit: a hard-to-round exp fails at a small limit and succeeds at a larger one" {
   let x = refinement_hard_input()
   let base = BinaryContext::new(precision=53)
@@ -100,6 +106,9 @@ test "refinement limit: the failure reports the refinements taken" {
 }
 
 ///|
+// oracle: S
+// source: expm1 and exp2 of one input under the default limit and under None; agreement of two configurations of the same code
+// shares: try_expm1_ctx and try_exp2_ctx (the code under test on both sides)
 test "refinement limit: the exp family agrees with the default under None" {
   let x = refinement_hard_input()
   let base = BinaryContext::new(precision=53)

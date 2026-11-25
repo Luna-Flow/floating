@@ -186,6 +186,9 @@ test "convert_format: NaN payloads (6.2.3)" {
 }
 
 ///|
+// oracle: S
+// source: BinaryInterchange::from_binary followed by to_binary, the wrapped path; the claim is that convert_format agrees with encoding then decoding, on 16 binary128 patterns, four formats, five directions, both tininess rules
+// shares: BinaryInterchange::from_binary, to_binary and convert_format (the code under test); Binary::to_hex prints
 test "convert_format returns the value that decoding to_interchange returns" {
   // Every pair of formats, six rounding modes, both tininess rules, a spread of
   // binary128 bit patterns including subnormals, overflow and the specials.
