@@ -488,6 +488,28 @@ class DigestTest(unittest.TestCase):
         self.edit("def", "a_wbtest.mbt")
         self.assertNotEqual(self.digest(refine=False), before)
 
+    def test_a_package_nested_in_an_imported_one_counts_only_when_imported(self) -> None:
+        nested = self.root / "library" / "src" / "def" / "inner"
+        nested.mkdir()
+        (nested / "moon.pkg").write_text("")
+        (nested / "n.mbt").write_text("fn n() -> Int { 1 }\n")
+        packages = graph()
+        packages[f"{L}/def/inner"] = pkg(f"{L}/def/inner")
+        before = nu.digest_unit(self.root, self.unit, packages)
+        (nested / "n.mbt").write_text("fn n() -> Int { 2 }\n")
+        self.assertEqual(nu.digest_unit(self.root, self.unit, packages), before)
+        # the nested package as a unit of its own: its files are in its digest although the parent is a package too
+        inner_unit = nu.Unit("i", (f"{L}/def/inner",), True)
+        first = nu.digest_unit(self.root, inner_unit, packages)
+        (nested / "n.mbt").write_text("fn n() -> Int { 9 }\n")
+        self.assertNotEqual(nu.digest_unit(self.root, inner_unit, packages), first)
+        (nested / "n.mbt").write_text("fn n() -> Int { 2 }\n")
+        importing = dict(packages)
+        importing[f"{L}/def"] = pkg(f"{L}/def", f"{L}/def/inner")
+        before = nu.digest_unit(self.root, self.unit, importing)
+        (nested / "n.mbt").write_text("fn n() -> Int { 3 }\n")
+        self.assertNotEqual(nu.digest_unit(self.root, self.unit, importing), before)
+
     def test_the_rule_is_in_the_key(self) -> None:
         a = nu.unit_key(self.unit, "c", "x", "m", "w", "t", "v", "", nu.RULE_ALL)[0]
         b = nu.unit_key(self.unit, "c", "x", "m", "w", "t", "v", "", nu.RULE_IMPORTED_TESTS_OUT)[0]

@@ -378,14 +378,27 @@ def directory_files(repo_root: Path, directories: Sequence[str]) -> list[Path]:
 
 def digest_unit(repo_root: Path, unit: Unit, packages: Mapping[str, Package], refine: bool = True) -> str:
     """The content digest of a unit's closure: every file of the packages of the unit itself, and
-    of the packages it only imports every file except the test files (`is_test_file`). With
-    `refine=False` every file of the whole closure (the rule of key version 1)."""
+    of the packages it only imports every file except the test files (`is_test_file`). A package
+    directory nested in another one (`internal/binary_kernel` below `internal`) is a package of
+    its own: its files belong to the digest only when it is in the closure. With `refine=False`
+    every file below every directory of the closure (the rule of key version 1)."""
     own = {packages[m].directory for m in unit.members}
+    directories = unit_files(unit, packages)
+    every = sorted((Path(p.directory) for p in packages.values()), key=lambda d: len(d.parts), reverse=True)
+    inside = {Path(d) for d in directories}
+
+    def owner(file: Path) -> Path | None:
+        """The deepest package directory that contains the file."""
+        parents = set(file.relative_to(repo_root).parents)
+        return next((d for d in every if d in parents), None)
+
     files: set[Path] = set()
-    for directory in unit_files(unit, packages):
+    for directory in directories:
         found = directory_files(repo_root, [directory])
-        if refine and directory not in own:
-            found = [f for f in found if not is_test_file(f.name)]
+        if refine:
+            found = [f for f in found if owner(f) in inside or owner(f) is None]
+            if directory not in own:
+                found = [f for f in found if not is_test_file(f.name)]
         files.update(found)
     return cf.hash_tree(sorted(files), repo_root)
 
