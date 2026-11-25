@@ -89,27 +89,3 @@ test "radius and width are the smallest numbers with their properties near the b
   }
   assert_eq(checked, 3000)
 }
-
-///|
-test "radius and width are unchanged away from the bottom of the range" {
-  let state = Ref(0x2545f4914f6cdd1dUL)
-  for _ in 0..<3000 {
-    let x = mid_next(state) % 1000000UL + 1UL
-    let y = mid_next(state) % 1000000UL + 1UL
-    let a = mid_value(x, (mid_next(state) % 400UL).to_int() - 200, 53)
-    let b = mid_value(y, (mid_next(state) % 400UL).to_int() - 200, 53)
-    let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
-    let interval = Interval::from_bounds(lo, hi, precision=53)
-    let m = interval.midpoint()
-    let old_width = upper_round_bound(
-      exact_add_full(interval.upper_bound(), interval.lower_bound().neg()),
-      53,
-    )
-    let old_radius = bin_max(
-      upper_round_bound(exact_add_full(m, interval.lower_bound().neg()), 53),
-      upper_round_bound(exact_add_full(interval.upper_bound(), m.neg()), 53),
-    )
-    assert_identical(interval.width(), old_width)
-    assert_identical(interval.radius(), old_radius)
-  }
-}

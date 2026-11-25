@@ -155,7 +155,10 @@ test "cancel_plus and cancel_minus decide on the exact values near the bottom of
 }
 
 ///|
-test "away from the bottom of the range the result is the same as before" {
+// oracle: A
+// source: integer algebra written in the test on the coefficients: x = [a, a + d] * 2^e and y = [b, b + d + delta] * 2^e have the widths d and d + delta, so cancelMinus (IEEE 1788-2015 12.12.5) is [a - b, a - b - delta] * 2^e when delta <= 0 and Entire when width(x) < width(y), that is delta = 1; exponents -100 to 99 and coefficients below 2^20 keep every value exact in 53 bits; the sign of a zero end is checked by the zero sign tests
+// shares: cn_interval and cn_value (build a coefficient times 2^e with Binary::make), cn_next (the xorshift of the inputs)
+test "away from the bottom of the range cancel_minus is the exact difference of the ends" {
   let state = Ref(0x2545f4914f6cdd1dUL)
   for _ in 0..<3000 {
     let exponent = (cn_next(state) % 200UL).to_int() - 100
@@ -165,17 +168,14 @@ test "away from the bottom of the range the result is the same as before" {
     let delta = (cn_next(state) % 3UL).reinterpret_as_int64() - 1L
     let x = cn_interval(a, a + d, exponent, 53)
     let y = cn_interval(b, b + d + delta, exponent, 53)
-    // the old formula: exact ends made at their own bit length, decision, ends
-    let old_lo = exact_add_full(x.lower_bound(), y.lower_bound().neg())
-    let old_hi = exact_add_full(x.upper_bound(), y.upper_bound().neg())
-    let old = if old_lo.compare(old_hi) > 0 {
-      whole_real(53)
+    let result = x.cancel_minus(y)
+    if delta > 0L {
+      assert_true(result.is_entire())
     } else {
-      store_interval(old_lo, old_hi, 53)
+      let expected = cn_interval(a - b, a - b - delta, exponent, 53)
+      assert_eq(result.lower_bound().compare(expected.lower_bound()), 0)
+      assert_eq(result.upper_bound().compare(expected.upper_bound()), 0)
     }
-    let new = x.cancel_minus(y)
-    assert_identical(new.lower_bound(), old.lower_bound())
-    assert_identical(new.upper_bound(), old.upper_bound())
   }
 }
 

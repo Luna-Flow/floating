@@ -25,6 +25,9 @@ fn cfw_is_entire(x : Interval) -> Bool {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 12.12.5 (10.5.6): cancelMinus and cancelPlus give Entire when width(x) < width(y); a point has width 0 and y has width 2^-1073741874 > 0, so the result is Entire; equal widths ([1,2] and [3,4]) give a point for cancelMinus and not Entire for cancelPlus; worked by hand
+// shares: cfw_value (Binary::make), Interval::from_bounds, from_int, convex_hull, is_entire and is_singleton; cancel_minus and cancel_plus are the code under test
 test "a point minus an interval of a tiny positive width is Entire" {
   let x0 = cfw_value(2485731UL, -915372, true)
   let x = Interval::from_bounds(x0, x0, precision=113)
@@ -47,6 +50,9 @@ test "a point minus an interval of a tiny positive width is Entire" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 12.12.5 (10.5.6): x is a point (width 0) and y = [-1155434267279036823 * 2^38, 0] has a positive width, so width(x) < width(y) and both cancelMinus and cancelPlus are Entire; worked by hand
+// shares: cfw_value (Binary::make), Interval::from_bounds and is_entire; cancel_minus and cancel_plus are the code under test
 test "the far addend does not decide the width of a wide interval" {
   // x = [x0, x0 + 2^-200 x0-units], y = [y0, y0 + 2^-1073741874]: the widths
   // differ at a place far below the end values
