@@ -183,6 +183,9 @@ test "decimal power keeps zero defined for tiny nonintegral exponents" {
 ///|
 /// Negating a positive result must reverse directed rounding, so negative-base
 /// odd powers use the mirrored magnitude context before certification.
+// oracle: S
+// source: odd symmetry of the power, (-x)^n = -(x^n) with the directed rounding mirrored (ceiling for floor); the positive-base power is the oracle, the same function in the mirrored mode, and no value is written out
+// shares: Decimal::from_string, pow_ctx, neg and with_rounding (the code under test on both sides)
 test "decimal large negative-base powers mirror directed rounding" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let base = d("-1.000000000000001")

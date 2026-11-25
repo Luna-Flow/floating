@@ -142,6 +142,9 @@ test "rounding without a context at the top of the range overflows by the mode" 
 }
 
 ///|
+// oracle: S
+// source: a range invariant over inputs at and near both ends of the stored range (1, 2, 34 and 100 digits): the result of every context-free function that returns a Decimal is non-finite or lies in the stored range; no result is written out
+// shares: the context-free functions themselves (the code under test), Decimal::from_string and the range accessors
 test "every context-free function that returns a Decimal gives a non-finite or a storable value" {
   // inputs at and near both ends of the stored range, digits 1, 2, 34, 100
   let exponents : Array[Int32] = [

@@ -29,6 +29,9 @@ test "BID decimal32 and decimal64 canonical vectors" {
 }
 
 ///|
+// oracle: S
+// source: the same value -12345.6789 encoded in DPD and in BID and decoded again must compare equal under total order and have the same sign, in each of decimal32, decimal64 and decimal128; the two encodings are compared with each other and no encoding is written out
+// shares: Decimal::from_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test, both encodings)
 test "DPD and BID share Decimal semantics across formats" {
   for format in [Decimal32, Decimal64, Decimal128] {
     let value = Decimal::from_string("-12345.6789", precision=34).unwrap()
@@ -106,6 +109,9 @@ test "BID NaN payloads are integers across formats" {
 }
 
 ///|
+// oracle: A, S
+// source: S for the round trips (encode a quiet NaN with payload 123 and a signaling NaN with payload 45 in DPD and BID, decode, compare the payload and the signaling and sign bits); A for the last assertion, the BID encoding of a quiet NaN with payload 123 in decimal64, #7C0000000000007B, written out in the test
+// shares: Decimal::quiet_nan, Decimal::signaling_nan, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test on both sides of the round trip)
 test "BID NaN payloads do not depend on the value precision" {
   for encoding in [DPD, BID] {
     let nan = Decimal::quiet_nan(payload=123N)
@@ -237,6 +243,9 @@ test "IEEE BID format conversion detects tininess before rounding" {
 }
 
 ///|
+// oracle: A, S
+// source: S for decoding each of the 1024 declets to three digits and encoding the digits back (the digits are in 0..9 and the canonical code is a declet); A for the count of the codes that do not come back, 24, the number of non-canonical 10-bit patterns of IEEE 754-2019 3.5.2 (the 24 patterns of the form 01x11x111x, 10x11x111x and 11x11x111x, text read in the extracted standard)
+// shares: decimal_dpd_to_digit_triplet and decimal_digit_triplet_to_dpd (the code under test, both directions)
 test "IEEE DPD declet corpus exhaustively canonicalizes all 1024 codes" {
   let mut redundant = 0
   for code in 0..<1024 {

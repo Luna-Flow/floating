@@ -3,6 +3,9 @@
 /// the result and no refinement can ever make its two endpoints round alike.
 /// Reducing the exponent to `3/2` and taking the exact square root of `4^3`
 /// decides the power before the refinement loop is reached.
+// oracle: A
+// source: the twelve exact results are written out and can be checked by hand from the exact arithmetic of the operands (4^1.5 = 8, 9^1.5 = 27, 4^2.5 = 32, 16^0.25 = 2, 16^0.75 = 8, 32^0.2 = 2, 32^0.4 = 4, 1024^0.1 = 2, 0.25^1.5 = 0.125, 1.21^1.5 = 1.331, 4^-1.5 = 0.125, 16^-0.25 = 0.5); no inexact flag
+// shares: Decimal::from_string, DecimalContext::decimal64 and to_string (they build the operands and print the result)
 test "decimal power decides exact non-integral results" {
   let context = DecimalContext::decimal64()
   let cases = [
@@ -123,6 +126,9 @@ test "decimal power rounds long exact non-integral results in every mode" {
 /// first keeps every intermediate at the size of the result, so the power is
 /// decided in every mode instead of failing certification after minutes. The
 /// negative exponent case raises the reciprocal of the root `5^600`.
+// oracle: A
+// source: the expected value is the exact power derived by hand: (2^1200 * 10^-1200)^1.5 = 2^1800 * 10^-1800 and (5^1200)^-1.5 = 5^-1800 = 2^1800 * 10^-1800, written as the integer 2^1800 with exponent -1800; no inexact flag in every rounding mode
+// shares: BigInt shifts, pow5 and to_string (they build the text of the operands and of the expected value; 2^1800 is a shift of 1), Decimal::from_string, and total_order_compare (it compares the result with the expected value)
 test "decimal power decides exact non-integral results past base^p's size (#138)" {
   let two_1200 = (BigInt::from_int(1) << 1200).to_string()
   let two_1800 = (BigInt::from_int(1) << 1800).to_string()
@@ -194,6 +200,9 @@ test "decimal power decides exact powers with large reduced exponents" {
 }
 
 ///|
+// oracle: S
+// source: a round trip: the exact power of the constructed root 10^40 + 7 for each degree must have that exact root, a number one above it must have none and its floor root is the root; the root is constructed in the test and no power is written out
+// shares: dec_coeff_exact_power_repr, dec_coeff_exact_nth_root_repr and dec_coeff_floor_nth_root_repr (the code under test, the power and both roots)
 test "decimal exact integer roots take Newton steps for long roots" {
   let root = dec_coeff_magnitude_add_repr(
     dec_coeff_power10_repr(40),
