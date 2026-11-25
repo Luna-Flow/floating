@@ -951,12 +951,13 @@ fn decimal_exp_underflow_zero_result(
       subnormal: true,
     },
   )
-  if ctx.extended || clamped {
+  if ctx.extended {
     result
   } else {
+    // Appendix A: the zero of the subset has exponent 0, also when Clamped is raised.
     (
       finish_subset_finite_result(result.0, ctx, false),
-      { ..result.1, clamped: false, },
+      { ..result.1, clamped, },
     )
   }
 }

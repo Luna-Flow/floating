@@ -120,3 +120,30 @@ let i796_subset_rows : Array[
 test "issue 796: exp_ctx in a subset context keeps the zero and applies the overflow direction" {
   assert_eq(i796_run(i796_subset_rows, extended=false), [])
 }
+
+///|
+// Issue 800: far underflow of exp in a subset context (integer argument of at most -1000).
+// Hand-written from GDA 1.70 page 55 (Appendix A: a zero result has exponent 0; subnormal
+// results are not permitted, so Underflow) and page 53 (Underflow flags): the zero of the subset
+// with Inexact, Rounded, Underflow, Subnormal and, for an integer of at most -1000, Clamped (the
+// flag the library has always raised there; decNumber 3.68 raises it too).
+// libmpdec has no subset arithmetic.
+let i800_subset_rows : Array[
+  (String, Int32, Int32, Int32, Int32, String, String, String),
+] = [
+  ("half_even", 7, -95, 96, 1, "-3060", "0", "xrusc"),
+  ("down", 7, -95, 96, 0, "-3060", "0", "xrusc"),
+  ("ceiling", 7, -95, 96, 1, "-1000", "0", "xrusc"),
+  ("up", 7, -95, 96, 0, "-1000", "0", "xrusc"),
+  ("05up", 16, -383, 384, 1, "-30600", "0", "xrusc"),
+  ("floor", 16, -383, 384, 0, "-1000000", "0", "xrusc"),
+  ("half_up", 34, -6143, 6144, 1, "-100000", "0", "xrusc"),
+]
+
+///|
+// oracle: A
+// source: expected values written by hand from GDA 1.70 page 55 (Appendix A, simplified number set: zero coefficient gives exponent 0; no subnormal results) and page 53 (Underflow); no program produced them
+// shares: Decimal::from_string, Decimal::to_sci_string, DecimalContext::new
+test "issue 800: exp_ctx far underflow in a subset context keeps the zero of the subset" {
+  assert_eq(i796_run(i800_subset_rows, extended=false), [])
+}
