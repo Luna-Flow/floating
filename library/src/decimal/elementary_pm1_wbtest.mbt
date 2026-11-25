@@ -793,7 +793,7 @@ test "pm1 the tiny-argument shortcut gives the Ziv loop's result" {
 // shares: Decimal::from_string, exp2m1_ctx, exp10m1_ctx, log2p1_ctx, log10p1_ctx and to_string (they build the operand and read the result as text)
 test "pm1 tiny arguments next to a rounding midpoint" {
   let ctx = DecimalContext::new(precision=3)
-  for row in pm1_tiny_rows {
+  for row in pm1_tiny_rows() {
     let (operation, _, text, expected) = row
     let x = Decimal::from_string(text, precision=64).unwrap()
     let got = match operation {

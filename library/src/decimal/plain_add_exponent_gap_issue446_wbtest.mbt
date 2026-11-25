@@ -47,12 +47,13 @@ test "issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx" {
     (5N, 0, -3N, -700_000),
     (12345N, -10, 6N, 400_000),
   ]
-  assert_eq(cases.length(), gap_446_rows.length())
+  let expected_rows = gap_446_rows()
+  assert_eq(cases.length(), expected_rows.length())
   for index, c in cases {
     let (ac, ae, bc, be) = c
     let a = gap_value(ac, ae, 34)
     let b = gap_value(bc, be, 34)
-    let (plus, minus) = gap_446_rows[index]
+    let (plus, minus) = expected_rows[index]
     assert_eq((index, (a + b).to_string()), (index, plus))
     assert_eq((index, (a - b).to_string()), (index, minus))
   }
@@ -67,6 +68,7 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
     1N, 9N, 12345N, 5000000000000N, 9999999999999999999999999999999999N, 1000000000000000000000000000000000N,
   ]
   let mut index = 0
+  let expected_rows = sticky_446_rows()
   for precision in [1, 2, 5, 34] {
     for hc in coefficients {
       for lc in [1N, 5N, 7N, 99N] {
@@ -101,7 +103,7 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
                 -gap - lc.to_string().length() - hc.to_string().length(),
                 precision,
               )
-              let expected = sticky_446_rows[index]
+              let expected = expected_rows[index]
               index += 1
               assert_eq((index, (high + low).to_string()), (index, expected))
               assert_eq((index, (low + high).to_string()), (index, expected))
@@ -111,7 +113,7 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
       }
     }
   }
-  assert_eq(index, sticky_446_rows.length())
+  assert_eq(index, expected_rows.length())
 }
 
 ///|

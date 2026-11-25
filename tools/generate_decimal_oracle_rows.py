@@ -425,55 +425,91 @@ def grid_rows() -> list[tuple[str, int, str, str, int]]:
     return rows
 
 
+CHUNK_ROWS = 100
+
+
+def table_lines(name: str, row_type: str, rows: list[str]) -> list[str]:
+    """A table as chunked functions plus one function that joins them: a top-level `let` of
+    many tuples makes the module initialiser of a wasm test build exceed the limit on locals."""
+    out: list[str] = []
+    chunks = [rows[i : i + CHUNK_ROWS] for i in range(0, len(rows), CHUNK_ROWS)]
+    for index, chunk in enumerate(chunks):
+        out += ["///|", f"fn {name}_{index}() -> Array[{row_type}] {{", "  ["]
+        out += [f"    {row}" for row in chunk]
+        out += ["  ]", "}", ""]
+    out += ["///|", f"fn {name}() -> Array[{row_type}] {{", f"  let rows : Array[{row_type}] = []"]
+    out += [f"  for row in {name}_{index}() {{ rows.push(row) }}" for index in range(len(chunks))]
+    out += ["  rows", "}", ""]
+    return out
+
+
 def quote(text: str) -> str:
     return '"' + text + '"'
+
+
+def b(flag: bool) -> str:
+    return "true" if flag else "false"
 
 
 def render() -> str:
     out = [
         "///|",
         "// oracle-file: A",
-        "// producer: tools/generate_decimal_oracle_rows.py (CPython `decimal`/libmpdec, Python integers and `math.gcd`)",
-        "// input: issue 446 operand pairs, ten decimal texts at four binary precisions, and numerator/divisor pairs for the word divisor kernel (seeded)",
+        "// producer: tools/generate_decimal_oracle_rows.py (CPython `decimal`/libmpdec, Python integers, `math.gcd` and Machin's formula)",
+        "// input: issue 446 operand pairs and sticky absorption sums, a to_binary grid, from_binary of dyadic values, exact division rows, ten decimal texts at four binary precisions, pm1 arguments next to a rounding midpoint, numerator/divisor pairs for the word divisor kernel, and the bounds of pi (seeded)",
         "// library-ran: no",
         "// shares: nothing in the tables; the tests parse the operands with Decimal::from_string and compare text with text, or exact coefficients with Binary::compare",
         "// check: python3 tools/generate_decimal_oracle_rows.py --check",
         "",
-        "///|",
-        "let gap_446_rows : Array[(String, String)] = [",
     ]
-    for plus, minus in gap_rows():
-        out.append(f"  ({quote(plus)}, {quote(minus)}),")
-    out += ["]", "", "///|", "let sticky_446_rows : Array[String] = ["]
-    for text in sticky_rows():
-        out.append(f"  {quote(text)},")
-    out += ["]", "", "///|", "let to_binary_grid_rows : Array[(String, Int32, String, String, Int32)] = ["]
-    for text, precision, mode, coefficient, exponent in grid_rows():
-        out.append(f"  ({quote(text)}, {precision}, {quote(mode)}, {quote(coefficient)}, {exponent}),")
-    out += ["]", "", "///|", "let from_binary_rows : Array[(String, Int32, Bool, Int32, String, String)] = ["]
-    for mantissa, exponent, negative, precision, mode, expected in from_binary_rows(False):
-        out.append(f"  ({quote(mantissa)}, {exponent}, {'true' if negative else 'false'}, {precision}, {quote(mode)}, {quote(expected)}),")
-    out += ["]", "", "///|", "let from_binary_mode_rows : Array[(String, Int32, Bool, Int32, String, String)] = ["]
-    for mantissa, exponent, negative, precision, mode, expected in from_binary_rows(True):
-        out.append(f"  ({quote(mantissa)}, {exponent}, {'true' if negative else 'false'}, {precision}, {quote(mode)}, {quote(expected)}),")
-    out += ["]", "", "///|", "let from_binary_boundary_rows : Array[String] = ["]
-    for text in boundary_rows():
-        out.append(f"  {quote(text)},")
-    out += ["]", "", "///|", "let exact_division_rows : Array[(Int32, Int32, String, Bool, String, String, String)] = ["]
-    for precision, e_max, mode, clamp, dividend, divisor, expected in exact_division_rows():
-        out.append(f"  ({precision}, {e_max}, {quote(mode)}, {'true' if clamp else 'false'}, {quote(dividend)}, {quote(divisor)}, {quote(expected)}),")
+    out += table_lines(
+        "gap_446_rows", "(String, String)", [f"({quote(a)}, {quote(c)})," for a, c in gap_rows()]
+    )
+    out += table_lines("sticky_446_rows", "String", [f"{quote(t)}," for t in sticky_rows()])
+    out += table_lines(
+        "to_binary_grid_rows",
+        "(String, Int32, String, String, Int32)",
+        [f"({quote(t)}, {p}, {quote(m)}, {quote(c)}, {k})," for t, p, m, c, k in grid_rows()],
+    )
+    binary_type = "(String, Int32, Bool, Int32, String, String)"
+    for name, rotate in (("from_binary_rows", False), ("from_binary_mode_rows", True)):
+        out += table_lines(
+            name,
+            binary_type,
+            [
+                f"({quote(m)}, {e}, {b(n)}, {p}, {quote(mode)}, {quote(x)}),"
+                for m, e, n, p, mode, x in from_binary_rows(rotate)
+            ],
+        )
+    out += table_lines("from_binary_boundary_rows", "String", [f"{quote(t)}," for t in boundary_rows()])
+    out += table_lines(
+        "exact_division_rows",
+        "(Int32, Int32, String, Bool, String, String, String)",
+        [
+            f"({p}, {e}, {quote(m)}, {b(c)}, {quote(d)}, {quote(v)}, {quote(x)}),"
+            for p, e, m, c, d, v, x in exact_division_rows()
+        ],
+    )
     lo_hex, hi_hex = pi_hex_bounds()
-    out += ["]", "", "///|", f"let pi_ref_lo_hex : String = {quote(lo_hex)}", "", "///|", f"let pi_ref_hi_hex : String = {quote(hi_hex)}"]
-    out += ["", "///|", "let pm1_tiny_rows : Array[(String, Int32, String, String)] = ["]
-    for operation, precision, x_text, expected in pm1_rows():
-        out.append(f"  ({quote(operation)}, {precision}, {quote(x_text)}, {quote(expected)}),")
-    out += ["]", "", "///|", "let ball_rows : Array[(String, Int32, String, Int32, String, Int32)] = ["]
-    for text, p, lo_c, lo_k, hi_c, hi_k in ball_rows():
-        out.append(f"  ({quote(text)}, {p}, {quote(str(lo_c))}, {lo_k}, {quote(str(hi_c))}, {hi_k}),")
-    out += ["]", "", "///|", "let word_divisor_rows : Array[(String, Int32, Bool, Int32)] = ["]
-    for numerator, divisor, ends, remainder in word_rows():
-        out.append(f"  ({quote(numerator)}, {divisor}, {'true' if ends else 'false'}, {remainder}),")
-    out += ["]", ""]
+    out += ["///|", f"let pi_ref_lo_hex : String = {quote(lo_hex)}", "", "///|", f"let pi_ref_hi_hex : String = {quote(hi_hex)}", ""]
+    out += table_lines(
+        "pm1_tiny_rows",
+        "(String, Int32, String, String)",
+        [f"({quote(o)}, {p}, {quote(x)}, {quote(e)})," for o, p, x, e in pm1_rows()],
+    )
+    out += table_lines(
+        "ball_rows",
+        "(String, Int32, String, Int32, String, Int32)",
+        [
+            f"({quote(t)}, {p}, {quote(str(lc))}, {lk}, {quote(str(hc))}, {hk}),"
+            for t, p, lc, lk, hc, hk in ball_rows()
+        ],
+    )
+    out += table_lines(
+        "word_divisor_rows",
+        "(String, Int32, Bool, Int32)",
+        [f"({quote(n)}, {d}, {b(e)}, {r})," for n, d, e, r in word_rows()],
+    )
     return "\n".join(out)
 
 
