@@ -831,7 +831,7 @@ msgstr "値のクラスと符号を報告します。"
 
 #: manual/api/binary.md:380
 msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
-msgstr "`classify` は `Finite`、`Infinity`、`NaN` を返します（零は `Finite`）。`signum` はすべての零とすべての NaN で `Zero`、それ以外は `Positive` か `Negative` です。`is_negative` は符号ビットそのものを返し、$-0$、$-\\infty$、負の NaN で立ちます。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite`、`@def.is_zero` は `Floating` トレイト経由で `Binary` に使えます。次の節のメソッドはトレイトなしで同じ答えを返します。"
+msgstr "`classify` は `Finite`、`Infinity`、`NaN` を返します（零は `Finite`）。`signum` はすべての零とすべての NaN で `Zero`、それ以外は `Positive` か `Negative` です。`is_sign_minus` は符号ビットそのものを返し、$-0$、$-\\infty$、負の NaN で立ちます。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite`、`@def.is_zero` は `Floating` トレイト経由で `Binary` に使えます。次の節のメソッドはトレイトなしで同じ答えを返します。"
 
 #: manual/api/binary.md:389
 msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
@@ -4512,7 +4512,7 @@ msgstr "`zero_contextual` と `one_contextual` はコンテキストの精度を
 
 #: manual/api/decimal.md:2394
 msgid "These functions implement the checked traits of `Luna-Flow/arithmetic`."
-msgstr "`parse_checked(s, ctx)` は `ctx` を `DecimalContext` に変換して `Decimal::from_string_ctx` を使用し、コンテキストの精度、丸め方向、指数範囲、clamp 設定を適用します。変換後の値を返し、オーバーフローなどのフラグは `from_string_ctx` から取得できます。構文が無効な場合は `Err(parse_error)` を返します。 `DivChecked::div_checked(x, y, ctx)` は変換後のコンテキストのもとでの `div_ctx` で、[`div_checked`](#decimaldiv_checked-sqrt) と同様に `Err(division_by_zero)` と `Err(domain_error)` を返します。`sqrt_checked` は変換後のコンテキストのもとでの `sqrt_ctx` で、負のオペランドに対して失敗します。`pow_nat_checked` と `pow_int_checked` は、整数の指数を `Decimal` へ厳密に変換した（少なくとも 10 桁で、受け付けるすべての指数を収められます）`power_ctx` です。したがって精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。底がゼロで指数が負なら `Err(division_by_zero)` を、無効な冪なら `Err(domain_error)` を返し、`pow_nat_checked` は 999,999,999 を超える指数に対して `Err(unsupported)` を返します。`CompareChecked` は [`compare_checked`](#decimalcompare_checked) です。"
+msgstr "これらの関数は `Luna-Flow/arithmetic` の checked トレイトを実装します。"
 
 #: manual/api/decimal.md:2409
 msgid "`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses `Decimal::from_string_ctx`, so the context's precision, rounding direction, exponent range applies. It returns the converted value; flags such as overflow remain available from `from_string_ctx`. Invalid syntax returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context; it returns `Err(division_by_zero)` for the division-by-zero flag and `Err(domain_error)` for the invalid-operation flag. `sqrt_checked` is `sqrt_ctx` under the converted context and fails for negative operands. `pow_nat_checked` and `pow_int_checked` call `pow_ctx` with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with a negative exponent, and `Err(domain_error)` for an invalid result such as a signaling NaN operand. `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked)."
@@ -6463,7 +6463,7 @@ msgstr "decimal_gda_checked API"
 
 #: manual/api/decimal_gda_checked.md:5
 msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `flags` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-flags laws."
-msgstr "`decimal_gda_checked` は `GdaDecimalChecked` を提供します。これは [`decimal_gda`](decimal_gda.md) の General Decimal Arithmetic（GDA）演算を連結するパイプラインです。このパイプラインはちょうど 1 つの `GdaOutcome[Decimal]` を保持し、その内容は現在の定義済みの値、次のコンテキスト（そのスティッキーな `status` はこれまでに発生したすべてのシグナルを蓄積します）、直近の演算で発生したシグナル、そしてトラップが発火した場合はトラップされたシグナルです。完了状態に対する演算は、保存されたコンテキストで GDA 演算を実行します。トラップ状態に対する演算は何もしません。トラップ後に処理を続行する唯一の方法は `resume_defined()` です。二項演算の右オペランドもパイプラインで、その条件は結果に加わり、そのトラップは演算を打ち切ります（[演算](#operations)を参照）。このパッケージが `ArithmeticError` を生成することはありません。トラップと復帰の流れは[チュートリアル](../tutorial/decimal_gda_checked.md)で説明しています。[設計ページ](../design/decimal_gda_checked.md)では、パイプラインを吸収的なトラップを持つ状態モナドとしてモデル化し、スティッキーなフラグの法則を証明しています。"
+msgstr "`decimal_gda_checked` は `GdaDecimalChecked` を提供します。これは [`decimal_gda`](decimal_gda.md) の General Decimal Arithmetic（GDA）演算を連結するパイプラインです。このパイプラインはちょうど 1 つの `GdaOutcome[Decimal]` を保持し、その内容は現在の定義済みの値、次のコンテキスト（そのスティッキーな `flags` はこれまでに発生したすべてのシグナルを蓄積します）、直近の演算で発生したシグナル、そしてトラップが発火した場合はトラップされたシグナルです。完了状態に対する演算は、保存されたコンテキストで GDA 演算を実行します。トラップ状態に対する演算は何もしません。トラップ後に処理を続行する唯一の方法は `resume_defined()` です。二項演算の右オペランドもパイプラインで、その条件は結果に加わり、そのトラップは演算を打ち切ります（[演算](#operations)を参照）。このパッケージが `ArithmeticError` を生成することはありません。トラップと復帰の流れは[チュートリアル](../tutorial/decimal_gda_checked.md)で説明しています。[設計ページ](../design/decimal_gda_checked.md)では、パイプラインを吸収的なトラップを持つ状態モナドとしてモデル化し、スティッキーなフラグの法則を証明しています。"
 
 #: manual/api/decimal_gda_checked.md:22
 msgid "Add both packages to your `moon.pkg`; the pipeline takes `decimal_gda` values and contexts:"
@@ -12115,7 +12115,7 @@ msgstr "§10.5.4 逆方向モードの初等関数"
 
 #: manual/conformance/interval.md:16
 msgid "ITF1788 multiplicative-reverse (`mulRev`, `mulRevTen`), algebraic-reverse (`sqrRev`, `absRev`, `pownRev`, `coshRev`) trigonometric-reverse (`sinRev`, `cosRev`, `tanRev`, and the `Bin` forms) power-reverse-1 (`powRev1`) and power-reverse-2 (`powRev2`) phases, and the generated `atan2-reverse` phase (`atan2Rev1`, `atan2Rev2`: our own cases, 16,260, from `tools/itl_atan2_reverse_oracle.py`, validated by the forward definition; the ITF1788 corpus has none); `library/src/interval/mul_rev_wbtest.mbt`, `algebraic_reverse_wbtest.mbt`, `trig_reverse_wbtest.mbt`, `trig_reverse_reference_wbtest.mbt`, `pow_reverse_wbtest.mbt`, `pow_reverse_reference_wbtest.mbt`, `pow_reverse2_wbtest.mbt`, `pow_reverse2_reference_wbtest.mbt`, `atan2_reverse_wbtest.mbt`, `atan2_reverse_reference_wbtest.mbt`"
-msgstr "ITF1788 multiplicative-reverse（`mulRev`、`mulRevTen`）、algebraic-reverse（`sqrRev`、`absRev`、`pownRev`、`coshRev`）、trigonometric-reverse（`sinRev`、`cosRev`、`tanRev` とその `Bin` 形式）、power-reverse-1（`powRev1`）、power-reverse-2（`powRev2`）フェーズ、`library/src/interval/mul_rev_wbtest.mbt`、`algebraic_reverse_wbtest.mbt`、`trig_reverse_wbtest.mbt`、`trig_reverse_reference_wbtest.mbt`、`pow_reverse_wbtest.mbt`、`pow_reverse_reference_wbtest.mbt`、`pow_reverse2_wbtest.mbt`、`pow_reverse2_reference_wbtest.mbt`、`atan2_reverse_wbtest.mbt`、`atan2_reverse_reference_wbtest.mbt`"
+msgstr "ITF1788 multiplicative-reverse（`mulRev`、`mulRevTen`）、algebraic-reverse（`sqrRev`、`absRev`、`pownRev`、`coshRev`）、trigonometric-reverse（`sinRev`、`cosRev`、`tanRev` とその `Bin` 形式）、power-reverse-1（`powRev1`）、power-reverse-2（`powRev2`）フェーズ、生成された `atan2-reverse` フェーズ（`atan2Rev1`、`atan2Rev2`：独自のケース 16,260 件で、`tools/itl_atan2_reverse_oracle.py` から生成し、前向きの定義で検証したもの。ITF1788 コーパスにはありません）、`library/src/interval/mul_rev_wbtest.mbt`、`algebraic_reverse_wbtest.mbt`、`trig_reverse_wbtest.mbt`、`trig_reverse_reference_wbtest.mbt`、`pow_reverse_wbtest.mbt`、`pow_reverse_reference_wbtest.mbt`、`pow_reverse2_wbtest.mbt`、`pow_reverse2_reference_wbtest.mbt`、`atan2_reverse_wbtest.mbt`、`atan2_reverse_reference_wbtest.mbt`"
 
 #: manual/conformance/interval.md:16
 msgid "conforming (every reverse function of Table 10.1; the evidence for `atan2Rev1` and `atan2Rev2` is generated, see the design page; issue [#230](https://github.com/Luna-Flow/floating/issues/230))"
@@ -15291,7 +15291,7 @@ msgstr "`div_ctx(x, +-0)`、`x` は有限の非零"
 
 #: manual/design/binary_checked.md:187
 msgid "`sqrt_ctx(x)`, `x < 0` including $-\\infty$"
-msgstr "`sqrt_ctx(x)`、`x < 0`（$-infty$ を含む）"
+msgstr "`sqrt_ctx(x)`、`x < 0`（$-\\infty$ を含む）"
 
 #: manual/design/binary_checked.md:187
 msgid "7.2 g)"
@@ -21248,7 +21248,7 @@ msgstr "エラーモナドとしてのラッパー"
 
 #: manual/design/interval_checked.md:48
 msgid "`IntervalChecked` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
-msgstr "`IntervalChecked` は例外モナド $M V = V + E$ です。ここで $V$ は `Interval` の値の集合、$E$ は `ArithmeticError` の値の集合であり、$\\eta = $ `ok`、$\\mathbin{>\\!\\!>\\!\\!=} = $ `bind` です。モナド則（左単位元則、右単位元則、結合則）と `map` の関手則は [`binary_checked` の設計](binary_checked.md#the-monad-laws)で証明されています。その証明は $V$ のいかなる性質も用いない $\\mathrm{Ok}/\\mathrm{Err}$ の場合分けです。演算子は同じ左優先の方式（`ball_result_lift2`）で持ち上げられるので、[最初のエラーの定理](binary_checked.md#the-first-error-theorem)がそのまま適用されます。式は、後行順で最初にエラーを生じたノードのエラーを報告します。"
+msgstr "`IntervalChecked` は例外モナド $M V = V + E$ です。ここで $V$ は `Interval` の値の集合、$E$ は `ArithmeticError` の値の集合であり、$\\eta = $ `ok`、$\\mathbin{>\\!\\!>\\!\\!=} = $ `bind` です。モナド則（左単位元則、右単位元則、結合則）と `map` の関手則は [`binary_checked` の設計](binary_checked.md#the-monad-laws)で証明されています。その証明は $V$ のいかなる性質も用いない $\\mathrm{Ok}/\\mathrm{Err}$ の場合分けです。演算子は同じ左優先の方式（`interval_result_lift2`）で持ち上げられるので、[最初のエラーの定理](binary_checked.md#the-first-error-theorem)がそのまま適用されます。式は、後行順で最初にエラーを生じたノードのエラーを報告します。"
 
 #: manual/design/interval_checked.md:62
 msgid "What is an error and what is a value"
@@ -26284,7 +26284,7 @@ msgstr "ラッパーは値かエラーを保持するだけで、それ以外は
 
 #: manual/tutorial/binary_checked.md:237
 msgid "**A quiet NaN is a success.** `BinaryChecked` reports an invalid operation ($\\infty - \\infty$, `sqrt_ctx` of a negative number, a signaling NaN) as `DomainError` and a division by zero as `DivisionByZero`, with or without a context. A quiet NaN operand is not an exception and stays a successful NaN; test `@def.is_nan` on the final value if that matters."
-msgstr "**quiet NaN は成功です。** `BinaryChecked` は、文脈の有無にかかわらず、invalid operation（$infty - infty$、負数の `sqrt_ctx`、シグナリング NaN）を `DomainError`、ゼロ除算を `DivisionByZero` として報告します。quiet NaN オペランドは例外ではなく成功した NaN のままです。必要なら最終値に `@def.is_nan` を試してください。"
+msgstr "**quiet NaN は成功です。** `BinaryChecked` は、文脈の有無にかかわらず、invalid operation（$\\infty - \\infty$、負数の `sqrt_ctx`、シグナリング NaN）を `DomainError`、ゼロ除算を `DivisionByZero` として報告します。quiet NaN オペランドは例外ではなく成功した NaN のままです。必要なら最終値に `@def.is_nan` を試してください。"
 
 #: manual/tutorial/binary_checked.md:242
 msgid "**`x` and `x_ctx` have one error contract.** `x_ctx` is `x` with an explicit context; `div_ctx` by zero fails like `div`. Overflow, underflow and inexact are not errors in either form."
@@ -27959,7 +27959,7 @@ msgstr "differential チュートリアル"
 
 #: manual/tutorial/differential.md:3
 msgid "This tutorial runs a randomized differential campaign: it generates seeded rows with MPFR (binary, IEEE `decimal`) and libmpdec (`decimal_gda`), validates `floating` against them through the mare_mark runner, reads the JSONL record, and replays and minimizes a failure."
-msgstr "このチュートリアルでは、ランダム差分キャンペーンを実行します。MPFR（2 進）と libmpdec（10 進）でシード付きの行を生成し、mare_mark ランナーで `floating` を検証し、JSONL 記録を読み、失敗を再生して最小化します。"
+msgstr "このチュートリアルでは、ランダム差分キャンペーンを実行します。MPFR（2 進と IEEE `decimal`）と libmpdec（`decimal_gda`）でシード付きの行を生成し、mare_mark ランナーで `floating` を検証し、JSONL 記録を読み、失敗を再生して最小化します。"
 
 #: manual/tutorial/differential.md:10
 msgid "check the committed fixtures"
@@ -30252,7 +30252,7 @@ msgstr "ランダム差分"
 
 #: manual/verification.md:21
 msgid "seeded random cases against MPFR (binary and IEEE `decimal`) and libmpdec (`decimal_gda`), recorded through mare_mark; `just random-diff smoke` runs the committed sample in `just pr`"
-msgstr "MPFR（2 進）と libmpdec（10 進）に対するシード付きランダムケース。mare_mark で記録。`just random-diff smoke` は `just pr` でコミット済みサンプルを実行します"
+msgstr "MPFR（2 進と IEEE `decimal`）と libmpdec（`decimal_gda`）に対するシード付きランダムケース。mare_mark で記録。`just random-diff smoke` は `just pr` でコミット済みサンプルを実行します"
 
 #: manual/verification.md:22
 msgid "Complete"
@@ -30393,7 +30393,7 @@ msgstr "**再現性。** シード `S` の下での族 `F` のケース `I` は 
 
 #: manual/verification.md:248
 msgid "**Cases run, per operation and backend.** Native: 26,900,000 cases (28,900,000 executed, counting 2,000,000 `sqrt` cases made before the MPFR defect filter); Wasm, JavaScript and Wasm-GC: 2,730,000 each. Wasm-GC has no mare_mark runtime (the runner needs `moonbitlang/async`), so it ran the same corpora through the synchronous `floating-conformance` runner without the JSONL record. The three other backends ran the first 200,000 (binary) or 100,000 (`decimal_gda`) cases of each family of the native run, so their failing batches can be compared with it: Wasm and JavaScript fail on exactly the same batches as native within that range."
-msgstr "**演算とバックエンドごとの実行ケース数。** native：26,900,000 ケース（MPFR の欠陥フィルター前に行った 2,000,000 の `sqrt` ケースを含めると 28,900,000 を実行）。Wasm、JavaScript、Wasm-GC：各 2,730,000。Wasm-GC には mare_mark のランタイムがない（ランナーが `moonbitlang/async` を必要とする）ため、同じコーパスを同期の `floating-conformance` ランナーで JSONL 記録なしに実行しました。他の 3 つのバックエンドは、native の実行の各族の最初の 200,000（2 進）または 100,000（10 進）ケースを実行したので、その失敗バッチを native と比較できます。この範囲では Wasm と JavaScript は native とまったく同じバッチで失敗します。"
+msgstr "**演算とバックエンドごとの実行ケース数。** native：26,900,000 ケース（MPFR の欠陥フィルター前に行った 2,000,000 の `sqrt` ケースを含めると 28,900,000 を実行）。Wasm、JavaScript、Wasm-GC：各 2,730,000。Wasm-GC には mare_mark のランタイムがない（ランナーが `moonbitlang/async` を必要とする）ため、同じコーパスを同期の `floating-conformance` ランナーで JSONL 記録なしに実行しました。他の 3 つのバックエンドは、native の実行の各族の最初の 200,000（2 進）または 100,000（`decimal_gda`）ケースを実行したので、その失敗バッチを native と比較できます。この範囲では Wasm と JavaScript は native とまったく同じバッチで失敗します。"
 
 #: manual/verification.md:258
 msgid "**MPFR (binary)**"
@@ -30416,7 +30416,7 @@ msgstr "**合計**"
 
 #: manual/verification.md:301
 msgid "**libmpdec (`decimal_gda`)**"
-msgstr "**libmpdec（10 進）**"
+msgstr "**libmpdec（`decimal_gda`）**"
 
 #: manual/verification.md:320
 msgid "(`sqrt` on native: the table counts the 2,000,000 cases of the final run; the first run of 2,000,000 `sqrt` cases, made before the MPFR defect filter, is not counted: 2,000,000.)"
