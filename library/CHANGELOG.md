@@ -692,6 +692,8 @@ notes live in this file.
 ### Fixed
 
 - `decimal_gda`: `Decimal::exp_ctx` applies the rounding direction beyond its coarse range guards ([#796](https://github.com/Luna-Flow/floating/issues/796)). An argument at or above `3 * (e_max + 1)` gave Infinity in round-down, round-floor and round-05up instead of the largest finite number, and an argument at or below `-3 * (1 - etiny)` gave zero in round-up, round-ceiling and round-05up instead of the smallest subnormal (GDA 1.70, page 53, Overflow and Underflow).
+- `decimal_gda`: in a subset context (`extended=false`) `Decimal::exp_ctx` of an integer argument of at most -1000 returns the zero of the subset, `0`, with the flags it always raised (Clamped included), instead of `0E-101` ([#800](https://github.com/Luna-Flow/floating/issues/800)). GDA 1.70, page 55 (Appendix A, The X3.274 subset), gives a zero result the exponent 0; the early return for Clamped skipped that step. An extended context is unchanged.
+
 
 - `decimal_gda`: in a subset context (`extended=false`) `subtract` rounds a second operand longer than the precision with its own sign and then negates it, as GDA 1.70, page 56 (Appendix A, "Operation differences", first item) says ([#761](https://github.com/Luna-Flow/floating/issues/761)). It negated first, so `Floor` and `Ceiling` rounded the other way: `subtract(0, 12)` at precision 1 under `Floor` was `-2E+1` and is `-1E+1` (decNumber 3.68 with `DECSUBSET=1` gives `-1E+1`); the six other algorithms and extended contexts are unchanged.
 
