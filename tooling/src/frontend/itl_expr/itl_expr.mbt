@@ -387,12 +387,13 @@ fn parse_interval(
     parse_bound(upper_src, precision) is Some(hi) else {
     return None
   }
-  Some(
-    @interval.DecoratedInterval::new(
-      @interval.Interval::from_bounds(lo, hi, precision~),
-      decoration~,
-    ),
-  )
+  // A pair that is not an interval (lo above hi, a nan bound, lo = +inf,
+  // hi = -inf) is an unreadable literal, like any other malformed one.
+  match @interval.Interval::try_from_bounds(lo, hi, precision~) {
+    Ok(interval) =>
+      Some(@interval.DecoratedInterval::new(interval, decoration~))
+    Err(_) => None
+  }
 }
 
 ///|
