@@ -250,13 +250,33 @@ def quote(text: str) -> str:
     return '"' + text + '"'
 
 
+CHUNK_ROWS = 100
+
+
+def table_lines(name: str, row_type: str, rows: list[str]) -> list[str]:
+    """A table as chunked functions plus one function that joins them: a top-level `let` of
+    many tuples makes the module initialiser of a wasm test build exceed the limit on locals."""
+    out: list[str] = []
+    chunks = [rows[i : i + CHUNK_ROWS] for i in range(0, len(rows), CHUNK_ROWS)]
+    for index, chunk in enumerate(chunks):
+        out += ["///|", f"fn {name}_{index}() -> Array[{row_type}] {{", "  ["]
+        out += [f"    {row}" for row in chunk]
+        out += ["  ]", "}", ""]
+    out += ["///|", f"fn {name}() -> Array[{row_type}] {{", f"  let rows : Array[{row_type}] = []"]
+    out += [f"  for row in {name}_{index}() {{ rows.push(row) }}" for index in range(len(chunks))]
+    out += ["  rows", "}", ""]
+    return out
+
+
+ROW_TYPE = "(Int32, String, String, String, String, String, String)"
+
+
 def render_rows(name: str, rows: list[tuple]) -> list[str]:
-    out = ["///|", f"let {name} : Array[(Int32, String, String, String, String, String, String)] = ["]
+    lines = []
     for index, lhs, rhs, add, sub, mul, div in rows:
         fields = ", ".join(quote(x) for x in (lhs, rhs, add, sub, mul, div))
-        out.append(f"  ({index}, {fields}),")
-    out += ["]", ""]
-    return out
+        lines.append(f"({index}, {fields}),")
+    return table_lines(name, ROW_TYPE, lines)
 
 
 def render() -> str:
@@ -270,14 +290,15 @@ def render() -> str:
         "// shares: nothing in the tables; the tests parse the operands with Decimal::from_string_ctx and compare to_string text and three flags",
         "// check: python3 tools/generate_decimal_plain_ctx_rows.py --check",
         "",
-        "///|",
-        "let plain_ctx_table : Array[(Int32, Int32, Int32, String, Bool)] = [",
     ]
-    for spec in specs:
-        out.append(
-            f"  ({spec.precision}, {spec.e_min}, {spec.e_max}, {quote(spec.rounding)}, {'true' if spec.clamp else 'false'}),"
-        )
-    out += ["]", ""]
+    out += table_lines(
+        "plain_ctx_table",
+        "(Int32, Int32, Int32, String, Bool)",
+        [
+            f"({s.precision}, {s.e_min}, {s.e_max}, {quote(s.rounding)}, {'true' if s.clamp else 'false'}),"
+            for s in specs
+        ],
+    )
     out += render_rows("plain_short_rows", random_rows(SHORT_ROWS, SHORT_DIGITS, SHORT_SEED))
     out += render_rows("plain_long_rows", random_rows(LONG_ROWS, LONG_DIGITS, LONG_SEED))
     carry, carry_top = carry_rows()

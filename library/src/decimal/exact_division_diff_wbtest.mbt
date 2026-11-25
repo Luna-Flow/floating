@@ -14,7 +14,7 @@
 test "exact division with the finite-expansion decision equals the gcd route" {
   let wide = DecimalContext::new(precision=400)
   let mut answered = 0
-  for row in exact_division_rows {
+  for row in exact_division_rows() {
     let (precision, e_max, mode, clamp, dividend_text, divisor_text, expected) = row
     let ctx = DecimalContext::raw(
       precision,
