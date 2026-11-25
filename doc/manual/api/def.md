@@ -3,9 +3,9 @@
 ## Purpose
 
 `def` is the shared vocabulary of the `floating` packages. It defines the sign
-classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the
-`Floating` trait that every scalar representation of this
-repository implements, four generic predicates built on that trait, and
+classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way
+comparison result `PartialOrder`, the `Floating` trait implemented by the
+scalar representations, four generic predicates built on that trait, and
 re-exports the context, rounding, classification and error types of
 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need
 only one import. It contains no arithmetic. The
@@ -32,7 +32,7 @@ and `@interval.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 
 ### `Sign`
 
-`Sign` is the three-way sign classification returned by `Floating::signum`.
+`Sign` classifies the sign returned by [`Floating::signum`](#floatingsignum).
 
 ```mbti
 #derive(Eq)
@@ -43,11 +43,17 @@ pub(all) enum Sign {
 }
 ```
 
-`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
-from $+0$; use the concrete package (for example `Binary::is_negative_zero`)
-when the sign bit of a zero matters. The scalar implementations also return
-`Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of
-`SemanticScalar::Infinity` in the [`semantic`](semantic.md) package.
+| Input | Result |
+| --- | --- |
+| negative value, including $-\infty$ | `Negative` |
+| either signed zero | `Zero` |
+| positive value, including $+\infty$ | `Positive` |
+| NaN | `Zero` |
+
+`Sign` does not distinguish $-0$ from $+0$; use the concrete package (for
+example `Binary::is_negative_zero`) when the sign bit of a zero matters.
+`Sign` is also the payload of `SemanticScalar::Infinity` in the
+[`semantic`](semantic.md) package.
 
 ```moonbit
 ///|
@@ -62,7 +68,7 @@ test "Sign values" {
 ### `IeeeClass`
 
 `IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike
-`FpClass` it separates the two NaNs, the sign of every class and the normal,
+`FpClass`, it separates the two NaNs, the sign of every class and the normal,
 subnormal and zero cases.
 
 ```mbti
@@ -82,7 +88,8 @@ pub(all) enum IeeeClass {
 ```
 
 `Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal
-depend on the format's $e_{\min}$, so both take the context that fixes it.
+depend on the format's $e_{\min}$, so these methods take the context that fixes
+the bound.
 
 ```moonbit
 ///|
@@ -96,9 +103,9 @@ test "IeeeClass of a binary32 value" {
 
 ### `PartialOrder`
 
-`PartialOrder` is the result of an IEEE 754 comparison: exactly one of the four
-mutually exclusive relations *less*, *equal*, *greater* and *unordered* holds
-between two floating-point data.
+`PartialOrder` records the result of an IEEE 754 comparison. Exactly one of the
+four mutually exclusive relations *less*, *equal*, *greater* and *unordered*
+holds between two floating-point data.
 
 ```mbti
 #derive(Eq)
@@ -110,12 +117,16 @@ pub(all) enum PartialOrder {
 }
 ```
 
-`Unordered` holds exactly when at least one operand is NaN; $-0$ and $+0$
-compare `Equal`. The type is returned by `Binary::compare_quiet` and
-`Binary::compare_signaling` in [`binary`](binary.md) (each paired with
-the flags of the comparison). It is a value type only; `def` performs no
-comparison itself. Why four results and not a `Compare` instance is derived in
-the [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation).
+| Operands | Result |
+| --- | --- |
+| at least one NaN | `Unordered` |
+| equal numeric values, including $-0$ and $+0$ | `Equal` |
+| one numeric value is less than the other | `Less` or `Greater` |
+
+`Binary::compare_quiet` and `Binary::compare_signaling` in
+[`binary`](binary.md) return this type with the comparison flags. `def` does
+not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation)
+explains why the type has four results instead of a `Compare` instance.
 
 ```moonbit
 ///|
@@ -139,8 +150,8 @@ test "PartialOrder from an IEEE comparison" {
 
 ### `Floating`
 
-`Floating` is the observation and re-precision interface shared by every
-representation in this repository.
+`Floating` is the observation and re-precision interface shared by the scalar
+representations in this repository.
 
 ```mbti
 pub(open) trait Floating {
@@ -152,20 +163,19 @@ pub(open) trait Floating {
 }
 ```
 
-`Floating` is implemented by the scalar types of this library only:
-`@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`.
-`@interval.Interval` does not implement it (see [Intervals are not
-`Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a
-type outside this module is not supported and is not covered by the
-compatibility promise, because methods may be added to the trait in a minor
-release. It is declared `pub(open)` only because the implementations are in
-other packages of this module (the [design
-page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10
-migration trait methods are not promoted automatically, so generic code calls
-them in the qualified form `@def.Floating::classify(x)`; the concrete types also
-provide inherent methods with the same names (`x.classify()`). The laws every
-implementation is expected to satisfy are listed in the
-[design page](../design/def.md#the-floating-laws).
+`Floating` is implemented only by `@binary.Binary`, `@decimal.Decimal` and
+`@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see
+[Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)).
+Implementing it for a type outside this module is not supported or covered by
+the compatibility promise because methods may be added to the trait in a minor
+release. It is declared `pub(open)` because implementations are in other
+packages of this module; the [design page](../design/def.md#why-floating-is-declared-open)
+gives the reason. Since the MoonBit 0.10 migration, trait methods are not
+promoted automatically, so
+generic code calls them in the qualified form `@def.Floating::classify(x)`;
+the concrete types also provide inherent methods with the same names
+(`x.classify()`). The [design page](../design/def.md#the-floating-laws) lists
+the laws every implementation is expected to satisfy.
 
 ### `Floating::classify`
 
@@ -175,8 +185,8 @@ implementation is expected to satisfy are listed in the
 fn classify(Self) -> @arithmetic.FpClass
 ```
 
-For the scalar types this is the IEEE class with signalling and quiet NaNs
-merged. Total; never aborts.
+For the scalar types this is the IEEE class with signaling and quiet NaNs
+merged. The operation is total and never aborts.
 
 ### `Floating::signum`
 
@@ -204,8 +214,8 @@ always at least $1$.
 
 ### `Floating::with_precision`
 
-`with_precision(x, p)` returns `x` re-expressed at precision
-$q = p$; `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds
+`with_precision(x, p)` returns `x` re-expressed at precision $q = p$.
+`Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds
 `binary_precision_max` or `decimal_precision_max`, and `@decimal_gda.Decimal`
 uses $q = \max(1, p)$.
 
@@ -213,7 +223,7 @@ uses $q = \max(1, p)$.
 fn with_precision(Self, Int32) -> Self
 ```
 
-For a finite scalar the value is rounded to $q$ significant digits of its
+For a finite scalar, the value is rounded to $q$ significant digits of its
 radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has
 no rounding parameter, because it cannot return an error; the inherent
 `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags
