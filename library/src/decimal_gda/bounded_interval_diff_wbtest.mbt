@@ -3,52 +3,52 @@
 // coefficient against the previous implementation (a host big integer).
 
 ///|
-fn interval_reference(
-  value : Decimal,
-  precision : Int32,
-) -> (@binary.Binary, @binary.Binary)? {
-  guard value.class == FpClass::Finite else { return None }
-  if value.coefficient.is_zero() {
-    let zero = @binary.Binary::zero(precision~)
-    return Some((zero, zero))
+// The bounded binary interval of a decimal value is checked by exact integer arithmetic
+// (core BigInt, not this library): the lower bound is at most and the upper bound at
+// least the value `n * 10^exponent10`, and the interval is narrow. This replaces a
+// comparison with the previous implementation, which used `decimal_power10_bounds` and
+// `Binary::mul_ctx` like the code under test.
+
+///|
+fn interval_signed(b : @binary.Binary) -> (BigInt, Int32) {
+  if b.is_zero() {
+    return (BigInt::from_int(0), 0)
   }
-  let coefficient = @binary.BinCoeff::from_bytes_be(
-    value.coefficient.to_bigint().to_octets(),
-  )
-  let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
-  let downward = @binary.BinaryContext::new(
-    precision=binary_precision,
-    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
-  )
-  let upward = @binary.BinaryContext::new(
-    precision=binary_precision,
-    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
-  )
-  let coefficient_value = @binary.Binary::make(coefficient, 0, binary_precision)
-  let (power_lower, power_upper) = decimal_power10_bounds(
-    binary_precision,
-    value.exponent10,
-  )
-  let positive_lower = coefficient_value.mul_ctx(power_lower, downward).0
-  let positive_upper = coefficient_value.mul_ctx(power_upper, upward).0
-  if value.negative {
-    Some((positive_upper.neg(), positive_lower.neg()))
-  } else {
-    Some((positive_lower, positive_upper))
-  }
+  let magnitude = BigInt::from_octets(b.coefficient().to_bytes_be())
+  (if b.is_sign_minus() { -magnitude } else { magnitude }, b.exponent2())
 }
 
 ///|
-fn interval_same_bin(a : @binary.Binary, b : @binary.Binary) -> Bool {
-  a.compare(b) == 0 &&
-  a.precision() == b.precision() &&
-  a.is_sign_minus() == b.is_sign_minus() &&
-  a.exponent2() == b.exponent2() &&
-  a.coefficient().to_bytes_be() == b.coefficient().to_bytes_be()
+fn interval_scale(k2 : Int32, k10 : Int32) -> BigInt {
+  (BigInt::from_int(1) << k2) * BigInt::from_int(10).pow(BigInt::from_int(k10))
 }
 
 ///|
-fn interval_check(coefficient : DecCoeff, exponent10 : Int32) -> Unit raise {
+/// Compares a * 2^a2 * 10^a10 with b * 2^b2 * 10^b10 exactly.
+fn interval_compare(
+  a : BigInt,
+  a2 : Int32,
+  a10 : Int32,
+  b : BigInt,
+  b2 : Int32,
+  b10 : Int32,
+) -> Int32 {
+  let lhs = a *
+    interval_scale(
+      Int32::max(a2, 0) + Int32::max(-b2, 0),
+      Int32::max(a10, 0) + Int32::max(-b10, 0),
+    )
+  let rhs = b *
+    interval_scale(
+      Int32::max(b2, 0) + Int32::max(-a2, 0),
+      Int32::max(b10, 0) + Int32::max(-a10, 0),
+    )
+  lhs.compare(rhs)
+}
+
+///|
+fn interval_check(n : BigInt, exponent10 : Int32) -> Unit raise {
+  let coefficient = dec_coeff_from_bigint_repr(n)
   for negative in [false, true] {
     let value = finite_with_exponent_repr(
       negative,
@@ -56,21 +56,42 @@ fn interval_check(coefficient : DecCoeff, exponent10 : Int32) -> Unit raise {
       exponent10,
       coefficient.digits10(),
     )
+    let signed = if negative { -n } else { n }
     for precision in [10, 64, 120] {
-      match
-        (
-          decimal_bounded_binary_interval(value, precision),
-          interval_reference(value, precision),
-        ) {
-        (Some((a, b)), Some((c, d))) =>
-          assert_true(interval_same_bin(a, c) && interval_same_bin(b, d))
-        _ => fail("interval differs")
+      match decimal_bounded_binary_interval(value, precision) {
+        Some((lower, upper)) => {
+          let (lc, l2) = interval_signed(lower)
+          let (uc, u2) = interval_signed(upper)
+          // lower <= value <= upper
+          assert_true(interval_compare(lc, l2, 0, signed, 0, exponent10) <= 0)
+          assert_true(interval_compare(uc, u2, 0, signed, 0, exponent10) >= 0)
+          // narrow: (upper - lower) * 2^(precision - 4) <= |value|, the relative width of a few units of the last place (the widest case of the rows needs precision - 3)
+          let low2 = Int32::min(l2, u2)
+          let diff = (uc << (u2 - low2)) - (lc << (l2 - low2))
+          assert_true(diff.compare(BigInt::from_int(0)) >= 0)
+          assert_true(
+            interval_compare(
+              diff,
+              low2 + precision - 4,
+              0,
+              abs_bigint(n),
+              0,
+              exponent10,
+            ) <=
+            0,
+          )
+        }
+        None => fail("no interval")
       }
     }
   }
 }
 
 ///|
+// oracle: B
+// source: core `BigInt::to_octets` of the same integer (MoonBit core), for random byte strings of 1 to 20,000 bytes, 2^k +- 1 and 10^k +- 1 up to 420
+// shares: dec_coeff_from_bigint_repr builds the coefficient from the integer
+// primitives: dec_coeff_from_bigint_repr: a wrong coefficient gives other bytes and fails the equality; core BigInt::to_octets and from_octets
 test "decimal coefficient bytes equal the big integer octets" {
   let state = Ref(0x1B873593CC9E2D51UL)
   for length in 1..<200 {
@@ -112,7 +133,11 @@ test "decimal coefficient bytes equal the big integer octets" {
 }
 
 ///|
-test "bounded binary interval equals the big integer reference" {
+// oracle: B
+// source: exact integer arithmetic of core BigInt: lower <= n * 10^e <= upper by cross multiplication, and (upper - lower) * 2^(precision - 4) <= |n * 10^e| (the widest case of the rows needs precision - 3); replaces a comparison with the previous implementation, which called decimal_power10_bounds and Binary::mul_ctx like the code under test
+// shares: the result is read through Binary::coefficient, exponent2 and is_sign_minus
+// primitives: Binary::coefficient, exponent2, is_sign_minus (accessors of a stored value)
+test "bounded binary interval encloses the exact value tightly" {
   let state = Ref(0x6C62272E07BB0142UL)
   for iteration in 0..<400 {
     let bytes_len = match iteration % 8 {
@@ -133,7 +158,7 @@ test "bounded binary interval equals the big integer reference" {
         (endpoint_next(state) % span.to_uint64()).to_int(),
         -(endpoint_next(state) % span.to_uint64()).to_int(),
       ] {
-      interval_check(dec_coeff_from_bigint_repr(n), exponent10)
+      interval_check(n, exponent10)
     }
   }
   // powers of ten and of two, with neighbours, at both signs of the exponent
@@ -149,7 +174,7 @@ test "bounded binary interval equals the big integer reference" {
           continue
         }
         for exponent10 in [0, -shift, shift, -2000, 2000] {
-          interval_check(dec_coeff_from_bigint_repr(n), exponent10)
+          interval_check(n, exponent10)
         }
       }
     }
@@ -162,6 +187,10 @@ test "bounded binary interval equals the big integer reference" {
 }
 
 ///|
+// oracle: B
+// source: the bytes of 10^9 - 1 .. 10^45 and 2^63 .. 2^120 against core BigInt::to_octets, and the interval of each by the exact containment and width check `interval_check` (core BigInt arithmetic)
+// shares: dec_coeff_from_bigint_repr builds the coefficient
+// primitives: dec_coeff_from_bigint_repr, finite_with_exponent_repr; core BigInt arithmetic
 test "binary coefficient at the word, four-limb and long-route boundaries" {
   let ten = BigInt::from_int(10)
   let two = BigInt::from_int(2)
@@ -192,7 +221,7 @@ test "binary coefficient at the word, four-limb and long-route boundaries" {
       assert_true(decimal_coeff_to_be_bytes(coeff) == n.to_octets())
     }
     for exponent10 in [0, -36, 36, -2000, 2000] {
-      interval_check(coeff, exponent10)
+      interval_check(n, exponent10)
     }
   }
 }

@@ -34,10 +34,14 @@ fn out_of_range_values() -> Array[(BigInt, Int32)] {
 }
 
 ///|
+// oracle: A
+// source: written out from the rounding directions of IEEE 754-2019 4.3 and the exceptions of 7.4 and 7.5: every value of `out_of_range_values` has |exponent| of at least 330,000,000, so 10^e is above 2^1,073,741,823 or below the smallest subnormal 2^-1,073,741,874 (10^330000000 is about 2^1.096e9); an overflowing value gives infinity, or the largest finite number when the direction points toward zero; an underflowing value gives zero, or the smallest subnormal when the direction points away from zero; the sign is that of the operand
+// shares: nothing
 test "issue 447: to_binary at both ends of the exponent range, every rounding mode" {
   for mode in out_of_range_modes() {
     for pair in out_of_range_values() {
       let (coefficient, exponent) = pair
+      let tiny = exponent < 0
       for negative in [false, true] {
         let signed = if negative { -coefficient } else { coefficient }
         let value = Decimal::make(signed, exponent, 34)
@@ -45,15 +49,59 @@ test "issue 447: to_binary at both ends of the exponent range, every rounding mo
           precision=53,
           mode=bin_mode(mode, negative),
         )
-        let expected = oracle_to_binary(signed, exponent, 53, mode)
-        inspect(actual.to_string() == expected.to_string(), content="true")
-        inspect(actual.is_sign_minus() == negative, content="true")
+        // class: "zero", "min" (smallest subnormal), "max" (largest finite), "inf"
+        let expected = match mode {
+          RoundingMode::ToNearestEven => if tiny { "zero" } else { "inf" }
+          RoundingMode::TowardZero => if tiny { "zero" } else { "max" }
+          RoundingMode::TowardPositive =>
+            if tiny {
+              if negative {
+                "zero"
+              } else {
+                "min"
+              }
+            } else if negative {
+              "max"
+            } else {
+              "inf"
+            }
+          RoundingMode::TowardNegative =>
+            if tiny {
+              if negative {
+                "min"
+              } else {
+                "zero"
+              }
+            } else if negative {
+              "inf"
+            } else {
+              "max"
+            }
+          RoundingMode::AwayFromZero => if tiny { "min" } else { "inf" }
+        }
+        let got = if actual.is_zero() {
+          "zero"
+        } else if @def.is_infinite(actual) {
+          "inf"
+        } else if actual.exponent2() < 0 {
+          "min"
+        } else {
+          "max"
+        }
+        assert_eq(
+          (coefficient, exponent, negative, got),
+          (coefficient, exponent, negative, expected),
+        )
+        assert_eq(actual.is_sign_minus(), negative)
       }
     }
   }
 }
 
 ///|
+// oracle: A
+// source: written out: 1E-2147483645 is below the smallest subnormal, so rounding to nearest gives zero and rounding toward positive gives a nonzero positive number (IEEE 754-2019 4.3, 7.5); 1E+2147483646 is above the largest finite number, so rounding to nearest gives infinity (4.3, 7.4); the cases are the ones that panicked in issue 447
+// shares: nothing
 test "issue 447: the reported cases do not panic" {
   let tiny = Decimal::make(1N, -2147483645, 34).to_binary(precision=53)
   inspect(tiny.is_zero(), content="true")
@@ -65,23 +113,4 @@ test "issue 447: the reported cases do not panic" {
   )
   inspect(directed_up.is_zero(), content="false")
   inspect(directed_up.is_sign_minus(), content="false")
-}
-
-///|
-/// The same conversion through the exact decimal parser of `binary`, which
-/// decides the out-of-range cases from the exponent.
-fn oracle_to_binary(
-  coefficient : BigInt,
-  exponent : Int32,
-  precision : Int32,
-  mode : RoundingMode,
-) -> @binary.Binary {
-  let text = coefficient.to_string() + "E" + exponent.to_string()
-  @binary.Binary::from_string_ctx(
-    text,
-    @binary.BinaryContext::new(
-      precision~,
-      rounding=bin_mode(mode, coefficient < BigInt::from_int(0)),
-    ),
-  ).unwrap().0
 }

@@ -90,21 +90,37 @@ fn mul_div_plain_run(
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, mul_ctx, div_ctx, the helpers of gda_add_plain_wbtest.mbt
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "multiply and divide plain paths equal the general route, 17 to 40 digits" {
   mul_div_plain_run(17, 40, 0x9E3779B97F4A7C15UL)
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, mul_ctx, div_ctx, the helpers of gda_add_plain_wbtest.mbt
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "multiply and divide plain paths equal the general route, 1 to 16 digits" {
   mul_div_plain_run(1, 16, 0xD1B54A32D192ED03UL)
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, mul_ctx, div_ctx, the helpers of gda_add_plain_wbtest.mbt
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "multiply and divide plain paths equal the general route, 41 to 120 digits" {
   mul_div_plain_run(41, 120, 0x2545F4914F6CDD1DUL)
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, mul_ctx, div_ctx, the helpers of gda_add_plain_wbtest.mbt
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "multiply and divide plain paths, carries into the next digit" {
   for precision in [3, 17, 18, 19, 34] {
     for mode in add_plain_modes {
@@ -123,6 +139,10 @@ test "multiply and divide plain paths, carries into the next digit" {
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, mul_ctx, div_ctx, the helpers of gda_add_plain_wbtest.mbt
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "multiply and divide plain paths, chained contexts" {
   let state = Ref(0xBF58476D1CE4E5B9UL)
   for _ in 0..<add_plain_cases {

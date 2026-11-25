@@ -119,6 +119,10 @@ fn gda_fast_generic_sum(
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference: `gda_fast_generic_sum` or mul_ctx / div_ctx then complete_decimal_gda, compared with the fast path on random operands of 1 to 18 digits (ties, carries, exact results) and every context shape
+// shares: complete_decimal_gda, add_ctx, sub_ctx, mul_ctx, div_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast sum equals the general path" {
   let random = { fast_state: 0x5DEECE66D7UL, }
   let mut fast = 0
@@ -152,6 +156,10 @@ test "fast sum equals the general path" {
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference: `gda_fast_generic_sum` or mul_ctx / div_ctx then complete_decimal_gda, compared with the fast path on random operands of 1 to 18 digits (ties, carries, exact results) and every context shape
+// shares: complete_decimal_gda, add_ctx, sub_ctx, mul_ctx, div_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast sum of near-equal and cancelling values" {
   let random = { fast_state: 0x1234ABCDEFUL, }
   let mut fast = 0
@@ -182,6 +190,10 @@ test "fast sum of near-equal and cancelling values" {
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference: `gda_fast_generic_sum` or mul_ctx / div_ctx then complete_decimal_gda, compared with the fast path on random operands of 1 to 18 digits (ties, carries, exact results) and every context shape
+// shares: complete_decimal_gda, add_ctx, sub_ctx, mul_ctx, div_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast product equals the general path" {
   let random = { fast_state: 0x2545F4914F6CDD1DUL, }
   let mut fast = 0
@@ -210,6 +222,10 @@ test "fast product equals the general path" {
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference: `gda_fast_generic_sum` or mul_ctx / div_ctx then complete_decimal_gda, compared with the fast path on random operands of 1 to 18 digits (ties, carries, exact results) and every context shape
+// shares: complete_decimal_gda, add_ctx, sub_ctx, mul_ctx, div_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast quotient equals the general path" {
   let random = { fast_state: 0x9E3779B97F4A7C15UL, }
   let mut fast = 0
@@ -251,6 +267,9 @@ test "fast quotient equals the general path" {
 }
 
 ///|
+// oracle: A
+// source: written out: a 23-digit operand, a NaN and a zero are outside the fast paths, so each of gda_fast_sum, gda_fast_product and gda_fast_quotient returns None
+// shares: nothing
 test "fast paths decline what they do not cover" {
   let context = GdaContext::new(precision=16)
   let one = Decimal::from_string("1").unwrap()

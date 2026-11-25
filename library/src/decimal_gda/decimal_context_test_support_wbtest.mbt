@@ -73,23 +73,6 @@ fn gda_context_unchecked(
 }
 
 ///|
-fn normalize_decimal_parts_gda(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  precision : Int32,
-  mode : DecimalRoundingMode,
-) -> Decimal {
-  normalize_decimal_parts_gda_repr(
-    negative,
-    coeff_from_bigint(abs_bigint(magnitude)),
-    exponent10,
-    precision,
-    mode,
-  )
-}
-
-///|
 /// (tests only) The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
 /// given sign (`AwayFromZero` is the direction of the sign).
 fn bin_mode(

@@ -123,6 +123,9 @@ fn issue397_run(
 }
 
 ///|
+// oracle: A
+// source: the 1200 rows of issue397_rows: the value of each row equals, numerically, CPython sqrt(x) (1 / sqrt(x) for -0.5) evaluated 120 digits wider and rounded by the context (precision, Emin, Emax, clamp, rounding mode) with the overflow to Infinity; checked for all 1200 rows on 2026-11-25 by a script that is not committed; the flags (inexact and rounded for every non-integral power) follow the GDA 1.70 sentence quoted in the header of the file; the padded form of the coefficient follows the same header
+// shares: Decimal::from_string and to_string (through the helper issue397_run)
 test "power with exponent one half or minus one half is the padded inexact result without Clamped (issue 397)" {
   for row in issue397_rows {
     let (context_name, mode, base, exponent, value, flags) = row
