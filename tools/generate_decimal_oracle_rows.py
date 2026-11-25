@@ -170,8 +170,8 @@ def pm1_rows() -> list[tuple[str, int, str, str]]:
             # d = y / 2 with y = c x for expm1 (y = ln b x), d = -x / 2 for log1p
             correction = PM1_WORK.divide(midpoint if operation.startswith("exp") else x0, decimal.Decimal(2))
             direction = 1 if operation.startswith("exp") else -1
-            # c x = M (1 - direction * 3 |d| / 2): f(x) = c x (1 + direction |d|) crosses M by |d| / 2
-            first_order = PM1_WORK.multiply(midpoint, 1 - PM1_WORK.multiply(decimal.Decimal(direction * 3), correction) / 2)
+            # c x = M (1 - direction |d| / 2): f(x) = c x (1 + direction |d|) crosses M by |d| / 2
+            first_order = PM1_WORK.multiply(midpoint, 1 - PM1_WORK.multiply(decimal.Decimal(direction), correction) / 2)
             x_exact = PM1_WORK.divide(first_order, slope)
             x_text = format(PM1_WORK.create_decimal(x_exact).quantize(decimal.Decimal(1).scaleb(x_exact.adjusted() - PM1_SIGNIFICANT + 1), context=PM1_WORK), "f")
             x = decimal.Decimal(x_text)
