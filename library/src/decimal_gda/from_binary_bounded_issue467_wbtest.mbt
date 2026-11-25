@@ -83,7 +83,7 @@ fn binary_rows() -> Array[@binary.Binary] {
 // oracle: E
 // source: old_from_binary: the exact expansion c * 5^k or c << e2 through BigInt, then decimal_from_integer_parts
 // shares: decimal_from_integer_parts (the rounding of the integer) and the coefficient comparison
-// underneath: level A: the rows of from_binary_rows_wbtest.mbt (CPython decimal) check Decimal::from_binary_raw, which takes the exact-expansion route for small exponents, and the bounded form for the same bases (1, 3, 5, 7, 10, 255, 12345, the mantissa of 0.1) and the same shifts, half even, precisions 1 to 400
+// underneath: level A: the rows of from_binary_rows_wbtest.mbt (CPython decimal) check Decimal::from_binary_raw, which takes the exact-expansion route for small exponents, and the bounded form for a subset of the bases and shifts of this block: 8 of its 15 bases (1, 3, 5, 7, 10, 255, 12345, the mantissa of 0.1) and 12 of its 22 shifts (-6000, -3000, -2049, -1100, -1025, -1024, 1024, 1025, 1100, 2049, 3000, 6000), half even, one precision of 1 to 400 per pair; the other bases and shifts of the block have only the level E comparison
 test "issue 467: the bounded form gives the result of the exact expansion" {
   for x in binary_rows() {
     for precision in [1, 2, 3, 5, 9, 17, 34, 100, 400] {
