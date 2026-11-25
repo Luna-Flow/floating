@@ -92,7 +92,7 @@ not an error.
 Convert a MoonBit number into the pipeline.
 
 ```mbti
-pub fn DecimalChecked::from_int(Int, @decimal.DecimalContext) -> Self
+pub fn DecimalChecked::from_int(Int32, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
@@ -341,8 +341,8 @@ pub fn DecimalChecked::rsqrt(Self) -> Self
 pub fn DecimalChecked::compound(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, Self) -> Self
 pub fn DecimalChecked::pow(Self, Self) -> Self
-pub fn DecimalChecked::pown(Self, Int) -> Self
-pub fn DecimalChecked::rootn(Self, Int) -> Self
+pub fn DecimalChecked::pown(Self, Int32) -> Self
+pub fn DecimalChecked::rootn(Self, Int32) -> Self
 pub fn DecimalChecked::hypot(Self, Self) -> Self
 pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::cos(Self) -> Self

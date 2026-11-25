@@ -96,7 +96,7 @@ rows.
 
 ```mbti
 pub fn MpfrDocument::source(Self) -> String
-pub fn MpfrDocument::case_count(Self) -> Int
+pub fn MpfrDocument::case_count(Self) -> Int32
 ```
 
 ## Integer powers
@@ -152,7 +152,7 @@ These methods return the name given to the parser and the number of rows.
 
 ```mbti
 pub fn MpfrPowDocument::source(Self) -> String
-pub fn MpfrPowDocument::case_count(Self) -> Int
+pub fn MpfrPowDocument::case_count(Self) -> Int32
 ```
 
 ## Elementary functions
@@ -217,7 +217,7 @@ These methods return the name given to the parser and the number of rows.
 
 ```mbti
 pub fn MpfrElementaryDocument::source(Self) -> String
-pub fn MpfrElementaryDocument::case_count(Self) -> Int
+pub fn MpfrElementaryDocument::case_count(Self) -> Int32
 ```
 
 ## Decimal character conversion
@@ -260,7 +260,7 @@ pub struct MpfrStrtofrDocument {
 }
 
 pub fn MpfrStrtofrDocument::source(Self) -> String
-pub fn MpfrStrtofrDocument::case_count(Self) -> Int
+pub fn MpfrStrtofrDocument::case_count(Self) -> Int32
 ```
 
 ### `parse_decimal_output_data`
@@ -303,7 +303,7 @@ pub struct MpfrDecimalOutputDocument {
 }
 
 pub fn MpfrDecimalOutputDocument::source(Self) -> String
-pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
+pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int32
 ```
 
 ## Seeded random rows
@@ -446,7 +446,7 @@ and the message.
 
 ```mbti
 pub fn ParseDiagnostic::source(Self) -> String
-pub fn ParseDiagnostic::line(Self) -> Int
+pub fn ParseDiagnostic::line(Self) -> Int32
 pub fn ParseDiagnostic::message(Self) -> String
 ```
 
@@ -494,9 +494,9 @@ pub struct RunSummary {
 These methods return the number of rows, and how many passed and failed.
 
 ```mbti
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
 ```
 
 ### `RunSummary::results`, `RunSummary::success`

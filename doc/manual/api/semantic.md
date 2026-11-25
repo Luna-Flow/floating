@@ -82,7 +82,7 @@ $0/1$. **Aborts** when `denominator` is zero.
 $m \cdot r^{e}$.
 
 ```mbti
-pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int, Int) -> Self
+pub fn ExactRational::from_scaled_integer(@bigint.BigInt, Int32, Int32) -> Self
 ```
 
 For $e \ge 0$ the result is $(m r^{e})/1$; for $e < 0$ it is $m / r^{-e}$,

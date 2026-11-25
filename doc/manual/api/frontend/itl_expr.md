@@ -86,7 +86,7 @@ pub fn ItlCase::expected(Self) -> String
 `execute_case(case, precision?)` executes one case and returns its result.
 
 ```mbti
-pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
+pub fn execute_case(ItlCase, precision? : Int32) -> ItlResult
 ```
 
 `precision` (default `53`, must be within `1` and `268435456`) is the significand precision of
@@ -224,10 +224,10 @@ These methods return the number of results, the number of executed cases, and
 how many of those passed and failed.
 
 ```mbti
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::executable_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::executable_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
 ```
 
 ### `RunSummary::unsupported_cases`, `RunSummary::diagnostic_cases`
@@ -236,8 +236,8 @@ These methods return the number of cases that were not executed, by
 disposition.
 
 ```mbti
-pub fn RunSummary::unsupported_cases(Self) -> Int
-pub fn RunSummary::diagnostic_cases(Self) -> Int
+pub fn RunSummary::unsupported_cases(Self) -> Int32
+pub fn RunSummary::diagnostic_cases(Self) -> Int32
 ```
 
 ### `RunSummary::results`, `RunSummary::success`

@@ -42,10 +42,10 @@ pub struct DecimalExponentBounds {
   etiny_ : Int
   etop_ : Int
 }
-pub fn DecimalExponentBounds::new(Int, Int, Int) -> Self
+pub fn DecimalExponentBounds::new(Int32, Int32, Int32) -> Self
 pub fn DecimalExponentBounds::is_valid(Self) -> Bool
-pub fn DecimalExponentBounds::etiny(Self) -> Int
-pub fn DecimalExponentBounds::etop(Self) -> Int
+pub fn DecimalExponentBounds::etiny(Self) -> Int32
+pub fn DecimalExponentBounds::etop(Self) -> Int32
 ```
 
 For valid inputs, `etiny` is $e_{\min} - p + 1$ and `etop` is
@@ -85,7 +85,7 @@ pub fn bigint_one() -> @bigint.BigInt
 
 ```mbti
 pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
-pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
+pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int32
 ```
 
 `compare_abs` returns a negative, zero or positive `Int` (the result of
@@ -106,8 +106,8 @@ test "integer basics" {
 These functions return $5^n$ and $10^n$.
 
 ```mbti
-pub fn pow5(Int) -> @bigint.BigInt
-pub fn pow10(Int) -> @bigint.BigInt
+pub fn pow5(Int32) -> @bigint.BigInt
+pub fn pow10(Int32) -> @bigint.BigInt
 ```
 
 They abort when $n < 0$. `pow5` and `pow10` read a
@@ -120,7 +120,7 @@ $n = 4096$; larger powers are computed each time without caching.
 `digits10(0) == 1`.
 
 ```mbti
-pub fn digits10(@bigint.BigInt) -> Int
+pub fn digits10(@bigint.BigInt) -> Int32
 ```
 
 For $x \ne 0$ it returns the unique $d$ with $10^{d-1} \le |x| < 10^{d}$,
@@ -145,7 +145,7 @@ test "powers and digit counts" {
 the decimal exponent.
 
 ```mbti
-pub fn remove_factor10(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
+pub fn remove_factor10(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
 ```
 
 The value $\mathit{coeff} \cdot 10^{\mathit{exp}}$ and the sign are preserved
@@ -157,7 +157,7 @@ and the new coefficient is not divisible by 10. Zero gives $(0, 0)$.
 `max_drop` trailing decimal zeros.
 
 ```mbti
-pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int, max_drop? : Int) -> (@bigint.BigInt, Int, Int)
+pub fn trim_trailing_decimal_zeros(@bigint.BigInt, Int32, max_drop? : Int32) -> (@bigint.BigInt, Int32, Int32)
 ```
 
 It returns $(c', e', k)$ with $c = c' \cdot 10^{k}$, $e' = e + k$, and $k$
@@ -174,7 +174,7 @@ exponent does.
 the division is exact and `None` otherwise.
 
 ```mbti
-pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int) -> @bigint.BigInt?
+pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int32) -> @bigint.BigInt?
 ```
 
 The sign is kept. Zero gives `Some(0)` for every `shift`; for a non-zero
@@ -241,7 +241,7 @@ test "rounding -5/2 and -7/2" {
 mode)` computed with shifts.
 
 ```mbti
-pub fn round_shift(@bigint.BigInt, Int, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
+pub fn round_shift(@bigint.BigInt, Int32, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 ```
 
 For $s \le 0$ it returns $m$ unchanged (it never shifts left). $m$ should be
@@ -259,7 +259,7 @@ digits and exponent; `split_decimal_string_wide` returns the exponent as an
 `Int64`.
 
 ```mbti
-pub fn split_decimal_string(String) -> (Bool, String, Int)?
+pub fn split_decimal_string(String) -> (Bool, String, Int32)?
 pub fn split_decimal_string_wide(String) -> (Bool, String, Int64)?
 ```
 
@@ -315,10 +315,10 @@ package; build values with `new` or `from_int`.
 $k \cdot 2^{0}$; the accessors return the fields.
 
 ```mbti
-pub fn CertifiedDyadic::new(@bigint.BigInt, Int) -> Self
-pub fn CertifiedDyadic::from_int(Int) -> Self
+pub fn CertifiedDyadic::new(@bigint.BigInt, Int32) -> Self
+pub fn CertifiedDyadic::from_int(Int32) -> Self
 pub fn CertifiedDyadic::numerator(Self) -> @bigint.BigInt
-pub fn CertifiedDyadic::scale(Self) -> Int
+pub fn CertifiedDyadic::scale(Self) -> Int32
 ```
 
 The representation is not normalized: $2 \cdot 2^{-1}$ and $1 \cdot 2^{0}$
@@ -333,7 +333,7 @@ pub fn CertifiedDyadic::add(Self, Self) -> Self
 pub fn CertifiedDyadic::sub(Self, Self) -> Self
 pub fn CertifiedDyadic::mul(Self, Self) -> Self
 pub fn CertifiedDyadic::neg(Self) -> Self
-pub fn CertifiedDyadic::compare(Self, Self) -> Int
+pub fn CertifiedDyadic::compare(Self, Self) -> Int32
 ```
 
 `add` and `sub` align to the larger scale; `mul` adds the scales; `compare`
@@ -348,8 +348,8 @@ $\lfloor x \cdot 2^{s} \rfloor \cdot 2^{-s}$ and
 $\lceil x \cdot 2^{s} \rceil \cdot 2^{-s}$.
 
 ```mbti
-pub fn CertifiedDyadic::round_down(Self, Int) -> Self
-pub fn CertifiedDyadic::round_up(Self, Int) -> Self
+pub fn CertifiedDyadic::round_down(Self, Int32) -> Self
+pub fn CertifiedDyadic::round_up(Self, Int32) -> Self
 ```
 
 Abort if $s < 0$. When $s$ is at least the current scale the value is
@@ -375,7 +375,7 @@ pub struct CertifiedInterval[T] {
 builds the pair; `lower` and `upper` return the endpoints.
 
 ```mbti
-pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int) -> Result[Self[T], @arithmetic.ArithmeticError]
+pub fn[T] CertifiedInterval::new(T, T, (T, T) -> Int32) -> Result[Self[T], @arithmetic.ArithmeticError]
 pub fn[T] CertifiedInterval::lower(Self[T]) -> T
 pub fn[T] CertifiedInterval::upper(Self[T]) -> T
 ```
@@ -390,7 +390,7 @@ for the operation `"interval"` with stage `EnclosurePropagation`, reason
 scale $s$.
 
 ```mbti
-pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int32) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
 ```
 
 The result is
@@ -404,7 +404,7 @@ point exactly when $d \mid n 2^{s}$. A non-positive $d$ gives a domain error.
 scale $s$.
 
 ```mbti
-pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
+pub fn certified_dyadic_div(CertifiedDyadic, CertifiedDyadic, Int32) -> Result[CertifiedInterval[CertifiedDyadic], @arithmetic.ArithmeticError]
 ```
 
 $b = 0$ gives a division-by-zero error. Otherwise the result is
@@ -454,11 +454,11 @@ working precision does not exceed `certified_unbounded_work_cap` of the
 starting precision.
 
 ```mbti
-pub fn CertifiedRefinementBudget::new(Int, limit? : Int?) -> Self
+pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32?) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::available(Self) -> Bool
-pub fn CertifiedRefinementBudget::precision(Self) -> Int
-pub fn CertifiedRefinementBudget::refinements(Self) -> Int
+pub fn CertifiedRefinementBudget::precision(Self) -> Int32
+pub fn CertifiedRefinementBudget::refinements(Self) -> Int32
 ```
 
 `next` does not check `available`; a loop must test `available()` itself.
@@ -487,8 +487,8 @@ hand-written refinement loop whether it may run another step: `Some(n)` allows
 and 256 times `precision`, at most 1,000,000,000.
 
 ```mbti
-pub fn certified_refinement_continues(Int?, Int, Int, Int) -> Bool
-pub fn certified_unbounded_work_cap(Int) -> Int
+pub fn certified_refinement_continues(Int32?, Int32, Int32, Int32) -> Bool
+pub fn certified_unbounded_work_cap(Int32) -> Int32
 ```
 
 ### `certified_failure`
@@ -497,7 +497,7 @@ pub fn certified_unbounded_work_cap(Int) -> Int
 builds the `ArithmeticError` a certified operation returns when it gives up.
 
 ```mbti
-pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
+pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int32, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
 ```
 
 The error's detail records the operation name, stage, reason, target

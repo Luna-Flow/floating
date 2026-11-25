@@ -87,7 +87,7 @@ rows.
 ```mbti
 pub fn GdaDocument::source(Self) -> String
 pub fn GdaDocument::cases(Self) -> Array[GdaCase]
-pub fn GdaDocument::case_count(Self) -> Int
+pub fn GdaDocument::case_count(Self) -> Int32
 ```
 
 ### `GdaCase`
@@ -167,10 +167,10 @@ Precision 34, rounding `"half_even"`, `min_exponent` $-999999999$,
 These accessors return the directive values.
 
 ```mbti
-pub fn GdaContext::precision(Self) -> Int
+pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::rounding(Self) -> String
-pub fn GdaContext::min_exponent(Self) -> Int
-pub fn GdaContext::max_exponent(Self) -> Int
+pub fn GdaContext::min_exponent(Self) -> Int32
+pub fn GdaContext::max_exponent(Self) -> Int32
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::extended(Self) -> Bool
 pub fn GdaContext::dectest(Self) -> String
@@ -279,7 +279,7 @@ pub struct RunOptions {
 builds the options.
 
 ```mbti
-pub fn RunOptions::new(shard_count? : Int, shard_index? : Int, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String, String?)]) -> Self
+pub fn RunOptions::new(shard_count? : Int32, shard_index? : Int32, strict_supported? : Bool, case_filter? : String, deviations? : Array[(String, String, String, String?)]) -> Self
 ```
 
 Defaults: one shard, index 0, `strict_supported` off, empty filter (all
@@ -304,8 +304,8 @@ read it. The CLI uses it to turn unsupported rows into a failing exit code.
 These accessors return the option values.
 
 ```mbti
-pub fn RunOptions::shard_count(Self) -> Int
-pub fn RunOptions::shard_index(Self) -> Int
+pub fn RunOptions::shard_count(Self) -> Int32
+pub fn RunOptions::shard_index(Self) -> Int32
 pub fn RunOptions::strict_supported(Self) -> Bool
 pub fn RunOptions::case_filter(Self) -> String
 pub fn RunOptions::deviations(Self) -> Array[(String, String, String, String?)]
@@ -377,8 +377,8 @@ all shards; `selected_cases` returns the number of rows this shard executed
 or skipped.
 
 ```mbti
-pub fn RunSummary::total_cases(Self) -> Int
-pub fn RunSummary::selected_cases(Self) -> Int
+pub fn RunSummary::total_cases(Self) -> Int32
+pub fn RunSummary::selected_cases(Self) -> Int32
 ```
 
 Every shard of one run reports the same `total_cases`. Rows removed by the
@@ -390,9 +390,9 @@ These methods return the number of selected rows with the disposition `Executabl
 and how many of them passed and failed.
 
 ```mbti
-pub fn RunSummary::executable_cases(Self) -> Int
-pub fn RunSummary::passed_cases(Self) -> Int
-pub fn RunSummary::failed_cases(Self) -> Int
+pub fn RunSummary::executable_cases(Self) -> Int32
+pub fn RunSummary::passed_cases(Self) -> Int32
+pub fn RunSummary::failed_cases(Self) -> Int32
 ```
 
 ### `RunSummary::skipped_cases`, `RunSummary::diagnostic_cases`, `RunSummary::legacy_cases`, `RunSummary::unsupported_cases`
@@ -401,10 +401,10 @@ These methods return the number of selected rows that were not evaluated, in
 total and by disposition.
 
 ```mbti
-pub fn RunSummary::skipped_cases(Self) -> Int
-pub fn RunSummary::diagnostic_cases(Self) -> Int
-pub fn RunSummary::legacy_cases(Self) -> Int
-pub fn RunSummary::unsupported_cases(Self) -> Int
+pub fn RunSummary::skipped_cases(Self) -> Int32
+pub fn RunSummary::diagnostic_cases(Self) -> Int32
+pub fn RunSummary::legacy_cases(Self) -> Int32
+pub fn RunSummary::unsupported_cases(Self) -> Int32
 ```
 
 `legacy_cases` is always 0 with the current executor. The counters of one
