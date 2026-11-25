@@ -183,7 +183,7 @@ head and $r$ the discarded tail. Each of the eight rounding algorithms (GDA
 1.70, pages 13 and 14 (Abstract representation of context)) returns
 $\hat x = (-1)^s (h + \delta)\,10^{q+k}$ with an increment $\delta \in \{0, 1\}$,
 and the eight differ only in $\delta$ (in the source:
-`should_increment_decimal_repr`). Below, $[P]$ is 1 when the condition $P$
+`dec_coeff_should_increment`). Below, $[P]$ is 1 when the condition $P$
 holds and 0 otherwise:
 
 $$
@@ -555,7 +555,7 @@ The IEEE 754 contract lives in `decimal`.
 Two kinds of shortcut avoid the general machinery without changing any
 observable result.
 
-`parse`, `add`, `subtract`, `multiply` and `fma` take the small-integer
+`to_number`, `add`, `subtract`, `multiply` and `fma` take the small-integer
 shortcut when all of these hold:
 
 - all operands are integers with exponent 0 and coefficients below $10^{18}$;
@@ -744,7 +744,7 @@ $\rho = 0$ and then pads towards the ideal exponent $\lfloor q/2 \rfloor$
 within $p$ digits (GDA 1.70, page 39 (square-root)). An exact root longer than
 $p$ digits is an exact result like any other, so the finalizer rounds it once,
 ties included: at $p = 1$, $\sqrt{2.25} = 1.5$ is a tie, which gives `2` under
-`HalfEven` and `1` under `HalfDown`.
+`HalfEven`, the rounding that `sqrt` always uses.
 
 Otherwise the root is irrational and the package rounds it directly at the
 final position. The root exponent is
@@ -1066,7 +1066,8 @@ algorithm never adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6`
 padded to $p$ digits with `Inexact` and `Rounded` in every rounding algorithm,
 as `power.decTest` rows powx2039 and powx2040 show for $1^y$ in `ceiling`.
 
-`exp`, `ln`, `log10` and `power` with a non-integer exponent accept only
+`exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with a positive
+integer exponent above 999,999,999 accept only
 contexts with $p$, $E_{\max}$ and $-E_{\min}$ at most 999,999
 (`math_context_is_restricted`) and raise `InvalidContext` otherwise. This is
 an implementation limit, decNumber's `DEC_MAX_MATH`, and not a rule of the GDA
@@ -1079,10 +1080,10 @@ conditions)). The
 [API page](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power)
 states the limit and the operands it applies to.
 
-In subset arithmetic `ln` reproduces the result of the classic reference
-algorithm, which can be one unit in the last place above the correctly rounded
-one (in the source: `decimal_ln_subset_result`), because the legacy subset test
-vectors encode that result.
+In subset arithmetic `ln` returns the correctly rounded result, as in the
+extended arithmetic. The legacy subset test row `ln116` encodes a result one
+unit in the last place above it and is a recorded deviation of the corpus (see
+[conformance](../conformance/decimal_gda.md)).
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
     correctly rounded last bit", *ACM TOMS* 17(3), 1991. On ball arithmetic see
@@ -1104,7 +1105,7 @@ division by limb count, with thresholds per target:
 
 | Target | Karatsuba mul / square | Toom-3 | first NTT mul / square | Burnikel–Ziegler | Newton division |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| native | 96 / 48 | 1,152 | 1,728 / 640 | from 2,816 | off |
+| native | 192 / 352 | 1,152 | 1,728 / 640 | from 2,816 | off |
 | LLVM | 96 / 96 | 2,048 | 4,096 / 2,048 | 2,048 | 4,096 |
 | Wasm, Wasm-GC, JS | 96 / 96 | 4,096 | 8,192 / 4,096 | 2,048 | 4,096 |
 

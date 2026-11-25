@@ -11,7 +11,7 @@ every public name.
 
 | I want to | Use |
 | --- | --- |
-| Read a number under a context | [`parse`](#quick-start) |
+| Read a number under a context | [`to_number`](#quick-start) |
 | Carry flags from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
 | Round an amount to cents | [`quantize`](#keep-and-set-the-quantum) |
 | Stop on a condition but keep the result | [`GdaContext::trap`](#handle-a-trap-without-losing-the-result) |
@@ -206,8 +206,8 @@ algorithm. `exp`, `ln`, `log10` and non-integer `power` only accept contexts wit
 precision, `e_max` and `-e_min` at most 999,999 (decNumber's limit, which the
 decTest suite requires and GDA's Invalid context condition permits; the
 operation text of the specification states no such bound); the
-decimal32/64/128 presets qualify, but the defaults of `GdaContext::new` and
-`context` (exponent range ±999,999,999) do not:
+decimal32/64/128 presets qualify, but the default of `GdaContext::new`
+(exponent range ±999,999,999) does not:
 
 ```moonbit
 ///|
@@ -375,9 +375,11 @@ test "decimal64 interchange round trip" {
   travel with every context derived from the original.
 - **Treating `Trapped` as "no value".** A trap changes the outcome variant, not
   the result. Read `value()` before deciding whether to stop.
-- **Expecting constructors to keep zeros.** `Decimal::from_int(100)` and
-  `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use
-  `Decimal::from_string("100")` or `parse` when the quantum matters.
+- **Expecting `normalized` and `reduce` to keep zeros.** `Decimal::from_int(100)` and
+  `Decimal::make` keep the exponent they are given, but `Decimal::normalized`
+  and `reduce` remove trailing zeros, so `Decimal::from_int(100).normalized()`
+  prints `1E+2`. Use `Decimal::from_string("100")` or `to_number` when the
+  quantum matters.
 - **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context.
   They use a private context with larger operand precision, half-even rounding,
   no clamp and no traps, so they round every result to that private precision,
@@ -394,8 +396,8 @@ test "decimal64 interchange round trip" {
   `ln`, `log10` and `sqrt` always round half to even; only `power` follows the
   context's rounding algorithm. The [elementary-functions task](#call-the-elementary-functions)
   gives the required context range.
-- **Using a default context for elementary functions.** `GdaContext::new()` and
-  `context()` allow exponents up to ±999,999,999, outside the implementation
+- **Using a default context for elementary functions.** `GdaContext::new()`
+  allows exponents up to ±999,999,999, outside the implementation
   limit for these operations. `exp`, `ln`, `log10` and non-integer `power`
   return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or
   pass `e_min=-999_999, e_max=999_999`. The same applies to an `ArithmeticContext`
