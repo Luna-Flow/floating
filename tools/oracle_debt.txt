@@ -818,18 +818,6 @@ library/src/decimal/zero_fold_issue234_wbtest.mbt::a zero quantize result above 
 library/src/decimal/zero_fold_issue234_wbtest.mbt::other operations that produce such a zero fold as well (issue 234)	A
 library/src/decimal/zero_fold_issue234_wbtest.mbt::the fold does not change a non-zero result (issue 234)	A
 library/src/decimal/zero_sum_sign_wbtest.mbt::a zero sum follows the sign rule in every rounding direction	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked accumulates IEEE flags	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked atan2 accepts infinite operands	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked elementary mirrors preserve results	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked elementary: domain case, could-not-compute case and ordinary case	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked minimum_number and maximum_number order signed zeros and keep a cohort tie numerically equal	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked minimum_number and maximum_number return the number for a signaling NaN and signal invalid	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked minimum_number and maximum_number treat a quiet NaN as missing	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked parse keeps conversion result and flags	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked pi-scaled and binary mirrors are additive	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked preserves IEEE defined results	A
-library/src/decimal_checked/decimal_checked_wbtest.mbt::decimal checked rsqrt compound powr mirror the try forms	A
 library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::high word of a word product equals the previous form and the exact product	E
 library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::schoolbook and word products and squares of edge limbs match BigInt	A
 library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT conversions on 64-bit limbs and on the 32-bit view agree	C

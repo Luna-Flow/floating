@@ -11,6 +11,9 @@ fn lift(value : @decimal.Decimal) -> DecimalChecked {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 7.3: 1 / 0 is infinity and raises division_by_zero, recorded in the result flags and in the sticky flags
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked preserves IEEE defined results" {
   let context = @decimal.DecimalContext::decimal64()
   let result = DecimalChecked::from_int(1, context).div(
@@ -22,6 +25,9 @@ test "decimal checked preserves IEEE defined results" {
 }
 
 ///|
+// oracle: A
+// source: written out: after parsing 1.2345 at three digits and adding zero, clear_flags returns a pipeline whose sticky flags hold no error flag (the block asserts only that)
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked accumulates IEEE flags" {
   let context = @decimal.DecimalContext::new(precision=3)
   let parsed = DecimalChecked::parse("1.2345", context)
@@ -31,6 +37,9 @@ test "decimal checked accumulates IEEE flags" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 5.12.1: text that is not a decimal converts to a quiet NaN and raises invalid_operation
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked parse keeps conversion result and flags" {
   let result = DecimalChecked::parse(
     "not-a-decimal",
@@ -41,6 +50,9 @@ test "decimal checked parse keeps conversion result and flags" {
 }
 
 ///|
+// oracle: A
+// source: written out: 2^10 = 1024 exactly (exp2 of 10), compared by value
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked elementary mirrors preserve results" {
   let context = @decimal.DecimalContext::decimal64()
   let result = DecimalChecked::from_int(10, context).exp2()
@@ -55,6 +67,9 @@ test "decimal checked elementary mirrors preserve results" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: tanpi(0.5) is infinity with division_by_zero (a pole); hypot(3, 4) = 5 exactly
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked pi-scaled and binary mirrors are additive" {
   let context = @decimal.DecimalContext::decimal64()
   let half = @decimal.Decimal::from_string("0.5").unwrap()
@@ -68,6 +83,9 @@ test "decimal checked pi-scaled and binary mirrors are additive" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: atan2(+inf, -inf) = 3 pi / 4 = 2.35619449019234492885, which is 2.356194490192345 at the 16 digits of decimal64 (CPython at 60 digits agrees); no flag
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift; inspect prints the value
 test "decimal checked atan2 accepts infinite operands" {
   let context = @decimal.DecimalContext::decimal64()
   let result = DecimalChecked::from_decimal(
@@ -79,6 +97,9 @@ test "decimal checked atan2 accepts infinite operands" {
 }
 
 ///|
+// oracle: A
+// source: written out: 2^4 - 1 = 15, 10^2 - 1 = 99, log2(1024) = 10, log10(1000) = 3, 2^0.5 - 1 = 0.41421356237309504880 which is 0.4142135623730950 at 16 digits (CPython at 60 digits agrees, inexact); log2p1(-1) and log10p1(-1) are poles with division_by_zero (IEEE 754-2019 9.2.1)
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift; inspect prints the value
 test "decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms" {
   // IEEE 754-2019 9.2: the checked methods record the result and the flags of
   // Decimal::try_*_ctx; log2p1(-1) and log10p1(-1) are poles (9.2.1).
@@ -104,6 +125,9 @@ test "decimal checked exp2m1 exp10m1 log2p1 log10p1 mirror the try forms" {
 }
 
 ///|
+// oracle: A
+// source: written out: rsqrt(0.25) = 2, compound(0.1, 2) = 1.1^2 = 1.21, 8^0.5 = 2.82842712474619009760 which is 2.828427124746190 at 16 digits (CPython at 60 digits agrees); rsqrt(0), compound(-1, -2) are poles and powr(0, 0) is invalid (IEEE 754-2019 9.2.1)
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift; inspect prints the value
 test "decimal checked rsqrt compound powr mirror the try forms" {
   // IEEE 754-2019 9.2: the checked methods record the result and flags of
   // Decimal::try_*_ctx; rSqrt(+-0) and compound(-1, n < 0) are poles (9.2.1).
@@ -130,6 +154,9 @@ test "decimal checked rsqrt compound powr mirror the try forms" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.6: minimumNumber and maximumNumber of a number and a quiet NaN return the number and signal nothing; of two quiet NaNs they return a quiet NaN
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked minimum_number and maximum_number treat a quiet NaN as missing" {
   let context = @decimal.DecimalContext::decimal64()
   let two = @decimal.Decimal::from_int(2)
@@ -151,6 +178,9 @@ test "decimal checked minimum_number and maximum_number treat a quiet NaN as mis
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.6: with a signaling NaN operand the operation signals invalid and returns the other number; with two NaNs a quiet NaN
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked minimum_number and maximum_number return the number for a signaling NaN and signal invalid" {
   let context = @decimal.DecimalContext::decimal64()
   let two = @decimal.Decimal::from_int(2)
@@ -174,6 +204,9 @@ test "decimal checked minimum_number and maximum_number return the number for a 
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.6: -0 is less than +0 for minimumNumber and maximumNumber, and 1.0 and 1.00 are numerically equal so either cohort member is a correct result
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked minimum_number and maximum_number order signed zeros and keep a cohort tie numerically equal" {
   let context = @decimal.DecimalContext::decimal64()
   let negative_zero = @decimal.Decimal::negative_zero()
@@ -203,6 +236,9 @@ test "decimal checked minimum_number and maximum_number order signed zeros and k
 /// S4: a case IEEE 754-2019 defines as invalid is a value with `invalid_operation`
 /// and no error; a context beyond the kernels is the error (the certification
 /// failure kind, not the domain error); an ordinary case has neither.
+// oracle: A
+// source: ln(-1) is a domain case that IEEE 754-2019 9.2.1 makes invalid (a quiet NaN value with invalid_operation) written out; exp(2) in a context beyond the kernels is an error of the certification-failure kind, and exp(1) has neither error nor flags: the error kinds are the documented contract of the checked package (design S4), not a standard
+// shares: Decimal::from_string and Decimal::from_int (build the inputs), Decimal::compare and to_string (read the results), the helper lift
 test "decimal checked elementary: domain case, could-not-compute case and ordinary case" {
   let context = @decimal.DecimalContext::decimal64()
   let domain = DecimalChecked::from_decimal(
