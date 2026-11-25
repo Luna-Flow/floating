@@ -25329,7 +25329,7 @@ msgstr "plan-compiles テストはスキップしないでください。この�
 #: manual/tutorial/bench/decimal_gda.md:50
 #: manual/tutorial/bench/external.md:226
 #: manual/tutorial/bench/interval.md:48
-#: manual/tutorial/binary.md:262
+#: manual/tutorial/binary.md:269
 #: manual/tutorial/binary_checked.md:177
 #: manual/tutorial/cli.md:73
 #: manual/tutorial/cli/dispatch.md:60
@@ -25379,7 +25379,7 @@ msgstr "[性能監査](../performance_audit.md)と `performance/` のページ�
 #: manual/tutorial/bench/decimal_gda.md:58
 #: manual/tutorial/bench/external.md:239
 #: manual/tutorial/bench/interval.md:56
-#: manual/tutorial/binary.md:397
+#: manual/tutorial/binary.md:407
 #: manual/tutorial/binary_checked.md:235
 #: manual/tutorial/cli.md:82
 #: manual/tutorial/cli/dispatch.md:66
@@ -25433,7 +25433,7 @@ msgstr "**僅差のときは、速い方ではなく安定した候補が選ば�
 #: manual/tutorial/bench/decimal_gda.md:64
 #: manual/tutorial/bench/external.md:248
 #: manual/tutorial/bench/interval.md:62
-#: manual/tutorial/binary.md:425
+#: manual/tutorial/binary.md:443
 #: manual/tutorial/binary_checked.md:258
 #: manual/tutorial/cli.md:95
 #: manual/tutorial/cli/dispatch.md:74
@@ -25928,8 +25928,8 @@ msgid "binary tutorial"
 msgstr "binary チュートリアル"
 
 #: manual/tutorial/binary.md:3
-msgid "This tutorial teaches you to compute with `Binary`, the arbitrary-precision binary floating-point type of `floating`: build exact values, run a calculation in an IEEE 754 format such as binary32 with its status flags, read and write interchange bits and decimal text, and call correctly rounded elementary functions. Every example compiles and shows its output. The mathematics behind the rounding rules is on the [design page](../design/binary.md), and every function is listed in the [API reference](../api/binary.md)."
-msgstr "このチュートリアルでは、`floating` の任意精度二進浮動小数点型である `Binary` を使った計算方法を学びます。厳密な値を構築し、binary32 のような IEEE 754 形式でステータスフラグとともに計算を実行し、交換形式のビット列と十進テキストを読み書きし、正しく丸められた初等関数を呼び出します。すべての例はコンパイル可能で、出力を示しています。丸め規則の背後にある数学は[設計ページ](../design/binary.md)に、すべての関数は [API リファレンス](../api/binary.md)にあります。"
+msgid "Use `Binary`, the arbitrary-precision binary floating-point type in `floating`, to construct values exactly, run a calculation in an IEEE 754 format such as binary32 and inspect its flags, exchange interchange bit patterns, and print decimal text. Then use correctly rounded elementary functions and directed rounding to evaluate and enclose results. Each example compiles and shows its output. The [design page](../design/binary.md) explains the rounding rules; the [API reference](../api/binary.md) lists each function."
+msgstr "`floating` の任意精度二進浮動小数点型である `Binary` を使って値を厳密に構築し、binary32 などの IEEE 754 形式で演算してフラグを確認し、交換形式のビットパターンを読み書きし、十進テキストを出力します。次に、正しく丸められた初等関数と方向付き丸めで結果を計算し、包含区間を作ります。各例はコンパイルでき、出力を示します。[設計ページ](../design/binary.md)では丸め規則を説明し、[API リファレンス](../api/binary.md)には各関数を記載しています。"
 
 #: manual/tutorial/binary.md:14
 msgid "build an exact binary value"
@@ -26020,178 +26020,186 @@ msgid "Build exact values"
 msgstr "厳密な値を構築する"
 
 #: manual/tutorial/binary.md:68
-msgid "A finite `Binary` is $c \\cdot 2^{e}$ with an integer coefficient $c$ and an exponent $e$. `make` takes both plus a precision; `to_string` prints the stored form `c p e`, which is exact."
-msgstr "有限の `Binary` は、整数係数 $c$ と指数 $e$ による $c \\cdot 2^{e}$ です。`make` はその両方と精度を受け取ります。`to_string` は格納された形 `c p e` を出力し、これは厳密です。"
+msgid "A finite `Binary` has value $c \\cdot 2^{e}$, where $c$ is an integer coefficient and $e$ is an exponent. `make` builds a value from the coefficient, exponent and precision; `to_string` prints its exact stored form `c p e`."
+msgstr "有限の `Binary` の値は $c \\cdot 2^{e}$ です。$c$ は整数係数で、$e$ は指数です。`make` は係数、指数、精度から値を構築し、`to_string` は厳密な格納形式 `c p e` を出力します。"
 
 #: manual/tutorial/binary.md:88
-msgid "Read decimal input with `from_string`, which rounds the decimal value itself. Converting through a host `Double` rounds twice when you want a precision other than 53 bits, and `from_double` faithfully keeps the host's binary approximation:"
-msgstr "十進の入力は `from_string` で読み込みます。これは十進値そのものを丸めます。ホストの `Double` を経由して変換すると、53 ビット以外の精度を求める場合に丸めが 2 回起こり、`from_double` はホストの二進近似をそのまま忠実に保持します。"
+msgid "Read decimal input without double rounding"
+msgstr "二重丸めを避けて十進入力を読む"
 
-#: manual/tutorial/binary.md:107
+#: manual/tutorial/binary.md:90
+msgid "Parse decimal text with `from_string` to round the decimal value directly to the requested precision. Converting through a host `Double` first rounds to 53 bits, which can double-round when you want another precision. `from_double` keeps the host's binary approximation:"
+msgstr "指定した精度へ十進値を直接丸めるには、`from_string` で十進テキストを解析します。別の精度が必要なときにホストの `Double` を介すると、最初に 53 ビットへ丸められるため、二重丸めが起きることがあります。`from_double` はホストの二進近似値を保持します："
+
+#: manual/tutorial/binary.md:109
 msgid "Compute in an IEEE format and keep the flags"
 msgstr "IEEE 形式で計算してフラグを保持する"
 
-#: manual/tutorial/binary.md:109
-msgid "A `BinaryContext` fixes the precision, exponent range, rounding direction and tininess rule of an operation. The `*_ctx` methods return the value and the flags of that one operation; combine flags yourself to accumulate them."
-msgstr "`BinaryContext` は演算の精度、指数範囲、丸め方向、極小性（tininess）の規則を固定します。`*_ctx` メソッドはその一回の演算の値とフラグを返します。フラグを蓄積するには自分で組み合わせてください。"
+#: manual/tutorial/binary.md:111
+msgid "Set an operation's precision, exponent range, rounding direction and tininess rule with `BinaryContext`. Each `*_ctx` method returns the value and flags for that operation. Combine the flags to accumulate them across operations."
+msgstr "`BinaryContext` で演算の精度、指数範囲、丸め方向、微小性検出規則を設定します。各 `*_ctx` メソッドは、その演算の値とフラグを返します。複数の演算にわたってフラグを蓄積するには、フラグを結合します。"
 
-#: manual/tutorial/binary.md:132
+#: manual/tutorial/binary.md:134
 msgid "$120000$ exceeds the largest binary16 value $65504$, so the sum overflows to infinity. The product $10^{-7}$ lies below the smallest normal binary16 number $2^{-14} \\approx 6.1 \\cdot 10^{-5}$, so it is rounded on the subnormal grid and raises underflow. The rounding direction changes the overflow result: toward zero it stays at the largest finite value."
 msgstr "$120000$ は binary16 の最大値 $65504$ を超えるので、和は無限大にオーバーフローします。積 $10^{-7}$ は binary16 の最小の正規化数 $2^{-14} \\approx 6.1 \\cdot 10^{-5}$ より小さいので、非正規化数の格子上で丸められ、アンダーフローを発生させます。丸め方向によってオーバーフローの結果は変わります。ゼロ方向への丸めでは、結果は最大の有限値にとどまります。"
 
-#: manual/tutorial/binary.md:152
+#: manual/tutorial/binary.md:154
 msgid "Read and write interchange bits"
 msgstr "交換形式のビット列を読み書きする"
 
-#: manual/tutorial/binary.md:154
-msgid "Use `BinaryInterchange` when a file or protocol carries binary16, binary32, binary64 or binary128 bit patterns. It never goes through a host `Double`, so signaling NaNs, payloads and binary128 survive."
-msgstr "ファイルやプロトコルが binary16、binary32、binary64、binary128 のビットパターンを運ぶ場合は `BinaryInterchange` を使います。ホストの `Double` を決して経由しないので、signaling NaN、ペイロード、binary128 がそのまま保たれます。"
-
-#: manual/tutorial/binary.md:173
-msgid "Encoding rounds into the format, so it returns flags as well. Decoding is always exact."
-msgstr "エンコードは形式へ丸めるので、フラグも返します。デコードは常に厳密です。"
+#: manual/tutorial/binary.md:156
+msgid "Use `BinaryInterchange` to read or write binary16, binary32, binary64 or binary128 bit patterns in a file or protocol. It converts the bit patterns without a host `Double`. This preserves signaling NaNs, payloads and binary128 values."
+msgstr "ファイルやプロトコル内の binary16、binary32、binary64、binary128 のビットパターンを読み書きするには `BinaryInterchange` を使います。ビットパターンの変換ではホストの `Double` を経由しません。これによりシグナリング NaN、ペイロード、binary128 の値を保持できます。"
 
 #: manual/tutorial/binary.md:176
+msgid "Encoding rounds the value into the selected format and returns flags. Decoding is always exact."
+msgstr "エンコードでは値を選択した形式に丸め、フラグを返します。デコードは常に厳密です。"
+
+#: manual/tutorial/binary.md:179
 msgid "Classify a value"
 msgstr "値を分類する"
 
-#: manual/tutorial/binary.md:178
-msgid "`class_of` returns the ten-valued class of IEEE 754-2019 clause 5.7.2. A `Binary` has no format of its own, so the context says where the subnormal range starts."
-msgstr "`class_of` は IEEE 754-2019 第 5.7.2 条の 10 値のクラスを返します。`Binary` 自身は形式を持たないので、非正規の範囲がどこから始まるかは文脈が示します。"
-
-#: manual/tutorial/binary.md:196
-msgid "The same value is normal in a context with a lower `e_min`. `is_finite`, `is_infinite` and `is_nan` need no context."
-msgstr "同じ値でも `e_min` がより低い文脈では正規数です。`is_finite`、`is_infinite`、`is_nan` は文脈を必要としません。"
+#: manual/tutorial/binary.md:181
+msgid "`class_of` returns one of the ten classes in IEEE 754-2019 5.7.2. Because a `Binary` has no format of its own, its context determines where the subnormal range starts."
+msgstr "`class_of` は IEEE 754-2019 5.7.2 にある 10 個のクラスのいずれかを返します。`Binary` 自体には形式がないため、非正規化数の範囲がどこから始まるかはコンテキストによって決まります。"
 
 #: manual/tutorial/binary.md:199
+msgid "With a lower `e_min`, the same value is normal. `is_finite`, `is_infinite` and `is_nan` need no context."
+msgstr "`e_min` がより小さいコンテキストでは、同じ値が正規数になります。`is_finite`、`is_infinite`、`is_nan` にコンテキストは不要です。"
+
+#: manual/tutorial/binary.md:202
 msgid "Print decimal text"
 msgstr "十進テキストを出力する"
 
-#: manual/tutorial/binary.md:201
-msgid "`to_shortest_string_ctx` gives the shortest decimal that reads back as the same value in a format; for binary64 it matches the host formatter. `to_decimal_string_ctx` gives a fixed number of significant digits, rounded in the context's direction, and reports whether digits were dropped."
-msgstr "`to_shortest_string_ctx` は、ある形式で同じ値として読み戻せる最短の十進数を与えます。binary64 ではホストのフォーマッタと一致します。`to_decimal_string_ctx` は、コンテキストの方向に丸めた固定桁数の有効数字を与え、桁が捨てられたかどうかを報告します。"
-
-#: manual/tutorial/binary.md:223
-msgid "Every binary number has a finite decimal expansion, so 55 digits print the binary64 value of `0.1` exactly."
-msgstr "すべての二進数は有限の十進展開を持つので、55 桁あれば `0.1` の binary64 の値を厳密に出力できます。"
+#: manual/tutorial/binary.md:204
+msgid "Use `to_shortest_string_ctx` for the shortest decimal that reads back as the same value in a format; in binary64 it matches the host formatter. `to_decimal_string_ctx` prints a fixed number of significant digits, rounded in the context's direction, and reports whether it dropped digits."
+msgstr "形式内で同じ値に読み戻せる最短の十進表記には `to_shortest_string_ctx` を使います。binary64 ではホストのフォーマッターと一致します。`to_decimal_string_ctx` は有効数字の桁数を固定し、コンテキストの丸め方向で丸めて、桁を捨てたかどうかを報告します。"
 
 #: manual/tutorial/binary.md:226
+msgid "Every binary number has a finite decimal expansion. Here, 55 digits print the binary64 value of `0.1` exactly."
+msgstr "すべての二進数には有限桁の十進展開があります。ここでは 55 桁で `0.1` の binary64 値を厳密に出力します。"
+
+#: manual/tutorial/binary.md:229
 msgid "Call elementary functions"
 msgstr "初等関数を呼び出す"
 
-#: manual/tutorial/binary.md:228
-msgid "Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx` form. All three return the correctly rounded result, and all three return a quiet NaN with `invalid_operation` for a domain error (in `Ok` for `try_*_ctx`). They differ only in how an exhausted refinement budget is reported: the plain and `*_ctx` forms return a quiet NaN with `not_computed`, while `try_*_ctx` returns an `@lf_arith.ArithmeticError` that says what went wrong. The budget is twelve refinement steps by default; `context.with_refinement_limit(Some(n))` changes the count and `with_refinement_limit(None)` removes it (the working precision then stops at a cap of at least 8,000,000 bits), for a rare input that sits very close to a rounding boundary."
-msgstr "各初等関数には、素の形式、`*_ctx` 形式、`try_*_ctx` 形式があります。三つとも正しく丸められた結果を返し、定義域エラーに対しては三つとも `invalid_operation` とともに quiet NaN を返します（`try_*_ctx` では `Ok` の中）。違いは、精緻化予算の枯渇をどう報告するかだけです。素の形式と `*_ctx` 形式は `not_computed` とともに quiet NaN を返し、`try_*_ctx` は何が問題だったかを示す `@lf_arith.ArithmeticError` を返します。予算は既定で 12 ステップの精緻化です。`context.with_refinement_limit(Some(n))` で回数を変え、`with_refinement_limit(None)` で回数の上限を外します（その場合、作業精度は少なくとも 8,000,000 ビットの上限で止まります）。これは丸めの境界のごく近くにある、まれな入力のためのものです。"
+#: manual/tutorial/binary.md:231
+msgid "Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx` form. Each returns the correctly rounded result. A domain error returns a quiet NaN with `invalid_operation`; `try_*_ctx` returns that value in `Ok`. An operation takes a refinement step when it evaluates again at higher working precision. Its refinement limit sets how many such steps it may take. The three forms differ in how they report reaching that limit."
+msgstr "各初等関数には通常形式、`*_ctx` 形式、`try_*_ctx` 形式があります。いずれも正しく丸められた結果を返します。定義域エラーでは `invalid_operation` を伴う quiet NaN を返し、`try_*_ctx` もその値を `Ok` に入れて返します。作業精度を上げて演算を再評価するとき、refinement step が行われます。refinement limit は、この step を何回まで行えるかを定めます。3 つの形式では、この limit に達したときの報告方法が異なります。"
 
-#: manual/tutorial/binary.md:259
-msgid "`sinpi(0.5)` is exactly one, and the function knows it: exact results raise no `inexact` flag."
-msgstr "`sinpi(0.5)` は厳密に 1 であり、関数はそれを知っています。厳密な結果は `inexact` フラグを発生させません。"
+#: manual/tutorial/binary.md:238
+msgid "If an operation reaches its refinement limit before it can determine the correctly rounded result, the plain and `*_ctx` forms return a quiet NaN with `not_computed`. The `try_*_ctx` form returns an `@lf_arith.ArithmeticError` describing the failure. The default limit is twelve refinement steps. Change it with `context.with_refinement_limit(Some(n))`; call `with_refinement_limit(None)` to remove the step count limit. The working precision then has an upper bound of at least 8,000,000 bits. This limit matters for a rare input very close to a rounding boundary."
+msgstr "正しく丸められた結果を判定する前に演算が refinement limit に達すると、通常形式と `*_ctx` 形式は `not_computed` を伴う quiet NaN を返します。`try_*_ctx` 形式は失敗を説明する `@lf_arith.ArithmeticError` を返します。既定の limit は 12 回の refinement step です。`context.with_refinement_limit(Some(n))` で変更できます。`with_refinement_limit(None)` を呼ぶと step 数の制限がなくなります。このとき作業精度には少なくとも 8,000,000 ビットの上限があります。この制限は丸め境界に非常に近いまれな入力に関係します。"
 
-#: manual/tutorial/binary.md:264
+#: manual/tutorial/binary.md:267
+msgid "`sinpi(0.5)` is exactly one, so exact results raise no `inexact` flag."
+msgstr "`sinpi(0.5)` は厳密に 1 なので、厳密な結果では `inexact` フラグは発生しません。"
+
+#: manual/tutorial/binary.md:271
 msgid "Enclose a real number with directed rounding"
 msgstr "方向付き丸めで実数を包含する"
 
-#: manual/tutorial/binary.md:266
-msgid "Rounding toward negative and toward positive infinity brackets the exact result. This is how you build a guaranteed enclosure without an interval library:"
-msgstr "負の無限大方向と正の無限大方向への丸めによって、厳密な結果を挟み込めます。これが区間ライブラリなしで保証付きの包含を構築する方法です。"
+#: manual/tutorial/binary.md:273
+msgid "Rounding the exact result toward negative and positive infinity gives lower and upper bounds. Together, they give a guaranteed enclosure without an interval type:"
+msgstr "厳密な結果を負の無限大方向と正の無限大方向に丸めると、下界と上界が得られます。この 2 つで、interval 型を使わない保証付きの包含区間を作れます："
 
-#: manual/tutorial/binary.md:291
-msgid "`interval` computes with inf-sup intervals (a lower bound and an upper bound); the midpoint–radius form is a view of them (`from_midpoint_radius`, `midpoint`, `radius`); see the [interval tutorial](interval.md)."
-msgstr "`interval` は inf-sup 区間（下端と上端）で計算します。中点・半径の形式はそれを別の見方で見たものです（`from_midpoint_radius`、`midpoint`、`radius`）。[区間のチュートリアル](interval.md)を参照してください。"
+#: manual/tutorial/binary.md:298
+msgid "The [interval tutorial](interval.md) shows how `interval` computes with inf-sup intervals, which have a lower and upper bound. It also covers their midpoint–radius view: `from_midpoint_radius`, `midpoint` and `radius`."
+msgstr "[interval チュートリアル](interval.md)では、下界と上界を持つ inf-sup 区間を使う `interval` の計算方法を説明しています。また、中点・半径表現である `from_midpoint_radius`、`midpoint`、`radius` も扱います。"
 
-#: manual/tutorial/binary.md:295
+#: manual/tutorial/binary.md:302
 msgid "Use fused and exact IEEE operations"
 msgstr "融合演算と厳密な IEEE 演算を使う"
 
-#: manual/tutorial/binary.md:297
-msgid "`fma` rounds $x y + z$ once, so it recovers the rounding error of a product. `remainder` is always exact for operands of one precision."
-msgstr "`fma` は $x y + z$ を一度だけ丸めるので、積の丸め誤差を復元できます。`remainder` は同じ精度のオペランドに対して常に厳密です。"
+#: manual/tutorial/binary.md:304
+msgid "`fma` rounds $x y + z$ once, which lets you recover the rounding error of a product. `remainder` is always exact when its operands have the same precision."
+msgstr "`fma` は $x y + z$ を 1 回だけ丸めるため、積の丸め誤差を復元できます。オペランドの精度が同じ場合、`remainder` は常に厳密です。"
 
-#: manual/tutorial/binary.md:315
-msgid "The two-product error term is the basis of compensated algorithms (Kahan summation, double-double arithmetic); the design page shows why it is exact."
-msgstr "二つの積の誤差項は補償付きアルゴリズム（Kahan の総和法、double-double 算術）の基礎です。それが厳密である理由は設計ページで示しています。"
+#: manual/tutorial/binary.md:322
+msgid "The two-product error term is the basis of compensated algorithms such as Kahan summation and double-double arithmetic. The design page explains why the error is exact."
+msgstr "2 数積の誤差項は、Kahan 加算や double-double 算術などの補償アルゴリズムの基礎です。設計ページでは誤差が厳密である理由を説明しています。"
 
-#: manual/tutorial/binary.md:318
+#: manual/tutorial/binary.md:326
 msgid "Watch underflow and tininess"
 msgstr "アンダーフローと極小性に注意する"
 
-#: manual/tutorial/binary.md:320
-msgid "IEEE 754 lets an implementation detect tininess before or after rounding, and the choice changes the underflow flag for values just below the smallest normal number. `BinaryContext` lets you choose:"
-msgstr "IEEE 754 では、極小性を丸めの前に検出するか後に検出するかを実装が選べ、その選択によって最小の正規化数のすぐ下の値に対するアンダーフローフラグが変わります。`BinaryContext` で選択できます。"
+#: manual/tutorial/binary.md:328
+msgid "IEEE 754 allows tininess detection before or after rounding. For a value just below the smallest normal number, the choice changes the underflow flag. Choose the rule with `BinaryContext`:"
+msgstr "IEEE 754 では、丸めの前後いずれかで微小性を検出できます。最小正規数をわずかに下回る値では、選択によって underflow フラグが変わります。`BinaryContext` で規則を選びます："
 
-#: manual/tutorial/binary.md:345
-msgid "The value is the same; only the flag differs. Hardware differs too: x86 detects tininess after rounding and ARM before rounding, and TestFloat checks both rules."
-msgstr "値は同じで、違うのはフラグだけです。ハードウェアも異なり、x86 は丸めの後に、ARM は丸めの前に極小性を検出します。TestFloat は両方の規則を検査します。"
+#: manual/tutorial/binary.md:353
+msgid "Both operations return the same value, but their underflow flags differ. Hardware differs too: x86 detects tininess after rounding and ARM before rounding; TestFloat checks both rules."
+msgstr "どちらの演算も同じ値を返しますが、underflow フラグは異なります。ハードウェアにも違いがあります。x86 は丸め後に、ARM は丸め前に微小性を検出し、TestFloat は両方の規則を検査します。"
 
-#: manual/tutorial/binary.md:349
+#: manual/tutorial/binary.md:357
 msgid "Write generic code"
 msgstr "ジェネリックなコードを書く"
 
-#: manual/tutorial/binary.md:351
-msgid "`Binary` implements the `@def.Floating` trait shared by all scalar cores of `floating`, and the checked and contextual traits of `@lf_arith`. Code written against those traits runs on `Binary`, `Decimal` and the other cores:"
-msgstr "`Binary` は、`floating` のすべてのスカラーコアが共有する `@def.Floating` トレイトと、`@lf_arith` の checked トレイトおよび contextual トレイトを実装しています。それらのトレイトに対して書かれたコードは `Binary`、`Decimal`、その他のコアで動作します。"
+#: manual/tutorial/binary.md:359
+msgid "Write a function against `@def.Floating` or the checked and contextual traits of `@lf_arith`. `Binary` implements these traits, which are shared by the scalar cores of `floating`; the same code can run on `Binary`, `Decimal` and the other cores:"
+msgstr "`@def.Floating`、または `@lf_arith` の checked trait と contextual trait に対して関数を書きます。`Binary` はこれらの trait を実装しており、`floating` のスカラーコアで共有されています。同じコードを `Binary`、`Decimal`、その他のコアで実行できます："
 
-#: manual/tutorial/binary.md:382
-msgid "The contextual traits turn the IEEE `division_by_zero` and `invalid_operation` flags into errors and report the other flags as diagnostics. For a whole pipeline that stops at the first error, use [`binary_checked`](binary_checked.md)."
-msgstr "contextual トレイトは IEEE の `division_by_zero` フラグと `invalid_operation` フラグをエラーに変え、その他のフラグを診断情報として報告します。最初のエラーで停止するパイプライン全体には [`binary_checked`](binary_checked.md) を使ってください。"
+#: manual/tutorial/binary.md:390
+msgid "The contextual traits return errors for IEEE `division_by_zero` and `invalid_operation` flags, and report the other flags as diagnostics. To stop a whole pipeline at its first error, use the [`binary_checked`](binary_checked.md) tutorial."
+msgstr "contextual trait は IEEE の `division_by_zero` と `invalid_operation` フラグをエラーとして返し、その他のフラグを診断情報として報告します。最初のエラーでパイプライン全体を停止するには、[`binary_checked`](binary_checked.md) チュートリアルを使います。"
 
-#: manual/tutorial/binary.md:387
-msgid "Performance"
-msgstr "性能"
+#: manual/tutorial/binary.md:395
+msgid "Choose one precision"
+msgstr "精度を 1 つ選ぶ"
 
-#: manual/tutorial/binary.md:389
-msgid "Precision costs time roughly like integer multiplication of that many bits. The coefficient kernel switches automatically from schoolbook to Karatsuba, Toom-3 and number-theoretic transforms, so thousands of bits are practical. Elementary functions refine their working precision until the result is certain, and the first attempt succeeds for almost every input. Pick one precision for an algorithm instead of widening and narrowing repeatedly. The [performance page](../performance/binary.md) records measurements."
-msgstr "精度にかかる時間は、おおよそそのビット数の整数乗算と同程度です。係数カーネルは筆算法から Karatsuba、Toom-3、数論変換へと自動的に切り替わるので、数千ビットでも実用的です。初等関数は結果が確実になるまで作業精度を精緻化し、ほぼすべての入力で最初の試行が成功します。精度を繰り返し広げたり狭めたりするのではなく、アルゴリズムごとに一つの精度を選んでください。測定結果は[性能ページ](../performance/binary.md)に記録されています。"
+#: manual/tutorial/binary.md:397
+msgid "Pick one precision for an algorithm instead of changing it repeatedly. Operation cost grows with precision roughly like the cost of multiplying integers with the same number of bits. The coefficient kernel switches automatically from schoolbook to Karatsuba, Toom-3 and number-theoretic transforms, so thousands of bits are practical. Elementary functions refine their working precision until the result is certain, and the first attempt succeeds for almost every input. The [performance page](../performance/binary.md) records measurements, and the design page explains the algorithms and refinement."
+msgstr "アルゴリズムでは精度を繰り返し変更せず、1 つの精度を選びます。演算コストは精度とともに増え、概ね同じビット数の整数乗算コストに比例します。係数カーネルは schoolbook から Karatsuba、Toom-3、数論変換へ自動的に切り替わるため、数千ビットを実用的に扱えます。初等関数は結果が確定するまで作業精度を段階的に上げ、ほとんどすべての入力で最初の試行が成功します。[性能ページ](../performance/binary.md)には測定結果があり、設計ページではアルゴリズムと refinement を説明しています。"
 
-#: manual/tutorial/binary.md:399
-msgid "**`==` is the numerical comparison of `compare`.** `1` at 53 bits is `==` to `1` at 24 bits, $-0 = +0$, and every NaN equals every NaN. It is not IEEE equality: use `compare_quiet_equal` for the IEEE predicate, and `identical` for the structural question (sign of zero, precision, kind of NaN)."
-msgstr "**`==` は `compare` による数値の比較である。** 53 ビットの `1` と 24 ビットの `1` は `==` であり、$-0 = +0$ で、どの NaN もどの NaN とも等しくなります。IEEE の等価性ではありません。IEEE の述語には `compare_quiet_equal` を、構造の問い（ゼロの符号、精度、NaN の種類）には `identical` を使ってください。"
-
-#: manual/tutorial/binary.md:403
-msgid "**`compare` puts NaN last.** It never aborts: every NaN compares equal to every NaN and greater than every number, so `nan > x` is true. Use `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be unordered."
-msgstr "**`compare` は NaN を最後に置く。** 異常終了することはなく、すべての NaN はすべての NaN と等しく、すべての数より大きいと判定されるので、`nan > x` は真です。NaN を順序付けられないものとして扱う必要がある場合は `compare_checked`、`compare_quiet`、`compare_quiet_less` を使ってください。"
-
-#: manual/tutorial/binary.md:407
-msgid "**Plain operators ignore your format.** `x + y` works at the larger operand precision with an exponent range of about $2^{\\pm 2^{30}}$; it never overflows at binary32 limits. Use `add_ctx` with a format context."
-msgstr "**素の演算子はあなたの形式を無視する。** `x + y` は大きい方のオペランドの精度と約 $2^{\\pm 2^{30}}$ の指数範囲で動作し、binary32 の限界でオーバーフローすることはありません。形式のコンテキストとともに `add_ctx` を使ってください。"
-
-#: manual/tutorial/binary.md:410
-msgid "**`from_double(0.1)` is not one tenth.** It is the binary64 value the host already rounded. Parse decimal text with `from_string`."
-msgstr "**`from_double(0.1)` は十分の一ではない。** それはホストがすでに丸めた binary64 の値です。十進テキストは `from_string` でパースしてください。"
-
-#: manual/tutorial/binary.md:412
-msgid "**`to_string` is not decimal.** It prints `3602879701896397p-55`. Use `to_shortest_string` or `to_decimal_string_ctx` for people."
-msgstr "**`to_string` は十進ではない。** `3602879701896397p-55` と出力します。人が読むためには `to_shortest_string` または `to_decimal_string_ctx` を使ってください。"
+#: manual/tutorial/binary.md:409
+msgid "**`==` uses `compare`'s numerical relation.** A 53-bit `1` is `==` to a 24-bit `1`; $-0 = +0$; and all NaNs compare equal. Use `compare_quiet_equal` for IEEE equality; `identical` compares zero sign, precision and NaN kind."
+msgstr "**`==` は `compare` の数値関係を使います。** 53 ビットの `1` は 24 ビットの `1` と `==` になり、$-0 = +0$ となり、すべての NaN は互いに等しくなります。IEEE の等価判定には `compare_quiet_equal` を使い、`identical` はゼロの符号、精度、NaN の種類を比較します。"
 
 #: manual/tutorial/binary.md:414
-msgid "**`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and `0x3p-1` are both $1.5$, but `0x1.8` is rejected, and an inexact conversion looks like an exact one; use `from_hex_ctx` (or `from_string_ctx` for decimal text) when the rounding direction or the flags matter."
-msgstr "**`from_hex` は `p` 指数が必要で、フラグを報告しません。** `0x1.8p0` と `0x3p-1` はどちらも $1.5$ ですが、`0x1.8` は拒否されます。不正確な変換は正確な変換と見分けがつきません。丸め方向やフラグが必要なときは `from_hex_ctx`（10 進文字列なら `from_string_ctx`）を使ってください。"
+msgid "**`compare` orders NaN last.** It does not abort. Every NaN compares equal to every NaN and greater than every number, so `nan > x` is true. Use `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be unordered."
+msgstr "**`compare` は NaN を最後に並べます。** 中断しません。すべての NaN は互いに等しく、すべての数より大きいため、`nan > x` は真です。NaN を unordered として扱う必要がある場合は、`compare_checked`、`compare_quiet`、`compare_quiet_less` を使います。"
 
-#: manual/tutorial/binary.md:418
-msgid "**`with_precision` hides flags.** Use `apply_ctx` when you need to know that narrowing was inexact or overflowed."
-msgstr "**`with_precision` はフラグを隠す。** 精度の縮小が inexact だったか、オーバーフローしたかを知る必要がある場合は `apply_ctx` を使ってください。"
+#: manual/tutorial/binary.md:419
+msgid "**Plain operators ignore your format.** `x + y` uses the larger operand precision and an exponent range of about $2^{\\pm 2^{30}}$. It does not overflow at binary32 limits. Use `add_ctx` with a format context."
+msgstr "**通常の演算子は指定した形式を無視します。** `x + y` は大きい方のオペランド精度と約 $2^{\\pm 2^{30}}$ の指数範囲を使います。binary32 の限界ではオーバーフローしません。形式コンテキストと `add_ctx` を使います。"
 
-#: manual/tutorial/binary.md:420
-msgid "**The sign of a zero is an input.** IEEE 754 special cases read it: `atan2` of $(-0, -1)$ is $-\\pi$ but of $(+0, -1)$ is $+\\pi$, `tanpi(1)` is $-0$, and $(-0)^{-1}$ is $-\\infty$. Keep zeros as they come; normalising $-0$ to $+0$ changes these results."
-msgstr "**ゼロの符号は入力の一部。** IEEE 754 の特殊ケースはそれを読み取ります。$(-0, -1)$ の `atan2` は $-\\pi$ ですが、$(+0, -1)$ では $+\\pi$ です。`tanpi(1)` は $-0$、$(-0)^{-1}$ は $-\\infty$ です。ゼロは受け取ったままに保ってください。$-0$ を $+0$ に正規化するとこれらの結果が変わります。"
+#: manual/tutorial/binary.md:423
+msgid "**`from_double(0.1)` is not one tenth.** The host has already rounded it to binary64. Parse decimal text with `from_string`."
+msgstr "**`from_double(0.1)` は 10 分の 1 ではありません。** ホストですでに binary64 へ丸められています。`from_string` で十進テキストを解析します。"
 
-#: manual/tutorial/binary.md:427
-msgid "[binary design](../design/binary.md): the error model, how correct rounding is decided, overflow and tininess, certified elementary functions."
-msgstr "[binary の設計](../design/binary.md): 誤差モデル、正しい丸めの判定方法、オーバーフローと極小性、認証付き初等関数。"
+#: manual/tutorial/binary.md:426
+msgid "**`to_string` prints binary notation.** It prints `3602879701896397p-55`. Use `to_shortest_string` or `to_decimal_string_ctx` for decimal output."
+msgstr "**`to_string` は二進表記を出力します。** `3602879701896397p-55` のように出力します。十進表記には `to_shortest_string` または `to_decimal_string_ctx` を使います。"
 
-#: manual/tutorial/binary.md:429
+#: manual/tutorial/binary.md:430
+msgid "**`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and `0x3p-1` are both $1.5$, but `0x1.8` is rejected. An inexact conversion looks exact. Use `from_hex_ctx` or `from_string_ctx` for decimal text when rounding direction or flags matter."
+msgstr "**`from_hex` には `p` 指数が必要で、フラグは報告されません。** `0x1.8p0` と `0x3p-1` はどちらも $1.5$ ですが、`0x1.8` は拒否されます。不正確な変換も厳密に見えます。丸め方向やフラグが必要な場合は `from_hex_ctx` を使い、十進テキストには `from_string_ctx` を使います。"
+
+#: manual/tutorial/binary.md:435
+msgid "**`with_precision` hides flags.** Use `apply_ctx` to check whether narrowing was inexact or overflowed."
+msgstr "**`with_precision` はフラグを隠します。** 精度を下げたときに不正確だったか、オーバーフローしたかを確認するには `apply_ctx` を使います。"
+
+#: manual/tutorial/binary.md:438
+msgid "**The sign of zero is an input.** IEEE 754 special cases use it: `atan2` of $(-0, -1)$ is $-\\pi$, but of $(+0, -1)$ is $+\\pi$; `tanpi(1)` is $-0$; and $(-0)^{-1}$ is $-\\infty$. Keep the sign: changing $-0$ to $+0$ changes these results."
+msgstr "**ゼロの符号も入力です。** IEEE 754 の特殊ケースはその符号を使います。$(-0, -1)$ の `atan2` は $-\\pi$ ですが、$(+0, -1)$ では $+\\pi$ です。`tanpi(1)` は $-0$ で、$(-0)^{-1}$ は $-\\infty$ です。符号を保ってください。$-0$ を $+0$ に変えると結果が変わります。"
+
+#: manual/tutorial/binary.md:445
+msgid "[binary design](../design/binary.md): the error model, how correct rounding is decided, overflow and tininess, and how elementary functions determine a correctly rounded result."
+msgstr "[binary の設計](../design/binary.md)：誤差モデル、正しい丸めの判定方法、オーバーフローと微小性、そして初等関数が正しく丸められた結果をどのように決定するか。"
+
+#: manual/tutorial/binary.md:448
 msgid "[binary API](../api/binary.md): every item with its special values."
 msgstr "[binary API](../api/binary.md): すべての項目とその特殊値。"
 
-#: manual/tutorial/binary.md:430
+#: manual/tutorial/binary.md:449
 msgid "[binary conformance](../conformance/binary.md): the TestFloat and MPFR evidence."
 msgstr "[binary の適合性](../conformance/binary.md): TestFloat と MPFR による根拠。"
 
-#: manual/tutorial/binary.md:432
+#: manual/tutorial/binary.md:451
 msgid "[binary_checked tutorial](binary_checked.md) and [interval tutorial](interval.md): pipelines and enclosures built on `Binary`."
 msgstr "[binary_checked チュートリアル](binary_checked.md)と [interval チュートリアル](interval.md): `Binary` の上に構築されたパイプラインと包含区間。"
 
-#: manual/tutorial/binary.md:435
+#: manual/tutorial/binary.md:454
 msgid "[Luna-Flow arithmetic](https://lunaflow.cn/en/arithmetic/): the checked and contextual traits."
 msgstr "[Luna-Flow arithmetic](https://lunaflow.cn/en/arithmetic/): checked トレイトと contextual トレイト。"
 
@@ -31525,6 +31533,15 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:971
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx` form. All three return the correctly rounded result, and all three return a quiet NaN with `invalid_operation` for a domain error (in `Ok` for `try_*_ctx`). They differ only in how an exhausted refinement budget is reported: the plain and `*_ctx` forms return a quiet NaN with `not_computed`, while `try_*_ctx` returns an `@lf_arith.ArithmeticError` that says what went wrong. The budget is twelve refinement steps by default; `context.with_refinement_limit(Some(n))` changes the count and `with_refinement_limit(None)` removes it (the working precision then stops at a cap of at least 8,000,000 bits), for a rare input that sits very close to a rounding boundary."
+#~ msgstr "各初等関数には、素の形式、`*_ctx` 形式、`try_*_ctx` 形式があります。三つとも正しく丸められた結果を返し、定義域エラーに対しては三つとも `invalid_operation` とともに quiet NaN を返します（`try_*_ctx` では `Ok` の中）。違いは、精緻化予算の枯渇をどう報告するかだけです。素の形式と `*_ctx` 形式は `not_computed` とともに quiet NaN を返し、`try_*_ctx` は何が問題だったかを示す `@lf_arith.ArithmeticError` を返します。予算は既定で 12 ステップの精緻化です。`context.with_refinement_limit(Some(n))` で回数を変え、`with_refinement_limit(None)` で回数の上限を外します（その場合、作業精度は少なくとも 8,000,000 ビットの上限で止まります）。これは丸めの境界のごく近くにある、まれな入力のためのものです。"
+
+#~ msgid "Rounding toward negative and toward positive infinity brackets the exact result. This is how you build a guaranteed enclosure without an interval library:"
+#~ msgstr "負の無限大方向と正の無限大方向への丸めによって、厳密な結果を挟み込めます。これが区間ライブラリなしで保証付きの包含を構築する方法です。"
+
+#~ msgid "Performance"
+#~ msgstr "性能"
 
 #~ msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept a context only if $p \\le 999\\,999$, $E_{\\max} \\le 999\\,999$ and $E_{\\min} \\ge -999\\,999$. Beyond a limit they raise `InvalidContext`; with the default exponent range they return NaN and raise `InvalidContext`."
 #~ msgstr "`exp`、`ln`、`log10`、および非整数の指数での `power` は、$p \\le 999\\,999$、$E_{\\max} \\le 999\\,999$、$E_{\\min} \\ge -999\\,999$ のコンテキストだけを受け付けます。限界を超えると `InvalidContext` を発生させます。既定の指数範囲では NaN を返し、`InvalidContext` を発生させます。"
