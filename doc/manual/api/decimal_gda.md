@@ -572,7 +572,7 @@ extensions that the library keeps, and the official decTest files use both.
     ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
 
 > [!NOTE]
-> `exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with an integer
+> `exp`, `ln`, `log10`, `power` with a non-integer exponent other than 0.5 and `power` with an integer
 > exponent above 999,999,999 or below $-1\,999\,999\,997$ accept only a context with
 > $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$; with the default
 > exponent range they return a NaN and raise `InvalidContext`, as
@@ -1128,15 +1128,18 @@ test "round_to_integral keeps long integral parts" {
 
 ### Implementation limit of `exp`, `ln`, `log10` and `power`
 
-`exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with an integer exponent
+`exp`, `ln`, `log10`, `power` with a non-integer exponent other than 0.5 and `power` with an integer exponent
 above 999,999,999 or below $-1\,999\,999\,997$ accept a context only if
 $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$. Beyond a limit they raise
 `InvalidContext`; with the default exponent range they return NaN and raise `InvalidContext`.
-`power` returns a result that it decides before this check, such as $1^y$.
+`power` returns a result that it decides before this check: $0^y$ for a non-integer $y$, a base `1` or
+`-1` (not `1.00`) with an integer $y$, and a power of ten with an integer exponent whose result
+overflows or underflows. A negative base with a non-integer exponent is invalid
+(`InvalidOperation`).
 
 | Limit | Applies to |
 | --- | --- |
-| $p \le 999\,999$, $E_{\max} \le 999\,999$, $-E_{\min} \le 999\,999$ | `exp`, `ln`, `log10`, `power` with a non-integer exponent, and `power` with an integer exponent above 999,999,999 or below $-1\,999\,999\,997$ |
+| $p \le 999\,999$, $E_{\max} \le 999\,999$, $-E_{\min} \le 999\,999$ | `exp`, `ln`, `log10`, `power` with a non-integer exponent other than 0.5, and `power` with an integer exponent above 999,999,999 or below $-1\,999\,999\,997$ |
 | a nonzero operand has at most 999,999 digits | `exp`, `ln`, `log10` |
 | the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\,999\,997$ | `exp`, `ln`, `log10` (`power` gives `InvalidOperation` there, as [`power`](#power) states) |
 
@@ -1210,7 +1213,7 @@ For a non-integer $y$, $x$ must be positive (a negative base is invalid), and th
 certified to be correctly rounded *with the rounding of the context*. The case $y = 0.5$ is
 computed as a square root under the rounding of the context. The
 [implementation limit](#implementation-limit-of-exp-ln-log10-and-power) applies to a non-integer
-exponent. For a finite base, a non-integer exponent with a base whose adjusted exponent is above 999,999 or below
+exponent other than 0.5. For a finite base, a non-integer exponent with a base whose adjusted exponent is above 999,999 or below
 $-1\,999\,997$, or an exponent whose adjusted exponent is below $-1\,999\,997$, and an integer exponent with an
 adjusted exponent above 999,999, give a NaN with
 `InvalidOperation`, not `InvalidContext`.
