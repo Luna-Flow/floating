@@ -50,11 +50,13 @@ fn i796_flags(f : DecimalFlags) -> String {
 ///|
 fn i796_run(
   rows : Array[(String, Int32, Int32, Int32, Int32, String, String, String)],
+  extended~ : Bool = true,
 ) -> Array[String] {
   let bad = []
   for row in rows {
     let (mode, precision, e_min, e_max, clamp, x, expected, flags) = row
     let ctx = DecimalContext::new(
+      extended~,
       precision~,
       decimal_rounding=i796_mode(mode),
       e_min~,
@@ -81,4 +83,40 @@ fn i796_run(
 test "issue 796: exp_ctx applies the rounding direction beyond the coarse guards" {
   assert_eq(exp_extreme_rows.length(), 320)
   assert_eq(i796_run(exp_extreme_rows), [])
+}
+
+///|
+// Hand-written rows for a subset context (extended=false), decimal32 shape (precision 7,
+// e_min -95, e_max 96, clamp), columns as exp_extreme_rows. libmpdec has no subset arithmetic.
+// Underflow side: the result stays the zero of the subset in every mode, with Underflow,
+// Subnormal, Inexact and Rounded (GDA 1.70, page 55, Appendix A: subnormal numbers are not
+// permitted; page 53, Underflow). Overflow side: page 53, Overflow, the same rules as in an
+// extended context.
+let i796_subset_rows : Array[
+  (String, Int32, Int32, Int32, Int32, String, String, String),
+] = [
+  ("half_even", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("half_up", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("half_down", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("down", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("ceiling", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("floor", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("up", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("05up", 7, -95, 96, 1, "-306", "0", "xrus"),
+  ("half_even", 7, -95, 96, 1, "291", "Infinity", "xro"),
+  ("half_up", 7, -95, 96, 1, "291", "Infinity", "xro"),
+  ("half_down", 7, -95, 96, 1, "291", "Infinity", "xro"),
+  ("up", 7, -95, 96, 1, "291", "Infinity", "xro"),
+  ("ceiling", 7, -95, 96, 1, "291", "Infinity", "xro"),
+  ("down", 7, -95, 96, 1, "291", "9.999999E+96", "xro"),
+  ("floor", 7, -95, 96, 1, "291", "9.999999E+96", "xro"),
+  ("05up", 7, -95, 96, 1, "291", "9.999999E+96", "xro"),
+]
+
+///|
+// oracle: A
+// source: expected values written by hand from GDA 1.70 page 53 (Overflow and Underflow by rounding mode) and page 55 (Appendix A: no subnormal result in a subset context, so the zero stays); no program produced them
+// shares: Decimal::from_string, Decimal::to_sci_string, DecimalContext::new
+test "issue 796: exp_ctx in a subset context keeps the zero and applies the overflow direction" {
+  assert_eq(i796_run(i796_subset_rows, extended=false), [])
 }
