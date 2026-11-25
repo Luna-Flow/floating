@@ -209,7 +209,7 @@ test "issue 348: large integer exponents are correctly rounded" {
 /// itself.
 // oracle: A
 // source: expected strings for (1 + 10^-30)^(-2^31) at decimal64 in the five directed or nearest modes, from CPython decimal at 120 digits rounded once (the exact power, 1 - 2.147483648E-21 + ..., is 10^-80 or more away from every decimal64 rounding boundary); flags inexact only
-// shares: nothing
+// shares: Decimal::from_string, DecimalContext::new and with_round, and the helpers issue348_text and issue348_flags_text (they build the operands and read the result and flags as text; the expected strings are written in the test)
 test "issue 348: pown at the Int32 minimum" {
   let x = Decimal::from_string("1.000000000000000000000000000001").unwrap()
   let rows : Array[(String, String)] = [

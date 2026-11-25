@@ -1,7 +1,7 @@
 ///|
 // oracle: A
 // source: GDA 1.70 (section "Normal numbers, subnormal numbers and Underflow", the definition of Etiny: Emin - (precision - 1), with Emin = 1 - Emax as in IEEE 754-2019 3.3) and the clamp bound Emax - (digits - 1), as plain Int64 arithmetic written in the test from the definition, not from `DecimalExponentBounds`
-// shares: DecimalContext::try_new (builds the context; its e_max and precision are what the arithmetic below reads back through the public accessors only)
+// shares: DecimalContext::try_new and the decimal32/decimal64/decimal128 constructors (they build the context that etiny and etop read; the expected values are computed from the e_max and precision passed in, not read back from the context)
 test "etiny and etop equal the exponent bounds they replace" {
   for precision in [1, 2, 7, 16, 34, 999_999_999] {
     for e_max in [1, 96, 6144, 999_999_999] {
