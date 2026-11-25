@@ -1312,16 +1312,20 @@ pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
 All four are increasing, so the result is
 $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
 For $\xi \ge 2^{30}$ the enclosure of all four is
-$[\text{largest finite}, +\infty)$; for $\xi \le -2^{30}$ that of `exp`, `exp2`
-and `exp10` is $[0, \text{smallest positive}]$, and that of `expm1` is
+$[\text{largest finite}, +\infty)$; for $\xi \le -2^{30}$ that of `exp` and
+`exp10` is $[0, \text{smallest positive}]$, and that of `expm1` is
 $[-1, -(1 - 2^{-p})]$, as $e^{\xi} - 1$ lies just above $-1$. The first is valid
 because $e^{2^{30}}$ exceeds $2^{e_{\max}+1}$, and the second because
 $e^{-2^{30}}$ is below the smallest positive `Binary` at every precision. `exp2` and `exp10` return exact powers
 for integer endpoints whose power is representable at the interval's precision
 (`exp2` of $\{10\}$ is $\{1024\}$, `exp10` of $\{3\}$ is
-$\{1000\}$); an integer endpoint outside the exponent range keeps the
-outward-rounded enclosure, so `exp2` of $\{-1073742000\}$ is
-$[0, \text{smallest positive}]$ and of $\{2^{30}\}$ is
+$\{1000\}$). For `exp2` this includes the subnormal numbers: the result at an
+integer endpoint $n$ is the exact power $\{2^n\}$ down to
+$n = e_{\min} - p + 1$, the exponent of the smallest positive number of
+precision $p$, and $[0, \text{smallest positive}]$ only below that. An integer
+endpoint whose power is below the smallest positive number or above the largest
+finite number keeps the outward-rounded enclosure, so at $p = 53$ `exp2` of
+$\{-1073742000\}$ is $[0, \text{smallest positive}]$ and of $\{2^{30}\}$ is
 $[\text{largest finite}, +\infty)$. The fallback of the total forms is
 $[0, +\infty)$ for `exp`, `exp2` and `exp10` and $[-1, +\infty)$ for
 `expm1`.
