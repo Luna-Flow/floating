@@ -3,6 +3,9 @@
 // trv, unbounded with com is dac).
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 11.5.2: setDec(x, ill) returns NaI for every x, empty or not; the precision of the interval is kept (written out)
+// shares: DecoratedInterval::new, nai, is_nai, identical and decoration (the code under test)
 test "new with the decoration ill returns NaI (#443)" {
   let one = Interval::from_int(1, precision=53)
   for
@@ -26,6 +29,9 @@ test "new with the decoration ill returns NaI (#443)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 11.5.2: setDec(empty, com) is empty with trv, setDec(unbounded, com) is dac; other decorations are kept (written out)
+// shares: DecoratedInterval::new, decoration and is_nai (the code under test)
 test "the other forbidden combinations of 11.5.2 are repaired (#443)" {
   let empty = DecoratedInterval::new(Interval::empty(), decoration=Com)
   assert_true(empty.decoration() == Trv)
