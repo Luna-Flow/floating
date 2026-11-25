@@ -26,7 +26,6 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -36,6 +35,7 @@ from pathlib import Path
 import incremental as inc
 import kernel_units as ku
 import native_units as nu
+import run_ci
 import verify_mutation as vm
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -140,12 +140,14 @@ def main(argv: list[str] | None = None) -> int:
     created = not scratch.exists()
     if created:
         subprocess.run(["git", "worktree", "add", "--detach", str(scratch), "HEAD"], cwd=REPO_ROOT, check=True)
-    if not (scratch / ".mooncakes").exists() and (REPO_ROOT / ".mooncakes").is_dir():
-        # the stage runs with --frozen: the dependencies must be there already
-        shutil.copytree(REPO_ROOT / ".mooncakes", scratch / ".mooncakes")
     problem = scratch_problem(scratch)
     if problem:
         print(f"native_mutation: {problem}", file=sys.stderr)
+        return 2
+    # The stage runs with --frozen: the dependencies must be fetched first, as the quick gate does.
+    fetch = subprocess.run(list(run_ci.DEPENDENCY_STAGE.command), cwd=scratch)
+    if fetch.returncode != 0:
+        print(f"native_mutation: the dependency stage failed in {scratch}", file=sys.stderr)
         return 2
     work = Path(tempfile.mkdtemp(prefix="native-mutation-"))
     ledger = inc.Ledger(work / "baseline.jsonl")
