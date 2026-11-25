@@ -104,9 +104,8 @@ test "exp at the overflow and underflow thresholds of decimal32, decimal64 and d
 
 ///|
 // oracle: A
-// source: the rows of group 5 of certified_exp_rows_wbtest.mbt: the rows of group 4 beyond the guards 3 * (emax + 1) and -3 * (1 - etiny) on which exp gives Infinity (round-down, round-floor, round-05up) instead of the largest finite number (GDA 1.70, Overflow, page 53) and zero (round-up, round-ceiling) instead of the smallest subnormal; CPython `decimal` exp 200 digits wider rounded to the context; fails until issue 796 is fixed
+// source: the rows of group 5 of certified_exp_rows_wbtest.mbt: the rows of group 4 beyond the guards 3 * (emax + 1) and -3 * (1 - etiny) on which exp gives Infinity (round-down, round-floor, round-05up) instead of the largest finite number (GDA 1.70, Overflow, page 53) and zero (round-up, round-ceiling) instead of the smallest subnormal; CPython `decimal` exp 200 digits wider rounded to the context; the rows exposed issue 796, fixed by PR 798
 // shares: Decimal::from_string (reads the argument) and Decimal::to_string (prints the result); normalization_flags_text
-#skip("known defect: issue 796, exp ignores the rounding direction beyond the coarse guards")
 test "exp beyond the coarse guards follows the rounding direction (issue 796)" {
   exp_rows_check(5)
 }
