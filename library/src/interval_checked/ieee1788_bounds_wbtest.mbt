@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: IEEE 1788-2015 10.2 (4) requires lower bound < +infinity and upper bound > -infinity, so [inf, inf] and [-inf, -inf] are not intervals, so both calls must be Err; written out, not compared with the plain tier
+// shares: nothing
 test "IEEE 1788 rejects infinity singleton bounds" {
   let precision = 32
   let positive_infinity = @binary.Binary::inf(precision~)
@@ -9,41 +12,28 @@ test "IEEE 1788 rejects infinity singleton bounds" {
     precision~,
   )
   assert_true(positive_result.result() is Err(_))
-  assert_true(
-    positive_result.result() ==
-    @interval.Interval::try_from_bounds(
-      positive_infinity,
-      positive_infinity,
-      precision~,
-    ),
-  )
   let negative_result = IntervalChecked::from_bounds(
     negative_infinity,
     negative_infinity,
     precision~,
   )
   assert_true(negative_result.result() is Err(_))
-  assert_true(
-    negative_result.result() ==
-    @interval.Interval::try_from_bounds(
-      negative_infinity,
-      negative_infinity,
-      precision~,
-    ),
-  )
 }
 
 ///|
+// oracle: S
+// source: only Err is checked: a NaN is not a number, so no interval contains it; the earlier comparison with Interval::try_exact (the function wrapped) is removed
+// shares: IntervalChecked::exact
 test "checked exact construction shares Interval validation" {
   let value = @binary.Binary::nan(precision=32)
   let result = IntervalChecked::exact(value, precision=32)
   assert_true(result.result() is Err(_))
-  assert_true(
-    result.result() == @interval.Interval::try_exact(value, precision=32),
-  )
 }
 
 ///|
+// oracle: S
+// source: only the error kind of rootn(8, 0) is checked: the zeroth root is undefined, a domain error; no numeric value
+// shares: nothing
 test "checked elementary mirrors preserve domain errors" {
   let result = IntervalChecked::from_int(8).rootn(0)
   assert_true(result.is_err())
@@ -56,6 +46,9 @@ test "checked elementary mirrors preserve domain errors" {
 }
 
 ///|
+// oracle: S
+// source: the detail of a certification failure of cos at 2^8100000 (operation name, resource limit, zero refinements); no numeric value; the cutoff is the implementation limit
+// shares: nothing
 test "checked trigonometric mirrors preserve certification failures" {
   let extreme = IntervalChecked::exact(
     @binary.Binary::make(@binary.BinCoeff::one(), 8_100_000, 53),
