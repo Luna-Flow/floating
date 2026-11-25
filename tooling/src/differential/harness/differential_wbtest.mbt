@@ -93,6 +93,22 @@ test "the shrinker halves a failing batch down to one case" {
 
 ///|
 // oracle: A
+// source: the split point of an odd batch is written out: three rows split into the first one and the last two (the
+//   lower middle, 3 / 2 = 1), so the first half has the ids [1.add.0] and the second [1.add.1, 1.add.2]; a batch of
+//   one or none has no halves
+// shares: halves and split_corpus (the code under test and the corpus reader that builds the batch)
+test "the shrinker splits an odd batch at the lower middle" {
+  let batch = split_corpus(binary_corpus, 10).unwrap()[0]
+  let three = batch.slice(0, 3)
+  let parts = halves(three)
+  assert_eq(parts.length(), 2)
+  assert_eq(parts[0].ids, ["1.add.0"])
+  assert_eq(parts[1].ids, ["1.add.1", "1.add.2"])
+  assert_eq(halves(batch.slice(0, 1)).length(), 0)
+}
+
+///|
+// oracle: A
 // source: verdicts written out: a text without a corpus header is not a corpus, and a batch size of 0 is invalid
 // shares: nothing
 test "a non-corpus file and a bad batch size are rejected" {
