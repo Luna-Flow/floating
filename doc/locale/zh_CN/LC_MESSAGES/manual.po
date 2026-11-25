@@ -259,7 +259,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/decimal_checked.md:419
 #: manual/api/decimal_gda.md:1967
 #: manual/api/decimal_gda_checked.md:318
-#: manual/api/def.md:438
+#: manual/api/def.md:448
 #: manual/api/differential.md:96
 #: manual/api/differential/harness.md:39
 #: manual/api/differential/interval_mpfr.md:31
@@ -456,7 +456,7 @@ msgid "Scale"
 msgstr "规模"
 
 #: manual/api/bench/external.md:39
-#: manual/api/def.md:189
+#: manual/api/def.md:199
 msgid "Implementation"
 msgstr "实现"
 
@@ -624,6 +624,8 @@ msgstr "上下文"
 #: manual/api/decimal_gda.md:1586
 #: manual/api/decimal_gda.md:1800
 #: manual/api/decimal_gda.md:1898
+#: manual/api/def.md:46
+#: manual/api/def.md:120
 #: manual/api/interval.md:810
 #: manual/conformance/binary.md:107
 #: manual/design/binary_checked.md:178
@@ -1986,7 +1988,7 @@ msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果属于�
 #: manual/api/binary_checked.md:825
 #: manual/api/decimal.md:2302
 #: manual/api/decimal_gda.md:1752
-#: manual/api/def.md:424
+#: manual/api/def.md:434
 #: manual/api/frontend/gda_expr.md:471
 #: manual/api/frontend/itl_expr.md:277
 #: manual/api/frontend/mpfr_expr.md:531
@@ -2555,7 +2557,7 @@ msgstr "已弃用"
 #: manual/api/binary_checked.md:847
 #: manual/api/decimal_checked.md:421
 #: manual/api/decimal_gda_checked.md:320
-#: manual/api/def.md:440
+#: manual/api/def.md:450
 #: manual/api/interval_checked.md:533
 #: manual/api/semantic.md:384
 msgid "The following snapshot is the complete generated interface of the package."
@@ -3585,6 +3587,7 @@ msgstr "$\\infty-\\infty$、$0\\times\\infty$、$0/0$ 或 $\\infty/\\infty$"
 #: manual/api/decimal.md:892
 #: manual/api/decimal_gda.md:215
 #: manual/api/decimal_gda.md:1589
+#: manual/api/def.md:51
 #: manual/numeric_semantics.md:551
 #: manual/numeric_semantics.md:599
 msgid "NaN"
@@ -3693,6 +3696,7 @@ msgstr "加法和减法的首选指数为 $\\min(q_a,q_b)$，乘法为 $q_a+q_b$
 #: manual/api/decimal_gda.md:1399
 #: manual/api/decimal_gda.md:1491
 #: manual/api/decimal_gda.md:1586
+#: manual/api/def.md:120
 #: manual/api/frontend/testfloat_expr.md:60
 #: manual/conformance/decimal_gda.md:105
 msgid "Operands"
@@ -3798,6 +3802,7 @@ msgstr "对于有限值 $x$，`quantum_ctx` 返回 $(0,q,1)$，即 $10^q$，其�
 #: manual/api/decimal.md:1889
 #: manual/api/decimal.md:1986
 #: manual/api/decimal_gda.md:261
+#: manual/api/def.md:46
 msgid "Input"
 msgstr "输入"
 
@@ -6592,7 +6597,7 @@ msgid "def API"
 msgstr "def API"
 
 #: manual/api/def.md:5
-msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the `Floating` trait that every scalar representation of this repository implements, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
+msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the `Floating` trait implemented by the scalar representations, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
 msgstr "`def` 是 `floating` 各包的共享词汇。它定义了符号分类 `Sign`、十值的 IEEE 类别 `IeeeClass`、四路比较结果 `PartialOrder`、本仓库中每种标量表示都实现的 trait `Floating`、基于该 trait 构建的四个泛型谓词，并重新导出 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 中的上下文、舍入、分类和错误类型，使调用者只需一次导入。它不包含任何算术运算。[教程](../tutorial/def.md) 展示了这些词汇的用法；[设计页面](../design/def.md) 陈述了 trait 定律，并解释了为何 `PartialOrder` 不是全序。"
 
 #: manual/api/def.md:18
@@ -6608,150 +6613,178 @@ msgid "Sign and comparison results"
 msgstr "符号与比较结果"
 
 #: manual/api/def.md:35
-msgid "`Sign` is the three-way sign classification returned by `Floating::signum`."
-msgstr "`Sign` 是 `Floating::signum` 返回的三路符号分类。"
+msgid "`Sign` classifies the sign returned by [`Floating::signum`](#floatingsignum)."
+msgstr "`Sign` 对 [`Floating::signum`](#floatingsignum) 返回的符号进行分类。"
 
-#: manual/api/def.md:46
-msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package."
-msgstr "两种带符号零都返回 `Zero`，因此 `Sign` 不区分 $-0$ 与 $+0$；当零的符号位很重要时，请使用具体的包（例如 `Binary::is_negative_zero`）。标量实现对每个 NaN 也返回 `Zero`（参见 [`Floating::signum`](#floatingsignum)）。`Sign` 也是 [`semantic`](semantic.md) 包中 `SemanticScalar::Infinity` 的载荷。"
+#: manual/api/def.md:48
+msgid "negative value, including $-\\infty$"
+msgstr "负值，包括 $-\\infty$"
 
-#: manual/api/def.md:64
-msgid "`IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike `FpClass` it separates the two NaNs, the sign of every class and the normal, subnormal and zero cases."
+#: manual/api/def.md:49
+msgid "either signed zero"
+msgstr "任一带符号的零"
+
+#: manual/api/def.md:50
+msgid "positive value, including $+\\infty$"
+msgstr "正值，包括 $+\\infty$"
+
+#: manual/api/def.md:53
+msgid "`Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package."
+msgstr "`Sign` 不区分 $-0$ 与 $+0$；当零的符号位很重要时，请使用具体的包（例如 `Binary::is_negative_zero`）。`Sign` 也是 [`semantic`](semantic.md) 包中 `SemanticScalar::Infinity` 的载荷。"
+
+#: manual/api/def.md:70
+msgid "`IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike `FpClass`, it separates the two NaNs, the sign of every class and the normal, subnormal and zero cases."
 msgstr "`IeeeClass` 是 IEEE 754-2019 第 5.7.2 条的十值 `class`。与 `FpClass` 不同，它区分两种 NaN、每个类别的符号，以及正规、次正规和零。"
 
-#: manual/api/def.md:84
-msgid "`Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal depend on the format's $e_{\\min}$, so both take the context that fixes it."
+#: manual/api/def.md:90
+msgid "`Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal depend on the format's $e_{\\min}$, so these methods take the context that fixes the bound."
 msgstr "`Binary::class_of` 和 `Decimal::class_of` 返回它。正规与次正规取决于格式的 $e_{\\min}$，所以两者都接受确定它的上下文。"
 
-#: manual/api/def.md:99
-msgid "`PartialOrder` is the result of an IEEE 754 comparison: exactly one of the four mutually exclusive relations *less*, *equal*, *greater* and *unordered* holds between two floating-point data."
+#: manual/api/def.md:106
+msgid "`PartialOrder` records the result of an IEEE 754 comparison. Exactly one of the four mutually exclusive relations *less*, *equal*, *greater* and *unordered* holds between two floating-point data."
 msgstr "`PartialOrder` 是 IEEE 754 比较的结果：两个浮点数据之间恰好成立 *小于*、*等于*、*大于* 和 *无序* 这四种互斥关系之一。"
 
-#: manual/api/def.md:113
-msgid "`Unordered` holds exactly when at least one operand is NaN; $-0$ and $+0$ compare `Equal`. The type is returned by `Binary::compare_quiet` and `Binary::compare_signaling` in [`binary`](binary.md) (each paired with the flags of the comparison). It is a value type only; `def` performs no comparison itself. Why four results and not a `Compare` instance is derived in the [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation)."
-msgstr "当且仅当至少一个操作数为 NaN 时 `Unordered` 成立；$-0$ 和 $+0$ 比较 `Equal`。该类型由 [`binary`](binary.md) 中的 `Binary::compare_quiet` 和 `Binary::compare_signaling` 返回（各自附带该比较的标志）。它仅是一个值类型；`def` 本身不执行任何比较。为何是四种结果而非 `Compare` 实例，其推导见[设计页面](../design/def.md#partialorder-is-the-ieee-four-way-relation)。"
+#: manual/api/def.md:122
+msgid "at least one NaN"
+msgstr "至少一个操作数为 NaN"
 
-#: manual/api/def.md:138
+#: manual/api/def.md:123
+msgid "equal numeric values, including $-0$ and $+0$"
+msgstr "数值相等，包括 $-0$ 和 $+0$"
+
+#: manual/api/def.md:124
+msgid "one numeric value is less than the other"
+msgstr "一个数值小于另一个"
+
+#: manual/api/def.md:124
+msgid "`Less` or `Greater`"
+msgstr "`Less` 或 `Greater`"
+
+#: manual/api/def.md:126
+msgid "`Binary::compare_quiet` and `Binary::compare_signaling` in [`binary`](binary.md) return this type with the comparison flags. It is a value type only; `def` does not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation) explains why the type has four results instead of a `Compare` instance."
+msgstr "[`binary`](binary.md) 中的 `Binary::compare_quiet` 和 `Binary::compare_signaling` 返回此类型及比较标志。它仅是值类型；`def` 本身不执行比较。[设计页面](../design/def.md#partialorder-is-the-ieee-four-way-relation)解释了为何类型有四种结果而不是 `Compare` 实例。"
+
+#: manual/api/def.md:149
 msgid "The `Floating` trait"
 msgstr "`Floating` trait"
 
-#: manual/api/def.md:142
-msgid "`Floating` is the observation and re-precision interface shared by every representation in this repository."
-msgstr "`Floating` 是本仓库中所有表示共享的观察与重设精度接口。"
+#: manual/api/def.md:153
+msgid "`Floating` is the observation and re-precision interface shared by the scalar representations in this repository."
+msgstr "`Floating` 是本仓库中各标量表示共享的观察与重新设定精度接口。"
 
-#: manual/api/def.md:155
-msgid "`Floating` is implemented by the scalar types of this library only: `@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a type outside this module is not supported and is not covered by the compatibility promise, because methods may be added to the trait in a minor release. It is declared `pub(open)` only because the implementations are in other packages of this module (the [design page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy are listed in the [design page](../design/def.md#the-floating-laws)."
-msgstr "`Floating` 只由本库的标量类型实现：`@binary.Binary`、`@decimal.Decimal` 和 `@decimal_gda.Decimal`。`@interval.Interval` 不实现它（参见[区间不是 `Floating`](../design/def.md#intervals-are-not-floating)）。它不是扩展点：为本模块之外的类型实现它不受支持，也不在兼容性承诺之内，因为 trait 可能在次版本中增加方法。它被声明为 `pub(open)`，只是因为这些实现位于本模块的其他包中（原因见[设计页面](../design/def.md#why-floating-is-declared-open)）。自 MoonBit 0.10 迁移以来，trait 方法不再自动提升，因此泛型代码以限定形式 `@def.Floating::classify(x)` 调用它们；具体类型也提供同名的固有方法（`x.classify()`）。每个实现应满足的定律列于[设计页面](../design/def.md#the-floating-laws)。"
+#: manual/api/def.md:166
+msgid "`Floating` is implemented only by `@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)). Implementing it for a type outside this module is not supported or covered by the compatibility promise because methods may be added to the trait in a minor release. It is declared `pub(open)` only because implementations are in other packages of this module; the [design page](../design/def.md#why-floating-is-declared-open) gives the reason. Since the MoonBit 0.10 migration, trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The [design page](../design/def.md#the-floating-laws) lists the laws every implementation is expected to satisfy."
+msgstr "`Floating` 仅由 `@binary.Binary`、`@decimal.Decimal` 和 `@decimal_gda.Decimal` 实现。`@interval.Interval` 不实现它（参见[区间不是 `Floating`](../design/def.md#intervals-are-not-floating)）。不支持在本模块外的类型上实现该 trait，此类实现也不在兼容性承诺范围内，因为次版本可能会为 trait 增加方法。声明为 `pub(open)` 的唯一原因是这些实现位于本模块的其他包中；原因见[设计页面](../design/def.md#why-floating-is-declared-open)。自 MoonBit 0.10 迁移后，trait 方法不会自动提升，因此泛型代码使用限定形式 `@def.Floating::classify(x)` 调用；具体类型也提供同名的固有方法（`x.classify()`）。[设计页面](../design/def.md#the-floating-laws)列出了每个实现应满足的定律。"
 
-#: manual/api/def.md:172
+#: manual/api/def.md:182
 msgid "`classify` returns the class of a value: `Finite`, `Infinity` or `NaN`."
 msgstr "`classify` 返回值的类别：`Finite`、`Infinity` 或 `NaN`。"
 
-#: manual/api/def.md:178
-msgid "For the scalar types this is the IEEE class with signalling and quiet NaNs merged. Total; never aborts."
+#: manual/api/def.md:188
+msgid "For the scalar types this is the IEEE class with signaling and quiet NaNs merged. The operation is total and never aborts."
 msgstr "对标量类型，这是 IEEE 类别，其中信号 NaN 与安静 NaN 合并。它是全函数，从不中止。"
 
-#: manual/api/def.md:183
+#: manual/api/def.md:193
 msgid "`signum` returns the sign classification of a value."
 msgstr "`signum` 返回值的符号分类。"
 
-#: manual/api/def.md:191
+#: manual/api/def.md:201
 msgid "`Binary`, both `Decimal`s"
 msgstr "`Binary`，两种 `Decimal`"
 
-#: manual/api/def.md:191
+#: manual/api/def.md:201
 msgid "value $< 0$, including $-\\infty$"
 msgstr "值 $< 0$，包括 $-\\infty$"
 
-#: manual/api/def.md:191
+#: manual/api/def.md:201
 msgid "$\\pm 0$ and every NaN"
 msgstr "$\\pm 0$ 及所有 NaN"
 
-#: manual/api/def.md:191
+#: manual/api/def.md:201
 msgid "value $> 0$, including $+\\infty$"
 msgstr "值 $> 0$，包括 $+\\infty$"
 
-#: manual/api/def.md:195
+#: manual/api/def.md:205
 msgid "`precision` returns the working precision stored on the value."
 msgstr "`precision` 返回值上存储的工作精度。"
 
-#: manual/api/def.md:201
+#: manual/api/def.md:211
 msgid "It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every constructor requires a precision of at least $1$ and aborts otherwise, so the result is always at least $1$."
 msgstr "对 `Binary`，它计算有效二进制位数；对两种 `Decimal` 类型，它计算有效十进制位数。每个构造函数都要求精度至少为 $1$，否则中止，因此结果总是至少为 $1$。"
 
-#: manual/api/def.md:207
-msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = p$; `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds `binary_precision_max` or `decimal_precision_max`, and `@decimal_gda.Decimal` uses $q = \\max(1, p)$."
+#: manual/api/def.md:217
+msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = p$. `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds `binary_precision_max` or `decimal_precision_max`, and `@decimal_gda.Decimal` uses $q = \\max(1, p)$."
 msgstr "`with_precision(x, p)` 返回以精度 $q = p$ 重新表示的 `x`；当 $p < 1$ 或 $p$ 超过 `binary_precision_max` 或 `decimal_precision_max` 时，`Binary` 和 `@decimal.Decimal` 会中止，而 `@decimal_gda.Decimal` 使用 $q = \\max(1, p)$。"
 
-#: manual/api/def.md:216
-msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). Each type keeps the range of its stored values. For `Binary` a result whose exponent leaves $[1 - e_{\\max}, e_{\\max}]$ with $e_{\\max} = 2^{30} - 1$ (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. The decimal types behave alike at their stored ranges: the exponent of the least digit is at least `decimal_value_e_tiny` or `gda_value_e_tiny` ($-2147483645$) and the adjusted exponent is at most `decimal_value_e_max` or `gda_value_e_max` ($2147483646$). Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
+#: manual/api/def.md:226
+msgid "For a finite scalar, the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). Each type keeps the range of its stored values. For `Binary` a result whose exponent leaves $[1 - e_{\\max}, e_{\\max}]$ with $e_{\\max} = 2^{30} - 1$ (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. The decimal types behave alike at their stored ranges: the exponent of the least digit is at least `decimal_value_e_tiny` or `gda_value_e_tiny` ($-2147483645$) and the adjusted exponent is at most `decimal_value_e_max` or `gda_value_e_max` ($2147483646$). Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
 msgstr "对有限标量，值就近舍入（偶数优先，IEEE 754-2019 4.3.1）到其基数下的 $q$ 位有效数字。trait 方法没有舍入参数，因为它无法返回错误；各标量类型自己的 `with_precision` 接受舍入模式。不应用上下文的指数界限，也不报告标志（两者都需要时请使用具体包的 `*_ctx` API）。每种类型保留其存储值的范围。对 `Binary`，指数超出 $[1 - e_{\\max}, e_{\\max}]$（其中 $e_{\\max} = 2^{30} - 1$；`binary_value_e_max`、`binary_value_e_min`）的结果会像 IEEE 754 中那样上溢为无穷或最大有限值，或者下溢。十进制类型在其存储范围上行为类似：最低位的指数至少为 `decimal_value_e_tiny` 或 `gda_value_e_tiny`（$-2147483645$），调整后指数至多为 `decimal_value_e_max` 或 `gda_value_e_max`（$2147483646$）。零保留其符号。无穷和 NaN 保留其类别、符号和载荷，只改变存储的精度。"
 
-#: manual/api/def.md:234
+#: manual/api/def.md:244
 msgid "`normalized` returns the canonical representative of a value."
 msgstr "`normalized` 返回值的规范代表。"
 
-#: manual/api/def.md:240
+#: manual/api/def.md:250
 msgid "For `Binary` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr "对于 `Binary`，这是系数为奇数（或为零）的表示；对于两种 `Decimal` 类型，它去除系数末尾的零，因此 `1.500` 变为 `1.5`（同值类改变，值不变），`-0.000` 变为 `-0`。非有限标量原样返回。在标量类型上，`normalized` 保持值不变，并且是幂等的。"
 
-#: manual/api/def.md:295
+#: manual/api/def.md:305
 msgid "Generic predicates"
 msgstr "泛型谓词"
 
-#: manual/api/def.md:299
+#: manual/api/def.md:309
 msgid "These functions test the class of any `Floating` value."
 msgstr "这些函数检测任意 `Floating` 值的类别。"
 
-#: manual/api/def.md:317
+#: manual/api/def.md:327
 msgid "Exactly one of the first three is true for every value. `is_zero` is true for both signed zeros and false for NaN."
 msgstr "对每个值，前三者恰有一个为真。`is_zero` 对两种带符号零都为真，对 NaN 为假。"
 
-#: manual/api/def.md:331
+#: manual/api/def.md:341
 msgid "Re-exported types"
 msgstr "重新导出的类型"
 
-#: manual/api/def.md:333
+#: manual/api/def.md:343
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr "`def` 以 `pub using` 重新导出这些类型，因此 `@def.RoundingMode` 与 `@lf_arith.RoundingMode` 指同一类型，无需任何转换。它们的定义和完整语义由 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) 文档说明。"
 
-#: manual/api/def.md:340
+#: manual/api/def.md:350
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`ArithmeticContext` 是传递给 Luna-Flow/arithmetic 上下文 trait 的精度、舍入方向及可选指数界限。"
 
-#: manual/api/def.md:347
+#: manual/api/def.md:357
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr "`BinaryContext` 和 `DecimalContext` 由各自的 `from_arithmetic_context` 构造函数从它构建。"
 
-#: manual/api/def.md:352
+#: manual/api/def.md:362
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr "`ArithmeticError` 是所有返回 `Result` 的 API（`*_checked`、`try_*`）以及各 checked 包装包的结构化错误；`ArithmeticErrorKind` 是其种类。"
 
-#: manual/api/def.md:361
+#: manual/api/def.md:371
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr "种类有 `DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 和 `CertificationFailure(detail)`；`ArithmeticError` 为每个种类提供一个 `is_*` 谓词，并提供 `message`。"
 
-#: manual/api/def.md:368
+#: manual/api/def.md:378
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr "这些类型是种类为 `CertificationFailure` 的 `ArithmeticError` 的载荷：表示某个初等函数的正确舍入结果未能在其细化预算内完成认证。"
 
-#: manual/api/def.md:378
+#: manual/api/def.md:388
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr "详情记录运算、阶段和原因、目标精度，以及最终的工作精度和细化次数（参见[内部 API](internal.md) 中的 `certified_failure`）。"
 
-#: manual/api/def.md:384
+#: manual/api/def.md:394
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr "`FpClass` 是 `Floating::classify` 的结果：`Finite`、`Infinity` 或 `NaN`。"
 
-#: manual/api/def.md:393
+#: manual/api/def.md:403
 msgid "`RoundingMode` lists the five rounding directions that an `ArithmeticContext` carries: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`. The inherent `with_precision` methods and the concrete constructors take the rounding type of their own package (`BinaryRoundingMode`, `DecimalRoundingMode`, `GdaRoundingMode`) and the trait method `Floating::with_precision` takes none; `AwayFromZero` has no `BinaryRoundingMode` or `DecimalRoundingMode` counterpart."
 msgstr "`RoundingMode` 列出 `ArithmeticContext` 所携带的五种舍入方向：`ToNearestEven`、`TowardZero`、`TowardPositive`、`TowardNegative` 和 `AwayFromZero`。具体类型自身的 `with_precision` 方法及各具体构造函数接受其所在包的舍入类型（`BinaryRoundingMode`、`DecimalRoundingMode`、`GdaRoundingMode`），trait 方法 `Floating::with_precision` 则不接受任何舍入类型；`AwayFromZero` 在 `BinaryRoundingMode` 和 `DecimalRoundingMode` 中没有对应项。"
 
-#: manual/api/def.md:407
+#: manual/api/def.md:417
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr "`BigInt` 是 `moonbitlang/core/bigint` 的任意精度整数，用于表示系数和精确值。"
 
-#: manual/api/def.md:428
+#: manual/api/def.md:438
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr "这些方法是派生的 `Eq` 实例，经显式提升以使 `a.equal(b)` 仍然可用；请优先使用 `==` 和 `!=`。"
 
