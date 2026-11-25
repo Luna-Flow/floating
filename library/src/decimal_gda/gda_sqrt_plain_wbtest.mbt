@@ -282,7 +282,7 @@ test "sqrt plain keeps the ideal exponent of exact roots" {
 
 ///|
 // oracle: A, E
-// source: an operand 1E-215 at precision 7 is declined by the plain path (written out), and the public result is compared with the general route
+// source: design limits of the plain path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own): an operand 1E-215 at precision 7 is declined by the plain path (written out), and the public result is compared with the general route
 // shares: complete_decimal_gda, sqrt_ctx for the comparison
 // underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines a tiny operand and agrees" {
@@ -296,7 +296,7 @@ test "sqrt plain declines a tiny operand and agrees" {
 
 ///|
 // oracle: A, E
-// source: operands whose root has an adjusted exponent below e_min or not below e_max are declined (written out), and the public result is compared with the general route
+// source: design limits of the plain path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own): operands whose root has an adjusted exponent below e_min or not below e_max are declined (written out), and the public result is compared with the general route
 // shares: complete_decimal_gda, sqrt_ctx for the comparison
 // underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines a subnormal and an out-of-range root and agrees" {
@@ -322,7 +322,7 @@ test "sqrt plain declines a subnormal and an out-of-range root and agrees" {
 
 ///|
 // oracle: A, E
-// source: squares such as 144, 4, 1E+4, 0.01, 2.25, 14400, 6.25E+2 are declined by the residue tests (written out); the public result is compared with the general route
+// source: design limits of the plain path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own): squares such as 144, 4, 1E+4, 0.01, 2.25, 14400, 6.25E+2 are declined by the residue tests (written out); the public result is compared with the general route
 // shares: complete_decimal_gda, sqrt_ctx for the comparison
 // underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines the operands that may be squares" {
@@ -355,7 +355,7 @@ test "sqrt plain declines the operands that may be squares" {
 
 ///|
 // oracle: A, E
-// source: 40-digit coefficients at precision 7 are declined (written out), and the public result is compared with the general route
+// source: design limits of the plain path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own): 40-digit coefficients at precision 7 are declined (written out), and the public result is compared with the general route
 // shares: complete_decimal_gda, sqrt_ctx for the comparison
 // underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines long coefficients and agrees" {
@@ -375,7 +375,7 @@ test "sqrt plain declines long coefficients and agrees" {
 
 ///|
 // oracle: A, E
-// source: the exact root 1E+8 of 1E+16 at precision 5, e_max 9 and clamp has its digits folded down, so the plain path declines (written out); the public result is compared with the general route
+// source: design limits of the plain path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own): the exact root 1E+8 of 1E+16 at precision 5, e_max 9 and clamp has its digits folded down, so the plain path declines (written out); the public result is compared with the general route
 // shares: complete_decimal_gda, sqrt_ctx for the comparison
 // underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines the clamp fold-down of an exact root and agrees" {

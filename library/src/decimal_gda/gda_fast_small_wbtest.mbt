@@ -268,7 +268,7 @@ test "fast quotient equals the general path" {
 
 ///|
 // oracle: A
-// source: written out: a 23-digit operand, a NaN and a zero are outside the fast paths, so each of gda_fast_sum, gda_fast_product and gda_fast_quotient returns None
+// source: design limits of the fast path, written out from the comments of the source (not a standard: the cut-offs are the implementation's own, a documented limit): a 23-digit operand, a NaN and a zero are outside the fast paths, so each of gda_fast_sum, gda_fast_product and gda_fast_quotient returns None
 // shares: Decimal::from_string (reads the operands)
 test "fast paths decline what they do not cover" {
   let context = GdaContext::new(precision=16)
