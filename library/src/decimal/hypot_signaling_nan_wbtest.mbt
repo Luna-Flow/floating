@@ -3,7 +3,7 @@
 /// signals invalid and the result is a quiet NaN (IEEE 754-2019 6.2, 9.2.1).
 // oracle: A
 // source: expected results written out from IEEE 754-2019 9.2 (a signaling NaN operand signals invalid operation and the result is a quiet NaN), 6.2 and 9.2.1 (hypot(+-inf, qNaN) is +inf, no exception); clause text read from the extracted standard
-// shares: nothing
+// shares: Decimal::from_string, Decimal::signaling_nan, is_nan, is_signaling_nan and to_string (they build the operands and read the result; the expected values are written in the test)
 test "hypot of an infinity and a signaling NaN is a quiet NaN" {
   let ctx = DecimalContext::decimal64()
   let infinity = Decimal::from_string("Infinity").unwrap()

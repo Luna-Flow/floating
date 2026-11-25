@@ -27,9 +27,9 @@ fn refinement_failed(
 }
 
 ///|
-// oracle: A
-// source: the value 1.000000000000000000000000000000001 of exp(5E-34) at 34 digits, from CPython decimal at 80 digits (exp = 1.00000000000000000000000000000000050000000000000000000000000000000125..., above the midpoint, so it rounds up); the default limit Some(12) is the documented constant of DecimalContext::refinement_limit
-// shares: nothing
+// oracle: A, S
+// source: A for the value 1.000000000000000000000000000000001 of exp(5E-34) at 34 digits, from CPython decimal at 80 digits (exp = 1.00000000000000000000000000000000050000000000000000000000000000000125..., above the midpoint, so it rounds up). S for the rest: that the default limit is Some(12) restates the constant of the code under test (documented on DecimalContext::refinement_limit, not an independent source), and a == b compares the code with itself in two configurations
+// shares: DecimalContext::new, refinement_limit, with_refinement_limit, Decimal::from_string, try_exp_ctx and to_string (they build the operands and read the result; the pinned text is from Python)
 test "refinement limit: default is Some(12) and matches the explicit value" {
   let context = refinement_context(34)
   inspect(context.refinement_limit() == Some(12), content="true")
@@ -52,9 +52,9 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 /// it is not pinned: the test asserts the shape (a limit that is too small fails
 /// with a certification failure, every larger limit and `None` give the value, and
 /// the input is hard: one refinement does not certify it).
-// oracle: A
-// source: the value of exp(5E-34) from CPython decimal at 80 digits (see the comment above); the number of refinements is the implementation's own choice and is only asserted as a shape (fails at limit 1, succeeds at or before the default 12)
-// shares: nothing
+// oracle: A, S
+// source: A for the value of exp(5E-34) from CPython decimal at 80 digits (see the comment above). S for the shape: the number of refinements is the implementation's own choice and is only asserted as a shape (fails at limit 1, succeeds at or before the default 12), which the code under test determines
+// shares: DecimalContext::new, with_refinement_limit, Decimal::from_string, try_exp_ctx, certification_failure_detail and to_string (they build the operands and read the results; the pinned text is from Python)
 test "refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on" {
   let x = refinement_hard_input()
   let base = refinement_context(34)
