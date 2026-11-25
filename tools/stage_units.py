@@ -96,6 +96,18 @@ SPECS: dict[str, tuple[StageSpec, ...]] = {
         ),
     ),
     "decimal_gda": (StageSpec("DECIMAL_GDA: package tests", "moon", (f"{L}/decimal_gda",)),),
+    "decimal": (
+        # Python only: regenerates the rows of the decimal coefficient kernel oracle from CPython
+        # integers and compares them with the committed file. It imports no library of the repository.
+        StageSpec(
+            "DECIMAL: kernel oracle table",
+            "python",
+            declared=(
+                "tools/decimal_kernel_oracle.py",
+                "library/src/internal/decimal_kernel/coeff_oracle_rows_wbtest.mbt",
+            ),
+        ),
+    ),
 }
 
 
