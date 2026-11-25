@@ -1,6 +1,9 @@
 ///|
 /// S1: a plain operator is the GDA operation in the working context at the larger
 /// precision of its operands, round-half-even, without flags.
+// oracle: A
+// source: written out from the preferred exponents of GDA 1.70: the minimum for + and -, the sum for *, the difference for /: 1.20 + 3.40 = 4.60, 1.20 - 3.40 = -2.20, 0.00 + 0.0 = 0.00, 2.50 * 2 = 5.00, 6.0 / 2 = 3.0, 1 / 4 = 0.25
+// shares: nothing
 test "plain operators return the member of the cohort that GDA names" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   // preferred exponents: min for + and -, sum for *, difference for /
@@ -24,6 +27,9 @@ test "plain operators return the member of the cohort that GDA names" {
 ///|
 /// The working context is wide enough that adding zero does not change a stored
 /// value, down to Etiny = -2,147,483,645.
+// oracle: A
+// source: the operand itself: x + 0 equals x as a number for stored values down to Etiny = -2,147,483,645, because the working context is wide enough that no rounding occurs (GDA 1.70 add); the comparison is the numeric `==`
+// shares: Decimal `==` (numeric equality)
 test "x + 0 is x for stored values" {
   let zero = Decimal::zero()
   for
@@ -39,6 +45,9 @@ test "x + 0 is x for stored values" {
 }
 
 ///|
+// oracle: A
+// source: written out: sqrt(4.00) = 2.0 (ideal exponent), sqrt of a negative operand is NaN (Invalid operation), sqrt(2) at precision 10 = 1.414213562, sqrt(0) = 0 (CPython agrees)
+// shares: nothing
 test "plain sqrt returns the value, NaN outside the domain" {
   assert_eq(Decimal::from_string("4.00").unwrap().sqrt().to_string(), "2.0")
   assert_true(Decimal::from_string("-4").unwrap().sqrt().is_nan())
@@ -50,6 +59,9 @@ test "plain sqrt returns the value, NaN outside the domain" {
 }
 
 ///|
+// oracle: A
+// source: written out from GDA 1.70: 1 / 0 is Infinity, 0 / 0 and inf - inf and inf * 0 are NaN (Invalid operation), a NaN operand gives NaN, a signaling NaN operand gives a quiet NaN
+// shares: nothing
 test "plain operators on special values and zero divisors" {
   let one = Decimal::one()
   assert_true((one / Decimal::zero()).is_infinite())
@@ -63,6 +75,9 @@ test "plain operators on special values and zero divisors" {
 ///|
 /// An exponent difference below `Int` with a dividend longer than the divisor:
 /// the quotient lies in the range, so it is rounded, not lost to infinity.
+// oracle: A
+// source: written out: the quotient 1.2345E-2147483646 is below Etiny = -2147483645 and rounds to 0E-2147483645, 9.9999E-2147483646 rounds up to one unit 1E-2147483645 (GDA 1.70 underflow, half even), both signs
+// shares: nothing
 test "plain division with an exponent difference below Int" {
   // the operands are beyond the stored range: no public constructor makes them,
   // the engine must still not wrap
@@ -92,6 +107,9 @@ test "plain division with an exponent difference below Int" {
 /// the largest and smallest of the stored range, infinity, NaN) in all pairs at
 /// 3, 16 and 34 digits. The table replaces two tests that compared the operators
 /// with the free functions they call.
+// oracle: A
+// source: the table plain_operator_rows of plain_operator_rows_wbtest.mbt (see its header and tools/generate_decimal_gda_plain_rows.py): CPython decimal, libmpdec
+// shares: nothing
 test "plain operators equal the libmpdec results of the working context" {
   assert_eq(plain_operator_rows.length(), 2394)
   for row in plain_operator_rows {

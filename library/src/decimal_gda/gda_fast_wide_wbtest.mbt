@@ -167,6 +167,10 @@ fn gda_wide_run(seed : UInt64, near : Bool) -> Array[Int32] raise {
 }
 
 ///|
+// oracle: E
+// source: the general route at the public level (add_ctx, sub_ctx, complete_decimal_gda), compared in full with gda_fast_wide_sum on coefficients of up to four limbs
+// shares: complete_decimal_gda, add_ctx, sub_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum equals the general route" {
   let counts = gda_wide_run(0x9E3779B97F4A7C15UL, false)
   assert_true(counts[0] > 5000)
@@ -174,12 +178,19 @@ test "wide sum equals the general route" {
 }
 
 ///|
+// oracle: E
+// source: the general route at the public level (add_ctx, sub_ctx, complete_decimal_gda), compared in full with gda_fast_wide_sum on coefficients of up to four limbs
+// shares: complete_decimal_gda, add_ctx, sub_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum of near-equal and cancelling values" {
   let counts = gda_wide_run(0xD1B54A32D192ED03UL, true)
   assert_true(counts[0] > 5000)
 }
 
 ///|
+// oracle: A
+// source: written out: a 40-digit operand, a zero, a NaN, an exponent gap above 19 places and an aligned sum above 2^128 are outside the wide path, so gda_fast_wide_sum returns None
+// shares: nothing
 test "wide sum declines what it does not cover" {
   let context = GdaContext::new(precision=34)
   let wide = Decimal::from_string("1234567890123456789012345678901234567890").unwrap()
@@ -255,6 +266,10 @@ fn gda_wide_decimal(text : String, exponent : Int32) -> Decimal {
 /// plus a 36-digit one overflows the sum (2^128 = 3.4028...e38); a rounded
 /// value of the form 10^p - 2^64 has the low word of 10^p and a different high
 /// word; a kept value 2^64 - 1 that is incremented carries into the high word.
+// oracle: A, E
+// source: sums just above and below 2^128 and the digits around 10^34 - 2^64; the general route decides the expected result
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum at the edges of its 128-bit arithmetic" {
   // sum of 2^128 or more: 3.402e19 * 10^19 + 10^36 - 1
   let big = gda_wide_decimal("34020000000000000000", 19)
@@ -304,6 +319,10 @@ fn gda_wide_nines(count : Int32, exponent : Int32) -> Decimal {
 }
 
 ///|
+// oracle: A, E
+// source: 36 nines plus 36 nines, every rounding mode, precisions 36, 35, 30, 19, 18; the general route decides the expected result; at precision 36 one digit is dropped (written out)
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: both operands 36 nines, the sum carries to 37 digits" {
   for precision in [36, 35, 30, 19, 18] {
     for mode in gda_wide_modes() {
@@ -328,6 +347,10 @@ test "wide sum: both operands 36 nines, the sum carries to 37 digits" {
 /// only below 3.40e35: 36 nines times 10^3 is declined, 10^35 times 10^3 is
 /// taken. The same shape for a 34-digit operand at the gaps 4 and 5 (the
 /// operands 34 nines and 10^33 / 3.4e33).
+// oracle: A, E
+// source: the gaps at which 36 nines and 10^35 fit below 2^128 (written out in the comment above the block); the general route decides the expected result
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: the largest accepted exponent gap and the first declined, from both sides" {
   let context = GdaContext::new(precision=36)
   for gap in 0..<8 {
@@ -357,6 +380,10 @@ test "wide sum: the largest accepted exponent gap and the first declined, from b
 ///|
 /// The digits dropped by the rounding are the digits of the sum minus the
 /// precision: the sum 1999...98 of two 36-nines operands has 37 digits.
+// oracle: A, E
+// source: digit drops at the limits of the 128-bit arithmetic; the general route decides the expected result; the drop of 20 is declined (written out)
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: drop of 1, 18 and 19 digits, and the first declined (20)" {
   let lhs = gda_wide_nines(36, 0)
   let rhs = gda_wide_nines(36, 0)
@@ -374,6 +401,10 @@ test "wide sum: drop of 1, 18 and 19 digits, and the first declined (20)" {
 }
 
 ///|
+// oracle: A, E
+// source: near-cancelling operands; the general route decides the expected result; a zero sum is declined (written out)
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: cancellation down to one digit, and to zero (declined)" {
   let context = GdaContext::new(precision=36)
   let x = gda_wide_decimal("123456789012345678901234567890123456", 0)
@@ -394,6 +425,10 @@ test "wide sum: cancellation down to one digit, and to zero (declined)" {
 }
 
 ///|
+// oracle: A, E
+// source: every pairing of 1 to 4 limbs; the general route decides the expected result
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: operands of 1, 2, 3 and 4 limbs in every pairing" {
   let digits = [5, 14, 23, 34]
   for left in digits {
@@ -418,6 +453,10 @@ test "wide sum: operands of 1, 2, 3 and 4 limbs in every pairing" {
 }
 
 ///|
+// oracle: A, E
+// source: precisions around the limbs and 37 (declined, written out); the general route decides the expected result
+// shares: complete_decimal_gda, add_ctx, sub_ctx, gda_wide_check_both
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "wide sum: precision 1, 9, 10, 18, 19, 34, 36 and 37 (declined)" {
   // operands of `precision + 8` digits (at most 36): the sum has at most
   // `precision + 9` digits and a drop of at most 9

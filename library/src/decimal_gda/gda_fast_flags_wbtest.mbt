@@ -28,6 +28,10 @@ fn gda_fast_trap_context(random : GdaFastRandom) -> GdaContext {
 }
 
 ///|
+// oracle: E
+// source: the previous behaviour of the operation kept in the test: the general route at the public level, compared in full (value representation, flags raised, status of the next context, trapped or completed)
+// shares: complete_decimal_gda, add_ctx, mul_ctx, div_ctx
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast paths raise the general route's conditions, status and traps" {
   let random = { fast_state: 0xA076_1D64_78BD_642FUL, }
   let mut rounded_only = 0
@@ -72,6 +76,10 @@ test "fast paths raise the general route's conditions, status and traps" {
 ///|
 /// A product whose dropped digits are zeros raises Rounded and not Inexact:
 /// 10^15 * 10^3 at 16 digits drops three zeros.
+// oracle: A, E
+// source: written out: 10^15 * 10^3 at 16 digits drops three zeros, so Rounded is raised and Inexact is not (GDA 1.70, Rounded and Inexact conditions); the general route is compared as well
+// shares: complete_decimal_gda, mul_ctx for the comparison
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "a fast product that drops only zeros raises Rounded without Inexact" {
   let context = GdaContext::new(precision=16)
   let lhs = finite_with_exponent_repr(
@@ -94,6 +102,10 @@ test "a fast product that drops only zeros raises Rounded without Inexact" {
 ///|
 /// The word that replaces `Option[UInt64]` is 0 for an operand the fast paths
 /// do not take: zero, NaN, infinity, a wide coefficient, a huge exponent.
+// oracle: A, E
+// source: written out: the fast paths take only finite nonzero operands of at most 18 digits and a moderate exponent, so each of zero, NaN, infinity, a 23-digit coefficient and an exponent of 6*10^8 is declined; for the declined operands the public result is compared with the general route
+// shares: complete_decimal_gda, add_ctx, mul_ctx, div_ctx for the comparison
+// underneath: the general route (add_ctx, sub_ctx, mul_ctx, div_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic without traps: the official decTest corpus (gate stages DECIMAL_GDA: official decTest and official0) and the CPython rows of plain_operator_rows_wbtest.mbt (precision 3, 16, 34); traps, the chaining of the status and the subset arithmetic (extended false) have no level A or B oracle, so those inputs stay level E
 test "fast paths decline a zero, a NaN, an infinity and a wide operand" {
   let context = GdaContext::new(precision=16)
   let one = finite_with_exponent_repr(false, DecCoeff::Small(7UL), 0, 1)

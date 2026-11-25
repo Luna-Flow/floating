@@ -80,6 +80,10 @@ fn binary_rows() -> Array[@binary.Binary] {
 }
 
 ///|
+// oracle: E
+// source: old_from_binary: the exact expansion c * 5^k or c << e2 through BigInt, then decimal_from_integer_parts
+// shares: decimal_from_integer_parts (the rounding of the integer) and the coefficient comparison
+// underneath: level A: the rows of from_binary_rows_wbtest.mbt (CPython decimal) check Decimal::from_binary_raw, which takes the exact-expansion route for small exponents, and the bounded form for the same bases (1, 3, 5, 7, 10, 255, 12345, the mantissa of 0.1) and the same shifts, half even, precisions 1 to 400
 test "issue 467: the bounded form gives the result of the exact expansion" {
   for x in binary_rows() {
     for precision in [1, 2, 3, 5, 9, 17, 34, 100, 400] {
@@ -104,13 +108,25 @@ test "issue 467: the bounded form gives the result of the exact expansion" {
 }
 
 ///|
+// oracle: A, S
+// source: written out from CPython `decimal`: 3 * 2^e at 34 digits half even for e = -100000000, -1000000, 1000000, 100000000, 1000000000, computed at 120 and at 200 digits (both agree) as `Decimal(3) * Decimal(2) ** e`; the sign and the digit count are properties (S)
+// shares: nothing
 test "issue 467: the cost does not depend on the binary exponent" {
   let wide = @binary.BinaryContext::new(precision=53)
   let three = @binary.Binary::from_int(3, precision=53)
   // Before the bounded form these took minutes (quadratic in the exponent).
-  for exponent in [-100000000, -1000000, 1000000, 100000000, 1000000000] {
+  let rows : Array[(Int32, String)] = [
+    (-100000000, "8.141850716753078023412762027748650E-30103000"),
+    (-1000000, "3.030102177594090674109591841039864E-301030"),
+    (1000000, "2.970196868788769475209377084890571E+301030"),
+    (100000000, "1.105399781094137628962727717295267E+30103000"),
+    (1000000000, "1.383892800350720817934835766311195E+301029996"),
+  ]
+  for row in rows {
+    let (exponent, text) = row
     let x = three.scaleb_ctx(@binary.Binary::from_int(exponent), wide).0
     let value = Decimal::from_binary(x, precision=34)
+    assert_eq(value.to_string(), text)
     inspect(value.coefficient().to_string().length() <= 34, content="true")
     inspect(value.is_signed(), content="false")
   }

@@ -3,6 +3,9 @@
 /// a binary midpoint at 53 bits; rounding the scaled quotient to an integer in
 /// the target mode first landed on that midpoint, and ties-to-even then went
 /// the wrong way. The doubles below are the correctly rounded conversions.
+// oracle: A, S
+// source: the doubles 0.0003, 0.00001 and -0.0003 are the correctly rounded conversions of the decimal text (the MoonBit compiler reads the literals as IEEE 754 binary64 correctly rounded); the bracketing of the directed modes by one unit in the last place is a property (S)
+// shares: Binary::from_double and compare
 test "to_binary rounds the exact value once" {
   for entry in [("0.0003", 0.0003), ("0.00001", 0.00001), ("-0.0003", -0.0003)] {
     let (text, double) = entry

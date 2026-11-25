@@ -75,6 +75,10 @@ fn parser_rows() -> Array[Decimal] {
 }
 
 ///|
+// oracle: B
+// source: old_to_binary: the exact expansion through core BigInt (5^e, or the quotient of 10^scale with a sticky bit) rounded by Binary::make, against the path through Binary::from_string_ctx
+// shares: bin_mode and Binary::make
+// primitives: Binary::make, the rounding of an exact integer coefficient (level A: library/src/binary/round_rows_wbtest.mbt, a generated table with an oracle-file header, level A)
 test "issue 468: the parser path gives the result of the expansion in every mode" {
   let modes : Array[RoundingMode] = [
     RoundingMode::ToNearestEven,

@@ -2,51 +2,6 @@
 using @internal {digits10}
 
 ///|
-fn normalize_decimal_parts_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  ctx : DecimalContext,
-  apply_etiny~ : Bool = true,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx_repr(
-    negative,
-    coeff_from_bigint(abs_bigint(magnitude)),
-    exponent10,
-    ctx,
-    apply_etiny~,
-  )
-}
-
-///|
-fn huge_shift_rounded_unit(
-  coefficient : BigInt,
-  negative : Bool,
-  mode : DecimalRoundingMode,
-) -> BigInt {
-  guard !coefficient.is_zero() else { return bigint_zero() }
-  match mode {
-    Down | HalfEven | HalfUp | HalfDown => bigint_zero()
-    Up | ZeroFiveUp => bigint_one()
-    Ceiling => if negative { bigint_zero() } else { bigint_one() }
-    Floor => if negative { bigint_one() } else { bigint_zero() }
-  }
-}
-
-///|
-fn normalize_decimal_parts_math_ctx(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_ctx(negative, magnitude, exponent10, {
-    ..ctx,
-    decimal_rounding: DecimalRoundingMode::HalfEven,
-  })
-}
-
-///|
 fn reference_ln_atanh_scaled(
   numerator : BigInt,
   denominator : BigInt,
@@ -102,7 +57,40 @@ fn reference_ln_atanh_scaled(
 }
 
 ///|
+// oracle: A, E
+// source: Python decimal (libmpdec) `Context(prec=400).ln(Decimal(k))` scaled by 10^scale and rounded half even, for k = 2, 5, 10 (rows below, written out); the library constants carry guard digits and are not correctly rounded, so the table bounds them (at most 2 units of the last place); the exact values are pinned by the previous BigInt atanh algorithm kept as `reference_ln_atanh_scaled`
+// shares: nothing for the bound; `round_positive_decimal_div` for the pinned part
+// underneath: the previous algorithm is bounded by the same table at the same scales (level A)
 test "BigInt-free ln constants preserve the old scaled integers" {
+  let rows : Array[(Int32, String, String, String)] = [
+    (1, "7", "16", "23"),
+    (2, "69", "161", "230"),
+    (8, "69314718", "160943791", "230258509"),
+    (9, "693147181", "1609437912", "2302585093"),
+    (10, "6931471806", "16094379124", "23025850930"),
+    (
+      34, "6931471805599453094172321214581766", "16094379124341003746007593332261876",
+      "23025850929940456840179914546843642",
+    ),
+    (
+      40, "6931471805599453094172321214581765680755", "16094379124341003746007593332261876395256",
+      "23025850929940456840179914546843642076011",
+    ),
+    (
+      64, "6931471805599453094172321214581765680755001343602552541206800095", "16094379124341003746007593332261876395256013542685177219126478915",
+      "23025850929940456840179914546843642076011014886287729760333279010",
+    ),
+    (
+      128, "69314718055994530941723212145817656807550013436025525412068000949339362196969471560586332699641868754200148102057068573368552024",
+      "160943791243410037460075933322618763952560135426851772191264789147417898770765776463013387809317961079996630302171556289972400523",
+      "230258509299404568401799145468436420760110148862877297603332790096757260967735248023599720508959829834196778404228624863340952547",
+    ),
+    (
+      257, "69314718055994530941723212145817656807550013436025525412068000949339362196969471560586332699641868754200148102057068573368552023575813055703267075163507596193072757082837143519030703862389167347112335011536449795523912047517268157493206515552473413952588295",
+      "160943791243410037460075933322618763952560135426851772191264789147417898770765776463013387809317961079996630302171556289972400522932467619963361661746370572755217963749718324565349285620234152505727015519360087977738972568819354071276615473122180952794852129",
+      "230258509299404568401799145468436420760110148862877297603332790096757260967735248023599720508959829834196778404228624863340952546508280675666628736909878168948290720832555468084379989482623319852839350530896537773262884616336622228769821988674654366747440424",
+    ),
+  ]
   let saved_cache = decimal_math_constant_cache.val
   decimal_math_constant_cache.val = {
     scale: 0,
@@ -110,7 +98,11 @@ test "BigInt-free ln constants preserve the old scaled integers" {
     ln5: dec_coeff_zero(),
     ln10: dec_coeff_zero(),
   }
-  for scale in [1, 2, 8, 9, 10, 34, 40, 64, 128, 257] {
+  for row in rows {
+    let (scale, text2, text5, text10) = row
+    let table2 = @string.parse_bigint(text2)
+    let table5 = @string.parse_bigint(text5)
+    let table10 = @string.parse_bigint(text10)
     let expected_ln2 = reference_ln_atanh_scaled(2N, 1N, scale)
     let expected_lnfq = reference_ln_atanh_scaled(5N, 4N, scale)
     let expected_ln10 = expected_ln2 * 3N + expected_lnfq
@@ -133,6 +125,11 @@ test "BigInt-free ln constants preserve the old scaled integers" {
     assert_eq(ln2.to_bigint(), expected_ln2)
     assert_eq(ln5.to_bigint(), expected_ln5)
     assert_eq(ln10.to_bigint(), expected_ln10)
+    // the independent bound: within 2 units of the correctly rounded value
+    let two = BigInt::from_int(2)
+    assert_true(abs_bigint(ln2.to_bigint() - table2) <= two)
+    assert_true(abs_bigint(ln5.to_bigint() - table5) <= two)
+    assert_true(abs_bigint(ln10.to_bigint() - table10) <= two)
   }
   let high = decimal_transcendental_ln_constants(257)
   let low = decimal_transcendental_ln_constants(34)
@@ -149,6 +146,9 @@ test "BigInt-free ln constants preserve the old scaled integers" {
 }
 
 ///|
+// oracle: A
+// source: core BigInt `/` and `%` of the same operands (MoonBit core, not this library), and the identity q * d + r = n
+// shares: nothing; the operands are built by dec_coeff_from_bigint_repr and read back by to_bigint, an error in either breaks the equality
 test "Knuth quotient clamp preserves the full normalized remainder" {
   let numerator = 81531386803002131355773364661909970000000000000000000000000000000000000000000000000000000000000000000N
   let denominator = 8153138680300213135577336466220607N
@@ -171,35 +171,32 @@ fn reference_round_positive_decimal_div_pow10(
   negative : Bool,
   mode : DecimalRoundingMode,
 ) -> (BigInt, Bool) {
-  guard numerator >= bigint_zero() else {
-    abort("reference rounding expects a non-negative numerator")
+  // test-local: core BigInt `/` and `%` by 10^shift and a table of the eight
+  // rounding rules of GDA 1.70, nothing of the library
+  let divisor = BigInt::from_int(10).pow(BigInt::from_int(shift))
+  let quotient = numerator / divisor
+  let remainder = numerator % divisor
+  if remainder.is_zero() {
+    return (quotient, false)
   }
-  guard shift >= 0 else {
-    abort("reference rounding expects a non-negative shift")
-  }
-  if numerator.is_zero() || shift == 0 {
-    return (numerator, false)
-  }
-  let digits = digits10(numerator)
-  if shift < digits {
-    let divisor = pow10(shift)
-    let remainder = numerator % divisor
-    return (
-      round_positive_decimal_div(numerator, divisor, negative, mode),
-      !remainder.is_zero(),
-    )
-  }
-  let should_increment = match mode {
+  let twice = remainder * BigInt::from_int(2)
+  let last = (quotient % BigInt::from_int(10)).to_int()
+  let up = match mode {
     Down => false
+    Up => true
     Ceiling => !negative
     Floor => negative
-    Up | ZeroFiveUp => true
-    HalfEven | HalfDown =>
-      shift == digits && numerator > pow10(digits - 1) * BigInt::from_int(5)
-    HalfUp =>
-      shift == digits && numerator >= pow10(digits - 1) * BigInt::from_int(5)
+    ZeroFiveUp => last == 0 || last == 5
+    HalfUp => twice >= divisor
+    HalfDown => twice > divisor
+    HalfEven =>
+      twice > divisor ||
+      (
+        twice == divisor &&
+        quotient % BigInt::from_int(2) == BigInt::from_int(1)
+      )
   }
-  (if should_increment { bigint_one() } else { bigint_zero() }, true)
+  (if up { quotient + BigInt::from_int(1) } else { quotient }, true)
 }
 
 ///|
@@ -245,6 +242,9 @@ fn reference_has_finite_decimal_expansion(
 }
 
 ///|
+// oracle: A
+// source: written out: 12345000 / 10^3 = 12345 and 5000 / 10^2 = 50, divisibility by hand
+// shares: nothing
 test "decimal coefficient exact power-of-ten division uses unit shifts" {
   match
     exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(12345000N), 3) {
@@ -263,6 +263,9 @@ test "decimal coefficient exact power-of-ten division uses unit shifts" {
 }
 
 ///|
+// oracle: A
+// source: written out: 4999 < 5000 = 10^4 / 2 < 5001 and a 21-digit case, by hand
+// shares: nothing
 test "decimal half-power comparison uses decimal leading digits" {
   assert_eq(
     dec_coeff_compare_half_power10(dec_coeff_from_bigint_repr(4999N)),
@@ -285,6 +288,9 @@ test "decimal half-power comparison uses decimal leading digits" {
 }
 
 ///|
+// oracle: A
+// source: written out: carry and borrow cases in base 10^9 units, derived by hand
+// shares: nothing
 test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
   let acc1 : Array[UInt32] = [0U, 0U, 0U, 0U]
   let lhs1 : Array[UInt32] = [
@@ -315,6 +321,9 @@ test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1000000 - 999999 = 1, 999999 + 1000000 carries to 1000001 in the other sign case, and cancellation gives +0, by hand
+// shares: nothing
 test "decimal signed coefficient add matches remainder identity arithmetic" {
   let lhs = dec_coeff_from_bigint_repr(1000000N)
   let rhs = dec_coeff_from_bigint_repr(999999N)
@@ -341,6 +350,9 @@ test "decimal signed coefficient add matches remainder identity arithmetic" {
 }
 
 ///|
+// oracle: A
+// source: written out: 10^20 is above +-999,999,999 in magnitude and 384 equals 384, by hand
+// shares: nothing
 test "decimal signed coefficient compare proves power exponent bounds" {
   let huge = dec_coeff_from_bigint_repr(100000000000000000000N)
   assert_eq(dec_coeff_signed_compare_int_repr(false, huge, 999_999_999), 1)
@@ -356,6 +368,9 @@ test "decimal signed coefficient compare proves power exponent bounds" {
 }
 
 ///|
+// oracle: A
+// source: written out: 999.999 + 0.001 = 1000000 and 1000 - 0.001 = 999999 at exponent -3, 10^55 + 10000, derived by hand
+// shares: nothing
 test "decimal exact aligned sum keeps GDA unit accumulator representation" {
   let carry_lhs = Decimal::from_string("999.999", precision=16).unwrap()
   let carry_rhs = Decimal::from_string("0.001", precision=16).unwrap()
@@ -392,6 +407,9 @@ test "decimal exact aligned sum keeps GDA unit accumulator representation" {
 }
 
 ///|
+// oracle: A
+// source: written out and checked with CPython: 999.999 + 0.001 = 1000.000 (exponent -3, not reduced) and 1.20 - 1.20 = 0.00 with a positive sign
+// shares: nothing
 test "decimal plain add normalizes the GDA unit accumulator directly" {
   let sum = Decimal::from_string("999.999", precision=7)
     .unwrap()
@@ -409,6 +427,9 @@ test "decimal plain add normalizes the GDA unit accumulator directly" {
 }
 
 ///|
+// oracle: A
+// source: CPython add, precision 7, exponent range of the maximum: 1E+1000000000 + 1E-1000000000 = 1.000000E+1000000000 (x r), and + 0E-1000000000 gives the same value (r only); the library accepts operands above Emax 999999999, which the CPython context allows with its maximum range; the block checks coefficient 1000000, exponent 999999994
+// shares: nothing
 test "decimal plain add avoids expanding absorbed extreme exponents" {
   let high = Decimal::from_string("1E+1000000000", precision=7).unwrap()
   let tiny = Decimal::from_string("1E-1000000000", precision=7).unwrap()
@@ -425,6 +446,9 @@ test "decimal plain add avoids expanding absorbed extreme exponents" {
 }
 
 ///|
+// oracle: A
+// source: CPython add, precision 3, half even: 1 + 0.005 = 1.00 and 1.01 + 0.005 = 1.02 (exact ties to even), 1.00 - 0.005 = 0.995 (verified 2026-11-25)
+// shares: nothing
 test "decimal plain add preserves half-even absorption boundaries" {
   let even_tie = Decimal::from_string("1", precision=3)
     .unwrap()
@@ -443,6 +467,9 @@ test "decimal plain add preserves half-even absorption boundaries" {
 }
 
 ///|
+// oracle: A
+// source: written out and checked with CPython integers: 999 * 999 = 998001 and 1219326311247834171483
+// shares: nothing
 test "decimal decNumber-style coefficient multiply matches long multiplication" {
   assert_eq(
     dec_coeff_multiply_repr(
@@ -468,6 +495,9 @@ test "decimal decNumber-style coefficient multiply matches long multiplication" 
 }
 
 ///|
+// oracle: A
+// source: written out by the rules of to-scientific-string and to-engineering-string (GDA 1.70): a 30-digit coefficient at exponents -35 and 5, derived by hand
+// shares: nothing
 test "decimal coefficient and finite format builders preserve digit sequences" {
   let digits = "123456789012345678901234567890"
   let coefficient = dec_coeff_from_decimal_digits_repr(digits).unwrap()
@@ -495,6 +525,9 @@ test "decimal coefficient and finite format builders preserve digit sequences" {
 }
 
 ///|
+// oracle: A
+// source: written out and checked with CPython divmod: 1000 / 7 = 142 r 6, 1234567890123 and 1234567967901238 r 766790339
+// shares: nothing
 test "decimal decNumber-style coefficient divide returns quotient and residue" {
   let (q0, r0) = dec_coeff_div_rem_repr(
     dec_coeff_from_bigint_repr(0N),
@@ -523,6 +556,9 @@ test "decimal decNumber-style coefficient divide returns quotient and residue" {
 }
 
 ///|
+// oracle: A
+// source: core BigInt +, -, *, / and % on the boundary values 0, 1, 9, 10, 10^k - 1, 10^k, 10^k + 1 up to 34 digits (two assertions compare dec_coeff_unit_len(x) with itself and prove nothing)
+// shares: nothing
 test "optimized decimal coefficient primitives match BigInt boundaries" {
   let boundaries : Array[BigInt] = [
     0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,
@@ -556,6 +592,9 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
 }
 
 ///|
+// oracle: A
+// source: core BigInt arithmetic on a deterministic LCG matrix of 96 operand pairs below 10^120 (the comparison compare_repr < 0 is a self-consistency check)
+// shares: nothing
 test "optimized decimal coefficient primitives match deterministic BigInt matrix" {
   let modulus = pow10(120) - 159N
   let mut left_state = 123456789N
@@ -587,6 +626,9 @@ test "optimized decimal coefficient primitives match deterministic BigInt matrix
 }
 
 ///|
+// oracle: A
+// source: core BigInt `/` and `%` by the divisors 1, 2, 3, 5, 7, 10, 97, 499, 998, 999
+// shares: nothing
 test "optimized decimal coefficient single-unit division matches BigInt" {
   let numerator_bigint = pow10(180) - 123456789N
   let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
@@ -602,6 +644,9 @@ test "optimized decimal coefficient single-unit division matches BigInt" {
 }
 
 ///|
+// oracle: A
+// source: n = d * q + r constructed in core BigInt from boundary denominators and quotients; the expected q and r are known by construction
+// shares: nothing
 test "optimized decimal coefficient quotient estimate matches constructed cases" {
   let denominators : Array[BigInt] = [
     1000N, 1001N, 1999N, 500999N, 999999N, 1000001N, 999999937N, 999999999N, 1000000000N,
@@ -630,6 +675,9 @@ test "optimized decimal coefficient quotient estimate matches constructed cases"
 }
 
 ///|
+// oracle: A, S
+// source: the defining property of the integer square root, root^2 + rem = value with 0 <= rem <= 2 * root, which fixes the root uniquely, checked with core BigInt arithmetic on values up to 10^160; it is a characterisation, not a table of values
+// shares: the conversion functions dec_coeff_from_bigint_repr and to_bigint
 test "decimal integer sqrt_rem preserves exact decomposition" {
   for
     value in [
@@ -666,6 +714,10 @@ fn dec_coeff_test_dense_pattern(length : Int32, salt : Int32) -> DecCoeff {
 }
 
 ///|
+// oracle: B
+// source: numerator = d * q + r with q and r constructed from dense digit patterns; the division must return exactly q and r
+// shares: multiply_repr and magnitude_add_repr build the numerator
+// primitives: multiply_repr, magnitude_add_repr (level A: the blocks "optimized decimal coefficient primitives match BigInt boundaries" and "... deterministic BigInt matrix" of this file compare them with core BigInt)
 test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
   for length in [17, 31, 32, 33, 47, 48, 49, 63, 64, 65] {
     let denominator = dec_coeff_test_dense_pattern(length, 3)
@@ -693,6 +745,10 @@ test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
 }
 
 ///|
+// oracle: B
+// source: numerator = d * q + r with q and r constructed from dense digit patterns; the division must return exactly q and r
+// shares: multiply_repr and magnitude_add_repr build the numerator
+// primitives: multiply_repr, magnitude_add_repr (level A: the blocks "optimized decimal coefficient primitives match BigInt boundaries" and "... deterministic BigInt matrix" of this file compare them with core BigInt)
 test "Newton reciprocal division converges without fallback" {
   let denominator = dec_coeff_test_dense_pattern(64, 7)
   let expected_quotient = dec_coeff_test_dense_pattern(71, 11)
@@ -716,6 +772,9 @@ test "Newton reciprocal division converges without fallback" {
 }
 
 ///|
+// oracle: A
+// source: core BigInt `/` and `%` of the same operands, formed from powers of ten at 18, 36 and 72 digits
+// shares: nothing
 test "normalized Knuth division matches BigInt at limb boundaries" {
   let cases : Array[(BigInt, BigInt)] = [
     (pow10(18) + 123456789N, pow10(9) + 7N),
@@ -741,6 +800,9 @@ test "normalized Knuth division matches BigInt at limb boundaries" {
 }
 
 ///|
+// oracle: A
+// source: written out. 125/10 = 12.5, an exact tie: half even gives 12, half up gives 13; 123456789012345678901 = 97 * 1272750402189130710 + 31 (Python divmod), a negative operand rounded toward negative infinity takes the magnitude up, 1272750402189130711
+// shares: nothing
 test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
   let numerator = dec_coeff_from_bigint_repr(125N)
   let denominator = dec_coeff_from_bigint_repr(10N)
@@ -751,7 +813,7 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
       false,
       DecimalRoundingMode::HalfEven,
     ).to_bigint(),
-    round_positive_decimal_div(125N, 10N, false, DecimalRoundingMode::HalfEven),
+    12N,
   )
   assert_eq(
     round_positive_decimal_div_repr(
@@ -760,7 +822,7 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
       false,
       DecimalRoundingMode::HalfUp,
     ).to_bigint(),
-    round_positive_decimal_div(125N, 10N, false, DecimalRoundingMode::HalfUp),
+    13N,
   )
   assert_eq(
     round_positive_decimal_div_repr(
@@ -769,16 +831,14 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
       true,
       DecimalRoundingMode::Floor,
     ).to_bigint(),
-    round_positive_decimal_div(
-      123456789012345678901N,
-      97N,
-      true,
-      DecimalRoundingMode::Floor,
-    ),
+    1272750402189130711N,
   )
 }
 
 ///|
+// oracle: A
+// source: CPython divide: 1 / 8 = 0.125 (coefficient 125, exponent -3) and -2 / 3 at precision 3 = -0.667
+// shares: nothing
 test "decimal plain division keeps GDA quotient units through normalization" {
   let exact = Decimal::from_int(1, precision=16).div(
     Decimal::from_int(8, precision=16),
@@ -796,6 +856,9 @@ test "decimal plain division keeps GDA quotient units through normalization" {
 }
 
 ///|
+// oracle: A
+// source: written out: 123E+2 / 10 = 1230; 125 / 10 and 135 / 10 are exact ties, half even gives 12 and 14
+// shares: nothing
 test "decimal integer quotient stays in GDA unit accumulator representation" {
   let ten = Decimal::from_string("1E+1", precision=16).unwrap()
   let shifted = integer_quotient_by_power_of_ten_repr(
@@ -826,6 +889,9 @@ test "decimal integer quotient stays in GDA unit accumulator representation" {
 }
 
 ///|
+// oracle: A
+// source: CPython `Context(prec=5, rounding=ROUND_HALF_EVEN).plus`: 1234500 gives 1.2345E+6 (Rounded, not Inexact), 1234567 gives 1.2346E+6 (Inexact and Rounded); the block checks the coefficient 12345 and 12346 at exponent 2
+// shares: nothing
 test "decimal subset operand rounding stays coefficient-native" {
   let ctx = DecimalContext::new(
     precision=5,
@@ -852,6 +918,9 @@ test "decimal subset operand rounding stays coefficient-native" {
 }
 
 ///|
+// oracle: A
+// source: CPython plus, precision 3: 1.23E+3 from 1234 inexact and rounded; written out: negative zero compares equal to zero and above -1, below 1
+// shares: nothing
 test "decimal unary finalize and zero compare stay coefficient-native" {
   let ctx = DecimalContext::new(precision=3)
   let value = Decimal::from_string("1234", precision=16).unwrap()
@@ -868,6 +937,9 @@ test "decimal unary finalize and zero compare stay coefficient-native" {
 }
 
 ///|
+// oracle: A
+// source: written out. 12345 / 10^2 = 123.45, half even gives 123 and is inexact; 5 / 10^1 = 0.5, an exact tie, half up gives 1 and is inexact
+// shares: nothing
 test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
   let (repr_half, repr_half_inexact) = round_positive_decimal_div_pow10_repr(
     dec_coeff_from_bigint_repr(12345N),
@@ -875,32 +947,23 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
     false,
     DecimalRoundingMode::HalfEven,
   )
-  let (big_half, big_half_inexact) = reference_round_positive_decimal_div_pow10(
-    12345N,
-    2,
-    false,
-    DecimalRoundingMode::HalfEven,
-  )
-  assert_eq(repr_half.to_bigint(), big_half)
-  assert_eq(repr_half_inexact, big_half_inexact)
-
+  assert_eq(repr_half.to_bigint(), 123N)
+  assert_true(repr_half_inexact)
   let (repr_tiny, repr_tiny_inexact) = round_positive_decimal_div_pow10_repr(
     dec_coeff_from_bigint_repr(5N),
     1,
     false,
     DecimalRoundingMode::HalfUp,
   )
-  let (big_tiny, big_tiny_inexact) = reference_round_positive_decimal_div_pow10(
-    5N,
-    1,
-    false,
-    DecimalRoundingMode::HalfUp,
-  )
-  assert_eq(repr_tiny.to_bigint(), big_tiny)
-  assert_eq(repr_tiny_inexact, big_tiny_inexact)
+  assert_eq(repr_tiny.to_bigint(), 1N)
+  assert_true(repr_tiny_inexact)
 }
 
 ///|
+// oracle: B
+// source: test-local reference `reference_round_positive_decimal_div_pow10`: core BigInt `/` and `%` by 10^shift and a table of the eight rounding rules of GDA 1.70 (it no longer calls the library division); all eight modes at exact ties and just around them, both signs, shifts up to the digit count + 2
+// shares: nothing
+// primitives: core BigInt / and % and pow; the mode table is written in the test
 test "decimal power-of-ten rounding specialization matches every mode" {
   let values : Array[BigInt] = [
     0N,
@@ -960,21 +1023,25 @@ test "decimal power-of-ten rounding specialization matches every mode" {
 }
 
 ///|
+// oracle: A
+// source: written out from the rule of the context: precision 0 means "as many digits as the operand" (7 digits for 1234500), a fixed precision is itself (34 and 9); GDA 1.70 context precision
+// shares: nothing
 test "decimal coefficient-native precision helper matches bigint precision helper" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
-  let exact_ctx = DecimalContext::new(precision=34)
-  let fixed_ctx = DecimalContext::new(precision=9)
   assert_eq(
-    finite_precision_for_coeff(coeff, exact_ctx),
-    finite_precision_for_digits(digits10(coeff.to_bigint()), exact_ctx),
+    finite_precision_for_coeff(coeff, DecimalContext::new(precision=34)),
+    34,
   )
   assert_eq(
-    finite_precision_for_coeff(coeff, fixed_ctx),
-    finite_precision_for_digits(digits10(coeff.to_bigint()), fixed_ctx),
+    finite_precision_for_coeff(coeff, DecimalContext::new(precision=9)),
+    9,
   )
 }
 
 ///|
+// oracle: A
+// source: written out: 12345^3 = 1881365963625 (CPython integers agree), which has 13 digits, so a cap of 13 fits and a cap of 12 does not
+// shares: nothing
 test "decimal coefficient exact powers stay native and honor precision caps" {
   let base = dec_coeff_from_bigint_repr(12345N)
   assert_eq(dec_coeff_exact_power_repr(base, 3).to_bigint(), 1881365963625N)
@@ -986,6 +1053,9 @@ test "decimal coefficient exact powers stay native and honor precision caps" {
 }
 
 ///|
+// oracle: A
+// source: written out: 40^3 = 64E+3 and 1/40 = 25E-3 (CPython power and divide agree)
+// shares: nothing
 test "decimal exact integer power and reciprocal keep coefficient units" {
   let exact_ctx = DecimalContext::new(precision=34)
   let base = Decimal::from_string("4E+1", precision=16).unwrap()
@@ -1008,6 +1078,9 @@ test "decimal exact integer power and reciprocal keep coefficient units" {
 }
 
 ///|
+// oracle: A
+// source: written out: 123456789^2 = 15241578750190521 (CPython integers), sqrt(1.4400) = 1.20, sqrt(2) is inexact (CPython sqrt agrees)
+// shares: nothing
 test "decimal exact square root uses GDA Newton unit operations" {
   let perfect = Decimal::from_string("15241578750190521", precision=32).unwrap()
   let exact = exact_finite_sqrt(perfect, 32).unwrap()
@@ -1026,6 +1099,9 @@ test "decimal exact square root uses GDA Newton unit operations" {
 }
 
 ///|
+// oracle: A
+// source: written out: floor(-1250 / 2303) = -1 and -1250 + 2303 = 1053, by hand
+// shares: nothing
 test "decimal exp range reduction keeps runtime coefficient units" {
   let value = Decimal::from_string("-1.25", precision=16).unwrap()
   let (negative, scaled) = decimal_finite_to_scaled_repr(value, 3)
@@ -1050,6 +1126,9 @@ test "decimal exp range reduction keeps runtime coefficient units" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1234500E-2 = 12345, -42.000 = -42, 12.34 is not an integer, 1234567890123 is beyond the limit, derived by hand
+// shares: nothing
 test "decimal exact integer helpers match normalized finite values" {
   let integer = Decimal::from_string("1234500E-2", precision=16).unwrap()
   let negative = Decimal::from_string("-42.000", precision=16).unwrap()
@@ -1083,6 +1162,9 @@ test "decimal exact integer helpers match normalized finite values" {
 }
 
 ///|
+// oracle: A
+// source: written out: the count limit 999,999,999 against 1E+9 and 1E+999999999, and the parity of a power of ten, derived by hand
+// shares: nothing
 test "decimal bounded power helpers avoid expanding huge positive exponents" {
   let huge = Decimal::from_string("1E+999999999", precision=16).unwrap()
   assert_true(decimal_power_integer_count(huge, 999_999_999) is None)
@@ -1097,6 +1179,9 @@ test "decimal bounded power helpers avoid expanding huge positive exponents" {
 }
 
 ///|
+// oracle: A
+// source: written out: -8.000 is even, -7 is odd, 0E-4 is even, 3.5 has no parity, by hand
+// shares: nothing
 test "decimal integer parity helper rejects fractional values and tracks signless oddness" {
   let even = Decimal::from_string("-8.000", precision=16).unwrap()
   let odd = Decimal::from_string("-7", precision=16).unwrap()
@@ -1110,6 +1195,9 @@ test "decimal integer parity helper rejects fractional values and tracks signles
 }
 
 ///|
+// oracle: A
+// source: CPython `Context(prec=9, Emin=-999, Emax=999).create_decimal`: 1E-1000000008 half even gives 0E-1007 (flags x r u s c; the block checks underflow, subnormal and clamped), -1E-1000000008 rounded up gives -1E-1007 (flags x r u s; the block checks underflow and subnormal)
+// shares: nothing
 test "decimal extreme tiny parsing preserves directed rounding flags" {
   let half_even_ctx = DecimalContext::new(
     precision=9,
@@ -1143,6 +1231,9 @@ test "decimal extreme tiny parsing preserves directed rounding flags" {
 }
 
 ///|
+// oracle: A
+// source: written out: 123 and -45 have the count, -0 gives 0, 12E-1 and 10^12 have none, by hand
+// shares: nothing
 test "scaleb count extracts exponent-zero integers from coeff repr" {
   let ctx = DecimalContext::new(
     precision=9,
@@ -1164,6 +1255,9 @@ test "scaleb count extracts exponent-zero integers from coeff repr" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1234500 / 10^3 = 1234 remainder 500
+// shares: nothing
 test "decimal coefficient repr div-rem by power of ten matches bigint path" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
   let divisor = dec_coeff_power10_repr(3)
@@ -1173,6 +1267,10 @@ test "decimal coefficient repr div-rem by power of ten matches bigint path" {
 }
 
 ///|
+// oracle: B
+// source: test-local predicate on core BigInt: gcd, then removal of the factors 2 and 5, over cases up to 3 * 10^2000
+// shares: abs_bigint (a sign removal)
+// primitives: abs_bigint, a one-line sign removal, and core BigInt % and /
 test "decimal coefficient finite-expansion predicate matches bigint predicate" {
   let cases : Array[(BigInt, BigInt)] = [
     (0N, 21N),
@@ -1283,350 +1381,10 @@ fn bigint_rotate_digits(
 }
 
 ///|
-fn assert_decimal_and_flags_eq(
-  actual : (Decimal, DecimalFlags),
-  expected : (Decimal, DecimalFlags),
-) -> Unit raise {
-  assert_eq(actual.0.compare_total(expected.0), 0)
-  assert_eq(actual.1.inexact, expected.1.inexact)
-  assert_eq(actual.1.rounded, expected.1.rounded)
-  assert_eq(actual.1.invalid_operation, expected.1.invalid_operation)
-  assert_eq(actual.1.division_by_zero, expected.1.division_by_zero)
-  assert_eq(actual.1.overflow, expected.1.overflow)
-  assert_eq(actual.1.underflow, expected.1.underflow)
-  assert_eq(actual.1.subnormal, expected.1.subnormal)
-  assert_eq(actual.1.clamped, expected.1.clamped)
-  assert_eq(actual.1.conversion_syntax, expected.1.conversion_syntax)
-  assert_eq(actual.1.division_impossible, expected.1.division_impossible)
-  assert_eq(actual.1.division_undefined, expected.1.division_undefined)
-  assert_eq(actual.1.invalid_context, expected.1.invalid_context)
-}
-
-///|
-fn decimal_div_finite_by_small_int_work_bigint_expected(
-  value : Decimal,
-  divisor : Int32,
-  work_ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_default(work_ctx)
-  let denominator = BigInt::from_int(divisor)
-  let extra = precision + digits10(denominator) + 2
-  let numerator = dec_coeff_shift_power10_repr(value.coefficient, extra).to_bigint()
-  let exact = reference_has_finite_decimal_expansion(
-    coeff_bigint(value.coefficient),
-    denominator,
-  )
-  let q = round_positive_decimal_div(
-    numerator,
-    denominator,
-    value.negative,
-    work_ctx.decimal_rounding,
-  )
-  let (result, flags) = if exact {
-    let exact_unrounded = normalize_decimal_parts_gda(
-      value.negative,
-      q,
-      value.exponent10 - extra,
-      digits10(q),
-      work_ctx.decimal_rounding,
-    )
-    let exact_rounding = exact_result_rounding_flags(
-      exact_unrounded,
-      value.exponent10,
-      work_ctx,
-    )
-    let rounded_value = normalize_decimal_parts_gda(
-      value.negative,
-      q,
-      value.exponent10 - extra,
-      precision,
-      work_ctx.decimal_rounding,
-    )
-    if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
-        exact_unrounded
-      } else if !exact_rounding.inexact {
-        expand_rounded_exact_cohort_toward_preferred_exponent(
-          rounded_value,
-          value.exponent10,
-          work_ctx,
-        )
-      } else {
-        expand_inexact_division_cohort(
-          rounded_value,
-          work_ctx,
-          pad_precision=true,
-        )
-      }
-      let (result, flags) = finalize_finite_ctx(
-        prefinal, exact_rounding, work_ctx,
-      )
-      (result, with_underflow_for_inexact_subnormal(result, flags, work_ctx))
-    } else {
-      let exact_value = expand_exact_cohort_toward_preferred_exponent(
-        rounded_value,
-        value.exponent10,
-        work_ctx,
-      )
-      let exact_value = if work_ctx.clamp {
-        exact_value
-      } else {
-        expand_finite_cohort_toward_target_exponent(exact_value, 0, work_ctx)
-      }
-      finalize_finite_ctx(exact_value, DecimalFlags::new(), work_ctx)
-    }
-  } else {
-    finalize_finite_ctx(
-      normalize_decimal_parts_gda(
-        value.negative,
-        q,
-        value.exponent10 - extra,
-        precision,
-        work_ctx.decimal_rounding,
-      ),
-      DecimalFlags::new(),
-      work_ctx,
-    )
-  }
-  if exact {
-    (result, flags)
-  } else {
-    let result = expand_inexact_division_cohort(result, work_ctx)
-    (
-      result,
-      with_underflow_for_inexact_subnormal(
-        result,
-        { ..flags, rounded: true, inexact: true, },
-        work_ctx,
-      ),
-    )
-  }
-}
-
-///|
-fn decimal_div_finite_work_bigint_expected(
-  lhs : Decimal,
-  rhs : Decimal,
-  work_ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_default(work_ctx)
-  let denominator = coeff_bigint(rhs.coefficient)
-  let extra = precision + digits10(denominator) + 2
-  let numerator = dec_coeff_shift_power10_repr(lhs.coefficient, extra).to_bigint()
-  let exact = reference_has_finite_decimal_expansion(
-    coeff_bigint(lhs.coefficient),
-    denominator,
-  )
-  let q = round_positive_decimal_div(
-    numerator,
-    denominator,
-    lhs.negative != rhs.negative,
-    work_ctx.decimal_rounding,
-  )
-  let (value, round_flags) = if exact {
-    let exact_unrounded = normalize_decimal_parts_gda(
-      lhs.negative != rhs.negative,
-      q,
-      lhs.exponent10 - rhs.exponent10 - extra,
-      digits10(q),
-      work_ctx.decimal_rounding,
-    )
-    let exact_rounding = exact_result_rounding_flags(
-      exact_unrounded,
-      lhs.exponent10 - rhs.exponent10,
-      work_ctx,
-    )
-    let rounded_value = normalize_decimal_parts_gda(
-      lhs.negative != rhs.negative,
-      q,
-      lhs.exponent10 - rhs.exponent10 - extra,
-      precision,
-      work_ctx.decimal_rounding,
-    )
-    if exact_rounding.rounded {
-      let prefinal = if exact_unrounded.exponent10 < etiny(work_ctx) {
-        exact_unrounded
-      } else if !exact_rounding.inexact {
-        expand_rounded_exact_cohort_toward_preferred_exponent(
-          rounded_value,
-          lhs.exponent10 - rhs.exponent10,
-          work_ctx,
-        )
-      } else {
-        expand_inexact_division_cohort(
-          rounded_value,
-          work_ctx,
-          pad_precision=true,
-        )
-      }
-      let (value, flags) = finalize_finite_ctx(
-        prefinal, exact_rounding, work_ctx,
-      )
-      (value, with_underflow_for_inexact_subnormal(value, flags, work_ctx))
-    } else {
-      let exact_value = expand_exact_cohort_toward_preferred_exponent(
-        rounded_value,
-        lhs.exponent10 - rhs.exponent10,
-        work_ctx,
-      )
-      let exact_value = if work_ctx.clamp {
-        exact_value
-      } else {
-        expand_finite_cohort_toward_target_exponent(exact_value, 0, work_ctx)
-      }
-      finalize_finite_ctx(exact_value, DecimalFlags::new(), work_ctx)
-    }
-  } else {
-    finalize_finite_ctx(
-      normalize_decimal_parts_gda(
-        lhs.negative != rhs.negative,
-        q,
-        lhs.exponent10 - rhs.exponent10 - extra,
-        precision,
-        work_ctx.decimal_rounding,
-      ),
-      DecimalFlags::new(),
-      work_ctx,
-    )
-  }
-  if exact {
-    (value, round_flags)
-  } else {
-    let value = expand_inexact_division_cohort(value, work_ctx)
-    (
-      value,
-      with_underflow_for_inexact_subnormal(
-        value,
-        { ..round_flags, rounded: true, inexact: true, },
-        work_ctx,
-      ),
-    )
-  }
-}
-
-///|
-fn decimal_mul_finite_work_bigint_expected(
-  lhs : Decimal,
-  rhs : Decimal,
-  work_ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  normalize_decimal_parts_math_ctx(
-    lhs.negative != rhs.negative,
-    lhs.coefficient.to_bigint() * rhs.coefficient.to_bigint(),
-    lhs.exponent10 + rhs.exponent10,
-    work_ctx,
-  )
-}
-
-///|
-fn finalize_scaleb_finite_ctx_bigint_expected(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  if !value.coefficient.is_zero() && adjusted_exponent(value) > ctx.e_max {
-    return (
-      Decimal::inf(negative=value.negative, precision=value.precision_),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
-    )
-  }
-  let tiny = etiny(ctx)
-  if value.exponent10 < tiny {
-    let shift = tiny - value.exponent10
-    let (magnitude_repr, inexact) = round_positive_decimal_div_pow10_repr(
-      value.coefficient,
-      shift,
-      value.negative,
-      ctx.decimal_rounding,
-    )
-    let mut flags = { ..DecimalFlags::new(), subnormal: true, rounded: true, }
-    if inexact {
-      flags = { ..flags, inexact: true, underflow: true, }
-    }
-    let magnitude = magnitude_repr.to_bigint()
-    if magnitude_repr.is_zero() {
-      return (
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        { ..flags, clamped: true, },
-      )
-    }
-    if magnitude_repr.digits10() > precision {
-      return finalize_scaleb_finite_ctx_bigint_expected(
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        ctx,
-      )
-    }
-    return (
-      finite_with_exponent(value.negative, magnitude, tiny, precision),
-      flags,
-    )
-  }
-  finalize_finite_ctx(value, DecimalFlags::new(), ctx)
-}
-
-///|
-fn scaleb_finite_result_ctx_bigint_expected(
-  value : Decimal,
-  count : Int32,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(value.coefficient, ctx)
-  let target_exponent = BigInt::from_int(value.exponent10) +
-    BigInt::from_int(count)
-  if value.coefficient.is_zero() {
-    return (
-      finite_with_exponent(
-        value.negative,
-        bigint_zero(),
-        target_exponent.to_int(),
-        precision,
-      ),
-      DecimalFlags::new(),
-    )
-  }
-  let adjusted = target_exponent +
-    BigInt::from_int(value.coefficient.digits10() - 1)
-  if adjusted > BigInt::from_int(ctx.e_max) {
-    return (
-      Decimal::inf(negative=value.negative, precision=value.precision_),
-      { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
-    )
-  }
-  let tiny = etiny(ctx)
-  if target_exponent < BigInt::from_int(tiny) {
-    let shift_big = BigInt::from_int(tiny) - target_exponent
-    if shift_big > BigInt::from_int(value.coefficient.digits10() + 2) {
-      let magnitude = huge_shift_rounded_unit(
-        coeff_bigint(value.coefficient),
-        value.negative,
-        ctx.decimal_rounding,
-      )
-      let flags = {
-        ..DecimalFlags::new(),
-        rounded: true,
-        inexact: !value.coefficient.is_zero(),
-        underflow: !value.coefficient.is_zero(),
-        subnormal: true,
-        clamped: magnitude.is_zero(),
-      }
-      return (
-        finite_with_exponent(value.negative, magnitude, tiny, precision),
-        flags,
-      )
-    }
-  }
-  finalize_scaleb_finite_ctx_bigint_expected(
-    finite_with_exponent(
-      value.negative,
-      value.coefficient.to_bigint(),
-      target_exponent.to_int(),
-      precision,
-    ),
-    ctx,
-  )
-}
-
-///|
+// oracle: B
+// source: test-local digit loops over core BigInt `%` and `/` (and, or, xor of digit strings)
+// shares: nothing
+// primitives: core BigInt % and / (MoonBit core); dec_coeff_from_bigint_repr builds the inputs
 test "decimal logical coefficient helpers match bigint digit formulas" {
   for
     values in [
@@ -1660,6 +1418,10 @@ test "decimal logical coefficient helpers match bigint digit formulas" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt compare of lhs with rhs * 10^exponent, both written out in the test
+// shares: pow10 (internal package: a cache of core BigInt::pow)
+// primitives: pow10, a cache of core BigInt::pow
 test "decimal scaled comparison matches exact virtual shift" {
   let values = [
     1N, 999999999N, 1000000000N, 1000000001N, 999999999999999999N, 123456789012345678901234567890N,
@@ -1681,6 +1443,10 @@ test "decimal scaled comparison matches exact virtual shift" {
 }
 
 ///|
+// oracle: B
+// source: test-local digit loops (invert, shift, rotate) over core BigInt
+// shares: pow10 (internal package: a cache of core BigInt::pow)
+// primitives: pow10, a cache of core BigInt::pow; core BigInt % and /
 test "decimal logical invert and digit motion helpers match bigint formulas" {
   let ctx = DecimalContext::new(precision=8)
   let coeff = dec_coeff_from_bigint_repr(101011N)
@@ -1707,6 +1473,9 @@ test "decimal logical invert and digit motion helpers match bigint formulas" {
 }
 
 ///|
+// oracle: A
+// source: Python decimal (libmpdec) `Context(prec=6, rounding=ROUND_HALF_EVEN, Emin=-20, Emax=20, clamp=0).divide`; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
+// shares: nothing
 test "decimal div_ctx repr pipeline matches bigint divide normalization" {
   let ctx = DecimalContext::new(
     precision=6,
@@ -1715,21 +1484,26 @@ test "decimal div_ctx repr pipeline matches bigint divide normalization" {
     e_max=20,
     clamp=false,
   )
-  let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
-  let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
-  let inexact_lhs = Decimal::from_string("22", precision=8).unwrap()
-  let inexact_rhs = Decimal::from_string("7", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    exact_lhs.div_ctx(exact_rhs, ctx),
-    decimal_div_finite_work_bigint_expected(exact_lhs, exact_rhs, ctx),
-  )
-  assert_decimal_and_flags_eq(
-    inexact_lhs.div_ctx(inexact_rhs, ctx),
-    decimal_div_finite_work_bigint_expected(inexact_lhs, inexact_rhs, ctx),
-  )
+  for
+    row in [
+      ("7.50", "16", "0.46875", "........"),
+      ("22", "7", "3.14286", "xr......"),
+    ] {
+    let (a, b, result, flags) = row
+    let lhs = Decimal::from_string(a, precision=8).unwrap()
+    let rhs = Decimal::from_string(b, precision=8).unwrap()
+    let actual = lhs.div_ctx(rhs, ctx)
+    assert_eq(
+      (a, b, actual.0.to_string(), normalization_flags_text(actual.1)),
+      (a, b, result, flags),
+    )
+  }
 }
 
 ///|
+// oracle: A
+// source: Python decimal (libmpdec) `Context(prec=5, rounding=ROUND_HALF_UP, Emin=-12, Emax=12, clamp=1).divide` by the integers 8 and 3; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
+// shares: nothing
 test "decimal math small-int division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
@@ -1738,19 +1512,25 @@ test "decimal math small-int division repr pipeline matches bigint divide normal
     e_max=12,
     clamp=true,
   )
-  let exact = Decimal::from_string("7.50", precision=8).unwrap()
-  let inexact = Decimal::from_string("-2", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_div_finite_by_small_int_work(exact, 8, work_ctx),
-    decimal_div_finite_by_small_int_work_bigint_expected(exact, 8, work_ctx),
-  )
-  assert_decimal_and_flags_eq(
-    decimal_div_finite_by_small_int_work(inexact, 3, work_ctx),
-    decimal_div_finite_by_small_int_work_bigint_expected(inexact, 3, work_ctx),
-  )
+  for
+    row in [
+      ("7.50", 8, "0.9375", "........"),
+      ("-2", 3, "-0.66667", "xr......"),
+    ] {
+    let (text, divisor, result, flags) = row
+    let value = Decimal::from_string(text, precision=8).unwrap()
+    let actual = decimal_div_finite_by_small_int_work(value, divisor, work_ctx)
+    assert_eq(
+      (text, divisor, actual.0.to_string(), normalization_flags_text(actual.1)),
+      (text, divisor, result, flags),
+    )
+  }
 }
 
 ///|
+// oracle: A
+// source: Python decimal (libmpdec) `Context(prec=5, rounding=ROUND_HALF_EVEN, Emin=-15, Emax=15, clamp=0).divide`; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
+// shares: nothing
 test "decimal math finite division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
@@ -1759,21 +1539,26 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
     e_max=15,
     clamp=false,
   )
-  let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
-  let exact_rhs = Decimal::from_string("16", precision=8).unwrap()
-  let inexact_lhs = Decimal::from_string("-22", precision=8).unwrap()
-  let inexact_rhs = Decimal::from_string("7", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_div_finite_work(exact_lhs, exact_rhs, work_ctx),
-    decimal_div_finite_work_bigint_expected(exact_lhs, exact_rhs, work_ctx),
-  )
-  assert_decimal_and_flags_eq(
-    decimal_div_finite_work(inexact_lhs, inexact_rhs, work_ctx),
-    decimal_div_finite_work_bigint_expected(inexact_lhs, inexact_rhs, work_ctx),
-  )
+  for
+    row in [
+      ("7.50", "16", "0.46875", "........"),
+      ("-22", "7", "-3.1429", "xr......"),
+    ] {
+    let (a, b, result, flags) = row
+    let lhs = Decimal::from_string(a, precision=8).unwrap()
+    let rhs = Decimal::from_string(b, precision=8).unwrap()
+    let actual = decimal_div_finite_work(lhs, rhs, work_ctx)
+    assert_eq(
+      (a, b, actual.0.to_string(), normalization_flags_text(actual.1)),
+      (a, b, result, flags),
+    )
+  }
 }
 
 ///|
+// oracle: A
+// source: Python decimal (libmpdec) `Context(prec=6, rounding=ROUND_HALF_EVEN, Emin=-20, Emax=20, clamp=0)`: `plus(1234500E-3)` = 1234.50 (rounded, not inexact), `multiply(12.5, -0.08)` = -1.000; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
+// shares: nothing
 test "decimal repr math normalization and multiplication match bigint path" {
   let work_ctx = DecimalContext::new(
     precision=6,
@@ -1783,34 +1568,29 @@ test "decimal repr math normalization and multiplication match bigint path" {
     clamp=false,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_normalize_finite_work(value, work_ctx),
-    normalize_decimal_parts_math_ctx(
-      value.negative,
-      coeff_bigint(value.coefficient),
-      value.exponent10,
-      work_ctx,
-    ),
+  let normalized = decimal_normalize_finite_work(value, work_ctx)
+  assert_eq(
+    (normalized.0.to_string(), normalization_flags_text(normalized.1)),
+    ("1234.50", ".r......"),
   )
-
   let lhs = Decimal::from_string("12.5", precision=8).unwrap()
   let rhs = Decimal::from_string("-0.08", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    decimal_mul_finite_work(lhs, rhs, work_ctx),
-    decimal_mul_finite_work_bigint_expected(lhs, rhs, work_ctx),
+  let product = decimal_mul_finite_work(lhs, rhs, work_ctx)
+  assert_eq(
+    (product.0.to_string(), normalization_flags_text(product.1)),
+    ("-1.000", "........"),
   )
-  assert_decimal_and_flags_eq(
-    lhs.mul_ctx(rhs, work_ctx),
-    normalize_decimal_parts_ctx(
-      lhs.negative != rhs.negative,
-      lhs.coefficient.to_bigint() * rhs.coefficient.to_bigint(),
-      lhs.exponent10 + rhs.exponent10,
-      work_ctx,
-    ),
+  let product_ctx = lhs.mul_ctx(rhs, work_ctx)
+  assert_eq(
+    (product_ctx.0.to_string(), normalization_flags_text(product_ctx.1)),
+    ("-1.000", "........"),
   )
 }
 
 ///|
+// oracle: A
+// source: Python decimal (libmpdec) `Context(prec=4, rounding=ROUND_HALF_UP, Emin=-6, Emax=6, clamp=1).scaleb(Decimal("12.34"), n)`: n = -2 gives 0.1234, n = -10 gives 1E-9 (inexact, rounded, underflow, subnormal); rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
+// shares: nothing
 test "decimal scaleb repr construction matches bigint path" {
   let ctx = DecimalContext::new(
     precision=4,
@@ -1819,16 +1599,15 @@ test "decimal scaleb repr construction matches bigint path" {
     e_max=6,
     clamp=true,
   )
-  let regular = Decimal::from_string("12.34", precision=8).unwrap()
-  let tiny = Decimal::from_string("12.34", precision=8).unwrap()
-  assert_decimal_and_flags_eq(
-    scaleb_finite_result_ctx(regular, -2, ctx),
-    scaleb_finite_result_ctx_bigint_expected(regular, -2, ctx),
-  )
-  assert_decimal_and_flags_eq(
-    scaleb_finite_result_ctx(tiny, -10, ctx),
-    scaleb_finite_result_ctx_bigint_expected(tiny, -10, ctx),
-  )
+  let value = Decimal::from_string("12.34", precision=8).unwrap()
+  for row in [(-2, "0.1234", "........"), (-10, "1E-9", "xr...us.")] {
+    let (n, result, flags) = row
+    let actual = scaleb_finite_result_ctx(value, n, ctx)
+    assert_eq(
+      (n, actual.0.to_string(), normalization_flags_text(actual.1)),
+      (n, result, flags),
+    )
+  }
 }
 
 ///|
@@ -1848,6 +1627,9 @@ fn normalization_flags_text(flags : DecimalFlags) -> String {
 /// rounding=ROUND_HALF_UP, Emin=-20, Emax=20, clamp=1).plus(Decimal(text))`
 /// with its flags; written out. These rows replace a block whose expected value
 /// was `normalize_decimal_parts_ctx`, a wrapper of the function under test.
+// oracle: A
+// source: CPython `Context(prec=7, rounding=ROUND_HALF_UP, Emin=-20, Emax=20, clamp=1).plus(Decimal(text))` with its flags, all 16 rows written out (see the comment above the block)
+// shares: nothing
 test "repr normalization gives the libmpdec result and flags on finite values" {
   let ctx = DecimalContext::new(
     precision=7,
@@ -1894,6 +1676,9 @@ test "repr normalization gives the libmpdec result and flags on finite values" {
 /// Oracle (level A): Python `decimal` `Context(prec=5, rounding=ROUND_HALF_EVEN)`
 /// `.plus(Decimal(text)).normalize()` (round, then strip the trailing zeros); written
 /// out. Replaces a block whose expected value was a wrapper of the function under test.
+// oracle: A
+// source: CPython `Context(prec=5, rounding=ROUND_HALF_EVEN).plus(Decimal(text)).normalize()`, all 9 rows written out (see the comment above the block)
+// shares: nothing
 test "repr gda normalization rounds to the precision and reduces, as libmpdec" {
   let rows = [
     ("9999500E-4", "999.95"),

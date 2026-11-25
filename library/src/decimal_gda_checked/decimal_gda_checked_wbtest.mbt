@@ -176,6 +176,9 @@ test "gda checked merges the conditions and the trap of the right operand" {
 }
 
 ///|
+// oracle: S
+// source: each checked operation returns the same value as the free function it wraps; a wrapper against what it wraps is no independent oracle (the other blocks of the file are level A)
+// shares: the free functions of decimal_gda
 test "gda checked covers the operations of the free functions that return a decimal" {
   let context = @decimal_gda.GdaContext::decimal64()
   let pipe = fn(text : String) { GdaDecimalChecked::to_number(text, context) }

@@ -150,6 +150,10 @@ fn sqrt_plain_run(max_digits : Int32, seed : UInt64) -> Array[Int32] raise {
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference (`sqrt_plain_check` compares the plain path with sqrt_ctx and complete_decimal_gda in full), random operands of 1 to 130 digits; the counts of hits assert that squares are declined
+// shares: complete_decimal_gda, sqrt_ctx
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain equals the general route (short operands)" {
   let hits = sqrt_plain_run(40, 0x9E3779B97F4A7C15UL)
   // a square is never taken (the residue tests are necessary conditions)
@@ -158,6 +162,10 @@ test "sqrt plain equals the general route (short operands)" {
 }
 
 ///|
+// oracle: E
+// source: the general route as the reference (`sqrt_plain_check` compares the plain path with sqrt_ctx and complete_decimal_gda in full), random operands of 1 to 130 digits; the counts of hits assert that squares are declined
+// shares: complete_decimal_gda, sqrt_ctx
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain equals the general route (long operands)" {
   let hits = sqrt_plain_run(130, 0xD1B54A32D192ED03UL)
   assert_eq(hits[0], 0)
@@ -170,6 +178,9 @@ test "sqrt plain equals the general route (long operands)" {
 /// (sqtx1204, 1228, 1268, 8010, 8112, 8525, 8526, 8543, 8544, 8634, 8641,
 /// 8654); the other three (8511, 8533, 8557) also raise Subnormal and take the
 /// general route.
+// oracle: A
+// source: 12 rows of the official squareroot.decTest (sqtx1204, 1228, 1268, 8010, 8112, 8525, 8526, 8543, 8544, 8634, 8641, 8654) written out with operand, precision, e_max and expected result, as the comment above the block says
+// shares: nothing
 test "sqrt plain on the exact rows that raise Rounded without Inexact" {
   // (operand, precision, e_max, expected, plain path expected to answer)
   let rows : Array[(String, Int32, Int32, String)] = [
@@ -209,6 +220,9 @@ test "sqrt plain on the exact rows that raise Rounded without Inexact" {
 /// The rounding rule `rem > r`: at two digits `sqrt(156)` has `r = 12` and
 /// `rem = 12` (below the midpoint, 12.49...), `sqrt(157)` has `rem = 13` (above,
 /// 12.53...); `sqrt(2)`, `sqrt(0.5)`, `sqrt(1E+1)` and the carry `sqrt(9999)`.
+// oracle: A
+// source: written out by hand at two digits: sqrt(156) has root 12 and remainder 12, below the midpoint, giving 12; sqrt(157) has remainder 13, above, giving 13; sqrt(2) = 1.4, sqrt(0.5) = 0.71, sqrt(10) = 3.2 and the carry sqrt(9999)
+// shares: nothing
 test "sqrt plain at the rounding boundary and at a carry" {
   let ctx = GdaContext::new(precision=2, e_min=-99, e_max=99)
   for
@@ -234,6 +248,9 @@ test "sqrt plain at the rounding boundary and at a carry" {
 /// Ideal-exponent cases of exact roots at nine digits: zeros stripped and
 /// appended, odd and even exponents, negative exponents (the ideal exponent is
 /// the exponent halved towards minus infinity), and two inexact ones.
+// oracle: A
+// source: written out from the ideal exponent rule of GDA 1.70 square-root (the exponent of an exact root is half the exponent of the operand, rounded toward minus infinity): sqrt(100) = 10, sqrt(1E+4) = 1E+2, sqrt(0.01) = 0.1, sqrt(2.25) = 1.5, sqrt(1.00E+2) = 10, two inexact cases
+// shares: nothing
 test "sqrt plain keeps the ideal exponent of exact roots" {
   let ctx = GdaContext::new(precision=9, e_min=-999, e_max=999)
   for
@@ -264,6 +281,10 @@ test "sqrt plain keeps the ideal exponent of exact roots" {
 }
 
 ///|
+// oracle: A, E
+// source: an operand 1E-215 at precision 7 is declined by the plain path (written out), and the public result is compared with the general route
+// shares: complete_decimal_gda, sqrt_ctx for the comparison
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines a tiny operand and agrees" {
   let ctx = GdaContext::new(precision=7, e_min=-99, e_max=99)
   let math = ctx.mathematical_decimal_context()
@@ -274,6 +295,10 @@ test "sqrt plain declines a tiny operand and agrees" {
 }
 
 ///|
+// oracle: A, E
+// source: operands whose root has an adjusted exponent below e_min or not below e_max are declined (written out), and the public result is compared with the general route
+// shares: complete_decimal_gda, sqrt_ctx for the comparison
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines a subnormal and an out-of-range root and agrees" {
   let ctx = GdaContext::new(precision=5, e_min=-9, e_max=9)
   let math = ctx.mathematical_decimal_context()
@@ -296,6 +321,10 @@ test "sqrt plain declines a subnormal and an out-of-range root and agrees" {
 }
 
 ///|
+// oracle: A, E
+// source: squares such as 144, 4, 1E+4, 0.01, 2.25, 14400, 6.25E+2 are declined by the residue tests (written out); the public result is compared with the general route
+// shares: complete_decimal_gda, sqrt_ctx for the comparison
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines the operands that may be squares" {
   let ctx = GdaContext::new(precision=9, e_min=-999, e_max=999)
   let math = ctx.mathematical_decimal_context()
@@ -325,6 +354,10 @@ test "sqrt plain declines the operands that may be squares" {
 }
 
 ///|
+// oracle: A, E
+// source: 40-digit coefficients at precision 7 are declined (written out), and the public result is compared with the general route
+// shares: complete_decimal_gda, sqrt_ctx for the comparison
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines long coefficients and agrees" {
   // 7 digits of precision, a coefficient of 40 digits
   let ctx = GdaContext::new(precision=7, e_min=-999, e_max=999)
@@ -341,6 +374,10 @@ test "sqrt plain declines long coefficients and agrees" {
 }
 
 ///|
+// oracle: A, E
+// source: the exact root 1E+8 of 1E+16 at precision 5, e_max 9 and clamp has its digits folded down, so the plain path declines (written out); the public result is compared with the general route
+// shares: complete_decimal_gda, sqrt_ctx for the comparison
+// underneath: the general route of sqrt (sqrt_ctx, then complete_decimal_gda) has level A oracles on extended arithmetic: the official squareroot.decTest rows in the gate stages DECIMAL_GDA: official decTest and official0, and the sqrt rows of plain_operator_rows_wbtest.mbt (CPython, precision 3, 16, 34); other inputs stay level E
 test "sqrt plain declines the clamp fold-down of an exact root and agrees" {
   // precision 5, e_max 9: the largest exponent of the format is 5; the exact
   // root 1E+8 of 1E+16 has exponent 8 and the clamp folds its digits down
