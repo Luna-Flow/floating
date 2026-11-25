@@ -255,7 +255,7 @@ NaN payload.
 
 The exponent is kept exactly, so `from_string("2.50")` has exponent $-2$. A
 literal with more than `precision` (default 34) significant digits is rounded
-half to even and its trailing zeros are removed.
+half to even.
 
 | Input | Result |
 | --- | --- |
@@ -572,7 +572,8 @@ extensions that the library keeps, and the official decTest files use both.
     ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
 
 > [!NOTE]
-> `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with
+> `exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with a positive integer
+> exponent above 999,999,999 accept only a context with
 > $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$; with the default
 > exponent range they return a NaN and raise `InvalidContext`, as
 > [the implementation limit of these operations](#implementation-limit-of-exp-ln-log10-and-power)
@@ -1127,15 +1128,16 @@ test "round_to_integral keeps long integral parts" {
 
 ### Implementation limit of `exp`, `ln`, `log10` and `power`
 
-`exp`, `ln`, `log10` and `power` with a non-integer exponent accept a context only if
+`exp`, `ln`, `log10`, `power` with a non-integer exponent and `power` with a positive integer exponent
+above 999,999,999 accept a context only if
 $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$. Beyond a limit they raise
 `InvalidContext`; with the default exponent range they return NaN and raise `InvalidContext`.
 
 | Limit | Applies to |
 | --- | --- |
-| $p \le 999\,999$, $E_{\max} \le 999\,999$, $-E_{\min} \le 999\,999$ | `exp`, `ln`, `log10`, and `power` with a non-integer exponent |
+| $p \le 999\,999$, $E_{\max} \le 999\,999$, $-E_{\min} \le 999\,999$ | `exp`, `ln`, `log10`, `power` with a non-integer exponent, and `power` with a positive integer exponent above 999,999,999 |
 | a nonzero operand has at most 999,999 digits | `exp`, `ln`, `log10` |
-| the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\,999\,997$ | `exp`, `ln`, `log10`, and `power` with a non-integer exponent (its base, and its exponent at the lower limit) |
+| the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\,999\,997$ | `exp`, `ln`, `log10` (`power` gives `InvalidOperation` there, as [`power`](#power) states) |
 
 This is an implementation limit. The operation text of GDA 1.70 states no such bound, and the
 limit is permitted by its Invalid context condition, which applies when the precision "exceeds the
