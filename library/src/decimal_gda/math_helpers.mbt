@@ -934,19 +934,28 @@ fn decimal_exp_underflow_zero_result(
   ctx : DecimalContext,
   clamped : Bool,
 ) -> (Decimal, DecimalFlags) {
-  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
+  // The result is positive and far below half of the smallest subnormal: the
+  // rounding direction decides between zero and the smallest subnormal.
+  let away = match ctx.decimal_rounding {
+    DecimalRoundingMode::Up
+    | DecimalRoundingMode::Ceiling
+    | DecimalRoundingMode::ZeroFiveUp => true
+    _ => false
+  }
+  let coefficient = if away { dec_coeff_from_int(1) } else { dec_coeff_zero() }
+  let precision = finite_precision_for_coeff(coefficient, ctx)
   let result = (
-    finite_with_exponent_repr(false, dec_coeff_zero(), etiny(ctx), precision),
+    finite_with_exponent_repr(false, coefficient, etiny(ctx), precision),
     {
       ..DecimalFlags::new(),
       underflow: true,
       inexact: true,
       rounded: true,
-      clamped: clamped || ctx.extended,
+      clamped: !away && (clamped || ctx.extended),
       subnormal: true,
     },
   )
-  if ctx.extended || clamped {
+  if ctx.extended || (clamped && !away) {
     result
   } else {
     (
