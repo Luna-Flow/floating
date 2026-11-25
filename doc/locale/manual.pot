@@ -6647,7 +6647,7 @@ msgid "`Less` or `Greater`"
 msgstr ""
 
 #: manual/api/def.md:126
-msgid "`Binary::compare_quiet` and `Binary::compare_signaling` in [`binary`](binary.md) return this type with the comparison flags. `def` does not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation) explains why the type has four results instead of a `Compare` instance."
+msgid "`Binary::compare_quiet` and `Binary::compare_signaling` in [`binary`](binary.md) return this type with the comparison flags. It is a value type only; `def` does not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation) explains why the type has four results instead of a `Compare` instance."
 msgstr ""
 
 #: manual/api/def.md:149
@@ -6659,7 +6659,7 @@ msgid "`Floating` is the observation and re-precision interface shared by the sc
 msgstr ""
 
 #: manual/api/def.md:166
-msgid "`Floating` is implemented only by `@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)). Implementing it for a type outside this module is not supported or covered by the compatibility promise because methods may be added to the trait in a minor release. It is declared `pub(open)` because implementations are in other packages of this module; the [design page](../design/def.md#why-floating-is-declared-open) gives the reason. Since the MoonBit 0.10 migration, trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The [design page](../design/def.md#the-floating-laws) lists the laws every implementation is expected to satisfy."
+msgid "`Floating` is implemented only by `@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`. `@interval.Interval` does not implement it (see [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)). Implementing it for a type outside this module is not supported or covered by the compatibility promise because methods may be added to the trait in a minor release. It is declared `pub(open)` only because implementations are in other packages of this module; the [design page](../design/def.md#why-floating-is-declared-open) gives the reason. Since the MoonBit 0.10 migration, trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The [design page](../design/def.md#the-floating-laws) lists the laws every implementation is expected to satisfy."
 msgstr ""
 
 #: manual/api/def.md:182

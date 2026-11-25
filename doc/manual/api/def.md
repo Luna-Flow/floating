@@ -124,8 +124,8 @@ pub(all) enum PartialOrder {
 | one numeric value is less than the other | `Less` or `Greater` |
 
 `Binary::compare_quiet` and `Binary::compare_signaling` in
-[`binary`](binary.md) return this type with the comparison flags. `def` does
-not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation)
+[`binary`](binary.md) return this type with the comparison flags. It is a value
+type only; `def` does not perform comparisons itself. The [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation)
 explains why the type has four results instead of a `Compare` instance.
 
 ```moonbit
@@ -168,7 +168,7 @@ pub(open) trait Floating {
 [Intervals are not `Floating`](../design/def.md#intervals-are-not-floating)).
 Implementing it for a type outside this module is not supported or covered by
 the compatibility promise because methods may be added to the trait in a minor
-release. It is declared `pub(open)` because implementations are in other
+release. It is declared `pub(open)` only because implementations are in other
 packages of this module; the [design page](../design/def.md#why-floating-is-declared-open)
 gives the reason. Since the MoonBit 0.10 migration, trait methods are not
 promoted automatically, so
