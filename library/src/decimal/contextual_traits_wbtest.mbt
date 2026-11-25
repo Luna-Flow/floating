@@ -13,7 +13,7 @@ test "Decimal contextual format follows decimal64" {
 ///|
 // oracle: A
 // source: written out: 1/3 in 16 digits is 0.3333333333333333 and inexact
-// shares: div_contextual and to_string (the code under test)
+// shares: div_contextual and to_string (the code under test), Decimal::from_int (it builds the operands)
 test "Decimal contextual division preserves rounding diagnostics" {
   let context = @lf_arith.ArithmeticContext::decimal64()
   let numerator = Decimal::from_int(1, precision=16)
@@ -107,7 +107,7 @@ test "Decimal contextual conversion preserves exponent bounds and clamp" {
 ///|
 // oracle: A
 // source: written out: 2^10 = 1024 has adjusted exponent 3, above emax 2, so the result is infinite
-// shares: pow_nat_checked and classify (the code under test)
+// shares: pow_nat_checked and classify (the code under test), Decimal::from_int (it builds the operand)
 test "Decimal checked powers preserve arithmetic exponent bounds" {
   let context = @lf_arith.ArithmeticContext::new(7, e_min=-1, e_max=2)
   let result = @lf_arith.PowNatChecked::pow_nat_checked(
@@ -121,7 +121,7 @@ test "Decimal checked powers preserve arithmetic exponent bounds" {
 ///|
 // oracle: A
 // source: written out: (-1)^n is -1 for odd n and 1 for even n; 12345679 and 2147483647 and 999999999 are odd, 12345678 and 999999998 and -2147483648 are even (the exponent must not be rounded to seven digits, issue 51)
-// shares: pow_int_checked, pow_nat_checked and to_string (the code under test)
+// shares: pow_int_checked, pow_nat_checked and to_string (the code under test), Decimal::from_int (it builds the operand)
 test "Decimal checked integer powers use the exact exponent" {
   // An exponent longer than the context precision must not be rounded
   // before use: rounding 12345679 to seven digits makes it even (#51).
@@ -148,8 +148,8 @@ test "Decimal checked integer powers use the exact exponent" {
 }
 
 ///|
-// oracle: A
-// source: written out: the limits 1..=999999999 and the message text, emin = 1 - emax (IEEE 754-2019 3.3), emin alone gives emax = 1 - emin (-95 gives 96), a rounding direction without an equivalent in the decimal formats is rejected, and precision 0 is raised to 1
+// oracle: A, S
+// source: written out: the limits 1..=999999999 and the message text, emin = 1 - emax (IEEE 754-2019 3.3), emin alone gives emax = 1 - emin (-95 gives 96), a rounding direction without an equivalent in the decimal formats is rejected, and precision 0 is raised to 1 (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: from_arithmetic_context, add_contextual and the accessors (the code under test)
 test "Decimal context translation rejects out of range bounds" {
   let zero_precision = @lf_arith.ArithmeticContext::new(0)

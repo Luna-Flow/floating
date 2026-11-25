@@ -53,32 +53,32 @@ test "the interchange presets are the formats of IEEE 754-2019 3.6" {
 }
 
 ///|
-// oracle: A
-// source: the contract of the function: a precision outside 1..=999999999 aborts (precision 0 is below the lower limit of IEEE 754-2019 3.3, p >= 1); the panic is the expected value
+// oracle: A, S
+// source: the contract of the function: a precision outside 1..=999999999 aborts (precision 0 is below the lower limit of IEEE 754-2019 3.3, p >= 1); the panic is the expected value (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::new (the code under test)
 test "panic DecimalContext::new aborts on precision 0" {
   ignore(DecimalContext::new(precision=0))
 }
 
 ///|
-// oracle: A
-// source: the contract of the function: a precision above the implementation limit 999999999 aborts; 1000000000 is one limit step beyond
+// oracle: A, S
+// source: the contract of the function: a precision above the implementation limit 999999999 aborts; 1000000000 is one limit step beyond (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::new (the code under test)
 test "panic DecimalContext::new aborts on precision above the limit" {
   ignore(DecimalContext::new(precision=1_000_000_000))
 }
 
 ///|
-// oracle: A
-// source: the contract of the function and IEEE 754-2019 3.3 (emax >= 1): e_max 0 aborts
+// oracle: A, S
+// source: the contract of the function and IEEE 754-2019 3.3 (emax >= 1): e_max 0 aborts (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::new (the code under test)
 test "panic DecimalContext::new aborts on e_max below one" {
   ignore(DecimalContext::new(e_max=0))
 }
 
 ///|
-// oracle: A
-// source: the contract of the function: e_max above the implementation limit 999999999 aborts; 1000000000 is one step beyond
+// oracle: A, S
+// source: the contract of the function: e_max above the implementation limit 999999999 aborts; 1000000000 is one step beyond (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::new (the code under test)
 test "panic DecimalContext::new aborts on e_max above the limit" {
   ignore(DecimalContext::new(e_max=1_000_000_000))
@@ -112,8 +112,8 @@ test "the setters keep the context valid" {
 }
 
 ///|
-// oracle: A
-// source: the contract of the function and IEEE 754-2019 3.3 (emax >= 1): e_max 0 aborts
+// oracle: A, S
+// source: the contract of the function and IEEE 754-2019 3.3 (emax >= 1): e_max 0 aborts (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::with_e_max (the code under test)
 test "panic DecimalContext::with_e_max aborts on e_max 0" {
   ignore(DecimalContext::decimal64().with_e_max(0))
