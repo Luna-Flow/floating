@@ -330,7 +330,7 @@ fn bin_limbs_rows_ripple(entry : Int32) -> Unit raise {
 ///|
 // oracle: B
 // source: core BigInt arithmetic (a separate implementation) on the integers of the rows: a b, r + a b and r - a b over the limbs of the row, the carry limb from the equation r_new + carry 2^(64 n) = total, the limbs outside the row unchanged; replaces the comparison with the portable rows (level C: the portable rows are the contract the C rows were written from)
-// shares: bin_limbs_pattern (the operands only, never the expected value)
+// shares: bin_limbs_pattern (the operands only, never the expected value) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (limbs to BigInt by shift and addition of core; level A in "bin_limbs_big reads the limbs least significant first"); the portable rows are not used
 test "mul_1, addmul_1 and submul_1 in C equal the portable rows" {
   bin_limbs_rows_scan(0)
@@ -339,7 +339,7 @@ test "mul_1, addmul_1 and submul_1 in C equal the portable rows" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows (see "mul_1, addmul_1 and submul_1 in C equal the portable rows"), r and a every limb 2^64 - 1 or 0/1 with the carry at every position
-// shares: bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "rows with the maximum carry at every position" {
   bin_limbs_rows_max_carry(0)
@@ -348,7 +348,7 @@ test "rows with the maximum carry at every position" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows, the row read before the call from a snapshot of the array (r and a the same range, or different ranges of one array)
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "rows with r and a the same range of one array" {
   bin_limbs_rows_aliased(0)
@@ -357,7 +357,7 @@ test "rows with r and a the same range of one array" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic: the product of the two integers of the operand limbs for school, the square for sqr_school, all limbs of the result row written, the others unchanged; the all-ones operands are the extreme columns
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "school and square in C equal the portable products" {
   bin_limbs_rows_products(0)
@@ -366,7 +366,7 @@ test "school and square in C equal the portable products" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows (see "mul_1, addmul_1 and submul_1 in C equal the portable rows"), assembly entry
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "mul_1, addmul_1 and submul_1 in assembly equal the portable rows (assembly entry)" {
   bin_limbs_rows_scan(1)
@@ -375,7 +375,7 @@ test "mul_1, addmul_1 and submul_1 in assembly equal the portable rows (assembly
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows, carry at every position, assembly entry
-// shares: bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "rows with the maximum carry at every position (assembly entry)" {
   bin_limbs_rows_max_carry(1)
@@ -384,7 +384,7 @@ test "rows with the maximum carry at every position (assembly entry)" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows, r and a one array, assembly entry
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "rows with r and a the same range of one array (assembly entry)" {
   bin_limbs_rows_aliased(1)
@@ -393,7 +393,7 @@ test "rows with r and a the same range of one array (assembly entry)" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic: product and square of the integers of the operand limbs, assembly entry
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "school and square in assembly equal the portable products (assembly entry)" {
   bin_limbs_rows_products(1)
@@ -402,7 +402,7 @@ test "school and square in assembly equal the portable products (assembly entry)
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows at the offsets 0 to 3 of r and of a and lengths 0 to 70, assembly entry
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "assembly rows equal the portable rows for every offset and length" {
   bin_limbs_rows_offsets(1)
@@ -411,7 +411,7 @@ test "assembly rows equal the portable rows for every offset and length" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic on the integers of the rows, all-ones operand rows of 1 to 200 limbs (the carry runs the whole row), assembly entry
-// shares: bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "assembly rows with all-ones operands and a carry rippling the whole row" {
   bin_limbs_rows_ripple(1)
@@ -420,7 +420,7 @@ test "assembly rows with all-ones operands and a carry rippling the whole row" {
 ///|
 // oracle: B
 // source: core BigInt arithmetic: the product of the integers of the operand limbs (lengths 1 to 120, offsets 3, 1 and 4), through the wrapper `bin_limbs_school` in the state of the limb tier the test runs in
-// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call)
+// shares: bin_limbs_pattern (the operands only) and bin_limbs_copy (the snapshot of the arrays before the call) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "the wrappers equal the portable rows on random lengths and offsets" {
   for n in 1..<=120 {

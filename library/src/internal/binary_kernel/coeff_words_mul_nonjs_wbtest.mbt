@@ -47,7 +47,7 @@ fn words_test_array(
 ///|
 // oracle: B
 // source: core BigInt multiplication of the integers of the operand limbs (sizes around the Karatsuba cutoff, up to 7 cutoffs, five limb patterns); replaces the comparison with bin_coeff_words_school, whose own level A is the limb row table up to 100 limbs
-// shares: words_test_array (the operands only)
+// shares: words_test_array (the operands only) and bin_limbs_big (the results are read through it, limb by limb)
 // primitives: bin_limbs_big (limbs to BigInt by shift and addition of core; level A in "bin_limbs_big reads the limbs least significant first")
 test "word-range Karatsuba equals the schoolbook product around and above the cutoff" {
   let random = { words_state: 0xFEED_FACE_CAFE_BEEFUL, }
