@@ -1,6 +1,6 @@
 ///|
-// oracle: A
-// source: the documented limits written out: e_max 999999999, e_min -999999998, precision 999999999 (doc/manual limits page)
+// oracle: A, S
+// source: the documented limits written out: e_max 999999999, e_min -999999998, precision 999999999 (doc/manual limits page) (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: the constants decimal_context_e_max_limit, decimal_context_e_min_limit and decimal_precision_max (the code under test)
 test "decimal implementation limits have the documented values" {
   assert_eq(decimal_context_e_max_limit, 999_999_999)
@@ -9,8 +9,8 @@ test "decimal implementation limits have the documented values" {
 }
 
 ///|
-// oracle: A
-// source: written out from the documented limits (1..=999999999 for both, emin = 1 - emax = -999999998): the limits are accepted, one beyond is rejected, e_max 0 is rejected and 1 accepted
+// oracle: A, S
+// source: written out from the documented limits (1..=999999999 for both, emin = 1 - emax = -999999998): the limits are accepted, one beyond is rejected, e_max 0 is rejected and 1 accepted (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::try_new and the limit constants (the code under test)
 test "DecimalContext::try_new accepts the limits and rejects one beyond" {
   match
@@ -40,8 +40,8 @@ test "DecimalContext::try_new accepts the limits and rejects one beyond" {
 }
 
 ///|
-// oracle: A
-// source: the message text written out: precision must be within 1..=999999999, e_max must be within 1..=999999999
+// oracle: A, S
+// source: the message text written out: precision must be within 1..=999999999, e_max must be within 1..=999999999 (the limit or message is this library's own, the rule it follows is IEEE 754-2019 3.3)
 // shares: DecimalContext::try_new (the code under test)
 test "DecimalContext::try_new messages state the limits" {
   match DecimalContext::try_new(precision=0) {

@@ -84,8 +84,8 @@ fn out_of_range_expected(
 }
 
 ///|
-// oracle: A
-// source: written out from the range of the binary format at 53 bits (emax 1073741823, least positive number 2^-1073741874, largest finite (2^53 - 1) * 2^1073741771) and IEEE 754-2019 4.3 and 7.4: every one of the twelve values has a decimal exponent whose power of ten is beyond 2^+-1.07e9 (10^330000000 is about 2^1.0963e9, the nearest to the range is 10^-330000000, about 2^-1.0963e9), so the result depends only on the sign, the side and the rounding direction; the earlier oracle was to_binary_ctx, which shares the code under test
+// oracle: A, S
+// source: written out from the range of the binary format at 53 bits (emax 1073741823, least positive number 2^-1073741874, largest finite (2^53 - 1) * 2^1073741771) and IEEE 754-2019 4.3 and 7.4: every one of the twelve values has a decimal exponent whose power of ten is beyond 2^+-1.07e9 (10^330000000 is about 2^1.0963e9, the nearest to the range is 10^-330000000, about 2^-1.0963e9), so the result depends only on the sign, the side and the rounding direction; the earlier oracle was to_binary_ctx, which shares the code under test (the numbers 1073741823 and 2^-1073741874 are this library's binary range, the rules are IEEE)
 // shares: Binary::make, BinCoeff::from_bytes_be, Binary::inf and zero (they build the expected number), Decimal::make (it builds the operand), Binary::compare and is_sign_minus
 test "issue 447: to_binary at both ends of the exponent range, every rounding mode" {
   for index, mode in out_of_range_modes() {
