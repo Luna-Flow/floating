@@ -19074,8 +19074,8 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**決定性。** 解析と実行はテキストと `precision` のみに依存します。結果はケースを実行する順序に依存しないため、呼び出し側はケースを自由にフィルタリングしたり並べ替えたりできます。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**全域性。** 完結したすべての文はケースまたは解析診断になり、`execute_case` は読み取れない入力をすべて処理区分を通じて報告します。中断（abort）するのは、区間にならない区間リテラル（下端が上端より大きい、`nan` の下端または上端がある、下端が `+inf`、上端が `-inf`）の場合と、1 から 268435456 の範囲外の `precision` 注釈の場合です。文の境界は、`//` コメントを取り除いた後に `;` で終わる行によって決まるので、`;` の後に続く `// …` があっても、その文が次の文と結合されることはありません。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**全域性。** 完結したすべての文はケースまたは解析診断になり、`execute_case` は読み取れない入力をすべて処理区分を通じて報告します。中断（abort）するのは、区間にならない区間リテラル（下端が上端より大きい、`nan` の下端または上端がある、下端が `+inf`、上端が `-inf`）の場合と、1 から 268435456 の範囲外の `precision` 引数の場合です。文の境界は、`//` コメントを取り除いた後に `;` で終わる行によって決まるので、`;` の後に続く `// …` があっても、その文が次の文と結合されることはありません。"
 
 #: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."

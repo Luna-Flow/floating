@@ -19074,8 +19074,8 @@ msgid "**Determinism.** Parsing and execution depend only on the text and `preci
 msgstr "**确定性。** 解析与执行只依赖于文本和 `precision`；结果不依赖于用例的执行顺序，因此调用者可以自由地筛选或重排用例。"
 
 #: manual/design/frontend/itl_expr.md:147
-msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` annotation outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
-msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`），也会因超出 1 到 268435456 的 `precision` 注记而中止。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
+msgid "**Totality.** Every completed statement becomes a case or a parse diagnostic, and `execute_case` reports every unreadable input through a disposition; it aborts on an interval literal that is not an interval (a lower bound above the upper bound, a `nan` bound, a lower bound of `+inf` or an upper bound of `-inf`) and on a `precision` argument outside 1 to 268435456. Statement boundaries come from a line ending in `;` once its `//` comment is removed, so a trailing `// …` after `;` does not merge the statement with the next one."
+msgstr "**完全性。** 每个完整的语句都会成为一个用例或一条解析诊断，且 `execute_case` 通过处置结果报告每个无法读取的输入；它会因不是区间的区间字面量而中止（下界大于上界、有 `nan` 界、下界为 `+inf` 或上界为 `-inf`），也会因超出 1 到 268435456 的 `precision` 参数而中止。语句边界由去掉 `//` 注释后以 `;` 结尾的行确定，因此 `;` 之后尾随的 `// …` 不会使该语句与下一条语句合并。"
 
 #: manual/design/frontend/itl_expr.md:157
 msgid "**Containment-only checking** ($E \\subseteq A$). It would accept results that are many ulps too wide and hide accuracy regressions."
