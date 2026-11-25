@@ -190,7 +190,7 @@ test "wide sum of near-equal and cancelling values" {
 ///|
 // oracle: A
 // source: written out: a 40-digit operand, a zero, a NaN, an exponent gap above 19 places and an aligned sum above 2^128 are outside the wide path, so gda_fast_wide_sum returns None
-// shares: nothing
+// shares: Decimal::from_string (reads the operands)
 test "wide sum declines what it does not cover" {
   let context = GdaContext::new(precision=34)
   let wide = Decimal::from_string("1234567890123456789012345678901234567890").unwrap()

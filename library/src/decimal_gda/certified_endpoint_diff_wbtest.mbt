@@ -113,7 +113,7 @@ test "decimal limbs of big-endian bytes equal the big integer conversion" {
 ///|
 // oracle: A
 // source: the rows `dyadic_endpoint_rows` (CPython integers and `decimal`: the exact decimal text of coefficient * 2^exponent2 with its sign, and the exact classification against 10^(emax+2) and 10^(etiny-2)); an endpoint far outside the range may be replaced by 1E+(emax+2) or 1E+(etiny-2) of the same sign, as the documentation of decimal_out_of_range_endpoint says; zero and the infinities are written out
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "exact dyadic endpoints equal the big integer route" {
   let wide = DecimalContext::new(
     precision=34,

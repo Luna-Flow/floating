@@ -3,7 +3,7 @@
 /// precision of its operands, round-half-even, without flags.
 // oracle: A
 // source: written out from the preferred exponents of GDA 1.70: the minimum for + and -, the sum for *, the difference for /: 1.20 + 3.40 = 4.60, 1.20 - 3.40 = -2.20, 0.00 + 0.0 = 0.00, 2.50 * 2 = 5.00, 6.0 / 2 = 3.0, 1 / 4 = 0.25
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "plain operators return the member of the cohort that GDA names" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   // preferred exponents: min for + and -, sum for *, difference for /
@@ -47,7 +47,7 @@ test "x + 0 is x for stored values" {
 ///|
 // oracle: A
 // source: written out: sqrt(4.00) = 2.0 (ideal exponent), sqrt of a negative operand is NaN (Invalid operation), sqrt(2) at precision 10 = 1.414213562, sqrt(0) = 0 (CPython agrees)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "plain sqrt returns the value, NaN outside the domain" {
   assert_eq(Decimal::from_string("4.00").unwrap().sqrt().to_string(), "2.0")
   assert_true(Decimal::from_string("-4").unwrap().sqrt().is_nan())
@@ -109,7 +109,7 @@ test "plain division with an exponent difference below Int" {
 /// with the free functions they call.
 // oracle: A
 // source: the table plain_operator_rows of plain_operator_rows_wbtest.mbt (see its header and tools/generate_decimal_gda_plain_rows.py): CPython decimal, libmpdec
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "plain operators equal the libmpdec results of the working context" {
   assert_eq(plain_operator_rows.length(), 2394)
   for row in plain_operator_rows {

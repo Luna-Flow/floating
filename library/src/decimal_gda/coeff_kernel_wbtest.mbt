@@ -59,7 +59,7 @@ fn reference_ln_atanh_scaled(
 ///|
 // oracle: A, E
 // source: Python decimal (libmpdec) `Context(prec=400).ln(Decimal(k))` scaled by 10^scale and rounded half even, for k = 2, 5, 10 (rows below, written out); the library constants carry guard digits and are not correctly rounded, so the table bounds them (at most 2 units of the last place); the exact values are pinned by the previous BigInt atanh algorithm kept as `reference_ln_atanh_scaled`
-// shares: nothing for the bound; `round_positive_decimal_div` for the pinned part
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient) ; for the bound; `round_positive_decimal_div` for the pinned part
 // underneath: the previous algorithm is bounded by the same table at the same scales (level A)
 test "BigInt-free ln constants preserve the old scaled integers" {
   let rows : Array[(Int32, String, String, String)] = [
@@ -148,7 +148,7 @@ test "BigInt-free ln constants preserve the old scaled integers" {
 ///|
 // oracle: A
 // source: core BigInt `/` and `%` of the same operands (MoonBit core, not this library), and the identity q * d + r = n
-// shares: nothing; the operands are built by dec_coeff_from_bigint_repr and read back by to_bigint, an error in either breaks the equality
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient) ;; the operands are built by dec_coeff_from_bigint_repr and read back by to_bigint, an error in either breaks the equality
 test "Knuth quotient clamp preserves the full normalized remainder" {
   let numerator = 81531386803002131355773364661909970000000000000000000000000000000000000000000000000000000000000000000N
   let denominator = 8153138680300213135577336466220607N
@@ -244,7 +244,7 @@ fn reference_has_finite_decimal_expansion(
 ///|
 // oracle: A
 // source: written out: 12345000 / 10^3 = 12345 and 5000 / 10^2 = 50, divisibility by hand
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient exact power-of-ten division uses unit shifts" {
   match
     exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(12345000N), 3) {
@@ -265,7 +265,7 @@ test "decimal coefficient exact power-of-ten division uses unit shifts" {
 ///|
 // oracle: A
 // source: written out: 4999 < 5000 = 10^4 / 2 < 5001 and a 21-digit case, by hand
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal half-power comparison uses decimal leading digits" {
   assert_eq(
     dec_coeff_compare_half_power10(dec_coeff_from_bigint_repr(4999N)),
@@ -323,7 +323,7 @@ test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
 ///|
 // oracle: A
 // source: written out: 1000000 - 999999 = 1, 999999 + 1000000 carries to 1000001 in the other sign case, and cancellation gives +0, by hand
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal signed coefficient add matches remainder identity arithmetic" {
   let lhs = dec_coeff_from_bigint_repr(1000000N)
   let rhs = dec_coeff_from_bigint_repr(999999N)
@@ -352,7 +352,7 @@ test "decimal signed coefficient add matches remainder identity arithmetic" {
 ///|
 // oracle: A
 // source: written out: 10^20 is above +-999,999,999 in magnitude and 384 equals 384, by hand
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal signed coefficient compare proves power exponent bounds" {
   let huge = dec_coeff_from_bigint_repr(100000000000000000000N)
   assert_eq(dec_coeff_signed_compare_int_repr(false, huge, 999_999_999), 1)
@@ -370,7 +370,7 @@ test "decimal signed coefficient compare proves power exponent bounds" {
 ///|
 // oracle: A
 // source: written out: 999.999 + 0.001 = 1000000 and 1000 - 0.001 = 999999 at exponent -3, 10^55 + 10000, derived by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal exact aligned sum keeps GDA unit accumulator representation" {
   let carry_lhs = Decimal::from_string("999.999", precision=16).unwrap()
   let carry_rhs = Decimal::from_string("0.001", precision=16).unwrap()
@@ -409,7 +409,7 @@ test "decimal exact aligned sum keeps GDA unit accumulator representation" {
 ///|
 // oracle: A
 // source: written out and checked with CPython: 999.999 + 0.001 = 1000.000 (exponent -3, not reduced) and 1.20 - 1.20 = 0.00 with a positive sign
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal plain add normalizes the GDA unit accumulator directly" {
   let sum = Decimal::from_string("999.999", precision=7)
     .unwrap()
@@ -429,7 +429,7 @@ test "decimal plain add normalizes the GDA unit accumulator directly" {
 ///|
 // oracle: A
 // source: CPython add, precision 7, exponent range of the maximum: 1E+1000000000 + 1E-1000000000 = 1.000000E+1000000000 (x r), and + 0E-1000000000 gives the same value (r only); the library accepts operands above Emax 999999999, which the CPython context allows with its maximum range; the block checks coefficient 1000000, exponent 999999994
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal plain add avoids expanding absorbed extreme exponents" {
   let high = Decimal::from_string("1E+1000000000", precision=7).unwrap()
   let tiny = Decimal::from_string("1E-1000000000", precision=7).unwrap()
@@ -448,7 +448,7 @@ test "decimal plain add avoids expanding absorbed extreme exponents" {
 ///|
 // oracle: A
 // source: CPython add, precision 3, half even: 1 + 0.005 = 1.00 and 1.01 + 0.005 = 1.02 (exact ties to even), 1.00 - 0.005 = 0.995 (verified 2026-11-25)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal plain add preserves half-even absorption boundaries" {
   let even_tie = Decimal::from_string("1", precision=3)
     .unwrap()
@@ -469,7 +469,7 @@ test "decimal plain add preserves half-even absorption boundaries" {
 ///|
 // oracle: A
 // source: written out and checked with CPython integers: 999 * 999 = 998001 and 1219326311247834171483
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal decNumber-style coefficient multiply matches long multiplication" {
   assert_eq(
     dec_coeff_multiply_repr(
@@ -497,7 +497,7 @@ test "decimal decNumber-style coefficient multiply matches long multiplication" 
 ///|
 // oracle: A
 // source: written out by the rules of to-scientific-string and to-engineering-string (GDA 1.70): a 30-digit coefficient at exponents -35 and 5, derived by hand
-// shares: nothing
+// shares: Decimal::to_string (prints the result)
 test "decimal coefficient and finite format builders preserve digit sequences" {
   let digits = "123456789012345678901234567890"
   let coefficient = dec_coeff_from_decimal_digits_repr(digits).unwrap()
@@ -527,7 +527,7 @@ test "decimal coefficient and finite format builders preserve digit sequences" {
 ///|
 // oracle: A
 // source: written out and checked with CPython divmod: 1000 / 7 = 142 r 6, 1234567890123 and 1234567967901238 r 766790339
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal decNumber-style coefficient divide returns quotient and residue" {
   let (q0, r0) = dec_coeff_div_rem_repr(
     dec_coeff_from_bigint_repr(0N),
@@ -558,7 +558,7 @@ test "decimal decNumber-style coefficient divide returns quotient and residue" {
 ///|
 // oracle: A
 // source: core BigInt +, -, *, / and % on the boundary values 0, 1, 9, 10, 10^k - 1, 10^k, 10^k + 1 up to 34 digits (two assertions compare dec_coeff_unit_len(x) with itself and prove nothing)
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "optimized decimal coefficient primitives match BigInt boundaries" {
   let boundaries : Array[BigInt] = [
     0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,
@@ -594,7 +594,7 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
 ///|
 // oracle: A
 // source: core BigInt arithmetic on a deterministic LCG matrix of 96 operand pairs below 10^120 (the comparison compare_repr < 0 is a self-consistency check)
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "optimized decimal coefficient primitives match deterministic BigInt matrix" {
   let modulus = pow10(120) - 159N
   let mut left_state = 123456789N
@@ -628,7 +628,7 @@ test "optimized decimal coefficient primitives match deterministic BigInt matrix
 ///|
 // oracle: A
 // source: core BigInt `/` and `%` by the divisors 1, 2, 3, 5, 7, 10, 97, 499, 998, 999
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "optimized decimal coefficient single-unit division matches BigInt" {
   let numerator_bigint = pow10(180) - 123456789N
   let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
@@ -646,7 +646,7 @@ test "optimized decimal coefficient single-unit division matches BigInt" {
 ///|
 // oracle: A
 // source: n = d * q + r constructed in core BigInt from boundary denominators and quotients; the expected q and r are known by construction
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "optimized decimal coefficient quotient estimate matches constructed cases" {
   let denominators : Array[BigInt] = [
     1000N, 1001N, 1999N, 500999N, 999999N, 1000001N, 999999937N, 999999999N, 1000000000N,
@@ -774,7 +774,7 @@ test "Newton reciprocal division converges without fallback" {
 ///|
 // oracle: A
 // source: core BigInt `/` and `%` of the same operands, formed from powers of ten at 18, 36 and 72 digits
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "normalized Knuth division matches BigInt at limb boundaries" {
   let cases : Array[(BigInt, BigInt)] = [
     (pow10(18) + 123456789N, pow10(9) + 7N),
@@ -802,7 +802,7 @@ test "normalized Knuth division matches BigInt at limb boundaries" {
 ///|
 // oracle: A
 // source: written out. 125/10 = 12.5, an exact tie: half even gives 12, half up gives 13; 123456789012345678901 = 97 * 1272750402189130710 + 31 (Python divmod), a negative operand rounded toward negative infinity takes the magnitude up, 1272750402189130711
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
   let numerator = dec_coeff_from_bigint_repr(125N)
   let denominator = dec_coeff_from_bigint_repr(10N)
@@ -838,7 +838,7 @@ test "decimal coefficient repr rounded division is isomorphic to BigInt path" {
 ///|
 // oracle: A
 // source: CPython divide: 1 / 8 = 0.125 (coefficient 125, exponent -3) and -2 / 3 at precision 3 = -0.667
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal plain division keeps GDA quotient units through normalization" {
   let exact = Decimal::from_int(1, precision=16).div(
     Decimal::from_int(8, precision=16),
@@ -858,7 +858,7 @@ test "decimal plain division keeps GDA quotient units through normalization" {
 ///|
 // oracle: A
 // source: written out: 123E+2 / 10 = 1230; 125 / 10 and 135 / 10 are exact ties, half even gives 12 and 14
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal integer quotient stays in GDA unit accumulator representation" {
   let ten = Decimal::from_string("1E+1", precision=16).unwrap()
   let shifted = integer_quotient_by_power_of_ten_repr(
@@ -891,7 +891,7 @@ test "decimal integer quotient stays in GDA unit accumulator representation" {
 ///|
 // oracle: A
 // source: CPython `Context(prec=5, rounding=ROUND_HALF_EVEN).plus`: 1234500 gives 1.2345E+6 (Rounded, not Inexact), 1234567 gives 1.2346E+6 (Inexact and Rounded); the block checks the coefficient 12345 and 12346 at exponent 2
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal subset operand rounding stays coefficient-native" {
   let ctx = DecimalContext::new(
     precision=5,
@@ -920,7 +920,7 @@ test "decimal subset operand rounding stays coefficient-native" {
 ///|
 // oracle: A
 // source: CPython plus, precision 3: 1.23E+3 from 1234 inexact and rounded; written out: negative zero compares equal to zero and above -1, below 1
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal unary finalize and zero compare stay coefficient-native" {
   let ctx = DecimalContext::new(precision=3)
   let value = Decimal::from_string("1234", precision=16).unwrap()
@@ -939,7 +939,7 @@ test "decimal unary finalize and zero compare stay coefficient-native" {
 ///|
 // oracle: A
 // source: written out. 12345 / 10^2 = 123.45, half even gives 123 and is inexact; 5 / 10^1 = 0.5, an exact tie, half up gives 1 and is inexact
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
   let (repr_half, repr_half_inexact) = round_positive_decimal_div_pow10_repr(
     dec_coeff_from_bigint_repr(12345N),
@@ -962,7 +962,7 @@ test "decimal coefficient repr power-of-ten rounding matches BigInt path" {
 ///|
 // oracle: B
 // source: test-local reference `reference_round_positive_decimal_div_pow10`: core BigInt `/` and `%` by 10^shift and a table of the eight rounding rules of GDA 1.70 (it no longer calls the library division); all eight modes at exact ties and just around them, both signs, shifts up to the digit count + 2
-// shares: nothing
+// shares: Decimal::to_string (prints the result), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 // primitives: core BigInt / and % and pow; the mode table is written in the test
 test "decimal power-of-ten rounding specialization matches every mode" {
   let values : Array[BigInt] = [
@@ -1025,7 +1025,7 @@ test "decimal power-of-ten rounding specialization matches every mode" {
 ///|
 // oracle: A
 // source: written out from the rule of the context: precision 0 means "as many digits as the operand" (7 digits for 1234500), a fixed precision is itself (34 and 9); GDA 1.70 context precision
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient-native precision helper matches bigint precision helper" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
   assert_eq(
@@ -1041,7 +1041,7 @@ test "decimal coefficient-native precision helper matches bigint precision helpe
 ///|
 // oracle: A
 // source: written out: 12345^3 = 1881365963625 (CPython integers agree), which has 13 digits, so a cap of 13 fits and a cap of 12 does not
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient exact powers stay native and honor precision caps" {
   let base = dec_coeff_from_bigint_repr(12345N)
   assert_eq(dec_coeff_exact_power_repr(base, 3).to_bigint(), 1881365963625N)
@@ -1055,7 +1055,7 @@ test "decimal coefficient exact powers stay native and honor precision caps" {
 ///|
 // oracle: A
 // source: written out: 40^3 = 64E+3 and 1/40 = 25E-3 (CPython power and divide agree)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal exact integer power and reciprocal keep coefficient units" {
   let exact_ctx = DecimalContext::new(precision=34)
   let base = Decimal::from_string("4E+1", precision=16).unwrap()
@@ -1080,7 +1080,7 @@ test "decimal exact integer power and reciprocal keep coefficient units" {
 ///|
 // oracle: A
 // source: written out: 123456789^2 = 15241578750190521 (CPython integers), sqrt(1.4400) = 1.20, sqrt(2) is inexact (CPython sqrt agrees)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal exact square root uses GDA Newton unit operations" {
   let perfect = Decimal::from_string("15241578750190521", precision=32).unwrap()
   let exact = exact_finite_sqrt(perfect, 32).unwrap()
@@ -1101,7 +1101,7 @@ test "decimal exact square root uses GDA Newton unit operations" {
 ///|
 // oracle: A
 // source: written out: floor(-1250 / 2303) = -1 and -1250 + 2303 = 1053, by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal exp range reduction keeps runtime coefficient units" {
   let value = Decimal::from_string("-1.25", precision=16).unwrap()
   let (negative, scaled) = decimal_finite_to_scaled_repr(value, 3)
@@ -1128,7 +1128,7 @@ test "decimal exp range reduction keeps runtime coefficient units" {
 ///|
 // oracle: A
 // source: written out: 1234500E-2 = 12345, -42.000 = -42, 12.34 is not an integer, 1234567890123 is beyond the limit, derived by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal exact integer helpers match normalized finite values" {
   let integer = Decimal::from_string("1234500E-2", precision=16).unwrap()
   let negative = Decimal::from_string("-42.000", precision=16).unwrap()
@@ -1164,7 +1164,7 @@ test "decimal exact integer helpers match normalized finite values" {
 ///|
 // oracle: A
 // source: written out: the count limit 999,999,999 against 1E+9 and 1E+999999999, and the parity of a power of ten, derived by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands)
 test "decimal bounded power helpers avoid expanding huge positive exponents" {
   let huge = Decimal::from_string("1E+999999999", precision=16).unwrap()
   assert_true(decimal_power_integer_count(huge, 999_999_999) is None)
@@ -1181,7 +1181,7 @@ test "decimal bounded power helpers avoid expanding huge positive exponents" {
 ///|
 // oracle: A
 // source: written out: -8.000 is even, -7 is odd, 0E-4 is even, 3.5 has no parity, by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands)
 test "decimal integer parity helper rejects fractional values and tracks signless oddness" {
   let even = Decimal::from_string("-8.000", precision=16).unwrap()
   let odd = Decimal::from_string("-7", precision=16).unwrap()
@@ -1197,7 +1197,7 @@ test "decimal integer parity helper rejects fractional values and tracks signles
 ///|
 // oracle: A
 // source: CPython `Context(prec=9, Emin=-999, Emax=999).create_decimal`: 1E-1000000008 half even gives 0E-1007 (flags x r u s c; the block checks underflow, subnormal and clamped), -1E-1000000008 rounded up gives -1E-1007 (flags x r u s; the block checks underflow and subnormal)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal extreme tiny parsing preserves directed rounding flags" {
   let half_even_ctx = DecimalContext::new(
     precision=9,
@@ -1233,7 +1233,7 @@ test "decimal extreme tiny parsing preserves directed rounding flags" {
 ///|
 // oracle: A
 // source: written out: 123 and -45 have the count, -0 gives 0, 12E-1 and 10^12 have none, by hand
-// shares: nothing
+// shares: Decimal::from_string (reads the operands)
 test "scaleb count extracts exponent-zero integers from coeff repr" {
   let ctx = DecimalContext::new(
     precision=9,
@@ -1257,7 +1257,7 @@ test "scaleb count extracts exponent-zero integers from coeff repr" {
 ///|
 // oracle: A
 // source: written out: 1234500 / 10^3 = 1234 remainder 500
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 test "decimal coefficient repr div-rem by power of ten matches bigint path" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
   let divisor = dec_coeff_power10_repr(3)
@@ -1383,7 +1383,7 @@ fn bigint_rotate_digits(
 ///|
 // oracle: B
 // source: test-local digit loops over core BigInt `%` and `/` (and, or, xor of digit strings)
-// shares: nothing
+// shares: dec_coeff_from_bigint_repr and to_bigint (conversion between the test BigInt and the kernel coefficient)
 // primitives: core BigInt % and / (MoonBit core); dec_coeff_from_bigint_repr builds the inputs
 test "decimal logical coefficient helpers match bigint digit formulas" {
   for
@@ -1475,7 +1475,7 @@ test "decimal logical invert and digit motion helpers match bigint formulas" {
 ///|
 // oracle: A
 // source: Python decimal (libmpdec) `Context(prec=6, rounding=ROUND_HALF_EVEN, Emin=-20, Emax=20, clamp=0).divide`; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal div_ctx repr pipeline matches bigint divide normalization" {
   let ctx = DecimalContext::new(
     precision=6,
@@ -1503,7 +1503,7 @@ test "decimal div_ctx repr pipeline matches bigint divide normalization" {
 ///|
 // oracle: A
 // source: Python decimal (libmpdec) `Context(prec=5, rounding=ROUND_HALF_UP, Emin=-12, Emax=12, clamp=1).divide` by the integers 8 and 3; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal math small-int division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
@@ -1530,7 +1530,7 @@ test "decimal math small-int division repr pipeline matches bigint divide normal
 ///|
 // oracle: A
 // source: Python decimal (libmpdec) `Context(prec=5, rounding=ROUND_HALF_EVEN, Emin=-15, Emax=15, clamp=0).divide`; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal math finite division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
@@ -1558,7 +1558,7 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
 ///|
 // oracle: A
 // source: Python decimal (libmpdec) `Context(prec=6, rounding=ROUND_HALF_EVEN, Emin=-20, Emax=20, clamp=0)`: `plus(1234500E-3)` = 1234.50 (rounded, not inexact), `multiply(12.5, -0.08)` = -1.000; rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal repr math normalization and multiplication match bigint path" {
   let work_ctx = DecimalContext::new(
     precision=6,
@@ -1590,7 +1590,7 @@ test "decimal repr math normalization and multiplication match bigint path" {
 ///|
 // oracle: A
 // source: Python decimal (libmpdec) `Context(prec=4, rounding=ROUND_HALF_UP, Emin=-6, Emax=6, clamp=1).scaleb(Decimal("12.34"), n)`: n = -2 gives 0.1234, n = -10 gives 1E-9 (inexact, rounded, underflow, subnormal); rows written out with the flags it raises (letters x r i z o u s c); replaces a block whose expected value was a copy of the previous BigInt pipeline built from library helpers
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "decimal scaleb repr construction matches bigint path" {
   let ctx = DecimalContext::new(
     precision=4,
@@ -1629,7 +1629,7 @@ fn normalization_flags_text(flags : DecimalFlags) -> String {
 /// was `normalize_decimal_parts_ctx`, a wrapper of the function under test.
 // oracle: A
 // source: CPython `Context(prec=7, rounding=ROUND_HALF_UP, Emin=-20, Emax=20, clamp=1).plus(Decimal(text))` with its flags, all 16 rows written out (see the comment above the block)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "repr normalization gives the libmpdec result and flags on finite values" {
   let ctx = DecimalContext::new(
     precision=7,
@@ -1678,7 +1678,7 @@ test "repr normalization gives the libmpdec result and flags on finite values" {
 /// out. Replaces a block whose expected value was a wrapper of the function under test.
 // oracle: A
 // source: CPython `Context(prec=5, rounding=ROUND_HALF_EVEN).plus(Decimal(text)).normalize()`, all 9 rows written out (see the comment above the block)
-// shares: nothing
+// shares: Decimal::from_string (reads the operands), Decimal::to_string (prints the result)
 test "repr gda normalization rounds to the precision and reduces, as libmpdec" {
   let rows = [
     ("9999500E-4", "999.95"),

@@ -269,7 +269,7 @@ test "fast quotient equals the general path" {
 ///|
 // oracle: A
 // source: written out: a 23-digit operand, a NaN and a zero are outside the fast paths, so each of gda_fast_sum, gda_fast_product and gda_fast_quotient returns None
-// shares: nothing
+// shares: Decimal::from_string (reads the operands)
 test "fast paths decline what they do not cover" {
   let context = GdaContext::new(precision=16)
   let one = Decimal::from_string("1").unwrap()
