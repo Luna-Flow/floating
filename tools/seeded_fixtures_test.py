@@ -134,10 +134,15 @@ class LibmpdecHeaderTest(unittest.TestCase):
         self.assertEqual(compatible_libmpdec_header(self.HEADER, "5.0.1", "4.0.0"), self.HEADER)
 
     def test_a_row_value_that_differs_is_still_a_difference(self) -> None:
-        changed = self.HEADER.replace(b"row", b"rox")
+        changed = b"-- generator=x libmpdec=4.0.1 seed=1\nrox libmpdec=4.0.1\n"
+        # only the header token is mapped: the changed row stays as it is, so the byte comparison fails
+        self.assertEqual(
+            compatible_libmpdec_header(changed, "4.0.1", "4.0.0"),
+            b"-- generator=x libmpdec=4.0.0 seed=1\nrox libmpdec=4.0.1\n",
+        )
         self.assertNotEqual(
             compatible_libmpdec_header(changed, "4.0.1", "4.0.0"),
-            compatible_libmpdec_header(self.HEADER, "4.0.1", "4.0.0"),
+            b"-- generator=x libmpdec=4.0.0 seed=1\nrow libmpdec=4.0.1\n",
         )
 
 
