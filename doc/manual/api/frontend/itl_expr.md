@@ -61,9 +61,10 @@ diagnostic and `Err(diagnostics)` otherwise.
 `ItlCase` is one parsed statement.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct ItlCase {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `ItlCase::id`, `ItlCase::operation`, `ItlCase::operands`, `ItlCase::expected`

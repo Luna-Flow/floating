@@ -35,11 +35,12 @@ and `@interval.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 `Sign` is the three-way sign classification returned by `Floating::signum`.
 
 ```mbti
+#derive(Eq)
 pub(all) enum Sign {
   Negative
   Zero
   Positive
-} derive(Eq)
+}
 ```
 
 `Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
@@ -65,6 +66,7 @@ test "Sign values" {
 subnormal and zero cases.
 
 ```mbti
+#derive(Eq)
 pub(all) enum IeeeClass {
   SignalingNaN
   QuietNaN
@@ -76,7 +78,7 @@ pub(all) enum IeeeClass {
   PositiveSubnormal
   PositiveNormal
   PositiveInfinity
-} derive(Eq)
+}
 ```
 
 `Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal
@@ -99,12 +101,13 @@ mutually exclusive relations *less*, *equal*, *greater* and *unordered* holds
 between two floating-point data.
 
 ```mbti
+#derive(Eq)
 pub(all) enum PartialOrder {
   Less
   Equal
   Greater
   Unordered
-} derive(Eq)
+}
 ```
 
 `Unordered` holds exactly when at least one operand is NaN; $-0$ and $+0$
@@ -142,9 +145,9 @@ representation in this repository.
 ```mbti
 pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
-  fn sign(Self) -> Sign
-  fn precision(Self) -> Int
-  fn with_precision(Self, Int) -> Self
+  fn signum(Self) -> Sign
+  fn precision(Self) -> Int32
+  fn with_precision(Self, Int32) -> Self
   fn normalized(Self) -> Self
 }
 ```
@@ -180,7 +183,7 @@ merged. Total; never aborts.
 `signum` returns the sign classification of a value.
 
 ```mbti
-fn sign(Self) -> Sign
+fn signum(Self) -> Sign
 ```
 
 | Implementation | `Negative` | `Zero` | `Positive` |
@@ -192,7 +195,7 @@ fn sign(Self) -> Sign
 `precision` returns the working precision stored on the value.
 
 ```mbti
-fn precision(Self) -> Int
+fn precision(Self) -> Int32
 ```
 
 It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every
@@ -207,7 +210,7 @@ $q = p$; `Binary` and `@decimal.Decimal` abort when $p < 1$ or $p$ exceeds
 uses $q = \max(1, p)$.
 
 ```mbti
-fn with_precision(Self, Int) -> Self
+fn with_precision(Self, Int32) -> Self
 ```
 
 For a finite scalar the value is rounded to $q$ significant digits of its

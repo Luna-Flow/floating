@@ -39,8 +39,8 @@ balance rule is not enforced here.
 ```mbti
 pub struct DecimalExponentBounds {
   valid_ : Bool
-  etiny_ : Int
-  etop_ : Int
+  etiny_ : Int32
+  etop_ : Int32
 }
 pub fn DecimalExponentBounds::new(Int32, Int32, Int32) -> Self
 pub fn DecimalExponentBounds::is_valid(Self) -> Bool
@@ -302,7 +302,7 @@ test "split decimal string" {
 ```mbti
 pub struct CertifiedDyadic {
   numerator_ : @bigint.BigInt
-  scale_ : Int
+  scale_ : Int32
 }
 ```
 
@@ -436,10 +436,10 @@ refinements of a Ziv-style evaluation loop.
 
 ```mbti
 pub struct CertifiedRefinementBudget {
-  work_precision : Int
-  refinements_ : Int
-  limit_ : Int?
-  cap_ : Int
+  work_precision : Int32
+  refinements_ : Int32
+  limit_ : Int32?
+  cap_ : Int32
 }
 ```
 

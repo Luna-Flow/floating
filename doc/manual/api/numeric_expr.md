@@ -33,9 +33,10 @@ with `String` errors, so no number package is needed.
 file path), a line and a column.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct SourceSpan {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 The fields are private and immutable. Two spans are equal when the source,
@@ -82,9 +83,10 @@ test "source span accessors" {
 `"1.20"`, `"-Inf"` or `"#7C00016E"`, together with its span.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct Literal {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 The text is not parsed when the literal is built. Its meaning is decided by the
@@ -109,9 +111,10 @@ The default span is `SourceSpan::new("")`.
 `"squareroot"`, together with its span.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct Operation {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 The package attaches no meaning to the name and does not record an arity. The

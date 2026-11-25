@@ -143,9 +143,10 @@ applied to one `Expr::literal` per operand, all carrying the row's span.
 `GdaContext` is the directive state of a document at a given row.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct GdaContext {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 It is a record of the directive values as written, not a
@@ -187,9 +188,10 @@ rows under it `Diagnostic` (see below).
 `ParseDiagnostic` is one parse error with its location.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct ParseDiagnostic {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `ParseDiagnostic::span`, `ParseDiagnostic::message`
@@ -268,9 +270,10 @@ operations that reject their operands give a failed row, not an abort.
 `RunOptions` selects which rows `execute_documents` runs.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct RunOptions {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `RunOptions::new`

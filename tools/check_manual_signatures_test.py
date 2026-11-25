@@ -47,37 +47,90 @@ class LineKeyTest(unittest.TestCase):
         self.assertEqual(sig.line_key("pub(all) enum E {"), "pub(all) enum E")
 
     def test_non_pub_has_no_key(self) -> None:
-        self.assertIsNone(sig.line_key("type Private"))
+        self.assertEqual(sig.line_key("type Private"), "type Private")
+        self.assertIsNone(sig.line_key("#derive(Eq)"))
+        self.assertIsNone(sig.line_key("  fn indented(Self) -> Int"))
         self.assertIsNone(sig.line_key("  // private fields"))
+
+
+def items_of(page: str) -> list[sig.Item]:
+    return [item for block in sig.mbti_blocks(page) for item in sig.parse_items(block)]
+
+
+def differences(page: str, interface: str) -> list[sig.Difference]:
+    return sig.compare("p.md", items_of(page), sig.interface_items(interface))
 
 
 class BlockTest(unittest.TestCase):
     def test_only_mbti_fences(self) -> None:
-        lines = sig.mbti_blocks(PAGE)
-        self.assertEqual(lines[0], (4, "pub fn Foo::size(Self) -> Int"))
-        self.assertEqual(len(lines), 6)
+        blocks = sig.mbti_blocks(PAGE)
+        self.assertEqual(len(blocks), 1)
+        self.assertEqual(blocks[0][0], (4, "pub fn Foo::size(Self) -> Int"))
+        self.assertEqual(len(blocks[0]), 6)
+
+    def test_items_take_attributes_and_bodies(self) -> None:
+        text = "```mbti\n#derive(Eq)\npub struct A {\n  f : Int\n}\npub fn g() -> Unit\n```\n"
+        items = items_of(text)
+        self.assertEqual([i.key for i in items], ["pub struct A", "pub fn g"])
+        self.assertEqual(items[0].first, 2)
+        self.assertEqual(len(items[0].lines), 4)
 
 
 class CompareTest(unittest.TestCase):
-    def test_differences(self) -> None:
-        diffs = sig.compare("p.md", sig.mbti_blocks(PAGE), sig.interface_lines(INTERFACE))
+    def test_line_differences(self) -> None:
+        diffs = differences(PAGE, INTERFACE)
         self.assertEqual([(d.line, d.new) for d in diffs], [
-            (4, "pub fn Foo::size(Self) -> Int32"),
+            (4, ("pub fn Foo::size(Self) -> Int32",)),
             (6, None),
-            (9, "pub struct Foo(@k.Repr)"),
+            (7, None),
+            (9, ("#derive(@debug.Debug)", "pub struct Foo(@k.Repr)")),
         ])
 
     def test_whitespace_is_normalised(self) -> None:
-        page = [(1, "pub fn  Foo::keep(Self)   -> Bool")]
-        self.assertEqual(sig.compare("p.md", page, sig.interface_lines(INTERFACE)), [])
+        page = "```mbti\npub fn  Foo::keep(Self)   -> Bool\n```\n"
+        self.assertEqual(differences(page, INTERFACE), [])
 
-    def test_apply_fixes_changes_only_paired_lines(self) -> None:
-        diffs = sig.compare("p.md", sig.mbti_blocks(PAGE), sig.interface_lines(INTERFACE))
+    def test_field_line_of_a_struct(self) -> None:
+        iface = "pub struct S {\n  n : Int32\n}\n"
+        page = "```mbti\npub struct S {\n  n : Int\n}\n```\n"
+        diffs = differences(page, iface)
+        self.assertEqual(len(diffs), 1)
+        self.assertEqual(diffs[0].new, ("pub struct S {", "  n : Int32", "}"))
+        self.assertEqual(differences(page.replace("Int\n", "Int32\n"), iface), [])
+
+    def test_enum_variant_and_attribute(self) -> None:
+        iface = "#derive(Eq)\npub(all) enum E {\n  A\n  B(Int32)\n}\n"
+        self.assertEqual(len(differences("```mbti\n#derive(Eq)\npub(all) enum E {\n  A\n}\n```\n", iface)), 1)
+        self.assertEqual(len(differences("```mbti\npub(all) enum E {\n  A\n  B(Int32)\n}\n```\n", iface)), 1)
+
+    def test_derive_closing_differs_from_attribute_line(self) -> None:
+        iface = "#derive(Eq)\npub struct S {\n  // private fields\n}\n"
+        page = "```mbti\npub struct S {\n  // private fields\n} derive(Eq)\n```\n"
+        diffs = differences(page, iface)
+        self.assertEqual([d.new for d in diffs], [("#derive(Eq)", "pub struct S {", "  // private fields", "}")])
+        fixed = sig.apply_fixes(page, diffs)
+        self.assertEqual(differences(fixed, iface), [])
+
+    def test_trait_method_alone_or_in_trait(self) -> None:
+        iface = "pub(open) trait T {\n  fn size(Self) -> Int32\n}\n"
+        alone = "```mbti\nfn size(Self) -> Int\n```\n"
+        self.assertEqual([d.new for d in differences(alone, iface)], [("fn size(Self) -> Int32",)])
+        inside = "```mbti\npub(open) trait T {\n  fn sign(Self) -> Int32\n}\n```\n"
+        self.assertEqual([d.new for d in differences(inside, iface)], [("pub(open) trait T {", "  fn size(Self) -> Int32", "}")])
+        self.assertEqual([d.new for d in differences("```mbti\nfn sign(Self) -> Int32\n```\n", iface)], [None])
+
+    def test_item_without_counterpart_is_not_fixed(self) -> None:
+        page = "```mbti\npub struct Gone {\n  n : Int\n}\n```\n"
+        diffs = differences(page, INTERFACE)
+        self.assertEqual([d.new for d in diffs], [None])
+        self.assertEqual(sig.apply_fixes(page, diffs), page)
+
+    def test_apply_fixes_changes_only_paired_items(self) -> None:
+        diffs = differences(PAGE, INTERFACE)
         fixed = sig.apply_fixes(PAGE, diffs).split("\n")
-        original = PAGE.split("\n")
-        changed = [i + 1 for i, (a, b) in enumerate(zip(original, fixed)) if a != b]
-        self.assertEqual(changed, [4, 9])
-        self.assertEqual(len(original), len(fixed))
+        self.assertIn("pub fn Foo::size(Self) -> Int32", fixed)
+        self.assertIn("pub fn Foo::gone(Self) -> Bool", fixed)
+        self.assertEqual(fixed[0:3], PAGE.split("\n")[0:3])
 
 
 class MainTest(unittest.TestCase):

@@ -34,9 +34,10 @@ against the source.
 `SourceLocation` is a position in a named source.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct SourceLocation {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `SourceLocation::new`
@@ -76,12 +77,13 @@ test "locations are one-based" {
 `CaseDisposition` classifies a selected case.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum CaseDisposition {
   Executable
   Diagnostic(String)
   Legacy(String)
   Unsupported(String)
-} derive(Eq, @debug.Debug)
+}
 ```
 
 - `Executable`: the case was run; its `passed` flag is meaningful.
@@ -96,9 +98,10 @@ pub(all) enum CaseDisposition {
 `CaseResult` is the outcome of one case.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct CaseResult {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `CaseResult::new`, `CaseResult::executable`
@@ -133,9 +136,10 @@ pub fn CaseResult::message(Self) -> String
 `ShardSpec` is a validated pair (shard count, shard index).
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct ShardSpec {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `ShardSpec::try_new`, `ShardSpec::new`
@@ -191,9 +195,10 @@ test "round-robin selection" {
 `RunSummary` counts the results of one run or shard.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct RunSummary {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `RunSummary::from_results`

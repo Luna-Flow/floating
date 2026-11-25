@@ -628,13 +628,14 @@ test "plain arithmetic rounds once at the operand precision" {
 The rounding-direction attribute of a context.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum BinaryRoundingMode {
   RoundTiesToEven
   RoundTiesToAway
   RoundTowardZero
   RoundTowardPositive
   RoundTowardNegative
-} derive(Eq, @debug.Debug)
+}
 ```
 
 These are the five IEEE 754-2019 rounding-direction attributes (clauses 4.3.1
@@ -663,10 +664,11 @@ IEEE 754-2019 4.3 has no such attribute; the other modes map one to one.
 When a nonzero result counts as tiny for the underflow flag.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum TininessDetection {
   BeforeRounding
   AfterRounding
-} derive(Eq, @debug.Debug)
+}
 ```
 
 `BeforeRounding` calls a result tiny when the exact value has
@@ -682,9 +684,10 @@ exponent $e_{\max}$ (with $e_{\min} = 1 - e_{\max}$, IEEE 754-2019 3.3), the
 rounding-direction attribute and the tininess rule.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub struct BinaryContext {
   // private fields
-} derive(Eq, @debug.Debug)
+}
 ```
 
 A context is an immutable value; there is no global or thread state.
@@ -1455,12 +1458,13 @@ test "decimal and hexadecimal text" {
 The four IEEE 754 binary interchange formats.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum BinaryInterchangeFormat {
   Binary16
   Binary32
   Binary64
   Binary128
-} derive(Eq, @debug.Debug)
+}
 ```
 
 ### `BinaryInterchangeFormat::precision`, `BinaryInterchangeFormat::e_min`, `BinaryInterchangeFormat::e_max`, `BinaryInterchangeFormat::bias`, `BinaryInterchangeFormat::exponent_field_width`, `BinaryInterchangeFormat::trailing_significand_field_width`, `BinaryInterchangeFormat::storage_width`
@@ -1497,9 +1501,10 @@ pub fn BinaryInterchangeFormat::context(Self, rounding? : BinaryRoundingMode, ti
 An encoded value: a format and its bit pattern.
 
 ```mbti
+#derive(Eq)
 pub struct BinaryInterchange {
   // private fields
-} derive(Eq)
+}
 ```
 
 Equality compares the format and the bits, so two encodings of NaN with

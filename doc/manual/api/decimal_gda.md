@@ -53,9 +53,10 @@ exponent.
 infinity, a quiet NaN or a signaling NaN).
 
 ```mbti
+#derive(@debug.Debug)
 pub struct Decimal {
   // private fields
-} derive(@debug.Debug)
+}
 ```
 
 A finite number keeps its exponent, so `2.50` and `2.5` are distinct members of
@@ -691,6 +692,7 @@ pub fn GdaContext::reset(Self) -> Self
 algorithms (GDA 1.70, pages 13 and 14 (Abstract representation of context)).
 
 ```mbti
+#derive(Eq)
 pub(all) enum GdaRoundingMode {
   HalfEven
   HalfUp
@@ -728,6 +730,7 @@ formula.
 a context and a trap-enabler.
 
 ```mbti
+#derive(Eq)
 pub(all) enum GdaSignal {
   Clamped
   DivisionByZero
@@ -761,9 +764,10 @@ library raises, which are the twelve conditions of the Exceptional conditions se
 [design page](../design/decimal_gda.md#keep-the-detailed-invalid-conditions).
 
 ```mbti
+#derive(Eq)
 pub struct GdaFlags {
   // private fields
-} derive(Eq)
+}
 ```
 
 The fields are private. Each of the 13 conditions is read with a method of the
@@ -803,9 +807,10 @@ decTest rows describe.
 signals.
 
 ```mbti
+#derive(Eq)
 pub struct GdaTrapSet {
   // private fields
-} derive(Eq)
+}
 ```
 
 ### `GdaTrapSet::new`, `GdaTrapSet::with_signal`, `GdaTrapSet::contains`
@@ -1631,11 +1636,12 @@ test "context-free ordering and operators" {
 `GdaInterchangeFormat` selects one of the three decimal interchange formats of IEEE 754: decimal32, decimal64 or decimal128.
 
 ```mbti
+#derive(Eq)
 pub(all) enum GdaInterchangeFormat {
   Decimal32
   Decimal64
   Decimal128
-} derive(Eq)
+}
 ```
 
 ### `GdaInterchangeFormat::context`
