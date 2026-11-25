@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0); CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 /// Canonical text of a result, for comparing a result of the library with a
 /// result of the reference (MPFR, libmpdec) as text.
@@ -222,7 +224,7 @@ fn canonical_decimal(text : String) -> String? {
 // source: expected texts written out, for the MPFR %Ra output and for the text of to_hex: 3/2 as 0b11p-1, -3/8 as
 //   -0b11p-3, the sign of zero, specials, the exponent beyond Int32; the odd part
 //   0b101111110010000111100100010000000000001110101100111p946 of 0x1.7e43c8800759cp+996 is 0x17e43c8800759c
-//   shifted right by 2 bits with exponent 944+2, recomputed with Python integers in this review (51 bits, last
+//   shifted right by 2 bits with exponent 944+2, recomputed with Python integers per the evidence header (51 bits, last
 //   bit 1); the parser under test reads no library function
 // shares: nothing
 test "canonical binary text: the formats of MPFR and of to_hex agree on one value" {

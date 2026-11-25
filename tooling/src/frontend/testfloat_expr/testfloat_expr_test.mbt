@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: four binary16 multiplications written out as bit patterns: 1 * 1 = 1; min normal * 0x3BFF = 2^-14 (1 -
@@ -27,7 +29,7 @@ test "TestFloat parser and executor preserve IEEE values and flags" {
 
 ///|
 // oracle: A
-// source: bit patterns checked with Python struct in this review: 1 + 2^-52 narrows to 1 with inexact (01), 2^1000
+// source: bit patterns checked with Python struct per the evidence header: 1 + 2^-52 narrows to 1 with inexact (01), 2^1000
 //   overflows to +inf with overflow and inexact (05), a signaling NaN is quieted with invalid (10), and binary16
 //   0x3E00 is 1.5 = 0x3FF8000000000000 exactly
 // shares: the hexadecimal reader and the rounding of the library behind the executor (the code under test); the vector

@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0), executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 /// GDA 1.70, *Exceptional conditions*: Subnormal is judged before rounding, on the
 /// exact result, and Underflow is Subnormal with Inexact (issue 268). The exact
@@ -6,7 +8,7 @@
 /// exact power decided with exact rational arithmetic.
 // oracle: A
 // source: GDA 1.70 exceptional conditions (Subnormal is judged on the exact result before rounding; Underflow is
-//   Subnormal with Inexact); the rows were run with CPython decimal (libmpdec 4.0.0) in this review and agree in
+//   Subnormal with Inexact); the rows were run with CPython decimal (libmpdec 4.0.0) per the evidence header and agree in
 //   value, cohort and flags, as the doc comment of the block states
 // shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
 //   results are compared with the row as text), and the context it builds from the directives; all of them are
@@ -38,7 +40,7 @@ test "gda interpreter signals Subnormal and Underflow for a power just below Emi
 /// Expected values: Python `decimal` (libmpdec 4.0.0) as oracle.
 // oracle: A
 // source: GDA 1.70 exceptional conditions (Underflow is Subnormal with Inexact; the power itself is inexact); the rows
-//   were run with CPython decimal (libmpdec 4.0.0) in this review and agree in value, cohort and flags, as the
+//   were run with CPython decimal (libmpdec 4.0.0) per the evidence header and agree in value, cohort and flags, as the
 //   doc comment of the block states
 // shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
 //   results are compared with the row as text), and the context it builds from the directives; all of them are

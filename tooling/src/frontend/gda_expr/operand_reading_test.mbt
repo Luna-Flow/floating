@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0), executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 /// An operand is read by the library as written: its exponent field is not
 /// rewritten (the saturation at +-2,000,000,000 that this frontend used to apply is
@@ -11,7 +13,7 @@
 // oracle: A
 // source: decNumber 3.68 (DECSUBSET=1, built outside the repository) on the same rows, as stated in the doc comment of
 //   the block: 0.9e9999999999 + 1 is Infinity, 99e-9999999999 + 1 is 1.0000000 Rounded, 99e-9999999999 * 1 is
-//   0E-1000000006 Clamped; CPython decimal (libmpdec 4.0.0) gives the same three result texts in this review (it
+//   0E-1000000006 Clamped; CPython decimal (libmpdec 4.0.0) gives the same three result texts per the evidence header (it
 //   reports more flags, since it raises them for the conversion of the operand, which the rows do not carry)
 // shares: the decimal reader of the operands, the rounding and the scientific-notation printer of the interpreter (the
 //   results are compared with the row as text), and the context it builds from the directives; all of them are

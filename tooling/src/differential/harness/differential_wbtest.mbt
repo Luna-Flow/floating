@@ -1,3 +1,5 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0); CPython 3.13.16 fractions, struct and integers, executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 let binary_corpus : String =
   #|# mpfr-random-v1 mpfr=4.2.2 family=add seed=1 start=0 count=4
@@ -35,7 +37,7 @@ let decimal_corpus : String =
 // source: batch sizes (3 then 1 of four rows) and ids written out; the corpus rows are written in the block: the first
 //   three binary rows are 1 + 2^-30 at 24 bits (to nearest gives 1; rounding up gives 0x800001p-23 = 1 + 2^-23;
 //   row 2 carries the wrong value 0x2p0 on purpose) and the fourth is 2^-100 * 2^-100, which underflows to 0 at
-//   24 bits (all checked with Python Fractions in this review); the verdicts are written: rows 0, 1 and 3 agree,
+//   24 bits (all checked with Python Fractions per the evidence header); the verdicts are written: rows 0, 1 and 3 agree,
 //   row 2 differs
 // shares: execute_batch runs the library on each row (the code under test); the expected texts are the corpus rows
 test "a binary corpus splits into batches and runs every case" {

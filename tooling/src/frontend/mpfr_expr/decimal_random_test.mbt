@@ -1,7 +1,9 @@
+// Evidence tools: the `source:` lines of this file that say "per the evidence header" name runs of CPython 3.13.16 decimal (libmpdec 4.0.0), executed on 2026-11-25 by the author of the declarations over the rows quoted in each line; rerun the quoted values with the same tool to check them.
+
 ///|
 // oracle: A
 // source: exp(1), ln(2), sqrt(2) (rootn 2), 3^-2 and 2^0.5 at 7 digits half_even are 2.718282, 0.6931472, 1.414214,
-//   0.1111111 and 1.414214 (CPython decimal, libmpdec 4.0.0, in this review); atan(1) = pi/4 = 0.7853982 at 7
+//   0.1111111 and 1.414214 (CPython decimal, libmpdec 4.0.0, per the evidence header); atan(1) = pi/4 = 0.7853982 at 7
 //   digits; exp(30) at 3 digits overflows to Infinity (libmpdec agrees); exp(-8E+4) rounded toward positive
 //   infinity is the smallest subnormal 1E-10001 with flags x and u (libmpdec returns 0E-10001 here, which is not
 //   the rounded up value of a positive number; the row follows from the direction of rounding)
