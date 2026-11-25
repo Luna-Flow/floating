@@ -59,7 +59,7 @@ compares equal to every NaN and $+0 = -0$.
 
 ## Design decisions
 
-### An unbounded exponent range
+### No exponent range of its own
 
 MPFR's default exponent range is far wider than any IEEE format, and the data
 contains results such as $2^{-563}$ computed from subnormal-range binary64
