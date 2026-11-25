@@ -1,7 +1,7 @@
 ///|
 // oracle: A
 // source: worked by hand: exp(10^9) = 2^1442695040 is above 2^e_max, so the lower end is the largest finite number (exponent2 = e_max - 52 at 53 bits) and the upper end is +infinity; exp(-10^9) = 2^-1442695040 is below the smallest subnormal 2^(e_min - 52), so the interval is [0, 2^(e_min - 52)] with a positive radius (IEEE 754-2019 4.3.2 directed rounding, 1788-2015 12.12.7)
-// shares: Interval::from_int, exp, exponent2, classify, is_zero and radius (the code under test); Binary::binary_value_e_max and e_min are the format limits
+// shares: Interval::from_int, exp, exponent2, classify, is_zero and radius (the code under test); binary_value_e_max and binary_value_e_min are the constants of the format limits
 test "interval exponentials enclose results beyond the binary exponent range" {
   let huge = Interval::from_int(1000000000, precision=53).exp()
   assert_eq(huge.lower_bound().exponent2(), @binary.binary_value_e_max - 52)
