@@ -166,10 +166,10 @@ def render() -> str:
     ]
     for plus, minus in gap_rows():
         out.append(f"  ({quote(plus)}, {quote(minus)}),")
-    out += ["]", "", "///|", "let ball_rows : Array[(String, Int, String, Int, String, Int)] = ["]
+    out += ["]", "", "///|", "let ball_rows : Array[(String, Int32, String, Int32, String, Int32)] = ["]
     for text, p, lo_c, lo_k, hi_c, hi_k in ball_rows():
         out.append(f"  ({quote(text)}, {p}, {quote(str(lo_c))}, {lo_k}, {quote(str(hi_c))}, {hi_k}),")
-    out += ["]", "", "///|", "let word_divisor_rows : Array[(String, Int, Bool, Int)] = ["]
+    out += ["]", "", "///|", "let word_divisor_rows : Array[(String, Int32, Bool, Int32)] = ["]
     for numerator, divisor, ends, remainder in word_rows():
         out.append(f"  ({quote(numerator)}, {divisor}, {'true' if ends else 'false'}, {remainder}),")
     out += ["]", ""]
