@@ -8,9 +8,14 @@ rest of the packages in one or two coarse units (the keyed ones, the ones that a
 
 The key of a unit holds, and the ledger keeps, these parts:
 
-* `closure`: the content of every file of every package of the unit and of every package they
-  import inside the two modules (the closure is computed from the `moon.pkg` files, never listed
-  by hand; test and white-box test imports count), and of the module files (`library/moon.mod`,
+* `closure`: the content of every file of every package of the unit, and of every file except the
+  test files (`TEST_SUFFIXES`: `_wbtest.mbt`, `_test.mbt`, `.mbt.md`) of every package they import
+  inside the two modules (the closure is computed from the `moon.pkg` files, never listed by
+  hand; test and white-box test imports count). Test files of an imported package are compiled
+  only into that package's own test executables, never into a dependent's build; the program
+  checks this against moon's own dry run (`test_files_in_library_builds`) and, if a build
+  without a test flag names a test file, hashes every file as key version 1 did. The `rule` part
+  of the key says which was used. The key also covers the module files (`library/moon.mod`,
   `tooling/moon.mod`, `moon.work`). The key is of file content, which is coarser than code: a
   comment edit reruns the packages above it. That is allowed (a false rerun costs seconds, a false
   reuse is a wrong claim);
@@ -79,7 +84,7 @@ TOOLING = "Luna-Flow/floating-tools"
 SOURCE_ROOTS = ((LIBRARY, "library/src"), (TOOLING, "tooling/src"))
 MODULE_FILES = ("library/moon.mod", "tooling/moon.mod", "moon.work")
 WRAPPER = ku.MOON_WRAPPER
-KEY_VERSION = "native-units-v1"
+KEY_VERSION = "native-units-v2"
 STAGE = "TEST: native"
 DEFAULT_RATE = ku.DEFAULT_RATE
 # The packages that carry the time of the stage (measured, `.tmp/plan-0.12/x-incr-ci-package-times.md`):
@@ -100,6 +105,15 @@ PURE_IMPORTS = frozenset(
         "Luna-Flow/luna-generic",
     }
 )
+
+
+# Files that moon compiles only into the test executables of their own package (white-box,
+# black-box and doc tests). The build of a package that imports it never contains them, so the key
+# of a unit hashes them only for the packages of the unit itself, not for the packages it imports.
+TEST_SUFFIXES = ("_wbtest.mbt", "_test.mbt", ".mbt.md")
+TEST_FLAGS = ("-test-mode", "-whitebox-test", "-blackbox-test", "-include-doctests", "-doctest-only")
+RULE_ALL = "closure-all-files"
+RULE_IMPORTED_TESTS_OUT = "closure-imported-test-files-out"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -185,6 +199,27 @@ def unit_files(unit: Unit, packages: Mapping[str, Package]) -> list[str]:
     return sorted(directories)
 
 
+def is_test_file(name: str) -> bool:
+    return name.endswith(TEST_SUFFIXES)
+
+
+BUILD_SOURCE = re.compile(r"\./[^\s']+\.mbt(?:\.md)?")
+
+
+def test_files_in_library_builds(dry_run: str) -> list[str]:
+    """Source files with a test name that a `moonc build-package` line without a test flag
+    compiles (pure). The rule that test files of imported packages are not part of a dependent's
+    build rests on moon's naming; this finds a build that contradicts it, from moon's own dry run.
+    A source is the `./path.mbt` words before the first option of the line."""
+    found: set[str] = set()
+    for line in dry_run.splitlines():
+        if not line.startswith("moonc build-package") or any(flag in line for flag in TEST_FLAGS):
+            continue
+        head = line.split(" -", 1)[0]
+        found.update(m for m in BUILD_SOURCE.findall(head) if is_test_file(m))
+    return sorted(found)
+
+
 def test_command(prefix: Sequence[str], members: Sequence[str], jobs: int | None = None) -> tuple[str, ...]:
     """`moon test -p <members> ...` through the wrapper; `prefix` is `("--target", "native", ...)`."""
     command = ["sh", WRAPPER, "test", "-p", *members, *prefix]
@@ -210,9 +245,11 @@ def unit_key(
     toolchain: str,
     verifier: str,
     ambient: str,
+    rule: str = RULE_IMPORTED_TESTS_OUT,
 ) -> tuple[str, dict[str, str]]:
     parts = {
         "version": KEY_VERSION,
+        "rule": rule,
         "unit": unit.name,
         "members": inc.digest(*unit.members),
         "command": " ".join(NATIVE_ARGUMENTS),
@@ -339,8 +376,18 @@ def directory_files(repo_root: Path, directories: Sequence[str]) -> list[Path]:
     return sorted(files)
 
 
-def digest_directories(repo_root: Path, directories: Sequence[str]) -> str:
-    return cf.hash_tree(directory_files(repo_root, directories), repo_root)
+def digest_unit(repo_root: Path, unit: Unit, packages: Mapping[str, Package], refine: bool = True) -> str:
+    """The content digest of a unit's closure: every file of the packages of the unit itself, and
+    of the packages it only imports every file except the test files (`is_test_file`). With
+    `refine=False` every file of the whole closure (the rule of key version 1)."""
+    own = {packages[m].directory for m in unit.members}
+    files: set[Path] = set()
+    for directory in unit_files(unit, packages):
+        found = directory_files(repo_root, [directory])
+        if refine and directory not in own:
+            found = [f for f in found if not is_test_file(f.name)]
+        files.update(found)
+    return cf.hash_tree(sorted(files), repo_root)
 
 
 def module_files(repo_root: Path) -> list[Path]:
@@ -365,6 +412,7 @@ class Plan:
     packages: dict[str, Package] = dataclasses.field(default_factory=dict)
     reuse: bool = True
     last_tests: int = 0
+    rules: dict[str, str] = dataclasses.field(default_factory=dict)  # unit -> RULE_* the digest was taken with
 
 
 def make_plan(
@@ -394,8 +442,6 @@ def make_plan(
         for unit in plan.units:
             if not unit.keyed:
                 continue
-            directories = unit_files(unit, plan.packages)
-            plan.digests[unit.name] = digest_directories(repo_root, directories)
             compile_commands = ku.dry_run_commands(test_command(NATIVE_ARGUMENTS, unit.members), repo_root, run)
             if not compile_commands:
                 plan.disabled = f"moon could not print the build of '{unit.name}'"
@@ -403,8 +449,13 @@ def make_plan(
             if NOT_FOUND.search(compile_commands):
                 plan.disabled = f"moon did not find a package of '{unit.name}': {NOT_FOUND.search(compile_commands).group(0)}"  # type: ignore[union-attr]
                 return plan
+            # The rule that imported test files are not compiled into a dependent rests on moon's
+            # naming; a build that contradicts it in moon's own dry run turns the rule off.
+            refine = not test_files_in_library_builds(compile_commands)
+            plan.rules[unit.name] = RULE_IMPORTED_TESTS_OUT if refine else RULE_ALL
+            plan.digests[unit.name] = digest_unit(repo_root, unit, plan.packages, refine)
             plan.keys[unit.name], plan.parts[unit.name] = unit_key(
-                unit, plan.digests[unit.name], compile_commands, plan.modules, wrapper, toolchain, verifier, ambient
+                unit, plan.digests[unit.name], compile_commands, plan.modules, wrapper, toolchain, verifier, ambient, plan.rules[unit.name]
             )
     except (OSError, ValueError, KeyError) as error:
         plan.disabled = f"no key can be formed: {error}"
@@ -420,8 +471,8 @@ def make_plan(
 
 def unchanged(plan: Plan, unit: Unit) -> bool:
     """Whether the files of the unit's key are what they were when the plan was made."""
-    directories = unit_files(unit, plan.packages)
-    return digest_directories(plan.repo_root, directories) == plan.digests.get(unit.name) and (
+    refine = plan.rules.get(unit.name) == RULE_IMPORTED_TESTS_OUT
+    return digest_unit(plan.repo_root, unit, plan.packages, refine) == plan.digests.get(unit.name) and (
         cf.hash_tree(module_files(plan.repo_root), plan.repo_root) == plan.modules
     )
 
