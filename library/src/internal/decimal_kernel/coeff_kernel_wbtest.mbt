@@ -176,6 +176,10 @@ test "advanced decimal multiplication algorithms cross-check" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the primes 998244353 and 754974721, the roots 3 and 11 and the inverse 416537774 of the first prime modulo the second written as literals (the same constants as the NTT table of the binary kernel, whose values CPython derived: tools/kernel_oracle.py, rows ntt-const-*), and the residues of each test value by the integer remainder; the value itself is the expected result of the Chinese remainder step. S: the transform followed by its inverse returns the input, and the digit count equals the length of the digit list
+// shares: dec_coeff_ntt_transform (forward and inverse each other's oracle) and dec_coeff_from_bigint_repr for the digit-count part
+// primitives: nothing proven for the transform (only the round trip, level S); the CRT step is level A on the five values
 test "decimal NTT transform identity and CRT reconstruction" {
   let values = [0UL, 1UL, 9999UL, 42UL, 998UL, 17UL, 5UL, 3UL]
   let original = values.copy()
@@ -188,8 +192,14 @@ test "decimal NTT transform identity and CRT reconstruction" {
   for index in 0..<values.length() {
     assert_eq(values[index], original[index])
   }
-  let product = dec_coeff_ntt_prime1 * dec_coeff_ntt_prime2
-  for value in [0UL, 1UL, 99999999UL, product / 2UL, product - 1UL] {
+  assert_eq(dec_coeff_ntt_prime1, 998244353UL)
+  assert_eq(dec_coeff_ntt_prime2, 754974721UL)
+  assert_eq(dec_coeff_ntt_root1, 3UL)
+  assert_eq(dec_coeff_ntt_root2, 11UL)
+  assert_eq(dec_coeff_ntt_crt_inverse, 416537774UL)
+  let product = 753649251896000513UL
+  assert_eq(dec_coeff_ntt_prime1 * dec_coeff_ntt_prime2, product)
+  for value in [0UL, 1UL, 99999999UL, 376824625948000256UL, product - 1UL] {
     assert_eq(
       dec_coeff_ntt_crt(
         value % dec_coeff_ntt_prime1,
@@ -224,6 +234,54 @@ test "advanced decimal division algorithms cross-check" {
 }
 
 ///|
+/// The rounded quotient of `n / d` (`n >= 0`, `d > 0`) by the definition of each direction.
+fn reference_round_div(
+  n : BigInt,
+  d : BigInt,
+  mode : DecCoeffRounding,
+) -> BigInt {
+  let quotient = n / d
+  let remainder = n % d
+  let one = BigInt::from_int(1)
+  let last = quotient % BigInt::from_int(10)
+  let twice = remainder * BigInt::from_int(2)
+  let increment = match mode {
+    Down => false
+    Up => !remainder.is_zero()
+    HalfEven =>
+      twice > d || (twice == d && !(quotient % BigInt::from_int(2)).is_zero())
+    ZeroFiveUp =>
+      !remainder.is_zero() && (last.is_zero() || last == BigInt::from_int(5))
+    _ => abort("reference_round_div: direction not used here")
+  }
+  if increment {
+    quotient + one
+  } else {
+    quotient
+  }
+}
+
+///|
+/// `n / d` has a finite decimal expansion: the reduced denominator has no prime factor besides 2 and 5.
+fn reference_has_finite_expansion(n : BigInt, d : BigInt) -> Bool {
+  if n.is_zero() {
+    return true
+  }
+  let mut reduced = d / reference_gcd_bigint(n, d)
+  for factor in [2, 5] {
+    let f = BigInt::from_int(factor)
+    while (reduced % f).is_zero() {
+      reduced = reduced / f
+    }
+  }
+  reduced == BigInt::from_int(1)
+}
+
+///|
+// oracle: B, S
+// source: B: every product the dispatch routes (the dense balanced, Toom-3, NTT, sparse and unbalanced shapes) is also formed by the algorithm the dispatch chose and compared with the core BigInt product of the same integers, and the same-length quotient 1, remainder 1 is written out; S: the algorithm chosen for each shape is compared with the threshold constants of the same module (the routing rule restated, not an independent value; the threshold values themselves are tuning data)
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands and results are read through them), the thresholds
+// primitives: dec_coeff_from_bigint_repr and to_bigint: level A on the literals of the tests "decimal small coefficient helpers preserve direct representations" and "decimal coefficient string lays out GDA units without BigInt" of this file, not re-verified here; the multiplication algorithms: level A only through the decimal kernel table (`mul`, `unbalanced`: schoolbook and unbalanced products), Karatsuba, Toom-3 and the NTT by this block's BigInt comparison alone
 test "decimal coefficient dispatch covers operand shapes and thresholds" {
   assert_true(
     dec_coeff_mul_algorithm(dec_coeff_from_int(3), dec_coeff_from_int(7)) ==
@@ -236,6 +294,10 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
     Schoolbook
   }
   assert_true(dec_coeff_mul_algorithm(balanced, balanced) == expected_balanced)
+  assert_eq(
+    dec_coeff_multiply_forced(expected_balanced, balanced, balanced).to_bigint(),
+    (pow10(360) - 1N) * (pow10(360) - 1N),
+  )
   let toom = dec_coeff_from_bigint_repr(pow10(1200) - 1N)
   let toom_algorithm = dec_coeff_mul_algorithm(toom, toom)
   let expected_toom = if dec_coeff_toom3_threshold <= 134 {
@@ -246,6 +308,10 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
     Schoolbook
   }
   assert_true(toom_algorithm == expected_toom)
+  assert_eq(
+    dec_coeff_multiply_forced(toom_algorithm, toom, toom).to_bigint(),
+    (pow10(1200) - 1N) * (pow10(1200) - 1N),
+  )
   let ntt = dec_coeff_from_bigint_repr(pow10(5200) - 1N)
   let ntt_algorithm = dec_coeff_mul_algorithm(ntt, ntt)
   let expected_ntt = if dec_coeff_ntt_mul_threshold <= 578 {
@@ -258,6 +324,10 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
     Schoolbook
   }
   assert_true(ntt_algorithm == expected_ntt)
+  assert_eq(
+    dec_coeff_multiply_forced(ntt_algorithm, ntt, ntt).to_bigint(),
+    (pow10(5200) - 1N) * (pow10(5200) - 1N),
+  )
   let sparse = dec_coeff_from_bigint_repr(pow10(500) + 1N)
   assert_true(dec_coeff_mul_algorithm(sparse, sparse) == Sparse)
   assert_true(dec_coeff_maybe_sparse(sparse))
@@ -265,6 +335,14 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
   let shorter_dense = dec_coeff_from_bigint_repr(pow10(500) - 1N)
   let unbalanced = dec_coeff_from_bigint_repr(pow10(5000) - 1N)
   assert_true(dec_coeff_mul_algorithm(shorter_dense, unbalanced) == Unbalanced)
+  assert_eq(
+    dec_coeff_multiply_forced(Unbalanced, shorter_dense, unbalanced).to_bigint(),
+    (pow10(500) - 1N) * (pow10(5000) - 1N),
+  )
+  assert_eq(
+    dec_coeff_multiply_forced(Sparse, sparse, sparse).to_bigint(),
+    (pow10(500) + 1N) * (pow10(500) + 1N),
+  )
   assert_true(
     dec_coeff_division_algorithm(dec_coeff_from_int(49), dec_coeff_from_int(7)) ==
     Word,
@@ -339,6 +417,10 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
 }
 
 ///|
+// oracle: B, S
+// source: B: at every length just below, at and just above each threshold the product of the two dense operands, formed by the algorithm the dispatch chose, equals the core BigInt product of the same integers, and the square equals the BigInt square; S: the algorithm chosen at each length is the one the threshold constants of the same module name (the routing rule restated, not an independent value)
+// shares: dec_coeff_test_dense_pattern (the operands only) and to_bigint (the results are read through it)
+// primitives: to_bigint: level A on the literals of "decimal small coefficient helpers preserve direct representations" of this file, not re-verified here
 test "decimal multiplication dispatch crosses every target threshold exactly" {
   for delta in [-1, 0, 1] {
     let length = dec_coeff_karatsuba_threshold + delta
@@ -347,6 +429,10 @@ test "decimal multiplication dispatch crosses every target threshold exactly" {
     assert_true(
       dec_coeff_mul_algorithm(lhs, rhs) ==
       (if delta < 0 { Schoolbook } else { Karatsuba }),
+    )
+    assert_eq(
+      dec_coeff_multiply_forced(dec_coeff_mul_algorithm(lhs, rhs), lhs, rhs).to_bigint(),
+      lhs.to_bigint() * rhs.to_bigint(),
     )
   }
   for delta in [-1, 0, 1] {
@@ -357,6 +443,10 @@ test "decimal multiplication dispatch crosses every target threshold exactly" {
       dec_coeff_mul_algorithm(lhs, rhs) ==
       (if delta < 0 { Karatsuba } else { Toom3 }),
     )
+    assert_eq(
+      dec_coeff_multiply_forced(dec_coeff_mul_algorithm(lhs, rhs), lhs, rhs).to_bigint(),
+      lhs.to_bigint() * rhs.to_bigint(),
+    )
   }
   for delta in [-1, 0, 1] {
     let length = dec_coeff_ntt_mul_threshold + delta
@@ -364,6 +454,10 @@ test "decimal multiplication dispatch crosses every target threshold exactly" {
     let rhs = dec_coeff_test_dense_pattern(length, 43)
     assert_true(
       dec_coeff_mul_algorithm(lhs, rhs) == (if delta < 0 { Toom3 } else { Ntt }),
+    )
+    assert_eq(
+      dec_coeff_multiply_forced(dec_coeff_mul_algorithm(lhs, rhs), lhs, rhs).to_bigint(),
+      lhs.to_bigint() * rhs.to_bigint(),
     )
   }
   for delta in [-1, 0, 1] {
@@ -375,12 +469,15 @@ test "decimal multiplication dispatch crosses every target threshold exactly" {
     )
     assert_eq(
       dec_coeff_square_repr(value).to_bigint(),
-      dec_coeff_multiply_forced(Schoolbook, value, value).to_bigint(),
+      value.to_bigint() * value.to_bigint(),
     )
   }
 }
 
 ///|
+// oracle: A, S
+// source: A: the transform lengths 4096 and 8192 written out by hand as the power of two above the number of convolution coefficients of the square, 2 d - 1 with d = ceil(9 limbs / 5) digits of the NTT radix (640 limbs: 2,303 coefficients, 4,096; 1,152 to 1,400 limbs: 4,147 to 5,039, 8,192); S: the profitability decision is compared with the threshold constants of the same module (the rule restated, not an independent value; the thresholds are tuning data)
+// shares: dec_coeff_test_dense_pattern (the operands) and the thresholds
 test "decimal square NTT profitability uses exact transform bands" {
   let capacity_4k = dec_coeff_test_dense_pattern(640, 53)
   assert_eq(dec_coeff_ntt_transform_length(capacity_4k, capacity_4k), 4096)
@@ -1003,6 +1100,10 @@ test "unit accumulator producers write limbs below the base" {
 }
 
 ///|
+// oracle: B, A
+// source: B: the rounded quotient of the numerator by the denominator under the four rounding directions, computed with core BigInt division and remainder by the definition of each direction (down: the quotient; up: the quotient plus one unless the remainder is zero; half even: the nearer integer, the even one on a tie; zero-five-up: plus one when the remainder is nonzero and the last digit of the quotient is 0 or 5); A: the finite flag by the definition (the reduced denominator has no prime factor besides 2 and 5, with a core BigInt gcd and removal of the factors 2 and 5); replaces the comparison with the second division (dec_coeff_round_div), which the code under test shortcuts
+// shares: dec_coeff_multiply_repr, dec_coeff_shift_power10_repr, dec_coeff_pow_unit_repr (the operands are built with them, then read through to_bigint, so a wrong operand changes both sides alike and is not seen)
+// primitives: to_bigint, level A on literals in "decimal small coefficient helpers preserve direct representations" of this file, not re-verified here; the operand builders: level A in the decimal kernel table (`mul` rows)
 test "one-division expansion test agrees with the second division" {
   let mut state = 0xC0FFEE123UL
   let next = fn() {
@@ -1055,10 +1156,13 @@ test "one-division expansion test agrees with the second division" {
       let (rounded, finite) = dec_coeff_round_div_expansion(
         shifted, d, false, mode,
       )
-      assert_eq(finite, has_finite_decimal_expansion_repr(numerator, d))
       assert_eq(
-        rounded.to_string(),
-        dec_coeff_round_div(shifted, d, false, mode).to_string(),
+        finite,
+        reference_has_finite_expansion(numerator.to_bigint(), d.to_bigint()),
+      )
+      assert_eq(
+        rounded.to_bigint(),
+        reference_round_div(shifted.to_bigint(), d.to_bigint(), mode),
       )
       if finite {
         finite_count += 1

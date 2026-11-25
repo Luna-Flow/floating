@@ -490,13 +490,16 @@ test "panic the window row rejects a word shift beyond its contract" {
 }
 
 ///|
-/// `bin_limbs_product` against the schoolbook product `bin_coeff_words_school`
-/// and against the loop of rows it replaces (`bin_limbs_mul_1` then
-/// `bin_limbs_addmul_1` through their wrappers, as the series loops had it): the
-/// same `an + bn` result limbs, and no limb outside them touched. Lengths 1 to 40
-/// on both operands (every pair of the sizes below), six operand patterns (random,
-/// all ones, zero, alternating, a single top bit, random with zero limbs), result
-/// and sources at offsets 0 and (3, 2, 1) of larger arrays.
+/// `bin_limbs_product` against the integer product of the operands, and against
+/// the loop of rows it replaces (`bin_limbs_mul_1` then `bin_limbs_addmul_1`, as
+/// the series loops had it), on both operands (every pair of the sizes below),
+/// six operand patterns (random, all ones, zero, alternating, a single top bit,
+/// random with zero limbs), result and sources at offsets 0 and (3, 2, 1) of
+/// larger arrays.
+// oracle: B
+// source: core BigInt multiplication of the integers of the operand limbs: the whole result array, every limb outside the row left at 0x5A5A, for the product and for the loop of rows (replaces the comparison with bin_coeff_words_school)
+// shares: window_test_array (the operands only)
+// primitives: bin_limbs_big (limbs to BigInt by shift and addition of core; level A in "bin_limbs_big reads the limbs least significant first")
 test "the limb product equals the schoolbook product and the loop of rows it replaces" {
   let random = { words_state: 0x7F4A7C159E3779B9UL, }
   let sizes = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 15, 16, 17, 31, 33, 40]
@@ -508,10 +511,9 @@ test "the limb product equals the schoolbook product and the loop of rows it rep
           let (ro, ao, bo) = offsets
           let a = window_test_array(random, an + ao + 2, pattern)
           let b = window_test_array(random, bn + bo + 2, (pattern + 1) % 6)
-          let expected = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
+          let product = bin_limbs_big(a, ao, an) * bin_limbs_big(b, bo, bn)
           let looped = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
           let actual = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
-          bin_coeff_words_school(expected, ro, a, ao, an, b, bo, bn)
           // the loop of rows as the series loops had it
           looped.unsafe_set(
             ro + bn,
@@ -531,8 +533,15 @@ test "the limb product equals the schoolbook product and the loop of rows it rep
             )
           }
           bin_limbs_product(actual, ro, a, ao, an, b, bo, bn)
-          assert_eq(actual, expected)
-          assert_eq(looped, expected)
+          for result in [actual, looped] {
+            bin_limbs_assert_row(result, ro, an + bn, product)
+            for index in 0..<ro {
+              assert_eq(result[index], 0x5A5AUL)
+            }
+            for index in (ro + an + bn)..<result.length() {
+              assert_eq(result[index], 0x5A5AUL)
+            }
+          }
           cases += 1
         }
       }
@@ -545,16 +554,20 @@ test "the limb product equals the schoolbook product and the loop of rows it rep
 /// The contract's edges: the carry limb is written (all `an + bn` limbs of a
 /// dirty result are replaced), a single-limb operand on either side, and the
 /// largest limbs everywhere (every column carries).
+// oracle: B
+// source: core BigInt multiplication of the all-ones operands, (2^(64 an) - 1)(2^(64 bn) - 1), built from shifts, against the whole dirty result
+// shares: nothing
+// primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first")
 test "the limb product writes every result limb: dirty result, one-limb operands, all-ones" {
   for an in [1, 2, 9] {
     for bn in [1, 3, 10] {
       let a = FixedArray::make(an, 0xFFFF_FFFF_FFFF_FFFFUL)
       let b = FixedArray::make(bn, 0xFFFF_FFFF_FFFF_FFFFUL)
-      let expected = FixedArray::make(an + bn, 0xDEADUL)
       let actual = FixedArray::make(an + bn, 0xBEEFUL)
-      bin_coeff_words_school(expected, 0, a, 0, an, b, 0, bn)
       bin_limbs_product(actual, 0, a, 0, an, b, 0, bn)
-      assert_eq(actual, expected)
+      let expected = ((BigInt::from_int(1) << (64 * an)) - BigInt::from_int(1)) *
+        ((BigInt::from_int(1) << (64 * bn)) - BigInt::from_int(1))
+      bin_limbs_assert_row(actual, 0, an + bn, expected)
     }
   }
 }

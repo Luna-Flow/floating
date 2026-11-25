@@ -1,4 +1,15 @@
 ///|
+/// The `count` limbs of `words` from `offset` are the integer `expected`.
+fn bin_limbs_assert_row(
+  words : FixedArray[UInt64],
+  offset : Int32,
+  count : Int32,
+  expected : BigInt,
+) -> Unit raise {
+  assert_eq(bin_limbs_big(words, offset, count), expected)
+}
+
+///|
 struct WordsTestRandom {
   mut words_state : UInt64
 }
@@ -34,6 +45,10 @@ fn words_test_array(
 }
 
 ///|
+// oracle: B
+// source: core BigInt multiplication of the integers of the operand limbs (sizes around the Karatsuba cutoff, up to 7 cutoffs, five limb patterns); replaces the comparison with bin_coeff_words_school, whose own level A is the limb row table up to 100 limbs
+// shares: words_test_array (the operands only)
+// primitives: bin_limbs_big (limbs to BigInt by shift and addition of core; level A in "bin_limbs_big reads the limbs least significant first")
 test "word-range Karatsuba equals the schoolbook product around and above the cutoff" {
   let random = { words_state: 0xFEED_FACE_CAFE_BEEFUL, }
   let cutoff = bin_coeff_words_karatsuba_cutoff
@@ -54,17 +69,16 @@ test "word-range Karatsuba equals the schoolbook product around and above the cu
       for pattern in 0..<5 {
         let left = words_test_array(random, left_len, pattern)
         let right = words_test_array(random, right_len, (pattern + 1) % 5)
-        let expected = FixedArray::make(left_len + right_len, 0UL)
-        bin_coeff_words_school(
-          expected, 0, left, 0, left_len, right, 0, right_len,
-        )
+        let expected = bin_limbs_big(left, 0, left_len) *
+          bin_limbs_big(right, 0, right_len)
         // an offset result inside a larger array, with garbage around it
         let actual = FixedArray::make(left_len + right_len + 6, 0x5555UL)
         bin_coeff_words_mul(actual, 3, left, 0, left_len, right, 0, right_len)
-        for index in 0..<(left_len + right_len) {
-          assert_eq(actual[3 + index], expected[index])
-        }
+        bin_limbs_assert_row(actual, 3, left_len + right_len, expected)
         assert_eq(actual[0], 0x5555UL)
+        assert_eq(actual[1], 0x5555UL)
+        assert_eq(actual[2], 0x5555UL)
+        assert_eq(actual[left_len + right_len + 3], 0x5555UL)
         assert_eq(actual[left_len + right_len + 5], 0x5555UL)
       }
     }
@@ -72,6 +86,22 @@ test "word-range Karatsuba equals the schoolbook product around and above the cu
 }
 
 ///|
+/// The integer of a coefficient, read limb by limb with `bin_coeff_word`.
+fn bin_coeff_test_big(value : Coeff) -> BigInt {
+  bin_limbs_big(
+    FixedArray::makei(bin_coeff_word_len(value), index => {
+      bin_coeff_word(value, index)
+    }),
+    0,
+    bin_coeff_word_len(value),
+  )
+}
+
+///|
+// oracle: B
+// source: core BigInt multiplication of the integers of the operand limbs: Coeff::mul, Coeff::square and bin_coeff_mul_words all equal it (replaces the comparison with bin_coeff_mul_schoolbook and the hexadecimal text of the two routes)
+// shares: bin_coeff_from_words and bin_coeff_word_len and bin_coeff_word (the product is read limb by limb through bin_coeff_test_big), words_test_array
+// primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first"); bin_coeff_word and bin_coeff_word_len, accessors of the stored limbs
 test "Coeff product through the word-range Karatsuba equals BigInt" {
   let random = { words_state: 0x1357_9BDF_2468_ACE0UL, }
   let cutoff = bin_coeff_words_karatsuba_cutoff
@@ -79,14 +109,16 @@ test "Coeff product through the word-range Karatsuba equals BigInt" {
     for pattern in [0, 1, 2, 4] {
       let left_words = words_test_array(random, words, pattern)
       let right_words = words_test_array(random, words - 1, (pattern + 3) % 5)
+      let left_big = bin_limbs_big(left_words, 0, words)
+      let right_big = bin_limbs_big(right_words, 0, words - 1)
       let left = bin_coeff_from_words(left_words.copy(), words)
       let right = bin_coeff_from_words(right_words.copy(), words - 1)
-      let product = left.mul(right)
-      assert_eq(product, bin_coeff_mul_schoolbook(left, right))
-      assert_eq(left.mul(left), left.square())
+      assert_eq(bin_coeff_test_big(left.mul(right)), left_big * right_big)
+      assert_eq(bin_coeff_test_big(left.mul(left)), left_big * left_big)
+      assert_eq(bin_coeff_test_big(left.square()), left_big * left_big)
       assert_eq(
-        left.mul(right).to_radix_string(16),
-        bin_coeff_mul_words(left, right).to_radix_string(16),
+        bin_coeff_test_big(bin_coeff_mul_words(left, right)),
+        left_big * right_big,
       )
     }
   }
@@ -286,20 +318,23 @@ test "Coeff square around the schoolbook, Karatsuba and NTT square cutoffs" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt squaring of the integer of the operand limbs: Coeff::square, the Karatsuba square, the NTT square and the product of the value by itself all equal it (replaces the comparison between the routes)
+// shares: bin_coeff_from_words and the limb accessors (bin_coeff_test_big), words_test_array
+// primitives: bin_limbs_big (level A in "bin_limbs_big reads the limbs least significant first"); bin_coeff_word and bin_coeff_word_len, accessors of the stored limbs
 test "Coeff square at the NTT square cutoff equals the Karatsuba square and product" {
   let random = { words_state: 0x1D1D_E2E2_4B4B_8F8FUL, }
   // the NTT square starts at `bin_coeff_ntt_square_min_words` limbs
   let boundary = bin_coeff_ntt_square_min_words
   for len in [boundary - 1, boundary, boundary + 1] {
     for pattern in [0, 1] {
-      let value = bin_coeff_from_words(
-        words_test_array(random, len, pattern),
-        len,
-      )
-      let karatsuba = bin_coeff_square_words(value)
-      assert_eq(value.square(), karatsuba)
-      assert_eq(bin_coeff_square_ntt(value), karatsuba)
-      assert_eq(value.mul(value), karatsuba)
+      let words = words_test_array(random, len, pattern)
+      let expected = bin_limbs_big(words, 0, len) * bin_limbs_big(words, 0, len)
+      let value = bin_coeff_from_words(words.copy(), len)
+      assert_eq(bin_coeff_test_big(value.square()), expected)
+      assert_eq(bin_coeff_test_big(bin_coeff_square_words(value)), expected)
+      assert_eq(bin_coeff_test_big(bin_coeff_square_ntt(value)), expected)
+      assert_eq(bin_coeff_test_big(value.mul(value)), expected)
     }
   }
 }
