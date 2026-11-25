@@ -103,6 +103,44 @@ class PinnedFixtureTest(unittest.TestCase):
                     self.assertTrue((REPO_ROOT / spec["generator"].split()[0]).is_file())
 
 
+def compatible_libmpdec_header(generated: bytes, installed: str, recorded: str) -> bytes:
+    """The regenerated libmpdec fixture with the header version of the recorded one when only the patch version differs.
+
+    The first line of the fixture names the libmpdec version that wrote it (`libmpdec=4.0.0`).
+    A patch release of the same major and minor version (4.0.1 for 4.0.0) changes that token and
+    nothing else; the rows are still compared byte for byte. Another major or minor version is
+    left as it is, so that the comparison fails and the fixture is regenerated on purpose.
+    """
+    if installed == recorded or installed.split(".")[:2] != recorded.split(".")[:2]:
+        return generated
+    first, newline, rest = generated.partition(b"\n")
+    return first.replace(f"libmpdec={installed}".encode(), f"libmpdec={recorded}".encode()) + newline + rest
+
+
+class LibmpdecHeaderTest(unittest.TestCase):
+    HEADER = b"-- generator=x libmpdec=4.0.1 seed=1\nrow libmpdec=4.0.1\n"
+
+    def test_a_patch_version_is_mapped_to_the_recorded_one_in_the_first_line_only(self) -> None:
+        self.assertEqual(
+            compatible_libmpdec_header(self.HEADER, "4.0.1", "4.0.0"),
+            b"-- generator=x libmpdec=4.0.0 seed=1\nrow libmpdec=4.0.1\n",
+        )
+
+    def test_the_same_version_is_unchanged(self) -> None:
+        self.assertEqual(compatible_libmpdec_header(self.HEADER, "4.0.1", "4.0.1"), self.HEADER)
+
+    def test_a_minor_or_major_version_is_not_tolerated(self) -> None:
+        self.assertEqual(compatible_libmpdec_header(self.HEADER, "4.1.0", "4.0.0"), self.HEADER)
+        self.assertEqual(compatible_libmpdec_header(self.HEADER, "5.0.1", "4.0.0"), self.HEADER)
+
+    def test_a_row_value_that_differs_is_still_a_difference(self) -> None:
+        changed = self.HEADER.replace(b"row", b"rox")
+        self.assertNotEqual(
+            compatible_libmpdec_header(changed, "4.0.1", "4.0.0"),
+            compatible_libmpdec_header(self.HEADER, "4.0.1", "4.0.0"),
+        )
+
+
 class RegenerationTest(unittest.TestCase):
     """`random_differential.py fixtures` into a temporary directory, compared with the committed files.
 
@@ -140,10 +178,17 @@ class RegenerationTest(unittest.TestCase):
                 if "mpfr.h not found" in str(error) or "cannot build" in str(error):
                     self.skipTest(f"cannot build the MPFR generators: {error}")
                 raise
+            import decimal
+
             for name, spec in specs.items():
                 with self.subTest(name):
+                    generated = targets[name].read_bytes()
+                    if name == "decimal_gda":
+                        generated = compatible_libmpdec_header(
+                            generated, decimal.__libmpdec_version__, spec["libmpdec"]
+                        )
                     self.assertEqual(
-                        targets[name].read_bytes(),
+                        generated,
                         (REPO_ROOT / spec["path"]).read_bytes(),
                         f"{spec['path']} differs from its seeded regeneration ({spec['command']})",
                     )
