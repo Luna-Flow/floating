@@ -206,3 +206,25 @@ test "interval benchmark plans compile" {
     ignore(interval_spec(operation).compile().unwrap())
   }
 }
+
+///|
+// oracle: A
+// source: hand derivation on exact binary fractions: at 8 bits the numbers in [1, 2) are spaced 2^-7, so
+//   1 + 2^-20 lies strictly between 1 and 1 + 2^-7 = 0x1.02p0, and the enclosure of the sum is [1, 0x1.02p0] (lower end
+//   rounded down, upper end rounded up); for -1 + (-2^-20) the mirror image is [-0x1.02p0, -1]. The operands are
+//   exact at 8 bits and the benchmark operands are exact integers, so only this block can see a rounding direction
+// shares: Binary::from_hex (reads the operands and the expected ends), Binary::compare, Interval::exact, lower_bound
+//   and upper_bound (the code under test and its readers)
+test "interval add rounds the lower end down and the upper end up" {
+  let hex = (text : String) => @binary.Binary::from_hex(text, 8).unwrap()
+  let sum = @ivl.Interval::exact(hex("0x1p0"), precision=8).add(
+    @ivl.Interval::exact(hex("0x1p-20"), precision=8),
+  )
+  assert_eq(sum.lower_bound().compare(hex("0x1p0")), 0)
+  assert_eq(sum.upper_bound().compare(hex("0x1.02p0")), 0)
+  let negative = @ivl.Interval::exact(hex("-0x1p0"), precision=8).add(
+    @ivl.Interval::exact(hex("-0x1p-20"), precision=8),
+  )
+  assert_eq(negative.lower_bound().compare(hex("-0x1.02p0")), 0)
+  assert_eq(negative.upper_bound().compare(hex("-0x1p0")), 0)
+}
