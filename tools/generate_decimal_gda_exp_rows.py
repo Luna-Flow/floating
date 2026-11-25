@@ -21,7 +21,10 @@ Groups: 0 random arguments of 1 to 40 digits (adjusted exponent -40 to 3, both s
 precisions 1 to 100, half even, exponent range +-999999; 1 arguments `ln(m)` for a midpoint `m`
 between two results of the context (the exponential lies within 10^-(precision + 50) of a rounding
 boundary); 2 the decimal32, decimal64, decimal128 and odd contexts, every rounding mode, subset
-and extended; 3 large arguments from -3E+6 to 2999999 around the 10^3 bound of the midpoint route.
+and extended; 3 large arguments from -3E+6 to 2999999 around the 10^3 bound of the midpoint route; 4 the overflow
+and underflow thresholds of decimal32, decimal64 and decimal128 (arguments within 3 of ln(10)(emax + 1) and
+-ln(10)(-etiny), around the guards 3(emax + 1) and 3(1 - etiny), and from -1000 to -150), five rounding modes; 5 the rows of group 4 beyond those guards on which the library gives the wrong
+directed result (issue 796), kept apart so that the `#skip` block of the defect is exactly those rows.
 
     python3 tools/generate_decimal_gda_exp_rows.py && moon fmt
     python3 tools/generate_decimal_gda_exp_rows.py --check
@@ -77,6 +80,9 @@ LARGE = [
     "10000", "10001", "123456.5", "1E+5", "2999999",
 ]
 
+FORMATS = [("decimal32", 7, -95, 96), ("decimal64", 16, -383, 384), ("decimal128", 34, -6143, 6144)]
+EDGE_MODES = ["HalfEven", "Down", "Up", "Floor", "Ceiling"]
+
 Row = tuple[int, int, int, int, bool, bool, str, str, str, str]
 
 
@@ -131,6 +137,35 @@ def row(group: int, shape: tuple[int, int, int, bool, bool], mode: str, argument
     return (group, precision, e_min, e_max, extended, clamp, mode, argument, result, flags)
 
 
+def edge_arguments(precision: int, e_min: int, e_max: int) -> list[str]:
+    """Arguments around the overflow threshold ln(10)(emax + 1) and the underflow threshold -ln(10)(-etiny),
+    around the guards 3(emax + 1) and 3(-etiny + 1) of the coarse decision, and in the range -1000 to -100."""
+    etiny = e_min - precision + 1
+    over = round(2.302585092994046 * (e_max + 1))
+    under = round(2.302585092994046 * (-etiny))
+    out = [str(over + d) for d in range(-3, 4)] + [str(-(under + d)) for d in range(-3, 4)]
+    for guard in (3 * (e_max + 1), 3 * (1 - etiny)):
+        out += [str(guard + d) for d in (-2, -1, 0, 1)] + [str(-(guard + d)) for d in (-2, -1, 0, 1)]
+    out += [str(x) for x in (-150, -210, -240, -400, -999, -1000, -1001, -3000, 2 * (e_max + 1), 2 * (e_max + 1) + 5)]
+    seen: list[str] = []
+    for x in out:
+        if x not in seen:
+            seen.append(x)
+    return seen
+
+
+def known_defect(result: Row, e_min: int, e_max: int, precision: int) -> bool:
+    """Rows of the defect of issue 796: beyond the guard 3 (emax + 1) the library gives Infinity in
+    the directed modes that give the largest finite number, and beyond the guard -3 (1 - etiny) it
+    gives zero in the modes that give the smallest subnormal (the expected value is CPython's)."""
+    argument = int(result[7])
+    text = result[8]
+    etiny = e_min - precision + 1
+    over = argument >= 3 * (e_max + 1) and "inf" not in text
+    under = argument <= -3 * (1 - etiny) and not text.startswith(("0", "-0"))
+    return over or under
+
+
 def build() -> list[Row]:
     rng = random.Random(SEED)
     rows: list[Row] = []
@@ -151,6 +186,14 @@ def build() -> list[Row]:
     for precision in (3, 16, 34):
         for argument in LARGE:
             rows.append(row(3, (precision, -999999, 999999, True, True), "HalfEven", argument))
+    for _name, precision, e_min, e_max in FORMATS:
+        for mode in EDGE_MODES:
+            for argument in edge_arguments(precision, e_min, e_max):
+                shape = (precision, e_min, e_max, True, True)
+                result = row(4, shape, mode, argument)
+                if known_defect(result, e_min, e_max, precision):
+                    result = (5,) + result[1:]
+                rows.append(result)
     del high
     return rows
 
