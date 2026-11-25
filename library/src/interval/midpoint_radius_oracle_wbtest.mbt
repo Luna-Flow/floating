@@ -48,7 +48,7 @@ test "midpoint, radius and their text agree with the independent oracle on every
       count += 1
     }
   }
-  assert_eq(count, 1095)
+  assert_eq(count, 1495)
 }
 
 // oracle: A

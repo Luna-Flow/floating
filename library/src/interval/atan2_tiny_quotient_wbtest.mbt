@@ -4,6 +4,9 @@
 // subnormal of the precision] for y > 0 and its mirror image for y < 0.
 
 ///|
+// oracle: A
+// source: for y = +-5 * 2^-e, x = 7 * 2^e (e = 1073741000 and 540000000) the quotient is far below the smallest subnormal of the 53-bit format, 2^-1073741874 = 2^(e_min - 52), so the tightest enclosure is [0, 2^-1073741874] (positive) or [-2^-1073741874, 0] (negative) by directed rounding; a zero lower end is -0 and a zero upper end +0 by 12.12.8; written out from floating#383
+// shares: Binary::make, Interval::exact, try_atan2 (the code under test), lower_bound, upper_bound and compare
 test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
   let tiny_unit = @binary.Binary::make(@binary.BinCoeff::one(), -1073741874, 64)
   for e in [1073741000, 540000000] {

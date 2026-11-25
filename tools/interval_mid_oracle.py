@@ -220,6 +220,13 @@ def rows() -> list[tuple[Dyadic, Dyadic, int]]:
                 lo = (1, -shift)
                 hi = round_to(add(lo, (width, -shift - p)), p, "up")
                 out.append((lo, hi, p))
+    # away from the bottom of the range: coefficients of up to 20 bits at exponents -200 to 199, p = 53
+    away = random.Random(20261125)
+    for _ in range(400):
+        a = (away.randrange(1, 1_000_001), away.randrange(-200, 200))
+        b = (away.randrange(1, 1_000_001), away.randrange(-200, 200))
+        lo, hi = ordered(a, b)
+        out.append((lo, hi, 53))
     # only intervals whose bounds are numbers of the format (a bound that is not one is rounded
     # outward by the constructor, which is not what this table tests)
     return [row for row in out if valid(row[0], row[2]) and valid(row[1], row[2])]

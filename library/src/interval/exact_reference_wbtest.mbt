@@ -64,15 +64,3 @@ fn exact_product_rounded(
     mode~,
   )
 }
-
-///|
-/// `a * b` of two finite values, exactly (`exact_value` with `exact_range`), for the tests whose
-/// operands are far from the ends of the exponent range.
-fn exact_mul_full(a : @binary.Binary, b : @binary.Binary) -> @binary.Binary {
-  exact_value(
-    coeff_mul(a.coefficient(), b.coefficient()),
-    a.exponent2() + b.exponent2(),
-    negative=a.is_sign_minus() != b.is_sign_minus(),
-    exact_range=true,
-  )
-}

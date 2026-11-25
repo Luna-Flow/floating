@@ -3,16 +3,6 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/interval/algebraic_reverse_wbtest.mbt::abs_rev and cosh_rev	?
-library/src/interval/algebraic_reverse_wbtest.mbt::decorated reverse functions are trivially decorated (11.7.1)	?
-library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: negative powers exclude 0 and the unattained limit is open	?
-library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: p = 0, 1, even and odd positive powers	?
-library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev rounds the root outward	?
-library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev: the examples of IEEE 1788-2015 10.5.4	?
-library/src/interval/atan2_tiny_quotient_wbtest.mbt::try_atan2 of a quotient below the exponent range encloses zero tightly	?
-library/src/interval/atan2_wbtest.mbt::atan2 identifies signed zero endpoints with the real interval zero	?
-library/src/interval/atan2_wbtest.mbt::certified atan2 handles axes and branch cut	?
-library/src/interval/atan2_wbtest.mbt::decorated atan2 downgrades an upper-side branch-cut touch	?
 library/src/interval/interval_decorated_wbtest.mbt::ITF1788 minimal decorated set operations	?
 library/src/interval/interval_decorated_wbtest.mbt::decorated NaI propagates and empty canonicalizes	?
 library/src/interval/interval_decorated_wbtest.mbt::decorated NaI propagates through unary binary and ternary operations	?
@@ -26,13 +16,10 @@ library/src/interval/interval_decorated_wbtest.mbt::decorations compare in the p
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, long	?
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, sample	?
 library/src/interval/bound_label_wbtest.mbt::labels of the bounds: written-out cases	?
-library/src/interval/cancel_bottom_wbtest.mbt::away from the bottom of the range the result is the same as before	?
 library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus at the bottom of the range: the cases of the issue	?
 library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus decide on the exact values near the bottom of the range	?
 library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5	?
 library/src/interval/cancel_bottom_wbtest.mbt::equal widths give a point, with a canonical zero	?
-library/src/interval/cancel_far_width_wbtest.mbt::a point minus an interval of a tiny positive width is Entire	?
-library/src/interval/cancel_far_width_wbtest.mbt::the far addend does not decide the width of a wide interval	?
 library/src/interval/center_radius_containment_wbtest.mbt::intervals built near the bottom of the range contain their centers	?
 library/src/interval/center_radius_containment_wbtest.mbt::the interval of a center near the bottom of the range contains the center	?
 library/src/interval/certified_rounding_wbtest.mbt::decorated log1p uses its shifted IEEE domain	?
@@ -85,7 +72,6 @@ library/src/interval/far_addend_bottom_wbtest.mbt::fma of a product above the ra
 library/src/interval/far_addend_bottom_wbtest.mbt::fma with a product far below the range floor adds one p-bit unit, not 2^e_min	?
 library/src/interval/far_addend_wbtest.mbt::far addends do not materialize the exponent gap	A
 library/src/interval/far_addend_wbtest.mbt::near addends stay exact	A
-library/src/interval/fma_bottom_wbtest.mbt::away from the bottom of the range fma is unchanged	?
 library/src/interval/fma_bottom_wbtest.mbt::fma near the bottom of the range is the tightest interval	?
 library/src/interval/fma_bottom_wbtest.mbt::the fma of the issue is the exact point	A
 library/src/interval/huge_argument_trig_wbtest.mbt::sin, cos, tan of 2^70000 are tight beyond the old cutoff	?
@@ -111,9 +97,6 @@ library/src/interval/integer_functions_wbtest.mbt::integer functions: unbounded 
 library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 matches the corner-and-axis hull	?
 library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 on every box of a sign-complete grid	?
 library/src/interval/interval_basics_wbtest.mbt::corner selection: sinpi and cospi match the four-call original	?
-library/src/interval/interval_basics_wbtest.mbt::interval basics: division matches the 4-division original	?
-library/src/interval/interval_basics_wbtest.mbt::interval basics: multiplication matches the 4/8-product original	?
-library/src/interval/interval_basics_wbtest.mbt::interval basics: pown matches the original powers	?
 library/src/interval/interval_basics_wbtest.mbt::try_sin/cos/tan: huge arguments around the cutoff stay sound	?
 library/src/interval/interval_literal_wbtest.mbt::interval literals: exponents at and beyond the limits of the converters	?
 library/src/interval/interval_literal_wbtest.mbt::interval literals: huge exponents	?
@@ -167,7 +150,6 @@ library/src/interval/power_trigonometric_wbtest.mbt::certified tangent detects p
 library/src/interval/power_trigonometric_wbtest.mbt::general power treats negative zero as the real interval endpoint zero	?
 library/src/interval/power_trigonometric_wbtest.mbt::trigonometric unbounded and extreme arguments degrade conservatively	?
 library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are the smallest numbers with their properties near the bottom of the range	?
-library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are unchanged away from the bottom of the range	?
 library/src/interval/radius_width_smallest_wbtest.mbt::radius and width of the interval of the issue	?
 library/src/interval/total_forms_wbtest.mbt::atanh of an interval meeting the closure of the domain at one point	?
 library/src/interval/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S

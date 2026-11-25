@@ -109,12 +109,10 @@ fn basics_table_bound(text : String, precision : Int32) -> @binary.Binary {
 
 ///|
 /// A bound of the table equals the bound of the interval; the sign of a zero is not compared.
-fn basics_table_same(
-  expected : @binary.Binary,
-  got : @binary.Binary,
-) -> Bool {
+fn basics_table_same(expected : @binary.Binary, got : @binary.Binary) -> Bool {
   if expected.classify() == FpClass::Infinity {
-    got.classify() == FpClass::Infinity && expected.is_sign_minus() == got.is_sign_minus()
+    got.classify() == FpClass::Infinity &&
+    expected.is_sign_minus() == got.is_sign_minus()
   } else {
     got.classify() == FpClass::Finite && expected.compare(got) == 0
   }
@@ -122,9 +120,9 @@ fn basics_table_same(
 
 ///|
 // oracle: A
-// source: the hulls of the product, the quotient (denominator without zero) and the integer powers 1 to 5 over boxes made of -inf, -3, -0.1, 0, 0.3, 2.5, inf at 24 and 128 bits, rounded outward, computed with Python fractions (tools/interval_basic_ops_oracle.py, table basic_ops_table_wbtest.mbt: 2,132 rows); this replaces the comparison with the pre-#378 copies of the product, quotient and pown bounds, which shared the directed multiplication, division and power of Binary; the sign of a zero bound is checked by the zero sign tests
+// source: the hulls of the product, the quotient (denominator without zero) and the integer powers 1 to 5 over boxes made of -inf, -3, -0.1, 0, 0.3, 2.5, inf at 24 and 128 bits, and 600 random fma hulls and 400 random widths at 53 bits (c * 2^e, exponents -200 to 199, away from the bottom of the range), rounded outward, computed with Python fractions (tools/interval_basic_ops_oracle.py, table basic_ops_table_wbtest.mbt: 3,132 rows); this replaces the comparison with the pre-#378 copies of the product, quotient and pown bounds and the old formulas of fma and width, which shared the directed multiplication, division and power of Binary and exact_add_full and store_interval; the sign of a zero bound is checked by the zero sign tests
 // shares: Binary::from_hex and String::split read the table; Interval::from_bounds, Binary::inf and Binary::from_hex build the operands
-test "interval basics: product, quotient and integer powers are the exact hulls" {
+test "interval basics: product, quotient, powers, fma and width are the exact hulls" {
   let mut count = 0
   for line in basic_ops_table().split("\n") {
     let line = line.to_owned()
@@ -138,6 +136,37 @@ test "interval basics: product, quotient and integer powers are the exact hulls"
       basics_table_bound(f[3], precision),
       precision~,
     )
+    if f[0] == "width" {
+      assert_true(
+        basics_table_same(basics_table_bound(f[4], precision), a.width()),
+        msg=line,
+      )
+      count += 1
+      continue
+    }
+    if f[0] == "fma" {
+      let b = Interval::from_bounds(
+        basics_table_bound(f[4], precision),
+        basics_table_bound(f[5], precision),
+        precision~,
+      )
+      let c = Interval::from_bounds(
+        basics_table_bound(f[6], precision),
+        basics_table_bound(f[7], precision),
+        precision~,
+      )
+      let r = a.fma(b, c)
+      assert_true(
+        basics_table_same(basics_table_bound(f[8], precision), r.lo_),
+        msg=line,
+      )
+      assert_true(
+        basics_table_same(basics_table_bound(f[9], precision), r.hi_),
+        msg=line,
+      )
+      count += 1
+      continue
+    }
     let (lo, hi) = if f[0] == "pown" {
       let r = pown_positive(a, point_table_precision(f[4]), precision)
       (r.lo_, r.hi_)
@@ -154,11 +183,17 @@ test "interval basics: product, quotient and integer powers are the exact hulls"
         (r.lo_, r.hi_)
       }
     }
-    assert_true(basics_table_same(basics_table_bound(f[6], precision), lo), msg=line)
-    assert_true(basics_table_same(basics_table_bound(f[7], precision), hi), msg=line)
+    assert_true(
+      basics_table_same(basics_table_bound(f[6], precision), lo),
+      msg=line,
+    )
+    assert_true(
+      basics_table_same(basics_table_bound(f[7], precision), hi),
+      msg=line,
+    )
     count += 1
   }
-  assert_eq(count, 2132)
+  assert_eq(count, 3132)
 }
 
 ///|

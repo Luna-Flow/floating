@@ -45,6 +45,15 @@ class HullTest(unittest.TestCase):
         self.assertEqual(o.pown_hull((F(-2), F(3)), 3, 53), (F(-8), F(27)))
         self.assertEqual(o.pown_hull(("-inf", F(1)), 2, 53), (F(0), "inf"))
 
+    def test_fma_and_width(self) -> None:
+        self.assertEqual(o.fma_hull((F(-1), F(2)), (F(3), F(4)), (F(1), F(1)), 53), (F(-3), F(9)))
+        self.assertEqual(o.width_upper(F(1, 3), F(1), 4), F(11, 16))  # 2/3 = 0.1010101b rounds up to 0.1011b
+
+    def test_extra_rows_are_counted(self) -> None:
+        rows = o.extra_rows()
+        self.assertEqual(sum(r.startswith("fma ") for r in rows), o.FMA_ROWS)
+        self.assertEqual(sum(r.startswith("width ") for r in rows), o.WIDTH_ROWS)
+
     def test_fmt(self) -> None:
         self.assertEqual(o.fmt(F(3, 4)), "0x3p-2")
         self.assertEqual(o.fmt(F(-6)), "-0x6p0")
