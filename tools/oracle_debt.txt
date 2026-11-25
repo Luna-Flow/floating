@@ -52,8 +52,6 @@ library/src/interval/context_format_wbtest.mbt::panic Interval::with_precision a
 library/src/interval/context_format_wbtest.mbt::try_new rejects a precision outside 1..=binary_precision_max	?
 library/src/interval/context_rounding_wbtest.mbt::apply_ctx does not raise underflow for exact tiny endpoints	?
 library/src/interval/context_rounding_wbtest.mbt::apply_ctx raises underflow for a tiny inexact endpoint	?
-library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx applies e_max	?
-library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx follows the IEEE 1788 mid cases	?
 library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx keeps exact and normal centers	?
 library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest once	?
 library/src/interval/decorated_ill_issue443_wbtest.mbt::new with the decoration ill returns NaI (#443)	?
@@ -67,7 +65,6 @@ library/src/interval/elementary_composed_wbtest.mbt::pi-scaled extensions contai
 library/src/interval/elementary_composed_wbtest.mbt::pi-scaled intervals classify endpoint and interior poles exactly	?
 library/src/interval/elementary_composed_wbtest.mbt::rootn and hypot preserve exact identities	?
 library/src/interval/elementary_composed_wbtest.mbt::stable expm1 and log1p intervals retain tiny singleton inputs	?
-library/src/interval/elementary_point_pair_wbtest.mbt::exp and ln of a point interval equal the two-call route	?
 library/src/interval/elementary_range_wbtest.mbt::asinh and atanh of a tiny argument terminate	?
 library/src/interval/elementary_range_wbtest.mbt::exp2 encloses integer endpoints beyond the exponent range	?
 library/src/interval/elementary_range_wbtest.mbt::ln of a value just above 1 at high precision terminates	?
@@ -112,7 +109,6 @@ library/src/interval/integer_functions_wbtest.mbt::integer functions: bounds and
 library/src/interval/integer_functions_wbtest.mbt::integer functions: results are exact at a large precision and zero bounds are +0	?
 library/src/interval/integer_functions_wbtest.mbt::integer functions: the input decoration caps the result (min-rule), NaI and empty	?
 library/src/interval/integer_functions_wbtest.mbt::integer functions: unbounded boxes	?
-library/src/interval/interval_basics_wbtest.mbt::coeff_gcd: power-of-two shortcut equals the general gcd	?
 library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 matches the corner-and-axis hull	?
 library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 on every box of a sign-complete grid	?
 library/src/interval/interval_basics_wbtest.mbt::corner selection: sinpi and cospi match the four-call original	?
@@ -180,14 +176,11 @@ library/src/interval/total_forms_wbtest.mbt::atanh of an interval meeting the cl
 library/src/interval/total_forms_wbtest.mbt::exp at 160,000 bits returns an enclosure (issue 449)	?
 library/src/interval/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S
 library/src/interval/total_forms_wbtest.mbt::ln at 32,000 bits returns a tight enclosure (issue 449)	?
-library/src/interval/trig_reverse_wbtest.mbt::cos_rev: the corner cases, the pieces and the shortcuts	?
 library/src/interval/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^1000000000 returns at once	?
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the comparison of a prior end with a piece end	?
-library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a gap, merging pieces, the default prior and the shortcuts	?
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
-library/src/interval/trig_reverse_wbtest.mbt::tan_rev: the corner cases, the poles and the default prior	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision encloses across the far addend margin	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps a far lower endpoint	?
 library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps degenerate intervals	?

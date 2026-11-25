@@ -12,6 +12,9 @@ test "midpoint_ctx rounds to nearest once" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 3.3, 4.3.1 and 7.4: the largest finite number of precision p and e_max is (2 - 2^(1-p)) * 2^e_max, (2^53 - 1) * 2^-42 for (53, 10) and 15 for (4, 3), written as literals; 2^20 overflows e_max = 10; 15.5 is the tie between 15 and 16 and ties to even gives 16, which overflows; 15.25 rounds to 15
+// shares: IntervalContext::new, endpoint_rounding_value (a test helper that builds m * 2^e) and Binary::make
 test "midpoint_ctx applies e_max" {
   let ctx = IntervalContext::new(precision=53, e_max=10)
   let big = @binary.Binary::from_int(1 << 20, precision=53)
@@ -27,7 +30,12 @@ test "midpoint_ctx applies e_max" {
   assert_true(n.signum() == Sign::Negative)
   assert_true(negative_flags.overflow())
   // The largest finite value of the context is not an overflow.
-  let max = context_max_finite(ctx)
+  // (2 - 2^(1 - p)) * 2^e_max = (2^53 - 1) * 2^-42 for p = 53, e_max = 10
+  let max = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 53) - 1UL),
+    -42,
+    53,
+  )
   let (kept, kept_flags) = Interval::from_bounds(max, max).midpoint_ctx(ctx)
   assert_eq(kept.compare(max), 0)
   assert_true(kept_flags == IntervalFlags::new())
@@ -44,7 +52,7 @@ test "midpoint_ctx applies e_max" {
   let (rounded_down, below_flags) = Interval::from_bounds(below, below).midpoint_ctx(
     small_ctx,
   )
-  assert_eq(rounded_down.compare(context_max_finite(small_ctx)), 0)
+  assert_eq(rounded_down.compare(@binary.Binary::from_int(15)), 0)
   assert_false(below_flags.overflow())
   assert_true(below_flags.inexact())
 }
@@ -93,11 +101,15 @@ test "apply_ctx does not raise underflow for exact tiny endpoints" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 1788-2015 12.12.8 (mid of Empty is NaN, of a half-bounded interval the finite number of largest magnitude, of a zero midpoint +0), with the largest finite number 15 of a 4-bit format with e_max = 3 written out
+// shares: IntervalContext::new and Interval::from_bounds only
 test "midpoint_ctx follows the IEEE 1788 mid cases" {
   // IEEE 1788-2015 12.12.8: NaN for Empty, 0 for Entire, the finite number
   // of largest magnitude for a half-bounded interval, +0 for a zero midpoint.
   let ctx = IntervalContext::new(precision=4, e_max=3)
-  let max = context_max_finite(ctx)
+  // (2 - 2^-3) * 2^3 = 15, the largest finite number of a 4-bit format with e_max = 3
+  let max = @binary.Binary::from_int(15)
   let (e, empty_flags) = Interval::empty(precision=53).midpoint_ctx(ctx)
   assert_eq(e.classify(), FpClass::NaN)
   assert_true(empty_flags == IntervalFlags::new())

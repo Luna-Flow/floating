@@ -46,5 +46,22 @@ class RoundingClaimTest(unittest.TestCase):
             oracle.check_rounding_claim(lo, hi + (1 << 40))
 
 
+class RatioTest(unittest.TestCase):
+    def test_ratio_bounds_enclose_pi_times_the_ratio(self) -> None:
+        lo, hi = oracle.pi_bounds()
+        for num, den in oracle.RATIOS:
+            r_lo, r_hi = oracle.ratio_bounds(lo, hi, num, den)
+            self.assertLess(r_lo * den, lo * num + den)
+            self.assertLessEqual(r_lo * den, lo * num)
+            self.assertGreaterEqual(r_hi * den, hi * num)
+            self.assertLess(r_hi - r_lo, 3)
+
+    def test_ratio_of_six(self) -> None:
+        # pi / 6 = 0.5235987755982988...: 2^2048 * that, written to 10 digits by integer arithmetic
+        lo, hi = oracle.pi_bounds()
+        r_lo, _ = oracle.ratio_bounds(lo, hi, 1, 6)
+        self.assertEqual((r_lo * 10**10) >> 2048, 5235987755)
+
+
 if __name__ == "__main__":
     unittest.main()

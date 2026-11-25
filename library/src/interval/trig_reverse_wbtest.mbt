@@ -145,6 +145,9 @@ test "sin_rev, the corner cases of the comparison of a prior end with a piece en
 }
 
 ///|
+// oracle: A, S
+// source: the piece ends are the multiples of pi written out: asin(1/2) = pi/6 and pi - pi/6 = 5 pi/6, from ref_pi_ratio (pi by Machin's formula in Python integers, divided exactly by the ratio, rounded outward: tools/interval_pi_oracle.py), rounded to p bits in both directions; the cut cases at 0 and 3, the empty cases, the default prior and the pass-through cases are written out by hand from IEEE 1788-2015 10.5.4 (sinRev); the checks of Entire, Empty and the prior itself have no numeric value (S)
+// shares: Interval::from_bounds, with_precision (directed rounding of the table value to p bits), Interval ==, is_entire
 test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
   for p in tr_precisions {
     let half = tr_num(0.5, p)
@@ -152,10 +155,10 @@ test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
     let one = tr_num(1.0, p)
     // c = [0, 1/2]: pieces [0, pi/6] and [5 pi/6, pi] (and the shifts by 2 pi)
     let c = tr_box(zero, half, p)
-    let sixth = Interval::exact(half, precision=400).asin()
-    let pi = ref_pi_interval(400)
+    // asin(1/2) = pi/6 and pi - pi/6 = 5 pi/6, from the bounds of pi (Python integers)
+    let sixth = ref_pi_ratio(1, 6, 400)
     let (t1_lo, t1_hi) = tr_round(sixth, p)
-    let t2 = pi - sixth
+    let t2 = ref_pi_ratio(5, 6, 400)
     let (t2_lo, t2_hi) = tr_round(t2, p)
     // a prior strictly inside the gap (pi/6, 5 pi/6): Empty
     assert_true(c.sin_rev(x=tr_box(t1_hi, t2_lo, p)).is_empty())
@@ -180,7 +183,7 @@ test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
     )
     // c = [1/2, 1]: the pieces [pi/6, pi/2] and [pi/2, 5 pi/6] share the end pi/2
     let c2 = tr_box(half, one, p)
-    let (_, t3_hi) = tr_round(pi - sixth, p)
+    let (_, t3_hi) = tr_round(t2, p)
     assert_true(
       tr_same(c2.sin_rev(x=tr_box(zero, tr_num(4.0, p), p)), t1_lo, t3_hi),
     )
@@ -223,6 +226,9 @@ test "sin_rev: a prior spanning very many periods needs only the pieces at its t
 }
 
 ///|
+// oracle: A, S
+// source: the ends are pi, 2 pi (from ref_pi_interval, Python Machin, scaled by an exact integer and rounded to p bits) and acos(1/2) = pi/3 (ref_pi_ratio, the bounds of pi divided exactly by 3); the exact ends 0, 3, 4, 6, 7 and the empty cases are written out by hand from IEEE 1788-2015 10.5.4 (cosRev); the merge case at the end checks only that the result is not Empty (S)
+// shares: Interval::from_bounds, with_precision, Interval::exact times an integer and 0.5 (exact at 400 bits)
 test "cos_rev: the corner cases, the pieces and the shortcuts" {
   for p in tr_precisions {
     let zero = tr_num(0.0, p)
@@ -267,7 +273,8 @@ test "cos_rev: the corner cases, the pieces and the shortcuts" {
     let half = tr_num(0.5, p)
     let c2 = tr_box(zero, half, p)
     let pi = ref_pi_interval(400)
-    let third = Interval::exact(half, precision=400).acos()
+    // acos(1/2) = pi/3
+    let third = ref_pi_ratio(1, 3, 400)
     let (a_lo, a_hi) = tr_round(third, p)
     let (b_lo, b_hi) = tr_pi_multiple(1, p)
     assert_true(
@@ -292,6 +299,9 @@ test "cos_rev: the corner cases, the pieces and the shortcuts" {
 }
 
 ///|
+// oracle: A, S
+// source: the ends are k pi/2 (ref_pi_interval, Python Machin, scaled by an exact integer and rounded to p bits) and atan(1) = pi/4 (ref_pi_ratio, the bounds of pi divided exactly by 4); the exact ends 0, 1.2, 3 and the empty cases are written out by hand from IEEE 1788-2015 10.5.4 (tanRev, the pole excluded); the default prior cases check Entire only (S)
+// shares: Interval::from_bounds, with_precision, Interval::exact times an integer and 0.5 (exact at 400 bits)
 test "tan_rev: the corner cases, the poles and the default prior" {
   for p in tr_precisions {
     let zero = tr_num(0.0, p)
@@ -318,7 +328,8 @@ test "tan_rev: the corner cases, the poles and the default prior" {
     assert_true(c.tan_rev(x=tr_box(tr_tiny(p), tr_num(1.0, p), p)).is_empty())
     // c = [1, +inf): x in [pi/4 + k pi, pi/2 + k pi), the pole not included
     let c1 = tr_box(one, pos_inf(p), p)
-    let quarter = Interval::exact(one, precision=400).atan()
+    // atan(1) = pi/4
+    let quarter = ref_pi_ratio(1, 4, 400)
     let (q_lo, q_hi) = tr_round(quarter, p)
     let (h_lo, h_hi) = tr_pi_multiple(1, p)
     // a prior just below the pole: met, the end is the prior's own end

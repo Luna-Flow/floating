@@ -60,7 +60,7 @@ test "Interval::with_precision widening keeps a wide interval exact" {
 // source: end values written out, computed with Python integers and fractions (round the lower end down and the upper end up to p significant bits): 1 + 2^-52 rounds up to 1 + 2^-7, 1 + 2^-15, 1 + 2^-23 at p = 8, 16, 24 and is exact at 53 and 113 bits; 100001 (17 bits) rounds down to 99840 at 8 bits and 100000 at 16 bits and is exact from 24 bits; powers of two are exact at every precision (two intervals: [1,2], [-1/8,1/8], [2^-60,2^70]); rows are (lo, hi, p, expected lo, expected hi)
 // shares: Interval::from_bounds, Binary::from_double and Interval::equal (building and comparing only)
 test "Interval::with_precision does not widen ordinary intervals" {
-  let rows : Array[(Double, Double, Int, Double, Double)] = [
+  let rows : Array[(Double, Double, Int32, Double, Double)] = [
     (1.0, 2.0, 8, 1.0, 2.0),
     (1.0, 2.0, 113, 1.0, 2.0),
     (1.0, 1.0000000000000002, 8, 1.0, 1.0078125),
@@ -70,8 +70,13 @@ test "Interval::with_precision does not widen ordinary intervals" {
     (1.0, 1.0000000000000002, 113, 1.0, 1.0000000000000002),
     (-0.125, 0.125, 8, -0.125, 0.125),
     (-0.125, 0.125, 113, -0.125, 0.125),
-    (8.673617379884035e-19, 1.1805916207174113e+21, 8, 8.673617379884035e-19, 1.1805916207174113e+21),
-    (8.673617379884035e-19, 1.1805916207174113e+21, 113, 8.673617379884035e-19, 1.1805916207174113e+21),
+    (
+      8.673617379884035e-19, 1.1805916207174113e+21, 8, 8.673617379884035e-19, 1.1805916207174113e+21,
+    ),
+    (
+      8.673617379884035e-19, 1.1805916207174113e+21, 113, 8.673617379884035e-19,
+      1.1805916207174113e+21,
+    ),
     (100001.0, 1048576.0, 8, 99840.0, 1048576.0),
     (100001.0, 1048576.0, 16, 100000.0, 1048576.0),
     (100001.0, 1048576.0, 24, 100001.0, 1048576.0),
