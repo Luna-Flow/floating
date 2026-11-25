@@ -132,6 +132,31 @@ class KernelMutationTests(unittest.TestCase):
         self.assertTrue(vm.judge_kernel(0, {"disabled": "", "actions": {"u0": "reuse"}}, False, None))
 
 
+class StageMutationTests(unittest.TestCase):
+    def test_the_stage_rows_apply_to_the_current_sources(self) -> None:
+        for item in vm._stage_mutations():
+            text = (REPO_ROOT / item.mutation.path).read_text(encoding="utf-8")
+            self.assertNotEqual(vm.apply_mutation(text, item.mutation), text, item.mutation.name)
+
+    def test_the_stage_rows_name_units_that_exist(self) -> None:
+        names = {spec.stage for specs in vm.su.SPECS.values() for spec in specs}
+        for item in vm._stage_mutations():
+            self.assertLessEqual(item.expected, names, item.mutation.name)
+
+    def test_the_stage_judge_wants_exactly_the_expected_keys(self) -> None:
+        before = {"a": "1", "b": "2"}
+        self.assertEqual(vm.judge_stage({"a"}, before, {"a": "9", "b": "2"}, False, None), [])
+        self.assertTrue(vm.judge_stage({"a"}, before, {"a": "1", "b": "2"}, False, None))  # a false reuse
+        self.assertTrue(vm.judge_stage({"a"}, before, {"a": "9", "b": "8"}, False, None))  # a false rerun
+        self.assertTrue(vm.judge_stage({"a"}, before, {"a": "9"}, False, None))  # the unit set changed
+        self.assertEqual(vm.judge_stage(set(), before, dict(before), False, None), [])
+
+    def test_the_stage_judge_wants_the_oracle_to_fail_when_asked(self) -> None:
+        before = {"a": "1"}
+        self.assertEqual(vm.judge_stage({"a"}, before, {"a": "2"}, True, True), [])
+        self.assertTrue(vm.judge_stage({"a"}, before, {"a": "2"}, True, False))
+
+
 class ScratchTests(unittest.TestCase):
     def test_a_scratch_worktree_on_another_commit_or_dirty_is_refused(self) -> None:
         import tempfile

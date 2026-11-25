@@ -35,6 +35,10 @@ Usage: python3 tools/verify_mutation.py [--worktree DIR] [--only NAME ...] [--ke
 kernel stages, then an edit of a package source (all seven must run and a stage must fail), of a
 package test file and a comment-only edit (all seven run: the key is of file content, coarser than
 code, allowed) and an edit of `binary` (none runs).
+`--stages` checks the whole-stage units of the `decimal` and `decimal_gda` gates (`stage_units.py`):
+the key of every unit is formed before and after each edit and the set of units whose key changed
+must be exactly the expected one (a code edit and a comment edit of a package the unit reaches, an edit
+of a corpus row, an edit outside the reach: none); an edited oracle row must also make the stage fail.
 Heavy: one build per mutation (about 30 s each) and two runs of the selection.
 The scratch worktree defaults to `verify-mutation` beside the other worktrees; an existing one
 must be clean and on the HEAD of this checkout.
@@ -57,6 +61,8 @@ from typing import Any
 
 import code_fingerprint as cf
 import incremental as inc
+import run_ci
+import stage_units as su
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -354,6 +360,110 @@ def kernel_rows(scratch: Path, work: Path) -> list[dict[str, object]]:
     return rows
 
 
+# The stage units of the decimal and decimal_gda gates (`stage_units.py`): the edits of the third
+# table of the mutation test. Only keys are compared (no build): `expected` is the set of stage
+# units whose key must change, written out from the import graph and the declared files.
+GDA_PACKAGE_TESTS = "DECIMAL_GDA: package tests"
+KERNEL_ORACLE_TABLE = "DECIMAL: kernel oracle table"
+STAGE_SCOPES = ("decimal_gda", "decimal")
+
+
+@dataclasses.dataclass(frozen=True)
+class StageMutation:
+    mutation: Mutation
+    expected: frozenset[str]  # stage units whose key must change
+    must_fail: str = ""  # a command (relative to the repository) that must fail on the edited tree
+
+
+def _stage_mutations() -> list[StageMutation]:
+    gda = next(m for m in MUTATIONS if m.name == "decimal-gda")
+    binary = next(m for m in MUTATIONS if m.name == "binary-add")
+    row = Mutation(
+        "oracle-row", "library/src/internal/decimal_kernel/coeff_oracle_rows_wbtest.mbt",
+        "the first row of the round table (a corpus row of the oracle stage)", r"^$",
+        "  #|round-1 9618912607989939363", "  #|round-1 9618912607989939364", "key-only",
+    )
+    return [
+        # decimal_gda imports `binary`, so an edit there reaches the GDA package tests too
+        StageMutation(dataclasses.replace(gda, name="gda-source"), frozenset({GDA_PACKAGE_TESTS})),
+        StageMutation(
+            Mutation("gda-comment", gda.path, "a comment appended to a source file of the package (the key is of file content)", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset({GDA_PACKAGE_TESTS}),
+        ),
+        StageMutation(dataclasses.replace(binary, name="binary-edit"), frozenset({GDA_PACKAGE_TESTS})),
+        StageMutation(
+            Mutation("oracle-program", "tools/decimal_kernel_oracle.py", "a comment appended to the oracle program", r"^$", "", "\n# a comment appended\n", "comment"),
+            frozenset({KERNEL_ORACLE_TABLE}),
+        ),
+        # the rows file lives in `internal/decimal_kernel`, which `decimal_gda` imports: the key is of file
+        # content, so the GDA package tests rerun too (coarser than code, allowed)
+        StageMutation(row, frozenset({KERNEL_ORACLE_TABLE, GDA_PACKAGE_TESTS}), must_fail="tools/decimal_kernel_oracle.py"),
+        # `decimal` is not imported by `decimal_gda`: none of the stage units reaches it
+        StageMutation(
+            Mutation("decimal-outside", "library/src/decimal/classify.mbt", "a comment appended to a source file of `decimal` (outside every stage unit)", r"^$", "", "\n// a comment appended\n", "comment"),
+            frozenset(),
+        ),
+    ]
+
+
+def stage_keys(root: Path, ledger: Path) -> dict[str, str]:
+    """The key of every stage unit of the two gates in the tree at `root` (empty plan: nothing is run)."""
+    keys: dict[str, str] = {}
+    for scope in STAGE_SCOPES:
+        stages = [(s.name, tuple(s.command)) for s in run_ci.stages_for(scope, 3)]
+        plan = su.make_plan(scope, stages, root, inc.Ledger(ledger), 0, 0.0)
+        if plan.disabled:
+            raise RuntimeError(f"stage units are disabled in {root}: {plan.disabled}")
+        for name, why in plan.unit_disabled.items():
+            raise RuntimeError(f"stage unit {name} is not keyed in {root}: {why}")
+        keys.update(plan.keys)
+    return keys
+
+
+def judge_stage(expected: Collection[str], before: Mapping[str, str], after: Mapping[str, str], must_fail: bool, failed: bool | None) -> list[str]:
+    """The checks of one stage row: the units whose key changed are exactly the expected ones."""
+    problems = []
+    if set(before) != set(after):
+        problems.append(f"the unit set changed: {sorted(set(before) ^ set(after))}")
+    changed = {name for name in before if after.get(name) != before[name]}
+    if changed != set(expected):
+        problems.append(f"keys changed for {sorted(changed)}, expected {sorted(expected)}")
+    if must_fail and not failed:
+        problems.append("the stage passes on the edited tree: its oracle did not see the edit")
+    return problems
+
+
+def stage_rows(scratch: Path, work: Path) -> list[dict[str, object]]:
+    ledger = work / "stage-keys.jsonl"
+    # the `moon test --dry-run` of a moon stage needs the modules of the scratch tree (the gates' first stage)
+    subprocess.run(run_ci.DEPENDENCY_STAGE.command, cwd=scratch, check=True, capture_output=True)
+    before = stage_keys(scratch, ledger)
+    rows: list[dict[str, object]] = []
+    for item in _stage_mutations():
+        mutation = item.mutation
+        path = scratch / mutation.path
+        original = path.read_text(encoding="utf-8")
+        failed: bool | None = None
+        try:
+            path.write_text(apply_mutation(original, mutation), encoding="utf-8")
+            after = stage_keys(scratch, ledger)
+            if item.must_fail:
+                failed = subprocess.run([sys.executable, item.must_fail, "--check"], cwd=scratch, capture_output=True).returncode != 0
+        finally:
+            path.write_text(original, encoding="utf-8")
+        problems = judge_stage(item.expected, before, after, bool(item.must_fail), failed)
+        rows.append(
+            {
+                "name": mutation.name, "kind": mutation.kind, "function": mutation.function,
+                "expected": len(item.expected), "ran": sum(1 for n in before if after.get(n) != before[n]),
+                "failed": 1 if failed else 0, "reused_failing": 0,
+                "verdict": "held" if not problems else "FAILED: " + "; ".join(problems),
+            }
+        )
+        print(format_table(rows[-1:]).split("\n")[-1], flush=True)
+    return rows
+
+
 def format_table(rows: Sequence[Mapping[str, object]]) -> str:
     """The result as a Markdown table."""
     lines = [
@@ -387,7 +497,7 @@ def run_selection(worktree: Path, ledger: Path, output_tag: str, extra: Sequence
     return result.returncode, json.loads(summary_path.read_text(encoding="utf-8"))
 
 
-def scratch_problem(scratch: Path) -> str | None:
+def scratch_problem(scratch: Path, needs_data: bool = True) -> str | None:
     """Why an existing scratch worktree cannot be used, or None: it must be on the HEAD of this
     checkout, clean, and have the corpora."""
     head = inc.git_output(REPO_ROOT, "rev-parse", "HEAD")
@@ -396,7 +506,7 @@ def scratch_problem(scratch: Path) -> str | None:
         return f"{scratch} is on {there[:10] or 'no commit'}, this checkout on {head[:10]}: remove it or check it out"
     if inc.git_output(scratch, "status", "--porcelain", "--untracked-files=no"):
         return f"{scratch} has uncommitted changes: clean it"
-    if not (scratch / ".tmp" / "binary-conformance").is_dir():
+    if needs_data and not (scratch / ".tmp" / "binary-conformance").is_dir():
         return f"{scratch} has no .tmp/binary-conformance"
     return None
 
@@ -407,20 +517,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--only", action="append", default=[], help="run only these mutations")
     parser.add_argument("--keep", action="store_true", help="keep the scratch worktree")
     parser.add_argument("--kernel", action="store_true", help="check the kernel units instead of the TestFloat and MPFR units")
+    parser.add_argument("--stages", action="store_true", help="check the whole-stage units of the decimal and decimal_gda gates")
     args = parser.parse_args(argv)
     mutations = [m for m in MUTATIONS if not args.only or m.name in args.only]
     scratch = args.worktree or inc.main_checkout(REPO_ROOT) / ".claude" / "worktrees" / "verify-mutation"
     created = False
     data = REPO_ROOT / ".tmp" / "binary-conformance"
-    if not data.is_dir():
+    if not data.is_dir() and not args.stages:
         print(f"verify_mutation: {data} is missing: fetch the corpora first (`just conformance fetch binary`)", file=sys.stderr)
         return 2
     if not scratch.exists():
         subprocess.run(["git", "worktree", "add", "--detach", str(scratch), "HEAD"], cwd=REPO_ROOT, check=True)
         created = True
-        shutil.copytree(data, scratch / ".tmp" / "binary-conformance")
+        if data.is_dir():
+            shutil.copytree(data, scratch / ".tmp" / "binary-conformance")
     else:
-        problem = scratch_problem(scratch)
+        problem = scratch_problem(scratch, not args.stages)
         if problem:
             print(f"verify_mutation: {problem}", file=sys.stderr)
             return 2
@@ -428,6 +540,11 @@ def main(argv: list[str] | None = None) -> int:
     rows: list[dict[str, object]] = []
     failed_any = False
     try:
+        if args.stages:
+            rows = stage_rows(scratch, work)
+            print()
+            print(format_table(rows))
+            return 1 if any(str(r["verdict"]).startswith("FAILED") for r in rows) else 0
         if args.kernel:
             rows = kernel_rows(scratch, work)
             print()
