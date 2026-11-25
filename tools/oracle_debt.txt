@@ -251,12 +251,9 @@ library/src/binary/elementary_agm_ln_wbtest.mbt::mutated ln AGM kernels are caug
 library/src/binary/elementary_ball_fold_wbtest.mbt::exp burst kernel equals the kernel with two products per chunk	E
 library/src/binary/elementary_ball_fold_wbtest.mbt::exp fold by one full product equals the two separate products	B
 library/src/binary/elementary_ball_fold_wbtest.mbt::trig fold of one component equals the component of the full fold	C
-library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp at the reduction boundaries	C
-library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp contains the series enclosure at higher precision	C
 library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp declines outside its range	A
 library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp is no wider than the series enclosure	S
 library/src/binary/elementary_burst_exp_wbtest.mbt::exp results are identical with and without the bit-burst kernel	C
-library/src/binary/elementary_burst_exp_wbtest.mbt::mutated bit-burst kernels are caught by the containment test	C
 library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step contains the series enclosure at higher precision	B
 library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step declines outside its range	A
 library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step is no wider than the series enclosure	S
@@ -265,9 +262,7 @@ library/src/binary/elementary_burst_ln_wbtest.mbt::ln keeps its results when the
 library/src/binary/elementary_burst_ln_wbtest.mbt::ln results are identical with and without the Newton step	C
 library/src/binary/elementary_burst_ln_wbtest.mbt::mutated ln Newton steps are caught by the containment test	B
 library/src/binary/elementary_burst_trig_wbtest.mbt::bit-burst sin and cos are no wider than the series enclosure	S
-library/src/binary/elementary_burst_trig_wbtest.mbt::bit-burst sin and cos contain the series enclosure at higher precision	C
 library/src/binary/elementary_burst_trig_wbtest.mbt::bit-burst sin and cos decline outside their range	none
-library/src/binary/elementary_burst_trig_wbtest.mbt::mutated bit-burst sin and cos are caught by the containment test	C
 library/src/binary/elementary_burst_trig_wbtest.mbt::sin and cos results equal the rounded series enclosure at high precision	C
 library/src/binary/elementary_certified_wbtest.mbt::Binary acos rejects inputs outside its domain instead of recursing	A
 library/src/binary/elementary_certified_wbtest.mbt::Binary atan2 follows the IEEE signed-zero special cases	C
@@ -300,9 +295,7 @@ library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric reducti
 library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric resource failure retains proof details	A
 library/src/binary/elementary_certified_wbtest.mbt::certified target witness rejects equal values with unequal flags	A
 library/src/binary/elementary_constants_split_wbtest.mbt::constants dispatch to the splitting from the threshold	C
-library/src/binary/elementary_constants_split_wbtest.mbt::dropping terms from the splitting breaks containment	C
 library/src/binary/elementary_constants_split_wbtest.mbt::split constants are no wider than the series enclosures	S
-library/src/binary/elementary_constants_split_wbtest.mbt::split constants enclose the series enclosures at higher precision	C
 library/src/binary/elementary_constants_split_wbtest.mbt::split constants nest across precisions	S
 library/src/binary/elementary_constants_wbtest.mbt::certified constant caches return the uncached enclosures	C
 library/src/binary/elementary_constants_wbtest.mbt::certified constant caches stay bounded and skip very large precisions	C
@@ -310,7 +303,6 @@ library/src/binary/elementary_constants_wbtest.mbt::certified constants are tigh
 library/src/binary/elementary_constants_wbtest.mbt::elementary functions are unchanged by cache state and call order	S
 library/src/binary/elementary_directed_pair_wbtest.mbt::exp directed pair equals the two directed calls on every operand	C
 library/src/binary/elementary_directed_pair_wbtest.mbt::ln directed pair equals the two directed calls on every operand	C
-library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp enclosure contains the series enclosure's true value	C
 library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path declines arguments it does not cover	A
 library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path gives the same correctly rounded results	C
 library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln enclosure contains a tighter series enclosure and is not looser	E
@@ -332,17 +324,12 @@ library/src/binary/elementary_range_wbtest.mbt::exponential functions overflow i
 library/src/binary/elementary_range_wbtest.mbt::exponential functions underflow instead of failing certification	A
 library/src/binary/elementary_range_wbtest.mbt::non-try elementary APIs return NaN with not_computed on failure	A
 library/src/binary/elementary_split_tree_wbtest.mbt::cosine ball from a sine ball: the plus one of the upper end and the clamp	C
-library/src/binary/elementary_split_tree_wbtest.mbt::exp and trig bursts contain the exact value at 256 bits more	C
 library/src/binary/elementary_split_tree_wbtest.mbt::exp splitting tree equals the tree with a power product at every node	E
 library/src/binary/elementary_split_tree_wbtest.mbt::real sine tree equals the odd part of the complex tree	E
 library/src/binary/elementary_split_tree_wbtest.mbt::stage balls of the real sine series contain the complex stage balls	E
 library/src/binary/elementary_split_tree_wbtest.mbt::trig splitting tree equals the tree with a power product at every node	C
-library/src/binary/elementary_table_exp_wbtest.mbt::table entries enclose exp(j / 2^k)	C
-library/src/binary/elementary_table_exp_wbtest.mbt::table exp contains the series enclosure at higher precision	C
 library/src/binary/elementary_table_exp_wbtest.mbt::table exp declines out-of-range arguments	S
 library/src/binary/elementary_table_exp_wbtest.mbt::table exp is within a few ulps	S
-library/src/binary/elementary_table_exp_wbtest.mbt::table exp near the table boundaries	C
-library/src/binary/elementary_table_exp_wbtest.mbt::table exp: large n and multiples of ln 2	C
 library/src/binary/elementary_table_exp_wbtest.mbt::taylor kernel encloses exp(a / 2^f) for extreme and random remainders	B
 library/src/binary/elementary_toolkit_digest_wbtest.mbt::kernel enclosures are bit-identical to the pre-toolkit kernels	E
 library/src/binary/elementary_unused_series_wbtest.mbt::exp enclosure skips the duplicate series without changing a bit	E
