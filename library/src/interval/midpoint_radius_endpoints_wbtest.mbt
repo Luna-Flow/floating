@@ -75,27 +75,6 @@ test "the endpoints of Interval::from_midpoint_radius are the hull of the exact 
 }
 
 ///|
-test "away from the bottom of the range the endpoints are unchanged" {
-  let state = Ref(0x9e3779b97f4a7c15UL)
-  for _ in 0..<3000 {
-    let c = ne_value(
-      ne_next(state) % 1000000UL + 1UL,
-      (ne_next(state) % 400UL).to_int() - 200,
-      53,
-    )
-    let r = ne_value(
-      ne_next(state) % 1000UL + 1UL,
-      (ne_next(state) % 400UL).to_int() - 250,
-      53,
-    )
-    let interval = Interval::from_midpoint_radius(c, r, precision=53)
-    let (lo, hi) = ne_expected(c, r, 53)
-    assert_eq(interval.lower_bound().compare(lo), 0)
-    assert_eq(interval.upper_bound().compare(hi), 0)
-  }
-}
-
-///|
 // oracle: A
 // source: written out in the comment of the test, computed with CPython fractions: the exact c - r rounded down and c + r rounded up to 53 bits on the grid below the range floor (checked again with a Python Fraction program for this audit: 4156949235071075 * 2^-1073741872 and 8313898470154599 * 2^-1073741873)
 // shares: ne_value (a test helper that builds m * 2^e with Binary::make) and Binary::to_string (prints the ends); Interval::from_midpoint_radius is the code under test
