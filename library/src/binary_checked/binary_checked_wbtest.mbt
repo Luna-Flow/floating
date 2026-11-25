@@ -1,4 +1,7 @@
 ///|
+// oracle: S
+// source: design contract of the checked package: a pipeline that holds an error stays an error through exp10; no value is computed
+// shares: BinaryChecked::err, exp10, result
 test "checked elementary operations preserve certified failures" {
   let failed = BinaryChecked::err(
       @def.ArithmeticError::unsupported("test failure"),
@@ -12,6 +15,9 @@ test "checked elementary operations preserve certified failures" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: exp(0) = 1 and ln(1) = +0, so exp then ln of 0 is +0, compared by identity (sign, exponent, coefficient, precision)
+// shares: assert_identical, Binary::zero
 test "checked elementary operations compose successful values" {
   let result = BinaryChecked::from_int(0).exp().ln().result()
   match result {
@@ -21,6 +27,9 @@ test "checked elementary operations compose successful values" {
 }
 
 ///|
+// oracle: A
+// source: written out: hypot(3, 4) = 5 exactly (3^2 + 4^2 = 25), compared by identity
+// shares: assert_identical, Binary::from_int
 test "checked hypot preserves exact results" {
   let result = BinaryChecked::from_int(3)
     .hypot(BinaryChecked::from_int(4))
@@ -32,6 +41,9 @@ test "checked hypot preserves exact results" {
 }
 
 ///|
+// oracle: A
+// source: written out: the result of ln_ctx has the precision of the context it is rounded in (24), whatever the precision of the operand (53)
+// shares: nothing
 test "checked context methods preserve target precision" {
   let context = @binary.BinaryContext::new(precision=24)
   let result = BinaryChecked::from_int(2, precision=53).ln_ctx(context)
@@ -44,6 +56,9 @@ test "checked context methods preserve target precision" {
 }
 
 ///|
+// oracle: S
+// source: design contract of the checked package: an error operand makes add_ctx an error; no value is computed
+// shares: BinaryChecked::err, add_ctx
 test "checked context arithmetic short-circuits errors" {
   let context = @binary.BinaryContext::binary64()
   let failed = BinaryChecked::err(@def.ArithmeticError::unsupported("sentinel")).add_ctx(
@@ -54,6 +69,9 @@ test "checked context arithmetic short-circuits errors" {
 }
 
 ///|
+// oracle: A
+// source: written out: the precisions 0, -1 and binary_precision_max + 1 are outside the documented range 1..=binary_precision_max and give an error, binary_precision_max itself is accepted
+// shares: binary_precision_max (the limit itself, read from the binary package)
 test "constructors return Err for a precision outside 1..=binary_precision_max" {
   let max = @binary.binary_precision_max
   assert_true(BinaryChecked::from_int(3, precision=0).is_err())

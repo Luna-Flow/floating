@@ -129,6 +129,9 @@ fn wrapper_expected_pown(a : String, n : Int32) -> String {
 }
 
 ///|
+// oracle: A
+// source: the table `wrapper_expected_div` and the sqrt table written from IEEE 754-2019 6.2 and 7.2 a) to e), 7.3 for every pair of the ten special operands at precision 24, 53 and 113; the table mirrors the one of the binary package tests (same clauses), it does not call the code under test
+// shares: wrapper_operand and wrapper_render (build the operand, print the outcome)
 test "BinaryChecked follows the IEEE special-value table" {
   let names = wrapper_names()
   let failures = []

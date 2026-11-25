@@ -65,7 +65,7 @@ REPO = Path(__file__).resolve().parent.parent
 DEBT_FILE = REPO / "tools" / "oracle_debt.txt"
 # The length of tools/oracle_debt.txt. Lowering the list lowers this number in the same commit;
 # raising it is visible in review and is a decision, not a side effect.
-DEBT_LIMIT = 1078
+DEBT_LIMIT = 1057
 ROOTS = ("library/src", "tooling/src")
 LEVELS = ("A", "B", "E", "S")
 KEYS = ("oracle", "source", "shares", "primitives", "underneath")

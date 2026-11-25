@@ -490,27 +490,6 @@ library/src/binary/to_integer_wbtest.mbt::convertToInteger handles every width a
 library/src/binary/to_integer_wbtest.mbt::convertToInteger rounds, checks the range, and reports flags	A
 library/src/binary/trig_midpoint_sweep_wbtest.mbt::midpoint form equals the two-ended form on the tiny and near-multiple sweep	E
 library/src/binary/trig_reduction_wbtest.mbt::trigonometric bounds are bit-identical to the pre-#378 path	E
-library/src/binary_checked/binary_checked_wbtest.mbt::checked context arithmetic short-circuits errors	?
-library/src/binary_checked/binary_checked_wbtest.mbt::checked context methods preserve target precision	?
-library/src/binary_checked/binary_checked_wbtest.mbt::checked elementary operations compose successful values	?
-library/src/binary_checked/binary_checked_wbtest.mbt::checked elementary operations preserve certified failures	?
-library/src/binary_checked/binary_checked_wbtest.mbt::checked hypot preserves exact results	?
-library/src/binary_checked/binary_checked_wbtest.mbt::constructors return Err for a precision outside 1..=binary_precision_max	?
-library/src/binary_checked/checked_special_values_wbtest.mbt::BinaryChecked follows the IEEE special-value table	?
-library/src/binary_checked/ctx_flag_rule_wbtest.mbt::ctx rule: add sub mul div map the flags, both operand orders, every rounding	?
-library/src/binary_checked/ctx_flag_rule_wbtest.mbt::ctx rule: overflow, underflow and inexact stay Ok	?
-library/src/binary_checked/ctx_flag_rule_wbtest.mbt::ctx rule: pown_ctx	?
-library/src/binary_checked/ctx_flag_rule_wbtest.mbt::ctx rule: sqrt_ctx	?
-library/src/binary_checked/ctx_flag_rule_wbtest.mbt::ctx rule: x_ctx agrees with x on errors for the default context	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::BinaryChecked exp agrees with the ExpContextual trait	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::BinaryChecked hypot and atan2 signal only for signaling NaN	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::BinaryChecked pow maps poles and invalid operations	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::BinaryChecked rootn maps poles and invalid operations	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::elementary BinaryChecked methods keep range exceptions in Ok	?
-library/src/binary_checked/elementary_special_values_wbtest.mbt::elementary BinaryChecked methods map exceptions to errors	?
-library/src/binary_checked/pi_inverse_wbtest.mbt::checked asinpi, acospi, atanpi and atan2pi map the exception flags	?
-library/src/binary_checked/pm1_wbtest.mbt::checked exp2m1, exp10m1, log2p1 and log10p1 map the exception flags	?
-library/src/binary_checked/rsqrt_compound_powr_wbtest.mbt::checked rsqrt, compound and powr map the exception flags	?
 library/src/decimal/add_tiny_addend_underflow_wbtest.mbt::add of a tiny value and a far smaller addend raises underflow	?
 library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 rounding away from zero is not a zero (#332)	?
 library/src/decimal/atan2_underflow_zero_exponent_issue332_wbtest.mbt::atan2 underflowing to zero keeps the least exponent (#332)	?

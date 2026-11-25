@@ -118,6 +118,9 @@ fn ctx_rule_check(
 }
 
 ///|
+// oracle: A, S
+// source: the exception class from `ctx_rule_expect`, written from IEEE 754-2019 6.2, 7.2 a) d) b) e) and 7.3 (the header of the file); the values are also compared with the unwrapped Binary add_ctx, sub_ctx, mul_ctx, div_ctx (a wrapper against what it wraps: S)
+// shares: wrapper_names, wrapper_operand, wrapper_render, ctx_rule_check (the helpers that build the operands and print the outcome)
 test "ctx rule: add sub mul div map the flags, both operand orders, every rounding" {
   for ctx_pair in ctx_rule_contexts() {
     let (cname, ctx) = ctx_pair
@@ -158,6 +161,9 @@ test "ctx rule: add sub mul div map the flags, both operand orders, every roundi
 }
 
 ///|
+// oracle: A, S
+// source: the exception class written from IEEE 754-2019 7.2 g) (squareRoot of a value below zero is invalid, sqrt(-0) is -0) and 7.2 a); the values are also compared with the unwrapped Binary sqrt_ctx (S)
+// shares: wrapper_names, wrapper_operand, wrapper_render, ctx_rule_check (the helpers that build the operands and print the outcome)
 test "ctx rule: sqrt_ctx" {
   for ctx_pair in ctx_rule_contexts() {
     let (cname, ctx) = ctx_pair
@@ -181,6 +187,9 @@ test "ctx rule: sqrt_ctx" {
 }
 
 ///|
+// oracle: A, S
+// source: the exception class written from IEEE 754-2019 9.2.1 (pown(+-0, n) with n < 0 is divideByZero, pown(x, 0) is 1 unless x is a signaling NaN) and 7.2 a); the values are also compared with the unwrapped Binary pown_ctx (S)
+// shares: wrapper_names, wrapper_operand, wrapper_render, ctx_rule_check (the helpers that build the operands and print the outcome)
 test "ctx rule: pown_ctx" {
   for ctx_pair in ctx_rule_contexts() {
     let (cname, ctx) = ctx_pair
@@ -208,6 +217,9 @@ test "ctx rule: pown_ctx" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 7.4, 7.5 and 7.6: overflow, underflow and inexact deliver a default result, so the checked result is Ok; a quiet NaN operand and the exact infinities are values
+// shares: wrapper_operand and wrapper_render
 test "ctx rule: overflow, underflow and inexact stay Ok" {
   let b64 = @binary.BinaryContext::binary64()
   let big = BinaryChecked::from_double(1.0e300)
@@ -242,6 +254,9 @@ test "ctx rule: overflow, underflow and inexact stay Ok" {
 }
 
 ///|
+// oracle: S
+// source: the error rendering of div and of div_ctx with the default context are compared with each other; no expected value comes from outside
+// shares: wrapper_names, wrapper_operand, wrapper_render
 test "ctx rule: x_ctx agrees with x on errors for the default context" {
   let ctx = @binary.BinaryContext::new(precision=53)
   for a in wrapper_names() {

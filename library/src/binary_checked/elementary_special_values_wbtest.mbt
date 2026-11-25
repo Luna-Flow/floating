@@ -219,6 +219,9 @@ fn elementary_contexts() -> Array[@binary.BinaryContext?] {
 }
 
 ///|
+// oracle: A
+// source: `elementary_expected_unary`, written from IEEE 754-2019 9.2, 9.2.1 and Table 9.1 (the header of the file): domains, poles, signaling NaNs; it does not call the code under test
+// shares: elementary_render, elementary_value, elementary_operands, elementary_contexts (the helpers that build the operands and print the outcome)
 test "elementary BinaryChecked methods map exceptions to errors" {
   let failures = []
   let mut cases = 0
@@ -296,6 +299,9 @@ fn elementary_expected_pow(
 }
 
 ///|
+// oracle: A
+// source: the expected exception class written from IEEE 754-2019 9.2.1 for pow, over a table of bases and exponents
+// shares: elementary_render, elementary_value, elementary_operands, elementary_contexts (the helpers that build the operands and print the outcome)
 test "BinaryChecked pow maps poles and invalid operations" {
   let exponents = [
     ("+qnan", 0.0),
@@ -378,6 +384,9 @@ fn elementary_expected_rootn(name : String, x : Double, n : Int32) -> String {
 }
 
 ///|
+// oracle: A
+// source: `elementary_expected_rootn`, written from IEEE 754-2019 9.2.1 for rootn, n from -3 to 3
+// shares: elementary_render, elementary_value, elementary_operands, elementary_contexts (the helpers that build the operands and print the outcome)
 test "BinaryChecked rootn maps poles and invalid operations" {
   let failures = []
   for ctx in elementary_contexts() {
@@ -410,6 +419,9 @@ test "BinaryChecked rootn maps poles and invalid operations" {
 }
 
 ///|
+// oracle: A
+// source: written from IEEE 754-2019 9.2.1: hypot and atan2 raise no exception on zeros and infinities and signal invalid only for a signaling NaN
+// shares: elementary_render, elementary_value, elementary_operands, elementary_contexts (the helpers that build the operands and print the outcome)
 test "BinaryChecked hypot and atan2 signal only for signaling NaN" {
   let failures = []
   for ctx in elementary_contexts() {
@@ -457,6 +469,9 @@ test "BinaryChecked hypot and atan2 signal only for signaling NaN" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 7.4 and 7.5: overflow and underflow deliver a default result, so exp(1000), exp(-1000), sinh, cosh and 10^400.5 are Ok in binary64
+// shares: nothing
 test "elementary BinaryChecked methods keep range exceptions in Ok" {
   // 7.4 and 7.5: overflow and underflow deliver a default result.
   let binary64 = @binary.BinaryContext::binary64()
@@ -476,6 +491,9 @@ test "elementary BinaryChecked methods keep range exceptions in Ok" {
 let elementary_inf : Double = 1.0 / 0.0
 
 ///|
+// oracle: S
+// source: the wrapper exp_ctx against the ExpContextual trait method of Binary, which maps the same flags through the same Binary exp_ctx; two interfaces to the same code, no expected value from outside
+// shares: elementary_render, elementary_value, elementary_operands, elementary_contexts (the helpers that build the operands and print the outcome)
 test "BinaryChecked exp agrees with the ExpContextual trait" {
   // The only elementary arithmetic trait Binary implements; it maps the
   // same flags through `binary_contextual_outcome`.

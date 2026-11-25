@@ -16,6 +16,9 @@ fn rcp_render(result : BinaryChecked) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: rSqrt(+-0) is a pole (divideByZero), rSqrt(+inf) = +0, rSqrt(4) = 1/2, rSqrt below zero invalid; compound and powr cases as listed in the block
+// shares: rcp_render (prints the outcome as sign, exponent and coefficient text)
 test "checked rsqrt, compound and powr map the exception flags" {
   let context = @binary.BinaryContext::binary64()
   let value = fn(x : @binary.Binary) { BinaryChecked::ok(x) }

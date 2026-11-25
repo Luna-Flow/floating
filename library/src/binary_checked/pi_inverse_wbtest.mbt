@@ -17,6 +17,9 @@ fn pi_render(result : BinaryChecked) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 9.2.1: asinPi(1) = 1/2, acosPi(1) = 0, acosPi(-1) = 1, acosPi(0) = 1/2, atanPi(1) = 1/4, atanPi(+-inf) = +-1/2, |x| > 1 invalid for asinPi and acosPi, signaling NaN invalid, atan2Pi has no exception on 0 and infinity
+// shares: pi_render (prints the outcome as sign, exponent and coefficient text)
 test "checked asinpi, acospi, atanpi and atan2pi map the exception flags" {
   let context = @binary.BinaryContext::binary64()
   let value = fn(x : @binary.Binary) { BinaryChecked::ok(x) }
