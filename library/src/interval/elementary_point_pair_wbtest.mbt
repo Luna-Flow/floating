@@ -15,7 +15,7 @@ fn point_table_precision(text : String) -> Int32 {
 ///|
 // oracle: A
 // source: the two directed roundings (down, up) to p bits of the exact exp(x) and ln(x), computed by MPFR (tools/interval_point_elementary_oracle.py, table point_elementary_table_wbtest.mbt); the interval of a point must have exactly these ends; exp and ln of a point at p = 24, 53, 64, 128, 200 with magnitudes 2^-30 to 2^30, small integers and the exponent-range end 2^-1073741000 (and ln at 2^1073741000); ln of a point at or below 0 is Empty by the domain x > 0 of IEEE 1788-2015 Table 9.1
-// shares: nothing (Binary::from_hex and String::split read the table)
+// shares: Binary::from_hex and String::split read the table; Interval::from_bounds builds the point interval and Binary::zero, Binary::from_int and Binary::make build the operands of the Empty cases; the precision field is read by a digit loop in the test
 test "exp and ln of a point interval are the MPFR directed bounds" {
   let mut count = 0
   for line in point_elementary_table().split("\n") {
