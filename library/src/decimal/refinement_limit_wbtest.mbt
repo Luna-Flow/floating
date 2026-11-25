@@ -27,6 +27,9 @@ fn refinement_failed(
 }
 
 ///|
+// oracle: A
+// source: the value 1.000000000000000000000000000000001 of exp(5E-34) at 34 digits, from CPython decimal at 80 digits (exp = 1.00000000000000000000000000000000050000000000000000000000000000000125..., above the midpoint, so it rounds up); the default limit Some(12) is the documented constant of DecimalContext::refinement_limit
+// shares: nothing
 test "refinement limit: default is Some(12) and matches the explicit value" {
   let context = refinement_context(34)
   inspect(context.refinement_limit() == Some(12), content="true")
@@ -49,6 +52,9 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 /// it is not pinned: the test asserts the shape (a limit that is too small fails
 /// with a certification failure, every larger limit and `None` give the value, and
 /// the input is hard: one refinement does not certify it).
+// oracle: A
+// source: the value of exp(5E-34) from CPython decimal at 80 digits (see the comment above); the number of refinements is the implementation's own choice and is only asserted as a shape (fails at limit 1, succeeds at or before the default 12)
+// shares: nothing
 test "refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on" {
   let x = refinement_hard_input()
   let base = refinement_context(34)
