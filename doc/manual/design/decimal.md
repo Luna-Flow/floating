@@ -16,10 +16,8 @@ precision, with three properties:
 1. **Every context operation is correctly rounded.** The result is the exact
    mathematical result rounded once, in the selected direction, to the
    context's precision and exponent range — for the basic operations and for
-   the elementary functions alike. The current implementation misses this goal
-   in two places (integral rounding of operands longer than $p$ digits, huge
-   exponents in text); they
-   are listed in [known deviations](#known-deviations).
+   the elementary functions alike. No deviation from this goal is known; see
+   [known deviations](#known-deviations).
 2. **Nothing is lost silently.** The exponent of a result (its *quantum*), the
    sign of zero, NaN payloads and every exceptional condition are part of the
    returned value or of the returned `DecimalFlags`.
@@ -60,8 +58,8 @@ E_{\text{tiny}} = e_{\min} - p + 1, \qquad E_{\text{top}} = e_{\max} - p + 1 .
 $$
 
 Contexts require $1 \le p \le 999\,999\,999$,
-$-999\,999\,999 \le e_{\min} \le 0$ and
-$0 \le e_{\max} \le 999\,999\,999$. A shared constructor helper validates
+$-999\,999\,998 \le e_{\min} \le 0$ and
+$1 \le e_{\max} \le 999\,999\,999$. A shared constructor helper validates
 these bounds and computes $E_{\text{tiny}}$ and $E_{\text{top}}$; invalid
 parameters return an error naming the invalid field. These are the adopted
 decNumber `decContext.h` limits and keep context-derived exponent sums within
@@ -381,9 +379,7 @@ discarded, $Q = 0$, and only $s = D$ can reach the midpoint: the code then
 compares $C$ with $5\cdot 10^{D-1}$. A carry that turns $10^{p}-1$ into
 $10^{p}$ is removed by one exact division by 10 and an exponent increment.
 
-The finalizer raises `rounded` whenever $s > 0$ and `inexact` whenever
-$R \ne 0$. It drops trailing zeros before rounding, so discarding only zeros
-raises `rounded` alone.
+The finalizer raises `inexact` whenever $R \ne 0$.
 
 #### Division
 
@@ -577,8 +573,8 @@ The half modes go to infinity because an overflowing exact value is at least
 $N_{\max} + \tfrac12 10^{E_{\text{top}}}$ (anything smaller rounds to a
 finite value and does not overflow), which is at or beyond the midpoint
 between $N_{\max}$ and the next power of ten. `ZeroFiveUp` saturates because
-the last digit of $N_{\max}$ is 9. Every overflow raises `overflow`,
-`inexact` and `rounded`.
+the last digit of $N_{\max}$ is 9. Every overflow raises `overflow`
+and `inexact`.
 
 ```moonbit
 ///|
@@ -714,7 +710,7 @@ remainder is nonzero and below one half, so the shift is clamped to
 $\operatorname{digits}(c) + 1$. `1E+999999` and `1E-999999` therefore cost
 as much as `1E+3` and `1E-3`. The invalid operation is signaled for a NaN, an
 infinity and an out-of-range result, and then only: `exact` adds `inexact`
-when `changed`, nothing else is ever raised (no `rounded`, no clamping: the
+when `changed`, nothing else is ever raised (no clamping: the
 result is not a decimal), and a negative value that rounds to zero converts to
 `0`.
 
@@ -739,13 +735,11 @@ value has no sticky digit; its trailing zeros are dropped and an integer takes
 exponent 0, the preferred exponent, or, when it has more than $p$ digits, the
 member closest to it (IEEE 754-2019 5.2): zeros are appended up to $p + 1$ digits,
 and the zero that `apply_ctx` rounds away leaves the $p$-digit member with the
-exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`, flagged
-rounded). The digits are not
+exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`). The digits are not
 formed for a value whose estimate
 $\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two beyond
 $e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such value in
-the rounding (overflow, or a result of zero or the least subnormal). A binary exponent
-beyond $2^{22}$ is refused. Decimal to binary is the exact decimal text rounded by
+the rounding (overflow, or a result of zero or the least subnormal). Decimal to binary is the exact decimal text rounded by
 `Binary::from_string_ctx`, which is correctly rounded for any exponent and is
 checked against MPFR; the corpus runs both directions through the MPFR rows of
 `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of
@@ -1403,7 +1397,7 @@ The crossovers are measured per target and stored in target-specific files:
 
 | Target | Karatsuba mul / square | Toom-3 | first NTT mul / square | Burnikel–Ziegler | Newton |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| native | 96 / 48 | 1,152 | 1,728 / 640 | from 2,816 | disabled |
+| native | 192 / 352 | 1,152 | 1,728 / 640 | from 2,816 | disabled |
 | LLVM | 96 / 96 | 2,048 | 4,096 / 2,048 | 2,048 | 4,096 |
 | Wasm / Wasm-GC / JS | 96 / 96 | 4,096 | 8,192 / 4,096 | 2,048 | 4,096 |
 
@@ -1431,7 +1425,7 @@ measurements do not show a crossover.
   $\operatorname{fl}(x) = x(1+\delta)$ with $|\delta| \le \tfrac12 10^{1-p}$ in
   the half modes and $|\delta| < 10^{1-p}$ in the directed modes.
 - **Exactness is visible.** `inexact` is raised if and only if the returned
-  value differs from the exact result; `rounded` whenever digits were dropped.
+  value differs from the exact result.
 - **Cohort preservation.** An exact result that fits is returned at the
   preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails.
 - **Flags.** `combine` is associative, commutative and idempotent with
@@ -1493,7 +1487,7 @@ four targets).
 - guarantee that elementary-function certification succeeds: after the
   refinement limit of the context (twelve by default, `with_refinement_limit`;
   the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN
-  with `invalid_operation` (`*_ctx`);
+  with `not_computed` (`*_ctx`);
 - evaluate elementary functions of an ordinary operand in contexts with
   precision or exponents above 999,999 (special operands and the exact points
   of IEEE 754-2019 9.2.1 are answered first, in every context);
