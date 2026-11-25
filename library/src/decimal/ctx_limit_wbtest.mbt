@@ -16,7 +16,7 @@ fn ctx_limit_flags(flags : DecimalFlags) -> String {
 // shares: Decimal::from_string, Decimal::to_string, DecimalContext::raw and the _ctx operations of the code under test (operands and contexts are built from the row, the result is compared as text)
 test "context operations at the limits of the exponent range follow libmpdec (#806)" {
   let mut index = -1
-  let misses = []
+  let misses : Array[String] = []
   for chunk in ctx_limit_chunks {
     for row in chunk {
       index += 1
@@ -33,9 +33,11 @@ test "context operations at the limits of the exponent range follow libmpdec (#8
       }
       let actual = (value.to_string(), ctx_limit_flags(got))
       if actual != (expected, flags) {
-        misses.push((index, op, a, b, c, actual, (expected, flags)))
+        misses.push(
+          "row \{index} \{op} \{a} \{b} \{c}: got \{actual.0} \{actual.1}, expected \{expected} \{flags}",
+        )
       }
     }
   }
-  assert_eq(misses.length(), 0, msg=misses.to_string())
+  assert_eq(misses.length(), 0, msg=misses.join("\n"))
 }
