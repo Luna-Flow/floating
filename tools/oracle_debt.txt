@@ -91,16 +91,6 @@ library/src/decimal/exp_after_rounding_tininess_issue333_wbtest.mbt::exp far bel
 library/src/decimal/exp_range_wbtest.mbt::exp range generated rows: results just inside and outside the range	A
 library/src/decimal/exp_range_wbtest.mbt::exp2 and exp10 of an argument beyond the binary exponent range (#363)	A
 library/src/decimal/exp_range_wbtest.mbt::rootn exact roots need the exponent to be a multiple of the degree (#376)	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::context exponent minimum near Int::min does not wrap etiny	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::extreme e_max reports overflow without adjusted exponent wrap	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::fma exact product boundary follows floor without overflow	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::fma exact product boundary honors negative addend	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::fma far gap uses sticky addend without aborting	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::fma product below Int range uses a bounded sticky alignment	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::fma with maximum context exponents reports overflow	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::huge quantize and to-integral shifts round to zero	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::next operations handle Int minimum with zero etiny	A
-library/src/decimal/exponent_int_limits_wbtest.mbt::quantize with extreme exponent distance returns invalid operation	A
 library/src/decimal/exponent_limits_issue187_wbtest.mbt::operands with exponents near the stored limits give the specified results (#187)	A
 library/src/decimal/exponent_limits_issue187_wbtest.mbt::remainder with an exponent operand at the stored limit rounds to the least exponent (#187)	A
 library/src/decimal/exponent_range_wbtest.mbt::context-free literals outside the stored range are refused, not replaced	A
@@ -113,19 +103,6 @@ library/src/decimal/huge_argument_trig_wbtest.mbt::cospi next to zero is decided
 library/src/decimal/huge_argument_trig_wbtest.mbt::sin of 1E+20000 beyond the old cutoff	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::sinpi, cospi, tanpi of a huge even integer are exact without expanding it	A
 library/src/decimal/ieee_ops_rows_exec_wbtest.mbt::IEEE operations on legal contexts agree with the Python decimal oracle	A
-library/src/decimal/interchange_wbtest.mbt::BID NaN payloads are integers across formats	A
-library/src/decimal/interchange_wbtest.mbt::BID decimal32 and decimal64 canonical vectors	A
-library/src/decimal/interchange_wbtest.mbt::BID non-canonical finite coefficient decodes as zero	A
-library/src/decimal/interchange_wbtest.mbt::BID signaling NaN payload survives quieting	A
-library/src/decimal/interchange_wbtest.mbt::IEEE BID FMA propagates NaN before zero times infinity invalid	A
-library/src/decimal/interchange_wbtest.mbt::IEEE BID FMA uses multiplier addend first-operand NaN precedence	A
-library/src/decimal/interchange_wbtest.mbt::IEEE BID NaN propagation uses operand-order payload precedence	A
-library/src/decimal/interchange_wbtest.mbt::IEEE BID decimal32 decimal64 decimal128 zero witnesses round trip	A
-library/src/decimal/interchange_wbtest.mbt::IEEE BID format conversion detects tininess before rounding	A
-library/src/decimal/interchange_wbtest.mbt::IEEE DPD and BID special witnesses preserve class sign and canonical bits	A
-library/src/decimal/interchange_wbtest.mbt::IEEE DPD decimal32 decimal64 decimal128 fixed witnesses round trip	A
-library/src/decimal/interchange_wbtest.mbt::interchange decoders refuse a non-hexadecimal character and name it	A
-library/src/decimal/interchange_wbtest.mbt::interchange decoders refuse a text of the wrong length and say so	A
 library/src/decimal/log_zero_wbtest.mbt::logarithms of zero signal division by zero (IEEE 754 9.2.1)	A
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::NaN propagation keeps a payload the clamped format can hold (#152)	A
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::payload operations follow IEEE 754 9.7 (#151)	A
@@ -193,20 +170,6 @@ library/src/decimal/to_integral_wbtest.mbt::to_integral keeps integral parts lon
 library/src/decimal/to_integral_wbtest.mbt::to_integral returns integers longer than the precision unchanged	A
 library/src/decimal/total_order_wbtest.mbt::total_order and total_order_mag follow IEEE 754-2019 5.10	A
 library/src/decimal/total_order_wbtest.mbt::total_order orders the cohort by exponent and total_order_mag ignores the sign	A
-library/src/decimal/values_wbtest.mbt::a conversion to a narrower format keeps the low digits of a payload	A
-library/src/decimal/values_wbtest.mbt::identical compares every field of the representation	A
-library/src/decimal/values_wbtest.mbt::inf takes the sign as a flag	A
-library/src/decimal/values_wbtest.mbt::make keeps the exponent of a coefficient that fits (S7)	A
-library/src/decimal/values_wbtest.mbt::make rounds with the given direction	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::from_int aborts on a precision beyond the limit	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::inf aborts on precision 0	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::make aborts on a negative precision	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::quiet_nan aborts on a payload wider than precision - 1	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::signaling_nan aborts on a negative payload	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::with_precision aborts on precision 0	A
-library/src/decimal/values_wbtest.mbt::panic Decimal::zero aborts on precision 0	A
-library/src/decimal/values_wbtest.mbt::sqrt returns a Decimal: NaN for a negative operand	A
-library/src/decimal/values_wbtest.mbt::the limits of a payload are the p - 1 trailing digits	A
 library/src/decimal/zero_addend_clamp_wbtest.mbt::a zero addend does not leak a clamp of the other operand	A
 library/src/decimal/zero_fold_issue234_wbtest.mbt::a zero quantize result above the top exponent folds down (issue 234)	A
 library/src/decimal/zero_fold_issue234_wbtest.mbt::other operations that produce such a zero fold as well (issue 234)	A

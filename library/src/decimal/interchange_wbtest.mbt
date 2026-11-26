@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py: 0 and 9999999 in decimal32 (#32800000, #6CB8967F) and 0 and 9999999999999999 in decimal64 (#31C0000000000000, #6C7386F26FC0FFFF), BID
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test)
 test "BID decimal32 and decimal64 canonical vectors" {
   let zero32 = Decimal::from_string("0", precision=7).unwrap()
   assert_eq(
@@ -53,6 +56,9 @@ test "DPD and BID share Decimal semantics across formats" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 3.5.2 (finite numbers, binary encoding): a coefficient above 10^p - 1 is non-canonical and the value used is zero; #6CB89680 is the coefficient 10000000 in decimal32; tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test)
 test "BID non-canonical finite coefficient decodes as zero" {
   let noncanonical = Decimal::from_interchange_hex_with_encoding(
     "#6CB89680",
@@ -63,6 +69,9 @@ test "BID non-canonical finite coefficient decodes as zero" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 3.5.2 a) (the payload is the integer in the trailing significand field, canonical below 10^(p-1)): tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py (the payload 256 in decimal32 and decimal128, the non-canonical trailing field of #7C03FFFFFFFFFFFF read as payload 0); the reduction of a payload that does not fit to its low p - 1 digits when it is converted to a narrower format (#7C000000 for a 30-digit payload ending in 000000) is the library's convention (level S)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test)
 test "BID NaN payloads are integers across formats" {
   // IEEE 754-2019 §3.5.2 and §9.7: the payload is the integer value of the
   // trailing significand field, so it is kept, not rescaled, when it fits.
@@ -140,6 +149,9 @@ test "BID NaN payloads do not depend on the value precision" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 3.5.2 a) and 6.2.3: tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py (#FF777D7CFFFFDFF7 is a negative signaling NaN of payload 982400754507767, its quiet form #FC037D7CFFFFDFF7); that apply_ctx keeps the payload and the sign of the quieted NaN is the library's reading of 6.2.3 ('should', level S)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test), apply_ctx
 test "BID signaling NaN payload survives quieting" {
   let value = Decimal::from_interchange_hex_with_encoding(
     "#FF777D7CFFFFDFF7",
@@ -157,6 +169,9 @@ test "BID signaling NaN payload survives quieting" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 6.2.3: the payload of a NaN result should be that of an input NaN; tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py (#7C8F423F is a quiet NaN of payload 999999, #7E100000 a signaling NaN whose field 0x100000 is non-canonical, so payload 0, the result of the sum #7C0F423F); that the first operand's payload is the one taken is the library's convention (level S)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test), add_ctx
 test "IEEE BID NaN propagation uses operand-order payload precedence" {
   let qnan = Decimal::from_interchange_hex_with_encoding(
     "#7C8F423F",
@@ -177,6 +192,9 @@ test "IEEE BID NaN propagation uses operand-order payload precedence" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 6.2.3, 7.2 and 9.2 (fusedMultiplyAdd: 0 * inf with a NaN addend): tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py (#FF777D7CFFFFDFF7 quiets to #FC037D7CFFFFDFF7); that the NaN addend wins over the invalid 0 * inf and keeps its sign and payload is the library's convention (level S)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test), fma_ctx
 test "IEEE BID FMA propagates NaN before zero times infinity invalid" {
   let zero = Decimal::from_interchange_hex_with_encoding(
     "#0000000000000000",
@@ -206,6 +224,9 @@ test "IEEE BID FMA propagates NaN before zero times infinity invalid" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 6.2.3: tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py (#7E100000 is a signaling NaN of payload 0, #7C8F423F a quiet NaN of payload 999999; the result #7C000000 has payload 0); the precedence multiplier, then addend, then first operand is the library's convention (level S)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test), fma_ctx, from_string_ctx
 test "IEEE BID FMA uses multiplier addend first-operand NaN precedence" {
   let finite = Decimal::from_string_ctx("1.00001", Decimal32.context()).0
   let multiplier = Decimal::from_interchange_hex_with_encoding(
@@ -227,6 +248,9 @@ test "IEEE BID FMA uses multiplier addend first-operand NaN precedence" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 7.5 and 3.5.2: tools/decimal_interchange_vectors_test.py decodes #2CFFED09BEAD87C0378D8E63FFFFFFFF with the oracle, rounds it to 16 digits with CPython decimal (Emax 384, Emin -383) and finds inexact and underflow (the value is below 10^-383 before rounding), and encodes the result with the oracle as #00038D7EA4C68000 (coefficient 10^15, the least exponent)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test), apply_ctx
 test "IEEE BID format conversion detects tininess before rounding" {
   let value = Decimal::from_interchange_hex_with_encoding(
     "#2CFFED09BEAD87C0378D8E63FFFFFFFF",
@@ -263,6 +287,9 @@ test "IEEE DPD declet corpus exhaustively canonicalizes all 1024 codes" {
 }
 
 ///|
+// oracle: A
+// source: tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py: -7.50 is #A23003D0, #A2300000000003D0 and #A20780000000000000000000000003D0 in DPD (the declet of 750 from Table 3.4)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test)
 test "IEEE DPD decimal32 decimal64 decimal128 fixed witnesses round trip" {
   let formats = [Decimal32, Decimal64, Decimal128]
   let bits = [
@@ -284,6 +311,9 @@ test "IEEE DPD decimal32 decimal64 decimal128 fixed witnesses round trip" {
 }
 
 ///|
+// oracle: A
+// source: tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py: +0 at exponent 0 is #32800000, #31C0000000000000 and #30400000000000000000000000000000 in BID (biased exponents 101, 398 and 6176)
+// shares: Decimal::from_string (builds the operands), to_string, to_interchange_hex_with_encoding and from_interchange_hex_with_encoding (the code under test)
 test "IEEE BID decimal32 decimal64 decimal128 zero witnesses round trip" {
   let formats = [Decimal32, Decimal64, Decimal128]
   let bits = [
@@ -305,6 +335,9 @@ test "IEEE BID decimal32 decimal64 decimal128 zero witnesses round trip" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 3.5.2 b) and a): the canonical infinity has G0..G4 = 11110 and all other bits zero (#78 then zeros), the canonical quiet NaN G0..G4 = 11111 and the rest zero (#7C then zeros), in every format and in both encodings; tools/decimal_bid_oracle.py (BID) and tools/decimal_interchange_oracle.py (DPD, Tables 3.3 and 3.4), encoders written from the text of IEEE 754-2019 3.5.2 with no library code, assert this vector in tools/decimal_interchange_vectors_test.py
+// shares: DecimalInterchange::from_hex_with_encoding, to_decimal, canonical and to_hex (the code under test)
 test "IEEE DPD and BID special witnesses preserve class sign and canonical bits" {
   let formats = [Decimal32, Decimal64, Decimal128]
   let infinities = [
@@ -359,6 +392,9 @@ fn interchange_decode_message(
 ///|
 /// A text of the wrong length is refused and the reason gives the length wanted
 /// and the length found: too short, too long and empty, in each encoding.
+// oracle: A, S
+// source: IEEE 754-2019 3.6 (Table 3.6): decimal32, decimal64 and decimal128 have 32, 64 and 128 bits, so 8, 16 and 32 hexadecimal digits, which the messages say; the texts of the messages themselves are the library's API (level S)
+// shares: Decimal::from_interchange_hex_with_encoding and DecimalInterchange::from_hex_with_encoding (the code under test), interchange_decode_message (reads the error)
 test "interchange decoders refuse a text of the wrong length and say so" {
   for encoding in [DPD, BID] {
     inspect(
@@ -383,6 +419,9 @@ test "interchange decoders refuse a text of the wrong length and say so" {
 ///|
 /// A character that is not a hexadecimal digit is refused and the reason names
 /// the character and its place among the digits.
+// oracle: A, S
+// source: the rule is that a character outside 0-9, A-F and a-f is not a hexadecimal digit and the length is checked first (so '#G' is a length error); the texts of the messages and the numbering of the digits are the library's API (level S)
+// shares: Decimal::from_interchange_hex_with_encoding and DecimalInterchange::from_hex_with_encoding (the code under test), interchange_decode_message (reads the error)
 test "interchange decoders refuse a non-hexadecimal character and name it" {
   for encoding in [DPD, BID] {
     inspect(
