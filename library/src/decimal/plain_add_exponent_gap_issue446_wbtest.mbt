@@ -13,6 +13,9 @@ fn gap_value(
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 4.3 and 5.4: 1E+1100000000 +- 1E-1100000000 rounds to 1E+1100000000 at 34 digits (the small operand is below half an ulp), so sums and differences equal the large operand or its negation; CPython decimal agrees for the sum
+// shares: gap_value (Decimal::make), the plain + and - and add_ctx and sub_ctx with decimal_exact_work_context (the code under test); also read through == (Decimal equality), neg and unary minus, digits10, to_string and inspect (print the result), coefficient (they read the operands and results, not the code under test)
 test "issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic" {
   let a = gap_value(1N, 1_100_000_000, 34)
   let b = gap_value(1N, -1_100_000_000, 34)
@@ -117,6 +120,9 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 4.3 and 5.4: 3E+2000000000 + 5E-2000000000 rounds to 3E+2000000000 at 34 digits; written out
+// shares: gap_value (Decimal::make), the plain + and - and add_ctx and sub_ctx with decimal_exact_work_context (the code under test); also read through == (Decimal equality), neg and unary minus, to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "issue 446: a gap above 2^31 - 1 between a small and a large exponent" {
   let small = gap_value(5N, -2_000_000_000, 34)
   let big = gap_value(3N, 2_000_000_000, 34)
@@ -127,6 +133,9 @@ test "issue 446: a gap above 2^31 - 1 between a small and a large exponent" {
 }
 
 ///|
+// oracle: S
+// source: the exact working context refuses a sum whose exact result would need the whole gap: NaN with not_computed and no invalid operation, the library's documented behavior of decimal_exact_work_context (level S)
+// shares: gap_value (Decimal::make), the plain + and - and add_ctx and sub_ctx with decimal_exact_work_context (the code under test); also read through is_nan, to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "issue 446: the exact context cannot panic through the exponent gap" {
   let a = gap_value(1N, 1_100_000_000, 34)
   let b = gap_value(1N, -1_100_000_000, 34)

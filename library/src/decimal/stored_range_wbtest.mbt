@@ -18,12 +18,18 @@ fn stored_range_storable(x : Decimal) -> Bool {
 }
 
 ///|
+// oracle: S
+// source: the library's stored range of a finite Decimal (issue 438, decided with decimal_gda): 2147483646 and -2147483645 are its constants, written out
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string
 test "the limits are the largest adjusted exponent and the smallest exponent" {
   assert_eq(decimal_value_e_max, 2147483646)
   assert_eq(decimal_value_e_tiny, -2147483645)
 }
 
 ///|
+// oracle: S
+// source: the stored range of a Decimal (largest adjusted exponent 2147483646, smallest exponent -2147483645, zeros included) is the library's design: the values at and one beyond each limit are written out from that definition
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string; also read through exponent10 (they read the operands and results, not the code under test)
 test "make accepts the limits and refuses one beyond" {
   // largest adjusted exponent: 1 digit at 2147483646, 5 digits at 2147483642
   assert_eq(Decimal::make(1N, 2147483646, 34).exponent10, 2147483646)
@@ -42,6 +48,9 @@ test "make accepts the limits and refuses one beyond" {
 }
 
 ///|
+// oracle: A, S
+// source: arithmetic and IEEE 754-2019 4.3: 99949E+2147483642 at three digits is 999E+2147483644 = 9.99E+2147483646, 99999E+2147483642 carries to 100E+2147483644 whose adjusted exponent 2147483647 is outside the stored range (the range itself is the library's, level S), 1249E-2147483646 at three digits is 125E-2147483645; written out
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string; also read through exponent10, coefficient (they read the operands and results, not the code under test)
 test "the range is checked after the rounding to the precision, a carry included" {
   // 99999 at precision 3 rounds to 100E+2: the carry raises the exponent by
   // one, and the adjusted exponent 2147483646 of the input becomes 2147483647
@@ -69,6 +78,9 @@ fn stored_range_message(
 }
 
 ///|
+// oracle: S
+// source: the texts of the domain error messages of try_make are the library's API: they name the exponent given, its adjusted exponent, the two limits and, after a carry, the rounded exponent (values written out)
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string
 test "the error names the exponent the caller gave, both limits and the rounded exponent" {
   // below the smallest exponent: no rounding, the exponent given is named
   let below = stored_range_message(1N, -2147483646, 34)
@@ -103,6 +115,9 @@ test "the error names the exponent the caller gave, both limits and the rounded 
 }
 
 ///|
+// oracle: S
+// source: the stored range of a Decimal (the library's, 2147483646 and -2147483645): literals at each limit parse and one beyond is refused, a text outside it is read with from_string_ctx, which overflows by IEEE 754-2019 7.4 at e_max 999999999
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string; also read through is_infinite (they read the operands and results, not the code under test)
 test "from_string accepts the limits and refuse one beyond" {
   assert_true(Decimal::from_string("1E2147483646") is Ok(_))
   assert_true(Decimal::from_string("12345E2147483642") is Ok(_))
@@ -124,6 +139,9 @@ test "from_string accepts the limits and refuse one beyond" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 4.3 and 7.4: 9999E+2147483643 at two digits is 9.9|99E+2147483646, so away or to nearest it rounds past the largest adjusted exponent (infinity) and toward zero it is 9.9E+2147483646; the top of the range is the library's stored range (level S)
+// shares: Decimal::make, try_make, from_string, from_string_ctx and with_precision (the code under test), to_string; also read through exponent10, is_infinite (they read the operands and results, not the code under test)
 test "rounding without a context at the top of the range overflows by the mode" {
   let top = Decimal::make(9999N, 2147483643, 4)
   assert_eq(top.exponent10, 2147483643)

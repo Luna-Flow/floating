@@ -15,6 +15,9 @@ fn exponent_range_show(result : (Decimal, DecimalFlags)) -> String {
 }
 
 ///|
+// oracle: A, S
+// source: arithmetic: 1e1600000000 is the exponent 1600000000 exactly (not saturated at the context range); a context with e_max 2000000000 is refused, which is the library's limit on e_max (level S)
+// shares: Decimal::from_string, DecimalContext::try_new and the plain and _ctx operators (the code under test), exponent_range_show and inspect (print value and flags); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "literal exponents beyond 1.5e9 are not saturated" {
   inspect(
     Decimal::from_string("1e1600000000").unwrap().to_string(),
@@ -24,6 +27,9 @@ test "literal exponents beyond 1.5e9 are not saturated" {
 }
 
 ///|
+// oracle: A, S
+// source: arithmetic and IEEE 754-2019 4.3: the literals are checked against the library's stored range after the rounding to the precision (level S): 1249e-2147483646 at three digits is 1.25E-2147483643, 12501e-2147483647 the same; the refusals are the literals whose rounded exponent or adjusted exponent is outside the range
+// shares: Decimal::from_string, DecimalContext::try_new and the plain and _ctx operators (the code under test), exponent_range_show and inspect (print value and flags); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "context-free literals outside the stored range are refused, not replaced" {
   // A literal whose value, after the rounding to the precision, has an
   // adjusted exponent above `decimal_value_e_max` or an exponent below
@@ -60,6 +66,9 @@ test "context-free literals outside the stored range are refused, not replaced" 
 }
 
 ///|
+// oracle: A, S
+// source: CPython decimal (Context with Emax = e_max, Emin = 1 - e_max, clamp = 1; run 2026-11-26) for the rows with e_max 999999999 (1E+1500000000 squared and divided by 1E-1500000000 overflow, 1E-1500000000 squared rounds up to 1E-1000000031 with underflow, divided by 1E+1500000000 gives 0E-1000000031 with underflow, fma with 1 under Up gives 1.000000000000000000000000000000001 inexact); the rows of the plain operators beyond that context follow the library's working range (largest adjusted exponent 2147483646, smallest exponent -2147483645, level S) and IEEE 754-2019 4.3, 7.4
+// shares: Decimal::from_string, DecimalContext::try_new and the plain and _ctx operators (the code under test), exponent_range_show and inspect (print value and flags); also read through neg and unary minus, to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()

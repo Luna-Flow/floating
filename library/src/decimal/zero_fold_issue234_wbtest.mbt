@@ -65,6 +65,9 @@ fn issue234_text(value : Decimal) -> String {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 3.3 (every finite result of a format has q <= e_max - p + 1) and CPython decimal quantize with clamp = 1 (re-run 2026-11-26: the 20 rows agree in value, 0E+369 for decimal64 above the top, 0E+90 and 0E+6111, 0.0 for the small context, NaN with invalid operation for a target above e_max); the clamped column is not asserted here
+// shares: Decimal::from_string (builds the operands), issue234_context and issue234_text (build the context and print), quantize_ctx and the other operations (the code under test)
 test "a zero quantize result above the top exponent folds down (issue 234)" {
   for row in issue234_rows {
     let (name, zero, quantum, result, _) = row
@@ -79,6 +82,9 @@ test "a zero quantize result above the top exponent folds down (issue 234)" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: 123.456 quantized to 1E-2 is 123.46 and 0.5 quantized to 1 is 0 (half-even); CPython agrees
+// shares: Decimal::from_string (builds the operands), issue234_context and issue234_text (build the context and print), quantize_ctx and the other operations (the code under test)
 test "the fold does not change a non-zero result (issue 234)" {
   let ctx = DecimalContext::decimal64()
   for pair in [("123.456", "1E-2", "123.46"), ("0.5", "1", "0")] {
@@ -90,6 +96,9 @@ test "the fold does not change a non-zero result (issue 234)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 3.3: a zero of exponent 380 is not a member of decimal64 (the top exponent is 369), so every operation that delivers it gives 0E+369; CPython decimal (clamp = 1) agrees for plus, add, multiply, divide and scaleb; its to_integral_exact does not apply the context to the exponent, so that row rests on 3.3 alone
+// shares: Decimal::from_string (builds the operands), issue234_context and issue234_text (build the context and print), quantize_ctx and the other operations (the code under test); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "other operations that produce such a zero fold as well (issue 234)" {
   let ctx = DecimalContext::decimal64()
   let zero = Decimal::from_string("0E+380").unwrap()
