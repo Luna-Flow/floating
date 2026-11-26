@@ -26049,8 +26049,8 @@ msgid "Method and scope"
 msgstr "方法と範囲"
 
 #: manual/performance/decimal.md:7
-msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite."
-msgstr "コマンド `just bench decimal --target native` は `tooling/src/bench/decimal` にある現行の Maremark スイートを実行し、`.tmp/bench/decimal.jsonl` とその分析ファイルを書き出します。これは再現可能な測定成果物であって、不変のリリースゲートではありません。現在のブランチにはチェックインされた十進性能マニフェストも閾値ワークフローもないため、測定にはこの Maremark スイートを使用します。"
+msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
+msgstr "コマンド `just bench decimal --target native` は `tooling/src/bench/decimal` にある現行の Maremark スイートを実行し、`.tmp/bench/decimal.jsonl` とその分析ファイルを書き出します。これは再現可能な測定成果物であって、不変のリリースゲートではありません。現在のブランチにはチェックインされた十進性能マニフェストも閾値ワークフローもないため、測定には後述の Maremark スイートを使用します。"
 
 #: manual/performance/decimal.md:15
 msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
@@ -26077,8 +26077,8 @@ msgid "full `DecimalChecked` path"
 msgstr "完全な `DecimalChecked` パス"
 
 #: manual/performance/decimal.md:27
-msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility limit."
-msgstr "参照指数と精度の処理系限界により、コンテキストは `999,999,999` まで許容されます。このコンテキストは有効ですが、非常に大規模な係数計算が必要になる場合があります。`999,999,999` の限界値での debug-native プローブでは、一部の `plus`、`min`、`quantize` ケースで 25 秒を超えました（測定方法は未記録）。対話的な作業にはより小さい精度を選び、この大きな限界は互換性のための制限として扱ってください。"
+msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility boundary."
+msgstr "参照指数と精度の処理系限界により、コンテキストは `999,999,999` まで許容されます。このコンテキストは有効ですが、非常に大規模な係数計算が必要になる場合があります。`999,999,999` の限界値での debug-native プローブでは、一部の `plus`、`min`、`quantize` ケースで 25 秒を超えました（測定方法は未記録）。対話的な作業にはより小さい精度を選び、この大きな限界は互換性の境界として扱ってください。"
 
 #: manual/performance/decimal.md:34
 #: manual/performance/decimal_gda.md:27
@@ -26087,8 +26087,8 @@ msgid "Reading results"
 msgstr "結果の読み方"
 
 #: manual/performance/decimal.md:36
-msgid "In the output, `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
-msgstr "出力において、`MAREMARK_JSONL` はバージョン付きの生イベントストリームであり、`MAREMARK_HOTSPOT` は対になるレイヤオーバーヘッド分析です。結果は現在のツリー、ツールチェイン、ターゲットに対するものです。これらはホットスポットの特定には有用ですが、普遍的なクロスオーバーやリリース全体のレイテンシ上限を示すものではありません。"
+msgid "`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
+msgstr "`MAREMARK_JSONL` はバージョン付きの生イベントストリームであり、`MAREMARK_HOTSPOT` は対になるレイヤオーバーヘッド分析です。結果は現在のツリー、ツールチェイン、ターゲットに対するものです。これらはホットスポットの特定には有用ですが、普遍的なクロスオーバーやリリース全体のレイテンシ上限を示すものではありません。"
 
 #: manual/performance/decimal.md:48
 msgid "The all-suite run also covers binary, GDA, and interval kernels. It is safe to compare artifacts only when the target, toolchain, workload, and benchmark protocol are held constant."

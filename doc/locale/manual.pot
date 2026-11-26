@@ -25894,7 +25894,7 @@ msgid "Method and scope"
 msgstr ""
 
 #: manual/performance/decimal.md:7
-msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite."
+msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
 msgstr ""
 
 #: manual/performance/decimal.md:15
@@ -25922,7 +25922,7 @@ msgid "full `DecimalChecked` path"
 msgstr ""
 
 #: manual/performance/decimal.md:27
-msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility limit."
+msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility boundary."
 msgstr ""
 
 #: manual/performance/decimal.md:34
@@ -25932,7 +25932,7 @@ msgid "Reading results"
 msgstr ""
 
 #: manual/performance/decimal.md:36
-msgid "In the output, `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
+msgid "`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
 msgstr ""
 
 #: manual/performance/decimal.md:48
