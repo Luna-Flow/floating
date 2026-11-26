@@ -38,6 +38,9 @@ test "hypot of operands beyond 2^29 in exponent is correctly rounded" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2 and Table 9.1: hypot(x, +-0) = |x| exactly with no flag, at exponents from -1073741860 to 1073741000, with the zero first or second, and hypot(-0, +0) = +0
+// shares: hypot_operand builds the operands with Binary::make; Binary::zero and negative_zero; hypot_ctx is the code under test; to_string and e2s_flags print the result
 test "hypot with a zero operand is the other magnitude, exact, at any exponent" {
   for
     exponent in [-1073741860, -1073741823, -600000000, 0, 600000000, 1073741000] {

@@ -108,6 +108,9 @@ test "exp2m1 and exp10m1 special values" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from IEEE Std 754-2019 9.2.1 and Table 9.1 (the clauses quoted in the header of the file): f(+-0) = +-0, f(+inf) = +inf, f(-1) = -inf with divideByZero, invalid operation for x < -1 and -inf, quiet NaN propagation and the signaling NaN; S: the S4 mapping of the library (the pole and the domain case are values in the try_ form, not an Err) is asserted as well
+// shares: pm1_run and pm1_try select the function; Binary::zero, negative_zero, inf, from_int, make_coeff, quiet_nan and signaling_nan build the operands; log2p1_ctx and log10p1_ctx are the code under test; to_string and the flag accessors print the result
 test "log2p1 and log10p1 special values and domain" {
   for name in ["log2p1", "log10p1"] {
     for ctx in pm1_contexts() {
@@ -167,6 +170,9 @@ test "exp2m1 of an integer is the correctly rounded 2^n - 1 in every direction" 
 }
 
 ///|
+// oracle: A, S
+// source: A: written out: 2^n - 1 for n far beyond the precision is the neighbour of 2^n chosen by the direction: 2^n itself in nearest and (2^53 - 1) 2^(n - 53) toward zero, with inexact; for n < 0 the result is -1 in nearest and -(1 - 2^-53) = -9007199254740991p-53 toward zero; S: the exponents 1073741822 to 1073741825 sit at the library's own overflow limit e_max = 1073741823, where the overflow to inf is asserted
+// shares: Binary::from_int builds the operands; exp2m1_ctx is the code under test; to_string and the flag accessors print the result
 test "exp2m1 of a huge integer rounds like the power of two beside it" {
   // 2^n - 1 for n far beyond the precision cannot be formed; the result must
   // still be the neighbour of 2^n chosen by the direction, with overflow where

@@ -1,4 +1,7 @@
 ///|
+// oracle: S
+// source: the evaluation count (one for a point pair, two for distinct ends) and the comparison of binary_bounds_at_ends with separate calls of binary_exp_bounds at each end (lower of the first, upper of the second); no value of exp is stated from outside
+// shares: Binary::from_double builds the arguments; binary_exp_bounds is the evaluation on both sides; binary_bounds_at_ends is the code under test
 test "binary_bounds_at_ends evaluates a point once and gives the two-ends result" {
   for d in [0.3, 1.0, 2.5, 40.0] {
     let x = Binary::from_double(d, precision=64)

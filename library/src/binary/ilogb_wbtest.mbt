@@ -62,6 +62,9 @@ test "ilogb equals exponent2 plus the bit length minus one on every width class"
 }
 
 ///|
+// oracle: A, S
+// source: A: written out: ilogb(1) = 0, ilogb(8) = 3, ilogb(-5) = 2, the leading bit of 3 * 2^k is k + 1; S: none for 0, infinities and NaN is the library's choice of the integer result for the cases that IEEE Std 754-2019 5.3.3 leaves language-defined for integer formats, and the largest and the smallest stored magnitudes are 2^e_max and 2^(e_min - 52) with the library's own limits
+// shares: Binary::one, from_int, zero, negative_zero, inf, nan and make build the operands; ilogb is the code under test
 test "ilogb of the special values and of the stored range" {
   assert_eq(Binary::one().ilogb(), Some(0))
   assert_eq(Binary::from_int(8).ilogb(), Some(3))

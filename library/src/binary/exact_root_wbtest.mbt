@@ -26,6 +26,10 @@ fn exact_root_odd_coefficient(bits : Int32, seed : UInt64) -> Coeff {
 }
 
 ///|
+// oracle: B
+// source: the defining property of the integer n-th root, r^n <= v < (r + 1)^n, checked with Coeff::pow_nat and compare on odd coefficients of 3 to 20000 bits for degrees 2, 3, 5, 7, 12, 64 and 100; the property is the definition, no root value is written
+// shares: exact_root_odd_coefficient builds the coefficients with Coeff::shift_left, add and shift_right; binary_floor_nth_root is the code under test; Coeff::pow_nat, add and compare check the bracket
+// primitives: Coeff::pow_nat, Coeff::add and Coeff::compare (the products and squares are level A through the kernel oracle of library/src/internal/binary_kernel, coeff_regression and the CPython digests of tools/kernel_oracle.py; pow_nat repeats them)
 test "binary_floor_nth_root brackets the root" {
   for degree in [2, 3, 5, 7, 12, 64, 100] {
     for bits in [degree + 1, 200, 1000, 5000, 20000] {
@@ -42,6 +46,10 @@ test "binary_floor_nth_root brackets the root" {
 }
 
 ///|
+// oracle: B
+// source: by construction: for a root r of 10 to 9000 bits and degrees 2, 3, 4, 5, 6, 8, 9, 16 the n-th power r^n has the exact root r, and r^n + 2 and r^n - 2 lie strictly between two consecutive n-th powers (the gap (r + 1)^n - r^n is at least 3 for r >= 2) and have none
+// shares: exact_root_odd_coefficient builds the roots; Coeff::pow_nat, add and sub_checked build the powers; binary_exact_nth_root_coefficient is the code under test
+// primitives: Coeff::pow_nat, Coeff::add and Coeff::sub_checked (as above: level A through the kernel oracle of library/src/internal/binary_kernel for the products they repeat)
 test "binary_exact_nth_root_coefficient detects wide perfect powers" {
   let one = Coeff::one()
   for degree in [2, 3, 4, 5, 6, 8, 9, 16] {

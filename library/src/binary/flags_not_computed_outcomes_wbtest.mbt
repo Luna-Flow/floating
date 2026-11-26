@@ -27,6 +27,9 @@ test "a certification failure is a NaN with not_computed and without invalid_ope
 }
 
 ///|
+// oracle: S
+// source: the written rule S4 of the library on a failure forced through the refinement limit (Err in the try_ form, a NaN with not_computed in the plain form), the ordinary case with neither flag and a signaling NaN as invalid; a rule of this library, not of the standard
+// shares: refinement_hard_input and refinement_failed (refinement_limit_wbtest.mbt) build the failing case; try_exp_ctx and exp_ctx are the code under test
 test "exp: a forced failure, a domain-free ordinary case and an invalid operand" {
   let hard = refinement_hard_input()
   let base = BinaryContext::new(precision=53)

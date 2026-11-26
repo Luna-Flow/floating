@@ -7,6 +7,11 @@
 /// value is `1 - tiny` and only the direction matters). Every row is inexact,
 /// since `tanh` of a nonzero finite number is never representable. Arguments
 /// are dyadic, so the decimal literals are exact.
+
+///|
+// oracle: A
+// source: 181 rows (precisions 24, 53 and 113, five directions, arguments 19 to 1099511627776 and negatives) re-derived with Python fractions and decimal at 500 digits (library-ran: no; tanh x = (1 - e^-2x) / (1 + e^-2x), and 1 - 10^-260 for |x| >= 300 where only the direction matters), rounded to p bits by exact rational arithmetic in each direction: all 181 expected values agree; every row is inexact
+// shares: Binary::from_string reads the arguments and Binary::from_hex the expected values exactly (level A through hex_ctx_rows); try_tanh_ctx is the code under test; compare and the flag accessors read the result
 test "tanh saturates to the correctly rounded value for large arguments (#185)" {
   let rows : Array[(Int32, BinaryRoundingMode, String, String)] = [
     (24, RoundTiesToEven, "19", "0x1000000p-24"),

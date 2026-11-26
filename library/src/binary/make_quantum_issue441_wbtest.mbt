@@ -124,6 +124,9 @@ test "the example of #441" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out: 0x3p(q - 1) is 1.5 quanta of the grid at precision 53 and rounds to nearest even to 2 quanta (coefficient 1, exponent q + 1), and 12345 stays 12345 at exponent 0; S: q = e_min - (p - 1) uses the library's own e_min, and the with_precision line states only the inequality that the result is on the coarser grid (exponent2 >= q), no value
+// shares: q441_quantum_exponent gives q; Binary::from_hex, make, with_precision and from_coefficient are the code under test; coefficient and exponent2 read the result
 test "from_coefficient, from_hex and with_precision round at the smallest quantum (#441)" {
   let q = q441_quantum_exponent(53)
   // from_hex: 0x3p(q-1) is 1.5 quanta, to nearest even 2 quanta.

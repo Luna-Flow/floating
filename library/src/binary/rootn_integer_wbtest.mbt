@@ -159,6 +159,9 @@ fn rootn_compare(
 }
 
 ///|
+// oracle: S
+// source: rootn_compare of binary_rootn_integer against binary_rootn_certified_loop (the previous path, kept as the general method) on random operands of one to three words with exponents over the whole range, degrees 2, 3, 4, 5, 7, 8, 16, 32 and the negatives, 55 contexts of every direction, both tininess rules and the bounded formats; two paths of the library agree, no value from outside is stated
+// shares: binary_rootn_integer and binary_rootn_certified_loop (both are the library's rootn, the integer path is under test); binary_exact_rootn_int64 decides the skipped exact roots; Coeff::pow_nat, shift_left, sub_checked, add and Binary::make_coeff build the operands; rootn_small_contexts and rootn_contexts build the contexts
 test "rootn by an integer root equals the certified loop (random)" {
   let rng : RootnRng = { rootn_state: 20261121UL, }
   let contexts = rootn_contexts()
@@ -180,6 +183,9 @@ test "rootn by an integer root equals the certified loop (random)" {
 }
 
 ///|
+// oracle: S
+// source: rootn_compare of the same two paths on the perfect powers b^n and their neighbours b^n - 1 and b^n + 1 (b of 2^p - 1, 2^p + 1, 2^(p - 1) + 1, 3 * 2^(p - 1)) with exponents 0 and 5n + 1 in twelve contexts; two paths of the library agree, no value from outside is stated
+// shares: binary_rootn_integer and binary_rootn_certified_loop (both are the library's rootn, the integer path is under test); binary_exact_rootn_int64 decides the skipped exact roots; Coeff::pow_nat, shift_left, sub_checked, add and Binary::make_coeff build the operands; rootn_small_contexts and rootn_contexts build the contexts
 test "rootn by an integer root: perfect powers plus or minus one, both sides of every rounding boundary" {
   let contexts = rootn_small_contexts()
   let degrees = if rootn_integer_full {

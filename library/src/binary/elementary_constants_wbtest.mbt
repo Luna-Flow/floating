@@ -84,6 +84,9 @@ test "certified constant caches stay bounded and skip very large precisions" {
 }
 
 ///|
+// oracle: A
+// source: written out: ln 2 lies strictly between the doubles 0.6931471805599452 and 0.6931471805599454 and pi between 3.14159265358979 and 3.1415926535898, and both 128-bit enclosures are narrower than 2^-100 (ln 2 = 0.693147180559945309..., pi = 3.14159265358979323...)
+// shares: Binary::from_double and make build the bounds; binary_ln2_bounds and binary_pi_bounds are the code under test; the comparison operators and sub read the result
 test "certified constants are tight enclosures of the true values" {
   let tiny = Binary::make(BinCoeff::one(), -100, 128)
   let (ln2_low, ln2_high) = binary_ln2_bounds(128).unwrap()
@@ -99,6 +102,9 @@ test "certified constants are tight enclosures of the true values" {
 }
 
 ///|
+// oracle: S
+// source: the same ln, sin and cos calls on four binary64 inputs before and after other precisions of pi and ln 2 were put in the caches; two runs of the code under test agree, no value stated
+// shares: Binary::from_double builds the inputs; ln_ctx, sin_ctx, cos_ctx, binary_pi_bounds and binary_ln2_bounds are the code under test; assert_identical_with_flags compares
 test "elementary functions are unchanged by cache state and call order" {
   let context = BinaryContext::binary64()
   let inputs = [
