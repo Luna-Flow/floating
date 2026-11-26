@@ -102,6 +102,9 @@ fn coeff_assert_medium_bigint_split(value : BigInt) -> Unit raise {
 }
 
 ///|
+// oracle: A, S
+// source: A: the representation class at 2^64 - 1, 2^64, 2^128 - 1, 2^128 by definition of the three forms, and the limbs of four values as literals (little-endian digits in base 2^30 computed with Python integers); S: the round trip through core BigInt and the bit length
+// shares: nothing for the A rows; the S rows use both conversions
 test "coefficient conversion preserves inline and limb values" {
   for value in coeff_reference_values() {
     let coefficient = coeff_from_nonnegative_bigint(value)
@@ -124,9 +127,30 @@ test "coefficient conversion preserves inline and limb values" {
     Small(_) | Medium(_, _) => fail("129-bit coefficient should use limbs")
     Large(_) => ()
   }
+  // Limb literals, little-endian digits in base 2^30 computed with Python
+  // integers (v & (2^30 - 1), v >>= 30), independent of coeff_to_bigint.
+  let limb_rows : Array[(BigInt, Array[UInt32])] = [
+    (1N << 128, [0U, 0U, 0U, 0U, 256U]),
+    ((1N << 128) + (1N << 64) + 5N, [5U, 0U, 16U, 0U, 256U]),
+    ((1N << 191) + (1N << 93) + 15N, [15U, 0U, 0U, 8U, 0U, 0U, 2048U]),
+    (
+      (1N << 150) - 1N,
+      [1073741823U, 1073741823U, 1073741823U, 1073741823U, 1073741823U],
+    ),
+  ]
+  for row in limb_rows {
+    match coeff_from_nonnegative_bigint(row.0) {
+      Large(units) => assert_eq(units, row.1)
+      Small(_) | Medium(_, _) => fail("expected limbs")
+    }
+  }
 }
 
 ///|
+// oracle: B
+// source: the high and low word of each 65 to 128 bit value from core BigInt shifts and to_uint64; inputs are boundary values and a fixed-seed generator of the test file
+// shares: coeff_from_nonnegative_bigint and coeff_to_bigint (the round trip assertion)
+// primitives: the test generator coeff_test_next_random (only chooses inputs, never an expected value)
 test "BigInt conversion splits Medium values without limbs" {
   for
     value in [
@@ -152,6 +176,10 @@ test "BigInt conversion splits Medium values without limbs" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt +, *, - on the reference values (boundaries at 2^30, 2^53, 2^63, 2^64, 2^65, 2^90, 2^127, 2^191, 2^257 and a mixed value)
+// shares: coeff_from_nonnegative_bigint and coeff_to_bigint to enter and leave the representation
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "coefficient arithmetic matches BigInt oracle" {
   let values = coeff_reference_values()
   for left in values {
@@ -177,6 +205,10 @@ test "coefficient arithmetic matches BigInt oracle" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt sum of two UInt64 values; the form of the sum (Small up to 64 bits, Medium with high word 1 and low word the wrapped sum) from the definition of the forms; eight operand pairs at the carry boundaries
+// shares: coeff_from_uint64, coeff_to_bigint
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "small coefficient addition preserves the UInt64 carry" {
   coeff_assert_uint64_add(0UL, 0UL)
   coeff_assert_uint64_add(0xffffffffffffffffUL, 0UL)
@@ -189,6 +221,10 @@ test "small coefficient addition preserves the UInt64 carry" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt sum of two UInt64 values: all 256 x 256 pairs just below 2^64 and 1024 fixed-seed random pairs in both orders
+// shares: coeff_from_uint64, coeff_to_bigint
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "small coefficient addition matches boundary and random oracles" {
   let boundary_start = (1N << 64) - 256N
   for left_offset in 0..<256 {
@@ -208,6 +244,10 @@ test "small coefficient addition matches boundary and random oracles" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt << and >> on the reference values for shifts 0, 1, 29, 30, 31, 63, 64, 91, 193, 300
+// shares: coeff_from_nonnegative_bigint and coeff_to_bigint
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "coefficient shifts match BigInt oracle" {
   for value in coeff_reference_values() {
     let coefficient = coeff_from_nonnegative_bigint(value)
@@ -225,6 +265,10 @@ test "coefficient shifts match BigInt oracle" {
 }
 
 ///|
+// oracle: B
+// source: round to nearest even and the inexact flag from the definition, computed on core BigInt: quotient v >> s, round bit bit s - 1, sticky bit = any lower bit; all values below 4096 and shifts 0 to 15
+// shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right (the quotient is also checked against core >>)
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift is exhaustive for small values" {
   for raw_value in 0..<4096 {
     let value = BigInt::from_int(raw_value)
@@ -235,6 +279,10 @@ test "fused coefficient round shift is exhaustive for small values" {
 }
 
 ///|
+// oracle: B
+// source: same BigInt definition of round to nearest even and the inexact flag; values at 2^b - 1, 2^b, 2^b + 1 and 1.5 * 2^b + 1 for b at the 30, 64, 128 and 256 bit representation edges
+// shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift handles representation boundaries" {
   for bits in [30, 31, 63, 64, 65, 127, 128, 129, 191, 257] {
     let power = 1N << bits
@@ -247,6 +295,10 @@ test "fused coefficient round shift handles representation boundaries" {
 }
 
 ///|
+// oracle: B
+// source: same BigInt definition; remainders 0, half - 1, half, half + 1 and 2^s - 1 around the tie for shifts up to 191, with even and odd quotients of both representations
+// shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift handles ties and sticky patterns" {
   for shift in [1, 2, 29, 30, 31, 63, 64, 65, 127, 128, 129, 191] {
     let half = 1N << (shift - 1)
@@ -264,6 +316,10 @@ test "fused coefficient round shift handles ties and sticky patterns" {
 }
 
 ///|
+// oracle: B
+// source: same BigInt definition; four values whose rounding carries into the next representation (2^65 - 1, 2^129 - 1 with shift 1, and two ties on all-ones quotients)
+// shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient shift rounding carries across representations" {
   coeff_assert_shift_round_sticky((1N << 65) - 1N, 1)
   coeff_assert_shift_round_sticky((1N << 129) - 1N, 1)
@@ -274,6 +330,10 @@ test "fused coefficient shift rounding carries across representations" {
 }
 
 ///|
+// oracle: B
+// source: same BigInt definition; 256 fixed-seed random values of 1 to 1024 bits with a shift index * 37 mod (bits + 97)
+// shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift matches fixed-seed random oracle" {
   let widths = [1, 30, 53, 64, 65, 113, 128, 129, 256, 1024]
   let mut state = 0x6a09e667f3bcc909N
@@ -287,6 +347,10 @@ test "fused coefficient round shift matches fixed-seed random oracle" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % on all pairs of the reference values with a non-zero divisor
+// shares: coeff_from_nonnegative_bigint and coeff_to_bigint
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "coefficient Knuth division matches BigInt oracle" {
   let values = coeff_reference_values()
   for numerator in values {
@@ -305,6 +369,10 @@ test "coefficient Knuth division matches BigInt oracle" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt +, -, * of a signed pair, and the Euclid algorithm written in the test file (internal_gcd_oracle) on core BigInt for the gcd of two products with a common factor 2^89 + 7
+// shares: signed_coeff_from_bigint and signed_coeff_to_bigint, coeff_from_nonnegative_bigint, coeff_to_bigint
+// primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "coefficient gcd and signed arithmetic match BigInt oracle" {
   let left = (1N << 191) + (1N << 93) + 15N
   let right = (1N << 127) + (1N << 61) + 9N

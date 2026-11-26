@@ -32,6 +32,11 @@ fn bin_coeff_basecase_words(count : Int32) -> Array[UInt64] {
 }
 
 ///|
+// oracle: B, E
+// source: B: core BigInt product of the two words shifted right by 64, for every pair of 400 words (edge words and a fixed-seed generator); E: the previous 32-bit form bin_coeff_mul_high_reference
+// shares: nothing
+// primitives: core BigInt multiplication and shift, independent of the kernel
+// underneath: the high word is level B against core BigInt for every pair, so the E reference adds nothing the BigInt does not
 test "high word of a word product equals the previous form and the exact product" {
   let words = bin_coeff_basecase_words(400)
   for left in words {
@@ -39,14 +44,10 @@ test "high word of a word product equals the previous form and the exact product
       let expected = bin_coeff_mul_high_reference(left, right)
       assert_eq(bin_coeff_mul_high(left, right), expected)
       assert_eq(binary_fast_mul_high(left, right), expected)
+      // the exact product of two words, from core BigInt, for every pair
+      let exact = (BigInt::from_uint64(left) * BigInt::from_uint64(right)) >> 64
+      assert_eq(BigInt::from_uint64(bin_coeff_mul_high(left, right)), exact)
     }
-  }
-  // against BigInt on a sample
-  for index in 0..<200 {
-    let left = words[index]
-    let right = words[399 - index]
-    let exact = (BigInt::from_uint64(left) * BigInt::from_uint64(right)) >> 64
-    assert_eq(BigInt::from_uint64(bin_coeff_mul_high(left, right)), exact)
   }
 }
 

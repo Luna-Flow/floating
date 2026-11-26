@@ -210,6 +210,11 @@ test "word slices of 64-bit storage equal the limb-by-limb view" {
 }
 
 ///|
+// oracle: B, E
+// source: B: the exact product from core BigInt on the integers of the limbs (bin_limbs_big, shifts and sums of core BigInt), and the schoolbook product bin_coeff_words_school, a different algorithm from the Karatsuba under test; the guard limbs around the result stay unchanged; E: the allocating Karatsuba reference ref_words_mul
+// shares: nothing between the Karatsuba and core BigInt; the limb operands are read through bin_limbs_big
+// primitives: bin_limbs_big, a pure core BigInt loop, with its own level A block in coeff_test_support_wbtest.mbt
+// underneath: the product oracle table coeff_product_oracle_wbtest.mbt, route words (level A, CPython products)
 test "scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the schoolbook" {
   let random = { words_state: 0x2468_ACE0_1357_9BDFUL, }
   let cutoff = bin_coeff_words_karatsuba_cutoff
@@ -247,6 +252,10 @@ test "scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the s
       }
       assert_eq(actual[1], 0x5555UL)
       assert_eq(actual[total + 2], 0x5555UL)
+      // the exact product of the operands from core BigInt
+      let product = bin_limbs_big(left, 0, left_len) *
+        bin_limbs_big(right, 0, right_len)
+      assert_eq(bin_limbs_big(actual, 2, total), product)
     }
   }
 }

@@ -18,6 +18,11 @@ fn knuth_test_check(numerator : Coeff, denominator : Coeff) -> Unit raise {
 }
 
 ///|
+// oracle: B, E
+// source: B: the defining identity of division, q d + r = n and r < d, with the kernel product, sum and comparison; E: the 32-bit-limb division bin_coeff_div_rem_knuth_limb32 (the previous implementation)
+// shares: Coeff mul, add and compare, bin_coeff_from_words
+// primitives: Coeff mul, add and compare have level A rows in the product oracle table coeff_product_oracle_wbtest.mbt
+// underneath: the 64-bit division is level A in coeff_div_oracle_wbtest.mbt (route knuth, CPython divmod)
 test "64-bit-digit Knuth division equals the 32-bit one on random and adversarial operands" {
   let random = { words_state: 0xD1B5_4A32_D192_ED03UL, }
   for denominator_len in [1, 2, 3, 4, 5, 8, 16, 17, 33] {

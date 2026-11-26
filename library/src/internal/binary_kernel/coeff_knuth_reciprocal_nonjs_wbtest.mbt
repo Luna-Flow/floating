@@ -93,6 +93,11 @@ test "the 3 by 2 reciprocal of Algorithm 6 is floor((B^3 - 1) / D) - B at the ed
 }
 
 ///|
+// oracle: B, E
+// source: B: the exact quotient of the three-word dividend by the two-word divisor from core BigInt division (floor, with u2 < d1 so the digit fits a word); E: the previous estimate knuth_digit_reference; inputs are edge words, random words and dividends that are an exact multiple of the divisor and one below
+// shares: the reciprocal bin_knuth_reciprocal_3by2 (checked in the sibling block against floor((B^3 - 1) / D) - B)
+// primitives: bin_knuth_reciprocal_3by2 has its own level B test against core BigInt in this file
+// underneath: the digit is level B against core BigInt division
 test "the 3 by 2 digit of Algorithm 5 equals the old estimate and the exact quotient at the edges and at random" {
   let words = knuth_edge_words()
   for d1 in words {

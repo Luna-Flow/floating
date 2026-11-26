@@ -11,8 +11,32 @@ fn karatsuba_random(state : Ref[UInt64], length : Int32) -> DecCoeff {
 }
 
 ///|
+/// The definition of the integer square root, which fixes the pair uniquely:
+/// `n = s^2 + r` with `0 <= r <= 2 s`, that is `s^2 <= n < (s + 1)^2`. It does not
+/// use the Newton reference; it uses the product, the sum and the comparison of the
+/// kernel, which have level A tables (`coeff_oracle_wbtest.mbt`).
+fn karatsuba_assert_definition(
+  n : DecCoeff,
+  root : DecCoeff,
+  remainder : DecCoeff,
+) -> Unit raise {
+  let rebuilt = dec_coeff_magnitude_add_repr(
+    dec_coeff_square_repr(root),
+    remainder,
+  )
+  if dec_coeff_compare_repr(rebuilt, n) != 0 {
+    fail("s^2 + r is not n for \{n.to_string()}")
+  }
+  if dec_coeff_compare_repr(remainder, dec_coeff_multiply_by_unit_repr(root, 2)) >
+    0 {
+    fail("remainder above 2 s for \{n.to_string()}")
+  }
+}
+
+///|
 fn karatsuba_compare(n : DecCoeff, stats? : DecSqrtStats) -> Unit raise {
   let (root, remainder) = dec_coeff_sqrt_rem_karatsuba(n, stats?)
+  karatsuba_assert_definition(n, root, remainder)
   let (reference_root, reference_remainder) = reference_integer_sqrt_rem_repr(n)
   if !sqrt_diff_same(root, reference_root) ||
     !sqrt_diff_same(remainder, reference_remainder) {
@@ -33,6 +57,11 @@ fn karatsuba_compare(n : DecCoeff, stats? : DecSqrtStats) -> Unit raise {
 }
 
 ///|
+// oracle: B, E
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison; E: the Newton reference of coeff_sqrt_diff_wbtest.mbt, bit for bit, and the rounding state of the scalar entry derived from the reference remainder; inputs: 12 random radicands of each length 3 to 70, and the squares of random roots with remainders 0, 1, s, s + 1, 2 s and the radicand square minus one
+// shares: dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and the operand builders (level A product and sum classes in coeff_oracle_wbtest.mbt)
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt on these limb shapes
+// underneath: the Newton reference is the previous implementation; the same function is level A at 3 to 112 limbs and on powers of ten in the `decimal kernel oracle: integer square root` classes of coeff_oracle_wbtest.mbt (CPython math.isqrt, threshold dec_sqrt_karatsuba_limbs = 3 so those classes run the Karatsuba root)
 test "Karatsuba root equals the reference for every length from 3 to 70 limbs" {
   let state = Ref(0x9E3779B97F4A7C15UL)
   for length in 3..<71 {
@@ -63,6 +92,11 @@ test "Karatsuba root equals the reference for every length from 3 to 70 limbs" {
 }
 
 ///|
+// oracle: B, E
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison; E: the Newton reference of coeff_sqrt_diff_wbtest.mbt, bit for bit, and the rounding state of the scalar entry derived from the reference remainder; inputs: 10^k, 10^k - 1, 10^k + 1 and 3, 4, 9 times 10^k for k from 18 to 1199
+// shares: dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and the operand builders (level A product and sum classes in coeff_oracle_wbtest.mbt)
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt on these limb shapes
+// underneath: the Newton reference is the previous implementation; the same function is level A at 3 to 112 limbs and on powers of ten in the `decimal kernel oracle: integer square root` classes of coeff_oracle_wbtest.mbt (CPython math.isqrt, threshold dec_sqrt_karatsuba_limbs = 3 so those classes run the Karatsuba root)
 test "Karatsuba root on 10^k, 10^k - 1, 10^k + 1 and 4, 9 and 3 times them" {
   for digits in 18..<1200 {
     let power = dec_coeff_power10_repr(digits)
@@ -90,6 +124,12 @@ fn karatsuba_depth_of(length : Int32) -> Int32 {
 }
 
 ///|
+// oracle: B, E
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison; E: the Newton reference of coeff_sqrt_diff_wbtest.mbt, bit for bit, and the rounding state of the scalar entry derived from the reference remainder; inputs: 20 random radicands for each of the limb counts 3, 4, 5, 8, 12, 24, 50, 100
+// shares: dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and the operand builders (level A product and sum classes in coeff_oracle_wbtest.mbt)
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt on these limb shapes
+// underneath: the Newton reference is the previous implementation; the same function is level A at 3 to 112 limbs and on powers of ten in the `decimal kernel oracle: integer square root` classes of coeff_oracle_wbtest.mbt (CPython math.isqrt, threshold dec_sqrt_karatsuba_limbs = 3 so those classes run the Karatsuba root)
+// S: the leaf depth counter against the depth formula restated in the test (n - 2 floor((n - 1) / 4) per level): a statement of the routing, not of the value
 test "Karatsuba recursion reaches every depth from 0 to 6" {
   let state = Ref(0xD1B54A32D192ED03UL)
   // (limbs, depth): 4 -> leaf, 5 -> 3 -> leaf, 8 -> 6 -> 4, ...
@@ -117,6 +157,12 @@ test "Karatsuba recursion reaches every depth from 0 to 6" {
 }
 
 ///|
+// oracle: B, E
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison; E: the Newton reference of coeff_sqrt_diff_wbtest.mbt, bit for bit, and the rounding state of the scalar entry derived from the reference remainder; inputs: radicands built as high * X^2 + (X - 1) X + low with high a perfect square plus its largest remainder, and 12,000 random radicands for the correction counter
+// shares: dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and the operand builders (level A product and sum classes in coeff_oracle_wbtest.mbt)
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt on these limb shapes
+// underneath: the Newton reference is the previous implementation; the same function is level A at 3 to 112 limbs and on powers of ten in the `decimal kernel oracle: integer square root` classes of coeff_oracle_wbtest.mbt (CPython math.isqrt, threshold dec_sqrt_karatsuba_limbs = 3 so those classes run the Karatsuba root)
+// S: the counters caps and corrections are positive: a statement that the paths run
 test "Karatsuba caps a quotient of X and takes the correction step" {
   let state = Ref(0x2545F4914F6CDD1DUL)
   let stats : DecSqrtStats = { leaf_depths: [], caps: 0, corrections: 0, }
@@ -163,10 +209,16 @@ test "Karatsuba caps a quotient of X and takes the correction step" {
 }
 
 ///|
-/// A radicand constructed to take the correction step: with `s'` the root of
-/// the top part (top limb at least 5 * 10^8), a quotient `q` below `X` and
-/// `D = 2 s' q` split as `r' X + a1`, the top part `H = s'^2 + r'` and the
-/// lower blocks `a1`, `a0 = 0` give `(q, u) = (q, 0)` and `r = 0 + 0 - q^2 < 0`.
+// A radicand constructed to take the correction step: with `s'` the root of
+// the top part (top limb at least 5 * 10^8), a quotient `q` below `X` and
+// `D = 2 s' q` split as `r' X + a1`, the top part `H = s'^2 + r'` and the
+// lower blocks `a1`, `a0 = 0` give `(q, u) = (q, 0)` and `r = 0 + 0 - q^2 < 0`.
+// oracle: B, E
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison; E: the Newton reference of coeff_sqrt_diff_wbtest.mbt, bit for bit, and the rounding state of the scalar entry derived from the reference remainder; inputs: radicands of 6 to 80 limbs constructed so that the top level takes the correction step
+// shares: dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and the operand builders (level A product and sum classes in coeff_oracle_wbtest.mbt)
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt on these limb shapes
+// underneath: the Newton reference is the previous implementation; the same function is level A at 3 to 112 limbs and on powers of ten in the `decimal kernel oracle: integer square root` classes of coeff_oracle_wbtest.mbt (CPython math.isqrt, threshold dec_sqrt_karatsuba_limbs = 3 so those classes run the Karatsuba root)
+// S: corrections >= 1, a statement that the path runs
 test "Karatsuba takes the correction step on a constructed class" {
   let state = Ref(0xBF58476D1CE4E5B9UL)
   for length in [6, 8, 10, 12, 20, 40, 80] {
@@ -202,6 +254,7 @@ test "Karatsuba takes the correction step on a constructed class" {
       let (reference_root, reference_remainder) = reference_integer_sqrt_rem_repr(
         n,
       )
+      karatsuba_assert_definition(n, root, remainder)
       assert_true(sqrt_diff_same(root, reference_root))
       assert_true(sqrt_diff_same(remainder, reference_remainder))
       // the top level takes the step (the levels below may too)
