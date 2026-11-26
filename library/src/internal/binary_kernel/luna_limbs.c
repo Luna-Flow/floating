@@ -4,7 +4,7 @@
  * MoonBit function of the same name in `coeff_limbs_portable_nonjs.mbt`, which
  * stays the reference: the results are bit for bit the same.
  *
- * Rules: unsigned arithmetic only, no assembly, no `restrict` (a row keeps the
+ * Rules: unsigned arithmetic only, no assembly outside the Apple arm64 tier (`LUNA_ASM_ARM64`), no `restrict` (a row keeps the
  * sequential semantics of the MoonBit loop under any overlap, except the window
  * row `luna_window_combine`, which reads four source limbs before it writes
  * four and so requires that its output does not overlap its inputs), no static data
@@ -479,7 +479,7 @@ LUNA_FORCE_INLINE void luna_win_interior(uint64_t *words, int64_t low, int64_t h
  * with up = 64 - bs, written as a shift by -bs (the shift uses the low six bits); the previous limb's
  * high part stays in one register across blocks. Each loop is its own out-of-line function with seven
  * arguments, all in registers (destination, the two sources at the first limb of the first block, the
- * block count, the carry in, the two bit shifts), so the ten loops are not inlined into the head and
+ * block count, the carry in, the two bit shifts), so the twelve loops are not inlined into the head and
  * the tail of the pass and the interface costs no stack. Add or subtract and the shifted operands are
  * chosen by the caller, one function per loop. */
 #define LUNA_W_LDX "ldp x0, x1, [%[px]], #16\n ldp x2, x3, [%[px]], #16\n"

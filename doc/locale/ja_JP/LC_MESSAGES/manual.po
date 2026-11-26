@@ -10696,7 +10696,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` と `internal/*`、`cli` と `cli/*`、`bench` と `bench/*`、`consistency`、`doc_examples` は実装および検証のための基盤です。シンボルが `pkg.generated.mbti` に現れていても、長期的なアプリケーション契約になるとは限りません。依存する前にそのパッケージの設計ページを読んでください。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/binary_kernel.md:117
+#: manual/design/internal/binary_kernel.md:119
 msgid "Invariants"
 msgstr "Invariant"
 
@@ -20092,38 +20092,38 @@ msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through 
 msgstr "アセンブリ層：Apple arm64（clang または gcc）では、3つの行プリミティブと、それらの上に構築された `school` と `sqr_school` に、`luna_limbs.c` のインラインアセンブリによる第3の実装があります。AArch64の命令定義に基づいて書かれています。1回の反復で4リムを処理し、2本のキャリーチェーンを順に実行します。チェーンAは積の下位ワードと前のリムの上位ワードを加算し（`adds`、`adcs`、`adc`）、チェーンBは出力先のリムを加算または減算し、チェーンBのキャリーは次のブロックの初期フラグになります（`cmp x, #1`）。4の倍数に満たない長さは先にC行が処理します。測定した1リムあたりの命令数（arm64、128リムの行）：アセンブリでは `mul_1` が4.9、`addmul_1` が6.9、`submul_1` が7.0、Cではそれぞれ9.2、12.1、13.1です。ループの下限：1リムごとに `mul`、`umulh`、2回のキャリー加算、約1.5回のメモリ操作が必要で、`addmul_1` では5.5です。ブロックごとにさらに1.25が加わります（チェーンAのキャリーの確定、フラグの再構築、チェーンBのキャリー、ループ）。AArch64にはキャリーフラグが1つしかなく、キャリー付きの積和命令もないため、2本のチェーンは交互に実行できません。他のプラットフォームでは、アセンブリのエントリポイントはC行です。"
 
 #: manual/design/internal/binary_kernel.md:87
-msgid "Window row in assembly: the interior of the window pass of the wide sum (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a subtraction) with a loop counter that does not touch the flags, so the chain runs through every block boundary. There are twelve out-of-line loops, by add or subtract and by which operands are shifted (a shifted limb costs `lsr`, `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with both (12, 24 and 36 instructions per block in the disassembly). The carry enters a loop as the C flag (`cmp x, #1`) and leaves it as `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs stay the C code. A call costs about 55 instructions more than the C body, so the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`) and the C body from 14. `add` and `sub` take 0.98 to 0.99 of the C tier's instructions at 2,048 bits, 0.93 at 4,096 and 0.80 at 16,384; below 1,792 bits the difference is within the spread of the runs."
-msgstr "ウィンドウ行のアセンブリ実装：幅広加算のウィンドウ走査の内部部分（`bin_limbs_window_combine`）は、Apple arm64 ではアセンブリ本体を持ちます。1 回の反復で 4 リムを処理し、4 つの和を通して桁上げ連鎖は 1 本だけです（加算は `adcs`、減算は `sbcs`）。ループカウンタはフラグに触れないため、連鎖はすべてのブロック境界を貫きます。ループは加算か減算か、どのオペランドをシフトするかで分けた 12 個の関数で、インライン展開されません（リムのシフトには `lsr`、`lsl`、`orr` が必要です）。1 リムあたりの命令数は、シフトなしで 3.0、片方で 6.0、両方で 9.0 です（逆アセンブルでブロックあたり 12、24、36 命令）。桁上げは C フラグとしてループに入り（`cmp x, #1`）、`adc x, xzr, xzr` で読み戻されます。先頭、末尾、および最大 3 リムの余りは C コードのままです。呼び出しは C 本体より約 55 命令多くかかるため、アセンブリ部分は 24 リムから（`bin_limbs_window_asm_min_count`）、C 本体は 14 リムから使います。`add` と `sub` の命令数は、2,048 ビットで C 層の 0.98 から 0.99、4,096 ビットで 0.93、16,384 ビットで 0.80 です。1,792 ビット以下では差は実行間のばらつきの範囲内です。"
+msgid "Window row in assembly: the interior of the window pass of the wide sum (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a subtraction) with a loop counter that does not touch the flags, so the chain runs through every block boundary. There are twelve out-of-line loops, by add or subtract and by which operands are shifted (a shifted limb costs `lsr`, `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with both (12, 24 and 36 instructions per block in the disassembly), and 2.5 and 5.5 without a second operand (10 and 22 per block). The carry enters a loop as the C flag (`cmp x, #1`) and leaves it as `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs stay the C code. A call costs about 55 instructions more than the C body and the interior saves 2.8 per limb at 16,384 bits, so the break-even is near 20 limbs; the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`) and the C body from 14. `add` and `sub` take 0.98 to 0.99 of the C tier's instructions at 2,048 bits, 0.93 at 4,096 and 0.80 at 16,384; below 1,792 bits the difference is within the spread of the runs."
+msgstr "ウィンドウ行のアセンブリ実装：幅広加算のウィンドウ走査の内部部分（`bin_limbs_window_combine`）は、Apple arm64 ではアセンブリ本体を持ちます。1 回の反復で 4 リムを処理し、4 つの和を通して桁上げ連鎖は 1 本だけです（加算は `adcs`、減算は `sbcs`）。ループカウンタはフラグに触れないため、連鎖はすべてのブロック境界を貫きます。ループは加算か減算か、どのオペランドをシフトするかで分けた 12 個の関数で、インライン展開されません（リムのシフトには `lsr`、`lsl`、`orr` が必要です）。1 リムあたりの命令数は、シフトなしで 3.0、片方で 6.0、両方で 9.0 です（逆アセンブルでブロックあたり 12、24、36 命令）、第二オペランドがない場合は 2.5 と 5.5（ブロックあたり 10 と 22 命令）。桁上げは C フラグとしてループに入り（`cmp x, #1`）、`adc x, xzr, xzr` で読み戻されます。先頭、末尾、および最大 3 リムの余りは C コードのままです。呼び出しは C 本体より約 55 命令多くかかり、アセンブリ部分は 16,384 ビットで 1 リムあたり 2.8 命令少ないため、損益分岐は 20 リム付近です。アセンブリ部分は 24 リムから（`bin_limbs_window_asm_min_count`）、C 本体は 14 リムから使います。`add` と `sub` の命令数は、2,048 ビットで C 層の 0.98 から 0.99、4,096 ビットで 0.93、16,384 ビットで 0.80 です。1,792 ビット以下では差は実行間のばらつきの範囲内です。"
 
-#: manual/design/internal/binary_kernel.md:102
+#: manual/design/internal/binary_kernel.md:104
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr "`bin_limbs_product`（公開、`binary` のリム配列ループ用）：1回の呼び出しで `r[ro ..< ro + an + bn] = a * b` を計算します。行は `a` のリムにわたり（短い方のオペランドか乗数を `a` に渡す）、両方の長さは1以上、`r` はオペランドと重ならず、すべての結果リムが書き込まれます。Cまたはアセンブリの行をもつnativeティアでは範囲検査を1組通すだけの教科書的乗算エントリであり、移植可能ティアとその他のターゲットでは移植可能な `mul_1` と `addmul_1` の行のループなので、どのターゲットも遅くなりません。10×9リムではアセンブリティアで868命令、Cティアで1,145命令であり、ラッパー経由の `mul_1` と8回の `addmul_1` では1,028と1,292命令です（ラッパーと検査はCの数値のうち134命令）。"
 
-#: manual/design/internal/binary_kernel.md:103
+#: manual/design/internal/binary_kernel.md:105
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr "選択方法：`LUNA_FLOATING_PORTABLE`（移植可能なループ）と `LUNA_FLOATING_LIMBS=c`（C行）は起動時に一度だけ読まれます。アセンブリ層がある場合の既定はアセンブリ、なければCです。差分テストは同じ配列で3つを比較し、実行された層を記録します。Linux arm64は未実行で、この層はApple arm64でのみ有効です。"
 
-#: manual/design/internal/binary_kernel.md:109
+#: manual/design/internal/binary_kernel.md:111
 msgid "Thresholds"
 msgstr "しきい値"
 
-#: manual/design/internal/binary_kernel.md:111
+#: manual/design/internal/binary_kernel.md:113
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr "切り替え点は `*_min_words` または `*_words`（64 ビットリム）と名付けられ、ターゲットごとに `coeff_thresholds_<target>.mbt` で選ばれます。これらは意味論ではなく方針です。振り分けテストはすべての切り替え点をちょうど跨ぎ、教科書的乗算の結果と比較します。初等関数の切り替え点はカーネルの方針ではなく、`binary` に残ります。"
 
-#: manual/design/internal/binary_kernel.md:119
+#: manual/design/internal/binary_kernel.md:121
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` の係数は `len >= 3` 個のリムを持ち、最上位リムは 0 ではなく、どの関数もオペランドの配列を変更しません。"
 
-#: manual/design/internal/binary_kernel.md:121
+#: manual/design/internal/binary_kernel.md:123
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "新しい値を作る関数（非零のオペランドに対する `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_mul_short`、`bin_coeff_sqrt_scaled_rounded`）は、どのオペランドも他の値も参照しない配列を持つ `Heap` 係数を返す。インライン結果と共有の `Coeff::zero()` は配列を持たず、シフト量が 0 のときはレシーバ自身を返す。呼び出し側はそのような配列を保持または変更してよい。"
 
-#: manual/design/internal/binary_kernel.md:122
+#: manual/design/internal/binary_kernel.md:124
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` と `Inline128` は $2^{128}$ 未満の値の唯一の表現であり、`bin_coeff_from_words` が正規化します。"
 
-#: manual/design/internal/binary_kernel.md:124
+#: manual/design/internal/binary_kernel.md:126
 msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
 msgstr "前提条件の違反（負のシフト、`to_radix_string` の基数が `2..=36` の範囲外）を除き、abort する関数はありません。"
 
