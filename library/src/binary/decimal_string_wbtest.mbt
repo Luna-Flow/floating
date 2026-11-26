@@ -88,6 +88,9 @@ test "decimal strings honour every rounding direction" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the spellings inf, Infinity and NaN and the decimal forms +.5 and 5. of the decimal character sequences of IEEE Std 754-2019 5.12.1, and the refusal of an empty string, an exponent without digits, two points, a second sign and a missing significand; S: the acceptance of surrounding blanks, the hexadecimal prefix refused here and the sign of a NaN dropped in the text are the library's own grammar choices
+// shares: from_string_ctx is the code under test; decimal_string_show prints value and flag bits
 test "decimal strings parse specials and reject malformed input" {
   let context = BinaryContext::binary64()
   let lines = StringBuilder()
@@ -155,6 +158,9 @@ test "decimal strings with huge exponents stay cheap" {
 }
 
 ///|
+// oracle: S
+// source: the round trip of the host's Double::to_string text through from_string_ctx on 20000 doubles of a fixed linear congruential sequence; the expected value is Binary::from_double(number), a shared builder without a level A block of its own here, so the level is stated as S (the audit said B)
+// shares: Binary::from_double and compare on the reference side; from_string_ctx is the code under test
 test "decimal strings round-trip the host binary64 shortest form" {
   let context = BinaryContext::binary64()
   let mut state = 0x853C49E6748FEA9BUL
@@ -210,6 +216,11 @@ test "arbitrary precision parses agree with exact rational rounding" {
 /// binary_precision_max"). The powers of five stay inside the range, and the
 /// power of two is applied after rounding. Expected values: MPFR 4.2.2
 /// `mpfr_strtofr` (`testdata/binary/mpfr-4.2.2-strtofr.txt`).
+
+///|
+// oracle: A
+// source: expected values from GNU MPFR 4.2.2 mpfr_strtofr (testdata/binary/mpfr-4.2.2-strtofr.txt, library-ran: no): 1e323228495 at 24 bits is 0xc32e02p1073741795 inexact without overflow; 1e323228497 and -9e323228496 rounded toward negative infinity overflow to inf and -inf (IEEE Std 754-2019 7.4)
+// shares: Binary::from_hex reads the expected value exactly (level A through hex_ctx_rows); from_string_ctx is the code under test
 test "decimal parses next to the exponent limit round correctly" {
   let near = Binary::from_string_ctx(
     "1e323228495",

@@ -5,16 +5,10 @@
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
 library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
 library/src/binary/atan_fixed_leaf_wbtest.mbt::pi series enclosure of the fixed-point leaf contains pi	B
-library/src/binary/class_of_wbtest.mbt::class_of boundary between subnormal and normal follows emin	A
-library/src/binary/class_of_wbtest.mbt::class_of in an unbounded context treats ordinary values as normal	A
-library/src/binary/class_of_wbtest.mbt::class_of reaches all ten classes in every interchange format	A
 library/src/binary/compare_nan_wbtest.mbt::compare orders NaN after every number instead of aborting	A
 library/src/binary/context_arithmetic_optimization_wbtest.mbt::wide exponent gaps stay on bounded coefficient paths	S
 library/src/binary/contextual_traits_wbtest.mbt::Binary contextual arithmetic preserves range diagnostics	A
 library/src/binary/contextual_traits_wbtest.mbt::Binary contextual conversion derives one bound from the other	A
-library/src/binary/decimal_string_wbtest.mbt::decimal parses next to the exponent limit round correctly	A
-library/src/binary/decimal_string_wbtest.mbt::decimal strings parse specials and reject malformed input	A
-library/src/binary/decimal_string_wbtest.mbt::decimal strings round-trip the host binary64 shortest form	B
 library/src/binary/domain_values_explog_wbtest.mbt::exp/log family: domain case, could-not-compute case and ordinary case	S
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM declines outside its range	A
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure at 8192 bits contains the series enclosure	B
@@ -68,56 +62,25 @@ library/src/binary/elementary_unused_series_wbtest.mbt::sin, cos and tan results
 library/src/binary/endpoint_shortcut_wbtest.mbt::binary_bounds_at_ends evaluates a point once and gives the two-ends result	A
 library/src/binary/exact_root_wbtest.mbt::binary_exact_nth_root_coefficient detects wide perfect powers	B
 library/src/binary/exact_root_wbtest.mbt::binary_floor_nth_root brackets the root	B
-library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of an integer matches the model at every range boundary	B
-library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of exactly -2^30 is the exact subnormal 2^-2^30 (#271)	A
-library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of non-integers around the smallest subnormal	A
-library/src/binary/exp2_subnormal_wbtest.mbt::exp2 true underflow to zero threshold carries inexact and underflow	B
-library/src/binary/flags_not_computed_outcomes_wbtest.mbt::a certification failure is a NaN with not_computed and without invalid_operation	A
-library/src/binary/flags_not_computed_outcomes_wbtest.mbt::checked tier: not_computed is the certification failure, invalid_operation the domain error	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::exp: a forced failure, a domain-free ordinary case and an invalid operand	S
-library/src/binary/flags_not_computed_outcomes_wbtest.mbt::plain elementary forms: a domain case is invalid_operation, not not_computed	A
 library/src/binary/flags_not_computed_wbtest.mbt::BinaryFlags not_computed is carried by new, combine and equality	A
 library/src/binary/flags_not_computed_wbtest.mbt::BinaryFlags not_computed is not raised by operations yet	A
 library/src/binary/huge_argument_trig_wbtest.mbt::sin, cos and tan of 2^k against MPFR at the exact argument	A
 library/src/binary/hypot_range_wbtest.mbt::hypot with a zero operand is the other magnitude, exact, at any exponent	A
 library/src/binary/ilogb_wbtest.mbt::ilogb of the special values and of the stored range	A
-library/src/binary/integral_wbtest.mbt::convenience rounding functions	A
-library/src/binary/integral_wbtest.mbt::roundToIntegral covers every direction on halfway and fractional values	A
-library/src/binary/integral_wbtest.mbt::roundToIntegralExact raises inexact only when the value changes	A
 library/src/binary/make_quantum_issue441_wbtest.mbt::from_coefficient, from_hex and with_precision round at the smallest quantum (#441)	S
-library/src/binary/nan_payload_width_wbtest.mbt::a NaN of precision p has p - 2 payload bits	A
-library/src/binary/nan_payload_width_wbtest.mbt::conversions keep the low payload bits and quiet a signaling NaN that cannot keep one	A
-library/src/binary/nan_payload_width_wbtest.mbt::precision is checked where a value is made	A
 library/src/binary/order_predicates_wbtest.mbt::binary comparison predicates: the negation pairs are complements	S
 library/src/binary/order_predicates_wbtest.mbt::binary comparison predicates: value and flag for every relation	A
-library/src/binary/order_wbtest.mbt::copySign keeps the magnitude and NaN payload	A
-library/src/binary/order_wbtest.mbt::quiet and signaling comparisons differ only in NaN flags	A
-library/src/binary/order_wbtest.mbt::totalOrder sorts every class, signed zeros, and NaN payloads	A
 library/src/binary/pm1_functions_wbtest.mbt::exp2m1 of a huge integer rounds like the power of two beside it	A
 library/src/binary/pm1_functions_wbtest.mbt::log2p1 and log10p1 special values and domain	A
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow exact subnormal regression row	A
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow of a power of two with a half-integer exponent rounds the exact result	B
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_pow_ctx on a signaling NaN	A
-library/src/binary/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
-library/src/binary/refinement_limit_wbtest.mbt::refinement limit: None stays bounded by the work cap	A
-library/src/binary/refinement_limit_wbtest.mbt::refinement limit: contexts that differ only in the limit are different	A
-library/src/binary/refinement_limit_wbtest.mbt::refinement limit: the failure reports the refinements taken	A
 library/src/binary/remainder_gap_issue445_wbtest.mbt::remainder with an exponent gap above 2^31 - 1 (#445)	A
 library/src/binary/remainder_gap_issue445_wbtest.mbt::the example of #445	A
 library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root equals the certified loop (random)	B
 library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root: perfect powers plus or minus one, both sides of every rounding boundary	B
-library/src/binary/rootn_zero_degree_wbtest.mbt::rootn of zero with a negative degree is the divideByZero case	A
-library/src/binary/rootn_zero_degree_wbtest.mbt::rootn with degree zero is invalid for every operand and never divideByZero	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound of a tiny x is the neighbour of 1 chosen by the direction	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound special values	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::powr special values	A
-library/src/binary/rsqrt_compound_powr_wbtest.mbt::rsqrt special values	A
-library/src/binary/scale_wbtest.mbt::logB returns the leading-bit exponent	A
-library/src/binary/scale_wbtest.mbt::scaleB rounds once with range handling	A
-library/src/binary/scale_wbtest.mbt::scaleB takes its count as a floating-point integer	A
 library/src/binary/tanh_saturation_issue185_wbtest.mbt::tanh saturates to the correctly rounded value for large arguments (#185)	A
-library/src/binary/to_integer_wbtest.mbt::convertToInteger handles every width and special value	A
-library/src/binary/to_integer_wbtest.mbt::convertToInteger rounds, checks the range, and reports flags	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
 library/src/decimal/coeff_kernel_wbtest.mbt::BigInt-free ln constants preserve the old scaled integers	?

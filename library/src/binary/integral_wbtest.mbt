@@ -4,6 +4,9 @@ fn integral_show(result : (Binary, BinaryFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out by hand from IEEE Std 754-2019 5.9 and 4.3: 2.5 gives 2, 3, 2, 3, 2 in nearest even, nearest away, toward zero, positive, negative; -2.5 gives -2, -3, -2, -2, -3; 3.5 gives 4, 4, 3, 4, 3; 0.3 gives 0, 0, 0, 1, 0; -0.3 gives -0, -0, -0, -0, -1; -0.5 gives -0, -1, -0, -0, -1; integers are unchanged
+// shares: Binary::from_double builds the operands; to_integral_value_ctx is the code under test; to_string prints
 test "roundToIntegral covers every direction on halfway and fractional values" {
   let modes = [
     BinaryRoundingMode::RoundTiesToEven,
@@ -41,6 +44,9 @@ test "roundToIntegral covers every direction on halfway and fractional values" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.9: roundToIntegralExact(2.5) is 2 with inexact, 4 is unchanged without flag, roundToIntegralTiesToEven (the value form) never raises inexact, a signaling NaN is invalid, -inf is unchanged
+// shares: Binary::from_double, signaling_nan and inf build the operands; to_integral_exact_ctx and to_integral_value_ctx are the code under test; integral_show prints value and flag bits
 test "roundToIntegralExact raises inexact only when the value changes" {
   let context = BinaryContext::binary64()
   inspect(
@@ -76,6 +82,9 @@ test "roundToIntegralExact raises inexact only when the value changes" {
 }
 
 ///|
+// oracle: A
+// source: written out: floor(-1.5) = -2, ceil = -1, trunc = -1, round (ties away) = -2, round_ties_to_even = -2; for 2^-1000000000 floor is 0, ceil is 1 and the ceil of the negative value is -0
+// shares: Binary::from_double and make build the operands; floor, ceil, trunc, round and round_ties_to_even are the code under test; Display prints
 test "convenience rounding functions" {
   let value = Binary::from_double(-1.5)
   inspect(

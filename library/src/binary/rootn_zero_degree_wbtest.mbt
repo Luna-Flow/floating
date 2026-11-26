@@ -14,6 +14,9 @@
 //               divideByZero exception for even n < 0".
 
 ///|
+// oracle: A, S
+// source: A: IEEE Std 754-2019 Table 9.1 (rootn(x, n): n = 0 is an invalid operation) and 7.3 (divideByZero needs an exact infinite result on finite operands) quoted in the header, for ten operands (quiet and signaling NaNs, +-0, 1, -8, 2, +-inf) in four contexts, with a quiet NaN and invalid only; S: the S4 mapping of the library (invalid is a value in the try_ form, not an Err) is asserted as well
+// shares: Binary constructors build the operands; rootn_ctx and try_rootn_ctx are the code under test
 test "rootn with degree zero is invalid for every operand and never divideByZero" {
   let operands : Array[(String, Binary)] = [
     ("qNaN", Binary::quiet_nan()),
@@ -59,6 +62,9 @@ test "rootn with degree zero is invalid for every operand and never divideByZero
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (rootn(+-0, n) is +-inf with divideByZero for odd n < 0 and +inf for even n < 0), degrees -1 to -4 and -1000001, both zeros, no invalid flag
+// shares: Binary::zero and negative_zero build the operands; rootn_ctx is the code under test
 test "rootn of zero with a negative degree is the divideByZero case" {
   for context in [BinaryContext::new(precision=53), BinaryContext::binary64()] {
     for degree in [-1, -2, -3, -4, -1000001] {

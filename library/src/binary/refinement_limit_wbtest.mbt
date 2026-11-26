@@ -73,6 +73,9 @@ test "refinement limit: a hard-to-round exp fails at a small limit and succeeds 
 }
 
 ///|
+// oracle: S
+// source: the written contract of the refinement limit of this library (a limit of 0, 1 or a negative number is one step) on the hard input of the file, which needs four refinements; no value of exp is stated
+// shares: refinement_hard_input builds the input with ln at 330 bits; try_exp_ctx and with_refinement_limit are the code under test; refinement_failed reads the Err
 test "refinement limit: 0, 1 and negative limits are one step" {
   let x = refinement_hard_input()
   let base = BinaryContext::new(precision=53)
@@ -92,6 +95,9 @@ test "refinement limit: 0, 1 and negative limits are one step" {
 }
 
 ///|
+// oracle: S
+// source: the written contract that a failure under Some(2) reports 2 refinements; the library's own contract, not an external value
+// shares: refinement_hard_input and try_exp_ctx are the code under test; certification_failure_detail reads the failure
 test "refinement limit: the failure reports the refinements taken" {
   let x = refinement_hard_input()
   let base = BinaryContext::new(precision=53)
@@ -124,6 +130,9 @@ test "refinement limit: the exp family agrees with the default under None" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of BinaryContext equality (a context is equal to another only if the refinement limit is equal too) and of the default Some(12); the library's own contract, not an external value
+// shares: BinaryContext equality, with_refinement_limit, refinement_limit and from_arithmetic_context are the code under test
 test "refinement limit: contexts that differ only in the limit are different" {
   let a = BinaryContext::binary64()
   let b = a.with_refinement_limit(Some(3))
@@ -148,6 +157,9 @@ test "refinement limit: contexts that differ only in the limit are different" {
 }
 
 ///|
+// oracle: S
+// source: the constants of the work cap written as the library documents them (8000000 for precision 53, 256000000 for 10^6, 1000000000 at the top) and the stopping rule of certified_refinement_continues on both sides of them; these are the library's own policy numbers, not an external value
+// shares: @internal.certified_unbounded_work_cap and certified_refinement_continues are the code under test
 test "refinement limit: None stays bounded by the work cap" {
   inspect(@internal.certified_unbounded_work_cap(53), content="8000000")
   inspect(@internal.certified_unbounded_work_cap(1000000), content="256000000")
