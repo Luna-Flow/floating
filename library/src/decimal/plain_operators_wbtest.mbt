@@ -30,6 +30,9 @@ test "a finite value plus or minus zero is the value at the ends of the exponent
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 5.4 and 4.3: 1E+2147483646 + 1E-2147483645 rounds to 1E+2147483646 at 34 digits (the addend is below half an ulp), so the sum equals the large operand and the difference with the small one reversed is its negation; the stored range of the operands is the library's working range (level S)
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string; also read through == (Decimal equality) (they read the operands and results, not the code under test)
 test "two nonzero values with an exponent gap above 2,000,000,000 add exactly" {
   let a = plain_d("1E2147483646")
   let b = plain_d("1E-2147483645")
@@ -40,6 +43,9 @@ test "two nonzero values with an exponent gap above 2,000,000,000 add exactly" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal (re-run 2026-11-26) and IEEE 754-2019 5.2: 1.20 + 3.40 = 4.60, 999.999 + 0.001 = 1000.000 at 7 digits, 6.0 / 2 = 3.0, 1.25 * 2.50 = 3.1250 and 1.20 - 1.20 = 0.00 (the preferred exponents min, min, Q(x) - Q(y), the sum and min again)
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string
 test "the exact sum keeps the preferred exponent: 1.20 + 3.40 is 4.60" {
   assert_eq((plain_d("1.20") + plain_d("3.40")).to_string(), "4.60")
   assert_eq(
@@ -52,6 +58,9 @@ test "the exact sum keeps the preferred exponent: 1.20 + 3.40 is 4.60" {
 }
 
 ///|
+// oracle: A, S
+// source: CPython decimal (re-run 2026-11-26) and IEEE 754-2019 5.2: 1/3 at 7 digits is 0.3333333, 1234.567 * 9.876 at 5 digits is 12193 and 12345 + 0.5 at 3 digits is 1.23E+4 (an inexact result keeps all p digits); the precision label 5 of the product is the library's field (level S)
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string; Decimal::precision (reads the precision field of the representation, a library field: the product of two 5-digit operands is labeled 5, level S)
 test "an inexact result has the least exponent: p digits, not reduced" {
   let third = Decimal::from_int(1, precision=7) /
     Decimal::from_int(3, precision=7)
@@ -64,6 +73,9 @@ test "an inexact result has the least exponent: p digits, not reduced" {
 }
 
 ///|
+// oracle: S
+// source: the library's rule that the plain operators work in the private context of the larger precision of the operands (the S1 decision of issue 438): the precision label of the result is the only thing checked and no value is written out
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string, precision
 test "the plain result has the larger precision of the operands" {
   let wide = plain_d("1", precision=50)
   let narrow = plain_d("3", precision=7)
@@ -74,6 +86,9 @@ test "the plain result has the larger precision of the operands" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 6.3 and 7.3: x / +-0 for finite nonzero x is an infinity with the sign of the exact quotient (the xor of the signs, divideByZero), and 0 / 0 is NaN (invalid operation); written out
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string; also read through neg and unary minus, is_nan (they read the operands and results, not the code under test)
 test "division by a zero has the sign of the exact quotient (#549)" {
   let one = plain_d("1")
   let zero = Decimal::zero()
@@ -86,6 +101,9 @@ test "division by a zero has the sign of the exact quotient (#549)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 6.3: the sign of a zero product is the exclusive or of the signs of the operands, also for -2 * +0 and 2 * -0; written out
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string; also read through neg and unary minus, is_negative_zero (they read the operands and results, not the code under test)
 test "the sign of a zero product is the xor of the signs (#553)" {
   let two = plain_d("2")
   let zero = Decimal::zero()
@@ -97,6 +115,9 @@ test "the sign of a zero product is the xor of the signs (#553)" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 7.4 and 7.5 with the working range of the plain operators, which is the library's (largest adjusted exponent 2147483646, smallest exponent -2147483645, level S): 1E+2147483646 squared overflows to infinity, 1E-2147483645 squared rounds to 0E-2147483645 and 1E+2147483646 + itself is 2E+2147483646 exactly; written out
+// shares: Decimal::from_string, the local plain_d and the plain operators (they build the operands and are the code under test), to_string; also read through neg and unary minus (they read the operands and results, not the code under test)
 test "a result beyond the working range overflows or underflows like a context result" {
   let big = plain_d("1E2147483646")
   assert_eq((big * big).to_string(), "inf")

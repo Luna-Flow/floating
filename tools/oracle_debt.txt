@@ -93,12 +93,6 @@ library/src/decimal/exp_range_wbtest.mbt::exp2 and exp10 of an argument beyond t
 library/src/decimal/exp_range_wbtest.mbt::rootn exact roots need the exponent to be a multiple of the degree (#376)	A
 library/src/decimal/exponent_limits_issue187_wbtest.mbt::operands with exponents near the stored limits give the specified results (#187)	A
 library/src/decimal/exponent_limits_issue187_wbtest.mbt::remainder with an exponent operand at the stored limit rounds to the least exponent (#187)	A
-library/src/decimal/exponent_range_wbtest.mbt::context-free literals outside the stored range are refused, not replaced	A
-library/src/decimal/exponent_range_wbtest.mbt::literal exponents beyond 1.5e9 are not saturated	A
-library/src/decimal/exponent_range_wbtest.mbt::products and quotients of extreme exponents do not wrap	A
-library/src/decimal/extrema_ieee_wbtest.mbt::IEEE 754 extrema distinguish NaN propagation variants	A
-library/src/decimal/extrema_ieee_wbtest.mbt::IEEE 754 magnitude extrema retain signed zero tie ordering	A
-library/src/decimal/extrema_ieee_wbtest.mbt::IEEE NaN payload accessors preserve quiet and signaling state	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::cospi next to zero is decided before the loop in every direction	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::sin of 1E+20000 beyond the old cutoff	A
 library/src/decimal/huge_argument_trig_wbtest.mbt::sinpi, cospi, tanpi of a huge even integer are exact without expanding it	A
@@ -107,21 +101,7 @@ library/src/decimal/log_zero_wbtest.mbt::logarithms of zero signal division by z
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::NaN propagation keeps a payload the clamped format can hold (#152)	A
 library/src/decimal/nan_payload_issue151_152_wbtest.mbt::payload operations follow IEEE 754 9.7 (#151)	A
 library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt::add, subtract and fma judge overflow on the rounded result (#264)	A
-library/src/decimal/parse_format_wbtest.mbt::decimal parse keeps p digits when rounding carries into 10^p	A
-library/src/decimal/parse_format_wbtest.mbt::decimal parse keeps the IEEE preferred cohort at its precision	A
-library/src/decimal/parse_format_wbtest.mbt::decimal parsing coefficient-native boundary paths preserve flags	A
-library/src/decimal/parse_format_wbtest.mbt::decimal parsing preserves coefficient-native finite and NaN payloads	A
-library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap above 2^31 - 1 between a small and a large exponent	A
-library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic	A
-library/src/decimal/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the exact context cannot panic through the exponent gap	A
 library/src/decimal/plain_ctx_wbtest.mbt::plain paths decline what they do not cover	A
-library/src/decimal/plain_operators_wbtest.mbt::a result beyond the working range overflows or underflows like a context result	A
-library/src/decimal/plain_operators_wbtest.mbt::an inexact result has the least exponent: p digits, not reduced	A
-library/src/decimal/plain_operators_wbtest.mbt::division by a zero has the sign of the exact quotient (#549)	A
-library/src/decimal/plain_operators_wbtest.mbt::the exact sum keeps the preferred exponent: 1.20 + 3.40 is 4.60	A
-library/src/decimal/plain_operators_wbtest.mbt::the plain result has the larger precision of the operands	A
-library/src/decimal/plain_operators_wbtest.mbt::the sign of a zero product is the xor of the signs (#553)	A
-library/src/decimal/plain_operators_wbtest.mbt::two nonzero values with an exponent gap above 2,000,000,000 add exactly	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 348: large integer exponents are correctly rounded	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: exact powers of ten with a non-integral exponent	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: non-exact powers of ten are unchanged	A
@@ -147,33 +127,17 @@ library/src/decimal/rootn_zero_sign_wbtest.mbt::rootn of a zero follows the pari
 library/src/decimal/scaleb_rounding_wbtest.mbt::decimal scaleb overflow honours the rounding direction	A
 library/src/decimal/scaleb_rounding_wbtest.mbt::decimal scaleb rounds and clamps like other context results	A
 library/src/decimal/sqrt_tininess_wbtest.mbt::sqrt detects tininess before rounding	A
-library/src/decimal/stored_range_wbtest.mbt::from_string accepts the limits and refuse one beyond	A
-library/src/decimal/stored_range_wbtest.mbt::make accepts the limits and refuses one beyond	A
-library/src/decimal/stored_range_wbtest.mbt::rounding without a context at the top of the range overflows by the mode	A
-library/src/decimal/stored_range_wbtest.mbt::the error names the exponent the caller gave, both limits and the rounded exponent	A
-library/src/decimal/stored_range_wbtest.mbt::the limits are the largest adjusted exponent and the smallest exponent	A
-library/src/decimal/stored_range_wbtest.mbt::the range is checked after the rounding to the precision, a carry included	A
-library/src/decimal/subnormal_rounding_wbtest.mbt::decimal addition rounds sums with a far smaller addend correctly	A
-library/src/decimal/subnormal_rounding_wbtest.mbt::decimal division rounds subnormal quotients once	A
-library/src/decimal/subnormal_rounding_wbtest.mbt::decimal exact division by a power of ten below Etiny rounds to precision	A
-library/src/decimal/subnormal_rounding_wbtest.mbt::decimal rounds normal results below Etiny once	A
 library/src/decimal/tanpi_zero_sign_wbtest.mbt::tanpi of an integer takes the sign of sinpi over cospi	A
 library/src/decimal/tininess_default_issue217_wbtest.mbt::decimal contexts detect tininess before rounding (#217)	A
 library/src/decimal/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: the reported cases do not panic	A
 library/src/decimal/to_binary_parts_wbtest.mbt::to_binary at large exponents equals exact integer arithmetic (not the old code)	A
 library/src/decimal/to_binary_rounding_wbtest.mbt::to_binary rounds the exact value once	A
-library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format extends adjusted exponent without wrapping	A
-library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format preserves maximum zero exponent	A
-library/src/decimal/to_eng_exponent_limits_wbtest.mbt::engineering format preserves minimum finite exponent	A
 library/src/decimal/to_integer_wbtest.mbt::convertToInteger ignores the precision and the exponent range of the context	A
 library/src/decimal/to_integral_wbtest.mbt::to_integral keeps integral parts longer than the precision	A
 library/src/decimal/to_integral_wbtest.mbt::to_integral returns integers longer than the precision unchanged	A
 library/src/decimal/total_order_wbtest.mbt::total_order and total_order_mag follow IEEE 754-2019 5.10	A
 library/src/decimal/total_order_wbtest.mbt::total_order orders the cohort by exponent and total_order_mag ignores the sign	A
 library/src/decimal/zero_addend_clamp_wbtest.mbt::a zero addend does not leak a clamp of the other operand	A
-library/src/decimal/zero_fold_issue234_wbtest.mbt::a zero quantize result above the top exponent folds down (issue 234)	A
-library/src/decimal/zero_fold_issue234_wbtest.mbt::other operations that produce such a zero fold as well (issue 234)	A
-library/src/decimal/zero_fold_issue234_wbtest.mbt::the fold does not change a non-zero result (issue 234)	A
 library/src/decimal/zero_sum_sign_wbtest.mbt::a zero sum follows the sign rule in every rounding direction	A
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Burnikel-Ziegler recursive block boundaries match exact quotients	A
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Knuth quotient clamp preserves the full normalized remainder	A

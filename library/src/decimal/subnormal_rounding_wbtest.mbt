@@ -4,6 +4,9 @@
 /// to `precision` digits rounds twice. 3.000001E-45 * 1.500001E-45 is exactly
 /// 4.5000045000015E-90: the first rounding produced the tie 4.5000045E-90 and
 /// the second rounded it to even.
+// oracle: A
+// source: CPython decimal (Context with Emax = e_max, Emin = 1 - e_max, clamp = 1; run 2026-11-26) (decimal32, Emax 96): 3.000001E-45 * 1.500001E-45 (exactly 4.5000045000015E-90) gives 4.500005E-90, 1.00000050000001E-89 gives 1.000001E-89, the fma with 0E-101 gives 4.500005E-90 and exp(-215.35) = 2.98320653786...E-94 (60-digit value) gives 2.983207E-94; all agree
+// shares: Decimal::from_string (builds the operands), mul_ctx, fma_ctx, apply_ctx, exp_ctx, div_ctx and add_ctx (the code under test), inspect (prints the Decimal); also read through neg and unary minus, to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "decimal rounds normal results below Etiny once" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -24,6 +27,9 @@ test "decimal rounds normal results below Etiny once" {
 /// 1 / 1.9999999999998E+101 = 5.0000000000005E-102. Rounding the guarded
 /// quotient to seven digits gave the tie 5.000000E-102, which the subnormal
 /// rounding then sent to 0E-101.
+// oracle: A
+// source: CPython decimal (Context with Emax = e_max, Emin = 1 - e_max, clamp = 1; run 2026-11-26) (decimal32): 1 / 1.9999999999998E+101 = 5.0000000000005E-102 rounds to 1E-101 with inexact and underflow; agrees
+// shares: Decimal::from_string (builds the operands), mul_ctx, fma_ctx, apply_ctx, exp_ctx, div_ctx and add_ctx (the code under test), inspect (prints the Decimal); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "decimal division rounds subnormal quotients once" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -37,6 +43,9 @@ test "decimal division rounds subnormal quotients once" {
 /// rounding decision that only looked at the larger operand. That is wrong
 /// when the larger operand has digits below the rounding position or sits on
 /// a midpoint, and for ZeroFiveUp whenever the addend reduces the magnitude.
+// oracle: A
+// source: CPython decimal (Context with Emax = e_max, Emin = 1 - e_max, clamp = 1; run 2026-11-26) (precision 7, Emax 999999): 1598617000000000001E-12 + -2E-12 is 1598616 toward zero, floor and 05up and 1598617 toward positive and up, 1598618 + -99E-12 under 05up is 1598617, 10000005E-2 + -91656910E-18 under half-up is 100000.0 and 6.0000005E-73 + 1E-101 half-even is 6.000001E-73; all agree
+// shares: Decimal::from_string (builds the operands), mul_ctx, fma_ctx, apply_ctx, exp_ctx, div_ctx and add_ctx (the code under test), inspect (prints the Decimal); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "decimal addition rounds sums with a far smaller addend correctly" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let ctx = fn(mode : DecimalRound) {
@@ -70,6 +79,9 @@ test "decimal addition rounds sums with a far smaller addend correctly" {
 /// An exact quotient by a power of ten whose exponent is below Etiny but whose
 /// magnitude is normal was rounded to Etiny only, which left six digits at
 /// precision five: 4826437 / 1E+24 = 4.826437E-18 gave 4.82644E-18.
+// oracle: A
+// source: CPython decimal (Context with Emax = e_max, Emin = 1 - e_max, clamp = 1; run 2026-11-26) (precision 5, Emax 20): 4826437 / 1E+24 and 482643751 / 1E+26 give 4.8265E-18 under Up and 4.8264E-18 under half-even and Down, inexact; 4826437 / 1E+29 is subnormal, 5E-23 with underflow and inexact; all agree
+// shares: Decimal::from_string (builds the operands), mul_ctx, fma_ctx, apply_ctx, exp_ctx, div_ctx and add_ctx (the code under test), inspect (prints the Decimal); also read through to_string and inspect (print the result) (they read the operands and results, not the code under test)
 test "decimal exact division by a power of ten below Etiny rounds to precision" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   for
