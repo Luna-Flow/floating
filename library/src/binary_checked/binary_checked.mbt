@@ -17,11 +17,17 @@ fn[A, B, E, C] bin_result_lift2_checked(
 }
 
 ///|
+/// A `Binary` or the first `ArithmeticError` of a computation: a wrapper around
+/// `Result[Binary, ArithmeticError]` for pipelines whose failure channel stays
+/// explicit. An operation on a failed wrapper returns that failure, and a binary
+/// operation with two failed operands keeps the left one. It adds no flags,
+/// context or recovery; use `binary` directly for those.
 pub struct BinaryChecked {
   priv inner : Result[@binary.Binary, @def.ArithmeticError]
 }
 
 ///|
+/// Wraps a `Result` as it is, with no check.
 pub fn BinaryChecked::from_result(
   inner : Result[@binary.Binary, @def.ArithmeticError],
 ) -> BinaryChecked {
@@ -29,11 +35,13 @@ pub fn BinaryChecked::from_result(
 }
 
 ///|
+/// A successful wrapper around `value`, with no check.
 pub fn BinaryChecked::ok(value : @binary.Binary) -> BinaryChecked {
   { inner: Ok(value), }
 }
 
 ///|
+/// A failed wrapper that carries `err`.
 pub fn BinaryChecked::err(err : @def.ArithmeticError) -> BinaryChecked {
   { inner: Err(err), }
 }
@@ -57,6 +65,20 @@ fn bin_result_precision_error(
 }
 
 ///|
+/// The integer `value` as a `Binary` of `precision` bits (default 53). A
+/// `precision` outside `1..=binary_precision_max` gives a failed wrapper with a
+/// `DomainError` instead of aborting.
+///
+/// ```mbt check
+/// test {
+///   let x = @binary_checked.BinaryChecked::from_int(7)
+///   inspect(x.is_ok(), content="true")
+///   inspect(
+///     @binary_checked.BinaryChecked::from_int(7, precision=0).is_err(),
+///     content="true",
+///   )
+/// }
+/// ```
 pub fn BinaryChecked::from_int(
   value : Int32,
   precision~ : Int32 = 53,
@@ -69,6 +91,11 @@ pub fn BinaryChecked::from_int(
 }
 
 ///|
+/// The integer `coefficient`, negated when `negative` is true, as a `Binary` of
+/// `precision` bits (default 53), rounded to `precision` bits when it does not
+/// fit. A `precision`
+/// outside `1..=binary_precision_max` gives a failed wrapper with a
+/// `DomainError`.
 pub fn BinaryChecked::from_coefficient(
   value : @binary.BinCoeff,
   precision~ : Int32 = 53,
@@ -84,6 +111,9 @@ pub fn BinaryChecked::from_coefficient(
 }
 
 ///|
+/// The `Double` `value` as a `Binary` of `precision` bits (default 53). NaN and
+/// the infinities give a successful NaN or infinity. A `precision` outside
+/// `1..=binary_precision_max` gives a failed wrapper with a `DomainError`.
 pub fn BinaryChecked::from_double(
   value : Double,
   precision~ : Int32 = 53,
@@ -96,6 +126,9 @@ pub fn BinaryChecked::from_double(
 }
 
 ///|
+/// The `Float` `value` as a `Binary` of `precision` bits (default 24). NaN and
+/// the infinities give a successful NaN or infinity. A `precision` outside
+/// `1..=binary_precision_max` gives a failed wrapper with a `DomainError`.
 pub fn BinaryChecked::from_float(
   value : Float,
   precision~ : Int32 = 24,
@@ -108,6 +141,7 @@ pub fn BinaryChecked::from_float(
 }
 
 ///|
+/// The wrapped `Result`: the `Binary` or the first error.
 pub fn BinaryChecked::result(
   self : BinaryChecked,
 ) -> Result[@binary.Binary, @def.ArithmeticError] {
@@ -126,6 +160,7 @@ pub fn BinaryChecked::error(self : BinaryChecked) -> @def.ArithmeticError? {
 }
 
 ///|
+/// Whether the wrapper holds a value.
 pub fn BinaryChecked::is_ok(self : BinaryChecked) -> Bool {
   match self.inner {
     Ok(_) => true
@@ -134,11 +169,14 @@ pub fn BinaryChecked::is_ok(self : BinaryChecked) -> Bool {
 }
 
 ///|
+/// Whether the wrapper holds an error.
 pub fn BinaryChecked::is_err(self : BinaryChecked) -> Bool {
   !self.is_ok()
 }
 
 ///|
+/// Applies `f` to the value of a successful wrapper; a failed one is returned
+/// unchanged and `f` is not called. `f` cannot fail: use `bind` for that.
 pub fn BinaryChecked::map(
   self : BinaryChecked,
   f : (@binary.Binary) -> @binary.Binary,
@@ -147,6 +185,8 @@ pub fn BinaryChecked::map(
 }
 
 ///|
+/// Passes the value of a successful wrapper to `f`, which may return a failed
+/// wrapper; a failed one is returned unchanged and `f` is not called.
 pub fn BinaryChecked::bind(
   self : BinaryChecked,
   f : (@binary.Binary) -> BinaryChecked,
@@ -169,6 +209,7 @@ pub fn BinaryChecked::with_precision(
 }
 
 ///|
+/// The negation (`map` of `Binary::neg`).
 pub fn BinaryChecked::neg(self : BinaryChecked) -> BinaryChecked {
   self.map(fn(value) { value.neg() })
 }
@@ -184,6 +225,19 @@ pub fn BinaryChecked::ulp(self : BinaryChecked) -> BinaryChecked {
 }
 
 ///|
+/// The sum, at the larger of the two operand precisions, rounded to nearest
+/// even. A failed operand gives its error (the left one when both fail). The
+/// operation itself never fails: `inf - inf`-like invalid cases give a
+/// successful NaN. `add_ctx` is the form that reports them. This is the `+`
+/// operator.
+///
+/// ```mbt check
+/// test {
+///   let one = @binary_checked.BinaryChecked::from_int(1)
+///   let two = @binary_checked.BinaryChecked::from_int(2)
+///   inspect((one + two).is_ok(), content="true")
+/// }
+/// ```
 pub fn BinaryChecked::add(
   self : BinaryChecked,
   other : BinaryChecked,
@@ -207,6 +261,7 @@ pub fn BinaryChecked::add_ctx(
 }
 
 ///|
+/// The difference, as `add` is the sum. This is the `-` operator.
 pub fn BinaryChecked::sub(
   self : BinaryChecked,
   other : BinaryChecked,
@@ -230,6 +285,7 @@ pub fn BinaryChecked::sub_ctx(
 }
 
 ///|
+/// The product, as `add` is the sum. This is the `*` operator.
 pub fn BinaryChecked::mul(
   self : BinaryChecked,
   other : BinaryChecked,
@@ -253,6 +309,19 @@ pub fn BinaryChecked::mul_ctx(
 }
 
 ///|
+/// The quotient, at the larger of the two operand precisions, rounded to
+/// nearest even. A failed operand gives its error (the left one when both
+/// fail). An invalid division (`0 / 0`, `inf / inf`) gives a `DomainError` and a
+/// finite non-zero number divided by zero gives `DivisionByZero`. This is the
+/// `/` operator.
+///
+/// ```mbt check
+/// test {
+///   let one = @binary_checked.BinaryChecked::from_int(1)
+///   let zero = @binary_checked.BinaryChecked::from_int(0)
+///   inspect((one / zero).is_err(), content="true")
+/// }
+/// ```
 pub fn BinaryChecked::div(
   self : BinaryChecked,
   other : BinaryChecked,
@@ -321,6 +390,8 @@ pub fn BinaryChecked::clamp(
 }
 
 ///|
+/// The square root at the precision of the operand, rounded to nearest even.
+/// A negative number (`-0` excepted) gives a `DomainError`.
 pub fn BinaryChecked::sqrt(self : BinaryChecked) -> BinaryChecked {
   self.bind(fn(value) {
     BinaryChecked::from_result(
@@ -419,6 +490,9 @@ fn bin_result_try_elementary_ctx(
 }
 
 ///|
+/// The exponential `e^x` at the precision of the operand. A range exception
+/// (overflow, underflow) is not an error: `exp` of positive infinity is a
+/// successful infinity.
 pub fn BinaryChecked::exp(self : BinaryChecked) -> BinaryChecked {
   bin_result_try_elementary(self, "exp", fn(value, context) {
     value.try_exp_ctx(context)
@@ -487,6 +561,8 @@ pub fn BinaryChecked::exp10_ctx(
 }
 
 ///|
+/// The natural logarithm at the precision of the operand. Zero gives
+/// `DivisionByZero` and a negative number a `DomainError`.
 pub fn BinaryChecked::ln(self : BinaryChecked) -> BinaryChecked {
   bin_result_try_elementary(self, "ln", fn(value, context) {
     value.try_ln_ctx(context)
@@ -729,6 +805,9 @@ pub fn BinaryChecked::rootn_ctx(
 }
 
 ///|
+/// `self` raised to `exponent`, at the larger of the two precisions. A failed
+/// operand gives its error (the left one when both fail); `0` to a negative
+/// power gives `DivisionByZero`.
 pub fn BinaryChecked::pow(
   self : BinaryChecked,
   exponent : BinaryChecked,
@@ -1111,6 +1190,8 @@ pub fn BinaryChecked::atan2_ctx(
 }
 
 ///|
+/// The sine of an argument in radians, at the precision of the operand. An
+/// infinite argument gives a `DomainError`.
 pub fn BinaryChecked::sin(self : BinaryChecked) -> BinaryChecked {
   bin_result_try_elementary(self, "sin", fn(value, context) {
     value.try_sin_ctx(context)
