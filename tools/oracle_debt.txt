@@ -3,23 +3,3 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::pi inverse generated rows: exact and certified results, cohort and flags	A
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 generated rows: exact and MPFR-certified results, cohort and flags	A
-library/src/decimal/elementary_rcp_wbtest.mbt::rcp generated rows: exact and certified results, cohort and flags	A
-library/src/decimal/elementary_special_values_wbtest.mbt::decimal atan2 handles zero and infinite operands	A
-library/src/decimal/elementary_special_values_wbtest.mbt::decimal cosh log2 and log1p of infinities	A
-library/src/decimal/exp_after_rounding_tininess_issue333_wbtest.mbt::exp far below the range is tiny when etiny = e_min (#333)	A
-library/src/decimal/exp_range_wbtest.mbt::exp range generated rows: results just inside and outside the range	A
-library/src/decimal/exp_range_wbtest.mbt::exp2 and exp10 of an argument beyond the binary exponent range (#363)	A
-library/src/decimal/exp_range_wbtest.mbt::rootn exact roots need the exponent to be a multiple of the degree (#376)	A
-library/src/decimal/exponent_limits_issue187_wbtest.mbt::operands with exponents near the stored limits give the specified results (#187)	A
-library/src/decimal/exponent_limits_issue187_wbtest.mbt::remainder with an exponent operand at the stored limit rounds to the least exponent (#187)	A
-library/src/decimal/huge_argument_trig_wbtest.mbt::cospi next to zero is decided before the loop in every direction	A
-library/src/decimal/huge_argument_trig_wbtest.mbt::sin of 1E+20000 beyond the old cutoff	A
-library/src/decimal/huge_argument_trig_wbtest.mbt::sinpi, cospi, tanpi of a huge even integer are exact without expanding it	A
-library/src/decimal/ieee_ops_rows_exec_wbtest.mbt::IEEE operations on legal contexts agree with the Python decimal oracle	A
-library/src/decimal/log_zero_wbtest.mbt::logarithms of zero signal division by zero (IEEE 754 9.2.1)	A
-library/src/decimal/nan_payload_issue151_152_wbtest.mbt::NaN propagation keeps a payload the clamped format can hold (#152)	A
-library/src/decimal/nan_payload_issue151_152_wbtest.mbt::payload operations follow IEEE 754 9.7 (#151)	A
-library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt::add, subtract and fma judge overflow on the rounded result (#264)	A

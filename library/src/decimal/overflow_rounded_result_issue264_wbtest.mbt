@@ -114,6 +114,9 @@ fn issue264_check(
 /// not for an operand that would round past Nmax on its own. Same rows as in
 /// `decimal_gda`. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
 /// checked against the clause by hand; the oracle is not the specification.
+// oracle: A
+// source: CPython decimal (Context with the row's precision, Emax, Emin, clamp and rounding; run 2026-11-26): all 38 rows (add, subtract, fma, multiply, divide, power and plus, with operands beyond Emax whose exact result is inside the range) agree in value text and in the five flags; IEEE 754-2019 7.4: overflow is judged on the rounded result
+// shares: issue264_run, issue264_value_text, issue264_flags_text and issue264_mode_name (build the context and operands: Decimal::from_string, print value and flags through to_string), add_ctx, sub_ctx, mul_ctx, div_ctx, fma_ctx, pow_ctx and plus_ctx (the code under test)
 test "add, subtract and fma judge overflow on the rounded result (#264)" {
   let rows : Array[
     (
