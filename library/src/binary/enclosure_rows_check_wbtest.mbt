@@ -46,7 +46,7 @@ test "the enclosure table pairs are ordered and complete" {
     }
     checked += 1
   }
-  assert_eq(checked, 3456)
+  assert_eq(checked, 5175)
 }
 
 ///|

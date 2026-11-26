@@ -107,6 +107,9 @@ fn split_tree_test_cases() -> Array[(Coeff, Int32, Int32)] {
 }
 
 ///|
+// oracle: S
+// source: split_exp_state_reference, the tree before the shared powers kept in this file: the states are exact integers and the same recurrence is computed with a power product at every node, so equality is the whole claim and no external value is involved
+// shares: split_exp_state and its reference use the same recurrence and Coeff mul, add and shift; burst_test_coefficient builds the numerators
 test "exp splitting tree equals the tree with a power product at every node" {
   for case in split_tree_test_cases() {
     let (numerator, s, terms) = case
@@ -301,6 +304,9 @@ fn burst_trig_split_stage(
 }
 
 ///|
+// oracle: S
+// source: the identity im / (q_c 2^qs_c) = N T / (2^s q_r 2^qs_r) between the real sine tree and the imaginary part of the complex tree, both trees of this library, checked as an equality of exact integers; no external value
+// shares: split_sin_state and split_trig_state use the same recurrence and Coeff mul, add and shift
 test "real sine tree equals the odd part of the complex tree" {
   for case in split_tree_test_cases() {
     let (numerator, s, terms) = case
@@ -331,6 +337,9 @@ test "real sine tree equals the odd part of the complex tree" {
 }
 
 ///|
+// oracle: S
+// source: burst_trig_split_stage (complex tree) against burst_trig_split_stage_real (real tree): the two balls must intersect and the real radius is at most the complex one; both balls are produced by this library and no external value is used
+// shares: both stage functions share the Coeff arithmetic and the burst ball type; burst_test_coefficient builds the numerators
 test "stage balls of the real sine series contain the complex stage balls" {
   let mutation = burst_trig_no_mutation
   let mut checked = 0

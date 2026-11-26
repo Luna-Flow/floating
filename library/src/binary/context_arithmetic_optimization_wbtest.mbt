@@ -169,6 +169,10 @@ fn binary_add_aligned_legacy_for_test(
 }
 
 ///|
+// oracle: B
+// source: binary_split_shift_legacy_for_test: the shifted quotient, the remainder by subtraction and the round and sticky bits from test_bit and ctz of the remainder (a different algorithm from the one-pass split)
+// shares: binary_split_shift (the code under test), Coeff::from_uint64, shift_left, add
+// primitives: Coeff::shift_right, shift_left, sub_checked, test_bit, ctz and is_zero (level A: coeff_regression_wbtest.mbt digests from CPython integers, which mix ctz and test_bit of the operands; operand sizes here are up to 1,025 bits, inside the 131,073-bit reach of that file)
 test "optimized binary split shift matches remainder oracle" {
   for raw_value in 0..<1024 {
     let value = Coeff::from_uint64(raw_value.to_uint64())

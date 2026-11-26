@@ -162,6 +162,9 @@ fn binary_unused_series_same(
 }
 
 ///|
+// oracle: S
+// source: the previous kernel kept in this file (binary_exp_bounds_reference, the enclosure with two series) against the current one on the same inputs: both are kernels of this library with no external value on these inputs (the end-to-end enclosures of the same functions are checked against MPFR in the burst and table blocks, on other arguments), so only agreement is stated
+// shares: binary_exp_bounds_series and binary_exp_bounds_reference share the series kernel and Binary arithmetic; binary_unused_series_same compares the pairs
 test "exp enclosure skips the duplicate series without changing a bit" {
   let values = [
     Binary::from_double(0.5, precision=53),

@@ -201,6 +201,10 @@ test "trigonometric bounds agree with the old path around pi/4 and at extreme ex
 }
 
 ///|
+// oracle: B
+// source: old_product_bounds and old_quotient_bounds (the four-candidate versions of interval_corner_wbtest.mbt) at operands of 3 * 2^1073741000 and 5 * 2^-1073741000, where the corner products overflow and the quotients underflow
+// shares: binary_product_bounds and binary_quotient_bounds (the code under test), Binary::compare and identical
+// primitives: Binary::mul_ctx and div_ctx in the two directed modes (level A: arith_rows_wbtest.mbt; the range-limit behaviour of the rounding is level A in round_rows_wbtest.mbt, which covers magnitudes at e_min and e_max)
 test "sign-aware corners agree with the old ones when products overflow and quotients underflow" {
   let huge = Binary::make_coeff(Coeff::from_uint64(3UL), 1073741000, 64)
   let small = Binary::make_coeff(Coeff::from_uint64(5UL), -1073741000, 64)

@@ -43,6 +43,9 @@ fn exp_edge_omax(precision : Int32) -> Binary {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 7.4 and 4.3 (the header of this file); the two arguments around (e_max + 1) ln 2 are computed with Python decimal at 400 digits (floor(2^30 ln 2 * 2^270) checked on 2026-11-26: equal to the coefficient written in exp_edge_x_below); the expected results (infinity, Omax(p), flags) are written by the rules of 7.4 from the position of the threshold between the two arguments
+// shares: Binary::try_exp_ctx (the code under test), Binary::make_coeff, Coeff::parse and Binary::add_ctx build the arguments (inputs only), exp_edge_omax builds Omax(p) with Coeff::shift_left and sub_checked and Binary::make_coeff, Binary::identical, classify, is_sign_minus and the flag accessors read the result
 test "exp at the overflow threshold rounds by the clause 7.4 rules on both sides" {
   let below = exp_edge_x_below()
   let above = below.add_ctx(

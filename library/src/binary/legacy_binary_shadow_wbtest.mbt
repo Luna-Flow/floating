@@ -92,6 +92,9 @@ fn legacy_shadow_operand(seed : Int32) -> (Int32, Binary, LegacyBigIntBinary) {
 }
 
 ///|
+// oracle: S
+// source: LegacyBigIntBinary (the previous Binary on core BigInt, kept in this file) against Binary::make and with_precision at ties-to-even on the listed magnitudes; the legacy type is another implementation of the same arithmetic but no level A table covers these inputs, so only agreement is stated
+// shares: legacy_shadow_assert_equal reads both through classify, signum, precision, exponent2, coefficient and to_string; Binary::make and with_precision against the legacy make
 test "LegacyBigIntBinary make preserves ties-even normalization" {
   for item in [(9, 3), (11, 3), (13, 3), (15, 3), (31, 4), (33, 4)] {
     let (magnitude, precision) = item
@@ -134,6 +137,9 @@ test "LegacyBigIntBinary make preserves ties-even normalization" {
 }
 
 ///|
+// oracle: S
+// source: LegacyBigIntBinary (the previous Binary on core BigInt, kept in this file) against Binary add, sub, mul and the rest of the block on 320 operand pairs from a fixed xorshift seed; the legacy type is a separate implementation but no level A table covers these inputs, so only agreement is stated
+// shares: legacy_shadow_assert_equal, legacy_shadow_operand (builds the operand and its legacy twin from one state)
 test "LegacyBigIntBinary fixed-seed finite shadow" {
   let mut state = 0x1357_2468
   for _ in 0..<320 {
@@ -178,6 +184,9 @@ test "LegacyBigIntBinary fixed-seed finite shadow" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the difference of (2^4096 + 2^3072 + 1 + 2^2048) and (2^4096 + 2^3072 + 1) is 2^2048, written: coefficient 1 and exponent 2048 are asserted on the result; S: the sign and the value of both differences against LegacyBigIntBinary (the previous Binary on core BigInt)
+// shares: Binary::make, BinCoeff::parse and to_string read the operands, Binary::sub (the code under test), legacy_shadow_assert_equal
 test "Binary long cancellation normalizes heap subtraction exactly" {
   let common = (1N << 4096) + (1N << 3072) + 1N
   let delta = 1N << 2048
@@ -209,6 +218,9 @@ test "Binary long cancellation normalizes heap subtraction exactly" {
 }
 
 ///|
+// oracle: S
+// source: LegacyBigIntBinary against Binary on signed zero, infinity and NaN metadata; the written parts of the block (a signaling NaN gives a quiet NaN with invalid_operation, a negative square root is a NaN with invalid_operation while the legacy type answers Err) are checks of class and flag from IEEE 754-2019 7.2 and 9.2.1, the rest is agreement with the legacy type
+// shares: legacy_binary_from_candidate builds the legacy twin of each candidate, legacy_shadow_assert_equal, Binary::sqrt_ctx
 test "LegacyBigIntBinary adapts signed zero and NaN metadata" {
   let positive_zero = Binary::zero(precision=17)
   let negative_zero = Binary::negative_zero(precision=17)

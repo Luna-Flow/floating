@@ -20,17 +20,9 @@ library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^10000
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the comparison of a prior end with a piece end	?
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
 library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
-library/src/binary/atan_fixed_leaf_wbtest.mbt::fixed-point atan leaf at the tiny-argument threshold, both sides	E
-library/src/binary/atan_fixed_leaf_wbtest.mbt::fixed-point atan leaf contains the floating-point leaf at higher precision	E
 library/src/binary/atan_fixed_leaf_wbtest.mbt::pi series enclosure of the fixed-point leaf contains pi	B
-library/src/binary/atan_single_evaluation_wbtest.mbt::asin and acos one ulp below 1 contain the old enclosure at large precision	E
-library/src/binary/atan_single_evaluation_wbtest.mbt::asin single evaluation contains the high-precision old enclosure	E
-library/src/binary/atan_single_evaluation_wbtest.mbt::atan enclosure of huge arguments contains the old enclosure	E
 library/src/binary/atan_single_evaluation_wbtest.mbt::atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2^29)	B
-library/src/binary/atan_single_evaluation_wbtest.mbt::atan pair enclosure over intervals contains every member	E
-library/src/binary/atan_single_evaluation_wbtest.mbt::atan single evaluation contains the high-precision old enclosure	E
 library/src/binary/atan_single_evaluation_wbtest.mbt::atan2 with exponents far apart agrees with the analytic limits	S
-library/src/binary/atan_single_evaluation_wbtest.mbt::pi series enclosure contains pi and differs from the old one only by an ulp	E
 library/src/binary/checked_special_values_wbtest.mbt::checked adapters return range exceptions in Ok	A
 library/src/binary/checked_special_values_wbtest.mbt::checked trait adapters follow the IEEE special-value table	A
 library/src/binary/checked_special_values_wbtest.mbt::inherent checked operations follow the IEEE special-value table	A
@@ -40,7 +32,6 @@ library/src/binary/class_of_wbtest.mbt::class_of boundary between subnormal and 
 library/src/binary/class_of_wbtest.mbt::class_of in an unbounded context treats ordinary values as normal	A
 library/src/binary/class_of_wbtest.mbt::class_of reaches all ten classes in every interchange format	A
 library/src/binary/compare_nan_wbtest.mbt::compare orders NaN after every number instead of aborting	A
-library/src/binary/context_arithmetic_optimization_wbtest.mbt::optimized binary split shift matches remainder oracle	E
 library/src/binary/context_arithmetic_optimization_wbtest.mbt::wide exponent gaps stay on bounded coefficient paths	S
 library/src/binary/contextual_traits_wbtest.mbt::Binary contextual arithmetic preserves range diagnostics	A
 library/src/binary/contextual_traits_wbtest.mbt::Binary contextual conversion derives one bound from the other	A
@@ -50,7 +41,6 @@ library/src/binary/convert_format_wbtest.mbt::convert_format: binary64 to binary
 library/src/binary/convert_format_wbtest.mbt::convert_format: overflow and underflow of binary32 in every direction	A
 library/src/binary/convert_format_wbtest.mbt::convert_format: signaling NaN is quieted with invalid, also to the same format	A
 library/src/binary/convert_format_wbtest.mbt::convert_format: the tininess rule changes underflow at the boundary	A
-library/src/binary/decimal_exponent_wrap_wbtest.mbt::from_string_ctx: exponent fields of 18 to 21 digits saturate, they do not wrap	?
 library/src/binary/decimal_format_wbtest.mbt::fixed-digit output is exact when enough digits are requested	A
 library/src/binary/decimal_format_wbtest.mbt::fixed-digit output rounds in every direction	A
 library/src/binary/decimal_format_wbtest.mbt::huge and tiny exponents format without expanding the value	A
@@ -60,15 +50,11 @@ library/src/binary/decimal_string_wbtest.mbt::decimal parses next to the exponen
 library/src/binary/decimal_string_wbtest.mbt::decimal strings parse specials and reject malformed input	A
 library/src/binary/decimal_string_wbtest.mbt::decimal strings round-trip the host binary64 shortest form	B
 library/src/binary/domain_values_explog_wbtest.mbt::exp/log family: domain case, could-not-compute case and ordinary case	S
-library/src/binary/domain_values_pow_wbtest.mbt::power and root family: domain case and ordinary case	?
-library/src/binary/domain_values_trig_wbtest.mbt::trigonometric family: domain case, could-not-compute case and ordinary case	?
-library/src/binary/elementary_agm_ln_wbtest.mbt::AGM iteration equals the reference iteration	E
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM declines outside its range	A
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure at 8192 bits contains the series enclosure	B
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure contains the series enclosure at higher precision	B
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure is no wider than the Newton enclosure	S
 library/src/binary/elementary_agm_ln_wbtest.mbt::mutated ln AGM kernels are caught by the containment test	B
-library/src/binary/elementary_ball_fold_wbtest.mbt::exp burst kernel equals the kernel with two products per chunk	E
 library/src/binary/elementary_ball_fold_wbtest.mbt::exp fold by one full product equals the two separate products	B
 library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp declines outside its range	A
 library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp is no wider than the series enclosure	S
@@ -109,10 +95,7 @@ library/src/binary/elementary_constants_split_wbtest.mbt::split constants nest a
 library/src/binary/elementary_constants_wbtest.mbt::certified constants are tight enclosures of the true values	A
 library/src/binary/elementary_constants_wbtest.mbt::elementary functions are unchanged by cache state and call order	S
 library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path declines arguments it does not cover	A
-library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln enclosure contains a tighter series enclosure and is not looser	E
 library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln path declines arguments it does not cover	S
-library/src/binary/elementary_fixed_loop_nonjs_wbtest.mbt::limb loop equals the Coeff loop for every shift alignment and limb count	E
-library/src/binary/elementary_fixed_trig_wbtest.mbt::fixed-point sine and cosine enclosures contain a tighter series enclosure	E
 library/src/binary/elementary_fixed_trig_wbtest.mbt::sine and cosine agree with their identities after the fixed-point path	S
 library/src/binary/elementary_halve_bound_wbtest.mbt::halving the bounds of pi by the exponent equals the product by 1/2	B
 library/src/binary/elementary_range_wbtest.mbt::binary64 exp keeps its exact overflow threshold	A
@@ -120,14 +103,9 @@ library/src/binary/elementary_range_wbtest.mbt::expm1 saturation agrees with the
 library/src/binary/elementary_range_wbtest.mbt::exponential functions overflow instead of failing certification	A
 library/src/binary/elementary_range_wbtest.mbt::exponential functions underflow instead of failing certification	A
 library/src/binary/elementary_range_wbtest.mbt::non-try elementary APIs return NaN with not_computed on failure	A
-library/src/binary/elementary_split_tree_wbtest.mbt::exp splitting tree equals the tree with a power product at every node	E
-library/src/binary/elementary_split_tree_wbtest.mbt::real sine tree equals the odd part of the complex tree	E
-library/src/binary/elementary_split_tree_wbtest.mbt::stage balls of the real sine series contain the complex stage balls	E
 library/src/binary/elementary_table_exp_wbtest.mbt::table exp declines out-of-range arguments	S
 library/src/binary/elementary_table_exp_wbtest.mbt::table exp is within a few ulps	S
 library/src/binary/elementary_table_exp_wbtest.mbt::taylor kernel encloses exp(a / 2^f) for extreme and random remainders	B
-library/src/binary/elementary_toolkit_digest_wbtest.mbt::kernel enclosures are bit-identical to the pre-toolkit kernels	E
-library/src/binary/elementary_unused_series_wbtest.mbt::exp enclosure skips the duplicate series without changing a bit	E
 library/src/binary/elementary_unused_series_wbtest.mbt::sin, cos and tan results do not depend on the skipped series	S
 library/src/binary/endpoint_shortcut_wbtest.mbt::binary_bounds_at_ends evaluates a point once and gives the two-ends result	A
 library/src/binary/exact_root_wbtest.mbt::binary_exact_nth_root_coefficient detects wide perfect powers	B
@@ -136,7 +114,6 @@ library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of an integer matches the mod
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of exactly -2^30 is the exact subnormal 2^-2^30 (#271)	A
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of non-integers around the smallest subnormal	A
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 true underflow to zero threshold carries inexact and underflow	B
-library/src/binary/exp_overflow_edge_wbtest.mbt::exp at the overflow threshold rounds by the clause 7.4 rules on both sides	?
 library/src/binary/exponent_range_wbtest.mbt::context precision is limited	A
 library/src/binary/exponent_range_wbtest.mbt::exact results inside the implementation range are unchanged	A
 library/src/binary/exponent_range_wbtest.mbt::plain construction honours the rounding mode at the range limits	A
@@ -170,11 +147,6 @@ library/src/binary/ilogb_wbtest.mbt::ilogb of the special values and of the stor
 library/src/binary/integral_wbtest.mbt::convenience rounding functions	A
 library/src/binary/integral_wbtest.mbt::roundToIntegral covers every direction on halfway and fractional values	A
 library/src/binary/integral_wbtest.mbt::roundToIntegralExact raises inexact only when the value changes	A
-library/src/binary/interval_corner_wbtest.mbt::sign-aware product and quotient bounds equal the four-candidate versions	E
-library/src/binary/legacy_binary_shadow_wbtest.mbt::Binary long cancellation normalizes heap subtraction exactly	E
-library/src/binary/legacy_binary_shadow_wbtest.mbt::LegacyBigIntBinary adapts signed zero and NaN metadata	E
-library/src/binary/legacy_binary_shadow_wbtest.mbt::LegacyBigIntBinary fixed-seed finite shadow	E
-library/src/binary/legacy_binary_shadow_wbtest.mbt::LegacyBigIntBinary make preserves ties-even normalization	E
 library/src/binary/make_quantum_issue441_wbtest.mbt::from_coefficient, from_hex and with_precision round at the smallest quantum (#441)	S
 library/src/binary/nan_payload_width_wbtest.mbt::a NaN of precision p has p - 2 payload bits	A
 library/src/binary/nan_payload_width_wbtest.mbt::conversions keep the low payload bits and quiet a signaling NaN that cannot keep one	A
@@ -205,7 +177,6 @@ library/src/binary/pow_rootn_wbtest.mbt::Binary pow returns exact dyadic results
 library/src/binary/pow_rootn_wbtest.mbt::Binary rootn handles Int.min magnitude exactly	A
 library/src/binary/pow_rootn_wbtest.mbt::Binary rootn of negative infinity follows the degree parity	A
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_pow_ctx on a signaling NaN	A
-library/src/binary/range_extremes_wbtest.mbt::sign-aware corners agree with the old ones when products overflow and quotients underflow	E
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: None stays bounded by the work cap	A
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: contexts that differ only in the limit are different	A
@@ -238,8 +209,6 @@ library/src/binary/tiny_argument_wbtest.mbt::Binary hypot ignores the exponent g
 library/src/binary/tiny_argument_wbtest.mbt::Binary pow certifies tiny exponents	B
 library/src/binary/to_integer_wbtest.mbt::convertToInteger handles every width and special value	A
 library/src/binary/to_integer_wbtest.mbt::convertToInteger rounds, checks the range, and reports flags	A
-library/src/binary/trig_midpoint_sweep_wbtest.mbt::midpoint form equals the two-ended form on the tiny and near-multiple sweep	E
-library/src/binary/trig_reduction_wbtest.mbt::trigonometric bounds are bit-identical to the pre-#378 path	E
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
 library/src/decimal/coeff_kernel_wbtest.mbt::BigInt-free ln constants preserve the old scaled integers	?

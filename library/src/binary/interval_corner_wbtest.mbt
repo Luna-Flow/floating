@@ -73,6 +73,10 @@ fn old_quotient_bounds(
 }
 
 ///|
+// oracle: B
+// source: old_product_bounds and old_quotient_bounds: the minimum and maximum of the four directed products (quotients) of the corners, kept in this file; another algorithm for the same bounds
+// shares: binary_product_bounds and binary_quotient_bounds (the code under test), Binary::compare and identical
+// primitives: Binary::mul_ctx and div_ctx in the two directed modes (level A: arith_rows_wbtest.mbt, Python fractions, with the directions and the range rules of 7.4 and 7.5); operands are 53-bit doubles at 24, 53 and 130 bits
 test "sign-aware product and quotient bounds equal the four-candidate versions" {
   let values = [
     -1.0e10, -77.0, -3.5, -1.0, -0.25, -1.0e-9, -0.0, 0.0, 1.0e-9, 0.25, 1.0, 3.5,
