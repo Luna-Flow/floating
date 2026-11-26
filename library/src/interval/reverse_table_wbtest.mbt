@@ -11,6 +11,7 @@ fn reverse_table() -> String {
     #|p1-top-113	p1	113	0x1p-30	0x1ffffffffffp-40	0x7ff000fff555a6a9088be95e8f09p1073741713	0x1ffc003ffd5569aa4222fa57a3c25p1073741711
     #|p1-sub-113	p1	113	-0x1p-30	0x1ffffffffffp-40	0x4008008005558201511ac1b16f91p-1073741934	0x2004004002aac100a88d60d8b7c9p-1073741933
     #|p1-third-113	p1	113	-0x1p0	0x3p1073741822	0x5555555555555555555555555555p-1073741934	0x2aaaaaaaaaaaaaaaaaaaaaaaaaabp-1073741933
+    #|p1-ninth-8	p1	8	-0x1p0	0x9p0	0xe3p-11	0x39p-9
     #|p1-near-two-501	p1	501	0x100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001p-500	0x1p1	0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-499	0x1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-500
     #|p2-up-2-53	p2	53	0x10000000000001p-52	0x1p1	0x162e42fefa39efp-1	0x162e42fefa39fp3
     #|p2-up-half-53	p2	53	0x10000000000001p-52	0x1p-1	-0x162e42fefa39fp3	-0x162e42fefa39efp-1
