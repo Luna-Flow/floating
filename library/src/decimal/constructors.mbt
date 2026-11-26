@@ -63,6 +63,8 @@ fn Decimal::make_checked(
 }
 
 ///|
+/// Returns +0 with exponent 0 and the given precision (default 34). Aborts for a
+/// precision outside `1..=decimal_precision_max`.
 pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
   let precision = decimal_check_precision("zero", precision)
   Decimal::make(bigint_zero(), 0, precision)
@@ -81,6 +83,8 @@ pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
+/// Returns 1 with exponent 0 and the given precision (default 34). Aborts for a
+/// precision outside `1..=decimal_precision_max`.
 pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
   let precision = decimal_check_precision("one", precision)
   Decimal::make(bigint_one(), 0, precision)
@@ -124,6 +128,12 @@ pub fn Decimal::signaling_nan(
 }
 
 ///|
+/// Converts an integer to a `Decimal` with exponent 0 and the given precision
+/// (default 34), IEEE 754-2019 5.4.1 convertFromInt. An integer of at most
+/// `precision` digits keeps exponent 0 (`from_int(1000)` is `1000`, not `1E+3`);
+/// a longer one is rounded half even to `precision` digits
+/// (`from_int(99999, precision=3)` is `1.00E+5`). Aborts for a precision outside
+/// `1..=decimal_precision_max`.
 pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
   let precision = decimal_check_precision("from_int", precision)
   Decimal::from_bigint(BigInt::from_int(n), precision~)

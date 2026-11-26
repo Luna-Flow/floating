@@ -258,6 +258,12 @@ fn gda_completed_exact(
 }
 
 ///|
+/// Converts a string to a `Decimal` with the GDA to-number conversion under the
+/// context. The literal keeps its exponent unless it must be rounded to the
+/// precision or fitted to the exponent range; overflow and underflow are decided
+/// from the exact exponent of the text, however large. Text that is not a number
+/// gives a quiet NaN with `conversion_syntax`; in a subset context
+/// (`extended=false`) an infinity or a NaN is also a syntax error.
 pub fn to_number(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
   match gda_exact_small_integer_parse(source, ctx) {
     Some(value) => return gda_completed_exact(value, ctx)
@@ -268,6 +274,10 @@ pub fn to_number(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
 }
 
 ///|
+/// Adds two values and rounds the exact sum once to the context. An exact
+/// result has the ideal exponent `min(q1, q2)`. An exact zero sum is -0 when
+/// both operands are negative, +0 when both are positive, and otherwise +0, or
+/// -0 under `Floor`. `inf - inf`, the sum of opposite infinities, is invalid.
 pub fn add(
   lhs : Decimal,
   rhs : Decimal,
@@ -294,6 +304,10 @@ pub fn add(
 }
 
 ///|
+/// Subtracts the second value from the first and rounds the exact difference
+/// once to the context: the operation of `add` on the first operand and the
+/// second with its sign flipped, with the same ideal exponent `min(q1, q2)` and
+/// zero-sign rule. A zero difference is +0, or -0 under `Floor`.
 pub fn subtract(
   lhs : Decimal,
   rhs : Decimal,
@@ -320,6 +334,9 @@ pub fn subtract(
 }
 
 ///|
+/// Multiplies two values and rounds the exact product once to the context. An
+/// exact result has the ideal exponent `q1 + q2`. Zero times infinity is
+/// invalid.
 pub fn multiply(
   lhs : Decimal,
   rhs : Decimal,
@@ -342,6 +359,14 @@ pub fn multiply(
 }
 
 ///|
+/// Divides the first value by the second and rounds the quotient once to the
+/// context. An exact quotient has the ideal exponent `q1 - q2`; an inexact one
+/// has a full `precision`-digit coefficient.
+///
+/// A non-zero finite value divided by zero is an infinity with
+/// `DivisionByZero`. `0 / 0` is NaN with `division_undefined` and `inf / inf` is
+/// invalid. A finite value divided by an infinity is a zero with the exponent
+/// `e_min - precision + 1` and `Clamped`.
 pub fn divide(
   lhs : Decimal,
   rhs : Decimal,

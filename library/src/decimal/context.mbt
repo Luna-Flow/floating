@@ -2,6 +2,17 @@
 // Decimal public types and context/flag helpers.
 
 ///|
+/// An immutable decimal floating-point value: a finite number
+/// `(-1)^s * c * 10^q` (a zero included), an infinity, or a quiet or signaling
+/// NaN with a sign and a payload.
+///
+/// Values equal in number but with different exponents, such as `1.2` and `1.20`,
+/// are members of one cohort: `==` treats them as equal, while `exponent10`,
+/// `same_quantum`, `total_order_compare` and formatting tell them apart. Each
+/// value also carries a precision in `1..=decimal_precision_max` (default 34)
+/// that the operators and conversions without a context use. The fields are
+/// private; read them with the observers. Operations that take a
+/// `DecimalContext` return the rounded result and its `DecimalFlags`.
 #derive(Debug)
 pub struct Decimal {
   priv class : FpClass
@@ -45,6 +56,9 @@ priv enum DecimalRound {
 }
 
 ///|
+/// An IEEE 754-2019 decimal interchange format: `Decimal32` (7 digits),
+/// `Decimal64` (16 digits) or `Decimal128` (34 digits). `context` returns the
+/// matching `DecimalContext`.
 #derive(Eq)
 pub(all) enum DecimalInterchangeFormat {
   Decimal32
@@ -53,6 +67,10 @@ pub(all) enum DecimalInterchangeFormat {
 }
 
 ///|
+/// How the coefficient is stored in the bits of an interchange value: `DPD`
+/// packs three decimal digits in each 10-bit declet (densely packed decimal);
+/// `BID` stores the coefficient as a binary integer. The functions without an
+/// encoding argument use `DPD`.
 #derive(Eq)
 pub(all) enum DecimalInterchangeEncoding {
   DPD
@@ -60,6 +78,11 @@ pub(all) enum DecimalInterchangeEncoding {
 }
 
 ///|
+/// The raw bits of one decimal32, decimal64 or decimal128 interchange value
+/// together with its format and encoding. Unlike a `Decimal` it can hold a
+/// non-canonical encoding, so use it when the bits must be inspected or kept
+/// exactly. Build one from hex text with `from_hex` or from a `Decimal` with
+/// `from_decimal`; read it back with `to_hex` and `to_decimal`.
 pub struct DecimalInterchange {
   priv format : DecimalInterchangeFormat
   priv encoding : DecimalInterchangeEncoding
@@ -67,6 +90,17 @@ pub struct DecimalInterchange {
 }
 
 ///|
+/// A decimal format with one rounding-direction attribute: the precision `p`,
+/// the largest adjusted exponent `e_max`, `e_min = 1 - e_max`, and a
+/// `DecimalRoundingMode` (IEEE 754-2019 3.3 and 4.3). A finite result has
+/// `e_min <= q + p - 1 <= e_max` for its exponent `q`; a larger exponent is
+/// folded down to `e_max - p + 1`. Every `_ctx` operation takes its context as an
+/// argument and reads no ambient state.
+///
+/// Build one with `DecimalContext::new` or `try_new`, or take the context of an
+/// interchange format with `decimal32`, `decimal64` or `decimal128`. The
+/// certified elementary functions also limit `e_max` and the precision; see
+/// `refinement_limit` and `elementary_precision_limit`.
 #derive(Eq)
 pub struct DecimalContext {
   priv precision : Int32
@@ -86,6 +120,15 @@ pub struct DecimalContext {
 }
 
 ///|
+/// The conditions raised by one operation: `inexact`, `underflow`, `overflow`,
+/// `division_by_zero` and `invalid_operation` (IEEE 754-2019 7.2 to 7.6), and
+/// `not_computed`, a library flag for a result the implementation could not
+/// compute within one of its limits (the value is then a NaN).
+///
+/// Flags do not accumulate by themselves: join the flags of successive
+/// operations with `combine`. Read each flag with the method of the same name,
+/// such as `flags.inexact()`. `has_error` tests for the conditions that deliver
+/// no usable number.
 #derive(Eq)
 pub struct DecimalFlags {
   priv inexact : Bool
@@ -197,6 +240,10 @@ pub fn DecimalFlags::underflow(self : DecimalFlags) -> Bool {
 }
 
 ///|
+/// Joins two flag sets: a flag is set in the result when it is set in either
+/// argument. The operation is associative, commutative and idempotent, and
+/// `DecimalFlags::new()` is its identity. Use it to accumulate the flags of a
+/// sequence of operations.
 pub fn DecimalFlags::combine(
   self : DecimalFlags,
   other : DecimalFlags,
@@ -478,6 +525,9 @@ pub fn DecimalContext::decimal32(
 }
 
 ///|
+/// Returns the context of the IEEE 754-2019 decimal64 format: precision 16,
+/// `e_max` 384, `e_min` -383. The rounding direction is `RoundTiesToEven` unless
+/// `rounding` says otherwise.
 pub fn DecimalContext::decimal64(
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> DecimalContext {

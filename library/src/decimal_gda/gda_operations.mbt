@@ -8,24 +8,35 @@ pub fn apply(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 }
 
 ///|
+/// Rounds the value to the context, as `0 + x`. The ideal exponent is that of
+/// the operand. `plus(-0)` is -0 under `Floor` and +0 otherwise, and a zero
+/// result is +0 in a subset context.
 pub fn plus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.plus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
+/// Rounds the negated value to the context, as `0 - x`. The ideal exponent is
+/// that of the operand. `minus(0)` is -0 under `Floor` and +0 otherwise, and a
+/// zero result is +0 in a subset context.
 pub fn minus(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.minus_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
+/// Rounds the absolute value to the context. The ideal exponent is that of the
+/// operand; the absolute value of either zero is +0.
 pub fn abs(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.abs_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
 }
 
 ///|
+/// Computes `a * b + c` with a single rounding: the product is exact and only
+/// the sum is rounded. The ideal exponent is that of `add` applied to the exact
+/// product and `c`. It is invalid in a subset context (`extended=false`).
 pub fn fma(
   lhs : Decimal,
   rhs : Decimal,
@@ -41,6 +52,9 @@ pub fn fma(
 }
 
 ///|
+/// Returns the square root, correctly rounded half even whatever the rounding of
+/// the context. A perfect square is exact, with the ideal exponent `floor(q / 2)`.
+/// A negative number is invalid; `sqrt(+inf)` is `+inf`.
 pub fn sqrt(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return sqrt_subset(value, ctx)
@@ -89,6 +103,15 @@ pub fn remainder_near(
 }
 
 ///|
+/// Returns the first value with the exponent of the second, rounded with the
+/// rounding of the context; only the exponent of the second operand counts.
+/// Dropped digits raise `Rounded`, and `Inexact` when one of them is not zero.
+///
+/// The result is NaN and invalid when the target exponent lies outside
+/// `[e_min - precision + 1, e_max]`, when the coefficient would need more than
+/// `precision` digits, or when exactly one operand is infinite. Two infinities
+/// give the infinity. A subnormal result raises `Subnormal` but not
+/// `Underflow`.
 pub fn quantize(
   value : Decimal,
   quantum : Decimal,
@@ -133,6 +156,15 @@ pub fn round_to_integral_value(
 }
 
 ///|
+/// Returns `e` raised to the value, correctly rounded half even whatever the
+/// rounding of the context. `exp(0)` is 1, `exp(+inf)` is `+inf` and `exp(-inf)`
+/// is 0. Any other finite result is inexact with `precision` digits.
+///
+/// A context beyond the implementation limit of `exp`, `ln`, `log10` and `power`
+/// (`precision` above 999999, `e_max` above 999999 or `e_min` below -999999)
+/// gives NaN with `invalid_context`. When the refinement limit of the context
+/// stops the evaluation, the result is NaN with `invalid_operation` and
+/// `try_exp` returns `Err`.
 pub fn exp(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return exp_subset(value, ctx)
@@ -151,6 +183,13 @@ fn exp_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 }
 
 ///|
+/// Returns the natural logarithm, correctly rounded half even whatever the
+/// rounding of the context. `ln(1)` is 0, `ln(+inf)` is `+inf`, and `ln(0)` is
+/// `-inf` in an extended context (it is invalid in a subset context) with no
+/// condition raised. A negative number is invalid. The implementation limit of
+/// `exp` applies (NaN with `invalid_context`); when the refinement limit stops
+/// the evaluation the result is NaN with `invalid_operation` and `try_ln`
+/// returns `Err`.
 pub fn ln(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   if !ctx.extended_ && gda_operand_is_long(value, ctx) {
     return ln_subset(value, ctx)
@@ -197,6 +236,10 @@ pub fn power(
 }
 
 ///|
+/// Rounds the value to the context and removes its trailing zeros: `1200` gives
+/// `1.2E+3`. A zero becomes 0 with exponent 0, keeping its sign in an extended
+/// context. In a clamped context the exponent is not raised above
+/// `e_max - precision + 1`.
 pub fn reduce(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   if !ctx.extended_ {
     return reduce_subset(value, ctx)
@@ -312,6 +355,10 @@ pub fn logical_invert(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] 
 }
 
 ///|
+/// Compares two values by value (`-0 = +0`, `2.50 = 2.5`) and returns the
+/// decimal -1, 0 or 1. A NaN operand gives a quiet NaN; `InvalidOperation` is
+/// raised only for a signaling NaN (`compare_signal` raises it for any NaN). Use
+/// `compare_total` to order representations.
 pub fn compare(
   lhs : Decimal,
   rhs : Decimal,

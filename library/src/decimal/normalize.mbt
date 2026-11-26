@@ -688,6 +688,12 @@ fn apply_finite_ctx(
 }
 
 ///|
+/// Returns the reduced member of the cohort of `self`: all trailing zeros of the
+/// coefficient are removed (`12.300` becomes `12.3`, `100` becomes `1E+2`) and a
+/// zero gets exponent 0. A coefficient longer than the precision of the value is
+/// first rounded half even to it. NaNs and infinities are returned unchanged.
+/// No flags are raised. Do not use it on amounts whose number of decimal places
+/// matters.
 pub fn Decimal::normalized(self : Decimal) -> Decimal {
   match self.class {
     FpClass::Finite =>

@@ -1,4 +1,11 @@
 ///|
+/// The rounding algorithm of a context (GDA 1.70, abstract representation of
+/// context). When the exact result lies strictly between two representable
+/// neighbours: `Down` takes the one nearer zero, `Up` the one farther from zero,
+/// `Ceiling` the larger and `Floor` the smaller. `HalfEven`, `HalfUp` and
+/// `HalfDown` take the nearer one and break an exact tie to the even last digit,
+/// away from zero and toward zero. `ZeroFiveUp` rounds toward zero unless that
+/// leaves a last digit of 0 or 5, in which case it rounds away from zero.
 #derive(Eq)
 pub(all) enum GdaRoundingMode {
   HalfEven
@@ -12,6 +19,12 @@ pub(all) enum GdaRoundingMode {
 }
 
 ///|
+/// A signal of the GDA specification: `Clamped`, `DivisionByZero`, `Inexact`,
+/// `InvalidOperation`, `Overflow`, `Rounded`, `Subnormal` and `Underflow`, and
+/// `LostDigits` of the subset arithmetic. Each has a flag in the flags of a
+/// context and a trap-enabler in its `GdaTrapSet`. The conditions conversion
+/// syntax, division impossible, division undefined and invalid context signal
+/// `InvalidOperation`.
 #derive(Eq)
 pub(all) enum GdaSignal {
   /// The nine signals of GDA 1.70 (page 15 and, for `LostDigits`, Appendix A):
@@ -29,6 +42,16 @@ pub(all) enum GdaSignal {
 }
 
 ///|
+/// A set of conditions: those raised by one operation, or the flags of a
+/// context. It holds the thirteen conditions the library raises: the exceptional
+/// conditions of the GDA specification other than insufficient storage, and
+/// `lost_digits` of the subset arithmetic.
+///
+/// Read each condition with the method of the same name. `contains` tests a
+/// signal instead: `contains(InvalidOperation)` is true when any of
+/// `invalid_operation`, `conversion_syntax`, `division_impossible`,
+/// `division_undefined` or `invalid_context` is set. Build a set with `new` and
+/// `combine`.
 #derive(Eq)
 pub struct GdaFlags {
   priv conversion_syntax : Bool
@@ -47,6 +70,9 @@ pub struct GdaFlags {
 }
 
 ///|
+/// The set of enabled trap-enablers of a context, one for each `GdaSignal`.
+/// `GdaTrapSet::new()` enables none; `with_signal` enables or disables one.
+/// Read a trap-enabler with `contains` or the method of the signal's name.
 #derive(Eq)
 pub struct GdaTrapSet {
   priv clamped : Bool
@@ -61,6 +87,16 @@ pub struct GdaTrapSet {
 }
 
 ///|
+/// An immutable GDA context: the arithmetic policy, the flags raised so far and
+/// the enabled traps. The policy is the precision, the rounding algorithm, the
+/// exponent range `e_min..e_max`, `clamp` and `extended` (extended or subset
+/// arithmetic).
+///
+/// Flags and traps never change the numerical result of an operation. They
+/// decide the next context and whether the `GdaOutcome` is `Completed` or
+/// `Trapped`. Build one with `GdaContext::new`, `try_new`, `basic_default` or
+/// `decimal32`, `decimal64` and `decimal128`; the `with_*` methods return a
+/// changed copy.
 pub struct GdaContext {
   priv precision_ : Int32
   priv rounding_ : GdaRoundingMode
@@ -76,6 +112,14 @@ pub struct GdaContext {
 }
 
 ///|
+/// The result of every GDA operation: `Completed(value, next_context, raised)`
+/// when no enabled trap fired, or `Trapped(signal, value, next_context, raised)`
+/// when one did. Both carry the result the specification defines, the context
+/// with the updated flags and the conditions raised by this operation only;
+/// `Trapped` also names the signal that fired.
+///
+/// Read the shared parts with `value`, `next_context` and `raised`. A trapped
+/// outcome becomes a completed one only through `resume_defined`.
 pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
@@ -752,6 +796,9 @@ pub fn GdaContext::rounding(self : GdaContext) -> GdaRoundingMode {
 }
 
 ///|
+/// Returns the flags of the context: every condition raised by the operations
+/// that produced it. Operations only ever add to them; `clear_flags` and `reset`
+/// empty them.
 pub fn GdaContext::flags(self : GdaContext) -> GdaFlags {
   self.flags_
 }
@@ -991,6 +1038,7 @@ pub fn[T, U] GdaOutcome::absorb(
 }
 
 ///|
+/// Returns the result the specification defines, also for a `Trapped` outcome.
 pub fn[T] GdaOutcome::value(self : GdaOutcome[T]) -> T {
   match self {
     Completed(value, _, _) | Trapped(_, value, _, _) => value
@@ -998,6 +1046,9 @@ pub fn[T] GdaOutcome::value(self : GdaOutcome[T]) -> T {
 }
 
 ///|
+/// Returns the context with the flags of this operation added: the context to
+/// use for the next operation. An operation that raised nothing returns the
+/// context it received.
 pub fn[T] GdaOutcome::next_context(self : GdaOutcome[T]) -> GdaContext {
   match self {
     Completed(_, context, _) | Trapped(_, _, context, _) => context
@@ -1005,6 +1056,8 @@ pub fn[T] GdaOutcome::next_context(self : GdaOutcome[T]) -> GdaContext {
 }
 
 ///|
+/// Returns the conditions raised by this operation alone, not those already in
+/// the flags of the context.
 pub fn[T] GdaOutcome::raised(self : GdaOutcome[T]) -> GdaFlags {
   match self {
     Completed(_, _, raised) | Trapped(_, _, _, raised) => raised

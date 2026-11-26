@@ -285,6 +285,13 @@ pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int32 {
 }
 
 ///|
+/// Compares the representations of two values in the total order of IEEE
+/// 754-2019 5.10 and returns -1, 0 or 1. The order is `-NaN < -sNaN < -inf <
+/// negative finite < -0 < +0 < positive finite < +inf < +sNaN < +NaN`. Equal
+/// finite values are ordered by exponent: `1.00` comes before `1.0`, and for
+/// negative values the order is reversed. NaNs of the same sign and kind are
+/// ordered by payload. It returns 0 only for identical representations, takes no
+/// context, rounds nothing and raises no flags.
 pub fn Decimal::total_order_compare(self : Decimal, other : Decimal) -> Int32 {
   if self.negative != other.negative {
     return if self.negative { -1 } else { 1 }

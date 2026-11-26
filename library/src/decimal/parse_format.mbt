@@ -399,6 +399,18 @@ fn parse_decimal_string_ctx(
 }
 
 ///|
+/// Parses decimal text and keeps its exponent: `"12.30"` has coefficient 12300
+/// and exponent -2.
+///
+/// The text is an optional sign, digits with an optional decimal point and an
+/// optional exponent (`E` or `e`), or `Inf`, `Infinity`, `NaN` or `sNaN` in any
+/// letter case (a NaN may carry payload digits). The value is rounded once, half
+/// even, to `precision` digits (default 34). Returns `Err` for text that is not
+/// a number, for a precision outside `1..=decimal_precision_max`, and for a value
+/// whose exponent, checked after rounding, lies outside `decimal_value_e_tiny`
+/// and `decimal_value_e_max`; no context exponent range applies. Use
+/// `from_string_ctx` to get an infinity or a zero with the `overflow` or
+/// `underflow` flag instead.
 pub fn Decimal::from_string(
   src : String,
   precision~ : Int32 = 34,
@@ -461,6 +473,14 @@ pub fn Decimal::from_string(
 }
 
 ///|
+/// Parses decimal text under `ctx` and returns the value with the flags of the
+/// conversion. The syntax is that of `from_string`.
+///
+/// The value is rounded to the precision of `ctx` in its rounding direction and
+/// raises `inexact` when non-zero digits are discarded; the exponent range of
+/// `ctx` gives overflow and underflow results with their flags, and a large
+/// exponent is folded down. Text that is not a number, or a NaN payload longer
+/// than `precision - 1` digits, gives a quiet NaN with `invalid_operation`.
 pub fn Decimal::from_string_ctx(
   src : String,
   ctx : DecimalContext,
@@ -469,6 +489,12 @@ pub fn Decimal::from_string_ctx(
 }
 
 ///|
+/// Formats the value with the scientific conversion of the General Decimal
+/// Arithmetic (`to-scientific-string`). The coefficient is written in plain
+/// digits unless the exponent is positive or the adjusted exponent is below -6,
+/// when an exponent `E+n` or `E-n` follows. Special values are `Infinity`,
+/// `-Infinity`, `NaN` and `sNaN`, with the payload digits of a NaN appended.
+/// The exponent of the value is kept: `12300E-2` is `123.00`.
 pub fn Decimal::to_sci_string(self : Decimal) -> String {
   format_sci_gda(self)
 }
