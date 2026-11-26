@@ -123,6 +123,27 @@ test "oracle: limb rows equal the mathematical statement of each row" {
 
 ///|
 fn window_oracle_run(row : Array[String]) -> Unit raise {
+  window_oracle_run_with(row, bin_limbs_window_combine)
+}
+
+///|
+fn window_oracle_run_with(
+  row : Array[String],
+  run : (
+    FixedArray[UInt64],
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    Bool,
+    UInt64,
+  ) -> UInt64,
+) -> Unit raise {
   let name = row[0]
   let count = oracle_int(row[1])
   let x_len = oracle_int(row[2])
@@ -136,7 +157,7 @@ fn window_oracle_run(row : Array[String]) -> Unit raise {
     limbs_oracle_array(random, y_len, oracle_int(row[11]))
   }
   let words = FixedArray::make(count, 0UL)
-  let carry = bin_limbs_window_combine(
+  let carry = run(
     words,
     count,
     x,
