@@ -39,8 +39,8 @@ are shared between examples.
 
 ## Three ways to call an operation
 
-Where present, the plain, contextual and checked forms use one numerical
-algorithm.
+Most operations come in up to three forms with one numerical algorithm behind
+them.
 
 | Form | Example | Context | Result |
 | --- | --- | --- | --- |
@@ -110,8 +110,9 @@ type BinCoeff
 The inner type `@binary_kernel.Coeff` belongs to the internal package
 `internal/binary_kernel`; only code in `Luna-Flow/floating` can import that
 package. The inner type carries no compatibility promise. Outside the module,
-`BinCoeff` is abstract: its constructor and field are hidden, and callers cannot
-name, read, compare or construct the kernel value. Other packages in the library
+`BinCoeff` is abstract: a user cannot call a method on the kernel value, read
+it, compare it or build one. Neither its constructor nor its field is visible
+outside `binary`. Other packages in the library
 use the two functions to pass the kernel value to or from `BinCoeff`.
 
 The coefficient is exact. On native, LLVM and Wasm targets, it uses an inline
@@ -212,10 +213,10 @@ same as comparing their representations. The operators `<`, `<=`, `>`, `>=`,
 
 `BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted
 trait methods are listed under [Trait implementations](#trait-implementations).
-Outside `binary`, the public type has no arithmetic, shift, bitwise or GCD
-operations; those operations are internal to `internal/binary_kernel`. Use `Binary` for arithmetic
-on values. To export a coefficient read with `coefficient()`, call
-`to_string` or `to_bytes_be`.
+`BinCoeff` has no arithmetic, shift, bitwise or GCD operations: they are
+internal to the library (the package `internal/binary_kernel`). Arithmetic on
+values is done with `Binary` or, on a coefficient read with `coefficient()`,
+after converting it with `to_string` or `to_bytes_be`.
 
 ```moonbit
 ///|
@@ -259,9 +260,9 @@ precision: for example,
 other NaN.
 
 The `<`, `<=` and sorting order is a total preorder: every NaN compares equal
-to every other NaN and above every number. `Decimal` uses the same rule. IEEE
-equality leaves a NaN unordered; use `compare_quiet_equal` (IEEE 754-2019 5.6.1,
-5.11) when that is required. `Binary` has no `Hash`. Use `identical` to
+to every other NaN and above every number. `Decimal` uses the same rule. It is not
+IEEE equality: use `compare_quiet_equal` (IEEE 754-2019 5.6.1, 5.11) when a NaN
+must be unordered. `Binary` has no `Hash`. Use `identical` to
 compare representations.
 
 ### `Binary::identical`
@@ -276,8 +277,8 @@ signaling bit and payload. It distinguishes `-0` from `+0`, precision 53 from
 precision 24 for the same value, and NaNs with different kinds or payloads.
 
 Use `identical` when a result is checked as a datum, such as when its zero sign
-or the precision stamped by a contextual operation matters. Use `==` when the
-number is what matters.
+or the precision stamped by a contextual operation matters. `identical` is what `==`
+was before 0.12. Use `==` when the number is what matters.
 
 ### `Binary::make`
 
@@ -372,7 +373,7 @@ pub fn Binary::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int
 pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 ```
 
-`nan()` returns a positive quiet NaN with payload 0. A signaling NaN has a
+`nan()` returns a positive quiet NaN with payload 0. A signaling NaN always has a
 nonzero payload; the default and a requested payload of 0 both become 1.
 
 A NaN of precision $p$ has $p - 2$ payload bits. IEEE 754-2019 6.2.1 gives the
@@ -381,11 +382,11 @@ there are no payload bits when $p \le 2$. `quiet_nan` and `signaling_nan` abort
 if the payload is too wide. `signaling_nan` also aborts when $p < 3$, because a
 signaling NaN needs a nonzero payload bit.
 
-Conversions do not abort when the payload is wider than the destination: they
-keep its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its
+Conversions never abort: a payload that the destination cannot hold keeps its
+low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its
 payload does not survive. This rule applies to `with_precision`, `from_double`,
 `from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet
-NaN), operations that return a quiet NaN under a context (which cut the payload
+NaN), every operation that returns a quiet NaN under a context (which cuts the payload
 to the context precision), and interchange encodings.
 
 ## Observing a value
@@ -447,8 +448,8 @@ format. A context given by its precision alone has the implementation limit
 
 `is_normal` and `is_subnormal` return true exactly for the normal and subnormal
 classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite`
-is true for either infinity, and `is_nan` for either NaN. These methods do not
-round or raise a flag. `classify` keeps its three-valued meaning.
+is true for either infinity, and `is_nan` for either NaN. None of `class_of` and these predicates
+rounds or raises a flag. `classify` keeps its three-valued meaning.
 
 ### `Binary::is_zero`, `Binary::is_negative_zero`, `Binary::is_quiet_nan`, `Binary::is_signaling_nan`, `Binary::nan_payload`
 
@@ -484,8 +485,8 @@ call allocates. A wider value returns its stored coefficient. A loop that reads
 coefficients from small values therefore allocates once per call.
 
 `Binary` has no public word reader. Use `BinCoeff::to_uint64` when the
-coefficient fits in 64 bits. To read the exponent of the leading bit without
-building the coefficient, use `ilogb()`; it does not allocate.
+coefficient fits in 64 bits. The exponent of the leading bit, which is what most callers read the
+coefficient for, is `ilogb()`, which does not allocate.
 
 ### `Binary::normalized`
 
@@ -524,9 +525,8 @@ pub fn Binary::ulp(Self) -> Self
 
 For $x \ne 0$, let $t = \lfloor \log_2 |x| \rfloor$ be the exponent of its
 leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an
-infinity or NaN it returns a quiet NaN. Its spacing uses the value's precision
-and does not depend on a context's exponent range, so it is not the subnormal
-spacing of an IEEE format.
+infinity or NaN it returns a quiet NaN. The spacing ignores any context's
+exponent range, so it is not the subnormal spacing of an IEEE format.
 
 ```moonbit
 ///|
