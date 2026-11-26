@@ -12977,8 +12977,8 @@ msgid "Repository conventions"
 msgstr "仓库约定"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.12.0-pre`**, the version in `library/moon.mod` and `tooling/moon.mod` (a pre-release; the latest published stable release is `0.11.0`)."
-msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前版本为 **`0.12.0-pre`**，即 `library/moon.mod` 和 `tooling/moon.mod` 中的版本（预发布版本；最新已发布的稳定版本为 `0.11.0`）。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.12.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (the latest stable release of this repository; the registry lists it once it is published)."
+msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前版本为 **`0.12.0`**，即 `library/moon.mod` 和 `tooling/moon.mod` 中的版本（本仓库的最新稳定版本；发布到注册表后即可在注册表中查到）。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"

@@ -9,6 +9,8 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+## 0.12.0 - 2026-11-26
+
 ### 0.12.0 summary
 
 The 0.12 release of the tools follows the library: the packages, tools and data that carried the name of the interval type or of `bin_float` are renamed, the corpus frontends and the differential stages judge more of the library's behaviour against independent oracles, and the gates can reuse verified work. The module has the version of the library and imports it. This summary lists each change once; the entries below it are the detailed record.

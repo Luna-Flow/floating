@@ -1,6 +1,6 @@
 name = "Luna-Flow/floating"
 
-version = "0.12.0-pre"
+version = "0.12.0"
 
 readme = "README.md"
 

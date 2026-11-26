@@ -23,7 +23,7 @@ page](../design/def.md) gives the trait laws.
 Add the module and import `def` next to the representation you use:
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 ```
 
 ```moonbit nocheck

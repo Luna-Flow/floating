@@ -6,6 +6,8 @@ notes live in this file.
 
 ## Unreleased
 
+## 0.12.0 - 2026-11-26
+
 ### 0.12.0 summary
 
 0.12 makes the three number packages (`binary`, `decimal`, `decimal_gda`) and the interval package follow IEEE 754-2019, GDA 1.70 and IEEE 1788-2015 clause by clause, and renames the packages and public names that did not (`bin_float` is `binary`, `ball_float` is `interval`). The plain operators, the contexts and the constructors mean one thing in each package, and the binary and decimal kernels are faster. This summary lists each change once; the entries below it are the detailed record, with the migration tables.

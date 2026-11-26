@@ -26,7 +26,7 @@ every public name.
 Add the module to your project:
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 ```
 
 Import the package in your `moon.pkg`:

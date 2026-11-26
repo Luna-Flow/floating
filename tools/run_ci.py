@@ -186,6 +186,7 @@ QUICK_LANES: dict[str, tuple[str, str | None]] = {
     "TEST: wasm-gc": ("moon", None),
     "SMOKE: IEEE 754": ("moon", None),
     "IMPORTS: package independence": ("python", None),
+    "INSTALL: version lines": ("python", None),
     CONTEXTS_STAGE_NAME: ("python", None),
     ORACLES_STAGE_NAME: ("python", None),
     "DOCS: manual quality": ("python", None),
@@ -376,6 +377,10 @@ def stages_for(scope: str, jobs: int, reuse: bool = True) -> list[Stage]:
         Stage(
             "IMPORTS: package independence",
             (sys.executable, "tools/check_imports.py"),
+        ),
+        Stage(
+            "INSTALL: version lines",
+            (sys.executable, "tools/check_install_lines.py"),
         ),
         Stage(
             CONTEXTS_STAGE_NAME,

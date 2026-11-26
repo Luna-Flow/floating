@@ -36,7 +36,7 @@ and `Luna-Flow/arithmetic` if you name its rounding modes or contexts
 yourself:
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 moon add Luna-Flow/arithmetic
 ```
 
