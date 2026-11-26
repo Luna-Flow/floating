@@ -97,6 +97,9 @@ test "bit-burst exp contains the series enclosure at higher precision" {
 }
 
 ///|
+// oracle: S
+// source: the width of the bit-burst enclosure against the width of the series enclosure of the same argument over the corpus; a width relation between two kernels of the library, no value stated
+// shares: burst_test_corpus and burst_test_work build the arguments and the precisions; binary_exp_bounds_burst is the code under test and binary_exp_bounds_series the reference; sub and compare
 test "bit-burst exp is no wider than the series enclosure" {
   for value in burst_test_corpus() {
     let work = burst_test_work(value.precision())
@@ -177,6 +180,9 @@ test "bit-burst exp at the reduction boundaries" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of binary_exp_bounds_burst: None for 0, 2^30, 2^-200 at one bit, +inf and NaN; no value is stated
+// shares: Binary::zero, from_int, make_coeff, inf and nan build the operands; binary_exp_bounds_burst is the code under test
 test "bit-burst exp declines outside its range" {
   let work = 512
   assert_true(binary_exp_bounds_burst(Binary::zero(precision=64), work) is None)

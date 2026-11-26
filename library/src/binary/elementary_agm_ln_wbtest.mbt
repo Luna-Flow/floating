@@ -31,6 +31,10 @@ fn agm_test_values(
 }
 
 ///|
+// oracle: B, S
+// source: B: the AGM enclosure at 256, 1024, 2048 and 4096 bits must contain the series enclosure at 256 more bits for 8 or 2 arguments per precision; S: the series enclosure has no level A block of its own at these precisions
+// shares: agm_test_values builds the arguments; binary_ln_unit_agm_bounds is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains compares
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "ln AGM enclosure contains the series enclosure at higher precision" {
   let mut checked = 0
   for work in [256, 1024, 2048, 4096] {
@@ -50,6 +54,10 @@ test "ln AGM enclosure contains the series enclosure at higher precision" {
 }
 
 ///|
+// oracle: B, S
+// source: B: the AGM enclosure of ln at 8192 bits must contain the series enclosure at 8448 bits, a different algorithm of the library (a valid enclosure of the true value contains the tighter one); S: the series enclosure has no level A block of its own at this precision
+// shares: burst_test_value builds the argument; binary_ln_unit_agm_bounds is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains compares
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "ln AGM enclosure at 8192 bits contains the series enclosure" {
   let value = burst_test_value(8192, 1, false, 8192UL)
   let bounds = binary_ln_unit_agm_bounds(value, 8192).unwrap()
@@ -58,6 +66,9 @@ test "ln AGM enclosure at 8192 bits contains the series enclosure" {
 }
 
 ///|
+// oracle: S
+// source: the width of the AGM enclosure against the width of the Newton enclosure of the same argument at 384, 1024 and 2048 bits; a width relation between two kernels of the library, no value stated
+// shares: agm_test_values builds the arguments; binary_ln_unit_agm_bounds and binary_ln_unit_burst_bounds are both the code under test; sub and compare
 test "ln AGM enclosure is no wider than the Newton enclosure" {
   for work in [384, 1024, 2048] {
     for value in agm_test_values(work, 4, 77UL + work.to_uint64()) {
@@ -75,6 +86,9 @@ test "ln AGM enclosure is no wider than the Newton enclosure" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of binary_ln_unit_agm_bounds: None for 1, 3, 1 + 2^-20 (too close to 1), NaN, +inf and -3; no value is stated
+// shares: Binary::one, from_int, make_coeff, nan and inf build the operands; binary_ln_unit_agm_bounds is the code under test
 test "ln AGM declines outside its range" {
   let work = 512
   assert_true(
@@ -112,6 +126,10 @@ test "ln AGM iteration counts" {
 }
 
 ///|
+// oracle: B, S
+// source: B: the unmutated AGM enclosure contains the series enclosure at 1792 bits, and the mutants (an iteration cap of 4, 8 and 12) are caught as not containing it, the mutant with too few bits is declined or valid; S: the series enclosure has no level A block of its own at this precision, and burst_test_caught is the verdict of the test
+// shares: burst_test_value builds the argument; binary_ln_unit_agm_bounds with the mutation record is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains and burst_test_caught compare
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "mutated ln AGM kernels are caught by the containment test" {
   let value = burst_test_value(1500, 1, false, 4242UL)
   let work = 1536

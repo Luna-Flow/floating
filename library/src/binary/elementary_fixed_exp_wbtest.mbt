@@ -99,6 +99,9 @@ test "fixed-point exp path gives the same correctly rounded results" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of binary_exp_bounds_fixed: None for 0, NaN, +inf and an argument that is not exact at the working precision (2^150 + 1 over 2^151 at 100 bits), where the general binary_exp_bounds answers; no value is stated
+// shares: Binary::zero, nan, inf and make_coeff build the operands; binary_exp_bounds_fixed is the code under test and binary_exp_bounds the general path
 test "fixed-point exp path declines arguments it does not cover" {
   assert_true(binary_exp_bounds_fixed(Binary::zero(), 100) is None)
   assert_true(binary_exp_bounds_fixed(Binary::nan(), 100) is None)

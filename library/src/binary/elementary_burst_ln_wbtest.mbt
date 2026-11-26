@@ -29,6 +29,10 @@ fn burst_ln_test_corpus() -> Array[Binary] {
 }
 
 ///|
+// oracle: B, S
+// source: B: the Newton enclosure of ln over the corpus must contain the series enclosure at 256 more bits, a different algorithm of the library; S: the series enclosure has no level A block of its own at these precisions (the end results of ln are compared with MPFR in the block `ln keeps its results when the Newton step starts at the entry threshold`, 300 to 1000 bits)
+// shares: burst_ln_test_corpus and burst_test_work build the arguments; binary_ln_unit_burst_bounds is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains compares
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "ln Newton step contains the series enclosure at higher precision" {
   let mut checked = 0
   for value in burst_ln_test_corpus() {
@@ -46,6 +50,9 @@ test "ln Newton step contains the series enclosure at higher precision" {
 }
 
 ///|
+// oracle: S
+// source: the width of the Newton enclosure against the width of the series enclosure of the same argument over the corpus; a width relation between two kernels of the library, no value stated
+// shares: burst_ln_test_corpus and burst_test_work build the arguments; binary_ln_unit_burst_bounds is the code under test and binary_ln_unit_bounds_series the reference; sub and compare
 test "ln Newton step is no wider than the series enclosure" {
   for value in burst_ln_test_corpus() {
     let work = burst_test_work(value.precision())
@@ -62,6 +69,9 @@ test "ln Newton step is no wider than the series enclosure" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of binary_ln_unit_burst_bounds: None for 1, 3, 1/2 at one bit, 1 + 2^-30 (closer to 1 than 2^-16) and +inf; no value is stated
+// shares: Binary::one, from_int, make_coeff and inf build the operands; binary_ln_unit_burst_bounds is the code under test
 test "ln Newton step declines outside its range" {
   let work = 512
   assert_true(
@@ -89,6 +99,10 @@ test "ln Newton step declines outside its range" {
 }
 
 ///|
+// oracle: B, S
+// source: B: the unmutated Newton enclosure at 2064 bits contains the series enclosure at 2320 bits, and the mutants (a lower bias of 8 units, a poor start value with the quadratic term dropped) are caught as not containing it, the poor start alone stays valid or is declined; S: the series enclosure has no level A block of its own at this precision, and burst_test_caught is the verdict of the test
+// shares: burst_test_value builds the argument; binary_ln_unit_burst_bounds with the mutation record is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains and burst_test_caught compare
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "mutated ln Newton steps are caught by the containment test" {
   let value = burst_test_value(2000, 1, false, 4242UL)
   let work = 2064
@@ -170,6 +184,10 @@ test "ln results are identical with and without the Newton step" {
 }
 
 ///|
+// oracle: B, S
+// source: B: the entry-step enclosure of ln at 384 to 2112 bits must contain the series enclosure at 256 more bits (up to 66 arguments); S: the series enclosure has no level A block of its own at these precisions
+// shares: burst_test_value builds the arguments; binary_ln_unit_bounds with entry=true is the code under test and binary_ln_unit_bounds_series the reference; burst_test_contains compares
+// primitives: binary_ln_unit_bounds_series, the series enclosure of ln on the unit interval (no level A block of its own at these precisions: the end results of ln are compared with MPFR in the block `ln keeps its results when the AGM kernel runs`, 1000 to 2000 bits, but not the series bounds), and burst_test_contains
 test "ln entry step on the table kernel contains the series enclosure" {
   let mut checked = 0
   let mut seed = 977UL

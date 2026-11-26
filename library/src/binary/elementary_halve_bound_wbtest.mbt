@@ -1,4 +1,8 @@
 ///|
+// oracle: B
+// source: binary_halve_bound of the bounds of pi equals the product by 1/2 formed with mul_ctx in the same directed context (value, precision, exponent and coefficient), at ten working precisions from 64 to 4160, and the quarter by the same function equals the second product
+// shares: binary_pi_bounds gives the same bounds to both sides; Binary::make_coeff builds 1/2 and binary_working_context the contexts; mul_ctx forms the reference; binary_halve_bound is the code under test; compare, precision, exponent2 and coefficient_ read the result
+// primitives: Binary::mul_ctx (level A through arith_rows_wbtest.mbt, which covers products rounded in the five directions) and Binary::make_coeff
 test "halving the bounds of pi by the exponent equals the product by 1/2" {
   for work in [64, 65, 100, 128, 150, 192, 225, 609, 1536, 4160] {
     let pi = binary_pi_bounds(work).unwrap()

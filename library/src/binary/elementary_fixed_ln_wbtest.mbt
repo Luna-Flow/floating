@@ -195,6 +195,9 @@ test "fixed-point ln path gives the same correctly rounded results" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of binary_ln_unit_fixed_bounds: None for 1, 3, -1, 0, NaN and an argument that is not exact at the working precision, where the general binary_ln_unit_bounds answers (also for 1); no value is stated
+// shares: Binary::one, from_int, zero, nan, abs, neg and make_coeff build the operands; binary_ln_unit_fixed_bounds is the code under test and binary_ln_unit_bounds the general path
 test "fixed-point ln path declines arguments it does not cover" {
   let work = 100
   assert_true(binary_ln_unit_fixed_bounds(Binary::one(), work) is None)
