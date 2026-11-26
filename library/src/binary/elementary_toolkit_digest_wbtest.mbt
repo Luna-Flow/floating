@@ -504,6 +504,9 @@ fn toolkit_digest_rows() -> Array[String] {
 }
 
 ///|
+// oracle: S
+// source: toolkit_digest_expected, FNV-1a digests of the enclosures of the kernels before the toolkit refactor, recorded by running this library at that commit (the header of the file says how); a pin of the library's own earlier output on the corpus, not an external value
+// shares: the digest functions toolkit_digest_mix and toolkit_digest_float and Binary::to_hex
 test "kernel enclosures are bit-identical to the pre-toolkit kernels" {
   let rows = toolkit_digest_rows()
   let mismatches : Array[String] = []

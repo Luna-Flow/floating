@@ -202,6 +202,9 @@ fn binary_agm_one_reference(x : Binary, p : Int32) -> (Binary, Int32)? {
 }
 
 ///|
+// oracle: S
+// source: the previous kernel kept in this file (binary_agm_one_reference) against the current one on the same inputs: both are kernels of this library with no external value on these inputs (the end-to-end enclosures of the same functions are checked against MPFR in the burst and table blocks, on other arguments), so only agreement is stated
+// shares: binary_agm_one and binary_agm_one_reference both run on Binary add, mul, sqrt, div and compare; burst_test_coefficient builds the arguments
 test "AGM iteration equals the reference iteration" {
   let mut seed = 1234UL
   let mut compared = 0

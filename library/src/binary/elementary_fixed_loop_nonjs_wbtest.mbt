@@ -64,6 +64,10 @@ fn fixed_loop_same(left : (Coeff, Int32)?, right : (Coeff, Int32)?) -> Bool {
 }
 
 ///|
+// oracle: B
+// source: binary_ln_artanh_loop_reference, the series loop written on Coeff operations (mul, shift_right, div_rem_checked by a small divisor, add, compare, bit_length) that the limb-array loop replaced; the Coeff operations have level A rows
+// shares: binary_ln_artanh_loop (the code under test) and the reference use the same series recurrence; fixed_loop_coeff builds the operands from a fixed xorshift seed
+// primitives: Coeff::mul, shift_right, add, compare and bit_length (level A: coeff_regression_wbtest.mbt digests from CPython integers, tools/kernel_oracle.py; coeff_product_oracle_rows_wbtest.mbt), Coeff::div_rem_checked (level A: coeff_div_oracle_rows_wbtest.mbt, CPython divmod); operand sizes here are 2 to 700 bits, inside the sizes of those tables
 test "limb loop equals the Coeff loop for every shift alignment and limb count" {
   let seed = Ref(0x9E3779B97F4A7C15UL)
   let top_zero = Ref(0)

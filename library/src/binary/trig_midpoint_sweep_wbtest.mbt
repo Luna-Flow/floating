@@ -299,6 +299,9 @@ let trig_sweep_reference_rounds : String =
   #|1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 
 ///|
+// oracle: S
+// source: a digest (13822502156246375100) and a round-count string recorded by running this library on the sweep; the two-ended reference of the round counts is also this library's earlier output; the sweep is a pin and a no-regression bound, not an external value
+// shares: trig_sweep_run runs the library on the sweep inputs, trig_sweep_reference_rounds is a recorded string
 test "midpoint form equals the two-ended form on the tiny and near-multiple sweep" {
   let (hash, rounds, nans) = trig_sweep_run()
   // A NaN is a refinement that never certified (a widened end across a bound

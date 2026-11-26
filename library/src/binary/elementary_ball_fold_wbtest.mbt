@@ -84,6 +84,9 @@ test "exp fold by one full product equals the two separate products" {
 }
 
 ///|
+// oracle: S
+// source: the previous kernel kept in this file (binary_exp_bounds_burst_reference) against the current one on the same inputs: both are kernels of this library with no external value on these inputs (the end-to-end enclosures of the same functions are checked against MPFR in the burst and table blocks, on other arguments), so only agreement is stated
+// shares: binary_exp_bounds_burst and its reference share the splitting trees, the reduction and the Coeff arithmetic; burst_test_value and burst_test_coefficient build the arguments
 test "exp burst kernel equals the kernel with two products per chunk" {
   let mut seed = 5150UL
   let mut compared = 0

@@ -4,6 +4,9 @@
 // reader.
 
 ///|
+// oracle: A
+// source: written out from IEEE 754-2019 7.4 and 7.5 by the rounding direction: a decimal exponent field of 18 to 21 digits is far outside the exponent range, so a positive exponent gives overflow and inexact (infinity unless the direction rounds toward zero for that sign) and a negative exponent gives underflow and inexact (zero unless the direction rounds away from zero for that sign); the sign of the result is the sign of the significand; a zero significand is zero for every field and raises no flag; the digit strings are the boundaries of the Int64 wrap of issue 624 (2^63 / 10, 2^60, 2^63, 2^64 and longer)
+// shares: Binary::from_string_ctx (the code under test), e2s_flags writes the flags, Binary::is_zero, is_infinite and negative read the result, BinaryContext::new
 test "from_string_ctx: exponent fields of 18 to 21 digits saturate, they do not wrap" {
   let digits = [
     "922337203685477580", "922337203685477581", "1000000000000000000", "1100000000000000000",

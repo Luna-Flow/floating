@@ -127,6 +127,9 @@ fn trig_table() -> Array[
 }
 
 ///|
+// oracle: A, S
+// source: A: the domain cases (NaN with invalid_operation and without not_computed) are written from IEEE 754-2019 9.2.1: %s; the ordinary argument only has its outcome class written (not NaN, no invalid_operation, no not_computed), not its value. S: the plain form against the try_ form on the ordinary argument (identical value and flags); the value itself is not checked here
+// shares: the try_ and the plain form of each function (the code under test and its wrapper), Binary::from_int, scaleb_ctx build the arguments, Binary::is_nan, identical and the flag accessors read the results
 test "trigonometric family: domain case, could-not-compute case and ordinary case" {
   let base = BinaryContext::new(precision=53)
   for row in trig_table() {
