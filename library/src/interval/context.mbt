@@ -140,6 +140,7 @@ pub fn IntervalContext::binary16() -> IntervalContext {
 }
 
 ///|
+/// The format binary32 of IEEE 754-2019 3.3: 24 bits and `e_max` 127.
 pub fn IntervalContext::binary32() -> IntervalContext {
   interval_context_from_format(@binary.BinaryContext::binary32())
 }

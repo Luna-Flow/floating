@@ -1076,6 +1076,10 @@ pub fn Interval::from_bounds(
 }
 
 ///|
+/// `from_bounds` that returns an `Err` (a domain error with the message of the
+/// abort) in place of aborting: a NaN bound, `lo` positive infinity, `hi`
+/// negative infinity, `lo` above `hi`, or a `precision` outside
+/// `1..=binary_precision_max`.
 pub fn Interval::try_from_bounds(
   lo : @binary.Binary,
   hi : @binary.Binary,
@@ -1751,6 +1755,23 @@ pub fn Interval::sqrt(self : Interval) -> Interval {
 }
 
 ///|
+/// Whether the finite number `x` lies in the interval, `lower <= x <= upper`,
+/// compared by value. False for an empty interval and for a `x` that is NaN or
+/// infinite, even when a bound is infinite.
+///
+/// ```mbt check
+/// test {
+///   let x = @interval.Interval::from_int(3, precision=53)
+///   inspect(
+///     x.is_member(@binary.Binary::from_int(3, precision=53)),
+///     content="true",
+///   )
+///   inspect(
+///     x.is_member(@binary.Binary::from_int(4, precision=53)),
+///     content="false",
+///   )
+/// }
+/// ```
 pub fn Interval::is_member(self : Interval, x : @binary.Binary) -> Bool {
   if self.is_empty() {
     return false
@@ -2070,6 +2091,21 @@ pub fn Interval::cancel_minus(self : Interval, other : Interval) -> Interval {
 }
 
 ///|
+/// The overlapping state of `self` with respect to `other` (Table 10.7 of
+/// IEEE 1788-2015): `BothEmpty`, `FirstEmpty` or `SecondEmpty` when an operand
+/// is empty, otherwise one of the 13 positions from `Before` (the upper bound of
+/// `self` is below the lower bound of `other`) to `After`, including `Meets`,
+/// `Overlaps`, `Starts`, `ContainedBy`, `Equals` and their converses. The bounds
+/// are compared by value.
+///
+/// ```mbt check
+/// test {
+///   let a = @interval.Interval::from_int(1, precision=53)
+///   let b = @interval.Interval::from_int(2, precision=53)
+///   inspect(a.overlap(b) == Before, content="true")
+///   inspect(b.overlap(a) == After, content="true")
+/// }
+/// ```
 pub fn Interval::overlap(self : Interval, other : Interval) -> OverlapState {
   if self.is_empty() {
     return if other.is_empty() { BothEmpty } else { FirstEmpty }

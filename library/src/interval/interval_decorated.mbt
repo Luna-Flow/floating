@@ -1,9 +1,11 @@
 ///|
 /// The decoration of a decorated interval (IEEE 1788-2015), ordered
-/// `Ill < Trv < Def < Dac < Com`: `Com` is a bounded non-empty result of a
-/// function defined and continuous on the input, `Dac` the same where the result may be
-/// unbounded, `Def` a non-empty result of a function defined on the input, `Trv`
-/// nothing is known, and `Ill` is the decoration of NaI only.
+/// `Ill < Trv < Def < Dac < Com`. For a result of a function `f` on an input
+/// box `x`: `Com` when `x` is non-empty and bounded, `f` is defined and
+/// continuous on `x` and the result is bounded; `Dac` when `x` is non-empty and
+/// `f` is defined and continuous on `x` (the result may be unbounded); `Def`
+/// when `x` is non-empty and `f` is defined on `x`; `Trv` when nothing is known;
+/// `Ill` is the decoration of NaI only.
 #derive(Eq, Compare, Debug)
 pub(all) enum Decoration {
   Ill
@@ -103,6 +105,8 @@ pub fn DecoratedInterval::decoration(self : DecoratedInterval) -> Decoration {
 }
 
 ///|
+/// Whether the interval part is empty; false for NaI, whose interval part is
+/// empty but which is not an interval.
 pub fn DecoratedInterval::is_empty(self : DecoratedInterval) -> Bool {
   !self.is_nai() && self.interval_.is_empty()
 }
@@ -123,6 +127,7 @@ pub fn DecoratedInterval::is_singleton(self : DecoratedInterval) -> Bool {
 }
 
 ///|
+/// `Interval::is_member` on the interval part; false for NaI.
 pub fn DecoratedInterval::is_member(
   self : DecoratedInterval,
   value : @binary.Binary,
@@ -154,6 +159,8 @@ pub fn DecoratedInterval::identical(
 }
 
 ///|
+/// `Interval::subset` on the interval parts; false when either operand is NaI.
+/// Decorations are ignored.
 pub fn DecoratedInterval::subset(
   self : DecoratedInterval,
   other : DecoratedInterval,
@@ -214,6 +221,8 @@ pub fn DecoratedInterval::strict_precedes(
 }
 
 ///|
+/// `Interval::overlap` on the interval parts, as `Some`; `None` when either
+/// operand is NaI (the 16 states have none for it).
 pub fn DecoratedInterval::overlap(
   self : DecoratedInterval,
   other : DecoratedInterval,
@@ -377,11 +386,18 @@ pub fn DecoratedInterval::recip(self : DecoratedInterval) -> DecoratedInterval {
 }
 
 ///|
+/// The square of the interval part (`Interval::sqr`), decorated as `add` is
+/// with the operation decoration `Com`. NaI gives NaI.
 pub fn DecoratedInterval::sqr(self : DecoratedInterval) -> DecoratedInterval {
   unary_result(self, self.interval_.sqr(), Com)
 }
 
 ///|
+/// The square root of the interval part (`Interval::sqrt`). The operation
+/// decoration is `Trv` when the interval is empty or its lower bound is
+/// negative (the root is not defined on the whole input) and `Com` otherwise;
+/// the result carries the lower of that and the decoration of the operand.
+/// NaI gives NaI.
 pub fn DecoratedInterval::sqrt(self : DecoratedInterval) -> DecoratedInterval {
   unary_result(
     self,
@@ -738,6 +754,9 @@ pub fn DecoratedInterval::max(
 }
 
 ///|
+/// `Interval::apply_ctx` on the interval part, with the flags it raises; the
+/// decoration is kept, lowered from `Com` to `Dac` when the rounding made a
+/// bounded interval unbounded. NaI gives NaI at the precision of `ctx`.
 pub fn DecoratedInterval::apply_ctx(
   self : DecoratedInterval,
   ctx : IntervalContext,
