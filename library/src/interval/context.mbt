@@ -1,4 +1,8 @@
 ///|
+/// A target binary format for rounding an interval (IEEE 754-2019 3.3): a
+/// precision in bits and the exponent range `[1 - e_max, e_max]`; `e_min` is
+/// derived, not a parameter. `apply_ctx` and `midpoint_ctx` round into it and
+/// report `IntervalFlags`. Make one with `new` or a preset (`binary64`).
 pub struct IntervalContext {
   priv precision : Int32
   priv e_min : Int32
@@ -6,6 +10,9 @@ pub struct IntervalContext {
 }
 
 ///|
+/// The conditions raised while rounding into an `IntervalContext`: `inexact`,
+/// `overflow` and `underflow`, each read with the accessor of the same name.
+/// `IntervalFlags::new` has none set and `combine` is the union of two sets.
 #derive(Eq)
 pub struct IntervalFlags {
   priv inexact : Bool
@@ -14,6 +21,7 @@ pub struct IntervalFlags {
 }
 
 ///|
+/// The flags with none set.
 pub fn IntervalFlags::new() -> IntervalFlags {
   { inexact: false, overflow: false, underflow: false, }
 }
@@ -31,16 +39,19 @@ pub fn IntervalFlags::combine(
 }
 
 ///|
+/// Whether a bound (for `midpoint_ctx`, the midpoint) changed in the rounding.
 pub fn IntervalFlags::inexact(self : IntervalFlags) -> Bool {
   self.inexact
 }
 
 ///|
+/// Whether a bound lay beyond the largest exponent of the format.
 pub fn IntervalFlags::overflow(self : IntervalFlags) -> Bool {
   self.overflow
 }
 
 ///|
+/// Whether a result was tiny and inexact, as IEEE 754-2019 defines it.
 pub fn IntervalFlags::underflow(self : IntervalFlags) -> Bool {
   self.underflow
 }
@@ -82,6 +93,7 @@ pub fn IntervalContext::new(
 }
 
 ///|
+/// The precision of the format in bits.
 pub fn IntervalContext::precision(self : IntervalContext) -> Int32 {
   self.precision
 }
@@ -133,6 +145,7 @@ pub fn IntervalContext::binary32() -> IntervalContext {
 }
 
 ///|
+/// The format binary64 of IEEE 754-2019 3.3: 53 bits and `e_max` 1023.
 pub fn IntervalContext::binary64() -> IntervalContext {
   interval_context_from_format(@binary.BinaryContext::binary64())
 }
@@ -298,6 +311,12 @@ fn context_round_upper(
 }
 
 ///|
+/// Rounds the interval outward into the format of `ctx` (the lower bound down,
+/// the upper bound up) and returns the result, whose precision is that of `ctx`,
+/// with the flags raised by the two bounds. An empty interval stays empty with
+/// no flag. A bound beyond the exponent range of `ctx` becomes an infinity or
+/// the largest finite number of the format, on the side that keeps the result
+/// an enclosure, and raises `overflow`.
 pub fn Interval::apply_ctx(
   self : Interval,
   ctx : IntervalContext,

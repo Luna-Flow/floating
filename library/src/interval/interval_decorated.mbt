@@ -1,4 +1,9 @@
 ///|
+/// The decoration of a decorated interval (IEEE 1788-2015), ordered
+/// `Ill < Trv < Def < Dac < Com`: `Com` is a bounded non-empty result of a
+/// function defined and continuous on the input, `Dac` the same without the
+/// bound, `Def` a non-empty result of a function defined on the input, `Trv`
+/// nothing is known, and `Ill` is the decoration of NaI only.
 #derive(Eq, Compare, Debug)
 pub(all) enum Decoration {
   Ill
@@ -43,6 +48,10 @@ fn canonical_decoration(
 }
 
 ///|
+/// An `Interval` paired with a `Decoration`, or NaI (not an interval). The decoration is canonical: an empty interval carries
+/// `Trv`, an unbounded one never `Com`, and only NaI carries `Ill`. An
+/// operation takes the lowest of the decorations of its operands and of its own,
+/// and NaI in gives NaI out.
 pub struct DecoratedInterval {
   priv interval_ : Interval
   priv decoration_ : Decoration
@@ -68,21 +77,27 @@ pub fn DecoratedInterval::new(
 }
 
 ///|
+/// NaI, "not an interval", in a format of `precision` bits (default 53): its
+/// interval part is empty, its decoration `Ill`. NaI is not equal to itself
+/// under `==`; `identical` is true for two NaI.
 pub fn DecoratedInterval::nai(precision~ : Int32 = 53) -> DecoratedInterval {
   { interval_: Interval::empty(precision~), decoration_: Ill, nai_: true, }
 }
 
 ///|
+/// Whether the value is NaI.
 pub fn DecoratedInterval::is_nai(self : DecoratedInterval) -> Bool {
   self.nai_
 }
 
 ///|
+/// The interval part; the empty interval for NaI.
 pub fn DecoratedInterval::interval(self : DecoratedInterval) -> Interval {
   self.interval_
 }
 
 ///|
+/// The decoration: `Ill` for NaI, `Trv` for an empty interval.
 pub fn DecoratedInterval::decoration(self : DecoratedInterval) -> Decoration {
   self.decoration_
 }
@@ -267,6 +282,9 @@ pub fn DecoratedInterval::cancel_minus(
 }
 
 ///|
+/// The sum of the interval parts (`Interval::add`) with the decoration the
+/// operation propagates: the lowest of the operand decorations. NaI in gives
+/// NaI out. This is the `+` operator.
 pub fn DecoratedInterval::add(
   self : DecoratedInterval,
   other : DecoratedInterval,
@@ -275,6 +293,8 @@ pub fn DecoratedInterval::add(
 }
 
 ///|
+/// The difference of the interval parts (`Interval::sub`) decorated as `add`
+/// is. This is the `-` operator.
 pub fn DecoratedInterval::sub(
   self : DecoratedInterval,
   other : DecoratedInterval,
@@ -283,6 +303,8 @@ pub fn DecoratedInterval::sub(
 }
 
 ///|
+/// The product of the interval parts (`Interval::mul`) decorated as `add` is.
+/// This is the `*` operator.
 pub fn DecoratedInterval::mul(
   self : DecoratedInterval,
   other : DecoratedInterval,
@@ -291,6 +313,9 @@ pub fn DecoratedInterval::mul(
 }
 
 ///|
+/// The quotient of the interval parts (`Interval::div`). The decoration is
+/// the lowest of the operand decorations, further lowered to `Trv` when the
+/// divisor contains zero. This is the `/` operator.
 pub fn DecoratedInterval::div(
   self : DecoratedInterval,
   other : DecoratedInterval,
