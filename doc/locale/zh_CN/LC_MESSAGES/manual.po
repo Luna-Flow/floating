@@ -783,7 +783,7 @@ msgid "`Binary` represents a finite dyadic number, a signed infinity or a NaN, a
 msgstr "`Binary` 表示有限二进有理数、带符号无穷或 NaN，并携带工作精度。其表示 `@binary_kernel.BinRepr` 是内部类型，没有兼容性承诺，且只在包内读取。与 `BinCoeff` 一样，它使用内部内核类型。一个值是一个堆对象。"
 
 #: manual/api/binary.md:247
-msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision of a value is the largest precision used by a plain operation at the larger precision of their operands, and contextual operations stamp the context precision on their result."
+msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr "有限的 `Binary` 值为 $(-1)^s \\cdot c \\cdot 2^{e}$，其中 $s$ 是符号位，$c$ 是 `BinCoeff`，$e$ = `exponent2()`。通过此 API 构造的所有值都有规范表示：非零 $c$ 为奇数（将因子 2 移至 $e$），零的 $c = 0$、$e = 0$ 且保留其符号，并且 $c$ 最多具有 `precision()` 位。值的精度是其属性：普通运算使用操作数中较大的精度，上下文运算将上下文精度标记在结果上。"
 
 #: manual/api/binary.md:255

@@ -783,7 +783,7 @@ msgid "`Binary` represents a finite dyadic number, a signed infinity or a NaN, a
 msgstr "`Binary` は有限の二進有理数、符号付き無限大、または NaN を表し、作業精度を持ちます。その表現 `@binary_kernel.BinRepr` は内部型であり、互換性の保証はなく、パッケージ内でのみ読み取られます。`BinCoeff` と同様に、表現には内部カーネル型を使います。値は 1 つのヒープオブジェクトです。"
 
 #: manual/api/binary.md:247
-msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision of a value is the largest precision used by a plain operation at the larger precision of their operands, and contextual operations stamp the context precision on their result."
+msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr "有限の `Binary` 値は $(-1)^s \\cdot c \\cdot 2^{e}$ です。$s$ は符号ビット、$c$ は `BinCoeff`、$e$ = `exponent2()` です。この API で構築される値はすべて正準表現で、ゼロでない $c$ は奇数（因子 2 は $e$ に移す）です。ゼロでは $c = 0$、$e = 0$ となり、符号を保持します。$c$ のビット数は `precision()` 以下です。値の精度はその値の属性です。通常の演算はオペランドの大きい方の精度を使い、コンテキスト演算は結果にコンテキストの精度を付けます。"
 
 #: manual/api/binary.md:255
@@ -949,11 +949,11 @@ msgstr "正の無限大"
 
 #: manual/api/binary.md:441
 msgid "A nonzero finite number is normal when the exponent of its leading bit is at least the context's $e_{\\min}$; below that exponent, it is subnormal. `Binary` carries no format, so the context determines the class. Use `BinaryInterchangeFormat::context` for the context of a binary interchange format. A context given by its precision alone has the implementation limit `binary_value_e_min` as `e_min`."
-msgstr "ゼロでない有限数は、先頭ビットの指数がコンテキストの $e_{\\min}$ 以上なら normal、それより小さければ subnormal です。`Binary` は形式を持たないため、クラスはコンテキストによって決まります。二進 interchange format 用のコンテキストには `BinaryInterchangeFormat::context` を使います。精度だけで指定するコンテキストでは、実装限界 `binary_value_e_min` が `e_min` です。"
+msgstr "ゼロでない有限数は、先頭ビットの指数がコンテキストの $e_{\\min}$ 以上なら正規化数、それより小さければ非正規化数です。`Binary` は形式を持たないため、クラスはコンテキストによって決まります。二進 interchange format 用のコンテキストには `BinaryInterchangeFormat::context` を使います。精度だけで指定するコンテキストでは、実装限界 `binary_value_e_min` が `e_min` です。"
 
 #: manual/api/binary.md:448
 msgid "`is_normal` and `is_subnormal` return true exactly for the normal and subnormal classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite` is true for either infinity, and `is_nan` for either NaN. These methods do not round or raise a flag. `classify` keeps its three-valued meaning."
-msgstr "`is_normal` と `is_subnormal` は、それぞれ normal と subnormal のクラスに限り true を返します。ゼロ、subnormal、normal では `is_finite` が true、いずれかの無限大では `is_infinite` が true、いずれかの NaN では `is_nan` が true です。これらのメソッドは丸めず、フラグも発生させません。`classify` は 3 値の意味を保ちます。"
+msgstr "`is_normal` と `is_subnormal` は、それぞれ正規化数と非正規化数のクラスに限り true を返します。ゼロ、非正規化数、正規化数では `is_finite` が true、いずれかの無限大では `is_infinite` が true、いずれかの NaN では `is_nan` が true です。これらのメソッドは丸めず、フラグも発生させません。`classify` は 3 値の意味を保ちます。"
 
 #: manual/api/binary.md:455
 msgid "Special-value predicates."
