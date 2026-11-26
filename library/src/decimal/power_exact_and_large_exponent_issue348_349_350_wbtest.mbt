@@ -323,3 +323,37 @@ test "issue 349: non-exact powers of ten are unchanged" {
   assert_true(value.is_nan())
   assert_true(flags.invalid_operation)
 }
+
+///|
+// oracle: A
+// source: CPython decimal at 100 digits (Context(prec=100).power), rounded once with Context(prec=16, Emax=384, Emin=-383, clamp=1) in the direction of the row: (1 + 10^-15)^y and (1 - 10^-16)^y for y = 0.5, 0.001 and 0.999 are strictly between 1 and the neighbour of 1 (so the exact value is irrational or at least not representable, and the result is inexact); toward negative gives the lower neighbour, toward positive the upper one (IEEE 754-2019 4.3), run 2026-11-26; the earlier rows of this file never put a base next to 1 under a directed mode
+// shares: Decimal::from_string, issue348_decimal64, issue348_text and issue348_flags_text (they build the operands and context and print the result and flags), pow_ctx (the code under test)
+test "issue 348: a base next to 1 under floor and ceiling, exponent between 0 and 1" {
+  let rows : Array[(String, String, String, String)] = [
+    ("1.000000000000001", "0.5", "floor", "1.000000000000000"),
+    ("1.000000000000001", "0.5", "ceiling", "1.000000000000001"),
+    ("1.000000000000001", "0.001", "floor", "1.000000000000000"),
+    ("1.000000000000001", "0.001", "ceiling", "1.000000000000001"),
+    ("1.000000000000001", "0.999", "floor", "1.000000000000000"),
+    ("1.000000000000001", "0.999", "ceiling", "1.000000000000001"),
+    ("0.9999999999999999", "0.5", "floor", "0.9999999999999999"),
+    ("0.9999999999999999", "0.5", "ceiling", "1.000000000000000"),
+    ("0.9999999999999999", "0.001", "floor", "0.9999999999999999"),
+    ("0.9999999999999999", "0.001", "ceiling", "1.000000000000000"),
+    ("0.9999999999999999", "0.999", "floor", "0.9999999999999999"),
+    ("0.9999999999999999", "0.999", "ceiling", "1.000000000000000"),
+  ]
+  for row in rows {
+    let (base, exponent, mode, expected) = row
+    let (value, flags) = Decimal::from_string(base)
+      .unwrap()
+      .pow_ctx(
+        Decimal::from_string(exponent).unwrap(),
+        issue348_decimal64(issue348_mode(mode)),
+      )
+    assert_eq(
+      (base, exponent, mode, issue348_text(value), issue348_flags_text(flags)),
+      (base, exponent, mode, expected, "x...."),
+    )
+  }
+}
