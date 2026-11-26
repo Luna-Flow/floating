@@ -30,6 +30,9 @@ fn cf_formats() -> Array[BinaryInterchangeFormat] {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.4.2 (a conversion to a format of the same radix with wider precision and range is always exact): binary16 3E00 = 1.5 = 0x3p-1 and 0001 = 2^-24 = 0x1p-24 in binary32, binary64 and binary128 with no flag in every direction; the header of the file: the independent oracle for finite values and flags is the TestFloat 3e gate (all twelve format pairs, five rounding modes, both tininess rules); the cases here are those a reader can check by hand
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags
 test "convert_format: a wider destination is exact and raises nothing" {
   // binary16 1.5 and the smallest binary16 subnormal 2^-24 into every wider format.
   let one_and_half = cf_value("3E00", BinaryInterchangeFormat::Binary16)
@@ -53,6 +56,9 @@ test "convert_format: a wider destination is exact and raises nothing" {
 }
 
 ///|
+// oracle: A
+// source: written out: 0.1 in binary64 (3FB999999999999A) rounds to the binary32 value 13421773 * 2^-27 = 0xcccccdp-27 in nearest and toward positive infinity, to 0x333333p-25 toward zero and -0xcccccdp-27 for -0.1 toward negative infinity, with inexact; the header of the file: the independent oracle for finite values and flags is the TestFloat 3e gate (all twelve format pairs, five rounding modes, both tininess rules); the cases here are those a reader can check by hand
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags
 test "convert_format: binary64 to binary32 rounds, with inexact" {
   // 0.1 in binary64 is 0x3FB999999999999A; in binary32 it is 13421773p-27 (RNE).
   let tenth = cf_value("3FB999999999999A", BinaryInterchangeFormat::Binary64)
@@ -79,6 +85,9 @@ test "convert_format: binary64 to binary32 rounds, with inexact" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.4 and 7.5: 2^128 is infinity in nearest and (2^24 - 1) 2^104 = 0xffffffp104 (the largest binary32 value) toward zero, both with overflow and inexact; 2^-150 is a tie that goes to even (zero) in nearest, to 2^-149 toward positive infinity, with underflow and inexact; 2^-149 is exact; the header of the file: the independent oracle for finite values and flags is the TestFloat 3e gate (all twelve format pairs, five rounding modes, both tininess rules); the cases here are those a reader can check by hand
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags
 test "convert_format: overflow and underflow of binary32 in every direction" {
   let b32 = BinaryInterchangeFormat::Binary32
   // 2^128 is the first power of two above the largest binary32 number.
@@ -112,6 +121,9 @@ test "convert_format: overflow and underflow of binary32 in every direction" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.5: (2^25 - 1) 2^-151 = 2^-126 - 2^-151 is below the smallest binary32 normal 2^-126, half a unit of the 24-bit grid below 2^-126, so it ties to even and rounds to 2^-126 (the same result under both rules); it is tiny before rounding (underflow and inexact) and not tiny after rounding (inexact only); the header of the file: the independent oracle for finite values and flags is the TestFloat 3e gate (all twelve format pairs, five rounding modes, both tininess rules); the cases here are those a reader can check by hand
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags
 test "convert_format: the tininess rule changes underflow at the boundary" {
   // The binary32 value just below 2^-126 that rounds up to 2^-126: tiny before
   // rounding, not tiny after rounding (7.5).
@@ -136,6 +148,9 @@ test "convert_format: the tininess rule changes underflow at the boundary" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.4.2 (a conversion with identical formats is a canonicalizing operation that signals invalid for a signaling NaN) and 6.2: the binary64 signaling NaN FFF0000000000001 becomes a quiet NaN with the sign kept and the invalid operation signalled in every destination format; a quiet NaN raises nothing; the header of the file: the independent oracle for finite values and flags is the TestFloat 3e gate (all twelve format pairs, five rounding modes, both tininess rules); the cases here are those a reader can check by hand
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags
 test "convert_format: signaling NaN is quieted with invalid, also to the same format" {
   // binary64 sNaN with payload 1 and the sign bit set.
   let snan = cf_value("FFF0000000000001", BinaryInterchangeFormat::Binary64)
@@ -155,6 +170,9 @@ test "convert_format: signaling NaN is quieted with invalid, also to the same fo
 }
 
 ///|
+// oracle: A, S
+// source: A: IEEE Std 754-2019 6.2.3 (a quiet NaN converted to a wider format and back to the same narrower format keeps its payload except for making it canonical): binary16 7E01 through binary32, binary64 and binary128 and back is 7E01; S: for a payload that does not fit the narrower format (binary64 7FF8000000FFFFFF to binary32) the block states the library's own choice (the low bits are kept, 7FFFFFFF); 6.2.3 does not fix the payload of a narrowed NaN, so this is a convention of this library, not an external value
+// shares: cf_value decodes the operands with BinaryInterchange (the hex encodings of the operands are written by hand); convert_format is the code under test; e2s_flags prints the flags; nan_payload_coeff, from_binary and to_hex read the result
 test "convert_format: NaN payloads (6.2.3)" {
   // narrower to wider and back keeps the payload.
   let narrow = cf_value("7E01", BinaryInterchangeFormat::Binary16) // qNaN, payload 1

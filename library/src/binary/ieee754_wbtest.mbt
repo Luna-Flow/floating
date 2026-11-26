@@ -15,6 +15,9 @@ fn binary16_bits(value : Binary, context : BinaryContext) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from the binary16 encoding of IEEE Std 754-2019 3.4 (1 sign bit, 5 exponent bits, 10 trailing significand bits; the leading trailing-significand bit 0x200 is the quiet bit, 6.2.1): 8000 is -0, FC01 is a negative signaling NaN with payload 1, 7E2A is a quiet NaN with payload 0x2A = 42
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch)
 test "IEEE 754 interchange preserves observable zero and NaN state" {
   let negative_zero = binary16_value("8000")
   assert_true(negative_zero.is_zero())
@@ -32,6 +35,9 @@ test "IEEE 754 interchange preserves observable zero and NaN state" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 6.3: x + (-x) and (+0) + (-0) are +0 in every rounding direction except round toward negative, where they are -0, with no flag
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch); add_ctx is the code under test
 test "IEEE 754 exact cancellation selects the context zero sign" {
   let positive_zero = binary16_value("0000")
   let negative_zero = binary16_value("8000")
@@ -53,6 +59,9 @@ test "IEEE 754 exact cancellation selects the context zero sign" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 6.2, 7.2, 7.3 and 5.4.1 in binary16 (flag bits of TestFloat: invalid 0x10, divide by zero 0x08, overflow 0x04, inexact 0x01): inf + (-inf) is the quiet NaN 7E00 with invalid, a signaling NaN 7C01 plus 1 is quieted to 7E01 with invalid, 1/0 is +inf with divide by zero, 0/0 is invalid, sqrt(-0) = -0 without exception, sqrt(-1) is invalid
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch); to_testfloat_bits maps the flags to the bits named above; add_ctx, div_ctx and sqrt_ctx are the code under test
 test "IEEE 754 special operations quiet NaNs and signal their conditions" {
   let context = BinaryContext::binary16()
   let (invalid_sum, invalid_sum_flags) = binary16_value("7C00").add_ctx(
@@ -97,6 +106,9 @@ test "IEEE 754 special operations quiet NaNs and signal their conditions" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.4: the largest finite binary16 value 7BFF plus itself overflows to +inf in round to nearest and to the largest finite value 7BFF toward zero, both with overflow and inexact (0x05)
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch); add_ctx is the code under test
 test "IEEE 754 overflow obeys directed finite-result rules" {
   let max_finite = binary16_value("7BFF")
   let nearest_context = BinaryContext::binary16()
@@ -115,6 +127,9 @@ test "IEEE 754 overflow obeys directed finite-result rules" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.5: the binary16 product 2^-14 * (1 - 2^-11) = 2^-14 - 2^-25 is below the smallest normal number (tiny before rounding) and, rounded with an unbounded exponent range to 11 bits, is still 2^-14 - 2^-25 (exactly representable), so it is tiny after rounding too; the result rounds to the smallest normal 0400 (a tie to even between 2^-14 - 2^-24 and 2^-14) with underflow and inexact (0x03) under both detection rules
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch); mul_ctx is the code under test
 test "IEEE 754 after-rounding tininess uses the precision-rounded value" {
   let minimum_normal = binary16_value("0400")
   let just_below_one = binary16_value("3BFF")
@@ -138,6 +153,9 @@ test "IEEE 754 after-rounding tininess uses the precision-rounded value" {
 }
 
 ///|
+// oracle: A
+// source: written out from the mathematics and IEEE Std 754-2019 7.4, 7.5 and 9.2.1: 1^n = 1 and (-1)^n = 1 for even n = -2^31, with no flag; 2^(-2^31) underflows (0 with 0x03 in nearest, the smallest subnormal 0001 toward positive infinity), (1/2)^(-2^31) = 2^(2^31) overflows to +inf (0x05), (3/2)^(-2^31) underflows to 0 and (3/4)^(-2^31) overflows to +inf in binary16
+// shares: binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch); pown_ctx is the code under test
 test "pown_ctx handles Int min without overflow" {
   let minimum_exponent = -2147483647 - 1
   let context = BinaryContext::binary16()
@@ -213,6 +231,9 @@ test "from_int preserves exact and rounded construction semantics" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.4 and 7.5: the smallest and the largest representable values of the library, 2^(e_min - 52) and 2^e_max, converted to binary16 underflow to 0 and overflow to +inf; the square root of 2^e_max, which is still far above the binary16 range, and the quotient 2^e_max / 2^(e_min - 52) overflow too (0x05); the outcome holds for any library limits far beyond the binary16 range
+// shares: binary_value_e_min and binary_value_e_max build the operands only; apply_ctx, sqrt_ctx and div_ctx are the code under test; binary16_value and binary16_bits encode the operands and decode the results with BinaryInterchange (the codec is also under test; the operand encodings and the result encodings are written by hand, so a symmetric codec error shows as a mismatch)
 test "context arithmetic keeps extreme exponents classified" {
   let context = BinaryContext::binary16()
   let minimum = Binary::make_coeff(Coeff::one(), binary_value_e_min - 52, 53)
@@ -232,6 +253,9 @@ test "context arithmetic keeps extreme exponents classified" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the value identities 2 * 2^(e_max - 1) = 2^e_max and 4 * 2^(e_min - 54) = 2^(e_min - 52) and the classification of values beyond the range (infinity above, zero below); S: the canonical form (coefficient 1, exponent e_max) and the limits e_max and e_min are the library's own conventions, repeated in the expectations
+// shares: Binary::make_coeff is the code under test; binary_value_e_min and binary_value_e_max are the library's constants; the coefficient_, exponent2 and classify accessors read the result
 test "finite normalization never wraps extreme exponents" {
   let maximum = Binary::make_coeff(
     Coeff::from_uint64(2UL),
@@ -255,6 +279,9 @@ test "finite normalization never wraps extreme exponents" {
 }
 
 ///|
+// oracle: A
+// source: written out: at precision 3 the neighbours of 1 are 7/8 below and 5/4 above, so 1 + 2^(e_min - 52) rounds to 1 (inexact) in nearest, to 5/4 toward positive infinity and 1 - 2^(e_min - 52) rounds to 7/8 toward negative infinity, all inexact
+// shares: binary_value_e_min is only the position of the tiny operand; add_ctx and sub_ctx are the code under test; the coefficient_ and exponent2 accessors print the results
 test "addition compresses extreme exponent gaps without losing direction" {
   let one = Binary::one(precision=53)
   let tiny = Binary::make_coeff(Coeff::one(), binary_value_e_min - 52, 53)
@@ -283,6 +310,9 @@ test "addition compresses extreme exponent gaps without losing direction" {
 }
 
 ///|
+// oracle: A
+// source: written out from the mathematics: sqrt(9 * 2^100) = 3 * 2^50 exactly (no flag) and sqrt(10 * 2^100) is irrational, above 3 * 2^50 and inexact at 11 bits
+// shares: Binary::make_coeff builds the operands; sqrt_ctx is the code under test; compare and the flag accessors read the result
 test "sqrt preserves exact roots when the scaled radicand is fractional" {
   let context = BinaryContext::new(precision=11)
   let exact_input = Binary::make_coeff(Coeff::from_uint64(9UL), 100, 128)
@@ -297,6 +327,10 @@ test "sqrt preserves exact roots when the scaled radicand is fractional" {
 }
 
 ///|
+// oracle: B
+// source: an integer model written in the test with the language's UInt64 arithmetic only: the floor of the root of m * 2^-s by a search over r with (r + 1)^2 2^s <= m, exactness by r^2 2^s = m, and the comparison of 4 m with (2 r + 1)^2 2^s for the midpoint, for m from 1 to 255 and s from 1 to 11, plus the extreme shift -2147483648 for the value 1
+// shares: Coeff::from_uint64 and Coeff equality on both sides; binary_sqrt_split is the code under test
+// primitives: Coeff::from_uint64 and the Coeff equality (level A through the coefficient oracle of library/src/internal/binary_kernel: coeff_regression and the CPython digests of tools/kernel_oracle.py); the expected values use the UInt64 operators of the language only
 test "fractional sqrt splitting retains exact midpoint information" {
   for magnitude in 1..<256 {
     for denominator_shift in 1..<12 {

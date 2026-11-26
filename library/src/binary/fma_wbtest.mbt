@@ -11,6 +11,9 @@ fn fma_value(coefficient : Int32, exponent : Int32) -> Binary {
 }
 
 ///|
+// oracle: A
+// source: written out: (1 + 2^-52)(1 - 2^-52) = 1 - 2^-104 exactly, so the fused (a * b) - 1 is -2^-104 with no flag (IEEE Std 754-2019 5.4.1: one rounding of the exact result), while the separate multiplication rounds to 1 and the sum is 0
+// shares: Binary::make builds the operands; fma_ctx, mul_ctx and add_ctx are the code under test; fma_show prints value and flag bits
 test "fma rounds the exact sum once" {
   let context = BinaryContext::binary64()
   // a * b = 1 - 2^-104 is not representable; a * b - 1 is exact only when fused.
@@ -32,6 +35,9 @@ test "fma rounds the exact sum once" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from IEEE Std 754-2019 6.2 and 7.2 c) and d) (checked against the pdftotext of the PDF): fma(inf, 0, 1) and the signaling NaN input are invalid (flags 16), a quiet NaN input gives a quiet NaN with no flag, inf * 1 + (-inf) is invalid, inf * 1 + inf is +inf and 1 * 1 + (-inf) is -inf, with no flag; S: for fma(0, inf, qNaN) the standard leaves it implementation defined whether invalid is signaled, and the block records the choice of the library (invalid, flags 16, the choice of SoftFloat)
+// shares: Binary::inf, zero, nan, signaling_nan and fma_value build the operands; fma_ctx is the code under test; fma_show prints value and flag bits
 test "fma special values follow IEEE 754 and SoftFloat" {
   let context = BinaryContext::binary64()
   let inf = Binary::inf()
@@ -84,6 +90,9 @@ test "fma special values follow IEEE 754 and SoftFloat" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 6.3 (an exact zero sum is +0 in every direction except round toward negative, where it is -0; (-0) + (-0) is -0): 1 * 1 + (-1) is +0 (nearest) and -0 (downward), (-0) * 1 + (-0) is -0, (-0) * 1 + (+0) is +0 in nearest and -0 downward, no flag
+// shares: fma_value, Binary::zero and negative_zero build the operands; fma_ctx is the code under test; fma_show prints value and flag bits
 test "fma exact zero sums use the IEEE sign rules" {
   let nearest = BinaryContext::binary64()
   let downward = BinaryContext::binary64(
@@ -126,6 +135,9 @@ test "fma exact zero sums use the IEEE sign rules" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.4.1, 7.4 and 7.5: (2^1000000000)^2 + 1 overflows the unbounded range to +inf (overflow and inexact, flags 5); (2^-1000000000)^2 + 1 = 1 + 2^-2000000000 rounds to 1 (inexact), to 1 + 2^-52 = 4503599627370497p-52 upward and the negated product gives 1 upward; (2^-1000000000)^2 + 0 upward is the smallest subnormal 1p-1073741874 (underflow and inexact, flags 3)
+// shares: Binary::make and fma_value build the operands; fma_ctx is the code under test; fma_show prints value and flag bits; the limit of the smallest subnormal is the library's e_min as in arith_rows_wbtest.mbt
 test "fma products beyond the exponent range" {
   let unbounded = BinaryContext::new(precision=53)
   let upward = BinaryContext::new(

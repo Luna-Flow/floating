@@ -219,6 +219,9 @@ fn checked_mismatch(
 }
 
 ///|
+// oracle: A
+// source: the rows of issue 262 written out: div(NaN, 0) is a NaN, div(0, 0) and div(inf, inf) are invalid, div(inf, 0) = +inf, div(1, 0) is divide by zero, sqrt of a NaN of either sign is a NaN, sqrt(-1) is invalid, sqrt(-0) = -0, sqrt(4) = 2 and 6 / -3 = -2 exactly (IEEE Std 754-2019 6.2, 7.2, 7.3, 5.4.1)
+// shares: checked_render maps the result by class; Binary::from_int, nan, zero and inf build the operands; the checked trait methods are the code under test
 test "issue 262 rows through the checked traits" {
   let ctx = @lf_arith.ArithmeticContext::new(53, e_min=-1022, e_max=1023)
   let nan = Binary::nan()
@@ -254,6 +257,9 @@ test "issue 262 rows through the checked traits" {
 }
 
 ///|
+// oracle: A
+// source: the table of ten operands (quiet and signaling NaN of both signs, +-0, +-inf, +-2) for division, square root, pown and pow_nat, the model functions checked_expected_div, checked_expected_sqrt and checked_expected_pown, closed forms written from the clauses with string predicates only (no library function): IEEE Std 754-2019 6.2 (a quiet NaN input delivers a quiet NaN, no exception), 7.2 (invalid: operations on a signaling NaN, 0/0, inf/inf, sqrt of a negative number), 7.3 (divide by zero for a finite nonzero dividend), 5.4.1 (sqrt(-0) = -0) and 9.2.1 (pown, the sNaN exception for exponent 0, #286), in 24 contexts (three formats, four directions, bounded and unbounded range)
+// shares: checked_operand builds the operands and checked_render maps the result by class (Binary constructors and classify); the checked trait methods are the code under test
 test "checked trait adapters follow the IEEE special-value table" {
   let names = checked_operand_names()
   let failures = []
@@ -339,6 +345,9 @@ test "checked trait adapters follow the IEEE special-value table" {
 }
 
 ///|
+// oracle: A
+// source: the same table, the model functions checked_expected_div, checked_expected_sqrt and checked_expected_pown, closed forms written from the clauses with string predicates only (no library function): IEEE Std 754-2019 6.2 (a quiet NaN input delivers a quiet NaN, no exception), 7.2 (invalid: operations on a signaling NaN, 0/0, inf/inf, sqrt of a negative number), 7.3 (divide by zero for a finite nonzero dividend), 5.4.1 (sqrt(-0) = -0) and 9.2.1 (pown, the sNaN exception for exponent 0, #286), read through the inherent operations (div_ctx through binary_checked_result, sqrt and pown through the value and the flags of sqrt_ctx and pown_ctx, the S4 mapping of invalid to a NaN and of the pole to an infinity)
+// shares: checked_operand and checked_render as above; div_ctx, sqrt, sqrt_ctx, pown and pown_ctx are the code under test
 test "inherent checked operations follow the IEEE special-value table" {
   let names = checked_operand_names()
   let failures = []
@@ -402,6 +411,9 @@ test "inherent checked operations follow the IEEE special-value table" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.4 and 7.5 (overflow and underflow deliver a default result and are not invalid operations or divisions by zero): the quotients 2^1000 / 2^-1000 and 2^-1000 / 2^1000 and the powers 2^2000, 2^-2000 in a binary64 range are Ok in four directions; only that the result is Ok is stated, the values are checked in arith_rows_wbtest.mbt and round_rows_wbtest.mbt
+// shares: Binary::make and from_int build the operands; the checked trait methods are the code under test
 test "checked adapters return range exceptions in Ok" {
   // 7.4 and 7.5: overflow and underflow deliver a default result, they are not
   // invalid operations or divisions by zero.
@@ -436,6 +448,9 @@ test "checked adapters return range exceptions in Ok" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (pown(x, 0) is 1 if x is not a signaling NaN), 7.2 a) and 6.2: a signaling NaN with payload 19 and either sign gives a quiet NaN with the same sign and payload and invalid, no divide by zero; a quiet NaN with exponent 0 gives 1 with no flag
+// shares: Binary::signaling_nan and quiet_nan build the operands; pown_ctx and pow_nat_ctx are the code under test; the nan_payload, negative and flag accessors read the result
 test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN signals invalid (7.2 a) and delivers a quiet NaN that keeps

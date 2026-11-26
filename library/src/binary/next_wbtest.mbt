@@ -4,6 +4,9 @@ fn next_show(result : (Binary, BinaryFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.1 (nextUp and nextDown, the least greater and the greatest lesser representable number; nextUp(-0) is the smallest positive subnormal; nextUp(-smallest subnormal) is -0; nextUp(+inf) = +inf and nextDown(+inf) is the largest finite value; a signaling NaN is invalid): 1 up 1 + 2^-52 = 4503599627370497p-52, 1 down 9007199254740991p-53, the largest finite (2^53 - 1) 2^971 up inf and down (2^52 - 1) 2^972
+// shares: Binary::make, one, zero, negative_zero and inf build the operands; next_up_ctx and next_down_ctx are the code under test; next_show prints value and flag bits
 test "nextUp and nextDown walk the binary64 grid" {
   let context = BinaryContext::binary64()
   let max = Binary::make(
@@ -51,6 +54,9 @@ test "nextUp and nextDown walk the binary64 grid" {
 }
 
 ///|
+// oracle: S
+// source: the successor of the host's own binary64 encoding (the bit pattern plus or minus one, a machine property independent of the library) on six doubles; the operand and the expected value are both built with Binary::from_double, a shared builder without a level A block of its own here, so the level is stated as S
+// shares: Binary::from_double on both sides; next_up_ctx is the code under test
 test "nextUp agrees with the host double successor" {
   let context = BinaryContext::binary64()
   for number in [0.1, -0.1, 1.0e300, -2.0e-308, 4.9e-324, 123456.789] {
@@ -62,6 +68,9 @@ test "nextUp agrees with the host double successor" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1 + 2^-30 is not a binary32 value; the least binary32 value above it is 1 + 2^-23 = 8388609p-23 and the greatest below it is 1 (IEEE Std 754-2019 5.3.1)
+// shares: Binary::make builds the operand; next_up_ctx and next_down_ctx are the code under test; next_show prints value and flag bits
 test "nextUp of a wider operand is the least greater representable" {
   let context = BinaryContext::binary32()
   // 1 + 2^-30 is not a binary32 value; the next binary32 above it is 1 + 2^-23.
