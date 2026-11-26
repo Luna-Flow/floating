@@ -123,6 +123,9 @@ fn pi_expected_near(
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 and Table 9.1 (the clauses are quoted in the header of this file and were checked against the pdftotext of the PDF): f(+0) = +0 and f(-0) = -0 for asinPi and atanPi, acosPi(1) = +0, acosPi(-1) = 1, acosPi(+-0) = 1/2, asinPi(+-1) = +-1/2 and atanPi(+-1) = +-1/4 (Niven's theorem: the only rational angles), atanPi(+-inf) = +-1/2 without exception, invalid operation for |x| > 1 and for infinities in asinPi and acosPi, NaN propagation and the signaling NaN
+// shares: pi_show and e2s_flags print the result (Display of Binary and the flag accessors); Binary::zero, from_int, inf and make_coeff build the operands; the try_ and the plain forms are the code under test
 test "asinpi, acospi and atanpi special values" {
   for ctx in pi_contexts() {
     let render = fn(
@@ -180,6 +183,9 @@ test "asinpi, acospi and atanpi special values" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 and Table 9.1 (the clauses are quoted in the header of this file and were checked against the pdftotext of the PDF): atan2Pi(+-0, -0) = +-1, (+-0, +0) = +-0, (+-0, x) = +-1 for x < 0 and +-0 for x > 0, (y, +-0) = +-1/2, (+-y, -inf) = +-1, (+-y, +inf) = +-0, (+-inf, x) = +-1/2, (+-inf, -inf) = +-3/4, (+-inf, +inf) = +-1/4, and |y| = |x| gives the exact angles +-1/4 and +-3/4; NaN propagation
+// shares: pi_show and e2s_flags print the result; Binary::zero, negative_zero, from_int, inf and pi_x build the operands; try_atan2pi_ctx is the code under test
 test "atan2pi special values" {
   for ctx in pi_contexts() {
     let atan2pi = fn(y : Binary, x : Binary) {
@@ -237,6 +243,10 @@ test "atan2pi special values" {
 }
 
 ///|
+// oracle: B
+// source: asinPi(1/2) = 1/6, acosPi(1/2) = 1/3, acosPi(-1/2) = 2/3 and asinPi(-1/2) = -1/6 (the exact rational angles, Niven's theorem), rounded by dividing the exact small integers with Binary::div_ctx at the same context, precisions 2, 3, 11, 24 and 53 in all five directions, with the inexact flag asserted
+// shares: pi_x builds +-1/2; e2s_modes and e2s_flags select the directions and print the flags; Binary::from_int and div_ctx on the reference side
+// primitives: Binary::div_ctx and Binary::from_int (level A through arith_rows_wbtest.mbt: precisions from 2 to 4097, five directions, exact and inexact quotients)
 test "the rational but non-dyadic angles are correctly rounded" {
   // asinPi(1/2) = 1/6, acosPi(1/2) = 1/3, acosPi(-1/2) = 2/3: rational, not
   // dyadic, so inexact in every mode, never a tie. The reference divides the
@@ -273,6 +283,9 @@ test "the rational but non-dyadic angles are correctly rounded" {
 }
 
 ///|
+// oracle: A
+// source: a closed-form model written out in this file, with no library function: atanPi(x) = 1/2 - delta with 0 < delta < 2^-t for |x| = 1.5 * 2^t (t from p + 4 to the implementation limit); the correctly rounded result is then the anchor or its neighbour on the side of the exact value chosen by the direction, which pi_expected_near writes as integer shifts ((2^p - 1) 2^-(p + 1) below 1/2, (2^p - 1) 2^-p below 1, (2^(p - 1) + 1) 2^-p above 1/2); the model is the header's items (1) and (2), checked at precisions 2, 3, 8, 24 and 53 in five directions
+// shares: pi_expected_near builds the strings; pi_x, e2s_modes and e2s_flags build the operands and print the result; the asinpi, acospi, atanpi and atan2pi functions are the code under test
 test "atanpi of a huge argument sits next to the anchor 1/2" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
@@ -298,6 +311,9 @@ test "atanpi of a huge argument sits next to the anchor 1/2" {
 }
 
 ///|
+// oracle: A
+// source: a closed-form model written out in this file, with no library function: acosPi(x) = 1/2 - asin(x)/pi with 0 < asin(x)/pi < |x|/2, below 1/2 for x > 0 and above it for x < 0; the correctly rounded result is then the anchor or its neighbour on the side of the exact value chosen by the direction, which pi_expected_near writes as integer shifts ((2^p - 1) 2^-(p + 1) below 1/2, (2^p - 1) 2^-p below 1, (2^(p - 1) + 1) 2^-p above 1/2); the model is the header's items (1) and (2), checked at precisions 2, 3, 8, 24 and 53 in five directions
+// shares: pi_expected_near builds the strings; pi_x, e2s_modes and e2s_flags build the operands and print the result; the asinpi, acospi, atanpi and atan2pi functions are the code under test
 test "acospi of a tiny argument clusters at 1/2" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
@@ -322,6 +338,9 @@ test "acospi of a tiny argument clusters at 1/2" {
 }
 
 ///|
+// oracle: A
+// source: a closed-form model written out in this file, with no library function: atan2Pi = 1/2 - delta (x > 0) or 1/2 + delta (x < 0) with 0 < delta < 2^-D for a ratio of exponents D >= p + 4, and 1 - delta next to the anchor 1 for the reciprocal ratio with a negative abscissa; the correctly rounded result is then the anchor or its neighbour on the side of the exact value chosen by the direction, which pi_expected_near writes as integer shifts ((2^p - 1) 2^-(p + 1) below 1/2, (2^p - 1) 2^-p below 1, (2^(p - 1) + 1) 2^-p above 1/2); the model is the header's items (1) and (2), checked at precisions 2, 3, 8, 24 and 53 in five directions
+// shares: pi_expected_near builds the strings; pi_x, e2s_modes and e2s_flags build the operands and print the result; the asinpi, acospi, atanpi and atan2pi functions are the code under test
 test "atan2pi of an extreme ratio sits next to the anchors" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
@@ -438,7 +457,8 @@ fn pi_inverse_tiny_model(
   } else {
     base.sub_checked(Coeff::one()).unwrap()
   }
-  let pi = binary_pi_bounds(450).unwrap().0
+  // pi from the MPFR rows (acos(-1) rounded toward negative infinity at 512 bits)
+  let pi = mpfr_enclosure("acos", Binary::from_int(-1), 512).0
   let reciprocal = Binary::one(precision=450).div_ctx(
       pi,
       BinaryContext::new(precision=450),
@@ -461,6 +481,10 @@ test "asinpi and atanpi of tiny arguments round as x / pi, also at the subnormal
 }
 
 ///|
+// oracle: B
+// source: pi_inverse_tiny_model: for a tiny x, atan(x)/pi = (x/pi)(1 - x^2/3 ...) and the product is rounded once by binary_round_dyadic from x/pi times (1 - 2^-300) (the header's item 3: no breakpoint lies that close), with pi from the MPFR rows (acos(-1) rounded toward negative infinity at 512 bits, enclosure_rows_wbtest.mbt, GNU MPFR 4.2.2) and 1/pi by Binary::div_ctx; the same class of inputs (tiny arguments to the subnormal limit) is level A in the block `asinpi and atanpi of tiny arguments round as x / pi, also at the subnormal limit`
+// shares: Binary::mul_ctx, div_ctx and binary_round_dyadic in the model; pi_x builds the operands; e2s_modes and e2s_flags print the result; atan2pi_ctx is the code under test
+// primitives: Binary::mul_ctx and Binary::div_ctx (level A through arith_rows_wbtest.mbt), binary_round_dyadic (level A through round_rows_wbtest.mbt, magnitudes at e_min and e_max, five directions, both tininess rules), the MPFR pi (level A)
 test "atan2pi with a tiny ratio rounds as y / (pi x)" {
   // x = 1: atan2Pi(y, 1) = atanPi(y), tiny and within the subnormal range of
   // binary64 or below it. Also with an exact power-of-two abscissa.

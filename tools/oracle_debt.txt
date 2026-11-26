@@ -21,8 +21,6 @@ library/src/interval/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the c
 library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
 library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
 library/src/binary/atan_fixed_leaf_wbtest.mbt::pi series enclosure of the fixed-point leaf contains pi	B
-library/src/binary/atan_single_evaluation_wbtest.mbt::atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2^29)	B
-library/src/binary/atan_single_evaluation_wbtest.mbt::atan2 with exponents far apart agrees with the analytic limits	S
 library/src/binary/checked_special_values_wbtest.mbt::checked adapters return range exceptions in Ok	A
 library/src/binary/checked_special_values_wbtest.mbt::checked trait adapters follow the IEEE special-value table	A
 library/src/binary/checked_special_values_wbtest.mbt::inherent checked operations follow the IEEE special-value table	A
@@ -98,14 +96,6 @@ library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path decline
 library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln path declines arguments it does not cover	S
 library/src/binary/elementary_fixed_trig_wbtest.mbt::sine and cosine agree with their identities after the fixed-point path	S
 library/src/binary/elementary_halve_bound_wbtest.mbt::halving the bounds of pi by the exponent equals the product by 1/2	B
-library/src/binary/elementary_range_wbtest.mbt::binary64 exp keeps its exact overflow threshold	A
-library/src/binary/elementary_range_wbtest.mbt::expm1 saturation agrees with the general path at its threshold	A
-library/src/binary/elementary_range_wbtest.mbt::exponential functions overflow instead of failing certification	A
-library/src/binary/elementary_range_wbtest.mbt::exponential functions underflow instead of failing certification	A
-library/src/binary/elementary_range_wbtest.mbt::non-try elementary APIs return NaN with not_computed on failure	A
-library/src/binary/elementary_table_exp_wbtest.mbt::table exp declines out-of-range arguments	S
-library/src/binary/elementary_table_exp_wbtest.mbt::table exp is within a few ulps	S
-library/src/binary/elementary_table_exp_wbtest.mbt::taylor kernel encloses exp(a / 2^f) for extreme and random remainders	B
 library/src/binary/elementary_unused_series_wbtest.mbt::sin, cos and tan results do not depend on the skipped series	S
 library/src/binary/endpoint_shortcut_wbtest.mbt::binary_bounds_at_ends evaluates a point once and gives the two-ends result	A
 library/src/binary/exact_root_wbtest.mbt::binary_exact_nth_root_coefficient detects wide perfect powers	B
@@ -114,12 +104,6 @@ library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of an integer matches the mod
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of exactly -2^30 is the exact subnormal 2^-2^30 (#271)	A
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 of non-integers around the smallest subnormal	A
 library/src/binary/exp2_subnormal_wbtest.mbt::exp2 true underflow to zero threshold carries inexact and underflow	B
-library/src/binary/exponent_range_wbtest.mbt::context precision is limited	A
-library/src/binary/exponent_range_wbtest.mbt::exact results inside the implementation range are unchanged	A
-library/src/binary/exponent_range_wbtest.mbt::plain construction honours the rounding mode at the range limits	A
-library/src/binary/exponent_range_wbtest.mbt::plain operations overflow to infinity instead of saturating	A
-library/src/binary/exponent_range_wbtest.mbt::plain operations underflow to zero instead of saturating	A
-library/src/binary/exponent_range_wbtest.mbt::unbounded contexts report overflow and underflow at the range limits	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::a certification failure is a NaN with not_computed and without invalid_operation	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::checked tier: not_computed is the certification failure, invalid_operation the domain error	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::exp: a forced failure, a domain-free ordinary case and an invalid operand	S
@@ -159,23 +143,10 @@ library/src/binary/order_predicates_wbtest.mbt::binary comparison predicates: va
 library/src/binary/order_wbtest.mbt::copySign keeps the magnitude and NaN payload	A
 library/src/binary/order_wbtest.mbt::quiet and signaling comparisons differ only in NaN flags	A
 library/src/binary/order_wbtest.mbt::totalOrder sorts every class, signed zeros, and NaN payloads	A
-library/src/binary/pi_inverse_wbtest.mbt::acospi of a tiny argument clusters at 1/2	A
-library/src/binary/pi_inverse_wbtest.mbt::asinpi, acospi and atanpi special values	A
-library/src/binary/pi_inverse_wbtest.mbt::atan2pi of an extreme ratio sits next to the anchors	A
-library/src/binary/pi_inverse_wbtest.mbt::atan2pi special values	A
-library/src/binary/pi_inverse_wbtest.mbt::atan2pi with a tiny ratio rounds as y / (pi x)	B
-library/src/binary/pi_inverse_wbtest.mbt::atanpi of a huge argument sits next to the anchor 1/2	A
-library/src/binary/pi_inverse_wbtest.mbt::the rational but non-dyadic angles are correctly rounded	B
 library/src/binary/pm1_functions_wbtest.mbt::exp2m1 of a huge integer rounds like the power of two beside it	A
 library/src/binary/pm1_functions_wbtest.mbt::log2p1 and log10p1 special values and domain	A
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow exact subnormal regression row	A
 library/src/binary/pow_exact_subnormal_wbtest.mbt::pow of a power of two with a half-integer exponent rounds the exact result	B
-library/src/binary/pow_rootn_wbtest.mbt::Binary pow decides parity of large integer exponents	A
-library/src/binary/pow_rootn_wbtest.mbt::Binary pow finds exact powers for large dyadic exponents	A
-library/src/binary/pow_rootn_wbtest.mbt::Binary pow follows the IEEE special cases for infinite exponents	A
-library/src/binary/pow_rootn_wbtest.mbt::Binary pow returns exact dyadic results without inexact	B
-library/src/binary/pow_rootn_wbtest.mbt::Binary rootn handles Int.min magnitude exactly	A
-library/src/binary/pow_rootn_wbtest.mbt::Binary rootn of negative infinity follows the degree parity	A
 library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_pow_ctx on a signaling NaN	A
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: None stays bounded by the work cap	A

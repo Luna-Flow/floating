@@ -61,6 +61,9 @@ test "Binary rootn returns exact results for negative degrees" {
 }
 
 ///|
+// oracle: A
+// source: written out: the exact value is 1 for rootn(1, n) for every n (1^(1/n) = 1), here with n = Int.min, exact and with no flag
+// shares: assert_exact_result compares value and flags; Binary::one and try_rootn_ctx (the code under test)
 test "Binary rootn handles Int.min magnitude exactly" {
   let minimum = -2147483647 - 1
   assert_exact_result(
@@ -71,6 +74,9 @@ test "Binary rootn handles Int.min magnitude exactly" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (pdftotext of the PDF, rootn): rootn(-inf, n) is -inf for odd n > 0, a quiet NaN with invalid operation for even n > 0 and for even n < 0, and -0 for odd n < 0; the library rule S4 (invalid is a value in the try_ form, not not_computed) is asserted as well
+// shares: assert_exact_result compares value and flags; Binary::inf and negative_zero build the operands; try_rootn_ctx and rootn_ctx are the code under test
 test "Binary rootn of negative infinity follows the degree parity" {
   let context = BinaryContext::binary64()
   let negative_infinity = Binary::inf(negative=true)
@@ -99,6 +105,10 @@ test "Binary rootn of negative infinity follows the degree parity" {
 }
 
 ///|
+// oracle: A, B
+// source: A: written out, exact values with no flag: 4^-1/2 = 1/2, 16^(3/4) = 8, 16^(-3/4) = 1/8, 36^(3/2) = 216, (81/256)^(5/4) = (3/4)^5 = 243/1024; B: 36^(-3/2) = 1/216, which is not dyadic, is the quotient of 1 by 216 with Binary::div_ctx in binary64 and is inexact
+// shares: pow_rootn_dyadic builds the operands; assert_exact_result compares value and flags; Binary::from_int, one and div_ctx on the reference side; try_pow_ctx and pow_ctx are the code under test
+// primitives: Binary::div_ctx (level A through arith_rows_wbtest.mbt: precisions from 2 to 4097, five directions)
 test "Binary pow returns exact dyadic results without inexact" {
   for context in pow_rootn_contexts() {
     assert_exact_result(
@@ -140,6 +150,9 @@ test "Binary pow returns exact dyadic results without inexact" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (pdftotext of the PDF, pow): pow(-1, +-inf) = 1, pow(x, +inf) = +0 for -1 < x < 1 and +inf for x < -1 (including -inf), pow(x, -inf) = +inf for -1 < x < 1 and +0 for x < -1 (including -inf), pow(+-0, -inf) = +inf and pow(+-0, +inf) = +0, all with no exception
+// shares: assert_exact_result compares value and flags; Binary::inf, zero, negative_zero and from_int build the operands; to_hex builds the message; try_pow_ctx is the code under test
 test "Binary pow follows the IEEE special cases for infinite exponents" {
   let context = BinaryContext::binary64()
   let positive_infinity = Binary::inf()
@@ -170,6 +183,9 @@ test "Binary pow follows the IEEE special cases for infinite exponents" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (pdftotext of the PDF, pow) and 7.4: the parity of 2^31 + 1 (odd) and 2^32 (even) decides pow(-inf, y), pow(-0, y) and pow(-1, y) (the sign of the result), pow(+-0, y) is infinite with divideByZero for y < 0 (-inf for an odd integer y, +inf otherwise) and zero for y > 0 (-0 for an odd integer y, +0 otherwise), pow(x < 0, non-integer y) is invalid, and (-2)^(2^32) = +inf and (-1.5)^(2^31 + 1) = -inf overflow (toward positive infinity the negative result is the largest finite value, written as finite and negative)
+// shares: assert_exact_result compares value and flags; Binary::make builds the exponents; Binary::inf, zero, negative_zero and from_int build the operands; try_pow_ctx and pow_ctx are the code under test
 test "Binary pow decides parity of large integer exponents" {
   let context = BinaryContext::binary64()
   let odd = Binary::make(BinCoeff::from_uint64((1UL << 31) + 1UL), 0, 53)
@@ -240,6 +256,11 @@ test "Binary pow decides parity of large integer exponents" {
 /// certify any of these, because its enclosure straddles the exact value:
 /// without the check every attempt is wasted and the refinement budget is
 /// exhausted (#53).
+
+///|
+// oracle: A
+// source: written out: 4^(3/2) = 2^3, 4^(4097/2) = 2^4097, 16^(2049/4) = 2^2049, (1/4)^(3/2) = 2^-3 and 9^(21/2) = 3^21 = 10460353203, exact with no flag in four directions at precisions 64, 128, 192 and 288 (#53: the Ziv loop alone cannot certify an exact value)
+// shares: assert_exact_result compares value and flags; Binary::make builds the expected values; pow_rootn_dyadic and Binary::from_int build the operands; try_pow_ctx is the code under test
 test "Binary pow finds exact powers for large dyadic exponents" {
   let cases = [
     (Binary::from_int(4), pow_rootn_dyadic(3UL, -1), 1UL, 3),
