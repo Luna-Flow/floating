@@ -3,8 +3,7 @@
 `decimal` is the IEEE 754-2019 decimal arithmetic and interchange surface
 (`decimal32`, `decimal64`, `decimal128`, and extendable precision). This page
 lists the clauses of IEEE 754-2019 with their status and the finite tests and
-corpora that check them; passing these tests covers only the finite sets of
-inputs named on this page.
+corpora that check them.
 
 General Decimal Arithmetic Specification 1.70 (GDA 1.70) accumulated flags and
 traps belong to `decimal_gda`, while `decimal` exposes per-operation flags

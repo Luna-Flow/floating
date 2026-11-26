@@ -629,7 +629,7 @@ msgstr "上下文"
 #: manual/api/def.md:120
 #: manual/api/interval.md:810
 #: manual/conformance/binary.md:177
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:41
 #: manual/conformance/decimal_gda.md:10
 #: manual/design/binary_checked.md:178
 #: manual/performance_audit.md:122
@@ -4457,10 +4457,10 @@ msgstr "精确情形"
 #: manual/conformance/binary.md:103
 #: manual/conformance/binary.md:104
 #: manual/conformance/binary.md:105
-#: manual/conformance/decimal.md:95
+#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:97
 #: manual/conformance/decimal.md:98
 #: manual/conformance/decimal.md:99
-#: manual/conformance/decimal.md:100
 #: manual/conformance/interval.md:14
 #: manual/conformance/interval.md:23
 #: manual/conformance/interval.md:41
@@ -10435,7 +10435,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 
 #: manual/architecture.md:22
 #: manual/conformance/binary.md:77
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:68
 #: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/conformance/interval.md:61
@@ -10833,7 +10833,7 @@ msgid "In the TestFloat adapter, results are compared by class only when the exp
 msgstr "在 TestFloat 适配器中，仅当期望结果为 NaN 时才按类别比较。非 NaN 的编码位和所有异常位都必须完全一致。按类别比较反映了 IEEE 允许自行选择新生成 NaN 载荷的规定。实现本身会保留所选输入 NaN 的符号和载荷，并将信号 NaN 静默化。"
 
 #: manual/conformance/binary.md:67
-#: manual/conformance/decimal.md:57
+#: manual/conformance/decimal.md:56
 #: manual/conformance/decimal_gda.md:20
 #: manual/conformance/interval.md:7
 msgid "Clause traceability"
@@ -10844,7 +10844,7 @@ msgid "This table maps IEEE 754-2019 clauses, cited by bare number, to the `bina
 msgstr "本表把 IEEE 754-2019 的条款（以条款号引用）对应到 `binary` API，以及支持各状态的证据。当运算存在且所引证据覆盖它时，该行为 `conforming`（符合）。条款有缺失或证据薄弱时为 `partial`（部分符合，单元格会说明是哪种）；其余为 `not implemented`（未实现）和 `not applicable`（不适用）。`Level` 列中，标准用 “shall” 表述的条款为 `required`，用 “should” 表述的条款以及可选部分为 `recommended`，flavor 可以省略的特性为 `optional`。没有语料名称的证据是仓库中的单元测试；“no external corpus”（无外部语料）标记没有独立预言机检验的运算。"
 
 #: manual/conformance/binary.md:77
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:68
 #: manual/conformance/interval.md:11
 #: manual/design/binary_checked.md:178
 #: manual/verification.md:938
@@ -10852,13 +10852,13 @@ msgid "Clause"
 msgstr "条款"
 
 #: manual/conformance/binary.md:77
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:68
 #: manual/conformance/interval.md:11
 msgid "Level"
 msgstr "级别"
 
 #: manual/conformance/binary.md:77
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:68
 #: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/index.md:69
@@ -10872,7 +10872,7 @@ msgid "API"
 msgstr "API"
 
 #: manual/conformance/binary.md:77
-#: manual/conformance/decimal.md:69
+#: manual/conformance/decimal.md:68
 #: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/performance_audit.md:154
@@ -10903,7 +10903,8 @@ msgstr "3.3 至 3.6 binary16/32/64/128 交换格式"
 #: manual/conformance/binary.md:97
 #: manual/conformance/binary.md:98
 #: manual/conformance/binary.md:99
-#: manual/conformance/decimal.md:71
+#: manual/conformance/decimal.md:70
+#: manual/conformance/decimal.md:72
 #: manual/conformance/decimal.md:73
 #: manual/conformance/decimal.md:74
 #: manual/conformance/decimal.md:75
@@ -10911,7 +10912,7 @@ msgstr "3.3 至 3.6 binary16/32/64/128 交换格式"
 #: manual/conformance/decimal.md:77
 #: manual/conformance/decimal.md:78
 #: manual/conformance/decimal.md:79
-#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:83
 #: manual/conformance/decimal.md:84
 #: manual/conformance/decimal.md:85
 #: manual/conformance/decimal.md:86
@@ -10922,7 +10923,6 @@ msgstr "3.3 至 3.6 binary16/32/64/128 交换格式"
 #: manual/conformance/decimal.md:91
 #: manual/conformance/decimal.md:92
 #: manual/conformance/decimal.md:93
-#: manual/conformance/decimal.md:94
 #: manual/conformance/interval.md:13
 #: manual/conformance/interval.md:15
 #: manual/conformance/interval.md:16
@@ -10965,14 +10965,15 @@ msgstr "TestFloat 门禁; `library/src/binary/ieee754_wbtest.mbt`"
 #: manual/conformance/binary.md:98
 #: manual/conformance/binary.md:99
 #: manual/conformance/binary.md:101
+#: manual/conformance/decimal.md:70
 #: manual/conformance/decimal.md:71
-#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:74
 #: manual/conformance/decimal.md:75
 #: manual/conformance/decimal.md:76
 #: manual/conformance/decimal.md:77
 #: manual/conformance/decimal.md:78
 #: manual/conformance/decimal.md:79
-#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:83
 #: manual/conformance/decimal.md:84
 #: manual/conformance/decimal.md:85
 #: manual/conformance/decimal.md:86
@@ -10980,12 +10981,11 @@ msgstr "TestFloat 门禁; `library/src/binary/ieee754_wbtest.mbt`"
 #: manual/conformance/decimal.md:88
 #: manual/conformance/decimal.md:89
 #: manual/conformance/decimal.md:90
-#: manual/conformance/decimal.md:91
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:92
+#: manual/conformance/decimal.md:95
 #: manual/conformance/decimal.md:96
-#: manual/conformance/decimal.md:97
+#: manual/conformance/decimal.md:100
 #: manual/conformance/decimal.md:101
-#: manual/conformance/decimal.md:102
 #: manual/conformance/decimal_gda.md:31
 #: manual/conformance/decimal_gda.md:32
 #: manual/conformance/decimal_gda.md:33
@@ -11013,7 +11013,7 @@ msgid "conforming"
 msgstr "符合"
 
 #: manual/conformance/binary.md:80
-#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:71
 msgid "3.7 extendable precisions"
 msgstr "3.7 可扩展精度"
 
@@ -11024,14 +11024,14 @@ msgstr "3.7 可扩展精度"
 #: manual/conformance/binary.md:104
 #: manual/conformance/binary.md:105
 #: manual/conformance/binary.md:106
-#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:71
+#: manual/conformance/decimal.md:94
 #: manual/conformance/decimal.md:95
 #: manual/conformance/decimal.md:96
-#: manual/conformance/decimal.md:97
+#: manual/conformance/decimal.md:98
 #: manual/conformance/decimal.md:99
 #: manual/conformance/decimal.md:100
 #: manual/conformance/decimal.md:101
-#: manual/conformance/decimal.md:102
 #: manual/conformance/interval.md:23
 #: manual/conformance/interval.md:24
 msgid "recommended"
@@ -11046,7 +11046,7 @@ msgid "MPFR elementary fixture; `library/src/binary/exponent_range_wbtest.mbt`"
 msgstr "MPFR 初等函数 fixture; `library/src/binary/exponent_range_wbtest.mbt`"
 
 #: manual/conformance/binary.md:81
-#: manual/conformance/decimal.md:73
+#: manual/conformance/decimal.md:72
 msgid "4.3 rounding-direction attributes"
 msgstr "4.3 舍入方向属性"
 
@@ -11059,7 +11059,7 @@ msgid "conforming; no other mode exists"
 msgstr "符合；不存在其他模式"
 
 #: manual/conformance/binary.md:82
-#: manual/conformance/decimal.md:75
+#: manual/conformance/decimal.md:74
 msgid "5.3.1 addition, subtraction, multiplication, division, squareRoot"
 msgstr "5.3.1 加、减、乘、除、squareRoot"
 
@@ -11068,7 +11068,7 @@ msgid "TestFloat gate (7,461,360 vectors); `library/src/binary/ieee754_wbtest.mb
 msgstr "TestFloat 门禁 (7,461,360 个向量); `library/src/binary/ieee754_wbtest.mbt`"
 
 #: manual/conformance/binary.md:83
-#: manual/conformance/decimal.md:76
+#: manual/conformance/decimal.md:75
 msgid "5.3.1 fusedMultiplyAdd"
 msgstr "5.3.1 fusedMultiplyAdd"
 
@@ -11077,7 +11077,7 @@ msgid "TestFloat gate (245,329,920 mulAdd vectors); `library/src/binary/fma_wbte
 msgstr "TestFloat 门禁 (245,329,920 mulAdd 向量); `library/src/binary/fma_wbtest.mbt`"
 
 #: manual/conformance/binary.md:84
-#: manual/conformance/decimal.md:77
+#: manual/conformance/decimal.md:76
 msgid "5.3.1 remainder"
 msgstr "5.3.1 remainder"
 
@@ -11094,7 +11094,7 @@ msgid "TestFloat gate (roundToInt, exact and inexact); `library/src/binary/integ
 msgstr "TestFloat 门禁 (roundToInt, 精确与不精确); `library/src/binary/integral_wbtest.mbt`"
 
 #: manual/conformance/binary.md:86
-#: manual/conformance/decimal.md:79
+#: manual/conformance/decimal.md:78
 msgid "5.3.1 nextUp, nextDown"
 msgstr "5.3.1 nextUp、nextDown"
 
@@ -11103,7 +11103,7 @@ msgid "`library/src/binary/next_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/next_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/binary.md:87
-#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:79
 msgid "5.3.1 scaleB, logB"
 msgstr "5.3.1 scaleB、logB"
 
@@ -11112,7 +11112,7 @@ msgid "`library/src/binary/scale_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/scale_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/binary.md:88
-#: manual/conformance/decimal.md:84
+#: manual/conformance/decimal.md:83
 msgid "5.4.1 convertFromInt"
 msgstr "5.4.1 convertFromInt"
 
@@ -11126,7 +11126,7 @@ msgid "`library/src/binary/order_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/order_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/binary.md:89
-#: manual/conformance/decimal.md:85
+#: manual/conformance/decimal.md:84
 msgid "5.4.1, 5.8 convertToInteger (exact and inexact)"
 msgstr "5.4.1、5.8 convertToInteger（精确与不精确）"
 
@@ -11135,7 +11135,7 @@ msgid "TestFloat gate (32- and 64-bit conversions); `library/src/binary/to_integ
 msgstr "TestFloat 门禁 (32 位与 64 位转换); `library/src/binary/to_integer_wbtest.mbt`"
 
 #: manual/conformance/binary.md:90
-#: manual/conformance/decimal.md:86
+#: manual/conformance/decimal.md:85
 msgid "5.4.2 convertFormat"
 msgstr "5.4.2 convertFormat"
 
@@ -11144,7 +11144,7 @@ msgid "TestFloat conversion matrix and package tests; see [convertFormat evidenc
 msgstr "TestFloat 转换矩阵与包测试；见 [convertFormat 证据](#convertformat-evidence)"
 
 #: manual/conformance/binary.md:91
-#: manual/conformance/decimal.md:87
+#: manual/conformance/decimal.md:86
 msgid "5.5 copy, negate, abs, copySign"
 msgstr "5.5 copy、negate、abs、copySign"
 
@@ -11169,7 +11169,7 @@ msgid "Class and contextual-trait tests; see [class-predicate evidence](#class-p
 msgstr "class 与上下文 trait 的测试；见[class 谓词证据](#class-predicate-evidence)"
 
 #: manual/conformance/binary.md:94
-#: manual/conformance/decimal.md:90
+#: manual/conformance/decimal.md:89
 msgid "5.10 totalOrder, totalOrderMag"
 msgstr "5.10 totalOrder、totalOrderMag"
 
@@ -11190,12 +11190,12 @@ msgid "Grammar, round-trip, and rational-arithmetic tests; see [hexadecimal-conv
 msgstr "文法、往返与有理算术测试；见[十六进制转换证据](#hexadecimal-conversion-evidence)"
 
 #: manual/conformance/binary.md:97
-#: manual/conformance/decimal.md:92
+#: manual/conformance/decimal.md:91
 msgid "6.1 to 6.3 infinities, NaNs, sign bit"
 msgstr "6.1 至 6.3 无穷、NaN、符号位"
 
 #: manual/conformance/binary.md:97
-#: manual/conformance/decimal.md:92
+#: manual/conformance/decimal.md:91
 msgid "every `*_ctx` operation"
 msgstr "每个 `*_ctx` 运算"
 
@@ -11204,7 +11204,7 @@ msgid "TestFloat gate (a NaN result is compared by class only); `library/src/bin
 msgstr "TestFloat 门禁 (NaN 结果只按类别比较); `library/src/binary/compare_nan_wbtest.mbt`"
 
 #: manual/conformance/binary.md:97
-#: manual/conformance/decimal.md:92
+#: manual/conformance/decimal.md:91
 msgid "conforming; payload choice in [Implementation-defined choices](../verification.md#implementation-defined-choices)"
 msgstr "符合； 载荷的选择见 [由实现定义的选择](../verification.md#implementation-defined-choices)"
 
@@ -11229,7 +11229,7 @@ msgid "TestFloat gate (before and after rounding); the exact-subnormal and range
 msgstr "TestFloat 门禁（舍入前与舍入后）；`exp2`、`pow`、`pown` 的精确次正规数与范围极限用例，见[数学函数证据](#mathematical-function-evidence)"
 
 #: manual/conformance/binary.md:100
-#: manual/conformance/decimal.md:95
+#: manual/conformance/decimal.md:94
 msgid "8 alternate exception handling"
 msgstr "8 备选异常处理"
 
@@ -11238,7 +11238,7 @@ msgid "not implemented (flags are values; no traps, no resumption)"
 msgstr "未实现 （标志是值；没有陷阱，也没有恢复）"
 
 #: manual/conformance/binary.md:101
-#: manual/conformance/decimal.md:96
+#: manual/conformance/decimal.md:95
 msgid "9.2 recommended mathematical functions"
 msgstr "9.2 推荐的数学函数"
 
@@ -11251,42 +11251,42 @@ msgid "MPFR fixture and targeted tests; see [mathematical-function evidence](#ma
 msgstr "MPFR fixture 与针对性测试；见[数学函数证据](#mathematical-function-evidence)"
 
 #: manual/conformance/binary.md:102
-#: manual/conformance/decimal.md:98
+#: manual/conformance/decimal.md:97
 msgid "9.3 dynamic mode operations"
 msgstr "9.3 动态模式运算"
 
 #: manual/conformance/binary.md:102
-#: manual/conformance/decimal.md:98
+#: manual/conformance/decimal.md:97
 msgid "recommended (required only where a language defines dynamic modes)"
 msgstr "推荐（仅当语言定义动态模式时才必须）"
 
 #: manual/conformance/binary.md:102
-#: manual/conformance/decimal.md:98
+#: manual/conformance/decimal.md:97
 msgid "none (contexts are explicit values)"
 msgstr "无（上下文是显式值）"
 
 #: manual/conformance/binary.md:102
-#: manual/conformance/decimal.md:98
+#: manual/conformance/decimal.md:97
 msgid "not implemented by design"
 msgstr "按设计不实现"
 
 #: manual/conformance/binary.md:103
-#: manual/conformance/decimal.md:99
+#: manual/conformance/decimal.md:98
 msgid "9.4 reduction operations"
 msgstr "9.4 归约运算"
 
 #: manual/conformance/binary.md:103
 #: manual/conformance/binary.md:104
 #: manual/conformance/binary.md:105
-#: manual/conformance/decimal.md:95
-#: manual/conformance/decimal.md:99
+#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:98
 #: manual/conformance/interval.md:14
 #: manual/conformance/interval.md:23
 msgid "not implemented"
 msgstr "未实现"
 
 #: manual/conformance/binary.md:104
-#: manual/conformance/decimal.md:100
+#: manual/conformance/decimal.md:99
 msgid "9.5 augmented arithmetic"
 msgstr "9.5 增强算术"
 
@@ -11299,7 +11299,7 @@ msgid "none (`Binary::min_num` and `Binary::max_num` are plain helpers)"
 msgstr "无（`Binary::min_num` 与 `Binary::max_num` 只是普通辅助函数）"
 
 #: manual/conformance/binary.md:106
-#: manual/conformance/decimal.md:102
+#: manual/conformance/decimal.md:101
 msgid "9.7 NaN payload operations"
 msgstr "9.7 NaN 载荷运算"
 
@@ -11313,7 +11313,7 @@ msgid "partial"
 msgstr "部分符合"
 
 #: manual/conformance/binary.md:108
-#: manual/conformance/decimal.md:114
+#: manual/conformance/decimal.md:113
 msgid "convertFormat evidence"
 msgstr "convertFormat 证据"
 
@@ -11322,7 +11322,7 @@ msgid "TestFloat covers `f16`, `f32`, `f64`, and `f128` converted to every other
 msgstr "TestFloat 覆盖 `f16`、`f32`、`f64`、`f128` 到其他每一种格式的转换：level 1 共 52,632 个向量，窄化的格式对覆盖五种舍入方向和两种微小性规则。包测试是 `library/src/binary/convert_format_wbtest.mbt` 与 `library/src/binary/ieee754_wbtest.mbt`。"
 
 #: manual/conformance/binary.md:115
-#: manual/conformance/decimal.md:121
+#: manual/conformance/decimal.md:120
 msgid "Comparison-predicate evidence"
 msgstr "比较谓词证据"
 
@@ -11347,7 +11347,7 @@ msgid "`library/src/binary/hex_grammar_wbtest.mbt` tests every production of the
 msgstr "`library/src/binary/hex_grammar_wbtest.mbt` 测试 IEEE 754-2019 5.12.3 文法的每个产生式和 5.12.1 的词，接受与拒绝两方面，两个入口都测，并检查 4,000 个值的往返。`from_hex_ctx` 测试含 5,095 行，覆盖全部五种舍入方向、两种微小性规则、binary16、binary32、binary64、binary128、两种玩具格式和实现范围。它们针对 `library/src/binary/hex_ctx_wbtest.mbt` 与 `hex_ctx_rows_wbtest.mbt` 中的精确有理算术，覆盖中点、次正规数和上溢阈值；这些行由 `tools/generate_hex_ctx_rows.py` 生成。"
 
 #: manual/conformance/binary.md:141
-#: manual/conformance/decimal.md:154
+#: manual/conformance/decimal.md:153
 msgid "Mathematical-function evidence"
 msgstr "数学函数证据"
 
@@ -11372,13 +11372,13 @@ msgid "The full pinned gate is defined in [`testdata/binary/README.md`](../../..
 msgstr "完整的固定门禁定义见 [`testdata/binary/README.md`](../../../testdata/binary/README.md)。表中记录每个来源、其范围和通过的行数。"
 
 #: manual/conformance/binary.md:177
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:41
 #: manual/design/interval_checked.md:71
 msgid "Source"
 msgstr "来源"
 
 #: manual/conformance/binary.md:177
-#: manual/conformance/decimal.md:42
+#: manual/conformance/decimal.md:41
 #: manual/conformance/decimal_gda.md:10
 #: manual/performance_audit.md:15
 msgid "Scope"
@@ -11592,339 +11592,339 @@ msgid "decimal conformance"
 msgstr "decimal 符合性"
 
 #: manual/conformance/decimal.md:3
-msgid "`decimal` is the IEEE 754-2019 decimal arithmetic and interchange surface (`decimal32`, `decimal64`, `decimal128`, and extendable precision). This page lists the clauses of IEEE 754-2019 with their status and the finite tests and corpora that check them; passing these tests covers only the finite sets of inputs named on this page."
-msgstr "`decimal` 是 IEEE 754-2019 十进制算术与交换格式接口（`decimal32`、`decimal64`、`decimal128` 以及可扩展精度）。本页列出 IEEE 754-2019 的各条款及其状态，以及检验它们的有限测试与语料；通过这些测试仅覆盖本页列出的有限输入集合。"
+msgid "`decimal` is the IEEE 754-2019 decimal arithmetic and interchange surface (`decimal32`, `decimal64`, `decimal128`, and extendable precision). This page lists the clauses of IEEE 754-2019 with their status and the finite tests and corpora that check them."
+msgstr "`decimal` 是 IEEE 754-2019 十进制算术与交换格式接口（`decimal32`、`decimal64`、`decimal128` 以及可扩展精度）。本页列出 IEEE 754-2019 的各条款及其状态，以及检验它们的有限测试与语料。"
 
-#: manual/conformance/decimal.md:9
+#: manual/conformance/decimal.md:8
 msgid "General Decimal Arithmetic Specification 1.70 (GDA 1.70) accumulated flags and traps belong to `decimal_gda`, while `decimal` exposes per-operation flags (`DecimalFlags`). Passing the GDA corpus does not by itself establish the IEEE 754-2019 claim."
-msgstr "General Decimal Arithmetic Specification 1.70（GDA 1.70）的累积标志与陷阱属于 `decimal_gda`，而 `decimal` 公开逐运算标志（`DecimalFlags`）。通过 GDA 语料本身并不能确立 IEEE 754-2019 的符合性声明。"
+msgstr "General Decimal Arithmetic Specification 1.70（GDA 1.70）的累积标志与陷阱属于 `decimal_gda`，而 `decimal` 公开逐运算标志（`DecimalFlags`）。通过 GDA 语料本身并不能确立 IEEE 754-2019 的声明。"
 
-#: manual/conformance/decimal.md:14
+#: manual/conformance/decimal.md:13
 msgid "Independent IEEE corpus"
 msgstr "独立的 IEEE 语料"
 
-#: manual/conformance/decimal.md:16
+#: manual/conformance/decimal.md:15
 msgid "The committed IEEE corpus covers decimal32, decimal64, and decimal128 DPD and BID interchange encodings, canonical and non-canonical encodings, special values, flags, total order, and core arithmetic. The DPD fixture exhaustively checks all 1,024 declets."
 msgstr "已提交的 IEEE 语料覆盖 decimal32、decimal64 和 decimal128 的 DPD 与 BID 交换编码、规范与非规范编码、特殊值、标志、全序以及核心算术。DPD 夹具穷举检查全部 1,024 个 declet。"
 
-#: manual/conformance/decimal.md:21
+#: manual/conformance/decimal.md:20
 msgid "Oracle layers"
 msgstr "预言机分层"
 
-#: manual/conformance/decimal.md:23
+#: manual/conformance/decimal.md:22
 msgid "Mandatory operation vectors use exact integer and rational construction and the documented DPD and BID bridge. Elementary families use independent high-precision or interval oracles when available. Values or encoded bits and IEEE flags are recorded independently so a numerically plausible result cannot hide a flag error."
 msgstr "必选运算向量使用精确整数与有理数构造以及有文档记录的 DPD 与 BID 桥接。初等函数族在可用时使用独立的高精度或区间预言机。数值或编码位与 IEEE 标志分别记录，以免数值看似合理而掩盖标志错误。"
 
-#: manual/conformance/decimal.md:29
+#: manual/conformance/decimal.md:28
 msgid "The committed elementary corpus contains 3,060 certified rows. MPFR 4.2.2 produces directed 768-bit dyadic bounds; exact integer conversion rounds both bounds into decimal32, decimal64, and decimal128 under each of the five `DecimalRoundingMode` directions, and the generator rejects a row unless result and flags are unique. Native, Wasm, Wasm-GC, and JavaScript each pass 573/573 public API tests after these rows are materialized (one test per MPFR interval, holding its 15 rows: a Wasm test module cannot register one test per row). The full gate, `just gate decimal 3`, is 64,327/64,327: the 23,031 target-independent checks, the 573 public API tests on each of the four targets, and the 9,691 rows of the `pi_inverse` table and the 60 rows of the `huge_trig` table on each of the four targets. RDFP and Arb remain optional secondary routes and are not counted when unavailable."
 msgstr "已提交的初等函数语料包含 3,060 个已认证行。MPFR 4.2.2 生成 768 位定向二进上下界；精确整数转换在五种 `DecimalRoundingMode` 舍入方向中的每一种下分别将两界舍入到 decimal32、decimal64 和 decimal128，只有当结果与标志均唯一时生成器才保留该行。将这些行具体化后，Native、Wasm、Wasm-GC 与 JavaScript 各通过 573/573 个公共 API 测试（每个 MPFR 区间对应一个测试，包含其 15 行：Wasm 测试模块无法为每一行分别注册一个测试）。完整门禁 `just gate decimal 3` 为 64,327/64,327：23,031 项与目标无关的检查、四个目标各自的 573 个公共 API 测试，以及四个目标各自的 `pi_inverse` 表 9,691 行与 `huge_trig` 表 60 行。RDFP 与 Arb 仍是可选的次要路径，不可用时不计入。"
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:43
 msgid "MPFR 4.2.2 elementary oracle"
 msgstr "MPFR 4.2.2 初等函数预言机"
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:43
 msgid "29 operations × 60 rows, 11 operations × 120 rows"
 msgstr "29 个运算 × 60 行，11 个运算 × 120 行"
 
-#: manual/conformance/decimal.md:44
+#: manual/conformance/decimal.md:43
 msgid "3,060 rows"
 msgstr "3,060 行"
 
-#: manual/conformance/decimal.md:45
+#: manual/conformance/decimal.md:44
 msgid "target-independent checks and four target runs"
 msgstr "与目标无关的检查及四个目标运行"
 
-#: manual/conformance/decimal.md:47
+#: manual/conformance/decimal.md:46
 msgid "IEEE 754-2019 9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight rounding algorithms (the five directions of `DecimalRoundingMode` and three working ones), and the exact `Inexact` flag. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess and overflow flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
 msgstr "IEEE 754-2019 9.2 关于 `Decimal::tanh_ctx` 与 `Decimal::expm1_ctx` 的饱和回归测试位于 `library/src/decimal/elementary_extensions_wbtest.mbt`。这些测试检查正负 `tanh`、负值 `expm1`、全部八种舍入算法（`DecimalRoundingMode` 的五种方向与三种工作用算法）以及精确的 `Inexact` 标志。经认证的循环前界在已证明的间隙内选取同侧代表值，并将其传入常规上下文终结器，由其给出微小性与溢出标志。这些定向测试独立于已提交的 MPFR 行计数。`decimal_gda` 目前均未提供这两个运算，因此本条目不作 GDA 符合性声明。"
 
-#: manual/conformance/decimal.md:59
+#: manual/conformance/decimal.md:58
 msgid "IEEE 754-2019 for `decimal` (decimal32, decimal64, decimal128, and arbitrary precision), with clauses cited by bare number. Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), and `not implemented` or `not applicable` otherwise. `Level` is `required` for clauses the standard states with \"shall\", `recommended` for those it states with \"should\" and for the optional parts, and `optional` for features a flavor may leave out. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
 msgstr "面向 `decimal`（decimal32、decimal64、decimal128 及任意精度）的 IEEE 754-2019 追踪表，条款以裸编号引用。当运算存在且所引证据覆盖它时状态为 `conforming`；当条款部分缺失或证据薄弱时为 `partial`（单元格内会说明具体情况）；其余情况为 `not implemented` 或 `not applicable`。`Level` 为 `required` 表示标准以 “shall” 规定的条款，`recommended` 表示以 “should” 规定的条款及可选部分，`optional` 表示特定风格可省略的特性。未标注语料名称的证据为仓库中的单元测试；“无外部语料”标记没有独立预言机检验的运算。"
 
-#: manual/conformance/decimal.md:71
+#: manual/conformance/decimal.md:70
 msgid "3.5 decimal32/64/128 interchange, DPD and BID"
 msgstr "3.5 decimal32/64/128 交换格式，DPD 与 BID"
 
-#: manual/conformance/decimal.md:71
+#: manual/conformance/decimal.md:70
 msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `library/src/decimal/interchange_wbtest.mbt`"
 msgstr "IEEE 十进制语料 (`testdata/decimal/ieee/decimal64_dpd.json` 及其余五种编码); 全部 1,024 个 declet; `library/src/decimal/interchange_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:72
+#: manual/conformance/decimal.md:71
 msgid "`DecimalContext::new` (precision up to 999,999,999, `e_max` up to 999,999,999, $e_{\\min} = 1 - e_{\\max}$; default range $\\max(999999, 1000p)$)"
 msgstr "`DecimalContext::new`（精度最高 999,999,999，`e_max` 最高 999,999,999，$e_{\\min} = 1 - e_{\\max}$；默认范围 $\\max(999999, 1000p)$）"
 
-#: manual/conformance/decimal.md:73
+#: manual/conformance/decimal.md:72
 msgid "IEEE decimal corpus (five directions); `library/src/decimal/subnormal_rounding_wbtest.mbt`"
 msgstr "IEEE 十进制语料 (五种方向); `library/src/decimal/subnormal_rounding_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:73
+#: manual/conformance/decimal.md:72
 msgid "conforming; all five directions of 4.3 (`RoundTiesToEven`, `RoundTiesToAway`, `RoundTowardZero`, `RoundTowardPositive`, `RoundTowardNegative`) and no other"
 msgstr "符合；4.3 的全部五种舍入方向（`RoundTiesToEven`、`RoundTiesToAway`、`RoundTowardZero`、`RoundTowardPositive`、`RoundTowardNegative`），没有其他方向"
 
-#: manual/conformance/decimal.md:74
+#: manual/conformance/decimal.md:73
 msgid "5.2 preferred exponents"
 msgstr "5.2 首选指数"
 
-#: manual/conformance/decimal.md:74
+#: manual/conformance/decimal.md:73
 msgid "every `*_ctx` operation, `pow_ctx`, `pown_ctx`"
 msgstr "每个 `*_ctx` 运算, `pow_ctx`, `pown_ctx`"
 
-#: manual/conformance/decimal.md:74
+#: manual/conformance/decimal.md:73
 msgid "conforming; `pow(1, ±inf)` has no defined exponent and returns `1`"
 msgstr "符合； `pow(1, ±inf)` 没有定义指数，返回 `1`"
 
-#: manual/conformance/decimal.md:75
+#: manual/conformance/decimal.md:74
 msgid "IEEE decimal corpus (authoritative operations); `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr "IEEE 十进制语料 (权威运算); `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:76
+#: manual/conformance/decimal.md:75
 msgid "IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr "IEEE 十进制语料; `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:77
+#: manual/conformance/decimal.md:76
 msgid "`remainder_ctx` (IEEE remainder; the truncating form is the GDA `remainder`)"
 msgstr "`remainder_ctx` （IEEE 余数；截断形式是 GDA 的 `remainder`）"
 
-#: manual/conformance/decimal.md:77
+#: manual/conformance/decimal.md:76
 msgid "`library/src/decimal/remainder_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/decimal/remainder_wbtest.mbt` (无外部语料)"
 
-#: manual/conformance/decimal.md:78
+#: manual/conformance/decimal.md:77
 msgid "5.3.1 roundToIntegral (all five, exact)"
 msgstr "5.3.1 roundToIntegral（全部五种及精确形式）"
 
-#: manual/conformance/decimal.md:81
+#: manual/conformance/decimal.md:80
 msgid "5.3.2 quantize"
 msgstr "5.3.2 quantize"
 
-#: manual/conformance/decimal.md:81
-#: manual/conformance/decimal.md:83
+#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:82
 msgid "required (shall)"
 msgstr "必需（shall）"
 
-#: manual/conformance/decimal.md:81
+#: manual/conformance/decimal.md:80
 msgid "conforming; a zero result above $e_{\\max} - p + 1$ is folded down to a member of the format (`library/src/decimal/zero_fold_issue234_wbtest.mbt`)"
 msgstr "符合；高于 $e_{\\max} - p + 1$ 的零结果会被向下折叠为格式中的成员（`library/src/decimal/zero_fold_issue234_wbtest.mbt`）"
 
-#: manual/conformance/decimal.md:82
+#: manual/conformance/decimal.md:81
 msgid "5.3.2 quantum"
 msgstr "5.3.2 quantum"
 
-#: manual/conformance/decimal.md:82
+#: manual/conformance/decimal.md:81
 msgid "recommended (should)"
 msgstr "推荐（should）"
 
-#: manual/conformance/decimal.md:82
+#: manual/conformance/decimal.md:81
 msgid "conforming; see [quantum details](#quantum-details)"
 msgstr "符合；见 [quantum 详情](#quantum-details)"
 
-#: manual/conformance/decimal.md:83
+#: manual/conformance/decimal.md:82
 msgid "5.7.3 sameQuantum"
 msgstr "5.7.3 sameQuantum"
 
-#: manual/conformance/decimal.md:83
+#: manual/conformance/decimal.md:82
 msgid "conforming: equal exponents; `same_quantum(NaN, NaN)` and `same_quantum(inf, inf)` are true, exactly one NaN or one infinity is false, no exception"
 msgstr "符合：指数相等；`same_quantum(NaN, NaN)` 和 `same_quantum(inf, inf)` 为真，恰有一个 NaN 或一个无穷时为假，不引发异常"
 
-#: manual/conformance/decimal.md:86
+#: manual/conformance/decimal.md:85
 msgid "Format-conversion tests; see [convertFormat evidence](#convertformat-evidence)"
 msgstr "格式转换测试；见 [convertFormat 证据](#convertformat-evidence)"
 
-#: manual/conformance/decimal.md:88
+#: manual/conformance/decimal.md:87
 msgid "5.6, 5.11 comparison, quiet and signaling"
 msgstr "5.6, 5.11 比较，静默与信号"
 
-#: manual/conformance/decimal.md:88
+#: manual/conformance/decimal.md:87
 msgid "`compare_quiet`, `compare_signaling`, and the 22 predicates of IEEE 754-2019 Table 5.1 and Table 5.2; see [Comparison-predicate evidence](#comparison-predicate-evidence)"
 msgstr "`compare_quiet`、`compare_signaling`，以及 IEEE 754-2019 Table 5.1 与 Table 5.2 中的 22 个谓词；见 [比较谓词证据](#comparison-predicate-evidence)"
 
-#: manual/conformance/decimal.md:88
+#: manual/conformance/decimal.md:87
 msgid "Predicate tests; see [Comparison-predicate evidence](#comparison-predicate-evidence)"
 msgstr "谓词测试；见 [比较谓词证据](#comparison-predicate-evidence)"
 
-#: manual/conformance/decimal.md:89
+#: manual/conformance/decimal.md:88
 msgid "5.7 class, isCanonical, radix"
 msgstr "5.7 class、isCanonical、radix"
 
-#: manual/conformance/decimal.md:89
+#: manual/conformance/decimal.md:88
 msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, decimal64, and decimal128); `library/src/decimal/contextual_traits_wbtest.mbt`; `tooling/src/consistency/core_wbtest.mbt`"
 msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、decimal64 与 decimal128 中的全部十个类别）；`library/src/decimal/contextual_traits_wbtest.mbt`；`tooling/src/consistency/core_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:90
+#: manual/conformance/decimal.md:89
 msgid "`Decimal::total_order`, `Decimal::total_order_mag`, `Decimal::total_order_compare` (the same order as a three-way `Int32`)"
 msgstr "`Decimal::total_order`、`Decimal::total_order_mag`、`Decimal::total_order_compare`（同一全序的三路 `Int32` 形式）"
 
-#: manual/conformance/decimal.md:90
+#: manual/conformance/decimal.md:89
 msgid "Total-order corpus and package tests; see [totalOrder evidence](#totalorder-evidence)"
 msgstr "全序语料与包测试；见 [totalOrder 证据](#totalorder-evidence)"
 
-#: manual/conformance/decimal.md:91
+#: manual/conformance/decimal.md:90
 msgid "5.12 decimal character conversion (decimal to decimal)"
 msgstr "5.12 十进制字符转换（十进制到十进制）"
 
-#: manual/conformance/decimal.md:91
+#: manual/conformance/decimal.md:90
 msgid "`library/src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
 msgstr "`library/src/decimal/parse_format_wbtest.mbt`; IEEE 十进制语料"
 
-#: manual/conformance/decimal.md:92
+#: manual/conformance/decimal.md:91
 msgid "IEEE decimal corpus; `library/src/decimal/nan_payload_issue151_152_wbtest.mbt`"
 msgstr "IEEE 十进制语料; `library/src/decimal/nan_payload_issue151_152_wbtest.mbt`"
 
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:92
 msgid "7.2 to 7.4, 7.6 invalid operation, division by zero, overflow, inexact"
 msgstr "7.2 至 7.4, 7.6 无效运算、除以零、溢出、不精确"
 
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:92
 msgid "`DecimalFlags` returned by every `*_ctx` operation"
 msgstr "`DecimalFlags` 由每个 `*_ctx` 运算返回"
 
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:92
 msgid "IEEE decimal corpus (flags recorded independently of values); `library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
 msgstr "IEEE 十进制语料 (标志与数值分别记录)；`library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (溢出按舍入后的和判定，而不是按某个操作数)"
 
-#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:93
 msgid "7.5 underflow and tininess"
 msgstr "7.5 下溢与微小性"
 
-#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:93
 msgid "every `_ctx` operation (tininess is always detected before rounding)"
 msgstr "每个 `_ctx` 运算（微小性始终在舍入前检测）"
 
-#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:93
 msgid "Tininess and underflow tests; see [Underflow and tininess evidence](#underflow-and-tininess-evidence)"
 msgstr "微小性与下溢测试；见 [下溢与微小性证据](#underflow-and-tininess-evidence)"
 
-#: manual/conformance/decimal.md:94
+#: manual/conformance/decimal.md:93
 msgid "conforming (before rounding is the only rule for decimal formats; the after-rounding option was removed in 0.12)"
 msgstr "符合（舍入前是十进制格式唯一的规则；舍入后选项已在 0.12 中移除）"
 
-#: manual/conformance/decimal.md:96
+#: manual/conformance/decimal.md:95
 msgid "The functions listed in [Mathematical-function evidence](#mathematical-function-evidence)"
 msgstr "[数学函数证据](#mathematical-function-evidence) 中列出的函数"
 
-#: manual/conformance/decimal.md:96
+#: manual/conformance/decimal.md:95
 msgid "MPFR elementary oracle and package tests; see [Mathematical-function evidence](#mathematical-function-evidence)"
 msgstr "MPFR 初等函数预言机与包测试；见 [数学函数证据](#mathematical-function-evidence)"
 
-#: manual/conformance/decimal.md:97
+#: manual/conformance/decimal.md:96
 msgid "9.2.2 preferred exponents of pow and pown"
 msgstr "9.2.2 pow 与 pown 的首选指数"
 
-#: manual/conformance/decimal.md:97
+#: manual/conformance/decimal.md:96
 msgid "Power cohort and exponent tests; see [Power preferred-exponent evidence](#power-preferred-exponent-evidence)"
 msgstr "幂的同值类与指数测试；见 [幂的首选指数证据](#power-preferred-exponent-evidence)"
 
-#: manual/conformance/decimal.md:100
+#: manual/conformance/decimal.md:99
 msgid "none (9.5 recommends it for binary formats only; no decimal requirement)"
 msgstr "无（9.5 仅对二进制格式推荐；十进制无此要求）"
 
-#: manual/conformance/decimal.md:100
+#: manual/conformance/decimal.md:99
 msgid "not applicable"
 msgstr "不适用"
 
-#: manual/conformance/decimal.md:101
+#: manual/conformance/decimal.md:100
 msgid "9.6 minimum and maximum, eight variants"
 msgstr "9.6 最小值与最大值，八种变体"
 
-#: manual/conformance/decimal.md:101
+#: manual/conformance/decimal.md:100
 msgid "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` and the `*_magnitude_ctx` forms"
 msgstr "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` 以及 `*_magnitude_ctx` 形式"
 
-#: manual/conformance/decimal.md:104
+#: manual/conformance/decimal.md:103
 msgid "quantum details"
 msgstr "quantum 详情"
 
-#: manual/conformance/decimal.md:106
+#: manual/conformance/decimal.md:105
 msgid "For a finite operand, `quantum_ctx` returns the number $(0, q, 1)$ with the exponent $q$ of the operand, zeros included, with preferred exponent $Q(x)$. For an infinity, it returns $+\\infty$ with no exception. NaN operands are handled per IEEE 754-2019 6.2 (a signaling NaN signals invalid operation). `quantum_ctx` takes the context and returns the flags, like `logb_ctx`. Before 0.12 `Decimal::quantum` returned the exponent as an `Int32`; that accessor is `exponent10` ([#719](https://github.com/Luna-Flow/floating/issues/719))."
 msgstr "对于有限操作数，`quantum_ctx` 返回带操作数指数 $q$ 的数 $(0, q, 1)$，零也包含在内，首选指数为 $Q(x)$。对于无穷，它返回 $+\\infty$ 且不引发异常。NaN 操作数按 IEEE 754-2019 6.2 处理（信号 NaN 发出无效运算信号）。`quantum_ctx` 接受上下文并返回标志，与 `logb_ctx` 相同。0.12 之前 `Decimal::quantum` 以 `Int32` 返回指数；该访问器现为 `exponent10`（[#719](https://github.com/Luna-Flow/floating/issues/719)）。"
 
-#: manual/conformance/decimal.md:116
+#: manual/conformance/decimal.md:115
 msgid "`library/src/decimal/convert_format_wbtest.mbt` checks MPFR `mpfr_strtofr` and `mpfr_get_str` rows and exact rows for every decimal and binary format pair. Additional tests are in `library/src/decimal/to_binary_rounding_wbtest.mbt` and `library/src/decimal/binary_zero_wbtest.mbt`."
 msgstr "`library/src/decimal/convert_format_wbtest.mbt` 检查 MPFR `mpfr_strtofr` 与 `mpfr_get_str` 行，以及每一对十进制与二进制格式的精确行。其余测试位于 `library/src/decimal/to_binary_rounding_wbtest.mbt` 与 `library/src/decimal/binary_zero_wbtest.mbt`。"
 
-#: manual/conformance/decimal.md:123
+#: manual/conformance/decimal.md:122
 msgid "The API provides `compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered`, and the fifteen of `compare_predicates.mbt` (24 in all: the 22 predicates of IEEE 754-2019 Table 5.1 and Table 5.2 and the two three-way forms `compare_quiet` and `compare_signaling`). `library/src/decimal/compare_predicates_wbtest.mbt` checks every predicate against every relation, value, and flags."
 msgstr "API 提供 `compare_quiet`、`compare_signaling`、`compare_quiet_equal`、`compare_signaling_equal`、`compare_quiet_less`、`compare_signaling_less`、`compare_quiet_less_equal`、`compare_signaling_less_equal`、`compare_quiet_unordered`，以及 `compare_predicates.mbt` 中的十五个谓词（共 24 个：IEEE 754-2019 Table 5.1 与 Table 5.2 的 22 个谓词以及 `compare_quiet` 与 `compare_signaling` 两个三路形式）。`library/src/decimal/compare_predicates_wbtest.mbt` 针对每种关系、数值与标志检验每个谓词。"
 
-#: manual/conformance/decimal.md:132
+#: manual/conformance/decimal.md:131
 msgid "totalOrder evidence"
 msgstr "totalOrder 证据"
 
-#: manual/conformance/decimal.md:134
+#: manual/conformance/decimal.md:133
 msgid "`testdata/decimal/ieee/total_order.json` covers every ordered pair of cohorts, signed zeros, subnormals, infinities, and quiet and signaling NaNs with payloads in decimal32, decimal64, and decimal128 (9,408 ordered pairs for each of the two predicates). Expected results come from a transcription of IEEE 754-2019 5.10 cross-checked with libmpdec and run on four targets in the `DECIMAL: IEEE 754` gate. NaN payloads order by value, reversed for a negative sign (implementation-defined by IEEE 754-2019 5.10 d) 5) iii)). `tooling/src/consistency/core_wbtest.mbt` also checks total order."
 msgstr "`testdata/decimal/ieee/total_order.json` 覆盖 decimal32、decimal64 和 decimal128 中同值类、带符号零、次正规数、无穷以及带载荷的静默 NaN 与信号 NaN 的所有有序对（两个谓词各 9,408 个有序对）。预期结果来自对 IEEE 754-2019 5.10 的转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行。NaN 载荷按数值排序，负号时反序（由 IEEE 754-2019 5.10 d) 5) iii) 规定为实现定义）。`tooling/src/consistency/core_wbtest.mbt` 也检查全序。"
 
-#: manual/conformance/decimal.md:143
+#: manual/conformance/decimal.md:142
 msgid "Underflow and tininess evidence"
 msgstr "下溢与微小性证据"
 
-#: manual/conformance/decimal.md:145
+#: manual/conformance/decimal.md:144
 msgid "Five package tests check underflow and tininess before rounding: `library/src/decimal/tininess_default_issue217_wbtest.mbt`, `library/src/decimal/sqrt_tininess_wbtest.mbt`, `library/src/decimal/elementary_extensions_wbtest.mbt`, `library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below $10^{e_{\\min}}$), and `library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)."
 msgstr "五个包测试检查下溢与舍入前微小性：`library/src/decimal/tininess_default_issue217_wbtest.mbt`、`library/src/decimal/sqrt_tininess_wbtest.mbt`、`library/src/decimal/elementary_extensions_wbtest.mbt`、`library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt`（刚好低于 $10^{e_{\\min}}$ 的整数幂），以及 `library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt`（不精确次正规整数幂的下溢）。"
 
-#: manual/conformance/decimal.md:156
+#: manual/conformance/decimal.md:155
 msgid "The IEEE 754-2019 9.2 functions covered are `exp_ctx`, `exp2_ctx`, `exp10_ctx`, `expm1_ctx`, `exp2m1_ctx`, `exp10m1_ctx`, `ln_ctx`, `log2_ctx`, `log10_ctx`, `log1p_ctx`, `log2p1_ctx`, `log10p1_ctx`, `hypot_ctx`, `rsqrt_ctx`, `compound_ctx`, `powr_ctx`, `asinpi_ctx`, `acospi_ctx`, `atanpi_ctx`, `atan2pi_ctx`, `rootn_ctx`, `pown_ctx`, `pow_ctx`, `sin_ctx`, `cos_ctx`, `tan_ctx`, `sinpi_ctx`, `cospi_ctx`, `tanpi_ctx`, `asin_ctx`, `acos_ctx`, `atan_ctx`, `atan2_ctx`, `sinh_ctx`, `cosh_ctx`, `tanh_ctx`, `asinh_ctx`, `acosh_ctx`, and `atanh_ctx`."
 msgstr "覆盖的 IEEE 754-2019 9.2 函数为 `exp_ctx`、`exp2_ctx`、`exp10_ctx`、`expm1_ctx`、`exp2m1_ctx`、`exp10m1_ctx`、`ln_ctx`、`log2_ctx`、`log10_ctx`、`log1p_ctx`、`log2p1_ctx`、`log10p1_ctx`、`hypot_ctx`、`rsqrt_ctx`、`compound_ctx`、`powr_ctx`、`asinpi_ctx`、`acospi_ctx`、`atanpi_ctx`、`atan2pi_ctx`、`rootn_ctx`、`pown_ctx`、`pow_ctx`、`sin_ctx`、`cos_ctx`、`tan_ctx`、`sinpi_ctx`、`cospi_ctx`、`tanpi_ctx`、`asin_ctx`、`acos_ctx`、`atan_ctx`、`atan2_ctx`、`sinh_ctx`、`cosh_ctx`、`tanh_ctx`、`asinh_ctx`、`acosh_ctx` 与 `atanh_ctx`。"
 
-#: manual/conformance/decimal.md:165
+#: manual/conformance/decimal.md:164
 msgid "`testdata/decimal/ieee/elementary_mpfr_oracle.json` provides the MPFR-certified elementary oracle (29 operations × 60 rows and 11 operations × 120 rows = 3,060). Package tests include `library/src/decimal/elementary_extensions_wbtest.mbt`. `library/src/decimal/elementary_pm1_wbtest.mbt` and the generated `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`) test `exp2m1`, `exp10m1`, `log2p1`, and `log10p1` for special values of IEEE 754-2019 9.2.1, exact cases and preferred exponent of IEEE 754-2019 9.2.2, clusters, tiny arguments, all eight rounding algorithms (the five directions and three working ones), and tininess before rounding."
 msgstr "`testdata/decimal/ieee/elementary_mpfr_oracle.json` 提供 MPFR 认证的初等函数预言机（29 个运算 × 60 行与 11 个运算 × 120 行，共 3,060 行）。包测试包含 `library/src/decimal/elementary_extensions_wbtest.mbt`。`library/src/decimal/elementary_pm1_wbtest.mbt` 及生成的 `library/src/decimal/elementary_pm1_rows_wbtest.mbt`（`tools/generate_decimal_pm1_rows.py`）测试 `exp2m1`、`exp10m1`、`log2p1` 与 `log10p1`，覆盖 IEEE 754-2019 9.2.1 的特殊值、IEEE 754-2019 9.2.2 的精确情况与首选指数、聚集点、极小自变量、全部八种舍入算法（五种方向与三种工作用算法）以及舍入前微小性。"
 
-#: manual/conformance/decimal.md:176
+#: manual/conformance/decimal.md:175
 msgid "`library/src/decimal/elementary_rcp_wbtest.mbt` and the generated `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) test `rsqrt`, `compound`, and `powr` for IEEE 754-2019 9.2.1 rows, the two readings of the `powr` list, preferred exponents, `Int32` minimum, and tiny and extreme arguments."
 msgstr "`library/src/decimal/elementary_rcp_wbtest.mbt` 及生成的 `library/src/decimal/elementary_rcp_rows_wbtest.mbt`（`tools/generate_decimal_rcp_rows.py`）测试 `rsqrt`、`compound` 与 `powr`，覆盖 IEEE 754-2019 9.2.1 各行、`powr` 列表的两种解读、首选指数、`Int32` 最小值以及极小与极端自变量。"
 
-#: manual/conformance/decimal.md:182
+#: manual/conformance/decimal.md:181
 msgid "`library/src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`) test `asinpi`, `acospi`, `atanpi`, and `atan2pi`: the clauses of IEEE 754-2019 9.2.1 row by row, exact Niven values, preferred exponent 0, the anchors next to $\\pm 1/2$ and $\\pm 1$ in all eight rounding algorithms on both sides, tiny and extreme operands, and underflow."
 msgstr "`library/src/decimal/elementary_pi_inverse_wbtest.mbt` 及生成的 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（`tools/generate_decimal_pi_inverse_rows.py`）测试 `asinpi`、`acospi`、`atanpi` 与 `atan2pi`：逐行检查 IEEE 754-2019 9.2.1 条款、精确 Niven 值、首选指数 0、紧邻 $\\pm 1/2$ 与 $\\pm 1$ 两侧在全部八种舍入算法下的锚点、极小与极端操作数以及下溢。"
 
-#: manual/conformance/decimal.md:190
+#: manual/conformance/decimal.md:189
 msgid "`library/src/decimal/exp_range_wbtest.mbt` and the generated `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`) test exponentials at the range limits: `exp`, `exp2`, and `exp10` beyond the binary exponent range, results just inside and outside the range, and all five rounding directions. A seeded random `decimal-*` campaign checks the functions against MPFR (`doc/manual/verification.md`)."
 msgstr "`library/src/decimal/exp_range_wbtest.mbt` 及生成的 `library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`）测试范围边界处的指数函数：超出二进制指数范围的 `exp`、`exp2` 与 `exp10`、刚好处于范围内外的结果以及全部五种舍入方向。此外还有一项针对 MPFR 的带种子随机 `decimal-*` 测试活动（`doc/manual/verification.md`）。"
 
-#: manual/conformance/decimal.md:198
+#: manual/conformance/decimal.md:197
 msgid "Power preferred-exponent evidence"
 msgstr "幂的首选指数证据"
 
-#: manual/conformance/decimal.md:200
+#: manual/conformance/decimal.md:199
 msgid "Tests for `pow_ctx` and `pown_ctx`:"
 msgstr "`pow_ctx` 与 `pown_ctx` 的测试："
 
-#: manual/conformance/decimal.md:203
+#: manual/conformance/decimal.md:202
 msgid "`library/src/decimal/power_overflow_sign_issue265_wbtest.mbt`: sign of an overflowing power."
 msgstr "`library/src/decimal/power_overflow_sign_issue265_wbtest.mbt`：溢出幂的符号。"
 
-#: manual/conformance/decimal.md:204
+#: manual/conformance/decimal.md:203
 msgid "`library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt`: an inexact power uses the cohort member of least exponent, IEEE 754-2019 5.2."
 msgstr "`library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt`：不精确的幂使用最小指数的同值类成员，见 IEEE 754-2019 5.2。"
 
-#: manual/conformance/decimal.md:205
+#: manual/conformance/decimal.md:204
 msgid "`library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt`: cohort of exact negative powers, IEEE 754-2019 5.2."
 msgstr "`library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt`：精确负幂的同值类，见 IEEE 754-2019 5.2。"
 
-#: manual/conformance/decimal.md:206
+#: manual/conformance/decimal.md:205
 msgid "`library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt`: an integer power is folded down only when the exponent had to be altered."
 msgstr "`library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt`：仅当指数必须调整时才将整数幂向下折叠。"
 
-#: manual/conformance/decimal.md:207
+#: manual/conformance/decimal.md:206
 msgid "`library/src/decimal/power_ten_clamp_issue287_wbtest.mbt`: a power of ten above the top exponent is folded down."
 msgstr "`library/src/decimal/power_ten_clamp_issue287_wbtest.mbt`：高于最大指数的 10 的幂会被向下折叠。"
 
-#: manual/conformance/decimal.md:208
+#: manual/conformance/decimal.md:207
 msgid "`library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt`: an inexact result is delivered with precision digits, not folded down."
 msgstr "`library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt`：不精确结果以精度位数交付，不向下折叠。"
 
-#: manual/conformance/decimal.md:210
+#: manual/conformance/decimal.md:209
 msgid "Targets"
 msgstr "目标"
 
-#: manual/conformance/decimal.md:212
+#: manual/conformance/decimal.md:211
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。"
 
-#: manual/conformance/decimal.md:216
+#: manual/conformance/decimal.md:215
 #: manual/conformance/decimal_gda.md:224
 #: manual/design/bench.md:243
 #: manual/design/bench/binary.md:68
@@ -11964,19 +11964,19 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 msgid "Boundaries"
 msgstr "边界"
 
-#: manual/conformance/decimal.md:218
+#: manual/conformance/decimal.md:217
 msgid "The checked matrix is finite and does not claim every IEEE 754-2019 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*` and `dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr "所检查的矩阵是有限的，并不声明覆盖全部 IEEE 754-2019 运算、所有载荷传播策略或所有可能的十进制输入。补充的 `dd*` 与 `dq*` decTest 行仅作诊断，不是 IEEE 预言机。"
 
-#: manual/conformance/decimal.md:223
+#: manual/conformance/decimal.md:222
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr "`Decimal::parse_checked` 通过 `from_string_ctx` 应用 ArithmeticContext 的舍入方向与指数边界。此 checked API 仅返回值或语法错误，因此其 `Result` 不携带溢出或下溢标志。"
 
-#: manual/conformance/decimal.md:228
+#: manual/conformance/decimal.md:227
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏差](../design/decimal.md#known-deviations)。门禁通过仅是所覆盖各行的证据。"
 
-#: manual/conformance/decimal.md:232
+#: manual/conformance/decimal.md:231
 #: manual/conformance/decimal_gda.md:314
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:41
@@ -11985,7 +11985,7 @@ msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏�
 msgid "Reproduction"
 msgstr "复现"
 
-#: manual/conformance/decimal.md:240
+#: manual/conformance/decimal.md:239
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "语料来源、vector family 和失败记录见[十进制数据指南](../../../testdata/decimal/README.md)。"
 
