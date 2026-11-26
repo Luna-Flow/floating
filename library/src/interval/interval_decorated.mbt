@@ -117,11 +117,15 @@ pub fn DecoratedInterval::is_entire(self : DecoratedInterval) -> Bool {
 }
 
 ///|
+/// `Interval::is_common_interval` on the interval part: non-empty and bounded.
+/// False for NaI.
 pub fn DecoratedInterval::is_common_interval(self : DecoratedInterval) -> Bool {
   !self.is_nai() && self.interval_.is_common_interval()
 }
 
 ///|
+/// `Interval::is_singleton` on the interval part: non-empty with equal bounds.
+/// False for NaI.
 pub fn DecoratedInterval::is_singleton(self : DecoratedInterval) -> Bool {
   !self.is_nai() && self.interval_.is_singleton()
 }
