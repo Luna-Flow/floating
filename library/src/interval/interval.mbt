@@ -1153,7 +1153,7 @@ pub fn Interval::from_coefficient(
 
 ///|
 /// The interval that contains the double `x`, in a format of `precision` bits
-/// (default 53): every double is held exactly first and the interval rounds
+/// (default 53): the double is held exactly first (53 bits hold any finite double) and the interval rounds
 /// outward, so a double that does not fit `precision` gives a proper interval. Aborts when `x` is NaN or infinite or `precision` is
 /// outside `1..=binary_precision_max`; `try_from_double` returns an `Err`
 /// instead.
@@ -1377,8 +1377,8 @@ pub fn Interval::mignitude(self : Interval) -> @binary.Binary {
 }
 
 ///|
-/// The precision in bits of the format of the interval: every bound is a
-/// number of that format.
+/// The precision in bits of the format of the interval: each finite
+/// bound is a number of that format.
 pub fn Interval::precision(self : Interval) -> Int32 {
   self.precision_
 }
@@ -1459,9 +1459,9 @@ pub fn Interval::recip(self : Interval) -> Interval {
 }
 
 ///|
-/// The square `x * x`, tighter than `x * x` computed as a product when the
-/// interval contains both signs (the lower bound is then 0). An empty interval
-/// stays empty. The bounds are rounded outward at the precision of the interval.
+/// The square of the interval: the lower bound is 0 when the interval contains
+/// 0 (the product `x * x` would give a negative one). An empty interval stays
+/// empty. The bounds are rounded outward at the precision of the interval.
 pub fn Interval::sqr(self : Interval) -> Interval {
   if self.is_empty() {
     return self
@@ -2111,8 +2111,8 @@ pub fn Interval::overlap(self : Interval, other : Interval) -> OverlapState {
 }
 
 ///|
-/// The sum, rounded outward: the lower bound is the sum of the lower bounds
-/// rounded down and the upper bound the sum of the upper bounds rounded up.
+/// The sum, rounded outward (the lower bound down, the upper bound up); an
+/// unbounded operand gives an infinite bound.
 /// The result has the larger of the two precisions; an empty operand gives
 /// the empty interval. This is the `+` operator.
 pub fn Interval::add(self : Interval, other : Interval) -> Interval {
