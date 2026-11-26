@@ -10663,7 +10663,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr ""
 
 #: manual/architecture.md:274
-#: manual/design/internal/binary_kernel.md:102
+#: manual/design/internal/binary_kernel.md:117
 msgid "Invariants"
 msgstr ""
 
@@ -19975,34 +19975,38 @@ msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through 
 msgstr ""
 
 #: manual/design/internal/binary_kernel.md:87
+msgid "Window row in assembly: the interior of the window pass of the wide sum (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a subtraction) with a loop counter that does not touch the flags, so the chain runs through every block boundary. There are twelve out-of-line loops, by add or subtract and by which operands are shifted (a shifted limb costs `lsr`, `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with both (12, 24 and 36 instructions per block in the disassembly). The carry enters a loop as the C flag (`cmp x, #1`) and leaves it as `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs stay the C code. A call costs about 55 instructions more than the C body, so the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`) and the C body from 14. `add` and `sub` take 0.98 to 0.99 of the C tier's instructions at 2,048 bits, 0.93 at 4,096 and 0.80 at 16,384; below 1,792 bits the difference is within the spread of the runs."
+msgstr ""
+
+#: manual/design/internal/binary_kernel.md:102
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:88
+#: manual/design/internal/binary_kernel.md:103
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:94
+#: manual/design/internal/binary_kernel.md:109
 msgid "Thresholds"
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:96
+#: manual/design/internal/binary_kernel.md:111
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:104
+#: manual/design/internal/binary_kernel.md:119
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:106
+#: manual/design/internal/binary_kernel.md:121
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:107
+#: manual/design/internal/binary_kernel.md:122
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr ""
 
-#: manual/design/internal/binary_kernel.md:109
+#: manual/design/internal/binary_kernel.md:124
 msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
 msgstr ""
 

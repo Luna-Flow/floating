@@ -1059,6 +1059,8 @@ notes live in this file.
   | 128 | 3,972 | 3,003 |
   | 512 | 5,031 | 4,067 |
 
+- `binary`: on Apple arm64 the interior of the window pass of the wide sum (`add` and `sub` of two coefficients of more than two words) runs in inline assembly from 24 limbs of window (about 1,500 bits): four limbs per iteration, one carry chain through the four sums, 3.0 to 9.0 instructions per limb against 6.1 to 12.7 for the C interior. Instructions per call of `add` and `sub` (Apple M4, two-count method, median of five), assembly tier over the C tier of the same executable: 0.99 and 0.98 at 2,048 bits, 0.94 and 0.95 at 3,072, 0.93 at 4,096, 0.87 at 8,192, 0.80 at 16,384; from 1,024 to 1,792 bits the difference (-1.2 to +1.1 percent) is within the spread of the runs. Windows below 24 limbs run the C body as before, and the results are identical ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
 ## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).

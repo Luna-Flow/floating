@@ -84,6 +84,21 @@ and the aliasing the callers use.
   the chain B carry, the loop). AArch64 has one carry flag and no
   multiply-accumulate with carry, so the two chains cannot be interleaved.
   Anywhere else the assembly entry points are the C rows.
+- Window row in assembly: the interior of the window pass of the wide sum
+  (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs
+  per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a
+  subtraction) with a loop counter that does not touch the flags, so the chain
+  runs through every block boundary. There are twelve out-of-line loops, by add
+  or subtract and by which operands are shifted (a shifted limb costs `lsr`,
+  `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with
+  both (12, 24 and 36 instructions per block in the disassembly). The carry
+  enters a loop as the C flag (`cmp x, #1`) and leaves it as
+  `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs
+  stay the C code. A call costs about 55 instructions more than the C body, so
+  the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`)
+  and the C body from 14. `add` and `sub` take 0.98 to 0.99 of the C tier's
+  instructions at 2,048 bits, 0.93 at 4,096 and 0.80 at 16,384; below 1,792 bits
+  the difference is within the spread of the runs.
 - `bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure).
 - Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and
   `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is
