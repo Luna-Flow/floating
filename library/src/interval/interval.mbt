@@ -22,6 +22,11 @@ pub struct Interval {
 }
 
 ///|
+/// The relative position of two intervals: the 16 overlapping states of
+/// IEEE 1788-2015 Table 10.7 (10.6.4). The state names the position of the first interval
+/// with respect to the second: `Before` when the first ends below the start of
+/// the second, `Meets` when its upper bound equals the other's lower bound, and
+/// so on; `BothEmpty`, `FirstEmpty` and `SecondEmpty` cover empty operands.
 #derive(Eq, Debug)
 pub(all) enum OverlapState {
   BothEmpty
@@ -997,6 +1002,13 @@ fn div_interval_impl(a : Interval, b : Interval) -> Interval {
 }
 
 ///|
+/// The interval `[center - radius, center + radius]` in a format of `precision`
+/// bits (`midRadToInterval` of IEEE 1788-2015 12.12.7): the lower bound is
+/// `center - radius` rounded down and the upper bound `center + radius`
+/// rounded up, once each. `precision` defaults to the larger of the two
+/// precisions. Aborts when `center` or `radius` is not finite, `radius` is
+/// negative or `precision` is outside `1..=binary_precision_max`; the
+/// `try_` form returns an `Err` instead.
 pub fn Interval::from_midpoint_radius(
   center : @binary.Binary,
   radius : @binary.Binary,
@@ -1035,6 +1047,23 @@ pub fn Interval::try_from_midpoint_radius(
 }
 
 ///|
+/// The interval `[lo, hi]` in a format of `precision` bits, which defaults to
+/// the larger of the two precisions. A bound that is not a number of that
+/// format is rounded outward (`lo` down, `hi` up). An infinite bound makes an
+/// unbounded interval. Aborts when a bound is NaN, `lo` is positive infinity,
+/// `hi` is negative infinity, `lo` exceeds `hi`, or `precision` is outside
+/// `1..=binary_precision_max`; `try_from_bounds` returns an `Err` instead.
+///
+/// ```mbt check
+/// test {
+///   let one = @binary.Binary::from_int(1, precision=53)
+///   let three = @binary.Binary::from_int(3, precision=53)
+///   inspect(
+///     @interval.Interval::from_bounds(one, three).to_string(),
+///     content="[1, 3]",
+///   )
+/// }
+/// ```
 pub fn Interval::from_bounds(
   lo : @binary.Binary,
   hi : @binary.Binary,
@@ -1058,6 +1087,11 @@ pub fn Interval::try_from_bounds(
 }
 
 ///|
+/// The singleton interval `[x, x]` in a format of `precision` bits, which
+/// defaults to the precision of `x`. When `x` does not fit the format the
+/// interval is widened outward so that it still contains `x`. Aborts when `x`
+/// is not finite or `precision` is outside `1..=binary_precision_max`;
+/// `try_exact` returns an `Err` instead.
 pub fn Interval::exact(
   x : @binary.Binary,
   precision~ : Int32 = x.precision(),
@@ -1079,6 +1113,20 @@ pub fn Interval::try_exact(
 }
 
 ///|
+/// The interval that contains the integer `n`, in a format of `precision`
+/// bits: `n` is built exactly and the interval rounds outward, so a `precision`
+/// below the bit length of `n` gives a non-singleton interval that still
+/// contains `n`. `precision` has no default. Aborts when it is outside
+/// `1..=binary_precision_max`.
+///
+/// ```mbt check
+/// test {
+///   inspect(
+///     @interval.Interval::from_int(7, precision=53).to_string(),
+///     content="[7, 7]",
+///   )
+/// }
+/// ```
 pub fn Interval::from_int(n : Int32, precision~ : Int32) -> Interval {
   // Build the integer exactly and let the interval round outward. Rounding it
   // to `precision` first produced a singleton that excluded its own input.
@@ -1104,6 +1152,11 @@ pub fn Interval::from_coefficient(
 }
 
 ///|
+/// The interval that contains the double `x`, in a format of `precision` bits
+/// (default 53): every double is held exactly first and the interval rounds
+/// outward, so a double that does not fit `precision` gives a proper interval. Aborts when `x` is NaN or infinite or `precision` is
+/// outside `1..=binary_precision_max`; `try_from_double` returns an `Err`
+/// instead.
 pub fn Interval::from_double(x : Double, precision~ : Int32 = 53) -> Interval {
   match Interval::try_from_double(x, precision~) {
     Ok(value) => value
@@ -1156,11 +1209,15 @@ pub fn Interval::try_from_float(
 }
 
 ///|
+/// The whole real line `[-inf, +inf]` in a format of `precision` bits (default
+/// 53). `is_entire` tests for it.
 pub fn Interval::entire(precision~ : Int32 = 53) -> Interval {
   whole_real(precision)
 }
 
 ///|
+/// The empty set in a format of `precision` bits (default 53), which has no bounds; `to_string` gives
+/// `[empty]`.
 pub fn Interval::empty(precision~ : Int32 = 53) -> Interval {
   empty_interval(precision)
 }
@@ -1191,11 +1248,13 @@ pub fn Interval::upper_bound(self : Interval) -> @binary.Binary {
 }
 
 ///|
+/// Whether the interval is the whole real line `[-inf, +inf]`.
 pub fn Interval::is_entire(self : Interval) -> Bool {
   !self.empty_ && is_neg_inf(self.lo_) && is_pos_inf(self.hi_)
 }
 
 ///|
+/// Whether the interval is the empty set.
 pub fn Interval::is_empty(self : Interval) -> Bool {
   self.empty_
 }
@@ -1293,6 +1352,9 @@ pub fn Interval::width(self : Interval) -> @binary.Binary {
 }
 
 ///|
+/// `mag` of IEEE 1788-2015 12.12.8: the largest absolute value of a member,
+/// `max(|lower|, |upper|)`, NaN for an empty interval and +infinity for an
+/// unbounded one. A zero result is +0.
 pub fn Interval::magnitude(self : Interval) -> @binary.Binary {
   if self.is_empty() {
     return @binary.Binary::nan(precision=self.precision_)
@@ -1301,6 +1363,9 @@ pub fn Interval::magnitude(self : Interval) -> @binary.Binary {
 }
 
 ///|
+/// `mig` of IEEE 1788-2015 12.12.8: the smallest absolute value of a member,
+/// 0 when the interval contains 0, NaN for an empty interval. A zero result is
+/// +0.
 pub fn Interval::mignitude(self : Interval) -> @binary.Binary {
   if self.is_empty() {
     return @binary.Binary::nan(precision=self.precision_)
@@ -1312,6 +1377,8 @@ pub fn Interval::mignitude(self : Interval) -> @binary.Binary {
 }
 
 ///|
+/// The precision in bits of the format of the interval: every bound is a
+/// number of that format.
 pub fn Interval::precision(self : Interval) -> Int32 {
   self.precision_
 }
@@ -1392,6 +1459,9 @@ pub fn Interval::recip(self : Interval) -> Interval {
 }
 
 ///|
+/// The square `x * x`, tighter than `x * x` computed as a product when the
+/// interval contains both signs (the lower bound is then 0). An empty interval
+/// stays empty. The bounds are rounded outward at the precision of the interval.
 pub fn Interval::sqr(self : Interval) -> Interval {
   if self.is_empty() {
     return self
@@ -1655,6 +1725,11 @@ fn directed_sqrt(
 }
 
 ///|
+/// The square root of the part of the
+/// interval that is not below zero: the result for `[-4, 9]` is the root of
+/// `[0, 9]`. An interval entirely below zero or an empty one gives the empty
+/// interval. The lower bound is rounded down and the upper bound up at the
+/// precision of the interval.
 pub fn Interval::sqrt(self : Interval) -> Interval {
   if self.is_empty() {
     return self
@@ -1706,6 +1781,8 @@ pub fn Interval::identical(self : Interval, other : Interval) -> Bool {
 }
 
 ///|
+/// Whether every member of `self` is a member of `other`. The empty interval is a subset of every
+/// interval; no non-empty interval is a subset of the empty one.
 pub fn Interval::subset(self : Interval, other : Interval) -> Bool {
   self.is_empty() ||
   (
@@ -1772,6 +1849,8 @@ pub fn Interval::disjoint(self : Interval, other : Interval) -> Bool {
 }
 
 ///|
+/// Whether the interval is non-empty and bounded (a common interval in the
+/// terms of IEEE 1788-2015).
 pub fn Interval::is_common_interval(self : Interval) -> Bool {
   !self.empty_ &&
   self.lo_.classify() == FpClass::Finite &&
@@ -1779,6 +1858,7 @@ pub fn Interval::is_common_interval(self : Interval) -> Bool {
 }
 
 ///|
+/// Whether the interval is non-empty with equal bounds.
 pub fn Interval::is_singleton(self : Interval) -> Bool {
   !self.is_empty() && self.lo_.compare(self.hi_) == 0
 }
@@ -2031,21 +2111,34 @@ pub fn Interval::overlap(self : Interval, other : Interval) -> OverlapState {
 }
 
 ///|
+/// The sum, rounded outward: the lower bound is the sum of the lower bounds
+/// rounded down and the upper bound the sum of the upper bounds rounded up.
+/// The result has the larger of the two precisions; an empty operand gives
+/// the empty interval. This is the `+` operator.
 pub fn Interval::add(self : Interval, other : Interval) -> Interval {
   add_interval_impl(self, other)
 }
 
 ///|
+/// The difference `self - other`, rounded outward at the larger of the two
+/// precisions; an empty operand gives the empty interval. This is the `-`
+/// operator.
 pub fn Interval::sub(self : Interval, other : Interval) -> Interval {
   sub_interval_impl(self, other)
 }
 
 ///|
+/// The product, rounded outward at the larger of the two precisions; an empty
+/// operand gives the empty interval. This is the `*` operator.
 pub fn Interval::mul(self : Interval, other : Interval) -> Interval {
   mul_interval_impl(self, other)
 }
 
 ///|
+/// The quotient `self / other`, rounded outward at the larger of the two
+/// precisions. When `other` contains zero the result is the hull of the
+/// quotients of its non-zero members; the quotient by `[0, 0]` is the empty interval, and so is a quotient with an
+/// empty operand. This is the `/` operator.
 pub fn Interval::div(self : Interval, other : Interval) -> Interval {
   div_interval_impl(self, other)
 }
