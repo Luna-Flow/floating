@@ -1,10 +1,10 @@
 # binary tutorial
 
 Use `Binary`, the arbitrary-precision binary floating-point type in
-`floating`, to construct values exactly, run a calculation in an IEEE 754 format
-such as binary32 and inspect its flags, exchange interchange bit patterns,
-and print decimal text. Then use correctly rounded elementary functions. Each example compiles and
-shows its output. The
+`floating`, to construct values exactly, run a calculation in an IEEE 754
+format such as binary32 and inspect its flags, exchange interchange bit
+patterns, and print decimal text. Then use correctly rounded elementary
+functions. Each example compiles and shows its output. The
 [design page](../design/binary.md) explains the rounding rules; the
 [API reference](../api/binary.md) lists each function.
 
@@ -401,36 +401,28 @@ first attempt succeeds for almost every input. The [performance
 page](../performance/binary.md) records measurements.
 
 ## Common pitfalls
-
 - **`==` uses `compare`'s numerical relation.** A 53-bit `1` is `==` to a
   24-bit `1`; $-0 = +0$; and all NaNs compare equal. It is not IEEE equality. Use
   `compare_quiet_equal` for IEEE equality; `identical` compares zero sign,
   precision and NaN kind.
-
 - **`compare` orders NaN last.** It does not abort. Every NaN compares equal
   to every NaN and greater than every number, so `nan > x` is true. Use
   `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be
   unordered.
-
 - **Plain operators ignore your format.** `x + y` uses the larger operand
   precision and an exponent range of about $2^{\pm 2^{30}}$. It never
   overflows at binary32 limits. Use `add_ctx` with a format context.
-
 - **`from_double(0.1)` is not one tenth.** The host has already rounded it to
   binary64. Parse decimal text with `from_string`.
-
 - **`to_string` prints binary notation.** It prints
   `3602879701896397p-55`. Use `to_shortest_string` or
   `to_decimal_string_ctx` for decimal output.
-
 - **`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and
   `0x3p-1` are both $1.5$, but `0x1.8` is rejected. An inexact conversion
   looks exact. Use `from_hex_ctx` or `from_string_ctx` for decimal text when
   rounding direction or flags matter.
-
 - **`with_precision` hides flags.** Use `apply_ctx` to check whether narrowing
   was inexact or overflowed.
-
 - **The sign of zero is an input.** IEEE 754 special cases use it: `atan2` of
   $(-0, -1)$ is $-\pi$, but of $(+0, -1)$ is $+\pi$; `tanpi(1)` is $-0$; and
   $(-0)^{-1}$ is $-\infty$. Keep the sign: changing $-0$ to $+0$ changes
