@@ -15,6 +15,9 @@ fn log_zero_show(result : (Decimal, DecimalFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (read from the PDF text): log, log2 and log10 of +-0 are -inf and signal divideByZero, and so is log1p(-1); the operands 0, -0, 0E+5 and -0.000 are zeros of different cohorts; written out
+// shares: Decimal::from_string (the local d: builds the operands), log_zero_show (prints value and flags through to_string), ln_ctx, log10_ctx, log2_ctx, log1p_ctx and the try_ forms (the code under test)
 test "logarithms of zero signal division by zero (IEEE 754 9.2.1)" {
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let c64 = DecimalContext::decimal64()

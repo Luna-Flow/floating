@@ -3,6 +3,9 @@
 /// setPayloadSignaling give a NaN with the payload when it is a non-negative
 /// integer the format can hold (at most p - 1 digits) and +0 otherwise,
 /// whatever the receiver is.
+// oracle: A, S
+// source: IEEE 754-2019 9.7 (read from the PDF text): getPayload of a NaN is its payload as a non-negative integer and -1 for a non-NaN; setPayload and setPayloadSignaling give a quiet or signaling NaN with the payload when it is an admissible non-negative integer and +0 otherwise; which payloads are admissible (at most p - 1 digits: 15 for decimal64, none beyond for precision 1) is implementation-defined and here the library's choice (level S); written out
+// shares: Decimal::from_string, quiet_nan, signaling_nan, zero, inf, set_payload, set_payload_signaling, get_payload, nan_payload, is_nan, is_signaling_nan, is_zero, is_negative_zero and to_string (build the operands and read the results), add_ctx (the code under test where it propagates)
 test "payload operations follow IEEE 754 9.7 (#151)" {
   let one = Decimal::from_string("1").unwrap()
   assert_eq(one.get_payload().to_string(), "-1")
@@ -44,6 +47,9 @@ test "payload operations follow IEEE 754 9.7 (#151)" {
 /// IEEE 754-2019 §3.5.2 and §6.2.3: a propagated NaN payload is one the
 /// destination format can hold, and an interchange-shaped (clamped) context has
 /// p - 1 payload digits; `from_string_ctx` enforces the same limit.
+// oracle: A, S
+// source: IEEE 754-2019 3.5.2 and 6.2.3: a propagated NaN carries the payload of an input NaN when the destination can hold it (p - 1 = 15 digits for decimal64) and a signaling NaN gives a quiet NaN with invalid operation; keeping the low 15 digits of a 16-digit payload (234567890123456) and zero for 10^15 is the library's convention for a payload that does not fit (level S)
+// shares: Decimal::from_string, quiet_nan, signaling_nan, zero, inf, set_payload, set_payload_signaling, get_payload, nan_payload, is_nan, is_signaling_nan, is_zero, is_negative_zero and to_string (build the operands and read the results), add_ctx (the code under test where it propagates)
 test "NaN propagation keeps a payload the clamped format can hold (#152)" {
   let one = Decimal::from_string("1").unwrap()
   let d64 = DecimalContext::decimal64()

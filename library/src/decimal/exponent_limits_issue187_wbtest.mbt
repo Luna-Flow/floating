@@ -27,6 +27,9 @@ fn issue187_context(
 /// implementation (cross-check only; the specification is the authority).
 /// Rows: operation, operands, precision, clamp, rounding mode, result, flags
 /// (the five IEEE flags: inexact, invalid, divide-by-zero, overflow, underflow).
+// oracle: A, S
+// source: CPython decimal with Emax = 999999999, Emin = -999999998 and clamp = 1, all 21 rows re-run 2026-11-26 (sqrt, fma, add, sub and mul at 5E-2147483645, 5E+2147483646 and the neighbouring exponents, rounding to nearest, half-down, down, ceiling and floor): value text and the five flags agree; the operand exponents themselves are the library's stored range (level S)
+// shares: issue187_context and issue187_flags (build the context and print the flags), Decimal::from_string (builds the operands), to_string, add_ctx, sub_ctx, mul_ctx, fma_ctx and sqrt_ctx (the code under test)
 test "operands with exponents near the stored limits give the specified results (#187)" {
   let rows : Array[
     (String, Array[String], Int32, Bool, DecimalRound, String, String),
@@ -159,6 +162,9 @@ test "operands with exponents near the stored limits give the specified results 
 ///|
 /// `remainder` with an exponent operand at the smallest stored exponent: the
 /// exact result is tiny and rounds to zero at the least exponent, with no abort.
+// oracle: A, S
+// source: arithmetic and IEEE 754-2019 5.3.1 (remainder: x - y * n with n the integer nearest x / y, ties to even): 7 - 9E-2147483645 * n is -2E-2147483645 (7 * 10^2147483645 mod 18 = 16, checked with Python integers, quotient odd, 16 - 9 = 7 and 9 - 7 = 2), which is below half of the least subnormal 1E-1000000031 at 34 digits and rounds to -0E-1000000031 with inexact and underflow; CPython's remainder_near cannot form this quotient (DivisionImpossible), so the value rests on the arithmetic; the operand exponent is the library's stored range (level S)
+// shares: issue187_context and issue187_flags (build the context and print the flags), Decimal::from_string (builds the operands), to_string, remainder_ctx (the code under test)
 test "remainder with an exponent operand at the stored limit rounds to the least exponent (#187)" {
   // IEEE 754-2019 remainder (nearest quotient, exact): 7 - 9E-2147483645 * n is
   // -2E-2147483645 (7 * 10^2147483645 mod 18 = 16, quotient odd, 16 - 9 = 7 and

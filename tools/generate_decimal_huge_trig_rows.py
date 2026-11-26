@@ -193,6 +193,9 @@ def render_binary(rows: list[tuple[str, int, int, str]]) -> str:
         "// (tools/mpfr_huge_trig.c), kept only when both bounds round to one value.",
         "",
         "///|",
+        "// oracle: A",
+        "// source: GNU MPFR 4.2.2 mpfr_sin, mpfr_cos and mpfr_tan at the exact argument 2^k (k = 300, 5000, 70000, 100000) rounded to nearest at 53 and 113 bits, re-run with a small C program on 2026-11-26 (library-ran: no): all 24 expected values agree; see also tools/mpfr_huge_trig.c and tools/generate_decimal_huge_trig_rows.py for the decimal rows",
+        "// shares: Binary::make builds the argument 2^k; try_sin_ctx, try_cos_ctx and try_tan_ctx are the code under test; the expected text is compared as text",
         "test \"sin, cos and tan of 2^k against MPFR at the exact argument\" {",
         "  let rows : Array[(String, Int32, Int32, String)] = [",
     ]
