@@ -266,9 +266,12 @@ pub fn GdaDecimalChecked::round_to_integral_value(
 
 ///|
 /// The sum, rounded in the context of `self` (GDA `add`). A trapped `self`
-/// stays as it is. Otherwise a trapped `other` stops the operation, its flags and
-/// trap joining the result, and the value of `self` is kept; the conditions of a
-/// completed `other` join the outcome.
+/// stays as it is, and the flags of `other` are not joined. When `other` is
+/// trapped the operation does not run: the value of `self` is kept, the result is
+/// trapped with the signal of `other`, `raised` becomes the `raised` of `other`
+/// (the earlier `raised` of `self` is dropped) and the sticky flags are those of
+/// `self` joined with those of `other`. Otherwise `raised` is the conditions of
+/// this step joined with the `raised` of `other`.
 ///
 /// ```mbt check
 /// test {
