@@ -36,6 +36,8 @@ pub fn GdaDecimalChecked::to_number(
 }
 
 ///|
+/// The current `GdaOutcome`: `Completed` with the value, the next context and
+/// the conditions of the last operation, or `Trapped` with the signal as well.
 pub fn GdaDecimalChecked::outcome(
   self : GdaDecimalChecked,
 ) -> @decimal_gda.GdaOutcome[@decimal_gda.Decimal] {
@@ -97,11 +99,13 @@ pub fn GdaDecimalChecked::result(
 }
 
 ///|
+/// Whether the pipeline completed, that is no trap stopped it.
 pub fn GdaDecimalChecked::is_ok(self : GdaDecimalChecked) -> Bool {
   self.error() is None
 }
 
 ///|
+/// Whether a trap stopped the pipeline.
 pub fn GdaDecimalChecked::is_err(self : GdaDecimalChecked) -> Bool {
   self.error() is Some(_)
 }
@@ -162,41 +166,53 @@ fn GdaDecimalChecked::binary(
 }
 
 ///|
+/// Rounds the current value to the context (GDA `apply`).
 pub fn GdaDecimalChecked::apply(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.apply)
 }
 
 ///|
+/// The value rounded to the context, as the GDA `plus` (the prefix `+`) does.
 pub fn GdaDecimalChecked::plus(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.plus)
 }
 
 ///|
+/// The negation of the value, rounded to the context (GDA `minus`).
 pub fn GdaDecimalChecked::minus(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.minus)
 }
 
 ///|
+/// The absolute value, rounded to the context (GDA `abs`).
 pub fn GdaDecimalChecked::abs(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.abs)
 }
 
 ///|
+/// The square root in the context (GDA `square-root`). A negative operand gives
+/// NaN with `invalid_operation`.
 pub fn GdaDecimalChecked::sqrt(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.sqrt)
 }
 
 ///|
+/// The exponential in the context (GDA `exp`). It needs a precision and
+/// exponent limits within plus or minus 999999; outside them the result is NaN
+/// with the `invalid_context` condition.
 pub fn GdaDecimalChecked::exp(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.exp)
 }
 
 ///|
+/// The natural logarithm in the context (GDA `ln`), with the limits of `exp`.
+/// `ln(0)` is `-inf`.
 pub fn GdaDecimalChecked::ln(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.ln)
 }
 
 ///|
+/// The base-10 logarithm in the context (GDA `log10`), with the limits of `exp`.
 pub fn GdaDecimalChecked::log10(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.log10)
 }
@@ -247,6 +263,19 @@ pub fn GdaDecimalChecked::round_to_integral_value(
 }
 
 ///|
+/// The sum, rounded in the context of `self` (GDA `add`). A trapped `self`
+/// stays as it is. Otherwise a trapped `other` stops the operation, its flags and
+/// trap joining the result, and the conditions of a completed `other` join the
+/// outcome.
+///
+/// ```mbt check
+/// test {
+///   let ctx = @decimal_gda.GdaContext::new(precision=5)
+///   let a = @decimal_gda_checked.GdaDecimalChecked::to_number("1.2", ctx)
+///   let b = @decimal_gda_checked.GdaDecimalChecked::to_number("2.3", ctx)
+///   inspect(a.add(b).value().to_string(), content="3.5")
+/// }
+/// ```
 pub fn GdaDecimalChecked::add(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -255,6 +284,7 @@ pub fn GdaDecimalChecked::add(
 }
 
 ///|
+/// The difference, as `add` is the sum (GDA `subtract`).
 pub fn GdaDecimalChecked::subtract(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -263,6 +293,7 @@ pub fn GdaDecimalChecked::subtract(
 }
 
 ///|
+/// The product, as `add` is the sum (GDA `multiply`).
 pub fn GdaDecimalChecked::multiply(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -271,6 +302,9 @@ pub fn GdaDecimalChecked::multiply(
 }
 
 ///|
+/// The quotient, as `add` is the sum (GDA `divide`). A finite non-zero number
+/// divided by zero is `inf` with `division_by_zero`, `0 / 0` is NaN with
+/// `invalid_operation`; a trap enabled for the signal stops the pipeline.
 pub fn GdaDecimalChecked::divide(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -279,6 +313,8 @@ pub fn GdaDecimalChecked::divide(
 }
 
 ///|
+/// The integer part of the quotient, as `add` is the sum (GDA
+/// `divide-integer`): `7` by `2` is `3`.
 pub fn GdaDecimalChecked::divide_integer(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -303,6 +339,8 @@ pub fn GdaDecimalChecked::remainder_near(
 }
 
 ///|
+/// `self` raised to `other`, in the context of `self` (GDA `power`); operands
+/// are taken as for `add`. A non-integer exponent needs the limits of `exp`.
 pub fn GdaDecimalChecked::power(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -311,6 +349,8 @@ pub fn GdaDecimalChecked::power(
 }
 
 ///|
+/// The value rounded to the exponent of `other` (GDA `quantize`): `2.675` by
+/// `0.01` is `2.68` at precision 5.
 pub fn GdaDecimalChecked::quantize(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -399,6 +439,7 @@ pub fn GdaDecimalChecked::logical_xor(
 }
 
 ///|
+/// The larger of the two (GDA `max`); a quiet NaN operand loses to a number.
 pub fn GdaDecimalChecked::max(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -407,6 +448,7 @@ pub fn GdaDecimalChecked::max(
 }
 
 ///|
+/// The smaller of the two (GDA `min`); a quiet NaN operand loses to a number.
 pub fn GdaDecimalChecked::min(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -415,6 +457,8 @@ pub fn GdaDecimalChecked::min(
 }
 
 ///|
+/// The operand of larger absolute value (GDA `max-magnitude`): `-3` against `2`
+/// is `-3`.
 pub fn GdaDecimalChecked::max_magnitude(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
@@ -423,6 +467,8 @@ pub fn GdaDecimalChecked::max_magnitude(
 }
 
 ///|
+/// The operand of smaller absolute value (GDA `min-magnitude`): `-3` against
+/// `2` is `2`.
 pub fn GdaDecimalChecked::min_magnitude(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
