@@ -54,6 +54,10 @@ fn short_mul_check(
 }
 
 ///|
+// oracle: B, S
+// source: B: the exact product from core BigInt multiplication: the kept top bits and the sticky part decide the directed modes and the nearest rounding, the bit length relation product_bits = approximate_bits + bits(a) + bits(b) - 64 m; S: the counts (the declined and the returned cases are both common)
+// shares: bin_coeff_test_from_bigint and bin_coeff_sqrt_test_value (the operands), Coeff::to_string read back with parse_bigint
+// primitives: core BigInt (moonbitlang/core) multiplication and shifts are an implementation independent of the kernel; Coeff::to_string: see the text path in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "short product rounds like the exact product on random operands" {
   let mut returned = 0
   let mut total = 0
@@ -91,6 +95,10 @@ test "short product rounds like the exact product on random operands" {
 /// plus or minus small numbers (`(2^k + 1) (2^k - 1) = 2^(2k) - 1`, squares of
 /// `2^k + 1`), all ones, a top limb just above half, trailing patterns. Every
 /// call must decline or round correctly.
+// oracle: B, S
+// source: B: the exact product from core BigInt multiplication: the kept top bits and the sticky part decide the directed modes and the nearest rounding, the bit length relation product_bits = approximate_bits + bits(a) + bits(b) - 64 m; S: the counts (the declined and the returned cases are both common)
+// shares: bin_coeff_test_from_bigint and bin_coeff_sqrt_test_value (the operands), Coeff::to_string read back with parse_bigint
+// primitives: core BigInt (moonbitlang/core) multiplication and shifts are an implementation independent of the kernel; Coeff::to_string: see the text path in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "short product on products next to rounding boundaries" {
   let mut returned = 0
   let mut declined = 0

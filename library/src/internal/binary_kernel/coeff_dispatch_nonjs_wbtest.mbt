@@ -23,6 +23,10 @@ fn dispatch_test_sparse(
 }
 
 ///|
+// oracle: E
+// source: the and, or and xor of the same operands computed limb by limb on the 32-bit view, loops written in the test (the previous 32-bit form), for 8 by 7 lengths and four operand patterns; the operation is also commutative
+// shares: bin_coeff_limb, bin_coeff_limb_len, bin_coeff_from_limbs, dispatch_test_value and words_test_array (they build the operands and read the limbs)
+// underneath: bit_and, bit_or and bit_xor against core BigInt: level B in `Coeff large arithmetic differential` and `Coeff exhaustive small arithmetic` (coeff_wbtest.mbt)
 test "bit operations on limbs equal the 32-bit limb loops" {
   let random = { words_state: 0x1234_5678_9ABC_DEF1UL, }
   for left_len in [1, 2, 3, 4, 5, 8, 17, 33] {
@@ -60,6 +64,10 @@ test "bit operations on limbs equal the 32-bit limb loops" {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_schoolbook, a different algorithm from the dispatch routes, on sparse operands (one to len/4 nonzero limbs) and all-ones limbs next to zero limbs (carries across the gaps)
+// shares: dispatch_test_sparse, dispatch_test_value and bin_coeff_from_words build the operands; Coeff equality compares
+// primitives: bin_coeff_mul_schoolbook: level B against core BigInt in `schoolbook and word products and squares of edge limbs match BigInt` (coeff_basecase_loop_nonjs_wbtest.mbt)
 test "sparse products equal the schoolbook product" {
   let random = { words_state: 0x0F1E_2D3C_4B5A_6978UL, }
   for len in [4, 5, 8, 9, 16, 17, 32, 40] {
@@ -92,6 +100,10 @@ test "sparse products equal the schoolbook product" {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_schoolbook on short operands at and above the Karatsuba cutoff against long operands of 3, 4 and 7 times the length plus 1, both orders
+// shares: dispatch_test_value and bin_coeff_from_words build the operands; Coeff equality compares
+// primitives: bin_coeff_mul_schoolbook: level B against core BigInt in `schoolbook and word products and squares of edge limbs match BigInt` (coeff_basecase_loop_nonjs_wbtest.mbt)
 test "unbalanced products through the limb array blocks equal the schoolbook product" {
   let random = { words_state: 0x5D5D_9A9A_0C0C_3B3BUL, }
   let cutoff = bin_coeff_words_karatsuba_cutoff
@@ -109,6 +121,10 @@ test "unbalanced products through the limb array blocks equal the schoolbook pro
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_words (the word Karatsuba, a different algorithm) on operands of 40 to 400 limbs in three patterns, against bin_coeff_mul_ntt and bin_coeff_mul_ntt_overlap
+// shares: dispatch_test_value builds the operands; Coeff equality compares
+// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`); bin_coeff_mul_words: level B against the schoolbook product in `word-range Karatsuba square equals the schoolbook square and product` (coeff_words_mul_nonjs_wbtest.mbt)
 test "NTT overlap-add and the NTT product equal the word Karatsuba product" {
   let random = { words_state: 0x6C6C_2D2D_F1F1_A0A0UL, }
   for short_len in [40, 100] {
@@ -125,6 +141,9 @@ test "NTT overlap-add and the NTT product equal the word Karatsuba product" {
 }
 
 ///|
+// oracle: A, S
+// source: A: test_bit as shift_right(index) is odd, the byte length (bits + 7) / 8, the hexadecimal text length (bits + 3) / 4 and the byte count minus the leading zero byte for ten byte counts around the limb size, written from the definitions; S: the round trips bytes out and in and radix text out and in for radixes 2 to 32
+// shares: Coeff::shift_right and is_odd (test_bit reference), Coeff::from_bytes_be, to_bytes_be, parse and to_radix_string (both sides of the round trips), dispatch_test_value
 test "bits, bytes and power-of-two radixes on 64-bit limbs" {
   let random = { words_state: 0x3F3F_C2C2_5959_0E0EUL, }
   for len in [1, 2, 3, 4, 5, 9, 17] {

@@ -280,7 +280,7 @@ test "fused coefficient round shift is exhaustive for small values" {
 
 ///|
 // oracle: B
-// source: same BigInt definition of round to nearest even and the inexact flag; values at 2^b - 1, 2^b, 2^b + 1 and 1.5 * 2^b + 1 for b at the 30, 64, 128 and 256 bit representation edges
+// source: round to nearest even and the inexact flag from the definition on core BigInt (quotient v >> s, round bit s - 1, sticky bit = any lower bit); values at 2^b - 1, 2^b, 2^b + 1 and 1.5 * 2^b + 1 for b at the 30, 64, 128 and 256 bit representation edges
 // shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
 // primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift handles representation boundaries" {
@@ -296,7 +296,7 @@ test "fused coefficient round shift handles representation boundaries" {
 
 ///|
 // oracle: B
-// source: same BigInt definition; remainders 0, half - 1, half, half + 1 and 2^s - 1 around the tie for shifts up to 191, with even and odd quotients of both representations
+// source: round to nearest even and the inexact flag from the definition on core BigInt (quotient v >> s, round bit s - 1, sticky bit = any lower bit); remainders 0, half - 1, half, half + 1 and 2^s - 1 around the tie for shifts up to 191, with even and odd quotients of both representations
 // shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
 // primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift handles ties and sticky patterns" {
@@ -317,7 +317,7 @@ test "fused coefficient round shift handles ties and sticky patterns" {
 
 ///|
 // oracle: B
-// source: same BigInt definition; four values whose rounding carries into the next representation (2^65 - 1, 2^129 - 1 with shift 1, and two ties on all-ones quotients)
+// source: round to nearest even and the inexact flag from the definition on core BigInt (quotient v >> s, round bit s - 1, sticky bit = any lower bit); four values whose rounding carries into the next representation (2^65 - 1, 2^129 - 1 with shift 1, and two ties on all-ones quotients)
 // shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
 // primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient shift rounding carries across representations" {
@@ -331,7 +331,7 @@ test "fused coefficient shift rounding carries across representations" {
 
 ///|
 // oracle: B
-// source: same BigInt definition; 256 fixed-seed random values of 1 to 1024 bits with a shift index * 37 mod (bits + 97)
+// source: round to nearest even and the inexact flag from the definition on core BigInt (quotient v >> s, round bit s - 1, sticky bit = any lower bit); 256 fixed-seed random values of 1 to 1024 bits with a shift index * 37 mod (bits + 97)
 // shares: coeff_from_nonnegative_bigint, coeff_to_bigint, coeff_shift_right
 // primitives: coeff_from_nonnegative_bigint and coeff_to_bigint; the representation class of 2^64 - 1, 2^64, 2^128 - 1, 2^128 and the base-2^30 limbs of four values are level A rows in `coefficient conversion preserves inline and limb values`, the Medium split in `BigInt conversion splits Medium values without limbs` (B: high and low word from core BigInt shifts)
 test "fused coefficient round shift matches fixed-seed random oracle" {

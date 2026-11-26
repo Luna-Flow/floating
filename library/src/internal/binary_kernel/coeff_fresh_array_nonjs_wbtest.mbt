@@ -47,6 +47,9 @@ fn fresh_value(limbs : Int32, seed : UInt64, padding : Int32) -> Coeff {
 }
 
 ///|
+// oracle: S
+// source: physical_equal on the returned FixedArray against the arrays of the operands (an identity, not a value): a returned heap coefficient owns an array that no operand refers to; the numeric values of these producers are checked in the product, quotient and root blocks (level B)
+// shares: the producer under test (Coeff::mul) and the helpers that build operands from limbs
 test "mul returns an array that no operand refers to" {
   let mut heap_results = 0
   for left_limbs in [1, 2, 3, 4, 5, 8, 17, 31, 32, 33, 40, 64, 65, 100, 130] {
@@ -80,6 +83,9 @@ test "mul returns an array that no operand refers to" {
 }
 
 ///|
+// oracle: S
+// source: physical_equal on the returned FixedArray against the arrays of the operands (an identity, not a value): a returned heap coefficient owns an array that no operand refers to; the numeric values of these producers are checked in the product, quotient and root blocks (level B)
+// shares: the producer under test (Coeff::shift_left and Coeff::shift_right) and the helpers that build operands from limbs
 test "shifts by zero return the receiver, other shifts a new array" {
   for limbs in [3, 8, 40] {
     let value = fresh_value(limbs, 11UL, 0)
@@ -99,6 +105,9 @@ test "shifts by zero return the receiver, other shifts a new array" {
 }
 
 ///|
+// oracle: S
+// source: physical_equal on the returned FixedArray against the arrays of the operands (an identity, not a value): a returned heap coefficient owns an array that no operand refers to; the numeric values of these producers are checked in the product, quotient and root blocks (level B)
+// shares: the producer under test (bin_coeff_div_scaled_quotient and bin_coeff_div_short_quotient) and the helpers that build operands from limbs
 test "scaled and short quotients return arrays that no operand refers to" {
   let mut exact_results = 0
   let mut short_results = 0
@@ -148,6 +157,9 @@ test "scaled and short quotients return arrays that no operand refers to" {
 }
 
 ///|
+// oracle: S
+// source: physical_equal on the returned FixedArray against the arrays of the operands (an identity, not a value): a returned heap coefficient owns an array that no operand refers to; the numeric values of these producers are checked in the product, quotient and root blocks (level B)
+// shares: the producer under test (bin_coeff_sqrt_scaled_rounded) and the helpers that build operands from limbs
 test "scaled root returns an array that the radicand does not refer to" {
   let mut heap_results = 0
   for precision in [130, 200, 257, 300, 512, 1000, 2048] {
@@ -182,6 +194,9 @@ test "scaled root returns an array that the radicand does not refer to" {
 }
 
 ///|
+// oracle: S
+// source: physical_equal on the returned FixedArray against the arrays of the operands (an identity, not a value): a returned heap coefficient owns an array that no operand refers to; the numeric values of these producers are checked in the product, quotient and root blocks (level B)
+// shares: the producer under test (bin_coeff_mul_short) and the helpers that build operands from limbs
 test "short product returns an array that no operand refers to" {
   let mut heap_results = 0
   for limbs in [13, 14, 17, 32, 33, 50, 63] {

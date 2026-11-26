@@ -40,6 +40,9 @@ fn bin_limbs_tier_name() -> String {
 }
 
 ///|
+// oracle: A
+// source: written out: on Apple arm64 without an override the tier is the assembly tier (name "asm", tier number 1), so a silent fallback to the C rows fails
+// shares: luna_limbs_expects_asm and luna_limbs_override_set (the platform condition), bin_limbs_tier_name and luna_limbs_tier (the code under test)
 test "the assembly tier is active on Apple arm64 unless an override is set" {
   if luna_limbs_expects_asm() == 1 && luna_limbs_override_set() == 0 {
     // a silent fallback to the C rows must fail here, not skip

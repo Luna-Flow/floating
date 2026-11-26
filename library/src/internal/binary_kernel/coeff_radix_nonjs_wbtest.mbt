@@ -4,6 +4,9 @@ fn radix_test_digits(radix : Int32) -> String {
 }
 
 ///|
+// oracle: A, S
+// source: A: the texts written out for radixes 3, 10 and 36 at 1 to 130 chunks of digits, the digit counts at and next to the chunk edges: radix^(n - 1) is "1" followed by zeros, radix^n - 1 is the top digit n times and adding one gives "1" followed by n zeros; S: parse then print returns each text
+// shares: Coeff::parse and Coeff::to_radix_string are both sides of the first two checks; the carry check (add one) uses Coeff::add
 test "radix conversion of powers of the radix and their neighbours at chunk edges" {
   // chunk widths: 9 digits for radix 10, 20 for radix 3, 6 for radix 36
   for radix in [3, 10, 36] {
@@ -34,6 +37,9 @@ test "radix conversion of powers of the radix and their neighbours at chunk edge
 }
 
 ///|
+// oracle: A
+// source: written out: a 701-digit text of sevens with the digit a at 13 positions around the chunk edges (0, 1, 8, 9, 10, 17, 18, 19, 500, 575, 576, 577, 700) is rejected and the text without it is accepted; "0", 22 zeros and "+" followed by 21 zeros and 12 parse to 0, 0 and 12
+// shares: Coeff::parse is the code under test; the texts are built by the test
 test "radix parsing rejects a bad digit in any chunk" {
   for position in [0, 1, 8, 9, 10, 17, 18, 19, 500, 575, 576, 577, 700] {
     let text = "7".repeat(701)
@@ -55,6 +61,10 @@ test "radix parsing rejects a bad digit in any chunk" {
 }
 
 ///|
+// oracle: B, S
+// source: B: two conversion algorithms (in place and divide and conquer) must give the same text for 17 lengths from 1 to 1,025 limbs in three patterns and radixes 3, 10 and 36; S: the text parses back to the value with both parsers
+// shares: bin_coeff_from_words and words_test_array build the values; the two conversions and the two parsers are the code under test
+// primitives: the radix conversion: level A in `radix conversion of powers of the radix and their neighbours at chunk edges` (this file, texts written out)
 test "in-place and divide-and-conquer radix conversion agree on both sides of every cutoff" {
   let random = { words_state: 0x3B3B_71F1_0D0D_C5C5UL, }
   // 1 and 2 limbs, one chunk, around the old cutoffs (128 limbs, 64 chunks)

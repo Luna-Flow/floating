@@ -42,6 +42,10 @@ fn bin_coeff_sqrt_test_check(value_big : BigInt) -> Unit raise {
 }
 
 ///|
+// oracle: B
+// source: the floor square root by Newton iteration on core BigInt written in the test (bin_coeff_test_integer_sqrt_floor) and the remainder n - root^2, against the kernel, divide-and-conquer, restoring, word-recursive and fixed-width paths
+// shares: bin_coeff_sqrt_test_value and bin_coeff_test_from_bigint build the operands; the comparison goes through the decimal text
+// primitives: core BigInt (moonbitlang/core) multiplication and division are an implementation independent of the kernel; Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
 test "Coeff sqrt divide-and-conquer around the base-case and kernel cutoffs" {
   let sizes = [
     65, 127, 128, 129, 191, 192, 193, 255, 256, 257, 258, 383, 384, 385, 511, 512,
@@ -69,6 +73,10 @@ test "Coeff sqrt divide-and-conquer around the base-case and kernel cutoffs" {
 }
 
 ///|
+// oracle: B
+// source: the floor square root by Newton iteration on core BigInt written in the test (bin_coeff_test_integer_sqrt_floor) and the remainder n - root^2, against the kernel, divide-and-conquer, restoring, word-recursive and fixed-width paths
+// shares: bin_coeff_sqrt_test_value and bin_coeff_test_from_bigint build the operands; the comparison goes through the decimal text
+// primitives: core BigInt (moonbitlang/core) multiplication and division are an implementation independent of the kernel; Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
 test "Coeff sqrt divide-and-conquer random data" {
   for index in 0..<200 {
     let bits = 129 + index * 37 % 1400
