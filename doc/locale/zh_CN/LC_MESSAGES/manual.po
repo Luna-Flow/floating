@@ -11995,7 +11995,7 @@ msgstr "decimal_gda 符合性"
 
 #: manual/conformance/decimal_gda.md:3
 msgid "The implementation target is General Decimal Arithmetic Specification 1.70 (GDA 1.70); the pinned executable corpus is the General Decimal Arithmetic testcase suite 2.62. The results below hold for the finite set of inputs in the pinned corpora and package tests; GDA 1.70 defines no conformance clause."
-msgstr "实现目标是 General Decimal Arithmetic Specification 1.70 (GDA 1.70)；固定的可执行语料库是 General Decimal Arithmetic testcase suite 2.62。以下结果适用于固定语料库和包测试中的有限输入集；GDA 1.70 未定义一致性条款。"
+msgstr "实现目标是 General Decimal Arithmetic Specification 1.70 (GDA 1.70)；固定的可执行语料库是 General Decimal Arithmetic testcase suite 2.62。以下结果适用于固定语料库和包测试中的有限输入集；GDA 1.70 未定义符合性条款。"
 
 #: manual/conformance/decimal_gda.md:8
 msgid "Published result"
