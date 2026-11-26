@@ -356,7 +356,7 @@ test "decimal in generic ring code" {
 }
 ```
 
-The plain operators have no context argument. Each runs the matching `*_ctx`
+The plain operators have no context argument. Each is the matching `*_ctx`
 operation in a private context of the larger operand precision, which defaults
 to 34 digits, with half-even rounding and the storage range of a value, and
 returns the cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`).
@@ -418,10 +418,11 @@ test "decimal total order separates cohorts" {
 ## Common pitfalls
 
 - **Elementary functions need an exponent range within 999,999.** A context
-  with `e_max` above 999,999, or `DecimalContext::new()` with a precision of
-  1000 digits or more, returns NaN with `not_computed` for ordinary operands;
-  special operands and exact points remain values in every context (see
-  [Call an elementary function](#call-an-elementary-function)).
+  with `e_max` above 999,999, or a precision of 1000 digits or more with the
+  default range, returns NaN with `not_computed` for ordinary operands; special
+  operands and exact points remain values in every context (see
+  [Call an elementary function](#call-an-elementary-function)). Use
+  `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999.
 - **Operators are not context operations.** They round half-even to the larger
   operand precision and apply only the storage range of a value, so a result
   beyond it is an infinity or a zero. Use `mul_ctx` and `div_ctx` when the
@@ -455,5 +456,4 @@ test "decimal total order separates cohorts" {
   [decimal performance](../performance/decimal.md): the finite evidence and
   the measurement method.
 - [`decimal_checked` tutorial](decimal_checked.md) and
-  [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA flags and
-  traps.
+  [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA flags.
