@@ -8,11 +8,19 @@ fn[A, B, E, C] interval_result_lift2(
 }
 
 ///|
+/// An `Interval` or the first `ArithmeticError` of a computation: a wrapper
+/// around `Result[Interval, ArithmeticError]`. Invalid bounds, a precision out of
+/// range and a failed certified function are errors; Entire, the empty interval
+/// and other conservative enclosures are successful values. An operation on a
+/// failed wrapper returns that failure, and a binary operation with two failed
+/// operands keeps the left one. The wrapper stores no decorations and no
+/// `IntervalFlags`.
 pub struct IntervalChecked {
   priv inner : Result[@interval.Interval, @def.ArithmeticError]
 }
 
 ///|
+/// Wraps a `Result` as it is, with no check.
 pub fn IntervalChecked::from_result(
   inner : Result[@interval.Interval, @def.ArithmeticError],
 ) -> IntervalChecked {
@@ -20,16 +28,32 @@ pub fn IntervalChecked::from_result(
 }
 
 ///|
+/// A successful wrapper around `value`, with no check.
 pub fn IntervalChecked::ok(value : @interval.Interval) -> IntervalChecked {
   { inner: Ok(value), }
 }
 
 ///|
+/// A failed wrapper that carries `err`.
 pub fn IntervalChecked::err(err : @def.ArithmeticError) -> IntervalChecked {
   { inner: Err(err), }
 }
 
 ///|
+/// The interval that contains the integer `value`, in a format of `precision`
+/// bits (default 53; `Interval::from_int`). A `precision` outside the legal range
+/// gives a failed wrapper.
+///
+/// ```mbt check
+/// test {
+///   let x = @interval_checked.IntervalChecked::from_int(7)
+///   inspect(x.is_ok(), content="true")
+///   inspect(
+///     @interval_checked.IntervalChecked::from_int(7, precision=0).is_err(),
+///     content="true",
+///   )
+/// }
+/// ```
 pub fn IntervalChecked::from_int(
   value : Int32,
   precision~ : Int32 = 53,
@@ -42,6 +66,9 @@ pub fn IntervalChecked::from_int(
 }
 
 ///|
+/// The interval that contains the integer `value`, negated when `negative` is
+/// true (`Interval::from_coefficient`), in a format of `precision` bits (default
+/// 53). A `precision` outside the legal range gives a failed wrapper.
 pub fn IntervalChecked::from_coefficient(
   value : @binary.BinCoeff,
   precision~ : Int32 = 53,
@@ -57,6 +84,9 @@ pub fn IntervalChecked::from_coefficient(
 }
 
 ///|
+/// The interval that contains the `Double` `value`, in a format of `precision`
+/// bits (default 53; `Interval::try_from_double`). NaN and the infinities give a
+/// failed wrapper with a `DomainError`, as does a `precision` out of range.
 pub fn IntervalChecked::from_double(
   value : Double,
   precision~ : Int32 = 53,
@@ -67,6 +97,9 @@ pub fn IntervalChecked::from_double(
 }
 
 ///|
+/// The interval that contains the `Float` `value`, in a format of `precision`
+/// bits (default 24; `Interval::try_from_float`). NaN and the infinities give a
+/// failed wrapper with a `DomainError`, as does a `precision` out of range.
 pub fn IntervalChecked::from_float(
   value : Float,
   precision~ : Int32 = 24,
@@ -77,6 +110,10 @@ pub fn IntervalChecked::from_float(
 }
 
 ///|
+/// The singleton interval of the finite number `value` (`Interval::try_exact`),
+/// in a format of `precision` bits (default the precision of `value`). An
+/// infinite or NaN `value`, or a `precision` out of range, gives a failed wrapper
+/// with a `DomainError`.
 pub fn IntervalChecked::exact(
   value : @binary.Binary,
   precision~ : Int32 = value.precision(),
@@ -85,6 +122,10 @@ pub fn IntervalChecked::exact(
 }
 
 ///|
+/// The interval `[lo, hi]` in a format of `precision` bits (default the larger
+/// of the two precisions; `Interval::try_from_bounds`). A NaN bound, `lo` above
+/// `hi`, `lo` positive infinity, `hi` negative infinity or a `precision` out of
+/// range gives a failed wrapper with a `DomainError`.
 pub fn IntervalChecked::from_bounds(
   lo : @binary.Binary,
   hi : @binary.Binary,
@@ -96,6 +137,8 @@ pub fn IntervalChecked::from_bounds(
 }
 
 ///|
+/// The whole real line in a format of `precision` bits (default 53). A
+/// `precision` out of range gives a failed wrapper.
 pub fn IntervalChecked::entire(precision~ : Int32 = 53) -> IntervalChecked {
   match @interval.IntervalContext::try_new(precision~) {
     Ok(_) => IntervalChecked::ok(@interval.Interval::entire(precision~))
@@ -104,6 +147,7 @@ pub fn IntervalChecked::entire(precision~ : Int32 = 53) -> IntervalChecked {
 }
 
 ///|
+/// The wrapped `Result`: the interval or the first error.
 pub fn IntervalChecked::result(
   self : IntervalChecked,
 ) -> Result[@interval.Interval, @def.ArithmeticError] {
@@ -111,6 +155,7 @@ pub fn IntervalChecked::result(
 }
 
 ///|
+/// Whether the wrapper holds an interval.
 pub fn IntervalChecked::is_ok(self : IntervalChecked) -> Bool {
   match self.inner {
     Ok(_) => true
@@ -119,11 +164,13 @@ pub fn IntervalChecked::is_ok(self : IntervalChecked) -> Bool {
 }
 
 ///|
+/// Whether the wrapper holds an error.
 pub fn IntervalChecked::is_err(self : IntervalChecked) -> Bool {
   !self.is_ok()
 }
 
 ///|
+/// The error of a failed wrapper, `None` for a success.
 pub fn IntervalChecked::error(self : IntervalChecked) -> @def.ArithmeticError? {
   match self.inner {
     Ok(_) => None
@@ -132,6 +179,8 @@ pub fn IntervalChecked::error(self : IntervalChecked) -> @def.ArithmeticError? {
 }
 
 ///|
+/// Applies `f` to the interval of a successful wrapper; a failed one is returned
+/// unchanged and `f` is not called. `f` cannot fail: use `bind` for that.
 pub fn IntervalChecked::map(
   self : IntervalChecked,
   f : (@interval.Interval) -> @interval.Interval,
@@ -140,6 +189,8 @@ pub fn IntervalChecked::map(
 }
 
 ///|
+/// Passes the interval of a successful wrapper to `f`, which may return a failed
+/// wrapper; a failed one is returned unchanged and `f` is not called.
 pub fn IntervalChecked::bind(
   self : IntervalChecked,
   f : (@interval.Interval) -> IntervalChecked,
@@ -167,6 +218,7 @@ pub fn IntervalChecked::sqrt(self : IntervalChecked) -> IntervalChecked {
 }
 
 ///|
+/// The square of the interval (`Interval::sqr`); it does not fail.
 pub fn IntervalChecked::sqr(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.sqr() })
 }
@@ -501,6 +553,17 @@ pub fn IntervalChecked::abs(self : IntervalChecked) -> IntervalChecked {
 }
 
 ///|
+/// The sum, rounded outward, at the larger of the two precisions
+/// (`Interval::add`). A failed operand gives its error (the left one when both
+/// fail); the operation itself does not fail. This is the `+` operator.
+///
+/// ```mbt check
+/// test {
+///   let a = @interval_checked.IntervalChecked::from_int(1)
+///   let b = @interval_checked.IntervalChecked::from_int(2)
+///   inspect((a + b).result().unwrap().to_string(), content="[3, 3]")
+/// }
+/// ```
 pub fn IntervalChecked::add(
   self : IntervalChecked,
   other : IntervalChecked,
@@ -511,6 +574,8 @@ pub fn IntervalChecked::add(
 }
 
 ///|
+/// The difference, as `add` is the sum (`Interval::sub`). This is the `-`
+/// operator.
 pub fn IntervalChecked::sub(
   self : IntervalChecked,
   other : IntervalChecked,
@@ -521,6 +586,8 @@ pub fn IntervalChecked::sub(
 }
 
 ///|
+/// The product, as `add` is the sum (`Interval::mul`). This is the `*`
+/// operator.
 pub fn IntervalChecked::mul(
   self : IntervalChecked,
   other : IntervalChecked,
@@ -531,6 +598,9 @@ pub fn IntervalChecked::mul(
 }
 
 ///|
+/// The quotient, as `add` is the sum (`Interval::div`). Division by zero is not
+/// an error: `1 / [0, 0]` is the empty interval and `1 / [-1, 1]` is Entire.
+/// This is the `/` operator.
 pub fn IntervalChecked::div(
   self : IntervalChecked,
   other : IntervalChecked,
@@ -541,6 +611,8 @@ pub fn IntervalChecked::div(
 }
 
 ///|
+/// The integer power `exponent` of the interval (`PowIntChecked::pow_int_checked`
+/// at the precision of the interval). A failed wrapper stays failed.
 pub fn IntervalChecked::pown(
   self : IntervalChecked,
   exponent : Int32,
@@ -554,6 +626,8 @@ pub fn IntervalChecked::pown(
 }
 
 ///|
+/// The root of degree `degree` (`Interval::try_rootn`). A degree of zero gives a
+/// failed wrapper with a `DomainError`.
 pub fn IntervalChecked::rootn(
   self : IntervalChecked,
   degree : Int32,
@@ -562,6 +636,8 @@ pub fn IntervalChecked::rootn(
 }
 
 ///|
+/// The exponential of the interval (`Interval::try_exp`). A failed certified
+/// function gives a failed wrapper.
 pub fn IntervalChecked::exp(self : IntervalChecked) -> IntervalChecked {
   self.bind(fn(value) { IntervalChecked::from_result(value.try_exp()) })
 }
@@ -582,6 +658,9 @@ pub fn IntervalChecked::expm1(self : IntervalChecked) -> IntervalChecked {
 }
 
 ///|
+/// The natural logarithm of the interval (`Interval::try_ln`): the part of the
+/// interval below zero is dropped, so `ln [-1, 1]` is `[-inf, 0]` and the
+/// logarithm of an interval below zero is the empty interval, not an error.
 pub fn IntervalChecked::ln(self : IntervalChecked) -> IntervalChecked {
   self.bind(fn(value) { IntervalChecked::from_result(value.try_ln()) })
 }
@@ -602,6 +681,8 @@ pub fn IntervalChecked::log1p(self : IntervalChecked) -> IntervalChecked {
 }
 
 ///|
+/// The sine of the interval in radians (`Interval::try_sin`); the sine of Entire
+/// is `[-1, 1]`.
 pub fn IntervalChecked::sin(self : IntervalChecked) -> IntervalChecked {
   self.bind(fn(value) { IntervalChecked::from_result(value.try_sin()) })
 }
@@ -689,6 +770,9 @@ pub fn IntervalChecked::hypot(
 }
 
 ///|
+/// `self` raised to `exponent` (`Interval::try_pow`); `[-2, -1]` raised to
+/// `[1, 2]` is the empty interval, not an error. A failed
+/// operand gives its error (the left one when both fail).
 pub fn IntervalChecked::pow(
   self : IntervalChecked,
   exponent : IntervalChecked,
