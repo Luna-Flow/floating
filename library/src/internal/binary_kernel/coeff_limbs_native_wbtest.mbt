@@ -430,3 +430,218 @@ test "the wrappers equal the portable rows on random lengths and offsets" {
     bin_limbs_check_product(2, r, 3, a, 1, n, b, 4, n)
   }
 }
+
+///|
+/// The window row called through the two C entry points directly (the wrapper
+/// `bin_limbs_window_combine` sends short windows to the portable body and
+/// windows below `bin_limbs_window_asm_min_count` to the C body, so these
+/// runners pin each body): the C interior and the assembly interior.
+fn window_run_c(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  luna_window_combine(
+    words,
+    count,
+    x,
+    x_len,
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    if subtract {
+      1
+    } else {
+      0
+    },
+    carry_in,
+  )
+}
+
+///|
+fn window_run_asm(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  luna_window_combine_asm(
+    words,
+    count,
+    x,
+    x_len,
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    if subtract {
+      1
+    } else {
+      0
+    },
+    carry_in,
+  )
+}
+
+///|
+// oracle: E
+// source: the previous loop of `binary_coeff_fast_add_parts` (`window_combine_reference` in coeff_words_nonjs_wbtest.mbt) on random lengths 1 to 40, every bit shift, word shifts, add and subtract, carry in 0 and 1, special limbs; the C body
+// shares: window_check_all and window_test_array (the operands only)
+// underneath: level A, the block "oracle: window rows, C body and assembly body called directly, equal x + (y xor mask) + carry" below (CPython integers) on the same row
+test "the window row, C body called directly, equals the previous loop" {
+  window_check_all(window_run_c, 0x9E3779B97F4A7C15UL)
+}
+
+///|
+// oracle: E
+// source: the previous loop of `binary_coeff_fast_add_parts` (`window_combine_reference`) on the same geometry as the C body block; the assembly body
+// shares: window_check_all and window_test_array (the operands only)
+// underneath: level A, the block "oracle: window rows, C body and assembly body called directly, equal x + (y xor mask) + carry" below (CPython integers) on the same row
+test "the window row, assembly body called directly, equals the previous loop" {
+  window_check_all(window_run_asm, 0xC2B2AE3D27D4EB4FUL)
+}
+
+///|
+// oracle: E
+// source: the previous loop (`window_combine_reference`), interior lengths 0 to 9 with a tail of 0, 1 or 5 limbs: no block, one block, each remainder 0 to 3 after one and after two blocks, the first block at limb 0 (word shifts -1) and the last block at the last limb; all-ones limbs with carry in (the carry through every limb and block boundary), the borrow of a subtraction, every combination of shifted and unshifted operands, no second operand; the C and the assembly body
+// shares: window_check_one and window_test_array (the operands only)
+// underneath: level A, the block "oracle: window rows, C body and assembly body called directly, equal x + (y xor mask) + carry" below (CPython integers) on the same row
+test "the window row, assembly body: interior lengths 0 to 9, first block at limb 0, last block at the last limb, carries through every limb" {
+  let random = { words_state: 0x1F83D9ABFB41BD6BUL, }
+  let runs = [window_run_c, window_run_asm]
+  for run in runs {
+    for interior in 0..<=9 {
+      for tail in [0, 1, 5] {
+        let count = interior + tail
+        for y_len_kind in [0, 1] {
+          for x_shift in [0, 13, 63] {
+            for y_shift in [0, 13, 31] {
+              for subtract in [false, true] {
+                for carry_in in [0UL, 1UL] {
+                  for pattern in [0, 1, 2] {
+                    let x = window_test_array(random, interior + 1, pattern)
+                    let y = window_test_array(
+                      random,
+                      interior + 1,
+                      1 - pattern % 2,
+                    )
+                    window_check_one(
+                      run,
+                      count,
+                      x,
+                      -1,
+                      x_shift,
+                      y,
+                      if y_len_kind == 0 {
+                        0
+                      } else {
+                        interior + 1
+                      },
+                      -1,
+                      y_shift,
+                      subtract,
+                      carry_in,
+                    )
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+// oracle: E
+// source: the previous loop (`window_combine_reference`) at the switch of the assembly tier: windows of 20 to 40 limbs (below, at and above `bin_limbs_window_asm_min_count` = 24: 23, 24 and 25 by name, and every block remainder 0 to 3 after the head limb), all four shift combinations, add and subtract, carry in 0 and 1, through the wrapper (which selects the body) and the three bodies directly: portable, C, assembly
+// shares: window_check_one and window_test_array (the operands only)
+// underneath: level A, the block "oracle: window rows, C body and assembly body called directly, equal x + (y xor mask) + carry" below (CPython integers) on the same row
+test "the window row at the switch to the assembly interior: 20 to 40 limbs, all three bodies and the wrapper" {
+  let random = { words_state: 0x6A09E667F3BCC908UL, }
+  let runs = [
+    bin_limbs_window_combine, bin_limbs_window_combine_portable, window_run_c, window_run_asm,
+  ]
+  for run in runs {
+    for count in 20..<=40 {
+      for x_ws in [0, 1, 3] {
+        for y_ws in [-1, 0, 2] {
+          for x_shift in [0, 29, 63] {
+            for y_shift in [0, 1, 40] {
+              for subtract in [false, true] {
+                for carry_in in [0UL, 1UL] {
+                  for pattern in [0, 1, 5] {
+                    let x = window_test_array(random, count + 2, pattern)
+                    let y = window_test_array(
+                      random,
+                      count + 1,
+                      (pattern + 1) % 6,
+                    )
+                    window_check_one(
+                      run,
+                      count,
+                      x,
+                      x_ws,
+                      x_shift,
+                      y,
+                      y.length(),
+                      y_ws,
+                      y_shift,
+                      subtract,
+                      carry_in,
+                    )
+                    window_check_one(
+                      run, count, x, x_ws, x_shift, y, 0, y_ws, 0, subtract, carry_in,
+                    )
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+// oracle: A
+// source: the rows of `coeff_window_oracle_rows_wbtest.mbt` (tools/kernel_oracle.py, CPython integers: x_window + (y_window xor mask) + carry), the same rows as the block above, through the two C entry points directly (the wrapper sends short windows to the portable body and the C body below 24 limbs, so the wrapper alone does not pin the assembly interior at the lengths of its own rows)
+// shares: window_oracle_run_with, limbs_oracle_array and limbs_oracle_digest (the operands and the digest of the result only, never the expected value)
+test "oracle: window rows, C body and assembly body called directly, equal x + (y xor mask) + carry" {
+  let rows = oracle_rows(window_oracle_table)
+  for row in rows {
+    window_oracle_run_with(row, window_run_c)
+    window_oracle_run_with(row, window_run_asm)
+  }
+  assert_true(rows.length() > 500)
+}
