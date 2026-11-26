@@ -400,7 +400,7 @@ test "Binary trigonometric functions preserve axis identities" {
 ///|
 // oracle: A
 // source: written out from IEEE Std 754-2019 9.2.1 (sinPi(+n) = +0 and sinPi(-n) = -0 for positive integers n, cosPi(n + 1/2) = +0, tanPi(2n + 1) = -0, tanPi(2n - 0.5) = -inf with divideByZero, sinPi(1/2) = 1, cosPi(1) = -1, and the integers beyond 2^53 are even): sinPi(1) = +0, cosPi(1) = -1, tanPi(1) = -0, sinPi(1/2) = 1, cosPi(1/2) = +0, sinPi(-1/2) = -1, tanPi(-1/2) = -inf, sinPi(-1) = -0, and sinPi, cosPi, tanPi of 2^40 are 0, 1, 0
-// shares: Binary::one, zero, make, from_int, inf and neg build the operands; sinpi, cospi and tanpi are the code under test; assert_identical, is_negative_zero and is_zero read the result
+// shares: Binary::one, zero, make, from_int, inf and neg build the operands; sinpi, cospi, tanpi and tanpi_ctx are the code under test; assert_identical, is_negative_zero, is_zero, is_infinite, is_sign_minus and the flag accessor read the result
 test "Binary pi-scaled functions preserve exact integer and half-integer identities" {
   let one = Binary::one()
   let half = Binary::make(BinCoeff::one(), -1, 53)
@@ -412,6 +412,13 @@ test "Binary pi-scaled functions preserve exact integer and half-integer identit
   let negative_half = half.neg()
   assert_identical(negative_half.sinpi(), one.neg())
   assert_identical(negative_half.tanpi(), Binary::inf(negative=true))
+  // the poles signal divideByZero (IEEE 754-2019 9.2.1)
+  let (pole, pole_flags) = negative_half.tanpi_ctx(BinaryContext::binary64())
+  assert_true(pole.is_infinite() && pole.is_sign_minus())
+  assert_true(pole_flags.division_by_zero())
+  let (upper_pole, upper_pole_flags) = half.tanpi_ctx(BinaryContext::binary64())
+  assert_true(upper_pole.is_infinite() && !upper_pole.is_sign_minus())
+  assert_true(upper_pole_flags.division_by_zero())
   assert_true(Binary::from_int(-1).sinpi().is_negative_zero())
   let huge_integer = Binary::make(BinCoeff::one(), 40, 53)
   assert_true(huge_integer.sinpi().is_zero())
