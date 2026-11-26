@@ -109,7 +109,7 @@ test "exponential functions underflow instead of failing certification" {
 
 ///|
 // oracle: A
-// source: Python decimal at 80 digits on the exact binary64 values of the arguments (library-ran: no): exp(709.78) = 1.79282279439451562e308 whose nearest binary64 value is 2245699199767725 * 2^973 (0.104 of a unit away), exp(709.79) = 1.8108e308 is above the largest finite value plus half a unit (ln of it is 709.78271), exp(-745.2) = 2.31e-324 is below half of the smallest subnormal 2^-1075 = 2.47e-324; the flags follow IEEE Std 754-2019 7.4 and 7.5
+// source: Python decimal at 80 digits on the exact binary64 values of the arguments (library-ran: no): exp(709.78) = 1.79282279439451562e308 whose nearest binary64 value is 2245699199767725 * 2^973 (0.41 of a unit in the last place, 2^971, away, within the half unit), exp(709.79) = 1.8108e308 is above the largest finite value plus half a unit (ln of it is 709.78271), exp(-745.2) = 2.31e-324 is below half of the smallest subnormal 2^-1075 = 2.47e-324; the flags follow IEEE Std 754-2019 7.4 and 7.5
 // shares: Binary::from_double builds the arguments; exp_ctx is the code under test; elementary_range_show prints value and flags
 test "binary64 exp keeps its exact overflow threshold" {
   let binary64 = BinaryContext::binary64()
@@ -137,7 +137,7 @@ test "binary64 exp keeps its exact overflow threshold" {
 }
 
 ///|
-// oracle: A
+// oracle: S
 // source: the written rule of the library for a failed certification (a rule of this library, not of the standard): the non-try form returns a quiet NaN with not_computed and no other flag, and in particular not invalid_operation; the failure is an injected Err value, so no computed value is involved
 // shares: binary_defined_or_nan (the code under test) and binary_refinement_failure_state (builds the Err); elementary_range_show prints the result
 test "non-try elementary APIs return NaN with not_computed on failure" {
@@ -157,7 +157,7 @@ test "non-try elementary APIs return NaN with not_computed on failure" {
 
 ///|
 // oracle: A
-// source: Python decimal at 80 digits: 1 - exp(-38) = 3.1e-17, 1 - exp(-39) = 1.2e-17 and 1 - exp(-40) = 4.2e-18 are all below half of the spacing below 1 in binary64 (2^-54 = 5.55e-17), so expm1 rounds to -1 to nearest and to -(1 - 2^-53) = -9007199254740991p-53 toward zero, inexact (library-ran: no); the two sides of the saturation threshold -(53 + 3) ln 2 = -38.8 are the arguments -38 and -39
+// source: Python decimal at 80 digits: exp(-38) = 3.1e-17, exp(-39) = 1.2e-17 and exp(-40) = 4.2e-18 (so expm1 = -1 + exp(x)) are all below half of the spacing below 1 in binary64 (2^-54 = 5.55e-17), so expm1 rounds to -1 to nearest and to -(1 - 2^-53) = -9007199254740991p-53 toward zero, inexact (library-ran: no); the two sides of the saturation threshold -(53 + 3) ln 2 = -38.8 are the arguments -38 and -39
 // shares: try_expm1_ctx is the code under test; Binary::from_int builds the arguments; the lines are written by the test from Display of Binary and the inexact accessor
 test "expm1 saturation agrees with the general path at its threshold" {
   // The shortcut starts at -(53 + 3) ln 2 ~= -38.8 for binary64.
