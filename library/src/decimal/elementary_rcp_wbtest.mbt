@@ -121,7 +121,7 @@ test "rsqrt special values (9.2.1, Table 9.1)" {
 
 ///|
 // oracle: A
-// source: IEEE 754-2019 9.2.2 (Q(rSqrt(x)) is -floor(Q(x)/2), read from the PDF text) and arithmetic: 1/sqrt(4) = 0.5, 1/sqrt(0.04) = 5, 1/sqrt(100) = 0.1, 1/sqrt(6.25) = 0.4, 1/sqrt(0.0016) = 25, 1/sqrt(390625) = 0.0016, 1/sqrt(1E-400) = 1E+200, 1/sqrt(1E+380) = 1E-190, 1/sqrt(4E+384) = 5E-193 each at the cohort the preferred exponent gives for its operand's exponent; 1/sqrt(1000) = 0.0316227766016837933... rounds to 0.03162277660168379 at 16 digits (CPython decimal at 60 digits, rounded once), inexact
+// source: IEEE 754-2019 9.2.2 (Q(rSqrt(x)) is -floor(Q(x)/2), read from the PDF text) and arithmetic: 1/sqrt(4) = 0.5, 1/sqrt(0.04) = 5, 1/sqrt(100) = 0.1, 1/sqrt(10E-1) = 1 and 1/sqrt(4.0) = 0.5 (odd exponent -1: the preferred exponent 1 does not exist for them, the member nearest to it is used, 5.2), 1/sqrt(6.25) = 0.4, 1/sqrt(0.0016) = 25, 1/sqrt(390625) = 0.0016, 1/sqrt(1E-400) = 1E+200, 1/sqrt(1E+380) = 1E-190, 1/sqrt(4E+384) = 5E-193 each at the cohort the preferred exponent gives for its operand's exponent; 1/sqrt(1000) = 0.0316227766016837933... rounds to 0.03162277660168379 at 16 digits (CPython decimal at 60 digits, rounded once), inexact
 // shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
   // 9.2.2: "Q(rSqrt(x)) is -floor(Q(x)/2)"; 5.2: an exact result takes the
@@ -130,8 +130,8 @@ test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
   let out = StringBuilder()
   for
     x in [
-      "4", "4.00", "400E-2", "0.04", "1E+2", "1.00E+2", "100", "1E+3", "1E-6", "6.25",
-      "0.0016", "390625", "1E-400", "1E+380", "4E+384",
+      "4", "4.00", "400E-2", "0.04", "1E+2", "1.00E+2", "100", "10E-1", "4.0", "1E+3",
+      "1E-6", "6.25", "0.0016", "390625", "1E-400", "1E+380", "4E+384",
     ] {
     out.write_string("rsqrt(\{x}) = \{rcp_call("rsqrt", x, "", 0, ctx)}\n")
   }
@@ -145,6 +145,8 @@ test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
       #|rsqrt(1E+2) = 0.1 -
       #|rsqrt(1.00E+2) = 0.1 -
       #|rsqrt(100) = 0.1 -
+      #|rsqrt(10E-1) = 1 -
+      #|rsqrt(4.0) = 0.5 -
       #|rsqrt(1E+3) = 0.03162277660168379 x
       #|rsqrt(1E-6) = 1E+3 -
       #|rsqrt(6.25) = 0.4 -
@@ -205,7 +207,7 @@ test "rsqrt by the scaled loop equals the plain certified loop" {
 
 ///|
 // oracle: A
-// source: IEEE 754-2019 9.2.1, Table 9.1 and 9.2.2 (the cases quoted in the block were compared with the PDF text in this session): the 22 operand pairs are the list of compound special values, with Q(compound(x, n)) = floor(n * min(0, Q(x))) for the zero operands (0.00 to the power 3 is 1.000000); a signaling NaN gives a quiet NaN and invalid operation
+// source: IEEE 754-2019 9.2.1, Table 9.1 and 9.2.2 (the cases quoted in the block were compared with the PDF text in this session): the 22 operand pairs are the list of compound special values, with Q(compound(x, n)) = floor(n * min(0, Q(x))) for the zero operands (0.00 to the power 3 is 1.000000; compound(-1.0, 2) is the zero 0.00, since Q = floor(2 * min(0, -1)) = -2 as 9.2.2 gives, issue 843); a signaling NaN gives a quiet NaN and invalid operation
 // shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "compound special values (9.2.1)" {
   // 9.2.1: "compound(x, 0) is 1 for x >= -1 or quiet NaN";

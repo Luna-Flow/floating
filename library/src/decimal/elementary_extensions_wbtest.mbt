@@ -194,7 +194,7 @@ test "Decimal noninteger power preserves IEEE exact result semantics" {
 
 ///|
 // oracle: A
-// source: mathematics: e is irrational, so exp(1) is inexact at nine digits and the floor result is below the ceiling result (IEEE 754-2019 4.3, 7.6); no digits are written out
+// source: CPython decimal: e = 2.718281828459045..., so exp(1) at nine digits is 2.71828182 toward negative and 2.71828183 toward positive, inexact (IEEE 754-2019 4.3, 7.6)
 // shares: DecimalContext::new and Decimal::one (they build the operands), compare
 test "Decimal elementary extensions honor context rounding" {
   let floor_context = DecimalContext::new(
@@ -210,6 +210,8 @@ test "Decimal elementary extensions honor context rounding" {
   let floor_result = Decimal::one().exp_ctx(floor_context)
   let ceiling_result = Decimal::one().exp_ctx(ceiling_context)
   assert_true(floor_result.0.compare(ceiling_result.0) < 0)
+  assert_eq(floor_result.0.to_string(), "2.71828182")
+  assert_eq(ceiling_result.0.to_string(), "2.71828183")
   assert_true(floor_result.1.inexact)
   assert_true(ceiling_result.1.inexact)
 }
