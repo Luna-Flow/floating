@@ -210,8 +210,8 @@ test "fixed-point sine and cosine decline arguments they do not cover" {
 }
 
 ///|
-// oracle: A, S
-// source: A: the identity sin^2 + cos^2 = 1 to within 2^-95 at 100 bits for the test values; S: sin(-x) = -sin(x) and cos(-x) = cos(x) compare the code under test with itself on the mirrored argument
+// oracle: S
+// source: the identity sin^2 + cos^2 = 1 to within 2^-95 at 100 bits for the test values and the symmetries sin(-x) = -sin(x) and cos(-x) = cos(x); identities are level S, no value of sine or cosine is stated
 // shares: binary_sin_cos_fixed_test_values builds the arguments; sin_ctx and cos_ctx are the code under test; mul, add, sub, abs, assert_identical and the comparison read the result
 test "sine and cosine agree with their identities after the fixed-point path" {
   let context = BinaryContext::new(precision=100)
