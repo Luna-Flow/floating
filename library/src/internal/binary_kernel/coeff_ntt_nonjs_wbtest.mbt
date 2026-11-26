@@ -36,6 +36,10 @@ test "Coeff NTT constants and exact reconstruction" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt: the square of 2^(3072 * 32) - 1 and the product of 2^(4096 * 32) - 1 by 2^(4096 * 32 - 17) + 2^(4096 * 16 + 3) + 1, the two production crossovers of the NTT, compared through the decimal text
+// shares: bin_coeff_test_from_bigint and bin_coeff_test_assert_matches (Coeff::parse and Coeff::to_string in radix 10)
+// primitives: core BigInt (moonbitlang/core) multiplication and shifts are an implementation independent of the kernel; Coeff::parse and Coeff::to_string: level A in the radix table (coeff_radix_oracle_wbtest.mbt, CPython int and divmod)
 test "Coeff NTT production crossover is exact" {
   let square_limbs = 3072
   let square_big = (1N << (square_limbs * 32)) - 1N
