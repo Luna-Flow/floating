@@ -23923,8 +23923,6 @@ msgstr "op"
 #: manual/performance/binary.md:98
 #: manual/performance/binary.md:99
 #: manual/performance/binary.md:100
-#: manual/performance/binary.md:101
-#: manual/performance/binary.md:102
 msgid "53 bits"
 msgstr "53 bits"
 
@@ -24748,17 +24746,12 @@ msgstr "64 位 limb schoolbook 乘积"
 #: manual/performance/binary.md:51
 #: manual/performance/binary.md:52
 #: manual/performance/binary.md:53
-#: manual/performance/binary.md:54
-#: manual/performance/binary.md:55
-#: manual/performance/binary.md:56
-#: manual/performance/binary.md:57
 #: manual/performance/binary.md:97
 #: manual/performance/binary.md:98
 #: manual/performance/binary.md:99
 #: manual/performance/binary.md:100
 #: manual/performance/binary.md:112
 #: manual/performance/binary.md:113
-#: manual/performance/binary.md:121
 #: manual/performance/binary.md:141
 #: manual/performance/binary.md:142
 #: manual/performance/binary.md:143
@@ -24779,9 +24772,16 @@ msgstr "Native"
 
 #: manual/performance/binary.md:33
 #: manual/performance/binary.md:34
+#: manual/performance/binary.md:54
+#: manual/performance/binary.md:55
+#: manual/performance/binary.md:56
+#: manual/performance/binary.md:57
+#: manual/performance/binary.md:101
+#: manual/performance/binary.md:102
 #: manual/performance/binary.md:118
 #: manual/performance/binary.md:119
 #: manual/performance/binary.md:120
+#: manual/performance/binary.md:121
 #: manual/performance/binary.md:123
 #: manual/performance/binary.md:124
 #: manual/performance/binary.md:160
@@ -25028,8 +25028,8 @@ msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (a
 msgstr "在 Native 与 LLVM 上，平方不再在 NTT 之前运行半乘积朴素算法（以及从 16,384 位起的一般乘积）：从 36 个 64 位 limb（2,304 位；可移植循环和 LLVM 上为 36 个，Native 的 C 行实现为 64 个，汇编行实现为 96 个）起，字范围 Karatsuba 平方在数组区间上计算 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$，中间项 $a_0^2 + a_1^2 - (a_0 - a_1)^2$ 就地加入；NTT 平方从 7,168 个 32 位 limb（229,376 位）起，而不再是 768，因为在此之前 Karatsuba 平方更便宜。字范围 Karatsuba 乘法现在每个乘积只用一个 scratch 数组，按节点划分其临时量，而不是每个节点五个数组和两次拷贝，结果不变。朴素平方保持用于 36 个 limb 以下（成对运行把交叉点定在 32 与 40 个 limb 之间）。Wasm 与 Wasm-GC 保持其平方方式（在成对墙钟测量作出决定之前，`bin_coeff_square_words_enabled` 在那里为 false），LLVM 采用 Native 的值，未经测量。白盒测试把 scratch 缓冲乘积与此前构建的逐节点分配 Karatsuba 及朴素乘积在截止点及其附近（含不平衡形状）比较，把 Karatsuba 平方与朴素平方及乘积比较，把分派与 36、64、128、256、384、512 个 limb 附近的朴素乘积比较，并在 NTT 截止点与 NTT 及 Karatsuba 平方比较。"
 
 #: manual/performance/binary.md:63
-msgid "Retired instructions, against the previous build. The squares are measured on Native; the target of the product row is not stated."
-msgstr "Retired instructions，与此前构建相比。平方是在 Native 上测量的；乘积一行的目标未说明。"
+msgid "Retired instructions, against the previous build. The target is not stated (the paragraph concerns Native and LLVM, and LLVM is unmeasured)."
+msgstr "Retired instructions，与此前构建相比。目标未说明（该段涉及 Native 与 LLVM，而 LLVM 未经测量）。"
 
 #: manual/performance/binary.md:65
 #: manual/performance/binary.md:77
@@ -25170,8 +25170,8 @@ msgid "`Binary::add`, `mul`, `div` and `sqrt` on operands whose coefficients fit
 msgstr "对系数能放进一个机器字（至多 64 位）且精度不超过 62 位（`div` 与 `sqrt` 为 60 位）的操作数，`Binary::add`、`mul`、`div` 和 `sqrt` 跳过通用路径；通用路径每次运算都要构造若干系数值、一个上下文、一个标志记录和一个结果元组。快速路径在 `UInt64` 对上计算（128 位的和与积、128 除以 64 位的除法，平方根则用双精度估计加一步牛顿迭代并以精确比较定稿），用舍入位和粘滞位向最近偶数舍入，只分配结果。遇到 NaN、无穷、零、恰为零的和、更宽的系数或精度、指数相差很远或接近实现极限的操作数，以及 JavaScript，它都放弃，由通用路径回答；结果是同样的值，精度与指数也相同。白盒测试对每种运算比较 40,000 对随机操作数、平局、进位、相消和完全平方数与通用路径的结果。128 位及以上的操作数不变。"
 
 #: manual/performance/binary.md:93
-msgid "Paired runs at 53 bits. The baseline is not recorded."
-msgstr "53 位的成对运行。基线未记录。"
+msgid "Paired runs; the Native rows are at 53 bits. The baseline is not recorded."
+msgstr "成对运行；Native 各行为 53 位。基线未记录。"
 
 #: manual/performance/binary.md:98
 #: manual/performance/binary.md:117
@@ -25186,11 +25186,6 @@ msgstr "快 4.9 倍"
 #: manual/performance/binary.md:100
 msgid "2.8 times faster"
 msgstr "快 2.8 倍"
-
-#: manual/performance/binary.md:101
-#: manual/performance/binary.md:102
-msgid "All four fast-path operations"
-msgstr "四种快速路径运算"
 
 #: manual/performance/binary.md:101
 msgid "3.1 to 5.1 times faster"
@@ -25283,8 +25278,8 @@ msgid "Division, square root and GCD"
 msgstr "除法、开方与 GCD"
 
 #: manual/performance/binary.md:128
-msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) below the Burnikel–Ziegler cutoff (also as the leaf of its recursion, up to 64 limbs of 64 bits), and Burnikel–Ziegler from 96 limbs of 64 bits (192 of 32 bits) on Wasm, Wasm-GC and LLVM and from 208, 352 or 752 limbs of 64 bits on Native, with the portable, C or assembly rows. The dispatch does not select Newton reciprocal division, because it is slower than Burnikel–Ziegler from 32,768 bits (first table below), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Native multiplication switched to the NTT at 8,192 limbs of 32 bits (4,096 limbs of 64 bits, see Multiplication) instead of 2,048 limbs of 32 bits now that the Karatsuba is faster. Square root uses fixed-width kernels through 256 bits (the word kernels on Native, LLVM and Wasm-GC, the restoring loops on linear Wasm) and Zimmermann's `SqrtRem` on word arrays above that on every target except JavaScript; the recursion stops at the same fixed-width kernels once a block is at most 256 bits (a restoring loop on heap integers at 128 bits before). The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
-msgstr "除法使用单 limb 路径、在 64 位数位上的 Knuth 算法 D（128 除以 64 位的商估计与 128 位修正检验；用于低于 Burnikel–Ziegler 截止点的除数，也是其递归的叶子，至多 64 个 64 位 limb），以及 Burnikel–Ziegler（在 Wasm、Wasm-GC 和 LLVM 上从 96 个 64 位 limb，即 192 个 32 位 limb 起；在 Native 上，行实现为可移植循环、C 或汇编时，分别从 208、352 或 752 个 64 位 limb 起）。分派不选用牛顿倒数除法，因为它从 32,768 位起比 Burnikel–Ziegler 慢（见下文第一个表），因此分派不会到达它；该例程保留并由测试覆盖，阈值常量按目标设置。Karatsuba 变快之后，Native 乘法改在 8,192 个 32 位 limb（即 4,096 个 64 位 limb，见乘法一节）而不是 2,048 个 32 位 limb 处切换到 NTT。平方根在 256 位以内使用定宽内核（Native、LLVM 和 Wasm-GC 上是字内核，线性 Wasm 上是恢复式循环），超过则在除 JavaScript 外的每个目标上对字数组使用 Zimmermann 的 `SqrtRem`；当递归中的块不超过 256 位时，递归在同一组定宽内核处结束（此前是在 128 位处对堆整数使用恢复式循环）。该截断点是按目标平台测得的策略；LLVM 的取值未经测量，因为所用工具链不提供该后端。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
+msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) below the Burnikel–Ziegler cutoff (also as the leaf of its recursion, up to 64 limbs of 64 bits), and Burnikel–Ziegler from 96 limbs of 64 bits (192 of 32 bits) on Wasm, Wasm-GC and LLVM and from 208, 352 or 752 limbs of 64 bits on Native, with the portable, C or assembly rows. The dispatch does not select Newton reciprocal division, because it is slower than Burnikel–Ziegler from 32,768 bits (first table below), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Native multiplication switched to the NTT at 8,192 limbs of 32 bits (4,096 limbs of 64 bits, see Multiplication) instead of 2,048 limbs of 32 bits now that the Karatsuba is faster. Square root uses fixed-width kernels through 256 bits (the word kernels on Native, LLVM and Wasm-GC, the restoring loops on linear Wasm) and Zimmermann's `SqrtRem` on word arrays above that on every target except JavaScript; the recursion stops at the same fixed-width kernels once a block is at most 256 bits (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) faster in paired runs on Native and Wasm (second table below). The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
+msgstr "除法使用单 limb 路径、在 64 位数位上的 Knuth 算法 D（128 除以 64 位的商估计与 128 位修正检验；用于低于 Burnikel–Ziegler 截止点的除数，也是其递归的叶子，至多 64 个 64 位 limb），以及 Burnikel–Ziegler（在 Wasm、Wasm-GC 和 LLVM 上从 96 个 64 位 limb，即 192 个 32 位 limb 起；在 Native 上，行实现为可移植循环、C 或汇编时，分别从 208、352 或 752 个 64 位 limb 起）。分派不选用牛顿倒数除法，因为它从 32,768 位起比 Burnikel–Ziegler 慢（见下文第一个表），因此分派不会到达它；该例程保留并由测试覆盖，阈值常量按目标设置。Karatsuba 变快之后，Native 乘法改在 8,192 个 32 位 limb（即 4,096 个 64 位 limb，见乘法一节）而不是 2,048 个 32 位 limb 处切换到 NTT。平方根在 256 位以内使用定宽内核（Native、LLVM 和 Wasm-GC 上是字内核，线性 Wasm 上是恢复式循环），超过则在除 JavaScript 外的每个目标上对字数组使用 Zimmermann 的 `SqrtRem`；当递归中的块不超过 256 位时，递归在同一组定宽内核处结束（此前是在 128 位处对堆整数使用恢复式循环），这使 1,024 位被开方数（即 512 位 `sqrt`）在 Native 与 Wasm 的成对运行中更快（见下文第二个表）。该截断点是按目标平台测得的策略；LLVM 的取值未经测量，因为所用工具链不提供该后端。大数 GCD 在两个操作数共同的 63 位窗口上使用 Lehmer 批处理；当较短的操作数在该窗口中没有任何位时，执行一次除法步骤，因此长度相差很大的操作数会被一次性约简。"
 
 #: manual/performance/binary.md:130
 msgid "Newton reciprocal division against Burnikel–Ziegler, measured once multiplication was 2 to 3 times faster than before."
@@ -25400,8 +25395,8 @@ msgid "linear Wasm"
 msgstr "线性 Wasm"
 
 #: manual/performance/binary.md:165
-msgid "all tested widths"
-msgstr "所有测试的位宽"
+msgid "everywhere"
+msgstr "各处"
 
 #: manual/performance/binary.md:167
 msgid "Square root above 256 bits"
@@ -25482,8 +25477,8 @@ msgid "Kernels on 64-bit limbs"
 msgstr "64 位 limb 上的内核"
 
 #: manual/performance/binary.md:195
-msgid "The last stage of the 64-bit limb work moves the remaining coefficient kernels off the 32-bit view of the storage, so that only the 32-bit-limb routes of Wasm (multiplication, squaring and Knuth division on 32-bit limbs) use it, and every cutoff is named and documented in 64-bit limbs (`bin_coeff_ntt_mul_min_words`, `bin_coeff_ntt_square_min_words`, `bin_coeff_toom3_min_words`, `bin_coeff_bz_division_min_words`, `bin_coeff_bz_leaf_words`, `bin_coeff_radix_format_dc_words`, `bin_coeff_sparse_min_words` (in `coeff_nonjs.mbt`) and the others of the threshold files, the same values halved). Converted: the multiplication and squaring dispatch, the unbalanced product (the block multiplication of the word Karatsuba replaces the `BinCoeff`-level one), the Burnikel–Ziegler recursion, the NTT digit conversion and overlap-add (the transforms keep their 32-bit Montgomery primes), the one-limb division, the sparse product, the bit operations, the byte and power-of-two radix conversions, the Lehmer threshold and the 256-bit square root kernel. The old divide-and-conquer root, its 512-bit kernel and the restoring loop are test-only references now. Results are unchanged: the regression digests recorded with the 32-bit implementation, the BigInt oracle tests, and new tests of the converted kernels against their 32-bit-limb definitions, the Knuth division, the schoolbook product and each other. The cutoffs keep their values (halved from limbs of 32 bits), except that LLVM now carries the cutoffs of the Native portable loops, not the values of the C and assembly rows of Native (its Burnikel–Ziegler cutoff is 96 limbs as on Wasm, against 208 on the Native portable loops), instead of an old copy of the Wasm ones; the elementary bit-burst precisions depend on multiplication cost, which this stage does not change. The NTT digit conversion stays on the 32-bit view on Wasm and Wasm-GC (`bin_coeff_ntt_limb32_conversion`)."
-msgstr "64 位 limb 工作的最后一个阶段把其余的系数内核移出存储的 32 位视图，使得只有 Wasm 的 32 位 limb 路径（32 位 limb 上的乘法、平方与 Knuth 除法）仍使用它，并且每个截止点都以 64 位 limb 命名和记录（`bin_coeff_ntt_mul_min_words`、`bin_coeff_ntt_square_min_words`、`bin_coeff_toom3_min_words`、`bin_coeff_bz_division_min_words`、`bin_coeff_bz_leaf_words`、`bin_coeff_radix_format_dc_words`、`bin_coeff_sparse_min_words`（在 `coeff_nonjs.mbt` 中）以及阈值文件中的其他常量，数值为原值的一半）。已转换：乘法与平方分派，不平衡乘积（字 Karatsuba 的分块乘法取代 `BinCoeff` 级的分块乘法），Burnikel–Ziegler 递归，NTT 的数字转换与重叠相加（变换仍使用其 32 位 Montgomery 素数），单 limb 除法，稀疏乘积，位运算，字节与 2 的幂基数转换，Lehmer 阈值，以及 256 位平方根内核。旧的分治平方根、其 512 位内核与逐位循环现在只是测试用的参照。结果不变：用 32 位实现记录的回归摘要、BigInt 参照测试，以及把转换后的内核与其 32 位 limb 定义、Knuth 除法、朴素乘积及彼此比较的新测试。各截止点保持其数值（由 32 位 limb 折半得到），只是 LLVM 现在使用 Native 可移植循环的截止点，而不是 Native 的 C 与汇编行实现的取值（其 Burnikel–Ziegler 截止点与 Wasm 相同，为 96 个 limb，Native 可移植循环上为 208），而不再是 Wasm 截止点的旧副本；初等函数的 bit-burst 精度取决于乘法代价，而本阶段不改变它。在 Wasm 与 Wasm-GC 上，NTT 的数字转换仍使用 32 位视图（`bin_coeff_ntt_limb32_conversion`）。"
+msgid "The last stage of the 64-bit limb work moves the remaining coefficient kernels off the 32-bit view of the storage, so that only the 32-bit-limb routes of Wasm (multiplication, squaring and Knuth division on 32-bit limbs) use it, and every cutoff is named and documented in 64-bit limbs (`bin_coeff_ntt_mul_min_words`, `bin_coeff_ntt_square_min_words`, `bin_coeff_toom3_min_words`, `bin_coeff_bz_division_min_words`, `bin_coeff_bz_leaf_words`, `bin_coeff_radix_format_dc_words`, `bin_coeff_sparse_min_words` (in `coeff_nonjs.mbt`) and the others of the threshold files, the same values halved). Converted: the multiplication and squaring dispatch, the unbalanced product (the block multiplication of the word Karatsuba replaces the `BinCoeff`-level one), the Burnikel–Ziegler recursion, the NTT digit conversion and overlap-add (the transforms keep their 32-bit Montgomery primes), the one-limb division, the sparse product, the bit operations, the byte and power-of-two radix conversions, the Lehmer threshold and the 256-bit square root kernel. The old divide-and-conquer root, its 512-bit kernel and the restoring loop are test-only references now. Results are unchanged: the regression digests recorded with the 32-bit implementation, the BigInt oracle tests, and new tests of the converted kernels against their 32-bit-limb definitions, the Knuth division, the schoolbook product and each other. The cutoffs keep their values (halved from limbs of 32 bits), except that LLVM now carries the cutoffs of the Native portable loops, not the values of the C and assembly rows of Native (its Burnikel–Ziegler cutoff is 96 limbs as on Wasm, against 208 on the Native portable loops), instead of an old copy of the Wasm ones; the elementary bit-burst precisions depend on multiplication cost, which this stage does not change. The NTT digit conversion stays on the 32-bit view on Wasm and Wasm-GC (`bin_coeff_ntt_limb32_conversion`), because the 64-bit limb conversion measured slower on Wasm-GC (third table below)."
+msgstr "64 位 limb 工作的最后一个阶段把其余的系数内核移出存储的 32 位视图，使得只有 Wasm 的 32 位 limb 路径（32 位 limb 上的乘法、平方与 Knuth 除法）仍使用它，并且每个截止点都以 64 位 limb 命名和记录（`bin_coeff_ntt_mul_min_words`、`bin_coeff_ntt_square_min_words`、`bin_coeff_toom3_min_words`、`bin_coeff_bz_division_min_words`、`bin_coeff_bz_leaf_words`、`bin_coeff_radix_format_dc_words`、`bin_coeff_sparse_min_words`（在 `coeff_nonjs.mbt` 中）以及阈值文件中的其他常量，数值为原值的一半）。已转换：乘法与平方分派，不平衡乘积（字 Karatsuba 的分块乘法取代 `BinCoeff` 级的分块乘法），Burnikel–Ziegler 递归，NTT 的数字转换与重叠相加（变换仍使用其 32 位 Montgomery 素数），单 limb 除法，稀疏乘积，位运算，字节与 2 的幂基数转换，Lehmer 阈值，以及 256 位平方根内核。旧的分治平方根、其 512 位内核与逐位循环现在只是测试用的参照。结果不变：用 32 位实现记录的回归摘要、BigInt 参照测试，以及把转换后的内核与其 32 位 limb 定义、Knuth 除法、朴素乘积及彼此比较的新测试。各截止点保持其数值（由 32 位 limb 折半得到），只是 LLVM 现在使用 Native 可移植循环的截止点，而不是 Native 的 C 与汇编行实现的取值（其 Burnikel–Ziegler 截止点与 Wasm 相同，为 96 个 limb，Native 可移植循环上为 208），而不再是 Wasm 截止点的旧副本；初等函数的 bit-burst 精度取决于乘法代价，而本阶段不改变它。在 Wasm 与 Wasm-GC 上，NTT 的数字转换仍使用 32 位视图（`bin_coeff_ntt_limb32_conversion`），因为 64 位 limb 转换在 Wasm-GC 上测得更慢（见下文第三个表）。"
 
 #: manual/performance/binary.md:197
 msgid "Retired instructions per operation on Native, against the previous build."
@@ -25604,8 +25599,8 @@ msgid "Radix conversion"
 msgstr "基数转换"
 
 #: manual/performance/binary.md:223
-msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. The earlier path sent every chunk through the 32-bit limb accessors and allocated a coefficient (the first table below gives its cost per limb step). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM. Wasm and Wasm-GC use 4,608 chunks for parsing as well and keep 128 limbs of 32 bits (64 of 64 bits) for formatting. White-box tests check, for the radixes 3, 10 and 36, the powers of the radix and their neighbours around chunk edges up to 130 chunks, and the in-place conversion against divide and conquer (formatting and parsing) at 1 to 1,025 limbs on both sides of the cutoffs; a CPython oracle checks both directions for further radixes."
-msgstr "`BinCoeff::to_radix_string` 与 `BinCoeff::parse` 在基数不是 2 的幂时，于各自的分治截止点以下直接在一个 limb 数组上就地进行转换。格式化时对 64 位 limb 的副本逐块（每块 9 位十进制数字，即小于 $2^{32}$ 的最大基数幂）就地做除法，每块一遍；解析时就地累加 `value * chunk_power + chunk`；每个 limb 视为两个 32 位半字，每个半字一次 64 位除以 32 位的除法或乘法，一块的各位数字从一个暂存数组写入同一个字符串构建器。早先的路径让每个块都经过 32 位 limb 访问器并分配一个系数（下文第一个表给出其每个 limb 步骤的代价）。没有使用 64 位的块（19 位十进制数字）：128 除以 64 位的商位需要两次硬件除法，而两个 64 除以 32 位的步骤各需一次，因此按构造，遍历 limb 的每位数字代价大致相同，而此前的问题在于每块的开销，两种方式下它都已消除（未单独测量）。分治转换在 Native 与 LLVM 上，格式化从 6,144 个 32 位 limb（196,608 位）起，解析从 4,608 个块（约 41,000 位数字）起。Wasm 与 Wasm-GC 解析也使用 4,608 个块，格式化保留 128 个 32 位 limb（即 64 个 64 位 limb）。白盒测试对基数 3、10 与 36，检验围绕块边界至 130 个块的基数幂及其邻近值，并让就地转换与分治转换（格式化与解析）在截止点两侧于 1 至 1,025 个 limb 上互相比较；CPython 参照对更多基数检验两个方向。"
+msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. The earlier path sent every chunk through the 32-bit limb accessors and allocated a coefficient (the first table below gives its cost per limb step). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM. Paired wall-clock runs of the conversion on Wasm and Wasm-GC put the parsing cutoff at 4,608 chunks as on Native and keep the formatting cutoff at 128 limbs of 32 bits (64 of 64 bits); the second table of Kernels on 64-bit limbs gives the runs. White-box tests check, for the radixes 3, 10 and 36, the powers of the radix and their neighbours around chunk edges up to 130 chunks, and the in-place conversion against divide and conquer (formatting and parsing) at 1 to 1,025 limbs on both sides of the cutoffs; a CPython oracle checks both directions for further radixes."
+msgstr "`BinCoeff::to_radix_string` 与 `BinCoeff::parse` 在基数不是 2 的幂时，于各自的分治截止点以下直接在一个 limb 数组上就地进行转换。格式化时对 64 位 limb 的副本逐块（每块 9 位十进制数字，即小于 $2^{32}$ 的最大基数幂）就地做除法，每块一遍；解析时就地累加 `value * chunk_power + chunk`；每个 limb 视为两个 32 位半字，每个半字一次 64 位除以 32 位的除法或乘法，一块的各位数字从一个暂存数组写入同一个字符串构建器。早先的路径让每个块都经过 32 位 limb 访问器并分配一个系数（下文第一个表给出其每个 limb 步骤的代价）。没有使用 64 位的块（19 位十进制数字）：128 除以 64 位的商位需要两次硬件除法，而两个 64 除以 32 位的步骤各需一次，因此按构造，遍历 limb 的每位数字代价大致相同，而此前的问题在于每块的开销，两种方式下它都已消除（未单独测量）。分治转换在 Native 与 LLVM 上，格式化从 6,144 个 32 位 limb（196,608 位）起，解析从 4,608 个块（约 41,000 位数字）起。Wasm 与 Wasm-GC 上对转换的成对墙钟运行把解析截止点定在与 Native 相同的 4,608 个块，并把格式化截止点保持在 128 个 32 位 limb（即 64 个 64 位 limb）；“64 位 limb 上的内核”一节的第二个表给出这些运行。白盒测试对基数 3、10 与 36，检验围绕块边界至 130 个块的基数幂及其邻近值，并让就地转换与分治转换（格式化与解析）在截止点两侧于 1 至 1,025 个 limb 上互相比较；CPython 参照对更多基数检验两个方向。"
 
 #: manual/performance/binary.md:225
 msgid "Retired instructions per 32-bit limb step, before the in-place conversion and now."
@@ -25874,10 +25869,6 @@ msgstr "快 2.4 至 3.7 倍"
 #: manual/performance/binary.md:301
 msgid "`ln` and `sin`"
 msgstr "`ln` 与 `sin`"
-
-#: manual/performance/binary.md:302
-msgid "all targets"
-msgstr "所有目标"
 
 #: manual/performance/binary.md:302
 msgid "unchanged; it has no such constant"
@@ -32992,6 +32983,15 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:971
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "All four fast-path operations"
+#~ msgstr "四种快速路径运算"
+
+#~ msgid "all tested widths"
+#~ msgstr "所有测试的位宽"
+
+#~ msgid "all targets"
+#~ msgstr "所有目标"
 
 #~ msgid "The `floating` programming environment conforms to IEEE 754-2019 in radix two, through its `binary` package: binary16, binary32, binary64, and binary128 are each a supported arithmetic format and a supported interchange format, the condition of IEEE 754-2019 3.1.2. This page records finite results for named corpora, inputs, and contexts, together with the cases they do not cover."
 #~ msgstr "`floating` 编程环境通过其 `binary` 包在基数 2 上符合 IEEE 754-2019：binary16、binary32、binary64 和 binary128 各自既是受支持的算术格式，也是受支持的交换格式，这是 IEEE 754-2019 3.1.2 的条件。本页记录针对指名语料、输入和上下文的有限结果，以及这些结果未覆盖的情形。"
