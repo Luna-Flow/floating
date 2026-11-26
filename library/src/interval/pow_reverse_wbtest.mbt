@@ -90,20 +90,18 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
 // oracle: A
 // source: written out by hand: 1/3 at 8 bits lies between 1.0101010b * 2^-2 = 0.33203125 and 1.0101011b * 2^-2 = 0.333984375; 1/3 is above 1/4 and below 1/2, above the double nearest to it (which lies below 1/3) and below the next double; 1024/3 lies between 341 and 342; 1/3 is above -1
 // shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
+// oracle: A
+// source: worked by hand: 1/3 = 0.010101...b is not a float; at 53 bits RD(1/3) = 0x1.5555555555555p-2 and the next float up 0x1.5555555555556p-2 is above it; at 8 bits RD = 1.0101010b * 2^-2 = 0.33203125 and RU = 1.0101011b * 2^-2 = 0.333984375; 1/3 * 2^10 lies between 341 and 342
+// shares: pw_num, Binary::from_double and the BinCoeff constructor build the inputs; the integer comparisons compare; pow_rational_compare and pow_rational_round are the code under test
 test "rational class: comparison and directed rounding of 2^E / D" {
-  // 1/3 at 8 bits: 0.0101010101..b, RD = 1.0101010 * 2^-2, RU = 1.0101011 * 2^-2
   let three = @binary.BinCoeff::from_uint64(3UL)
-  let third = pw_num(1.0 / 3.0, 53)
+  let third = pw_num(0x1.5555555555555p-2, 53)
   assert_eq(pow_rational_compare(three, 0, pw_num(0.25, 53)), 1)
   assert_eq(pow_rational_compare(three, 0, pw_num(0.5, 53)), -1)
   // 1/3 against the two floats around it: strict
   assert_eq(pow_rational_compare(three, 0, third), 1)
   assert_eq(
-    pow_rational_compare(
-      three,
-      0,
-      third.next_up_ctx(@binary.BinaryContext::new(precision=53)).0,
-    ),
+    pow_rational_compare(three, 0, pw_num(0x1.5555555555556p-2, 53)),
     -1,
   )
   let down = pow_rational_round(three, 0, false, 8)
@@ -117,6 +115,9 @@ test "rational class: comparison and directed rounding of 2^E / D" {
 }
 
 ///|
+// oracle: A
+// source: worked by hand from Table 10.1: x^2 = 4 gives 2, x^-2 = 1/4 gives 2, 9^(1/2) = 3, 9^(1/-2) = 1/3 (not a float: RD(1/3) = 0x1.5555555555555p-2, RU = 0x1.5555555555556p-2), 0^beta = 0 for beta > 0, x^0 = 1 for every x > 0 (0^0 is undefined), 1^beta = 1, empty operands and a negative c give Empty; for beta in [-4, -2] and c in [1/4, 1/2] the set is [2^(1/4), 2] (0.5^(1/-4) and 0.25^(1/-2)), where 2^(1/4) = 1.189207115002721... has RD 0x1.306FE0A31B715p0 at 53 bits (Python decimal at 80 digits)
+// shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) build the inputs; the comparisons compare; pow_rev1 is the code under test
 test "pow_rev1: the examples that fix the definition, with exact and rounded ends" {
   let p = 53
   // x^2 in [4, 4] with x > 0: x = 2
@@ -158,15 +159,17 @@ test "pow_rev1: the examples that fix the definition, with exact and rounded end
   assert_true(pw_ival(1.0, 2.0, p).pow_rev1(pw_ival(-3.0, -1.0, p)).is_empty())
   // a rational that is not a float: 9^(1/2) = 3 is dyadic, 9^(1/-2) = 1/3 is not
   let third_set = pw_ival(-2.0, -2.0, p).pow_rev1(pw_ival(9.0, 9.0, p))
-  assert_true(third_set.lo_.compare(pw_num(1.0 / 3.0, p)) <= 0)
-  assert_true(third_set.hi_.compare(pw_num(1.0 / 3.0, p)) >= 0)
-  assert_true(third_set.lo_.compare(third_set.hi_) < 0)
+  assert_true(third_set.lo_.compare(pw_num(0x1.5555555555555p-2, p)) == 0)
+  assert_true(third_set.hi_.compare(pw_num(0x1.5555555555556p-2, p)) == 0)
   assert_true(
     pw_same(pw_ival(2.0, 2.0, p).pow_rev1(pw_ival(9.0, 9.0, p)), 3.0, 3.0),
   )
 }
 
 ///|
+// oracle: A
+// source: worked by hand from Table 10.1 for the sets (0, +inf) and (1, +inf) and (0, 1): 0 and 1 are limits that no x attains, so a prior that only touches them gives Empty, a prior that reaches past them keeps its part, and the zero part of c = [0, 2] closes the end at 0; the floats next to 1 are 1 - 2^-p and 1 + 2^(1-p), written with Binary::make
+// shares: pw_num, pw_box and Binary::make build the inputs; the comparisons compare; pow_rev1 is the code under test
 test "pow_rev1: the open ends at 0 and at 1 against a prior that touches them" {
   for p in [24, 53, 113] {
     let zero = pw_num(0.0, p)
@@ -176,8 +179,17 @@ test "pow_rev1: the open ends at 0 and at 1 against a prior that touches them" {
       -1000,
       p,
     )
-    let below_one = one.next_down_ctx(@binary.BinaryContext::new(precision=p)).0
-    let above_one = one.next_up_ctx(@binary.BinaryContext::new(precision=p)).0
+    // 1 - 2^-p and 1 + 2^(1-p), the floats next to 1
+    let below_one = @binary.Binary::make(
+      coeff_sub(coeff_shift_left(coeff_one(), p), coeff_one()),
+      -p,
+      p,
+    )
+    let above_one = @binary.Binary::make(
+      coeff_add(coeff_shift_left(coeff_one(), p - 1), coeff_one()),
+      1 - p,
+      p,
+    )
     // (a) 0 in L and 0 in b: S = (0, +inf), 0 is not attained and not in the zero part
     let b = pw_ival(-1.0, 1.0, p)
     let c = pw_ival(0.5, 2.0, p)
@@ -329,10 +341,13 @@ fn pw_two_less(p : Int32) -> @binary.Binary {
 }
 
 ///|
+// oracle: A
+// source: the ends of (2 - 2^-40)^(2^30) (top binade) and 1 / (2 - 2^-40)^(2^30) (subnormal) are the rows p1-top-p and p1-sub-p of reverse_table_wbtest.mbt (Python decimal, tools/interval_reverse_oracle.py); the exact edge 2^(2^30) = 2^(e_max + 1) gives [largest finite float, +inf] and 2^(-2^31) gives [0, smallest positive float] by the definition of the clamp; the priors that cut are worked from those ends: the value lies strictly between the two floats, so [hi, +inf] and [0, lo] miss it and [lo, +inf] keeps both
+// shares: pw_box, pw_num, pw_pow2, pw_largest, pw_smallest and Binary::from_hex (the table) build the inputs; the comparisons compare; pow_rev1 is the code under test
 test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
   for p in [53, 113] {
-    let ctx = @binary.BinaryContext::new(precision=p)
-    let e_max = @binary.binary_value_e_max.to_int64()
+    let top = reverse_row("p1-top-\{p}")
+    let sub = reverse_row("p1-sub-\{p}")
     let two = pw_num(2.0, p)
     let c_two = pw_box(two, two, p)
     let c_less = pw_box(pw_two_less(p), pw_two_less(p), p)
@@ -351,16 +366,7 @@ test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
     // (1) top binade: (2 - 2^-40)^(2^30) is about 2^(e_max + 1) (1 - 2^-11), finite
     let r1 = b_pos.pow_rev1(c_less)
     assert_true(!r1.is_empty())
-    assert_true(pow_adjusted_exponent(r1.lo_) == e_max)
-    assert_true(pow_adjusted_exponent(r1.hi_) == e_max)
-    assert_true(
-      r1.lo_.compare(r1.hi_) == 0 ||
-      r1.lo_.next_up_ctx(ctx).0.compare(r1.hi_) == 0,
-    )
-    // the forward check: r^(2^-30) contains c
-    let back = r1.pow(b_pos)
-    assert_true(back.lo_.compare(pw_two_less(p)) <= 0)
-    assert_true(back.hi_.compare(pw_two_less(p)) >= 0)
+    assert_true(r1.lo_.compare(top.lo) == 0 && r1.hi_.compare(top.hi) == 0)
     // a prior that cuts: the value lies strictly between the two floats, so [hi, +inf]
     // and [0, lo] miss it, and [lo, +inf] keeps both
     assert_true(
@@ -389,8 +395,7 @@ test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
     // stored values, not zero
     let r3 = b_neg.pow_rev1(c_less)
     assert_true(!r3.is_empty())
-    assert_true(r3.lo_.compare(pw_num(0.0, p)) > 0)
-    assert_true(r3.lo_.next_up_ctx(ctx).0.compare(r3.hi_) == 0)
+    assert_true(r3.lo_.compare(sub.lo) == 0 && r3.hi_.compare(sub.hi) == 0)
     // a prior that cuts: [0, lo] misses the value, [lo, hi] keeps both floats
     assert_true(
       b_neg.pow_rev1(c_less, x=pw_box(pw_num(0.0, p), r3.lo_, p)).is_empty(),
@@ -412,9 +417,6 @@ test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
       x=pw_box(pw_num(0.0, p), pw_smallest(p), p),
     )
     assert_true(r4c.lo_.is_zero() && r4c.hi_.compare(pw_smallest(p)) == 0)
-    println(
-      "EDGE p=\{p} top=[\{r1.lo_.to_string()}, \{r1.hi_.to_string()}] edge=[\{r2.lo_.to_string()}, \{r2.hi_.to_string()}] sub=[\{r3.lo_.to_string()}, \{r3.hi_.to_string()}] below=[\{r4.lo_.to_string()}, \{r4.hi_.to_string()}]",
-    )
   }
 }
 
@@ -424,10 +426,23 @@ test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
 /// `[v, v]` for every prior that contains it, and all four calls return at once (about
 /// 0.2 s each in a separate run, at 53 and 113 bits). A rational end in that range
 /// (`2^(e_min)/3`) is not a float: two adjacent stored values around it.
+// oracle: A
+// source: 2^(e_min - 2) is the stored value 1 * 2^(-2^30) and (2)^(-2^30) = 2^(-2^30) is exact, so the set is the point [v, v] for every prior holding v, Empty for a prior one float above or below (the floats next to v are v + quantum and v - quantum with quantum 2^(e_min - p + 1), written with Binary::make); the rational 2^e_min / 3 has the ends of the row p1-third-p of reverse_table_wbtest.mbt (Python decimal and integers: floor and ceiling of 2^(p-1)/3 units of the quantum)
+// shares: pw_box, pw_num, pw_pow2, Binary::make, the constant binary_value_e_min and Binary::from_hex (the table) build the inputs; the comparisons compare; pow_rev1 is the code under test
 test "pow_rev1: an exact end in the subnormal range returns at once" {
   for p in [53, 113] {
-    let ctx = @binary.BinaryContext::new(precision=p)
     let v = pw_pow2(-1073741824, p)
+    // v = 2^(p - 3) quanta of 2^(e_min - p + 1): the floats next to it are 2^(p-3) +- 1 quanta
+    let v_up = @binary.Binary::make(
+      coeff_add(coeff_shift_left(coeff_one(), p - 3), coeff_one()),
+      @binary.binary_value_e_min - p + 1,
+      p,
+    )
+    let v_down = @binary.Binary::make(
+      coeff_sub(coeff_shift_left(coeff_one(), p - 3), coeff_one()),
+      @binary.binary_value_e_min - p + 1,
+      p,
+    )
     let b = pw_box(
       pw_pow2(-30, p, negative=true),
       pw_pow2(-30, p, negative=true),
@@ -449,31 +464,13 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
     }
     // the point v is below a prior that starts one float above it and above a prior that ends
     // one float below it
-    assert_true(
-      b.pow_rev1(c, x=pw_box(v.next_up_ctx(ctx).0, one, p)).is_empty(),
-    )
-    assert_true(
-      b.pow_rev1(c, x=pw_box(zero, v.next_down_ctx(ctx).0, p)).is_empty(),
-    )
-    // the Rational class: 1 / (3 * 2^(e_min + 0)) = 2^e_min / 3, beta = -1, below the normal range
-    let three_two = @binary.Binary::make(
-      @binary.BinCoeff::from_uint64(3UL),
-      -@binary.binary_value_e_min,
-      p,
-    )
-    let r = pw_box(pw_num(-1.0, p), pw_num(-1.0, p), p).pow_rev1(
-      pw_box(three_two, three_two, p),
-    )
+    assert_true(b.pow_rev1(c, x=pw_box(v_up, one, p)).is_empty())
+    assert_true(b.pow_rev1(c, x=pw_box(zero, v_down, p)).is_empty())
+    // the Rational class: 1 / (3 * 2^(-e_min)) = 2^e_min / 3, beta = -1, below the normal range
+    let third = reverse_row("p1-third-\{p}")
+    let r = third.run()
     assert_true(!r.is_empty())
-    assert_true(r.lo_.compare(zero) > 0)
-    assert_true(r.lo_.next_up_ctx(ctx).0.compare(r.hi_) == 0)
-    let threefold = fn(x : @binary.Binary) {
-      (Interval::exact(x, precision=p + 8) *
-      Interval::exact(pw_num(3.0, p + 8), precision=p + 8)).lo_
-    }
-    let e_min_value = pw_pow2(@binary.binary_value_e_min, p)
-    assert_true(threefold(r.lo_).compare(e_min_value) < 0)
-    assert_true(threefold(r.hi_).compare(e_min_value) > 0)
+    assert_true(r.lo_.compare(third.lo) == 0 && r.hi_.compare(third.hi) == 0)
   }
 }
 
@@ -565,6 +562,9 @@ test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
 }
 
 ///|
+// oracle: A
+// source: worked by hand: 2^(2^-1e9) = 1 + 2^-1e9 ln 2 lies strictly between 1 and 1 + 2^(1-p), so its ends are [1, 1 + 2^(1-p)]; 2^(-2^-1e9) lies strictly between 1 - 2^-p and 1, so its ends are [1 - 2^-p, 1]; 2^(2^(1e9)) is beyond the range, so [largest finite float, +inf], and 0.5^(2^(1e9)) below it, so [0, smallest positive float]; the priors that start or end at 2^1e9 or 2^-1e9 keep the point 2 or give Empty; (2^1000 + 1)^2 has the exact root 2^1000 + 1; 2^(1/(1 + 2^-500)) at 501 bits is the row p1-near-two-501 of reverse_table_wbtest.mbt (Python decimal; its ends are 2 - 2^-499 and 2 - 2^-500)
+// shares: pw_box, pw_num, pw_largest, pw_smallest, the BinCoeff helpers, Binary::make and Binary::from_hex (the table) build the inputs; the comparisons compare; pow_rev1 is the code under test
 test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let p = 53
   let huge = @binary.Binary::make(
@@ -584,23 +584,24 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let b_huge = pw_box(huge, huge, p)
   let r = b_huge.pow_rev1(c)
   assert_true(r.lo_.compare(one) == 0)
-  assert_true(
-    r.hi_.compare(one.next_up_ctx(@binary.BinaryContext::new(precision=p)).0) ==
-    0,
-  )
+  // 1 + 2^(1 - p), the float above 1
+  assert_true(r.hi_.compare(pw_num(0x1.0000000000001p0, p)) == 0)
   // beta = -2^1e9: x = 2^(-1/2^1e9), strictly below 1: [1 - ulp/2, 1]
   let r2 = pw_box(huge.neg(), huge.neg(), p).pow_rev1(c)
   assert_true(r2.hi_.compare(one) == 0)
-  assert_true(r2.lo_.compare(one) < 0)
+  // 1 - 2^-53, the float below 1
+  assert_true(r2.lo_.compare(pw_num(0x1.fffffffffffffp-1, p)) == 0)
   // beta = 2^-1e9: x = 2^(2^1e9) is beyond the exponent range: it clamps outward
   let r3 = pw_box(tiny, tiny, p).pow_rev1(c)
   assert_true(!r3.is_empty())
+  assert_true(r3.lo_.compare(pw_largest(p)) == 0)
   assert_true(r3.hi_.classify() == FpClass::Infinity)
   let r4 = pw_box(tiny, tiny, p).pow_rev1(
     pw_box(pw_num(0.5, p), pw_num(0.5, p), p),
   )
   assert_true(!r4.is_empty())
   assert_true(r4.lo_.is_zero())
+  assert_true(r4.hi_.compare(pw_smallest(p)) == 0)
   // prior ends of 2^1e9 and 2^-1e9
   let b2 = pw_ival(2.0, 2.0, p)
   let c4 = pw_ival(4.0, 4.0, p)
@@ -617,23 +618,10 @@ test "pow_rev1: extreme exponents, operands and prior ends return at once" {
   let exact_root = @binary.Binary::make(root, 0, 1001)
   assert_true(r5.lo_.compare(exact_root) == 0)
   assert_true(r5.hi_.compare(exact_root) == 0)
-  let beta500 = @binary.Binary::make(
-    coeff_add(coeff_shift_left(coeff_one(), 500), coeff_one()),
-    -500,
-    501,
-  )
-  let b_frac = Interval::from_bounds(beta500, beta500, precision=501)
-  let r6 = b_frac.pow_rev1(pw_ival(2.0, 2.0, p))
-  // 2^(1/(1 + 2^-500)) = 2 (1 - 2^-500 ln 2 + ...) is just below 2; the result has the
-  // 501 bits of beta, so the enclosure lies between 2 - 2^-495 and 2
-  let floor_2 = @binary.Binary::make(
-    coeff_sub(coeff_shift_left(coeff_one(), 500), coeff_one()),
-    -499,
-    501,
-  )
-  assert_true(r6.lo_.compare(floor_2) >= 0)
-  assert_true(r6.hi_.compare(two) <= 0)
-  assert_true(r6.lo_.compare(r6.hi_) <= 0)
+  let near_two = reverse_row("p1-near-two-501")
+  let r6 = near_two.run()
+  assert_true(r6.lo_.compare(near_two.lo) == 0)
+  assert_true(r6.hi_.compare(near_two.hi) == 0)
 }
 
 ///|

@@ -90,6 +90,9 @@ test "pow_rev2 classes: a high power of a small base is decided exactly, a huge 
 }
 
 ///|
+// oracle: A
+// source: worked by hand: ln(1/2) / ln(8) = -1/3 and ln 4 / ln 8 = 2/3 are not floats. The comparison reports where the exact value lies relative to the float: Below when the value is smaller (-1/3 is below the double 1/3, below 0 and below the nearest double -0x1.5555555555555p-2, above -1/2); at 53 bits RD(-1/3) = -0x1.5555555555556p-2 and RU(-1/3) = -0x1.5555555555555p-2, RD(2/3) = 0x1.5555555555555p-1 and RU(2/3) = 0x1.5555555555556p-1, so the value is Above the float RD and Below the float RU
+// shares: q_num (Binary::from_double) builds the inputs; quot_end_class, quot_end_compare and quot_end_rounded are the code under test
 test "pow_rev2 rational ends: comparison and directed rounding" {
   // r = -1/3 (c = 1/2, a = 8)
   let cls = quot_end_class(q_num(0.5), q_num(8.0))
@@ -110,9 +113,8 @@ test "pow_rev2 rational ends: comparison and directed rounding" {
   let down = quot_end_rounded(q_num(0.5), q_num(8.0), cls, false, 53, 12)
   let up = quot_end_rounded(q_num(0.5), q_num(8.0), cls, true, 53, 12)
   // RD < -1/3 < RU, adjacent floats
-  let ctx = @binary.BinaryContext::new(precision=53)
-  assert_true(down.compare(up) < 0)
-  assert_true(down.next_up_ctx(ctx).0.compare(up) == 0)
+  assert_true(down.compare(q_num(-0x1.5555555555556p-2)) == 0)
+  assert_true(up.compare(q_num(-0x1.5555555555555p-2)) == 0)
   assert_true(
     quot_end_compare(q_num(0.5), q_num(8.0), cls, down, 53, 12) is Above,
   )
@@ -123,7 +125,8 @@ test "pow_rev2 rational ends: comparison and directed rounding" {
   let cls2 = quot_end_class(q_num(4.0), q_num(8.0))
   let d2 = quot_end_rounded(q_num(4.0), q_num(8.0), cls2, false, 53, 12)
   let u2 = quot_end_rounded(q_num(4.0), q_num(8.0), cls2, true, 53, 12)
-  assert_true(d2.next_up_ctx(ctx).0.compare(u2) == 0)
+  assert_true(d2.compare(q_num(0x1.5555555555555p-1)) == 0)
+  assert_true(u2.compare(q_num(0x1.5555555555556p-1)) == 0)
   assert_true(
     quot_end_compare(q_num(4.0), q_num(8.0), cls2, d2, 53, 12) is Above,
   )
@@ -183,27 +186,25 @@ test "pow_rev2: the examples of the corpus and open ends against a prior touchin
 ///|
 /// An end next to 1: `ln` of a float one unit from 1 is tiny and the quotient is huge; the
 /// first working precision follows the magnitude of the quotient.
+// oracle: A
+// source: the ends of ln(c) / ln(a) for a = 1 + 2^-52 and 1 - 2^-53 and c = 2, 1/2, 10 are the rows p2-up-* and p2-down-* of reverse_table_wbtest.mbt (Python decimal at 400 digits, tools/interval_reverse_oracle.py); the two ends are the floats next to the quotient (RD and RU)
+// shares: Binary::from_hex (the table), pw_box and Interval::from_bounds build the inputs; the comparisons compare; pow_rev2 is the code under test
 test "pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight" {
-  let p = 53
-  let ctx = @binary.BinaryContext::new(precision=p)
-  let one = @binary.Binary::one(precision=p)
-  for a in [one.next_up_ctx(ctx).0, one.next_down_ctx(ctx).0] {
-    for cv in [2.0, 0.5, 10.0] {
-      let c = q_num(cv)
-      let r = pw_box(a, a, p).pow_rev2(pw_box(c, c, p))
-      // the reference: the quotient of the logarithms at 200 bits
-      let e = Interval::exact(c, precision=200).ln() /
-        Interval::exact(a, precision=200).ln()
+  for a in ["up", "down"] {
+    for c in ["2", "half", "10"] {
+      let row = reverse_row("p2-\{a}-\{c}-53")
+      let r = row.run()
       assert_true(!r.is_empty())
-      assert_true(r.lo_.compare(e.lo_) <= 0)
-      assert_true(r.hi_.compare(e.hi_) >= 0)
-      // tight: the two ends are adjacent floats
-      assert_true(r.lo_.next_up_ctx(ctx).0.compare(r.hi_) == 0)
+      // the two ends are the adjacent floats around ln(c) / ln(a)
+      assert_true(r.lo_.compare(row.lo) == 0 && r.hi_.compare(row.hi) == 0)
     }
   }
 }
 
 ///|
+// oracle: A
+// source: worked by hand: a = 2^1e9, c = 2 gives 1 / 10^9 (not a float), c = 3 gives log2(3) / 10^9, a = 2^-1e9, c = 2 gives -1 / 10^9; their ends are the rows p2-huge-base-2-53, p2-huge-base-3-53 and p2-tiny-base-2-53 of reverse_table_wbtest.mbt (Python decimal); a = 2, c = 2^1e9 gives exactly 10^9; a = 2, c = 2^(2^25 + 1) at 24 bits gives the 26-bit integer 2^25 + 1, between the floats 2^25 and 2^25 + 4; the priors that start or end at 2^1e9 or 2^-1e9 keep the point 2 or give Empty
+// shares: Binary::from_hex (the table), q_num, pw_box, pw_ival and Interval::from_bounds build the inputs; the comparisons compare; pow_rev2 is the code under test
 test "pow_rev2: extreme bases, results and prior ends return at once" {
   let p = 53
   let huge = @binary.Binary::make(
@@ -217,31 +218,31 @@ test "pow_rev2: extreme bases, results and prior ends return at once" {
     p,
   )
   let two = q_num(2.0)
-  let three = q_num(3.0)
   // a = 2^1e9, c = 2: beta = 1 / 10^9 (rational, not a float): two adjacent floats around
   // the double 1e-9; c = 3: ln 3 / (1e9 ln 2), about 1.6e-9
-  let ctx = @binary.BinaryContext::new(precision=p)
-  let a_huge = pw_box(huge, huge, p)
-  let r = a_huge.pow_rev2(pw_box(two, two, p))
-  assert_true(r.lo_.next_up_ctx(ctx).0.compare(r.hi_) == 0)
-  assert_true(
-    r.lo_.compare(q_num(1.0e-9)) <= 0 && r.hi_.compare(q_num(1.0e-9)) >= 0,
-  )
-  let r2 = a_huge.pow_rev2(pw_box(three, three, p))
-  assert_true(!r2.is_empty())
-  assert_true(r2.lo_.compare(r2.hi_) < 0)
+  let row = reverse_row("p2-huge-base-2-53")
+  let r = row.run()
+  assert_true(r.lo_.compare(row.lo) == 0 && r.hi_.compare(row.hi) == 0)
+  let row2 = reverse_row("p2-huge-base-3-53")
+  let r2 = row2.run()
+  assert_true(r2.lo_.compare(row2.lo) == 0 && r2.hi_.compare(row2.hi) == 0)
   // a = 2^-1e9, c = 2: beta = -1 / 10^9
-  let a_tiny = pw_box(tiny, tiny, p)
-  let r3 = a_tiny.pow_rev2(pw_box(two, two, p))
-  assert_true(r3.lo_.next_up_ctx(ctx).0.compare(r3.hi_) == 0)
-  assert_true(
-    r3.lo_.compare(q_num(-1.0e-9)) <= 0 && r3.hi_.compare(q_num(-1.0e-9)) >= 0,
-  )
+  let row3 = reverse_row("p2-tiny-base-2-53")
+  let r3 = row3.run()
+  assert_true(r3.lo_.compare(row3.lo) == 0 && r3.hi_.compare(row3.hi) == 0)
   // c = 2^1e9 with a = 2: beta = 1e9 (exact)
   let r4 = pw_box(two, two, p).pow_rev2(pw_box(huge, huge, p))
   assert_true(
     r4.lo_.compare(q_num(1.0e9)) == 0 && r4.hi_.compare(q_num(1.0e9)) == 0,
   )
+  // a dyadic quotient that needs more bits than the precision: a = 2, c = 2^(2^25 + 1) at 24 bits
+  // gives beta = 2^25 + 1, a 26-bit integer; in the binade of 2^25 the floats are 4 apart, so
+  // the ends are [2^25, 2^25 + 4]
+  let c24 = @binary.Binary::make(@binary.BinCoeff::one(), 33554433, 24)
+  let two24 = @binary.Binary::make(@binary.BinCoeff::one(), 1, 24)
+  let rq = pw_box(two24, two24, 24).pow_rev2(pw_box(c24, c24, 24))
+  assert_true(rq.lo_.compare(@binary.Binary::from_double(33554432.0)) == 0)
+  assert_true(rq.hi_.compare(@binary.Binary::from_double(33554436.0)) == 0)
   // prior ends of 2^1e9 and 2^-1e9
   let a2 = pw_ival(2.0, 2.0, p)
   let c4 = pw_ival(4.0, 4.0, p)
@@ -288,9 +289,11 @@ test "pow_rev2: the result keeps the precision of the operands and a decorated f
 /// the smallest positive stored value (the subnormal range), as base and as result. The
 /// quotient `ln(c) / ln(a)` is moderate in each case, and the result contains the
 /// reference quotient at 200 bits.
+// oracle: A
+// source: the ends of ln(c) / ln(a) at the edges of the stored range are the rows p2-top-p, p2-sub-p and p2-big-p of reverse_table_wbtest.mbt (Python decimal at 400 digits): the largest finite float against c = 2^e_max, the smallest stored value against c = 2, and a = 2 against the largest finite float; a = 2, c = the smallest stored value gives exactly e_min - p + 1; the priors that cut are worked from the ends: a prior [lo, hi] keeps the result, [hi, +inf] misses the value (it lies strictly between lo and hi) and a prior starting above the exact beta is Empty
+// shares: Binary::from_hex (the table), q_num, pw_largest, pw_smallest, pw_box and Binary::make build the inputs; the comparisons compare; pow_rev2 is the code under test
 test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113 bits" {
   for p in [53, 113] {
-    let ctx = @binary.BinaryContext::new(precision=p)
     let largest = pw_largest(p)
     let smallest = pw_smallest(p)
     let top = @binary.Binary::make(
@@ -300,26 +303,19 @@ test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113
     )
     let two = pw_num(2.0, p)
     let point = fn(x : @binary.Binary) { pw_box(x, x, p) }
-    let reference = fn(c : @binary.Binary, a : @binary.Binary) {
-      Interval::exact(c, precision=200).ln() /
-      Interval::exact(a, precision=200).ln()
-    }
     // (1) a = largest finite float, c = 2^e_max: beta = about 1 - 2^-30, irrational
     let r1 = point(largest).pow_rev2(point(top))
-    let e1 = reference(top, largest)
-    assert_true(r1.lo_.compare(e1.lo_) <= 0 && r1.hi_.compare(e1.hi_) >= 0)
-    assert_true(r1.lo_.next_up_ctx(ctx).0.compare(r1.hi_) == 0)
+    let row1 = reverse_row("p2-top-\{p}")
+    assert_true(r1.lo_.compare(row1.lo) == 0 && r1.hi_.compare(row1.hi) == 0)
     // (2) a = smallest stored value (2^(e_min - p + 1)), c = 2: beta = -1 / (p - 1 - e_min),
     // a rational that is not a float
     let r2 = point(smallest).pow_rev2(point(two))
-    let e2 = reference(two, smallest)
-    assert_true(r2.lo_.compare(e2.lo_) <= 0 && r2.hi_.compare(e2.hi_) >= 0)
-    assert_true(r2.lo_.next_up_ctx(ctx).0.compare(r2.hi_) == 0)
+    let row2 = reverse_row("p2-sub-\{p}")
+    assert_true(r2.lo_.compare(row2.lo) == 0 && r2.hi_.compare(row2.hi) == 0)
     // (3) a = 2, c = largest finite float: beta = log2(c), a hair under 2^30
     let r3 = point(two).pow_rev2(point(largest))
-    let e3 = reference(largest, two)
-    assert_true(r3.lo_.compare(e3.lo_) <= 0 && r3.hi_.compare(e3.hi_) >= 0)
-    assert_true(r3.lo_.next_up_ctx(ctx).0.compare(r3.hi_) == 0)
+    let row3 = reverse_row("p2-big-\{p}")
+    assert_true(r3.lo_.compare(row3.lo) == 0 && r3.hi_.compare(row3.hi) == 0)
     // (4) a = 2, c = smallest stored value: beta = e_min - p + 1, exact
     let r4 = point(two).pow_rev2(point(smallest))
     let exact_beta = q_num((@binary.binary_value_e_min - p + 1).to_double())
@@ -339,9 +335,6 @@ test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113
       point(two)
       .pow_rev2(point(smallest), x=pw_box(exact_beta.neg(), pos_inf(p), p))
       .is_empty(),
-    )
-    println(
-      "EDGE2 p=\{p} top=[\{r1.lo_.to_string()}, \{r1.hi_.to_string()}] sub=[\{r2.lo_.to_string()}, \{r2.hi_.to_string()}] big=[\{r3.lo_.to_string()}, \{r3.hi_.to_string()}] smallest=[\{r4.lo_.to_string()}, \{r4.hi_.to_string()}]",
     )
   }
 }
