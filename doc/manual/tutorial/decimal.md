@@ -112,7 +112,8 @@ application cares about them.
 ### Round money with `quantize_ctx`
 
 `quantize_ctx` gives a value the exponent of a template value. Choose the rounding
-mode in the context; commercial rounding is `RoundTiesToAway`:
+direction (`DecimalRoundingMode`) in the context; commercial rounding is
+`RoundTiesToAway`:
 
 ```moonbit
 ///|
@@ -188,7 +189,7 @@ test "decimal convert between formats" {
 ### Bound a result from both sides
 
 Directed rounding gives guaranteed bounds. Rounding the same quotient toward
-$-\infty$ and toward $+\infty$ brackets the exact value:
+$-\infty$ and toward $+\infty$ brackets the exact result:
 
 ```moonbit
 ///|
@@ -237,13 +238,20 @@ places. Bits you did not produce yourself may be non-canonical; keep them in a
 
 Logarithms, exponentials, powers with a non-integer exponent and trigonometric
 functions are certified: the result is the correctly rounded value in every
-rounding direction, or an explicit failure (a power with an integer exponent is
-rounded once from the exact power, or from refined directed bounds, and is not
-certified). For an ordinary operand they need a context with `e_max` at most
-999,999, `e_min` at least -999,999 and a precision within the elementary
-precision limit (999,999 digits by default), such as a format preset; a NaN, an
-infinity, a zero and the exact points of IEEE 754-2019 9.2.1 are values in every
-context:
+rounding direction, or an explicit failure. A power with an integer exponent is
+not certified; it is rounded once from the exact power or from refined directed
+bounds.
+
+For an ordinary operand, elementary functions need a context with `e_max`
+at most 999,999, `e_min` at least -999,999 and a precision within the
+elementary precision limit, which defaults to 999,999 digits. The format presets
+`decimal32()`, `decimal64()` and `decimal128()` qualify. `DecimalContext::new()`
+gives the format $(34,\ 999\,999)$, which they accept; a context with `e_max`
+above 999,999, or a precision of 1000 digits or more with the default range,
+exceeds those limits. `ctx.with_elementary_precision_limit(None)` removes the
+precision limit, with no guarantee of running time or memory. A NaN, an
+infinity, a zero and the exact points of IEEE 754-2019 9.2.1 (`ln_ctx(1)`,
+`exp_ctx(-inf)`, `sin_ctx(0)`) are values in every context:
 
 ```moonbit
 ///|
@@ -262,15 +270,17 @@ test "decimal certified logarithm" {
 ```
 
 `try_ln_ctx` returns `Err` (a certification failure) at once, before any
-evaluation, when the context or an ordinary operand is beyond the limit of the
-elementary functions (see the first pitfall below), and otherwise only if the
-result could not be certified within the refinement limit of the context (twelve
-steps by default; `ctx.with_refinement_limit(Some(24))` allows more and
-`ctx.with_refinement_limit(None)` removes the count limit, at the cost of a
-longer evaluation for a hard-to-round input; raising the limit does not help in
-the first case); `ln_ctx` turns both cases into NaN with `not_computed`, not
-`invalid_operation`, which is for results IEEE 754 defines as invalid. Exact results such as $\log_{10} 1000 = 3$ come back
-without `inexact`.
+evaluation, when the context or an ordinary operand is beyond those limits of
+the elementary functions; raising the refinement limit does not help in that
+case. Otherwise it returns `Err` only if the result could not be certified
+within the refinement limit of the context, which is twelve steps by default.
+`ctx.with_refinement_limit(Some(24))` allows more steps, and
+`ctx.with_refinement_limit(None)` removes the count limit at the cost of a
+longer evaluation for a hard-to-round input.
+
+`ln_ctx` turns both failure cases into NaN with `not_computed`, not
+`invalid_operation`, which is for results IEEE 754-2019 defines as invalid.
+Exact results such as $\log_{10} 1000 = 3$ come back without `inexact`.
 
 For a small rate or a small exponent, use the functions that keep the part
 near zero instead of computing `exp2(x) - 1` or `log2(1 + x)`: those lose the
@@ -346,12 +356,12 @@ test "decimal in generic ring code" {
 }
 ```
 
-The plain operators have no context argument: each is the matching `*_ctx`
-operation in a private context of the larger operand precision (34 digits by
-default), round half even, with the storage range of a value, and returns the
-cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`). Code that needs
-a precision, an exponent range or flags should take a `DecimalContext` and call
-the `*_ctx` operations.
+The plain operators have no context argument. Each runs the matching `*_ctx`
+operation in a private context of the larger operand precision, which defaults
+to 34 digits, with half-even rounding and the storage range of a value, and
+returns the cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`).
+Code that needs a precision, an exponent range or flags should take a
+`DecimalContext` and call the `*_ctx` operations.
 
 ### The shared contextual traits
 
@@ -377,13 +387,13 @@ test "decimal through the contextual traits" {
 Errors (`invalid_operation`, `division_by_zero`, …) become `Err`; inexactness
 and range events become diagnostics.
 
-### Pipelines, GDA status and intervals
+### Pipelines, GDA flags and intervals
 
 - [`decimal_checked`](decimal_checked.md) wraps a value, its context and its
   accumulated flags, so a long pipeline does not need explicit `combine`
   calls.
 - [`decimal_gda`](decimal_gda.md) implements the General Decimal Arithmetic
-  model with sticky status and traps. Its values are a separate type; use it
+  model with accumulated flags and traps. Its values are a separate type; use it
   when you need `.decTest` behaviour, not IEEE per-operation flags.
 - To enclose a decimal value in a binary interval, convert it twice with
   `to_binary(precision=p, mode=RoundTowardNegative)` and `to_binary(precision=p, mode=RoundTowardPositive)`
@@ -407,15 +417,15 @@ test "decimal total order separates cohorts" {
 
 ## Common pitfalls
 
-- **Elementary functions need an exponent range within 999,999.**
-  `DecimalContext::new()` is the format $(34,\ 999\,999)$, which they accept;
-  a context with `e_max` above 999,999, or a precision of 1000 digits or more
-  with the default range, makes them return NaN with `not_computed` for an ordinary operand (the precision limit, 999,999 digits by default, is a field of the context: `ctx.with_elementary_precision_limit(None)` removes it, with no guarantee of running time or memory) (not `invalid_operation`, which is for results IEEE 754 defines as invalid). The special operands and the exact points of IEEE 754-2019 9.2.1 (`ln_ctx(1)`, `exp_ctx(-inf)`, `sin_ctx(0)`) are values in every context. Use
-  `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999.
+- **Elementary functions need an exponent range within 999,999.** A context
+  with `e_max` above 999,999, or `DecimalContext::new()` with a precision of
+  1000 digits or more, returns NaN with `not_computed` for ordinary operands;
+  special operands and exact points remain values in every context (see
+  [Call an elementary function](#call-an-elementary-function)).
 - **Operators are not context operations.** They round half-even to the larger
   operand precision and apply only the storage range of a value, so a result
   beyond it is an infinity or a zero. Use `mul_ctx` and `div_ctx` when the
-  result must be bounded by a format, rounded in another mode, or reported
+  result must be bounded by a format, rounded in another direction, or reported
   through flags.
 - **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
   to every NaN and greater than every number, so sorting works. Use
@@ -428,8 +438,8 @@ test "decimal total order separates cohorts" {
   `Decimal` with the context precision, so an exponent with more digits than
   the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or
   call `pown_ctx`, which converts the exponent exactly.
-- **A context has the five rounding-direction attributes of IEEE 754-2019
-  §4.3 and no more.** `HalfDown`, `Up` and `ZeroFiveUp` of GDA are in
+- **A context has the five rounding-direction attributes of
+  IEEE 754-2019 4.3 and no more.** `HalfDown`, `Up` and `ZeroFiveUp` of GDA are in
   `decimal_gda` only; commercial rounding is `RoundTiesToAway`.
 - **Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact
   binary value `0.1000000000000000055511151231257827` (rounded to 34 digits),
@@ -445,4 +455,5 @@ test "decimal total order separates cohorts" {
   [decimal performance](../performance/decimal.md): the finite evidence and
   the measurement method.
 - [`decimal_checked` tutorial](decimal_checked.md) and
-  [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status.
+  [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA flags and
+  traps.
