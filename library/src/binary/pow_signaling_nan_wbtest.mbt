@@ -158,6 +158,9 @@ test "pow keeps its quiet NaN shortcuts and propagation" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2 and 7.2 a): a signaling NaN operand gives a quiet NaN with invalid, also where pow(x, +-0) and pow(+1, y) would otherwise be 1, in the pow_ctx and the pow forms
+// shares: pow_nan_operand builds the signaling NaN with Binary::signaling_nan; pow_ctx and pow are the code under test; is_quiet_nan and invalid_operation read the result
 test "pow_ctx and pow agree with try_pow_ctx on a signaling NaN" {
   let snan = pow_nan_operand("+snan", 3UL, 53)
   let context = BinaryContext::new(precision=53)

@@ -18,6 +18,9 @@
 // from the independent model of `exp2_subnormal_wbtest.mbt`.
 
 ///|
+// oracle: A, S
+// source: A: the closed-form model e2s_model of exp2_subnormal_wbtest.mbt (IEEE Std 754-2019 4.3, 7.4, 7.5, 9.2): for the base 2^(-2 j) and the exponent m / 2 (m odd) the exact result is 2^n with n = -j m, representable when q = e_min - (p - 1) <= n, and rounded between 0 and 2^q below it, with underflow and inexact; S: e_min and e_max are the library's own constants
+// shares: Binary::make and BinCoeff::from_uint64 build the operands; e2s_model builds the expected values and e2s_mode_name, e2s_modes and e2s_flags print; pow_ctx is the code under test
 test "pow of a power of two with a half-integer exponent rounds the exact result" {
   let mut cases = 0
   for p in [1, 2, 3, 53, 300] {
@@ -69,6 +72,9 @@ test "pow of a power of two with a half-integer exponent rounds the exact result
 }
 
 ///|
+// oracle: A, S
+// source: A: written out: (1/4)^(2^29 - 1/2) = 2^-(2^30 - 1) exactly, representable at precision 3 with no flag (IEEE Std 754-2019 7.5, 9.2); S: that it is a subnormal value depends on the library's own e_min = -1073741822
+// shares: Binary::make and BinCoeff::from_uint64 build the operands; pow_ctx is the code under test; e2s_flags prints the flags
 test "pow exact subnormal regression row" {
   // pow(1/4, 2^29 - 1/2) = 2^-(2^30 - 1), exactly representable at p = 3.
   let quarter = Binary::make(BinCoeff::one(), -2, 53)

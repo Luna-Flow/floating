@@ -66,6 +66,9 @@ fn explog_table() -> Array[
 }
 
 ///|
+// oracle: S
+// source: the written rule S4 of the library for the exp and log families: a domain case is a value with invalid_operation in both forms, a failure forced through the refinement limit is an Err in the try_ form and a NaN with not_computed in the plain form, an ordinary case passes through unchanged; a rule of this library, not of the standard
+// shares: explog_table lists the functions with their inverses and domain cases; refinement_failed and the midpoint input of ln at 330 bits build the failing case; the try_ and plain forms are the code under test
 test "exp/log family: domain case, could-not-compute case and ordinary case" {
   let base = BinaryContext::new(precision=53)
   let wide = BinaryContext::new(precision=330)

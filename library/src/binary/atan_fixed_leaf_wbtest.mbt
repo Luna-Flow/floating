@@ -166,6 +166,10 @@ test "fixed-point atan leaf at the tiny-argument threshold, both sides" {
 }
 
 ///|
+// oracle: B, S
+// source: B: binary_pi_series_compute (4 atan(1) through the fixed-point leaf) must contain binary_pi_bounds(w + 200), the cached constant computed by the split method, for w from 8 to 69, and be at most 2^6 units of its last place wide; S: the level A coverage of binary_pi_bounds is the MPFR comparison in elementary_constants_split_wbtest.mbt at 320 to 1280 bits, not at the precisions 208 to 269 used here
+// shares: binary_pi_series_compute (the code under test) and binary_pi_bounds (the reference); Binary::compare, Binary::make and sub_ctx for the containment and the width
+// primitives: binary_pi_bounds (level A against the MPFR rows acos(-1) at 320 to 1280 bits in elementary_constants_split_wbtest.mbt; not covered at 208 to 269 bits)
 test "pi series enclosure of the fixed-point leaf contains pi" {
   // binary_pi_series_compute is 4 atan(1): the digest rows of const_pi change
   // with the leaf; the enclosure must still contain pi (cached constant at 200

@@ -43,6 +43,10 @@ fn a2t_text(value : Binary, flags : BinaryFlags) -> String {
 }
 
 ///|
+// oracle: B
+// source: the contract of the header of the file: atan(t) = t (1 - e) with 0 < e < t^2 / 3, so for a quotient t below a quarter of the smallest subnormal of the context no breakpoint lies in (0, t] and the result rounds as the quotient does (zero or the smallest subnormal, with underflow and inexact), with the sign of y; the expected value is Binary::div_ctx of 5 * 2^-e by 7 * 2^e in the same context, e from 540000000 to 1073741823, both signs of y
+// shares: a2t_contexts and a2t_text build the contexts and print; Binary::make builds the operands; div_ctx on the reference side; try_atan2_ctx is the code under test
+// primitives: Binary::div_ctx (level A through arith_rows_wbtest.mbt, whose rows cover underflow of quotients at the range limits in five directions and both tininess rules)
 test "atan2 of a quotient below the implementation range rounds like the quotient" {
   // The rows of floating#383 and their neighbours, both signs of y.
   let mut cases = 0

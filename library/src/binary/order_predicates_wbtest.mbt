@@ -204,6 +204,11 @@ fn compare_predicate_table() -> Array[
 /// The value is true exactly when the relation is among the true relations of
 /// the table, and invalid is raised on a signaling NaN by every predicate and on a
 /// quiet NaN by the signaling predicates only; no other flag is ever raised.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.11, Tables 5.1 and 5.2: for each of the 22 predicates the relations (less, equal, greater, unordered) that make it true, the invalid operation on a signaling NaN for every predicate and on a quiet NaN for the signaling predicates only, and no other flag; operand pairs: less, equal (another precision, the two zeros, the infinities), greater, unordered with a quiet and with a signaling NaN
+// shares: compare_operand_pairs builds the operands with Binary::from_int, negative_zero, zero, inf, quiet_nan and signaling_nan; compare_predicate_table lists the 22 predicates; compare_quiet and compare_signaling and the predicate functions are the code under test
 test "binary comparison predicates: value and flag for every relation" {
   assert_eq(compare_predicate_table().length(), 22)
   for pair in compare_operand_pairs() {
@@ -249,6 +254,11 @@ test "binary comparison predicates: value and flag for every relation" {
 ///|
 /// The negation pairs the standard states: the value is the complement and the
 /// flags are the same, on every relation.
+
+///|
+// oracle: S
+// source: the negation pairs stated by the standard (IEEE Std 754-2019 5.11: compareQuietEqual and compareQuietNotEqual, ...) checked as a complement of the values with equal flags on every operand pair; both predicates of a pair are the code under test, so only their consistency is checked, and the counts 10 and 12 of the two tables
+// shares: compare_operand_pairs and compare_predicate_table as above; the predicate functions are the code under test on both sides
 test "binary comparison predicates: the negation pairs are complements" {
   let pairs = [
     ("compareQuietEqual", "compareQuietNotEqual"),

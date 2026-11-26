@@ -3,13 +3,6 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/binary/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
-library/src/binary/atan_fixed_leaf_wbtest.mbt::pi series enclosure of the fixed-point leaf contains pi	B
-library/src/binary/compare_nan_wbtest.mbt::compare orders NaN after every number instead of aborting	A
-library/src/binary/context_arithmetic_optimization_wbtest.mbt::wide exponent gaps stay on bounded coefficient paths	S
-library/src/binary/contextual_traits_wbtest.mbt::Binary contextual arithmetic preserves range diagnostics	A
-library/src/binary/contextual_traits_wbtest.mbt::Binary contextual conversion derives one bound from the other	A
-library/src/binary/domain_values_explog_wbtest.mbt::exp/log family: domain case, could-not-compute case and ordinary case	S
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM declines outside its range	A
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure at 8192 bits contains the series enclosure	B
 library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure contains the series enclosure at higher precision	B
@@ -50,37 +43,11 @@ library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric functio
 library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric reduction certifies arguments beyond linear reduction	S
 library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric resource failure retains proof details	A
 library/src/binary/elementary_certified_wbtest.mbt::certified target witness rejects equal values with unequal flags	A
-library/src/binary/elementary_constants_split_wbtest.mbt::split constants are no wider than the series enclosures	S
-library/src/binary/elementary_constants_split_wbtest.mbt::split constants nest across precisions	S
-library/src/binary/elementary_constants_wbtest.mbt::certified constants are tight enclosures of the true values	A
-library/src/binary/elementary_constants_wbtest.mbt::elementary functions are unchanged by cache state and call order	S
 library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path declines arguments it does not cover	A
 library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln path declines arguments it does not cover	S
 library/src/binary/elementary_fixed_trig_wbtest.mbt::sine and cosine agree with their identities after the fixed-point path	S
 library/src/binary/elementary_halve_bound_wbtest.mbt::halving the bounds of pi by the exponent equals the product by 1/2	B
 library/src/binary/elementary_unused_series_wbtest.mbt::sin, cos and tan results do not depend on the skipped series	S
-library/src/binary/endpoint_shortcut_wbtest.mbt::binary_bounds_at_ends evaluates a point once and gives the two-ends result	A
-library/src/binary/exact_root_wbtest.mbt::binary_exact_nth_root_coefficient detects wide perfect powers	B
-library/src/binary/exact_root_wbtest.mbt::binary_floor_nth_root brackets the root	B
-library/src/binary/flags_not_computed_outcomes_wbtest.mbt::exp: a forced failure, a domain-free ordinary case and an invalid operand	S
-library/src/binary/flags_not_computed_wbtest.mbt::BinaryFlags not_computed is carried by new, combine and equality	A
-library/src/binary/flags_not_computed_wbtest.mbt::BinaryFlags not_computed is not raised by operations yet	A
-library/src/binary/huge_argument_trig_wbtest.mbt::sin, cos and tan of 2^k against MPFR at the exact argument	A
-library/src/binary/hypot_range_wbtest.mbt::hypot with a zero operand is the other magnitude, exact, at any exponent	A
-library/src/binary/ilogb_wbtest.mbt::ilogb of the special values and of the stored range	A
-library/src/binary/make_quantum_issue441_wbtest.mbt::from_coefficient, from_hex and with_precision round at the smallest quantum (#441)	S
-library/src/binary/order_predicates_wbtest.mbt::binary comparison predicates: the negation pairs are complements	S
-library/src/binary/order_predicates_wbtest.mbt::binary comparison predicates: value and flag for every relation	A
-library/src/binary/pm1_functions_wbtest.mbt::exp2m1 of a huge integer rounds like the power of two beside it	A
-library/src/binary/pm1_functions_wbtest.mbt::log2p1 and log10p1 special values and domain	A
-library/src/binary/pow_exact_subnormal_wbtest.mbt::pow exact subnormal regression row	A
-library/src/binary/pow_exact_subnormal_wbtest.mbt::pow of a power of two with a half-integer exponent rounds the exact result	B
-library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_pow_ctx on a signaling NaN	A
-library/src/binary/remainder_gap_issue445_wbtest.mbt::remainder with an exponent gap above 2^31 - 1 (#445)	A
-library/src/binary/remainder_gap_issue445_wbtest.mbt::the example of #445	A
-library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root equals the certified loop (random)	B
-library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root: perfect powers plus or minus one, both sides of every rounding boundary	B
-library/src/binary/tanh_saturation_issue185_wbtest.mbt::tanh saturates to the correctly rounded value for large arguments (#185)	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::pi inverse generated rows: exact and certified results, cohort and flags	A
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 generated rows: exact and MPFR-certified results, cohort and flags	A

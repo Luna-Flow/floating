@@ -267,6 +267,9 @@ test "far exponent addition matches exact alignment around cutoff" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1 + 2^-1000000 at precision 3 rounds to 1 (inexact) in nearest and to 5/4 (coefficient 5, exponent -2) toward positive infinity, and compare orders 1 above 2^-1000000 (IEEE Std 754-2019 4.3, 7.6)
+// shares: Binary::one and make_coeff build the operands; add_ctx and compare are the code under test; coefficient_ and exponent2 read the result
 test "wide exponent gaps stay on bounded coefficient paths" {
   let precision = 3
   let one = Binary::one(precision=53)

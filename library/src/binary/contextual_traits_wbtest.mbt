@@ -1,4 +1,7 @@
 ///|
+// oracle: A, S
+// source: A: IEEE Std 754-2019 3.3 (e_min = 1 - e_max): a context with only e_min = -2 has e_max = 3 and the converse, a range not of that shape (e_min = -3, e_max = 3) is refused, and round away from zero is not an attribute of 4.3; S: the precision limits (precision 0 and an e_max of 0 refused) and the conversion rules from the arithmetic package are the library's own API contract
+// shares: @lf_arith.ArithmeticContext::new builds the source contexts; BinaryContext::from_arithmetic_context and try_new are the code under test; e_min and e_max read the result
 test "Binary contextual conversion derives one bound from the other" {
   // IEEE 754-2019 3.3: e_min = 1 - e_max
   let lower_only = @lf_arith.ArithmeticContext::new(4, e_min=-2)
@@ -26,6 +29,9 @@ test "Binary contextual conversion derives one bound from the other" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from IEEE Std 754-2019 7.4 and 7.5 for a context of precision 4 with e_min = -2 and e_max = 3: 2^4 + 0 overflows (the largest finite value is 15, so the result is inf, overflow and inexact) and 2^-7 + 0 is below half of the smallest subnormal 2^-5 and rounds to 0 with underflow and inexact; S: the fields rounded, subnormal and clamped of the diagnostics are the conventions of the arithmetic package
+// shares: Binary::make and zero build the operands; @lf_arith.AddContextual::add_contextual is the code under test; the diagnostics fields and classify read the result
 test "Binary contextual arithmetic preserves range diagnostics" {
   let context = @lf_arith.ArithmeticContext::new(4, e_min=-2, e_max=3)
   let zero = Binary::zero(precision=8)

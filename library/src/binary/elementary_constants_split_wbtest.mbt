@@ -41,6 +41,9 @@ test "split constants enclose the series enclosures at higher precision" {
 }
 
 ///|
+// oracle: S
+// source: the width of the split enclosures of ln 2, ln 10 and pi against the width of the series enclosures at 64 to 2048 bits; a width relation between two computations of the library, no value stated
+// shares: binary_ln2_split_bounds, binary_ln10_split_bounds and binary_pi_split_bounds (the code under test) and binary_ln2_series_compute, binary_ln10_series_compute and binary_pi_series_compute (the references); split_test_width and Binary::compare
 test "split constants are no wider than the series enclosures" {
   for work in [64, 65, 100, 128, 200, 256, 500, 1024, 2048] {
     assert_true(
@@ -65,6 +68,9 @@ test "split constants are no wider than the series enclosures" {
 }
 
 ///|
+// oracle: S
+// source: the enclosure at work + 300 bits lies inside the enclosure at work bits for ln 2, ln 10 and pi (both enclose the same number); a property of the code under test at two precisions, no value stated
+// shares: binary_ln2_split_bounds, binary_ln10_split_bounds and binary_pi_split_bounds on both sides; split_test_contains
 test "split constants nest across precisions" {
   // The enclosure at a higher precision lies inside the one at a lower
   // precision (both enclose the same number).
