@@ -630,6 +630,7 @@ msgstr ""
 #: manual/api/interval.md:810
 #: manual/conformance/binary.md:177
 #: manual/conformance/decimal.md:42
+#: manual/conformance/decimal_gda.md:10
 #: manual/design/binary_checked.md:178
 #: manual/performance_audit.md:122
 msgid "Result"
@@ -3371,7 +3372,7 @@ msgid "Both format the value they receive. To format text after converting it un
 msgstr ""
 
 #: manual/api/decimal.md:471
-#: manual/conformance/decimal_gda.md:56
+#: manual/conformance/decimal_gda.md:142
 msgid "Rule"
 msgstr ""
 
@@ -3806,7 +3807,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:1586
 #: manual/api/def.md:120
 #: manual/api/frontend/testfloat_expr.md:60
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:212
 msgid "Operands"
 msgstr ""
 
@@ -4325,8 +4326,8 @@ msgstr ""
 #: manual/api/decimal_gda.md:1002
 #: manual/api/decimal_gda.md:1561
 #: manual/api/interval.md:1848
-#: manual/conformance/decimal_gda.md:15
-#: manual/conformance/decimal_gda.md:56
+#: manual/conformance/decimal_gda.md:29
+#: manual/conformance/decimal_gda.md:142
 #: manual/design/binary_checked.md:122
 #: manual/design/decimal_gda.md:129
 #: manual/design/interval.md:359
@@ -4936,7 +4937,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:104
 #: manual/api/decimal_gda.md:165
 #: manual/api/decimal_gda.md:219
-#: manual/conformance/decimal_gda.md:56
+#: manual/conformance/decimal_gda.md:142
 msgid "Call"
 msgstr ""
 
@@ -8641,6 +8642,7 @@ msgid "A directory contributes its direct entries that are files ending in `suff
 msgstr ""
 
 #: manual/api/internal/runner_cli.md:144
+#: manual/conformance/decimal_gda.md:10
 msgid "Diagnostics"
 msgstr ""
 
@@ -10401,7 +10403,7 @@ msgstr ""
 #: manual/architecture.md:22
 #: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:69
-#: manual/conformance/decimal_gda.md:15
+#: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/conformance/interval.md:61
 #: manual/index.md:69
@@ -10799,7 +10801,7 @@ msgstr ""
 
 #: manual/conformance/binary.md:67
 #: manual/conformance/decimal.md:57
-#: manual/conformance/decimal_gda.md:11
+#: manual/conformance/decimal_gda.md:20
 #: manual/conformance/interval.md:7
 msgid "Clause traceability"
 msgstr ""
@@ -10824,7 +10826,7 @@ msgstr ""
 
 #: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:69
-#: manual/conformance/decimal_gda.md:15
+#: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/index.md:69
 #: manual/index.md:78
@@ -10838,7 +10840,7 @@ msgstr ""
 
 #: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:69
-#: manual/conformance/decimal_gda.md:15
+#: manual/conformance/decimal_gda.md:29
 #: manual/conformance/interval.md:11
 #: manual/performance_audit.md:154
 msgid "Status"
@@ -10951,23 +10953,23 @@ msgstr ""
 #: manual/conformance/decimal.md:97
 #: manual/conformance/decimal.md:101
 #: manual/conformance/decimal.md:102
-#: manual/conformance/decimal_gda.md:17
-#: manual/conformance/decimal_gda.md:18
-#: manual/conformance/decimal_gda.md:19
-#: manual/conformance/decimal_gda.md:20
-#: manual/conformance/decimal_gda.md:21
-#: manual/conformance/decimal_gda.md:24
-#: manual/conformance/decimal_gda.md:25
-#: manual/conformance/decimal_gda.md:26
-#: manual/conformance/decimal_gda.md:27
-#: manual/conformance/decimal_gda.md:28
-#: manual/conformance/decimal_gda.md:29
-#: manual/conformance/decimal_gda.md:30
 #: manual/conformance/decimal_gda.md:31
 #: manual/conformance/decimal_gda.md:32
 #: manual/conformance/decimal_gda.md:33
 #: manual/conformance/decimal_gda.md:34
 #: manual/conformance/decimal_gda.md:35
+#: manual/conformance/decimal_gda.md:38
+#: manual/conformance/decimal_gda.md:39
+#: manual/conformance/decimal_gda.md:40
+#: manual/conformance/decimal_gda.md:41
+#: manual/conformance/decimal_gda.md:42
+#: manual/conformance/decimal_gda.md:43
+#: manual/conformance/decimal_gda.md:44
+#: manual/conformance/decimal_gda.md:45
+#: manual/conformance/decimal_gda.md:46
+#: manual/conformance/decimal_gda.md:47
+#: manual/conformance/decimal_gda.md:48
+#: manual/conformance/decimal_gda.md:49
 #: manual/conformance/interval.md:17
 #: manual/conformance/interval.md:18
 #: manual/conformance/interval.md:19
@@ -11344,6 +11346,7 @@ msgstr ""
 
 #: manual/conformance/binary.md:177
 #: manual/conformance/decimal.md:42
+#: manual/conformance/decimal_gda.md:10
 #: manual/performance_audit.md:15
 msgid "Scope"
 msgstr ""
@@ -11889,7 +11892,7 @@ msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is e
 msgstr ""
 
 #: manual/conformance/decimal.md:216
-#: manual/conformance/decimal_gda.md:118
+#: manual/conformance/decimal_gda.md:224
 #: manual/design/bench.md:243
 #: manual/design/bench/binary.md:68
 #: manual/design/bench/decimal.md:67
@@ -11941,7 +11944,7 @@ msgid "The matrix passes on the current branch, which has no [known deviations](
 msgstr ""
 
 #: manual/conformance/decimal.md:232
-#: manual/conformance/decimal_gda.md:190
+#: manual/conformance/decimal_gda.md:314
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:41
 #: manual/performance/decimal_gda.md:35
@@ -11958,438 +11961,523 @@ msgid "decimal_gda conformance"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:3
-msgid "The implementation target is General Decimal Arithmetic Specification 1.70; the pinned executable corpus is the General Decimal Arithmetic testcase suite 2.62."
+msgid "The implementation target is General Decimal Arithmetic Specification 1.70 (GDA 1.70); the pinned executable corpus is the General Decimal Arithmetic testcase suite 2.62. The results below hold for the finite set of inputs in the pinned corpora and package tests; GDA 1.70 defines no conformance clause."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:7
+#: manual/conformance/decimal_gda.md:8
 msgid "Published result"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:9
-msgid "The pinned official corpus passes 64,986/64,986 legal executable scalar rows with zero failed, unsupported, or legacy rows. The remaining 141 rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator. The pinned subset corpus (`dectest0.zip`, Appendix A) passes 16,124/16,124 executable rows; its 40 diagnostic rows are excluded the same way."
+#: manual/conformance/decimal_gda.md:10
+msgid "Corpus"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:12
+msgid "legal executable scalar rows"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:13
-msgid "General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per operation or conversion of the specification. The decTest files are those of the pinned corpus (`testdata/decimal_gda/corpora.json`). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
+msgid "`official0` (`dectest0.zip`, Appendix A)"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:17
-msgid "abs, minus, plus"
+#: manual/conformance/decimal_gda.md:13
+msgid "executable subset rows"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:18
-msgid "add, subtract, multiply"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:18
-msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:19
-msgid "divide, divide-integer, remainder, remainder-near"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:20
-msgid "fused-multiply-add"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:21
-msgid "square-root"
+#: manual/conformance/decimal_gda.md:15
+msgid "The pinned `official` corpus passes with zero failed, unsupported, or legacy rows. The 141 remaining rows are `#` placeholder or non-scalar invalid inputs and are reported as diagnostics outside the legal denominator. The pinned `official0` subset corpus excludes its 40 diagnostic rows the same way; it is retained for historical compatibility checks, not as the definition of the current surface."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:22
-msgid "power"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:22
-msgid "`power.decTest`; `library/src/decimal_gda/power_cohort_issue211_wbtest.mbt`; `library/src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power keeps precision digits); `library/src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers); `library/src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (Clamped of integer powers); `library/src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Subnormal and Underflow of integer powers near Emin); `library/src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (Underflow of an inexact subnormal integer power); `library/src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (clamp fold-down of a power of ten); `library/src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (no Clamped on an inexact result); `library/src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (the power of 1 to a non-integer exponent is inexact)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:22
-msgid "conforming; integer powers are within about 0.55 units in the last place (0.6 for negative exponents), as the specification allows"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:23
-msgid "exp, ln, log10"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:23
-msgid "conforming; a context with precision or an exponent limit above 999,999 answers `Invalid_context`, a deliberate implementation limit (decNumber's `DEC_MAX_MATH`, required by decTest rows powx4001 to powx4005, expx901 to expx906 and the like, and permitted by the Invalid context condition of GDA 1.70), not a rule of the operation text"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:24
-msgid "compare, compare-signal, compare-total, compare-total-mag"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:25
-msgid "max, max-magnitude, min, min-magnitude"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:26
-msgid "next-minus, next-plus, next-toward"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:27
-msgid "quantize, rescale, same-quantum, reduce, trim"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:27
-msgid "`quantize.decTest`, `rescale.decTest`, `samequantum.decTest`, `reduce.decTest`, `trim.decTest`; `library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt` (a zero result above `e_max - precision + 1` under `clamp` is folded down with Clamped)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:28
-msgid "round-to-integral-exact, round-to-integral-value"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:29
-msgid "scaleb, logb, rotate, shift"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:30
-msgid "and, or, xor, invert"
+msgid "GDA 1.70 for `decimal_gda`, one row per operation or conversion of the specification. The decTest files are those of the pinned corpus ([`testdata/decimal_gda/corpora.json`](../../../testdata/decimal_gda/corpora.json)). Status is `conforming` when the operation exists and the cited tests exercise it, `partial` when part of the clause is missing or tests are thin (the cell says which), `not implemented` and `not applicable` otherwise. An entry without a corpus file name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:31
-msgid "class, copy, copy-abs, copy-negate, copy-sign"
+msgid "abs, minus, plus"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:32
-msgid "to-number, to-scientific-string, to-engineering-string"
+msgid "add, subtract, multiply"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:32
+msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow judged on rounded sum)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:33
-msgid "canonical"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt`"
+msgid "divide, divide-integer, remainder, remainder-near"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:34
-msgid "context: precision, rounding, clamp, exponent limits"
+msgid "fused-multiply-add"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:35
-msgid "status flags and traps (Appendix and Exceptional conditions)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:35
-msgid "every decTest row checks the flag set; trap enablement is covered by the runner's directive handling"
+msgid "square-root"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "subset arithmetic (Appendix A)"
+msgid "power"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "`extended = false` contexts"
+msgid "`power.decTest`; [Operation notes](#operation-notes)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests"
+#: manual/conformance/decimal_gda.md:37
+msgid "conforming; [Operation notes](#operation-notes)"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:36
-msgid "conforming for the operations of the corpus; see [subset arithmetic](#subset-arithmetic-and-operations-appendix-a-does-not-name)"
+#: manual/conformance/decimal_gda.md:37
+msgid "exp, ln, log10"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:38
-msgid "Subset arithmetic and operations Appendix A does not name"
+msgid "compare, compare-signal, compare-total, compare-total-mag"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:39
+msgid "max, max-magnitude, min, min-magnitude"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:40
-msgid "In a subset context (`extended=false`) the result of every operation of `decimal_gda` that takes a context obeys the three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset), which the page states for any operation:"
+msgid "next-minus, next-plus, next-toward"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:41
+msgid "quantize, rescale, same-quantum, reduce, trim"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:41
+msgid "`quantize.decTest`, `rescale.decTest`, `samequantum.decTest`, `reduce.decTest`, `trim.decTest`; [Operation notes](#operation-notes)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:42
-msgid "a result whose coefficient is zero has sign 0 and, unless the operation is quantize, exponent 0;"
+msgid "round-to-integral-exact, round-to-integral-value"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:43
-msgid "a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact` and `Rounded` as `multiply` has always given (an operation that raised `Clamped` before keeps it: `exp` raises it as well); `next_plus` and `next_minus` are the exception, they set no flag for a numeric operand (page 34) and give `0` without flags ([#770](https://github.com/Luna-Flow/floating/issues/770)), while `next_toward` raises the four flags, as the sum with an infinitesimal of page 35 does;"
+msgid "scaleb, logb, rotate, shift"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:44
-msgid "after the rounding of its result (unless the operation is quantize), a positive exponent is reduced to 0 when the coefficient then has at most precision digits."
+msgid "and, or, xor, invert"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:45
+msgid "class, copy, copy-abs, copy-negate, copy-sign"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:46
-msgid "The library applies the rules in one step, the last of every operation in a subset context ([#754](https://github.com/Luna-Flow/floating/issues/754)); an extended context does not reach it. `add` and `subtract` obeyed the zero and the exponent rule before; a subnormal result is now refused for them too (`add(1E-9, -1E-99)` at precision 3, round-down, Emin -9 was `9.9E-10` and is `0`). The copy operations (`copy`, `copy_abs`, `copy_negate`, `copy_sign`) take no context and are outside the rules: `copy_negate(0)` is `-0`. The one exception is `quantize`, and with it `rescale`, the former name of the operation (GDA 1.70, page 37 (quantize), note 2): they keep the exponent of a zero and a positive exponent, and a zero is still of sign 0. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`; the rules say \"after any operation\", so they apply to these operations too. The to-number conversion and the parsing keep a positive exponent, as page 55 states the rule for operations; a zero they read is `+0` with exponent 0."
+msgid "to-number, to-scientific-string, to-engineering-string"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:47
+msgid "canonical"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:47
+msgid "no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:48
-msgid "`reduce`, `round_to_integral_value` and `sqrt` obey the rules too (`reduce(1200)` is `1200`, `round_to_integral_value(1.2E+3)` is `1200`, `sqrt(1E+2)` is `10`), and so does `round_to_integral_exact`. 64 rows of the pinned subset corpus (`dectest0`) expect decNumber's result for them and are recorded as deviations ([Deviations of the corpus](#deviations-of-the-corpus)). The corpus has no row in a subset context for `scaleb`, `shift`, `rotate`, `next_toward` or `round_to_integral_exact`: their results rest on the text of page 55 alone."
+msgid "context: precision, rounding, clamp, exponent limits"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:49
+msgid "status flags and traps (Appendix and Exceptional conditions)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:49
+msgid "every decTest row checks the flag set; trap enablement is covered by the runner's directive handling"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:50
-msgid "Every operation that takes a context also rounds an operand longer than the precision first and raises `LostDigits` when non-zero digits go (GDA 1.70, page 56 (Appendix A, The X3.274 subset), \"Operation differences\", first item; [#759](https://github.com/Luna-Flow/floating/issues/759)). `apply`, `reduce`, the two round-to-integral operations, `next_plus`, `next_minus`, `next_toward`, `scaleb`, `shift` and `rotate` did not before: `next_toward(1234567891, 0)` at precision 9 was `1.23456789E+9` and is `1.23456788E+9`, with `LostDigits`, as in decNumber 3.68; `shift(1234567891, 0)` was `1234567891` and is `1.23456789E+9`. decNumber 3.68 does not round the operand of `shift` and `rotate`, and for `next_toward` it gives other results when the operand or the target is longer than the precision (40 rows of the sampled matrix of the decNumber comparison, recorded in the tests; the library follows the text). Where a second operand exists it is rounded too, as it is for `add`. `compare_total` and `compare_total_magnitude` round their operands like `compare`; the second drops the sign first, as page 43 defines it through copy-abs, so in `Floor` and `Ceiling` `compare_total_magnitude(-12, 1E+1)` at precision 1 rounds 12 and not -12 ([#763](https://github.com/Luna-Flow/floating/issues/763)). The logical operations, `logb` and the classifications are not arithmetic on the value and keep their operands."
+msgid "subset arithmetic (Appendix A)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:50
+msgid "`extended = false` contexts"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:50
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in `DECIMAL_GDA: official0 decTest`; `library/src/decimal_gda/` white-box tests"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:50
+msgid "conforming for the corpus operations; [Subset arithmetic](#subset-arithmetic-and-operations-appendix-a-does-not-name)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:52
-msgid "What Appendix A defines differently is not changed: the rounding of the operands first, the trailing zeros that `divide` and `power` remove, and the power rules of pages 56 and 57."
+msgid "Operation notes"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:54
-msgid "A comparison with decNumber 3.68 (built with `DECSUBSET=1`) over 149,338 calls of 31 operations in a subset and in an extended context found no difference in an extended context. In a subset context decNumber 3.68 gives results that the text of page 55 does not allow. The library gives the text, and the recorded differences are (precision 9, round-half-up):"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:56
-msgid "Library"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:56
-msgid "decNumber 3.68"
+msgid "GDA 1.70, page 35 (`power`) allows inexact results to be up to 1 ulp in error; integer powers in `decimal_gda` are within about 0.55 units in the last place (0.6 for negative exponents). Ten unit test files cover `power` edge cases:"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:58
-#: manual/conformance/decimal_gda.md:61
-#: manual/conformance/decimal_gda.md:62
-#: manual/conformance/decimal_gda.md:63
-#: manual/conformance/decimal_gda.md:64
-msgid "positive exponent"
+msgid "Test file"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:59
-msgid "positive exponent, zero"
+#: manual/conformance/decimal_gda.md:58
+msgid "Coverage"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:60
-msgid "positive exponent, zero, subnormal"
+msgid "cohort of powers"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:61
+msgid "sign of an overflowing power"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:62
+msgid "inexact power keeping precision digits"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:63
+msgid "cohort of exact negative powers"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:64
+msgid "`Clamped` of integer powers"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:65
-msgid "zero"
+msgid "`Subnormal` and `Underflow` of integer powers near $E_{\\min}$"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:66
-msgid "operand longer than the precision (page 56)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:66
-msgid "`rotate(123456789123, 0)` at precision 9, round-ceiling"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:66
-msgid "`1.23456790E+11` with `LostDigits`"
+msgid "`Underflow` of an inexact subnormal integer power"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:67
-msgid "second operand longer than the precision (page 56)"
+msgid "clamp fold-down of a power of ten"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:67
-msgid "`quantize(0, 12)` at precision 1, round-half-up"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:67
-msgid "`0E+1` with `LostDigits`"
+#: manual/conformance/decimal_gda.md:68
+msgid "absence of `Clamped` on an inexact result"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:69
-msgid "In a subset context the second operand of `quantize` is rounded to precision digits before use, like every operand (GDA 1.70, page 56 (Appendix A, The X3.274 subset), \"Operation differences\", first item), and the exponent of the quantum is the exponent of the rounded operand: `quantize(0, 12)` at precision 1 is `0E+1`, and `quantize(0, 96)` is `0E+2`, because 96 rounds to `1E+2` ([#764](https://github.com/Luna-Flow/floating/issues/764)). The second operand of `rescale`, the former name of `quantize` (page 37, note 2), is an operand with a coefficient too: it is rounded first, and the rounded integer is the power of ten of the quantum, so `rescale(0, 12)` at precision 1 is `0E+10`. The first operand is rounded by the rule above, and an extended context uses the second operand as it stands (page 36). decNumber 3.68 (`DECSUBSET=1`) takes the quantum from the unrounded operand and gives `0` and `0E+12`. In a comparison with decNumber 3.68 over 127,296 calls of the two operations the library gives the same value and flags in all 63,648 extended calls, and in a subset context the rule changes the result in 7,908 of the 63,648 calls, and every changed result is the one decNumber 3.68 gives for the rounded operand; the 12 rows of the sampled matrix of the comparison that differ by it are recorded in the tests. The corpus has no row for `quantize` in this case; its 3 rows for `rescale` are recorded as deviations ([Deviations of the corpus](#deviations-of-the-corpus))."
+msgid "inexactness of 1 to a non-integer exponent"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:71
-msgid "Three consequences follow from the rules and are kept: `reduce(1200)` is `1200`, so `reduce` no longer shortens an integer, and `scaleb(12, 2)` is `1200`, where it left a positive exponent before; a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: the contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)."
+msgid "For `exp`, `ln`, and `log10`, GDA 1.70, pages 30 and 31 allow inexact results to be up to 1 ulp in error; the library returns the correctly rounded result in both extended and subset arithmetic. A context with precision or an exponent limit above 999,999 answers `Invalid_context`. This is a deliberate implementation limit (decNumber's `DEC_MAX_MATH`), required by decTest rows `powx4001` to `powx4005`, `expx901` to `expx906`, and similar rows, and permitted by the Invalid context condition of GDA 1.70, page 52 (Exceptional conditions), not a rule of the operation text."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:73
-msgid "decTest rows behind statements of the API page"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:75
-msgid "The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:77
-msgid "Statement of the API page"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:77
-msgid "decTest rows"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:79
-msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context within the [implementation limit](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:79
-msgid "`power.decTest` rows powx4001 to powx4005; rows expx901 to expx906, lnx901 to lnx906 and logx901 to logx906 of `exp.decTest`, `ln.decTest` and `log10.decTest`, in a section that decTest labels decNumber's restricted range for the mathematical functions"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:80
-msgid "`exp(-Infinity)` under a context beyond that limit is `Invalid_context`"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:80
-msgid "row `expx901`"
+#: manual/conformance/decimal_gda.md:78
+msgid "For `quantize`, `library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt` checks that a zero result above `e_max - precision + 1` under `clamp` is folded down with `Clamped`."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:81
-msgid "`pow_int_checked` returns `Err(unsupported)` for a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:81
-msgid "rows `powx1183` and `powx1184`"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:82
-msgid "the official decTest files use the parameters `clamp` and `extended`"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:82
-msgid "`clamp:` in 30,649 rows; `extended: 0` in all 16,162 rows of `dectest0`"
+msgid "Subset arithmetic and operations Appendix A does not name"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:83
-msgid "a NaN payload wider than the interchange format keeps its low digits, and no flag is raised"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:83
-msgid "the decTest interchange rows have no payload wider than their format"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:85
-msgid "Legacy corpus"
+msgid "In a subset context (`extended=false`), the result of every operation of `decimal_gda` that takes a context obeys the three result rules of GDA 1.70, page 55 (Appendix A, The X3.274 subset), which the page states for any operation:"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:87
-msgid "The pinned `official0` corpus passes 16,124/16,124 legal executable rows with zero failures. It is retained for historical compatibility checks, not as the definition of the current surface."
+msgid "a result whose coefficient is zero has sign 0 and, unless the operation is `quantize`, exponent 0;"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:89
-msgid "State semantics"
+#: manual/conformance/decimal_gda.md:88
+msgid "a subnormal result is not permitted: it is an Underflow, and the result is the zero of the subset, with `Underflow`, `Subnormal`, `Inexact`, and `Rounded` as `multiply` always gives (an operation that raised `Clamped` keeps it, and `exp` raises it as well); `next_plus` and `next_minus` are the exception, setting no flag for a numeric operand on GDA 1.70, page 34 (`next-plus` and `next-minus`) and returning `0` without flags, while `next_toward` raises the four flags, as the sum with an infinitesimal of page 35 (`next-toward`) does;"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:91
-msgid "Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with accumulated sticky status. Enabling a trap changes the outcome variant but does not erase the defined result."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:93
-msgid "The arithmetic `ParseChecked` adapter applies its mapped engine context to GDA parsing but returns only a value or syntax error. Use the `decimal_gda::to_number` API with `GdaContext` when sticky status and traps must remain observable."
+#: manual/conformance/decimal_gda.md:94
+msgid "after the rounding of its result (unless the operation is `quantize`), a positive exponent is reduced to 0 when the coefficient then has at most precision digits."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:97
-msgid "The white-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, checking the folded exponent and the `Clamped` condition."
+msgid "The library applies these rules in one step, the last of every operation in a subset context; an extended context does not reach it. In a subset context, `add` and `subtract` follow all three rules and refuse subnormal results: `add(1E-9, -1E-99)` at precision 3, `round-down`, with $E_{\\min}$ equal to -9, returns `0`. The copy operations (`copy`, `copy_abs`, `copy_negate`, `copy_sign`) take no context and are outside the rules, so `copy_negate(0)` is `-0`. The one exception is `quantize`, and with it `rescale` (the former name of `quantize`, GDA 1.70, page 37, `quantize`, note 2): they keep the exponent of a zero and a positive exponent, while a zero still has sign 0. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, `round_to_integral_exact`, `round_to_integral_value`, or `next_toward`; the rules say \"after any operation\", so they apply to these operations too. String parsing and `to_number` keep a positive exponent, as page 55 states the rule for operations; a zero they read is `+0` with exponent 0."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:101
-msgid "White-box tests of the fast paths"
+#: manual/conformance/decimal_gda.md:110
+msgid "The operations `reduce`, `round_to_integral_value`, `round_to_integral_exact`, and `sqrt` obey the rules (`reduce(1200)` is `1200`, `round_to_integral_value(1.2E+3)` is `1200`, and `sqrt(1E+2)` is `10`). In the pinned subset corpus (`dectest0`), 64 rows expect decNumber's result for them and are recorded as deviations ([Deviations of the corpus](#deviations-of-the-corpus)). The corpus has no row in a subset context for `scaleb`, `shift`, `rotate`, `next_toward`, or `round_to_integral_exact`: their results rest on the text of page 55 alone."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:103
-msgid "Each of the three plain-operation fast paths of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`."
+#: manual/conformance/decimal_gda.md:117
+msgid "Every operation that takes a context also rounds an operand longer than the precision first and raises `LostDigits` when non-zero digits are discarded (GDA 1.70, page 56, Appendix A, \"Operation differences\", first item). That includes `apply`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `next_plus`, `next_minus`, `next_toward`, `scaleb`, `shift`, and `rotate`: at precision 9, `next_toward(1234567891, 0)` is `1.23456788E+9` with `LostDigits` (as in decNumber 3.68), and `shift(1234567891, 0)` is `1.23456789E+9`. decNumber 3.68 does not round the operand of `shift` and `rotate`, and for `next_toward` it gives other results when the operand or target is longer than the precision; 40 rows of the sampled matrix of the decNumber comparison record these differences in the tests, and the library follows the text."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:105
-msgid "Fast path"
+#: manual/conformance/decimal_gda.md:127
+msgid "Where a second operand exists, it is rounded too, as in `add`. Both `compare_total` and `compare_total_magnitude` round their operands like `compare`; `compare_total_magnitude` drops the sign first because GDA 1.70, page 43 (`compare-total-magnitude`) defines it through `copy-abs`, so in `Floor` and `Ceiling` `compare_total_magnitude(-12, 1E+1)` at precision 1 rounds 12, not -12. The logical operations, `logb`, and the classifications are not arithmetic on the value and keep their operands."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:105
-msgid "Parameters"
+#: manual/conformance/decimal_gda.md:133
+msgid "What Appendix A defines differently on GDA 1.70, pages 56 and 57 (The X3.274 subset) is unchanged: rounding the operands first, the trailing zeros that `divide` and `power` remove, and the power rules of pages 56 and 57."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:107
-msgid "plain sums (`add`, `subtract`)"
+#: manual/conformance/decimal_gda.md:137
+msgid "A comparison with decNumber 3.68 (built with `DECSUBSET=1`) over 149,338 calls of 31 operations in a subset context and in an extended context found zero differences in an extended context. In a subset context, decNumber 3.68 gives results that the text of page 55 does not allow. The library gives the text, and the recorded differences are (precision 9, `round-half-up`):"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:107
-msgid "random, 1 to 120 digits, mixed signs, cancellations and exponent gaps"
+#: manual/conformance/decimal_gda.md:142
+msgid "Library"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:107
-msgid "ten precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
+#: manual/conformance/decimal_gda.md:142
+msgid "decNumber 3.68"
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:108
-msgid "plain products and quotients (`multiply`, `divide`)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:108
-msgid "random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:108
-msgid "chained contexts, all eight rounding algorithms"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:109
-msgid "plain square roots (`sqrt`)"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:109
-msgid "random, 1 to 130 digits; squares; near squares ($s^2 \\pm 1$, $s^2 \\pm s$); the comparison is at the public level: value, every condition and the flags of the context"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:109
-msgid "all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:111
-msgid "Runner model"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:113
-msgid "Documents are parsed once, directive state is snapshotted per case, and deterministic shards execute disjoint case positions through the public `GdaContext`/`GdaOutcome` operation surface. Executable, diagnostic, unsupported, legacy, passed, and failed counts remain separate."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:120
-msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:122
-msgid "Deviations of the corpus"
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:124
-msgid "The pinned corpora are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are three kinds of row. The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 30 and 31). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
-msgstr ""
-
+#: manual/conformance/decimal_gda.md:144
+#: manual/conformance/decimal_gda.md:147
+#: manual/conformance/decimal_gda.md:148
 #: manual/conformance/decimal_gda.md:149
-msgid "The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55 (Appendix A, The X3.274 subset)): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral` and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`) and 8 of `tointegral0.decTest` (`int067` to `int090`). `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value) and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream."
+#: manual/conformance/decimal_gda.md:150
+msgid "positive exponent"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:145
+msgid "positive exponent, zero"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:146
+msgid "positive exponent, zero, subnormal"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:151
-msgid "The third kind, 3 rows (`res397` to `res399` of `rescale0.decTest`), follows from the rounding of the second operand of `rescale` (GDA 1.70, page 56 (Appendix A, The X3.274 subset), first item of \"Operation differences\"): `rescale 222 +2.000000001` at precision 9 has the second operand `2.00000000` after rounding, an integer, and the library gives `2E+2` with `Inexact`, `Lost_digits` and `Rounded`; the corpus value is decNumber's, which refuses the unrounded operand as not being an integer (`Invalid_operation`, no value). The row is recorded with the held value `2E+2` and, in the eighth column of `deviations.tsv`, the held flags, which the stage judges instead of the flags of the row. The corpus value is not wrong, and nothing is reported upstream."
+msgid "zero"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:152
+msgid "operand longer than the precision (page 56)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:152
+msgid "`rotate(123456789123, 0)` at precision 9, `round-ceiling`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:152
+msgid "`1.23456790E+11` with `LostDigits`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:153
-msgid "Known deviations outside the corpus"
+msgid "second operand longer than the precision (page 56)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:153
+msgid "`quantize(0, 12)` at precision 1, `round-half-up`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:153
+msgid "`0E+1` with `LostDigits`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:155
-msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
+msgid "In a subset context, the second operand of `quantize` is rounded to precision digits before use like every operand (GDA 1.70, page 56, Appendix A, \"Operation differences\", first item), and the exponent of the quantum is the exponent of the rounded operand: `quantize(0, 12)` at precision 1 is `0E+1`, and `quantize(0, 96)` is `0E+2` because 96 rounds to `1E+2`. The second operand of `rescale` (GDA 1.70, page 37, `quantize`, note 2) is an operand with a coefficient too: it is rounded first, and the rounded integer is the power of ten of the quantum, so `rescale(0, 12)` at precision 1 is `0E+10`. The first operand is rounded by the rule above, and an extended context uses the second operand as it stands (GDA 1.70, page 36, `quantize`). decNumber 3.68 (`DECSUBSET=1`) takes the quantum from the unrounded operand and gives `0` and `0E+12`. In a comparison with decNumber 3.68 over 127,296 calls of the two operations, the library gives the same value and flags in all 63,648 extended calls. In a subset context, the rule changes the result in 7,908 of the 63,648 calls, and every changed result is the one decNumber 3.68 gives for the rounded operand; the 12 rows of the sampled matrix of the comparison that differ by it are recorded in the tests. The corpus has no row for `quantize` in this case; its 3 rows for `rescale` are recorded as deviations ([Deviations of the corpus](#deviations-of-the-corpus))."
 msgstr ""
 
-#: manual/conformance/decimal_gda.md:158
-msgid "Integer `power` is not correctly rounded, as the specification allows. In the nearest rounding modes the result is within about 0.55 units in the last place of the exact value (0.6 for negative exponents). In the directed modes it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact value (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:164
-msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:168
-msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
-msgstr ""
-
-#: manual/conformance/decimal_gda.md:172
-msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
+#: manual/conformance/decimal_gda.md:170
+msgid "As a consequence of these rules, `reduce(1200)` is `1200` (integers remain unshortened), `scaleb(12, 2)` is `1200`, and a zero of sign 1 no longer exists as a result in a subset context, so `power(-0, 3)` is `+0`. Other differences from decNumber 3.68 remain in a subset context and are not caused by these rules: contexts of precision 1, and the sign of a zero operand that decNumber reads as `+0`. The comparison records what the library does; the API page lists what a zero and a positive exponent become in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new)."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:177
-msgid "Isolation and native benchmark"
+msgid "decTest rows behind statements of the API page"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:179
-msgid "The dependency scan `tools/check_imports.py` requires `decimal_gda` to contain no import of the IEEE `decimal`, and `decimal` none of `decimal_gda`; `decimal_gda_checked` and `frontend/gda_expr` import `decimal_gda` and no IEEE `decimal`, which no scan enforces. IEEE tests and its independent conformance corpus are run separately."
+msgid "The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:182
+msgid "Statement of the API page"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:182
+msgid "decTest rows"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:184
+msgid "`exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context within the [implementation limit](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:184
+msgid "`power.decTest` rows `powx4001` to `powx4005`; `exp.decTest` rows `expx901` to `expx906`; `ln.decTest` rows `lnx901` to `lnx906`; `log10.decTest` rows `logx901` to `logx906`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:185
-msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
+msgid "`exp(-Infinity)` under a context beyond that limit is `Invalid_context`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:185
+msgid "row `expx901`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:186
+msgid "`pow_int_checked` returns `Err(unsupported)` for a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:186
+msgid "rows `powx1183` and `powx1184`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:187
+msgid "the official decTest files use the parameters `clamp` and `extended`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:187
+msgid "`clamp:` in 30,649 rows; `extended: 0` in all 16,162 rows of `dectest0`"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:188
+msgid "a NaN payload wider than the interchange format keeps its low digits, and no flag is raised"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:188
+msgid "the decTest interchange rows have no payload wider than their format"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:190
+msgid "The first row's `expx901` to `expx906`, `lnx901` to `lnx906`, and `logx901` to `logx906` stand in a section that decTest labels decNumber's restricted range for the mathematical functions."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:193
+msgid "State semantics"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:195
+msgid "Each operation returns a `GdaOutcome` containing the defined result, flags raised by that operation, and the next context with its accumulated flags. Enabling a trap changes the outcome variant without erasing the defined result."
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:199
+msgid "The arithmetic `ParseChecked` adapter applies its mapped engine context to GDA parsing but returns only a value or syntax error. Use the `decimal_gda::to_number` API with `GdaContext` when accumulated flags and traps must remain observable."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:203
+msgid "White-box coverage includes zero `divide_integer` results in clamped extended contexts for both finite and infinite divisors, and checks the folded exponent and the `Clamped` condition."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:206
+msgid "White-box tests of the fast paths"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:208
+msgid "Each of the three plain-operation fast paths of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:212
+msgid "Fast path"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:212
+msgid "Parameters"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:214
+msgid "plain sums (`add`, `subtract`)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:214
+msgid "random, 1 to 120 digits, mixed signs, cancellations and exponent gaps"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:214
+msgid "ten precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:215
+msgid "plain products and quotients (`multiply`, `divide`)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:215
+msgid "random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:215
+msgid "chained contexts, all eight rounding algorithms"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:216
+msgid "plain square roots (`sqrt`)"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:216
+msgid "random, 1 to 130 digits; squares; near squares ($s^2 \\pm 1$, $s^2 \\pm s$); the comparison is at the public level: value, every condition and the flags of the context"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:216
+msgid "all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:218
+msgid "Runner model"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:220
+msgid "Documents are parsed once, directive state is snapshotted per case, and deterministic shards execute disjoint case positions through the public `GdaContext` and `GdaOutcome` operations. Executable, diagnostic, unsupported, legacy, passed, and failed counts remain separate."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:226
+msgid "The claim covers legal scalar rows in the pinned corpora (`testdata/decimal_gda/corpora.json`). Placeholder and non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:230
+msgid "Deviations of the corpus"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:232
+msgid "The pinned corpora (`testdata/decimal_gda/corpora.json`) are decNumber's test suite. A row is recorded in `testdata/decimal_gda/deviations.tsv` when its result token differs from the value this library returns. There are three kinds of row."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:236
+msgid "The first kind rests on the tolerance of the mathematical functions: decNumber's mathematical functions use the tolerance the specification gives. Of `exp`, `ln`, and `log10`, GDA 1.70, pages 30 and 31 (`exp`, `ln`, `log10`) say that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\". The library returns the correctly rounded value in both extended and subset arithmetic. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded with the corpus value, the held value, the value of decNumber 3.68, and what the held value rests on: the corpus value is not wrong; the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:247
+msgid "There is one row of this kind: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8`; the exact result is `-8.99999999999998784999918E-8`. The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10`, and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:257
+msgid "The second kind of row, 64 rows, follows from rule P of page 55 (GDA 1.70, page 55, Appendix A, The X3.274 subset): in a subset context a positive exponent is reduced to 0 when the coefficient then has at most precision digits, after any operation. The corpus holds decNumber's results for `reduce`, `tointegral`, and `squareroot`, which keep the exponent, and 64 rows of `official0` differ from the library by that rule alone, with the same number and the same flags: 47 of `reduce0.decTest` (`red060` to `red144`), 9 of `squareroot0.decTest` (`sqtx2207` to `sqtx2847`), and 8 of `tointegral0.decTest` (`int067` to `int090`). The row `reduce 10.0` expects `1E+1` and the library gives `10`. Each is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 (equal to the corpus value), and the decision that the library follows the text of page 55 for every operation; the corpus value is not wrong, and nothing is reported upstream."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:269
+msgid "The third kind, 3 rows (`res397` to `res399` of `rescale0.decTest`), follows from the rounding of the second operand of `rescale` (GDA 1.70, page 56, Appendix A, first item of \"Operation differences\"): `rescale 222 +2.000000001` at precision 9 has the second operand `2.00000000` after rounding, an integer, and the library gives `2E+2` with `Inexact`, `Lost_digits`, and `Rounded`. The corpus value is decNumber's, which refuses the unrounded operand as not being an integer (`Invalid_operation`, no value). The row is recorded with the held value `2E+2` and, in the eighth column of `deviations.tsv`, the held flags, which the stage judges instead of the flags of the row. The corpus value is not wrong, and nothing is reported upstream."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:278
+msgid "Known deviations outside the corpus"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:280
+msgid "A passing corpus is a finite claim. Review of the implementation found these behaviors, none of which has a pinned row:"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:283
+msgid "Integer `power` is not correctly rounded, as GDA 1.70, page 35 (`power`) allows: up to 1 ulp in error. Under the nearest rounding algorithms the result is within about 0.55 units in the last place of the exact result (0.6 for negative exponents). Under the directed rounding algorithms it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact result (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:290
+msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (GDA 1.70 states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:294
+msgid "Under the directed rounding algorithms an inexact `power` can differ from libmpdec in the last digit, because GDA 1.70, page 35 (`power`) allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:298
+msgid "A `power` call with a zero base and a negative exponent returns an infinity with no condition raised, as in libmpdec: the Division by zero condition applies when \"the dividend was not zero\" (GDA 1.70, page 51, Exceptional conditions; page 35, `power`). The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 9.2.1)."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:303
+msgid "Isolation and native benchmark"
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:305
+msgid "The dependency scan `tools/check_imports.py` requires `decimal_gda` to contain no import of the IEEE `decimal`, and `decimal` none of `decimal_gda`; `decimal_gda_checked` and `frontend/gda_expr` import `decimal_gda` and no IEEE `decimal`, which no scan enforces. IEEE tests and its independent conformance corpus are run separately."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:310
+msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
+msgstr ""
+
+#: manual/conformance/decimal_gda.md:323
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr ""
 
