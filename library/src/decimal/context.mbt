@@ -127,8 +127,8 @@ pub struct DecimalContext {
 ///
 /// Flags do not accumulate by themselves: join the flags of successive
 /// operations with `combine`. Read each flag with the method of the same name,
-/// such as `flags.inexact()`. `has_error` tests for the conditions that deliver
-/// no usable number.
+/// such as `flags.inexact()`. `has_error` tests `invalid_operation`,
+/// `division_by_zero` and `not_computed`.
 #derive(Eq)
 pub struct DecimalFlags {
   priv inexact : Bool

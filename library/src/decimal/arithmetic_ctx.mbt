@@ -309,8 +309,9 @@ pub fn Decimal::mul(self : Decimal, other : Decimal) -> Decimal {
 /// the flags it raised.
 ///
 /// An exact sum takes the cohort member closest to the preferred exponent
-/// `min(q_a, q_b)`. A zero sum is +0, except that it is -0 under
-/// `RoundTowardNegative` and when both operands are -0. The sum of opposite
+/// `min(q_a, q_b)`. An exact zero sum of operands of opposite signs is +0, or
+/// -0 under `RoundTowardNegative`; two zeros of the same sign keep that sign
+/// (`+0 + +0` is +0 and `-0 + -0` is -0 in every direction). The sum of opposite
 /// infinities is NaN with `invalid_operation`. A NaN operand gives a quiet NaN
 /// with the sign and payload of the first NaN; a signaling NaN also raises
 /// `invalid_operation`.
@@ -366,9 +367,10 @@ pub fn Decimal::add_ctx(
 ///
 /// The preferred exponent, the sign of a zero difference and the special values
 /// are those of `add_ctx` applied to `self` and `other` negated: a difference
-/// of two infinities of the same sign is NaN with `invalid_operation`, and a
-/// zero difference is -0 under `RoundTowardNegative` or when both operands of
-/// the sum are -0 (`-0 - +0`), and +0 otherwise.
+/// of two infinities of the same sign is NaN with `invalid_operation`, and an
+/// exact zero difference of two values of the same sign is +0, or -0 under
+/// `RoundTowardNegative`, while `+0 - -0` is +0 and `-0 - +0` is -0 in every
+/// direction.
 pub fn Decimal::sub_ctx(
   self : Decimal,
   other : Decimal,

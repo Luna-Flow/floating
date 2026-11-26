@@ -493,8 +493,9 @@ pub fn Decimal::from_string_ctx(
 /// Arithmetic (`to-scientific-string`). The coefficient is written in plain
 /// digits unless the exponent is positive or the adjusted exponent is below -6,
 /// when an exponent `E+n` or `E-n` follows. Special values are `Infinity`,
-/// `-Infinity`, `NaN` and `sNaN`, with the payload digits of a NaN appended.
-/// The exponent of the value is kept: `12300E-2` is `123.00`.
+/// `-Infinity`, `NaN` and `sNaN`, with the payload digits of a NaN appended and
+/// a leading `-` for a negative one. The exponent of the value is kept:
+/// `12300E-2` is `123.00`.
 pub fn Decimal::to_sci_string(self : Decimal) -> String {
   format_sci_gda(self)
 }
