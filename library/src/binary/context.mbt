@@ -1,4 +1,9 @@
 ///|
+/// The rounding-direction attribute of a context (IEEE 754-2019 4.3). The five
+/// values are the two ties rules (`RoundTiesToEven`, `RoundTiesToAway`) and the
+/// three directed rules (`RoundTowardZero`, `RoundTowardPositive`,
+/// `RoundTowardNegative`). There is no away-from-zero rule: `from_arithmetic`
+/// refuses `@arithmetic.RoundingMode::AwayFromZero`.
 #derive(Eq, Debug)
 pub(all) enum BinaryRoundingMode {
   RoundTiesToEven
@@ -9,6 +14,11 @@ pub(all) enum BinaryRoundingMode {
 }
 
 ///|
+/// When a nonzero result counts as tiny for the underflow flag (IEEE 754-2019
+/// 7.5). `BeforeRounding` tests the exact result against the smallest normal
+/// number; `AfterRounding` tests the result rounded to the context precision with
+/// an unbounded exponent range. Underflow is raised only for a tiny and inexact
+/// result. The default of every constructor is `AfterRounding`.
 #derive(Eq, Debug)
 pub(all) enum TininessDetection {
   BeforeRounding
@@ -16,6 +26,10 @@ pub(all) enum TininessDetection {
 }
 
 ///|
+/// The four binary interchange formats of IEEE 754-2019 3.6: `Binary16`,
+/// `Binary32`, `Binary64` and `Binary128`, with 11, 24, 53 and 113 bits of
+/// precision. The methods give the parameters of a format (width, bias, exponent
+/// range) and its `BinaryContext`.
 #derive(Eq, Debug)
 pub(all) enum BinaryInterchangeFormat {
   Binary16
@@ -43,6 +57,13 @@ pub let binary_value_e_min : Int32 = -1073741822
 pub let binary_precision_max : Int32 = 268435456
 
 ///|
+/// The format and the attributes of one contextual operation: the precision `p`,
+/// the exponent `e_max` with `e_min = 1 - e_max` (IEEE 754-2019 3.3), the
+/// rounding direction and the tininess rule. A context is an immutable value; there
+/// is no global state. `new` builds a context from a precision alone (the
+/// extendable precision format of 3.7); `binary16`, `binary32`, `binary64` and
+/// `binary128` build the interchange formats. A contextual operation reads the
+/// context and returns its result together with the `BinaryFlags` it raised.
 #derive(Eq, Debug)
 pub struct BinaryContext {
   priv precision : Int32
@@ -113,6 +134,7 @@ pub fn BinaryFlags::combine(
 }
 
 ///|
+/// Returns true when the rounded result differs from the exact result.
 pub fn BinaryFlags::inexact(self : BinaryFlags) -> Bool {
   self.has(binary_flag_inexact)
 }
@@ -523,6 +545,9 @@ pub fn BinaryContext::binary16(
 }
 
 ///|
+/// Returns the context of the binary32 format: precision 24, `e_min = -126`,
+/// `e_max = 127`. The rounding direction is nearest-even and the tininess rule
+/// after-rounding unless given.
 pub fn BinaryContext::binary32(
   rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
@@ -531,6 +556,9 @@ pub fn BinaryContext::binary32(
 }
 
 ///|
+/// Returns the context of the binary64 format: precision 53, `e_min = -1022`,
+/// `e_max = 1023`. The rounding direction is nearest-even and the tininess rule
+/// after-rounding unless given.
 pub fn BinaryContext::binary64(
   rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   tininess~ : TininessDetection = TininessDetection::AfterRounding,

@@ -716,6 +716,11 @@ fn binary_add_far_exponents(
 }
 
 ///|
+/// Rounds a value into `context`, as the conversion of a wider value to a narrower
+/// format. A finite value is rounded with the overflow,
+/// subnormal and tininess rules of the context and carries the context precision;
+/// an infinity is kept; a signaling NaN becomes quiet with `invalid_operation`.
+/// Returns the value and the flags.
 pub fn Binary::apply_ctx(
   self : Binary,
   context : BinaryContext,
@@ -822,6 +827,24 @@ fn Binary::add_ctx_general(
 }
 
 ///|
+/// Adds `self` and `other` and rounds the exact sum once under `context`. Returns
+/// the value, carrying the context precision, and the flags this operation raised.
+/// `inf + (-inf)` gives a quiet NaN with `invalid_operation`. An exact zero sum of
+/// operands with opposite signs is `+0`, or `-0` under `RoundTowardNegative`
+/// (IEEE 754-2019 6.3). A NaN operand propagates quieted, with
+/// `invalid_operation` if it is signaling.
+///
+/// ```mbt check
+/// test {
+///   let ctx = @binary.BinaryContext::binary32()
+///   let (sum, flags) = @binary.Binary::one().add_ctx(
+///     @binary.Binary::from_int(2),
+///     ctx,
+///   )
+///   inspect(sum.to_shortest_string_ctx(ctx).0, content="3")
+///   inspect(flags.inexact(), content="false")
+/// }
+/// ```
 pub fn Binary::add_ctx(
   self : Binary,
   other : Binary,
@@ -882,6 +905,11 @@ pub fn Binary::add_ctx(
 }
 
 ///|
+/// Subtracts `other` from `self` and rounds the exact difference once under
+/// `context`. Returns the value, carrying the context precision, and the flags this
+/// operation raised. `inf - inf` of equal signs gives a quiet NaN with
+/// `invalid_operation`; the sign rules for an exact zero result are those of
+/// `add_ctx` applied to `self + (-other)`.
 pub fn Binary::sub_ctx(
   self : Binary,
   other : Binary,
@@ -919,6 +947,9 @@ fn Binary::mul_ctx_general(
 }
 
 ///|
+/// Multiplies `self` by `other` and rounds the exact product once under `context`.
+/// Returns the value, carrying the context precision, and the flags this operation
+/// raised. `0 * inf` gives a quiet NaN with `invalid_operation`.
 pub fn Binary::mul_ctx(
   self : Binary,
   other : Binary,
@@ -972,6 +1003,11 @@ fn Binary::div_ctx_general(
 }
 
 ///|
+/// Divides `self` by `other` and rounds the exact quotient once under `context`.
+/// Returns the value, carrying the context precision, and the flags this operation
+/// raised. `0 / 0` and `inf / inf` give a quiet NaN with `invalid_operation`; a
+/// nonzero finite number divided by zero gives a signed infinity with
+/// `division_by_zero`.
 pub fn Binary::div_ctx(
   self : Binary,
   other : Binary,
@@ -1031,6 +1067,10 @@ pub fn Binary::div_ctx(
 }
 
 ///|
+/// Computes the square root of `self`, correctly rounded under `context`.
+/// `sqrt(+-0)` is `+-0`, `sqrt(+inf)` is `+inf`, and a negative
+/// nonzero argument, `-inf` included, gives a quiet NaN with `invalid_operation`.
+/// Returns the value and the flags.
 pub fn Binary::sqrt_ctx(
   self : Binary,
   context : BinaryContext,

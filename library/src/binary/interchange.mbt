@@ -1,4 +1,8 @@
 ///|
+/// An encoded value: a `BinaryInterchangeFormat` and its bit pattern (IEEE 754-2019
+/// 3.4). `==` compares the format and the bits, so two NaNs with different payloads
+/// differ, and `+0` differs from `-0`. Build one with `from_bits`, `from_hex` or
+/// `Binary::to_interchange`; decode it exactly with `to_binary`.
 #derive(Eq)
 pub struct BinaryInterchange {
   priv format : BinaryInterchangeFormat
@@ -131,6 +135,9 @@ fn binary_interchange_hex(
 }
 
 ///|
+/// Parses the bit pattern of `format` from hexadecimal text: exactly
+/// `storage_width / 4` digits, optionally prefixed with `0x` or `#`. Returns `None`
+/// for any other text.
 pub fn BinaryInterchange::from_hex(
   source : String,
   format : BinaryInterchangeFormat,
@@ -163,11 +170,16 @@ pub fn BinaryInterchange::from_bits(
 }
 
 ///|
+/// Prints the bit pattern as upper-case hexadecimal digits, padded to
+/// `storage_width / 4` digits.
 pub fn BinaryInterchange::to_hex(self : BinaryInterchange) -> String {
   binary_interchange_hex(self.bits, self.format)
 }
 
 ///|
+/// Decodes the encoding exactly into a `Binary` with the precision of the format.
+/// Zeros, infinities and finite numbers decode to themselves; a NaN keeps its sign,
+/// payload and quiet or signaling kind.
 pub fn BinaryInterchange::to_binary(self : BinaryInterchange) -> Binary {
   let format = self.format
   let fraction_bits = format.trailing_significand_field_width()
@@ -299,6 +311,21 @@ pub fn BinaryInterchange::from_binary(
 }
 
 ///|
+/// Rounds `self` into `format` (under `rounding` and `tininess`, nearest-even and
+/// after-rounding by default) and encodes it. Returns the encoding and the flags of
+/// the rounding. A signaling NaN is encoded as a quiet NaN with
+/// `invalid_operation`; a NaN payload is cut to the payload field of the format.
+///
+/// ```mbt check
+/// test {
+///   let tenth = @binary.Binary::from_string("0.1", precision=200).unwrap()
+///   let (bits, flags) = tenth.to_interchange(
+///     @binary.BinaryInterchangeFormat::Binary32,
+///   )
+///   inspect(bits.to_hex(), content="3DCCCCCD")
+///   inspect(flags.inexact(), content="true")
+/// }
+/// ```
 pub fn Binary::to_interchange(
   self : Binary,
   format : BinaryInterchangeFormat,
