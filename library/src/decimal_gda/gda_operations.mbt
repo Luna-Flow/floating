@@ -110,8 +110,9 @@ pub fn remainder_near(
 /// The result is NaN and invalid when the target exponent lies outside
 /// `[e_min - precision + 1, e_max]`, when the coefficient would need more than
 /// `precision` digits, or when exactly one operand is infinite. Two infinities
-/// give the infinity. A subnormal result raises `Subnormal` but not
-/// `Underflow`.
+/// give the infinity. In a clamped context a target exponent above
+/// `e_max - precision + 1` gives a result with exponent `e_max - precision + 1`.
+/// A subnormal result raises `Subnormal` but not `Underflow`.
 pub fn quantize(
   value : Decimal,
   quantum : Decimal,
@@ -156,9 +157,9 @@ pub fn round_to_integral_value(
 }
 
 ///|
-/// Returns `e` raised to the value, correctly rounded half even whatever the
-/// rounding of the context. `exp(0)` is 1, `exp(+inf)` is `+inf` and `exp(-inf)`
-/// is 0. Any other finite result is inexact with `precision` digits.
+/// Returns `e` raised to the value. `exp(0)` is 1, `exp(+inf)` is `+inf` and `exp(-inf)`
+/// is 0. Any other finite result is inexact. A computed result is correctly
+/// rounded half even whatever the rounding of the context.
 ///
 /// A context beyond the implementation limit of `exp`, `ln`, `log10` and `power`
 /// (`precision` above 999999, `e_max` above 999999 or `e_min` below -999999)
@@ -184,7 +185,7 @@ fn exp_subset(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
 
 ///|
 /// Returns the natural logarithm, correctly rounded half even whatever the
-/// rounding of the context. `ln(1)` is 0, `ln(+inf)` is `+inf`, and `ln(0)` is
+/// rounding of the context when it is computed. `ln(1)` is 0, `ln(+inf)` is `+inf`, and `ln(0)` is
 /// `-inf` in an extended context (it is invalid in a subset context) with no
 /// condition raised. A negative number is invalid. The implementation limit of
 /// `exp` applies (NaN with `invalid_context`); when the refinement limit stops

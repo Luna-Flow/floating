@@ -307,7 +307,8 @@ pub fn add(
 /// Subtracts the second value from the first and rounds the exact difference
 /// once to the context: the operation of `add` on the first operand and the
 /// second with its sign flipped, with the same ideal exponent `min(q1, q2)` and
-/// zero-sign rule. A zero difference is +0, or -0 under `Floor`.
+/// zero-sign rule (`subtract(-0, +0)` is -0 in every rounding; a zero
+/// difference of `+0 - +0` is +0, or -0 under `Floor`).
 pub fn subtract(
   lhs : Decimal,
   rhs : Decimal,

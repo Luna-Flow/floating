@@ -365,9 +365,10 @@ pub fn Decimal::add_ctx(
 /// result and the flags it raised.
 ///
 /// The preferred exponent, the sign of a zero difference and the special values
-/// are those of `add_ctx` with `other` negated: `x - x` is -0 under
-/// `RoundTowardNegative` and +0 otherwise, and the difference of equal infinities
-/// is NaN with `invalid_operation`.
+/// are those of `add_ctx` applied to `self` and `other` negated: a difference
+/// of two infinities of the same sign is NaN with `invalid_operation`, and a
+/// zero difference is -0 under `RoundTowardNegative` or when both operands of
+/// the sum are -0 (`-0 - +0`), and +0 otherwise.
 pub fn Decimal::sub_ctx(
   self : Decimal,
   other : Decimal,
