@@ -91,7 +91,7 @@ test "classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over t
 // source: written out by hand: 1/3 at 8 bits lies between 1.0101010b * 2^-2 = 0.33203125 and 1.0101011b * 2^-2 = 0.333984375; 1/3 is above 1/4 and below 1/2, above the double nearest to it (which lies below 1/3) and below the next double; 1024/3 lies between 341 and 342; 1/3 is above -1
 // shares: pw_ival, pw_num (Binary::from_double and Interval::from_bounds) and the BinCoeff helpers build the inputs; the comparisons compare; pow_rev1 and the class functions are the code under test
 // oracle: A
-// source: worked by hand: 1/3 = 0.010101...b is not a float; at 53 bits RD(1/3) = 0x1.5555555555555p-2 and the next float up 0x1.5555555555556p-2 is above it; at 8 bits RD = 1.0101010b * 2^-2 = 0.33203125 and RU = 1.0101011b * 2^-2 = 0.333984375; 1/3 * 2^10 lies between 341 and 342
+// source: worked by hand: 1/3 = 0.010101...b is not a float; at 53 bits RD(1/3) = 0x1.5555555555555p-2 and the next float up 0x1.5555555555556p-2 is above it; at 8 bits RD = 1.0101010b * 2^-2 = 0.33203125 and RU = 1.0101011b * 2^-2 = 0.333984375; 1/9 = 227.55 * 2^-11 at 8 bits, RD = 227 * 2^-11 and RU = 228 * 2^-11 (a denominator of 4 bits); 1/3 * 2^10 lies between 341 and 342
 // shares: pw_num, Binary::from_double and the BinCoeff constructor build the inputs; the integer comparisons compare; pow_rational_compare and pow_rational_round are the code under test
 test "rational class: comparison and directed rounding of 2^E / D" {
   let three = @binary.BinCoeff::from_uint64(3UL)
@@ -109,6 +109,21 @@ test "rational class: comparison and directed rounding of 2^E / D" {
   assert_true(down.compare(@binary.Binary::from_double(0.33203125)) == 0)
   assert_true(up.compare(@binary.Binary::from_double(0.333984375)) == 0)
   // 1/3 * 2^10 and a negative or zero float
+  // 1/9 at 8 bits: a denominator of 4 bits; 1/9 = 0.000111000111...b = 227.55 * 2^-11, so
+  // RD = 227 * 2^-11 and RU = 228 * 2^-11
+  let nine = @binary.BinCoeff::from_uint64(9UL)
+  assert_true(
+    pow_rational_round(nine, 0, false, 8).compare(
+      @binary.Binary::from_double(227.0 / 2048.0),
+    ) ==
+    0,
+  )
+  assert_true(
+    pow_rational_round(nine, 0, true, 8).compare(
+      @binary.Binary::from_double(228.0 / 2048.0),
+    ) ==
+    0,
+  )
   assert_eq(pow_rational_compare(three, 10, pw_num(341.0, 53)), 1)
   assert_eq(pow_rational_compare(three, 10, pw_num(342.0, 53)), -1)
   assert_eq(pow_rational_compare(three, 0, pw_num(-1.0, 53)), 1)

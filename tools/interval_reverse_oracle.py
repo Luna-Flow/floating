@@ -150,6 +150,8 @@ def rows() -> list[tuple[str, str, int, Dyadic, Dyadic]]:
         out.append((f"p1-sub-{p}", "p1", p, (-1, -30), two_less))
         # 1 / (3 * 2^(2^30 - 2)) = 2^E_MIN / 3: a rational below the normal range
         out.append((f"p1-third-{p}", "p1", p, (-1, 0), (3, (1 << 30) - 2)))
+    # 1/9 at 8 bits: a denominator of 4 bits; RD = 227 * 2^-11, RU = 228 * 2^-11
+    out.append(("p1-ninth-8", "p1", 8, (-1, 0), (9, 0)))
     # 2^(1 / (1 + 2^-500)) at 501 bits
     out.append(("p1-near-two-501", "p1", 501, ((1 << 500) + 1, -500), (2, 0)))
     # a base one unit from 1, three results
