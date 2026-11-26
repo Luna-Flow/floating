@@ -252,7 +252,7 @@ test "compound special values (9.2.1)" {
       #|compound(-Infinity, 0) = nan v
       #|compound(-1, -3) = inf z
       #|compound(-1, 3) = 0 -
-      #|compound(-1.0, 2) = 0 -
+      #|compound(-1.0, 2) = 0.00 -
       #|compound(0, 5) = 1 -
       #|compound(-0, -5) = 1 -
       #|compound(0.00, 3) = 1.000000 -
