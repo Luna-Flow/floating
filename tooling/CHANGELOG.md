@@ -9,6 +9,28 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+### 0.12.0 summary
+
+The 0.12 release of the tools follows the library: the packages, tools and data that carried the name of the interval type or of `bin_float` are renamed, the corpus frontends and the differential stages judge more of the library's behaviour against independent oracles, and the gates can reuse verified work. The module has the version of the library and imports it. This summary lists each change once; the entries below it are the detailed record.
+
+**Breaking**
+
+- Renames: the benchmark suites, the kernel path, `SemanticInterval::from_ball_float`, the `testdata` directory and the corpus scripts that carried `ball_float` or `bin_float` follow the library (`bench/interval`, `bench/binary`, `SemanticInterval::from_interval`, `testdata/binary`, `tools/run_binary_interpreter.py`, `tools/fetch_binary_corpora.py`, `.tmp/binary-conformance`); the table "Names changed in 0.12" below has every row.
+- `@gda_expr.RunOptions::new(deviations=...)` and `RunOptions::deviations` take tuples of four fields, `(key, corpus value, held value, held flags?)`; `None` for the flags keeps the former behaviour.
+
+**Added**
+
+- `just verify <scope>` runs the gate of a scope with incremental verification (binary, `interval` and `decimal_gda` today): a unit whose key is in the ledger is reused, with the commit it ran on; `just gate quick` and `just pr` run their native test stage the same way.
+- One gate run per worktree: a second run in the same worktree refuses at once with exit status 75 ([#728](https://github.com/Luna-Flow/floating/issues/728)).
+- Differential stages: `tools/interval_diff.py` compares `interval` against MPFR and an oracle in Python integers (the last stage of `just gate interval`); the decTest stage records deviations of the corpus (`testdata/decimal_gda/deviations.tsv`); `tools/check_corpus_contexts.py` checks the context of every corpus row (stage `CONTEXTS: corpus`); the nightly workflow runs the workspace unit tests on `js`, `wasm` and `wasm-gc`.
+- External baseline: `bench/external` runs on native, wasm and js; each case has a target and a limit ratio and the table of `just bench external table OLD NEW...` compares runs.
+
+**Fixed**
+
+- `@itl_expr.execute_case` reports an interval literal that is not an interval (`[2,1]`, `[nan,1]`, `[inf,inf]`) as a `Diagnostic` and no longer aborts ([#788](https://github.com/Luna-Flow/floating/issues/788)).
+- `tools/generate_decimal_pi_inverse_rows.py --check` no longer ends in an `IndexError` ([#785](https://github.com/Luna-Flow/floating/issues/785)).
+- `frontend/itl_expr` reads each decimal and hexadecimal constant with `Binary::from_string_ctx` and `from_hex_ctx`, so a constant is rounded once (`1 + 2^-53 + 1e-130` reads as `0x1.0000000000001p0`); the TestFloat gate judges the operation and not a further rounding of the harness; the MPFR random generator keeps nearest-away rows below the smallest normal number.
+
 - `@itl_expr.execute_case` reports an interval literal that is not an interval (`[2,1]`, `[nan,1]`, `[inf,inf]`, `[1e400,1e400]`, `[-inf,-inf]`) as a `Diagnostic` through `Interval::try_from_bounds` and no longer aborts, so one bad case does not stop a corpus run ([#788](https://github.com/Luna-Flow/floating/issues/788)).
 
 - The corpus stage reads an optional eighth column of `testdata/decimal_gda/deviations.tsv`, the held flags of a recorded row: the stage then judges the flags of the row against them and not against the conditions of the row (a row with seven columns is judged as before). The tuple of `@gda_expr.RunOptions::new(deviations=...)` and of `RunOptions::deviations` grows by one optional field, `(key, corpus value, held value, held flags)`, with `None` for the former behaviour ([#764](https://github.com/Luna-Flow/floating/issues/764)). Three rows of `rescale0.decTest` use it.

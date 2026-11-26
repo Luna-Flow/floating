@@ -6,6 +6,51 @@ notes live in this file.
 
 ## Unreleased
 
+### 0.12.0 summary
+
+0.12 makes the three number packages (`binary`, `decimal`, `decimal_gda`) and the interval package follow IEEE 754-2019, GDA 1.70 and IEEE 1788-2015 clause by clause, and renames the packages and public names that did not (`bin_float` is `binary`, `ball_float` is `interval`). The plain operators, the contexts and the constructors mean one thing in each package, and the binary and decimal kernels are faster. This summary lists each change once; the entries below it are the detailed record, with the migration tables.
+
+**Breaking**
+
+- Renames: every package, type and function renamed since 0.11.0 is one row of the table in "Names changed in 0.12" (`bin_float` to `binary`, `BinFloat` to `Binary`, `ball_float` to `interval`, `BallFloat` to `Interval`, `BinFloatResult` to `BinaryChecked`, `sign` to `signum`, `exp_interval` to `exp`). No alias is kept.
+- Equality: `Binary` `==` is `compare(a, b) == 0` (`-0 == +0`, any precision), `Interval` `==` is set equality; the structural relation is `identical` (on `decimal` too: it compares representations; tables in the entries on `Binary`'s `==` and on `Interval`'s `==`).
+- Contexts are formats: `BinaryContext::new(precision=p, e_max=b)` and `DecimalContext` derive `e_min = 1 - e_max`, `RoundAwayFromZero` leaves `binary`, a `DecimalContext` has one `rounding` of the five IEEE directions, `IntervalContext` is a binary format, and `GdaContext::new` accepts only the exponent ranges of GDA 1.70 page 10.
+- Exports: `decimal` exports the IEEE 754-2019 operations only (`next_toward_ctx` and `DecimalChecked::next_toward` leave; `decimal_gda` keeps `next_toward`), `decimal_gda` exports its GDA layer only, `Interval` no longer implements `@def.Floating`, and `def`'s `Floating::with_precision` has no rounding parameter.
+- Constructors check where a value is made: a precision outside its range, a NaN payload that does not fit, or a finite `decimal` or `decimal_gda` value outside the stored range aborts (the value-returning constructor) or returns `Err` (`from_string`, `try_make`, the checked tiers).
+- Result types: `Decimal::from_string` returns a `Result` and `parse` is removed, `Binary::sqrt` and `pown` return a `Binary`, `Decimal::sqrt` returns a `Decimal`, and the decimal interchange decoders return a `Result`.
+- Plain operators: `+ - * /` and `sqrt` of `decimal` and `decimal_gda` are the context operations in a private working context (round half even, no flags), and `decimal_gda::Decimal::make` keeps the exponent it is given.
+- Comparison: `compare_ctx` becomes `compare_quiet` and `compare_signal_ctx` becomes `compare_signaling`, both returning `(@def.PartialOrder, DecimalFlags)`.
+- Conversions between radices take a required precision and the rounding type of the result: `Decimal::from_binary(x, precision=p)`, `to_binary`; `Interval::from_int` takes a required precision.
+- Errors: a result the library cannot compute raises the new `not_computed` flag, no longer `invalid_operation`, the `try_` forms return a value for every case IEEE 754-2019 defines, and the errors of the checked tier name the operation.
+- Interval text and observers: `to_string` writes the inf-sup literal `[l, u]` (the midpoint-radius text is `to_midpoint_radius_string`), the numeric functions return the zero signs of IEEE 1788-2015 12.12.8, `midpoint` and `radius` are total, `OverlapState` follows Table 10.7, and a stored bound has at most `precision` bits.
+- Flags and signals: the fields of the flag and trap types are private (read each flag with the method of its name), `GdaSignal` and `GdaTrapSet` have the nine signals of GDA 1.70, and `GdaContext::status` is `flags`.
+- Pipelines: the right operand of a binary operation of `decimal_checked` and `decimal_gda_checked` is a pipeline, not a plain `Decimal`.
+- Single-name changes, one line each in the entries: `scaleb_ctx` takes a `Binary` count; `Binary::inf` takes a flag; `round_ctx` is `apply_ctx`; the inherent `Binary::div_checked` and `Decimal::div_checked` are removed (the trait form stays); `BinCoeff` is abstract; `Decimal::min` and `max` of `decimal_gda` are removed; `Decimal::quantum` is removed (use `exponent10`; `decimal` has the operation `quantum_ctx`); `pow`, `pown` and `powr` of `decimal` refuse a precision above 999,999 digits.
+
+**Added**
+
+- `interval`, `interval_checked`: the integer functions of IEEE 1788-2015 Table 9.1 (`ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away`), the reverse functions of 10.5.4, 10.5.5 and Table 10.1 (`mul_rev`, `mul_rev_to_pair`, `sqr_rev`, `abs_rev`, `pown_rev`, `cosh_rev`, `sin_rev`, `cos_rev`, `tan_rev`, `pow_rev1`, `pow_rev2`, `atan2_rev1`, `atan2_rev2`), `from_string` (`textToInterval`), and `to_exact_string` with `from_exact_string`.
+- `binary`, `decimal`: every comparison predicate of IEEE 754-2019 5.11; `Binary::ilogb`; `DecimalContext::elementary_precision_limit`; `Decimal::quantum_ctx`; `BinaryChecked::error`; `decimal_gda::Decimal::identical` and `try_make`; `Binary::try_exp_directed_pair` and `try_ln_directed_pair`.
+
+**Fixed** (user-visible defects)
+
+- `decimal`: exact-zero exponent of `pow` family results ([#843](https://github.com/Luna-Flow/floating/issues/843)); wrong values at the ends of the stored range ([#676](https://github.com/Luna-Flow/floating/issues/676), [#806](https://github.com/Luna-Flow/floating/issues/806)).
+- `binary`: wrong `from_string_ctx` for a 19-digit exponent field ([#624](https://github.com/Luna-Flow/floating/issues/624)); `from_hex_ctx` refusing a valid far exponent ([#597](https://github.com/Luna-Flow/floating/issues/597)); `exp`, `expm1`, `sinh`, `pow` and others failing to certify near the overflow threshold ([#569](https://github.com/Luna-Flow/floating/issues/569), [#680](https://github.com/Luna-Flow/floating/issues/680)); `to_decimal_string_ctx` aborting at the ends of the exponent range ([#677](https://github.com/Luna-Flow/floating/issues/677)).
+- `interval`: results not tightest or not containing their center at the ends of the exponent range ([#576](https://github.com/Luna-Flow/floating/issues/576), [#578](https://github.com/Luna-Flow/floating/issues/578), [#579](https://github.com/Luna-Flow/floating/issues/579), [#581](https://github.com/Luna-Flow/floating/issues/581), [#582](https://github.com/Luna-Flow/floating/issues/582), [#583](https://github.com/Luna-Flow/floating/issues/583), [#606](https://github.com/Luna-Flow/floating/issues/606), [#607](https://github.com/Luna-Flow/floating/issues/607), [#628](https://github.com/Luna-Flow/floating/issues/628), [#629](https://github.com/Luna-Flow/floating/issues/629), [#631](https://github.com/Luna-Flow/floating/issues/631), [#645](https://github.com/Luna-Flow/floating/issues/645), [#657](https://github.com/Luna-Flow/floating/issues/657)); `radius` not the `rad` of 12.12.8 ([#477](https://github.com/Luna-Flow/floating/issues/477)); the total elementary forms aborting at high precision ([#449](https://github.com/Luna-Flow/floating/issues/449)); `from_string` ordering of hexadecimal bounds ([#663](https://github.com/Luna-Flow/floating/issues/663)); endpoint precision labels ([#644](https://github.com/Luna-Flow/floating/issues/644)).
+- `decimal_gda`: `exp_ctx` rounding beyond its range guards ([#796](https://github.com/Luna-Flow/floating/issues/796)), and the subset (`extended=false`) rules of GDA 1.70 Appendix A ([#647](https://github.com/Luna-Flow/floating/issues/647), [#656](https://github.com/Luna-Flow/floating/issues/656), [#754](https://github.com/Luna-Flow/floating/issues/754), [#759](https://github.com/Luna-Flow/floating/issues/759), [#761](https://github.com/Luna-Flow/floating/issues/761) to [#765](https://github.com/Luna-Flow/floating/issues/765), [#770](https://github.com/Luna-Flow/floating/issues/770), [#800](https://github.com/Luna-Flow/floating/issues/800)).
+
+**Changed** (not breaking)
+
+- `decimal_gda`: the subset `ln` takes the certified route, so on rare operands the last digit changes by one unit to the correctly rounded value ([#649](https://github.com/Luna-Flow/floating/issues/649)).
+
+**Performance** (instructions per call, same-executable comparison; the numbers are from the entries named)
+
+- `binary`: `add_ctx`, `sub_ctx`, `mul_ctx` and `div_ctx` of 53-bit operands in a context without `e_max` fall from 1,161, 1,341, 1,586 and 2,320 to 410, 388, 423 and 499 instructions; a bounded range such as `binary64()` is unchanged (entry on the word route, with its table).
+- `binary`: wide `mul` takes 0.97, 0.86 and 0.75 of the instructions at 768, 1,024 and 2,048 bits; wide `div` 0.92 at 512 bits down to 0.56 at 8,192; `ln` 0.83 at 640 bits and 0.44 at 2,048 of the former Newton step; on Apple arm64, `mul`, `div` and `sqrt` at 2,048 and 8,192 bits 0.67 to 0.88.
+- `binary`: `BinaryFlags` is a scalar and a `Binary` of at most 128 bits is one heap object (fewer allocations per call; no call changes).
+- `decimal`, `decimal_gda`: faster coefficient kernels (product, square, division, integer square root, rounding by a power of ten) and a direct path for the plain case of `add`, `sub`, `mul`, `div`; `decimal_gda` binary-decimal conversions no longer pass through a host big integer.
+- `interval`: bounds of sums, differences and products are made once at the precision, and `exp` and `ln` of a point ball make one certified evaluation.
+
 ### Breaking
 
 - Names changed in 0.12 ([#438](https://github.com/Luna-Flow/floating/issues/438)). The table has one row for every public name that was renamed between 0.11.0 and this release (an item that is removed, or whose signature changed, is in the entry below that describes it), sorted by package (the package as it is named in 0.12): the name in 0.11.0 and the name now. A name that changed more than once during the release cycle has one row, from the 0.11.0 name to the final one. No behaviour changes with these renames and no alias is kept; the entries below describe the changes of behaviour and of signatures, with the names of 0.12 (the first column of their tables is the 0.11.0 form).
