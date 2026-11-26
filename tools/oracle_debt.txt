@@ -149,45 +149,12 @@ library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: exact powers of ten with a non-integral exponent	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 349: non-exact powers of ten are unchanged	A
 library/src/decimal/power_exact_and_large_exponent_issue348_349_350_wbtest.mbt::issue 350: no clamped for an inexact pown result near 1	A
-library/src/decimal/power_exact_wbtest.mbt::decimal power decides exact powers with large reduced exponents	A
-library/src/decimal/power_exact_wbtest.mbt::decimal power keeps inexact non-integral results inexact	A
-library/src/decimal/power_exact_wbtest.mbt::decimal power rounds exact non-integral results beyond the precision	A
-library/src/decimal/power_exact_wbtest.mbt::decimal power rounds long exact non-integral results in every mode	A
-library/src/decimal/power_exact_wbtest.mbt::decimal try power reports a certification failure	A
 library/src/decimal/power_huge_exponent_issue196_wbtest.mbt::integral exponents beyond 4096 digits overflow or underflow (#196)	A
 library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt::an inexact integer power that rounds to a power of ten is delivered with precision digits, not folded down (#305)	A
 library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt::an inexact integer power keeps precision digits, trailing zeros included (#266)	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer exponent spellings preserve parity	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer negative powers match directed oracle values	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers enforce the expansion budget	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers honor all rounding modes	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers keep signed zero and infinity	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers support extended and subset contexts	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers work at precision nine	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal large integer powers work in the default context	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal power handles integral exponents beyond the bounded count	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal power handles zero and infinity at large integer exponents	A
-library/src/decimal/power_large_exponent_issue167_wbtest.mbt::decimal power keeps zero defined for tiny nonintegral exponents	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power bounds extreme negative exponent work	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power checks both sides across all rounding modes	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power handles large negative exponents for fractional bases	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power keeps finite values below overflow boundaries	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power large fractional bases cover interchange formats and modes	A
-library/src/decimal/power_negative_exponent_issue193_wbtest.mbt::decimal power preserves negative overflow sign	A
 library/src/decimal/power_overflow_sign_issue265_wbtest.mbt::power overflows with the sign of the power, not of the reciprocal (#265)	A
 library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt::pow and pown results take the preferred exponent (#194)	A
 library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt::an exact negative integer power keeps the cohort of its reciprocal (#284)	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal integer powers are correctly rounded	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal power rejects contexts outside the math function range	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal power returns exact non-integral powers	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal pown keeps the integer exponent exact	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal rootn and hypot return exact results exactly	A
-library/src/decimal/power_rounding_wbtest.mbt::decimal rootn handles large degrees	A
-library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power handles signed zero infinity and Int exponent limits	A
-library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power identities across formats modes and checked routes	A
-library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power negative exponent on zero raises division by zero	A
-library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power special values for one and infinite exponents	A
-library/src/decimal/power_special_values_issue166_wbtest.mbt::decimal power special values for zero exponents	A
 library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt::an integer power just below 10^Emin is subnormal although it rounds to 10^Emin (#268)	A
 library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt::an inexact subnormal integer power raises Underflow (#342)	A
 library/src/decimal/power_underflow_rounding_issue168_wbtest.mbt::decimal integer powers below Etiny round in the rounding direction (#168)	A
