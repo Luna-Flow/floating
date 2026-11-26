@@ -273,7 +273,7 @@ fn regression_digests() -> RegressionDigests {
 ///|
 // oracle: A
 // source: the 12 digests are reproduced by tools/kernel_oracle.py (table regression: CPython integers, the same seed, generator and shapes); `python3 tools/kernel_oracle.py --check` compared the 12 digests with the literals of this block on this branch. They were first recorded with the 32-bit-limb implementation, and do not rest on any implementation of this repository
-// shares: nothing
+// shares: the regression_mix helpers (byte and string folding) and the Coeff accessors the digests read through (to_bytes_be, to_radix_string, Coeff::parse, bit_length, ctz, test_bit), plus bin_coeff_sqrt_rem_kernel and the Coeff arithmetic being digested; the literals do not depend on them, they were produced by kernel_oracle.py
 test "Coeff regression digests (recorded with the 32-bit-limb implementation)" {
   let d = regression_digests()
   assert_eq(d.add, 16834754901792827537UL)
