@@ -457,6 +457,7 @@ msgstr "规模"
 
 #: manual/api/bench/external.md:39
 #: manual/api/def.md:199
+#: manual/performance/decimal.md:21
 msgid "Implementation"
 msgstr "实现"
 
@@ -11926,7 +11927,7 @@ msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏�
 #: manual/conformance/decimal.md:95
 #: manual/conformance/decimal_gda.md:190
 #: manual/conformance/interval.md:116
-#: manual/performance/decimal.md:35
+#: manual/performance/decimal.md:41
 #: manual/performance/decimal_gda.md:35
 #: manual/performance/interval.md:26
 msgid "Reproduction"
@@ -25907,50 +25908,73 @@ msgid "decimal performance"
 msgstr "decimal 性能"
 
 #: manual/performance/decimal.md:5
-#: manual/performance/decimal_gda.md:5
-#: manual/performance/interval.md:5
-msgid "Measurement boundary"
-msgstr "测量边界"
+msgid "Method and scope"
+msgstr "方法与范围"
 
 #: manual/performance/decimal.md:7
-msgid "`just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
-msgstr "`just bench decimal --target native` 运行 `tooling/src/bench/decimal` 中当前的 Maremark 基准套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门槛。当前分支没有签入的十进制性能清单或阈值流程；测量使用下面的 Maremark 套件。"
+msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite."
+msgstr "命令 `just bench decimal --target native` 会运行 `tooling/src/bench/decimal` 中当前的 Maremark 套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门禁。当前分支没有签入的十进制性能清单或阈值工作流；测量使用该 Maremark 套件。"
 
 #: manual/performance/decimal.md:15
-msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell compares a `BigInt` coefficient baseline (`kernel/coefficient`), the contextual `Decimal` path (`core/decimal`, the `*_ctx` operations) and the full `DecimalChecked` path (`full/checked`), and validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
-msgstr "该套件在 9、34、128 和 512 位十进制数字下测量加法、乘法和除法。每个单元格比较 `BigInt` 系数基线（`kernel/coefficient`）、contextual `Decimal` 路径（`core/decimal`，即 `*_ctx` 运算）以及完整的 `DecimalChecked` 路径（`full/checked`），并用精确的 `BigInt` 参考值验证每个输出。输入构造和期望值构造都不计入计时部分。"
+msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
+msgstr "该套件在 9、34、128 和 512 位十进制数字下测量加法、乘法和除法。每个单元格都会使用精确的 `BigInt` 参考值验证每个输出。输入创建和期望值构造均不计入计时负载。"
 
-#: manual/performance/decimal.md:22
-msgid "The reference exponent and precision limits admit contexts up to `999,999,999`. Such contexts are valid but can require very large coefficient work: debug-native probes at that limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases. Choose a smaller precision for interactive work and treat the large limit as a compatibility boundary."
-msgstr "参考指数和精度上限允许上下文达到 `999,999,999`。这些上下文有效，但可能需要大量系数运算：在该上限下进行的 debug-native 探测中，某些 `plus`、`min` 和 `quantize` 用例耗时超过 25 秒。交互式工作建议使用较小精度，并将此上限视为兼容性边界。"
+#: manual/performance/decimal.md:19
+msgid "Each cell compares three paths:"
+msgstr "每个单元格比较三条路径："
 
-#: manual/performance/decimal.md:28
+#: manual/performance/decimal.md:21
+msgid "Path label"
+msgstr "路径标签"
+
+#: manual/performance/decimal.md:23
+msgid "`BigInt` coefficient baseline"
+msgstr "`BigInt` 系数基线"
+
+#: manual/performance/decimal.md:24
+msgid "contextual `Decimal` path (`*_ctx` operations)"
+msgstr "带上下文的 `Decimal` 路径（`*_ctx` 运算）"
+
+#: manual/performance/decimal.md:25
+msgid "full `DecimalChecked` path"
+msgstr "完整的 `DecimalChecked` 路径"
+
+#: manual/performance/decimal.md:27
+msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility limit."
+msgstr "参考指数和精度的实现限制允许上下文达到 `999,999,999`。这些上下文有效，但可能需要非常大量的系数计算：在 `999,999,999` 限值下进行的 debug-native 探测中，某些 `plus`、`min` 和 `quantize` 用例耗时超过 25 秒（方法未记录）。交互式工作请选择较小的精度，并将该较大限值视为兼容性限制。"
+
+#: manual/performance/decimal.md:34
 #: manual/performance/decimal_gda.md:27
 #: manual/performance/interval.md:19
 msgid "Reading results"
 msgstr "读取结果"
 
-#: manual/performance/decimal.md:30
-msgid "`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
-msgstr "`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。结果只描述当前 tree、toolchain 和 target，可用于定位 hotspot，但不能证明通用 crossover 或 release-wide latency bound。"
+#: manual/performance/decimal.md:36
+msgid "In the output, `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
+msgstr "在输出中，`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。结果描述当前代码树、工具链和目标平台。它们可用于定位热点，但不能确立通用交叉点或适用于整个发布的延迟上界。"
 
-#: manual/performance/decimal.md:42
+#: manual/performance/decimal.md:48
 msgid "The all-suite run also covers binary, GDA, and interval kernels. It is safe to compare artifacts only when the target, toolchain, workload, and benchmark protocol are held constant."
 msgstr "all-suite 运行也覆盖 binary、GDA 和 interval kernel。只有在 target、toolchain、workload 和 benchmark protocol 相同的情况下，artifact 才适合比较。"
 
-#: manual/performance/decimal.md:46
+#: manual/performance/decimal.md:52
 #: manual/performance/decimal_gda.md:55
 #: manual/performance/interval.md:36
 msgid "Semantic gate"
 msgstr "语义门禁"
 
-#: manual/performance/decimal.md:48
+#: manual/performance/decimal.md:54
 msgid "Benchmark equivalence checks are necessary but not sufficient. Optimized decimal routes must also pass coefficient differential tests and the pinned IEEE decimal and GDA conformance gates before they are accepted. See [Conformance](../conformance/decimal.md), [Design](../design/decimal.md), and the [0.7.1 performance and semantic audit](../performance_audit.md)."
 msgstr "benchmark equivalence check 是必要条件，但不是充分条件。优化后的 decimal 路径还必须通过 coefficient differential test 以及固定的 IEEE decimal、GDA conformance gate，才能被接受。参见[一致性说明](../conformance/decimal.md)、[设计](../design/decimal.md)和[0.7.1 性能与语义审计](../performance_audit.md)。"
 
 #: manual/performance/decimal_gda.md:1
 msgid "decimal_gda performance"
 msgstr "decimal_gda 性能"
+
+#: manual/performance/decimal_gda.md:5
+#: manual/performance/interval.md:5
+msgid "Measurement boundary"
+msgstr "测量边界"
 
 #: manual/performance/decimal_gda.md:7
 msgid "`just bench decimal-gda --target native` runs the current Maremark suite in `tooling/src/bench/decimal_gda` and writes `.tmp/bench/decimal-gda.jsonl` plus its analysis file. The independent quick fixture can be run with `python3 tools/run_gda_benchmark.py`; it writes `.tmp/bench/gda-quick-native.json` and uses three native runs per cell. Neither artifact is a universal speed claim or a substitute for the conformance gate."
@@ -32988,6 +33012,12 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
 
+#~ msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell compares three paths:"
+#~ msgstr "该套件在 9、34、128 和 512 位十进制数字下测量加法、乘法和除法。每个单元格比较三条路径："
+
+#~ msgid "Each cell validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
+#~ msgstr "每个单元格都会使用精确的 `BigInt` 参考值验证每个输出。输入创建和期望值构造均不计入计时负载。"
+
 #~ msgid "All four fast-path operations"
 #~ msgstr "四种快速路径运算"
 
@@ -36558,9 +36588,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 
 #~ msgid "Read failures as repository-maintenance signals; this package is not a standalone end-user product."
 #~ msgstr "把失败理解为仓库维护信号；本包不是独立的最终用户产品。"
-
-#~ msgid "Failure And Scope"
-#~ msgstr "失败与范围"
 
 #~ msgid "The package runs only under tests and performs no filesystem or process effects. Do not import this package as a substitute for the numeric packages it supports."
 #~ msgstr "该包只在测试中运行，不执行文件系统或进程副作用。 不要把本包当作其所支撑数值包的替代入口。"
