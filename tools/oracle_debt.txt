@@ -82,53 +82,9 @@ library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root equals the
 library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root: perfect powers plus or minus one, both sides of every rounding boundary	B
 library/src/binary/tanh_saturation_issue185_wbtest.mbt::tanh saturates to the correctly rounded value for large arguments (#185)	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
-library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal atan certifies tiny decimal128 arguments	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary domains and atan2 signed zeros are explicit	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary extensions honor context rounding	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary extensions preserve exact identities	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal extreme exp avoids unbounded dyadic endpoint expansion	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal extreme exp detects tininess before rounding	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal noninteger power preserves IEEE exact result semantics	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal pi-scaled functions follow IEEE exact special values	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal saturation shortcut covers thresholds and narrow contexts	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal tanh and expm1 certify saturated finite results	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal tiny elementary arguments certify all issue 170 families	?
-library/src/decimal/elementary_extensions_wbtest.mbt::Decimal try power exposes certified evaluation as Result	?
-library/src/decimal/elementary_outcomes_wbtest.mbt::decimal checked tier: the two kinds of Err stay apart	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::acosPi special values (9.2.1, Table 9.1)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::anchors: both sides in all eight modes (precision 16)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::asinPi special values (9.2.1, Table 9.1)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::atan2Pi: quiet and signaling NaN operands	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::atan2Pi: the special cases of 9.2.1	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::atan2Pi: |y| = |x| is exactly +-1/4 or +-3/4 (Niven)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::atanPi special values (9.2.1)	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::checked tier methods	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::exact results are at the preferred exponent 0 (9.2.2)	?
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::pi inverse generated rows: exact and certified results, cohort and flags	A
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::tiny and huge operands: relative width of the enclosure	?
-library/src/decimal/elementary_pi_inverse_wbtest.mbt::underflow of the Pi functions follows the context (Table 9.1)	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 NaN operands: quiet NaN propagates, signaling NaN signals invalid	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 enclosures stay relatively tight down to 10^-1999997	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 exact results are rounded with the flags of the context	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 exact results take the preferred exponent 0 (9.2.2)	?
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 generated rows: exact and MPFR-certified results, cohort and flags	A
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 log of 1 is not a special rule: log2p1(1) = 1, log10p1(1) inexact	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 log poles: operands with D digits just above -1 at D = 52, 500, 5000	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 log2p1 decides 2^k - 1 for a long operand by its lowest unit	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 restricted contexts and operands are not computed	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 special values follow 9.2.1 in every rounding mode	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 the 10^n - 1 cluster is decided without forming 10^n	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 the power range refactor keeps pow results	?
-library/src/decimal/elementary_pm1_wbtest.mbt::pm1 zero results keep the sign of the operand in every mode	?
-library/src/decimal/elementary_range_wbtest.mbt::certified results far outside the decimal range stay bounded	?
-library/src/decimal/elementary_range_wbtest.mbt::hyperbolic functions overflow without expanding huge endpoints	?
-library/src/decimal/elementary_rcp_wbtest.mbt::compound at Int32.min_value	?
-library/src/decimal/elementary_rcp_wbtest.mbt::compound special values (9.2.1)	?
-library/src/decimal/elementary_rcp_wbtest.mbt::powr special values (9.2.1) and the pow agreement	?
 library/src/decimal/elementary_rcp_wbtest.mbt::rcp generated rows: exact and certified results, cohort and flags	A
-library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)	?
-library/src/decimal/elementary_rcp_wbtest.mbt::rsqrt special values (9.2.1, Table 9.1)	?
 library/src/decimal/elementary_special_values_wbtest.mbt::decimal atan2 handles zero and infinite operands	A
 library/src/decimal/elementary_special_values_wbtest.mbt::decimal cosh log2 and log1p of infinities	A
 library/src/decimal/exp_after_rounding_tininess_issue333_wbtest.mbt::exp far below the range is tiny when etiny = e_min (#333)	A

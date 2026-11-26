@@ -180,6 +180,9 @@ test "pm1 generated rows: exact and MPFR-certified results, cohort and flags" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1, Table 9.1 and 9.2.2 (read from the PDF text in this session): f(+-0) is +-0, f(+inf) is +inf for log2p1 and log10p1 and for exp2m1 and exp10m1, f(-inf) is -1 for the two exponentials, log2p1 and log10p1 of -1 are -inf with divideByZero, of anything below -1 or of -inf invalid operation with a quiet NaN; zero results at exponent 0; the 36 lines are written out and checked in each of the eight directions and three contexts
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 special values follow 9.2.1 in every rounding mode" {
   // IEEE 754-2019 9.2.1: "For the operations sin, tan, ..., expm1, exp2m1,
   // exp10m1, logp1, log2p1, and log10p1, f(+0) is +0 and f(-0) is -0 with no
@@ -261,6 +264,9 @@ test "pm1 special values follow 9.2.1 in every rounding mode" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 6.2.3 and 9.2: a signaling NaN operand signals invalid and gives a quiet NaN, a quiet NaN keeps its payload if the format can hold it (decimal32 holds 6 payload digits, decimal64 15, 3.5.2); the sign of the NaN result is not specified (6.3), the library keeps the operand's sign, and a payload that does not fit keeps its low digits: those two details are the library's convention (level S)
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 NaN operands: quiet NaN propagates, signaling NaN signals invalid" {
   // IEEE 754-2019 9.2: "An operation that returns a floating-point result
   // shall return a quiet NaN as a result if there is a signaling NaN among the
@@ -345,6 +351,9 @@ test "pm1 NaN operands: quiet NaN propagates, signaling NaN signals invalid" {
 }
 
 ///|
+// oracle: A, S
+// source: the limit is the library's documented one (precision or e_max beyond 999,999, adjusted operand exponent outside -1,999,997 to 999,999, shared with decNumber): the Err cases are that design limit (level S); the least legal operand -1E-1999997 gives -0E-1000013 with inexact and underflow by arithmetic: the exact value is -c * 1E-1999997 with c below 3.4, far below half of 1E-1000013 (Etiny = e_min - precision + 1 = -999998 - 15)
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 restricted contexts and operands are not computed" {
   // The decimal math functions share the decNumber limits: a precision or an
   // exponent bound beyond 999,999, or an operand outside
@@ -374,6 +383,9 @@ test "pm1 restricted contexts and operands are not computed" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1, Table 9.1 and 9.2.2 (read from the PDF text in this session) and 5.2: the preferred exponent is 0 and exact results are the plain integers or terminating decimals: 2^4 - 1 = 15, 1 - 2^-1 = 0.5, 2^50 - 1 = 1125899906842623, 10^2 - 1 = 99, log2(1024) = 10, log2(1/2) = -1, log2(1/16) = -4, log10(10) = 1, log10(10^9) = 9, log10(1/10) = -1, log10(1/100) = -2; each argument cohort (1, 1.000, 10E-1) gives the same text; written out
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 exact results take the preferred exponent 0 (9.2.2)" {
   // IEEE 754-2019 9.2.2: "The preferred exponent for operations in sub-clause
   // 9.2 is 0" (exp2m1, exp10m1, log2p1 and log10p1 are not among the
@@ -440,6 +452,9 @@ test "pm1 exact results take the preferred exponent 0 (9.2.2)" {
 }
 
 ///|
+// oracle: A
+// source: mathematics and IEEE 754-2019 9.2.1 (f(1) = +0 is listed for log, log2 and log10 only): log2(1 + 1) = 1 exactly and log10(2) = 0.30102999566... rounds to 0.3010300 at 7 digits, inexact (CPython decimal log10 of 2 at 7 digits agrees)
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 log of 1 is not a special rule: log2p1(1) = 1, log10p1(1) inexact" {
   // 9.2.1 states f(1) = +0 only for log, log2 and log10; for log2p1 the
   // argument 1 means 1 + x = 2, an exact result 1 (and an inexact one for
@@ -455,6 +470,9 @@ test "pm1 log of 1 is not a special rule: log2p1(1) = 1, log10p1(1) inexact" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 4.3 (the sign of an inexact result is the sign of the unrounded result; quoted in the block) and 7.5: for |x| = 1E-1999996 every value f(x) is about c x, below half of the least subnormal 1E-398 at 16 digits and Emin -383 (Etiny = -383 - 15 = -398), so it rounds to 0 or the least subnormal by direction (ceiling and up for positive, floor and up for negative, 05up away from zero because the kept digit is 0), flags inexact and underflow; written out
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 zero results keep the sign of the operand in every mode" {
   // A result below half the smallest subnormal rounds to a zero (or the
   // smallest subnormal) of the sign of the exact result, which is the sign of
@@ -519,6 +537,9 @@ fn pm1_top(value : @binary.Binary) -> Int64 {
 }
 
 ///|
+// oracle: S
+// source: property of the enclosure: sign of f(x) equals the sign of x and the upper and lower endpoints of the 200-bit interval evaluation agree to 190 bits (a precision claim of the interval code, not a value); no expected value is written out; the values of these four functions are level A in elementary_pm1_rows_wbtest.mbt (MPFR 4.2.2)
+// shares: decimal_to_certified_ball, DecimalPm1::evaluate and the interval bounds (the code under test), pm1_exact and pm1_top (they build the operand and read the bit length)
 test "pm1 enclosures stay relatively tight down to 10^-1999997" {
   // The m1/p1 functions are built on expm1 and log1p, series in x, so the
   // enclosure of f(x) keeps a relative width of a few ulps of the working
@@ -549,6 +570,9 @@ test "pm1 enclosures stay relatively tight down to 10^-1999997" {
 }
 
 ///|
+// oracle: A
+// source: mathematics: for x = -(1 - 9 * 10^-D) the value 1 + x is 9 * 10^-D, log2 of it is negative and inexact, log10 of it is -D + log10(9) = -D + 0.954, inside (-D, -D + 1); the bracket is computed from that identity, not read from the library
+// shares: Decimal::from_string and from_int (they build the operands and the bracket), compare, try_log2p1_ctx and try_log10p1_ctx (the code under test)
 test "pm1 log poles: operands with D digits just above -1 at D = 52, 500, 5000" {
   // Near -1, log1p amplifies the input error by |x| / (1 + x) >= 10^-D; the
   // working precision 4 max(D, p) + 64 bits keeps the enclosure off the pole.
@@ -571,6 +595,9 @@ test "pm1 log poles: operands with D digits just above -1 at D = 52, 500, 5000" 
 }
 
 ///|
+// oracle: A
+// source: arithmetic and IEEE 754-2019 4.3, 7.4: 10^999999 - 1 (999999 nines) at 16 digits is 1.000000000000000E+999999 when rounded to nearest or up and 9.999999999999999E+999998 toward zero, down or 05up; 10^1000000 - 1 exceeds the largest finite number and overflows to infinity (with overflow and inexact) when rounded to nearest or up, and is the largest finite 9.999999999999999E+999999 (inexact only: not above it before the exponent bound, 7.4) when rounded toward zero, down or 05up; written out
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 the 10^n - 1 cluster is decided without forming 10^n" {
   // exp10m1(n) = 10^n - 1 for n far above 4 (p + 2) lies just below the
   // representable 10^n; an enclosure cannot separate them, so the
@@ -628,6 +655,9 @@ test "pm1 2^n - 1 beyond the exact gate rounds like 2^n" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: log2(1 + (2^3000 - 1)) = 3000 exactly; log2(1 + 2^3000) = 3000 + 1/(2^3000 ln 2), which rounds to 3000.000000000000000000000000000000 at 34 digits, inexact; the two small predicates are checked on 2^40 (exponent 40) and on 10^30 - 5^30 (true) and 10^30 - 5^30 + 10 (false), integers computed by BigInt pow
+// shares: BigInt::pow and BigInt::from_int, Decimal::from_bigint and coeff_from_bigint (they build the operands), pm1_call (prints value and flags), decimal_coeff_power_of_two_exponent and decimal_coeff_is_ten_minus_five_power (the code under test)
 test "pm1 log2p1 decides 2^k - 1 for a long operand by its lowest unit" {
   // 1 + x = 2^k is decided on x: the candidate powers of two with the digit
   // count of x + 1 are compared modulo 10^9 before one is formed.
@@ -671,6 +701,9 @@ test "pm1 log2p1 decides 2^k - 1 for a long operand by its lowest unit" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic and IEEE 754-2019 4.3, 7.4: log2(2^15) = 15 at one digit is the midpoint of 1E+1 and 2E+1 (even rule 2E+1, half_down 1E+1, directed by direction, 05up keeps 1E+1 since the kept digit is 1), log10(10^10) = 10 is exact at one digit, 2^6 - 1 = 63 is 63.0 at three digits with e_max 1 (clamped to the largest exponent -1), 2^7 - 1 = 127 exceeds 99.9 and overflows (infinity to nearest or up, 99.9 toward zero, both with overflow and inexact); written out
+// shares: pm1_call, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the try_ and plain _ctx functions (the code under test)
 test "pm1 exact results are rounded with the flags of the context" {
   // An exact value the context cannot hold is rounded once (Table 9.1 lists
   // overflow and underflow; 7.4, 7.5): log2p1(2^15 - 1) = 15 at p = 1 is a
@@ -700,6 +733,9 @@ test "pm1 exact results are rounded with the flags of the context" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: 2^(1E+300) exceeds 10^384 (overflow to infinity), 2^(-1E+300) and 0.5^100000 = 1E-30103 are below the least subnormal 1E-398 of decimal64 and round to 0E-398 with inexact and underflow (7.5); written out
+// shares: Decimal::from_int and from_string (they build the operands), pm1_call_power (prints), pow_ctx (the code under test)
 test "pm1 the power range refactor keeps pow results" {
   // `decimal_range_from_log2_bracket` is the former tail of
   // `decimal_power_out_of_range`; the results below are those of main.
