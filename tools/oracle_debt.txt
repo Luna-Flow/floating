@@ -61,34 +61,3 @@ library/src/decimal/total_order_wbtest.mbt::total_order and total_order_mag foll
 library/src/decimal/total_order_wbtest.mbt::total_order orders the cohort by exponent and total_order_mag ignores the sign	A
 library/src/decimal/zero_addend_clamp_wbtest.mbt::a zero addend does not leak a clamp of the other operand	A
 library/src/decimal/zero_sum_sign_wbtest.mbt::a zero sum follows the sign rule in every rounding direction	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Burnikel-Ziegler recursive block boundaries match exact quotients	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Knuth quotient clamp preserves the full normalized remainder	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::NTT product of all-nines operands equals the BigInt product	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Newton reciprocal division converges without fallback	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::advanced decimal division algorithms cross-check	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::advanced decimal multiplication algorithms cross-check	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient exact power-of-ten division uses unit shifts	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient exact powers stay native and honor precision caps	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient factor counting matches bigint factor counting	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient gcd matches bigint gcd	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient parity matches bigint parity	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient repr div-rem by power of ten matches bigint path	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient string lays out GDA units without BigInt	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient trailing-zero trim batches whole limbs	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient unit subtraction handles borrow and zero exactly	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal coefficient-native powers of ten match bigint powers	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal decNumber-style coefficient divide returns quotient and residue	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal decNumber-style coefficient multiply matches long multiplication	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal decNumber-style unit add/sub matches carry and borrow cases	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal remainder-only division matches BigInt	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal signed Int magnitude layout matches GDA from-int32 decomposition	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal signed coefficient add matches remainder identity arithmetic	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal signed coefficient compare proves power exponent bounds	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal signed coefficient step crosses zero in both directions	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::decimal small coefficient helpers preserve direct representations	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::normalized Knuth division matches BigInt at limb boundaries	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::optimized decimal coefficient primitives match deterministic BigInt matrix	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::optimized decimal coefficient quotient estimate matches constructed cases	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::optimized decimal coefficient single-unit division matches BigInt	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::power-of-ten modular scaling handles huge exponent gaps	A
-library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::unit accumulator producers write limbs below the base	S
