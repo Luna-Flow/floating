@@ -1,7 +1,13 @@
 ///|
-/// A binary floating-point datum. The representation (`@binary_kernel.BinRepr`) is
-/// internal and read only through the accessors of `bin_repr_nonjs.mbt` and
-/// `bin_repr_js.mbt`; the newtype costs nothing: a value is one heap object.
+/// A binary floating-point datum: a finite number `(-1)^s * c * 2^e` with an
+/// arbitrary-precision integer coefficient `c`, a signed infinity, or a quiet or
+/// signaling NaN with a payload. Each value carries a precision in bits, which the
+/// plain operations use (the larger of their operands) and the contextual
+/// operations replace by the precision of the context.
+/// `==` and `compare` test the numerical value, ignoring precision and the sign of
+/// zero, and every NaN equals every other NaN and sorts above every number (a total
+/// preorder, not the IEEE comparison; use `compare_quiet` for that). `identical`
+/// compares the representation. The representation is private to the library.
 #derive(Debug)
 pub struct Binary(@binary_kernel.BinRepr)
 
@@ -479,6 +485,20 @@ fn binary_convert_nan(
 }
 
 ///|
+/// Builds the finite number `(-1)^negative * coefficient * 2^exponent2`, rounded
+/// to `precision` bits in the direction `mode` (nearest-even by default). The
+/// result is canonical: a nonzero coefficient is odd, a zero keeps its sign. A
+/// value beyond the implementation exponent range becomes an overflow or underflow
+/// result of the same rounding direction. Aborts when `precision` is outside
+/// `1..=binary_precision_max`.
+///
+/// ```mbt check
+/// test {
+///   let x = @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), -1, 53)
+///   inspect(x, content="3p-1")
+///   inspect(x.to_shortest_string(), content="1.5")
+/// }
+/// ```
 pub fn Binary::make(
   coefficient : BinCoeff,
   exponent2 : Int32,
@@ -502,6 +522,8 @@ fn Binary::make_coeff(
 }
 
 ///|
+/// Returns `+0` with the given precision (53 by default). Aborts when `precision`
+/// is outside `1..=binary_precision_max`.
 pub fn Binary::zero(precision~ : Int32 = 53) -> Binary {
   binary_check_precision("Binary::zero", precision)
   Binary::zero_raw(precision~)
@@ -524,6 +546,8 @@ fn Binary::negative_zero_raw(precision~ : Int32 = 53) -> Binary {
 }
 
 ///|
+/// Returns `1` with the given precision (53 by default). Aborts when `precision`
+/// is outside `1..=binary_precision_max`.
 pub fn Binary::one(precision~ : Int32 = 53) -> Binary {
   binary_check_precision("Binary::one", precision)
   Binary::one_raw(precision~)
@@ -613,6 +637,10 @@ fn binary_check_payload(
 }
 
 ///|
+/// Builds the integer `n` as a `Binary` of `precision` bits (53 by default). The
+/// result is exact when `n` fits in `precision` bits, always so at the default; a
+/// wider integer is rounded to nearest-even. Aborts when `precision` is outside
+/// `1..=binary_precision_max`.
 pub fn Binary::from_int(n : Int32, precision~ : Int32 = 53) -> Binary {
   binary_check_precision("Binary::from_int", precision)
   Binary::from_int_raw(n, precision~)
@@ -649,6 +677,10 @@ fn Binary::from_coefficient_raw(
 }
 
 ///|
+/// Decodes a host `Double` exactly, with `precision` bits (53 by default). Signed
+/// zeros, infinities, the NaN sign, the quiet or signaling kind and the payload are
+/// kept. The result is the value the host already rounded, so `from_double(0.1)` is
+/// not one tenth; use `from_string` to round a decimal literal.
 pub fn Binary::from_double(x : Double, precision~ : Int32 = 53) -> Binary {
   binary_check_precision("Binary::from_double", precision)
   let bits = x.reinterpret_as_uint64()
@@ -1276,6 +1308,10 @@ pub impl @def.Floating for Binary with fn normalized(self) {
 }
 
 ///|
+/// Prints the exact stored value. A finite nonzero value is `[-]<c>p<e>` for the
+/// coefficient `c` in decimal and the exponent `e`, meaning `c * 2^e` (`3p-1` is
+/// 1.5); zeros print as `0` and `-0`, infinities as `inf` and `-inf`, every NaN as
+/// `nan`. Use `to_shortest_string` for a decimal rendering.
 pub impl Show for Binary with fn to_string(self) {
   match self.class() {
     FpClass::NaN => "nan"

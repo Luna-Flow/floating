@@ -1718,6 +1718,12 @@ pub fn Binary::exp_ctx(
 }
 
 ///|
+/// Computes `e^self`, correctly rounded to nearest-even at the precision of `self`
+/// under the working context of the library (the extendable format of that
+/// precision). Defined on every value: `exp(+-0)` is exactly 1, `exp(-inf)` is `+0`
+/// and `exp(+inf)` is `+inf`. The flags are dropped; use `exp_ctx` to choose the
+/// context and read them, or `try_exp_ctx` for an error when the result cannot be
+/// certified.
 pub fn Binary::exp(self : Binary) -> Binary {
   self.exp_ctx(binary_working_context(self.precision())).0
 }
@@ -2457,6 +2463,12 @@ pub fn Binary::ln_ctx(
 }
 
 ///|
+/// Computes the natural logarithm of `self`, correctly rounded to nearest-even at
+/// the precision of `self` under the working context of the library. `ln(1)` is
+/// exactly `+0`, `ln(+-0)` is `-inf`, `ln(+inf)` is `+inf`, and a negative
+/// argument, `-inf` included, is a quiet NaN. The flags are dropped; use `ln_ctx`
+/// to read them (`division_by_zero` for a zero, `invalid_operation` for a negative
+/// argument).
 pub fn Binary::ln(self : Binary) -> Binary {
   self.ln_ctx(binary_working_context(self.precision())).0
 }
