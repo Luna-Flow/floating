@@ -386,16 +386,28 @@ fn window_check_all(
 }
 
 ///|
+// oracle: E
+// source: the previous loop of the window row, `window_combine_reference` of this file, on xorshift operands and special limbs
+// shares: nothing between the row under test and the reference loop; the operand generators only choose inputs
+// underneath: `oracle: window rows equal x + (y xor mask) + carry on the shifted windows` in coeff_limbs_oracle_wbtest.mbt (level A: CPython integers, rows of coeff_window_oracle_rows_wbtest.mbt, word shifts up to 2^28 in magnitude and bit shifts 0 to 63, subtraction with and without borrow, run in the portable, C and assembly states of the binary gate)
 test "the portable window row equals the previous loop: every bit shift, word shifts, subtraction with and without borrow, short and empty second operand, lengths 1 to 40, special limbs" {
   window_check_all(bin_limbs_window_combine_portable, 0x1B873593CC9E2D51UL)
 }
 
 ///|
+// oracle: E
+// source: the previous loop of the window row, `window_combine_reference` of this file, on xorshift operands and special limbs; the tier is the one the build selects
+// shares: nothing between the row under test and the reference loop; the operand generators only choose inputs
+// underneath: `oracle: window rows equal x + (y xor mask) + carry on the shifted windows` in coeff_limbs_oracle_wbtest.mbt (level A: CPython integers, rows of coeff_window_oracle_rows_wbtest.mbt, word shifts up to 2^28 in magnitude and bit shifts 0 to 63, subtraction with and without borrow, run in the portable, C and assembly states of the binary gate)
 test "the window row of the active tier (C rows, assembly tier or portable) equals the previous loop" {
   window_check_all(bin_limbs_window_combine, 0x85EBCA6B27D4EB2FUL)
 }
 
 ///|
+// oracle: E
+// source: the previous loop of the window row, `window_combine_reference` of this file, on xorshift operands and special limbs; word shifts -2^28, -2^28 + 1, -1, 0, 1, 2^28 - 1, 2^28
+// shares: nothing between the row under test and the reference loop; the operand generators only choose inputs
+// underneath: `oracle: window rows equal x + (y xor mask) + carry on the shifted windows` in coeff_limbs_oracle_wbtest.mbt (level A: CPython integers, rows of coeff_window_oracle_rows_wbtest.mbt, word shifts up to 2^28 in magnitude and bit shifts 0 to 63, subtraction with and without borrow, run in the portable, C and assembly states of the binary gate)
 test "the window row at the limits of its contract: word shifts of magnitude 2^28, both bodies" {
   let random = { words_state: 0x2545F4914F6CDD1DUL, }
   let limit = bin_limbs_window_max
@@ -579,9 +591,10 @@ fn array_form_coeff(words : FixedArray[UInt64], count : Int32) -> Coeff {
 }
 
 ///|
-// Oracle: level E (the coefficient form this array form wraps). Underneath: the
-// kernel's grade-school references (level B, they share only the limb
-// primitives) and the TestFloat and MPFR corpora of `just gate binary 3` (level A).
+// oracle: E
+// source: Coeff::mul on the same operands (the coefficient form the array form wraps)
+// shares: the operand builders dispatch_test_value and dispatch_test_sparse, array_form_coeff
+// underneath: `oracle: product routes equal the oracle` in coeff_product_oracle_wbtest.mbt (level A: CPython products, routes mul and words from 6 to 600 limbs, and the production sizes in the gate)
 test "bin_words_mul equals Coeff::mul: every route, sparse and dense operands, any lengths" {
   let random = { words_state: 0x71D6_7FFF_EDA6_0000UL, }
   for
@@ -608,9 +621,10 @@ test "bin_words_mul equals Coeff::mul: every route, sparse and dense operands, a
 }
 
 ///|
-// Oracle: level E (the coefficient forms the array forms wrap). Underneath: the
-// kernel's grade-school references (level B) and the TestFloat and MPFR corpora
-// of `just gate binary 3` (level A).
+// oracle: E
+// source: the coefficient forms bin_coeff_mul_short, bin_coeff_div_short_quotient, bin_coeff_div_scaled_quotient and the root form on the same operands
+// shares: the operand builders and array_form_coeff
+// underneath: the short product table coeff_short_oracle_wbtest.mbt, the division table coeff_div_oracle_wbtest.mbt (routes shortq and scaled) and the square root table coeff_sqrt_oracle_wbtest.mbt, all level A (CPython integers, tools/kernel_oracle.py)
 test "the array forms of the short product, the short and the exact scaled division and the root equal their coefficient forms" {
   let random = { words_state: 0x2F6A_1C9E_B3D5_8407UL, }
   // short product
@@ -697,7 +711,9 @@ test "the array forms of the short product, the short and the exact scaled divis
 }
 
 ///|
-// Oracle: level A (expected values written out in the test).
+// oracle: A
+// source: written out in the test: the limbs above the value are zero, the first limbs and the length are the literals, small values give exact-size arrays [5] and [9, 3] from the definition of the inline form
+// shares: nothing
 test "bin_coeff_owned_words clears the limbs above a heap value: the array form never exposes scratch" {
   // a heap coefficient over a longer array with a dirty tail, as
   // `bin_coeff_mul_short` builds one (H in the first limbs, scratch above)

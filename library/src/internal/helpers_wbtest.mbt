@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out by hand: 5/2 = 2.5 ties to even 2; 7/2 = 3.5 ties to even 4; 3/2 toward zero 1; negative 3/2 toward negative 2 (magnitude); 7 >> 1 = 3.5 away from zero 4; 10^n and 5^n literals (5^18 = 3814697265625, 5^19 = 19073486328125, recomputed with Python integers)
+// shares: nothing
 test "internal rounding helpers honor tie and directed modes" {
   assert_eq(
     round_positive_div(5N, 2N, false, @lf_arith.RoundingMode::ToNearestEven).to_string(),
@@ -32,6 +35,9 @@ test "internal rounding helpers honor tie and directed modes" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand: 12.340e-1 has digits 12340, three fraction digits and exponent -1, so -4; -0.05E+3 has digits 005, two fraction digits and exponent +3, so 1; malformed text is None
+// shares: nothing
 test "internal decimal parser accepts scientific notation and rejects malformed strings" {
   match split_decimal_string("12.340e-1") {
     Some((negative, digits, exponent10)) => {
@@ -54,6 +60,9 @@ test "internal decimal parser accepts scientific notation and rejects malformed 
 }
 
 ///|
+// oracle: A
+// source: the decimal length of 10^e is e + 1 and of 10^e - 1 is e, by definition; 0 has one digit
+// shares: pow10 to build the boundary values (its table values are checked in the rounding block of this file)
 test "internal digits10 tracks power-of-ten boundaries without string conversion" {
   assert_eq(digits10(0N), 1)
   let exponents = [0, 1, 2, 5, 18, 19, 34, 50, 128, 256, 1024]
@@ -69,6 +78,9 @@ test "internal digits10 tracks power-of-ten boundaries without string conversion
 }
 
 ///|
+// oracle: A
+// source: written out by hand: 123450000 with exponent -7 loses four zeros, giving 12345 and -3; 120000 with exponent -4 limited to three drops gives 120 and -1
+// shares: nothing
 test "internal decNumber-style coefficient trim matches trailing-zero shifts" {
   let (trimmed, exponent) = remove_factor10(123450000N, -7)
   assert_eq(trimmed, 12345N)
@@ -85,6 +97,9 @@ test "internal decNumber-style coefficient trim matches trailing-zero shifts" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand: 12345000 / 10^3 = 12345; -5000 / 10^2 = -50; 12345 is not divisible by 10
+// shares: nothing
 test "internal coefficient exact power-of-ten division uses unit shifts" {
   match exact_divide_by_power_of_ten(12345000N, 3) {
     Some(value) => assert_eq(value, 12345N)

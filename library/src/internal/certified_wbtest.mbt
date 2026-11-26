@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out by hand: 1/3 at scale 8 is 256/3 = 85.33.., so the enclosure is 85/256 to 86/256; -1/3 is -86/256 to -85/256
+// shares: CertifiedDyadic::from_int and the numerator and scale accessors
 test "certified dyadic division encloses positive and negative ratios" {
   let third = certified_dyadic_div(
     CertifiedDyadic::from_int(1),
@@ -18,6 +21,9 @@ test "certified dyadic division encloses positive and negative ratios" {
 }
 
 ///|
+// oracle: A
+// source: the contract of CertifiedInterval::new (lower bound above upper bound is an invalid enclosure, reported at the enclosure propagation stage), written as the two enum values
+// shares: the failure detail accessors
 test "certified interval rejects reversed bounds" {
   let result = CertifiedInterval::new(2, 1, fn(left, right) {
     left.compare(right)
@@ -40,6 +46,9 @@ test "certified interval rejects reversed bounds" {
 }
 
 ///|
+// oracle: A
+// source: written out by hand: the budget grows by one half per refinement, 64, 96 = 64 * 3 / 2, 144 = 96 * 3 / 2; the failure detail fields are the literals passed in
+// shares: nothing
 test "certified refinement budget grows and retains failure details" {
   let initial = CertifiedRefinementBudget::new(64)
   let next = initial.next()

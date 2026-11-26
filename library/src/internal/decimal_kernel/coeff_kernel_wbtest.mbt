@@ -1020,16 +1020,15 @@ test "NTT product of all-nines operands equals the BigInt product" {
 
 ///|
 fn small_digits_reference(value : UInt64) -> Int32 {
-  let mut digits = 1
-  while digits < dec_coeff_word_powers10.length() &&
-        value >= dec_coeff_word_powers10[digits] {
-    digits += 1
-  }
-  digits
+  // the decimal text of core UInt64 is the definition of the digit count
+  value.to_string().length()
 }
 
 ///|
-test "word digit count matches the table scan at every power of ten boundary" {
+// oracle: A
+// source: the decimal text length of core UInt64 (to_string) is the digit count by definition; 0 has one digit and 2^64 - 1 has 20; values at every power of ten of the word table and at plus and minus two, and 2000 xorshift-style values of mixed width
+// shares: dec_coeff_word_powers10, used only to choose the inputs
+test "word digit count equals the decimal text length at every power of ten boundary" {
   assert_eq(dec_coeff_small_digits(0UL), 1)
   assert_eq(dec_coeff_small_digits(0xFFFFFFFFFFFFFFFFUL), 20)
   for power in dec_coeff_word_powers10 {
