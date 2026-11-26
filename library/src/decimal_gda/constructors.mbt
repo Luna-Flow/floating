@@ -115,6 +115,7 @@ fn decimal_checked_payload(
 }
 
 ///|
+/// Returns +0 with exponent 0 and the given precision (default 34).
 pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
   Decimal::zero_raw(
     precision=decimal_checked_precision(precision, "Decimal::zero"),

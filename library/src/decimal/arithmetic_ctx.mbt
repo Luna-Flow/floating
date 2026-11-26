@@ -304,6 +304,16 @@ pub fn Decimal::mul(self : Decimal, other : Decimal) -> Decimal {
 }
 
 ///|
+/// Adds `self` and `other` and rounds the exact sum once to the precision and
+/// exponent range of `ctx`, in its rounding direction. Returns the result and
+/// the flags it raised.
+///
+/// An exact sum takes the cohort member closest to the preferred exponent
+/// `min(q_a, q_b)`. A zero sum is +0, except that it is -0 under
+/// `RoundTowardNegative` and when both operands are -0. The sum of opposite
+/// infinities is NaN with `invalid_operation`. A NaN operand gives a quiet NaN
+/// with the sign and payload of the first NaN; a signaling NaN also raises
+/// `invalid_operation`.
 pub fn Decimal::add_ctx(
   self : Decimal,
   other : Decimal,
@@ -350,6 +360,14 @@ pub fn Decimal::add_ctx(
 }
 
 ///|
+/// Subtracts `other` from `self` and rounds the exact difference once to the
+/// precision and exponent range of `ctx`, in its rounding direction. Returns the
+/// result and the flags it raised.
+///
+/// The preferred exponent, the sign of a zero difference and the special values
+/// are those of `add_ctx` with `other` negated: `x - x` is -0 under
+/// `RoundTowardNegative` and +0 otherwise, and the difference of equal infinities
+/// is NaN with `invalid_operation`.
 pub fn Decimal::sub_ctx(
   self : Decimal,
   other : Decimal,
@@ -366,6 +384,15 @@ pub fn Decimal::sub_ctx(
 }
 
 ///|
+/// Multiplies `self` by `other` and rounds the exact product once to the
+/// precision and exponent range of `ctx`, in its rounding direction. Returns the
+/// result and the flags it raised.
+///
+/// An exact product takes the cohort member closest to the preferred exponent
+/// `q_a + q_b`. A zero product has the sign of the exclusive or of the operand
+/// signs. Zero times infinity is NaN with `invalid_operation`. A NaN operand
+/// gives a quiet NaN with the sign and payload of the first NaN; a signaling NaN
+/// also raises `invalid_operation`.
 pub fn Decimal::mul_ctx(
   self : Decimal,
   other : Decimal,
@@ -454,6 +481,16 @@ fn Decimal::decimal_mul_ctx_general(
 }
 
 ///|
+/// Divides `self` by `other` and rounds the exact quotient once to the precision
+/// and exponent range of `ctx`, in its rounding direction. Returns the result
+/// and the flags it raised.
+///
+/// An exact quotient takes the cohort member closest to the preferred exponent
+/// `q_a - q_b`. An inexact quotient has `precision` digits, except a subnormal
+/// one, whose exponent is the smallest of the context. `0 / 0` and
+/// `inf / inf` are NaN with `invalid_operation`. A finite non-zero value divided
+/// by a zero is an infinity with the sign of the exact quotient and
+/// `division_by_zero`; a finite value divided by an infinity is a signed zero.
 pub fn Decimal::div_ctx(
   self : Decimal,
   other : Decimal,
@@ -652,6 +689,14 @@ fn Decimal::decimal_div_ctx_general(
 }
 
 ///|
+/// Computes `self * multiplier + addend` with a single rounding under `ctx`: the
+/// product is formed exactly and only the sum is rounded. Returns the result and
+/// the flags it raised.
+///
+/// Zero times infinity plus a number or an infinity is NaN with
+/// `invalid_operation`; with a quiet NaN as the addend the result is that NaN
+/// without the flag. An infinite product plus an infinity of the opposite sign
+/// is also invalid.
 pub fn Decimal::fma_ctx(
   self : Decimal,
   multiplier : Decimal,
@@ -1025,6 +1070,12 @@ fn decimal_sqrt_tiny_result(
 }
 
 ///|
+/// Returns the square root of `self`, correctly rounded under `ctx`, with the
+/// flags it raised. An exact root takes the cohort member closest to the
+/// preferred exponent `floor(q / 2)`: the square root of `0.0400` is `0.20`.
+///
+/// The square roots of `-0` and `+inf` are `-0` and `+inf`. A negative non-zero
+/// operand and `-inf` give NaN with `invalid_operation` (IEEE 754-2019 7.2).
 pub fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,

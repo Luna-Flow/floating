@@ -110,6 +110,16 @@ pub fn Decimal::quantum_ctx(
 }
 
 ///|
+/// Returns `self` with the exponent of `quantum`, rounding in the direction of
+/// `ctx` when digits are dropped, and the flags it raised (IEEE 754-2019 5.3.2).
+/// Only the exponent of `quantum` counts, not its value. `inexact` is raised
+/// when a dropped digit is not zero.
+///
+/// The result is NaN with `invalid_operation` when the exponent of `quantum` is
+/// outside the range of the context, when the result would need more than
+/// `precision` digits, or when exactly one operand is infinite. Two infinities
+/// give the infinity of `self`. The operation never settles for a different
+/// exponent.
 pub fn Decimal::quantize_ctx(
   self : Decimal,
   quantum : Decimal,

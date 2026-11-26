@@ -2,6 +2,15 @@
 // Decimal public types and context/flag helpers.
 
 ///|
+/// An immutable GDA number: a finite value `(-1)^s * c * 10^q` (a signed zero
+/// included), an infinity, or a quiet or signaling NaN with a sign and a
+/// non-negative integer payload.
+///
+/// A finite value keeps its exponent, so `2.50` and `2.5` are different members
+/// of one cohort: they are equal in value and differ in `compare_total`,
+/// `same_quantum` and printing. Each value also stores a precision (default 34),
+/// the one of the context or constructor that made it; the GDA operations
+/// ignore it and use the precision of the context they receive.
 #derive(Debug)
 pub struct Decimal {
   priv class : FpClass
@@ -28,6 +37,9 @@ priv enum DecimalRoundingMode {
 }
 
 ///|
+/// One of the three decimal interchange formats of IEEE 754-2019: `Decimal32`
+/// (7 digits), `Decimal64` (16 digits) or `Decimal128` (34 digits). `context`
+/// returns the matching extended default context.
 #derive(Eq)
 pub(all) enum GdaInterchangeFormat {
   Decimal32
@@ -36,6 +48,10 @@ pub(all) enum GdaInterchangeFormat {
 }
 
 ///|
+/// The bit pattern of one decimal32, decimal64 or decimal128 value in the
+/// densely packed decimal (DPD) encoding, with its format. Build one with
+/// `from_decimal` or `from_hex`; read it back with `to_hex` and `to_decimal`.
+/// Unlike a `Decimal` it can hold a non-canonical encoding.
 pub struct GdaInterchange {
   priv format : GdaInterchangeFormat
   priv bits : BigInt
