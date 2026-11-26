@@ -105,6 +105,9 @@ test "issue 447: to_binary at both ends of the exponent range, every rounding mo
 }
 
 ///|
+// oracle: A
+// source: written out: 10^-2147483645 is far below the smallest binary number and converts to 0 in nearest, 10^2147483646 converts to infinity, and the tiny value rounded toward positive infinity is a nonzero positive number (IEEE Std 754-2019 4.3, 7.4, 7.5); the block is a regression test for a panic
+// shares: Decimal::make builds the operands; to_binary is the code under test; @def.is_infinite, is_zero and is_sign_minus read the result
 test "issue 447: the reported cases do not panic" {
   let tiny = Decimal::make(1N, -2147483645, 34).to_binary(precision=53)
   inspect(tiny.is_zero(), content="true")

@@ -16,6 +16,11 @@ fn scaleb_case(value : String, count : String, ctx : DecimalContext) -> String {
 ///|
 /// Overflow follows the rounding direction (IEEE 754-2019 7.4, #52): toward
 /// zero gives the largest finite number, not an infinity.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.3 and 7.4 in decimal64 (precision 16, e_max 384): 9E+384 scaled by 1 overflows to the largest finite number 9.999999999999999E+384 toward zero and to infinity in nearest, and -9.99 scaled by 385 toward positive infinity is -9.999999999999999E+384, each with inexact and overflow
+// shares: scaleb_case builds the operands with Decimal::from_string and prints the result and the flags; scaleb_ctx is the code under test; DecimalContext::decimal64 and with_rounding build the contexts
 test "decimal scaleb overflow honours the rounding direction" {
   let c64 = DecimalContext::decimal64()
   assert_eq(
@@ -41,6 +46,11 @@ test "decimal scaleb overflow honours the rounding direction" {
 /// scaleb rounds and clamps its result like every other context operation
 /// (#95): zero exponents are clamped into range, and a coefficient longer than
 /// the precision is rounded once to the precision.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.3 and 5.2 in decimal64 (Etop 369, Etiny -398): 0 scaled by 700 is 0E+369 and -0E-390 scaled by -700 is -0E-398 (the exponent is clamped into range), 12345678901234567890 is rounded once to 1.234567890123457E+19 (inexact), scaled by -400 it is 1.234567890123457E-381 (inexact), 123 scaled by -400 is 1E-398 (inexact), and 1.000000000000000 scaled by -383 is exact
+// shares: scaleb_case builds the operands with Decimal::from_string and prints the result and the flags; scaleb_ctx is the code under test; DecimalContext::decimal64 builds the context
 test "decimal scaleb rounds and clamps like other context results" {
   let c64 = DecimalContext::decimal64()
   assert_eq(scaleb_case("0", "700", c64), "0E+369")

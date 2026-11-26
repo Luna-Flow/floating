@@ -103,6 +103,9 @@ test "convertToInteger rounds in every direction with the exact flags (IEEE 754-
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.8 (convertToInteger is independent of the precision of the context): 123456 converts to 123456 in a context of precision 3, with no flag, in the exact form too
+// shares: Decimal::from_string reads the operand; to_int_ctx is the code under test; DecimalContext::new builds the context; issue226_flags_text prints the flags
 test "convertToInteger ignores the precision and the exponent range of the context" {
   // A context with precision 3 does not round the integer: 123456 stays.
   let ctx = DecimalContext::new(precision=3)

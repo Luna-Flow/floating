@@ -114,6 +114,11 @@ fn issue305_check(
 /// never folded down: `Clamped` is not signaled. Expected values: Python `decimal` (libmpdec 4.0.0)
 /// as oracle, checked against the package contract by hand (IEEE 754 has no clamped condition); the oracle is not the specification.
 /// The package has no Clamped flag (IEEE 754 has none): what these rows observe is the delivered value and cohort member (the fold-down itself); the Clamped flag is asserted by the same rows in `decimal_gda`'s test of the same name.
+
+///|
+// oracle: A
+// source: 8 rows re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no: all 8 agree (GDA 1.70: an inexact result has exactly precision digits, so its exponent is at most Etop and nothing is folded down); the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow)
+// shares: issue305_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; issue305_run, issue305_value_text, issue305_flags_text and issue305_mode_name run and print; pow_ctx is the code under test
 test "an inexact integer power that rounds to a power of ten is delivered with precision digits, not folded down (#305)" {
   let rows : Array[
     (

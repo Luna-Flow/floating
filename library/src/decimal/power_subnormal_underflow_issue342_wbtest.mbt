@@ -117,6 +117,11 @@ fn issue342_check(
 /// Expected values and flags: Python `decimal` (libmpdec 4.0.0); the oracle is not the
 /// standard, and rows where it decides tininess after rounding, or rounds a directed mode
 /// one unit away from the exact power, are left out.
+
+///|
+// oracle: A
+// source: 22 rows re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no: all 22 agree (IEEE Std 754-2019 7.5: tininess before rounding for decimal formats, underflow when the tiny result is inexact); the rows where libmpdec decides tininess after rounding or rounds a directed mode one unit away from the exact power are left out of the table; the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow)
+// shares: issue342_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; the text helpers print; pow_ctx is the code under test
 test "an inexact subnormal integer power raises Underflow (#342)" {
   let rows : Array[
     (

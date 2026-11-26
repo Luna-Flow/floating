@@ -1,6 +1,11 @@
 ///|
 /// IEEE 754-2019 6.3: an exact zero sum of operands with opposite signs is -0
 /// under roundTowardNegative and +0 under every other direction.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 6.3: an exact zero sum of operands with opposite signs is -0 under roundTowardNegative and +0 under every other direction, (-0) + (-0) is -0, abs of -0 is +0 and apply keeps -0, all without flag
+// shares: Decimal::from_string reads the zeros; add_ctx, sub_ctx, abs_ctx and apply_ctx are the code under test; DecimalContext::new builds the contexts; to_string and the flags equality read the result
 test "a zero sum follows the sign rule in every rounding direction" {
   let modes = [
     DecimalRoundingMode::RoundTiesToEven,

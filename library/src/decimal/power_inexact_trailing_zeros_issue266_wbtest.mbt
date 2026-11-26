@@ -116,6 +116,11 @@ fn issue266_check(
 /// corpus has 126 inexact power rows whose coefficient ends in 0 and no inexact normal row
 /// with fewer than `precision` digits. Expected values: Python `decimal` (libmpdec 4.0.0)
 /// as oracle, checked against the clauses by hand; the oracle is not the specification.
+
+///|
+// oracle: A
+// source: 33 rows re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no: all 33 agree, among them the rows of the issue, the integer powers of other signs and sizes, the padding under clamp and three rows of the official decTest corpus (power.decTest powx028, powx706, powx1186); IEEE Std 754-2019 5.2 (an inexact result uses the cohort member of least possible exponent, so exactly precision digits); the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow); Ceiling and Up are left out of the table where libmpdec and the library differ in the last digit of an inexact power
+// shares: issue266_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; issue266_run and the text helpers run and print; pow_ctx is the code under test
 test "an inexact integer power keeps precision digits, trailing zeros included (#266)" {
   let rows : Array[
     (

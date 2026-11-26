@@ -4,6 +4,11 @@
 /// towards that exponent must come before the clamp check, not after
 /// clamping the operand at its own exponent. Expected values from Python
 /// `decimal` in the same contexts.
+
+///|
+// oracle: A
+// source: 5 rows re-derived with Python decimal in the same contexts (library-ran: no, precision, Emin, Emax and rounding of each row, clamp on and off): all 5 agree, 7E+4 + -0E-20 at precision 3 is 7.00E+4 and so on; the sum with a zero is the other operand at the preferred (smaller) exponent, padded to the precision, with no inexact
+// shares: Decimal::from_string reads the operands; add_ctx and fma_ctx are the code under test; DecimalContext::new and with_round build the contexts; to_string and the inexact flag read the result
 test "a zero addend does not leak a clamp of the other operand" {
   let cases : Array[
     (Int32, Int32, Int32, DecimalRound, String, String, String, String),

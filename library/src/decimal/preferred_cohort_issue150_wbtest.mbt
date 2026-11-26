@@ -3,6 +3,11 @@
 /// (exact binary to decimal: the exponent closest to the preferred one) and
 /// §5.2 (an inexact result takes the least possible exponent, i.e. exactly p
 /// digits). Expected values: Python `fractions`/`decimal` cross-check.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.4.1 (convertFromInt: preferred exponent 0), 5.4.2 (exact binary to decimal: the exponent closest to the preferred one) and 5.2 (an inexact result takes the least possible exponent, exactly p digits): 1000 stays 1000, 1000 at 3 digits is 1.00E+3, 99999 at 3 digits is 1.00E+5, the double 0.1 is 0.1000000000000000 at 16 digits and 0.10000000000000001 at 17 (its exact value is 0.1000000000000000055511151231257827...), 1e22 is the exact integer 10000000000000000000000, 2.0 is 2
+// shares: Decimal::from_int, from_bigint, from_double, from_float and from_binary are the code under test; @binary.Binary::from_double builds the binary operand; to_string prints
 test "integer and binary constructors return the IEEE preferred cohort (#150)" {
   let s = fn(x : Decimal) { x.to_string() }
   inspect(s(Decimal::from_int(1000)), content="1000")
