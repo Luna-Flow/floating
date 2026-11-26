@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: arithmetic and IEEE 754-2019 4.3, 7.4: 0.5^(-999999998) = 2^999999998 is about 10^300000000, far above the largest decimal64 number, so overflow with inexact: infinity when rounding to nearest or up (half-even, half-up, half-down, ceiling, up) and 9.999999999999999E+384 when rounding toward zero or down (down, floor, 05up, which discards toward zero); CPython decimal plus of 1E+500 in the eight modes agrees
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power handles large negative exponents for fractional bases" {
   let base = Decimal::from_string("0.5").unwrap()
   let exponent = Decimal::from_string("-999999998").unwrap()
@@ -24,6 +27,9 @@ test "decimal power handles large negative exponents for fractional bases" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic and IEEE 754-2019 7.4: 0.5^(-500000000) and 0.5^(-1999999997) are 2^500000000 and 2^1999999997, far above 10^385, so +infinity with overflow and inexact (to nearest)
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power bounds extreme negative exponent work" {
   let base = Decimal::from_string("0.5").unwrap()
   for exponent_text in ["-500000000", "-1999999997"] {
@@ -37,6 +43,9 @@ test "decimal power bounds extreme negative exponent work" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and 7.4: (-0.5)^(-999999999) = -(2^999999999) overflows to -infinity (odd exponent) and (-0.5)^(-1000000000) to +infinity (even exponent)
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power preserves negative overflow sign" {
   let base = Decimal::from_string("-0.5").unwrap()
   let odd = Decimal::from_string("-999999999").unwrap()
@@ -52,6 +61,9 @@ test "decimal power preserves negative overflow sign" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic and IEEE 754-2019 7.4: 2^999999998 and larger powers of two exceed the largest number of decimal32, decimal64 and decimal128 (10^97, 10^385, 10^6145), so every combination of base 0.5 or -0.5, exponent from -999999998 to -1000000001 (also spelled -1E+9 and -1000000000.0), format and the five directions raises overflow and returns a number (infinity or the largest finite number); the block asserts that property only
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power large fractional bases cover interchange formats and modes" {
   let bases = ["0.5", "-0.5", "-5E-1"]
   let exponents = [
@@ -86,6 +98,9 @@ test "decimal power large fractional bases cover interchange formats and modes" 
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 120 to 200 digits, rounded once to the context (the digits after the kept ones are not borderline) (Context(prec=16, Emax=384)): 0.9^-1000, 0.9^-2000, 0.99^-10000, 0.19^-500, 0.95^-5000 and 0.5^-1270 (2^1270 = 1.4E+382, below 10^385) as written out, no overflow
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power keeps finite values below overflow boundaries" {
   let cases = [
     ("0.9", "-1000", "5.721245194772949E+45"),
@@ -106,6 +121,9 @@ test "decimal power keeps finite values below overflow boundaries" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 120 to 200 digits, rounded once to the context (the digits after the kept ones are not borderline): 0.9^-1000 = 5.72124519E+45 and (-0.9)^-999 = -5.14912068E+45 at nine digits, 0.5^-1999997 at 34 digits in a context with e_max 999999999 = 2.659943448420222263365646200686070E+602059990; 0.5^-1270 is finite (2^1270 = 1.4E+382) and 0.5^-1280 overflows (2^1280 = 1.9E+385) at e_max 384 in each of the eight directions; written out
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx (the code under test)
 test "decimal power checks both sides across all rounding modes" {
   let modes = [
     DecimalRound::HalfEven,

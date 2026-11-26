@@ -18,6 +18,9 @@ fn power_issue166_case(result : (Decimal, DecimalFlags)) -> String {
 /// IEEE 754-2019 §9.2.1: x^+0 and x^-0 are 1 for every x, including zero,
 /// infinity, and NaN; pown(+-0, n<0) is an infinity with DivisionByZero;
 /// pown(+-0, 0) is 1.
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (pow and pown lists): x^+-0 and pown(x, 0) are 1 for every x that is not a signaling NaN, including zero, infinity and a quiet NaN; pown(+-0, n < 0) is an infinity with divideByZero (negative for -0 and odd n); a signaling NaN gives a quiet NaN with invalid operation; written out
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_issue166_case (print value and flags), pow_ctx and pown_ctx (the code under test)
 test "decimal power special values for zero exponents" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -56,6 +59,9 @@ test "decimal power special values for zero exponents" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 9.2.1: pow(x, +-0) is 1 for zero, infinite and NaN bases in decimal32, decimal64 and decimal128, pow(+1, y) is 1 for y = 1.5 and +inf in any direction; the checked routes (pow_int_checked, pow_nat_checked) return Ok 1 for exponent zero, a division-by-zero error for a negative power of zero and a domain error for a signaling NaN: that mapping of statuses to error kinds is the library's API (level S)
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_issue166_case (print value and flags), pow_ctx and pown_ctx (the code under test), pow_int_checked, pow_nat_checked and try_pow_ctx
 test "decimal power identities across formats modes and checked routes" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let contexts = [
@@ -125,6 +131,9 @@ test "decimal power identities across formats modes and checked routes" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (pow and pown lists): pow(+-0, +inf) is +0, pow(+-0, -inf) is +inf, pown(-0, 2147483647) is -0, pown(-0, -2147483648) is +inf with divideByZero, pown(+-inf, n) by the sign rules of odd and even n at the Int32 limits, pow(-0, 1E+30) is +0 and pow(-1, 1E+30) is 1; written out
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_issue166_case (print value and flags), pow_ctx and pown_ctx (the code under test)
 test "decimal power handles signed zero infinity and Int exponent limits" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -152,6 +161,9 @@ test "decimal power handles signed zero infinity and Int exponent limits" {
 ///|
 /// IEEE 754-2019 §9.2.1: pow(+1, y) is exact 1 for every y; pow(-1, +-Inf)
 /// is 1; and an infinite exponent classifies finite bases by magnitude.
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (pow list): pow(+1, y) is 1, pow(-1, +-inf) is 1, pow(x, +inf) is +0 for -1 < x < 1 and +inf for |x| > 1 (also for -inf), pow(x, -inf) is +inf for -1 < x < 1 and +0 for |x| > 1, pow(-inf, y) for finite y > 0 that is not an odd integer is +inf and for y < 0 it is +0; written out
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_issue166_case (print value and flags), pow_ctx and pown_ctx (the code under test)
 test "decimal power special values for one and infinite exponents" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -171,6 +183,9 @@ test "decimal power special values for one and infinite exponents" {
 ///|
 /// IEEE 754-2019 §9.2.1: a zero base with a negative nonzero exponent is an
 /// infinity and raises DivisionByZero, including a nonintegral exponent.
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (pow list): pow(+-0, y) is +inf and signals divideByZero for finite y < 0 that is not an odd integer, here y = -0.5; written out
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_issue166_case (print value and flags), pow_ctx and pown_ctx (the code under test)
 test "decimal power negative exponent on zero raises division by zero" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }

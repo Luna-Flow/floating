@@ -16,6 +16,9 @@ fn power_case(result : (Decimal, DecimalFlags)) -> String {
 /// (p + digits(n) + 2 working digits, rounding after every multiplication)
 /// can land on the wrong side of a midpoint: 3.339434^3 is exactly
 /// 37.240765000..., and 4.329438^5 is 1521.09949940...
+// oracle: A
+// source: CPython decimal at 120 to 200 digits, rounded once to the context (the digits after the kept ones are not borderline): 3.339434^3 = 37.240765000... and 4.329438^5 = 1521.09949940... at 7 digits give 37.24077 and 1521.099, 1.0000001^999999 = 1.105170802032713 and 3.7^-200 = 2.289049512326577E-114 at 16 digits; 1.5^2 = 2.25 and 2^-3 = 0.125 are exact (no inexact flag)
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal integer powers are correctly rounded" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -38,6 +41,9 @@ test "decimal integer powers are correctly rounded" {
 ///|
 /// pown_ctx built its exponent at the context precision, so an exponent
 /// longer than the precision was rounded and could change parity (#51).
+// oracle: A
+// source: IEEE 754-2019 9.2.1: (-1)^12345679 = -1 (odd exponent), exact, also through pow; (-0.02)^115 at two digits is -4.2E-196 (CPython decimal at 200 digits), inexact
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal pown keeps the integer exponent exact" {
   let ctx = DecimalContext::new(precision=7)
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -56,6 +62,9 @@ test "decimal pown keeps the integer exponent exact" {
 /// Exactly representable roots and norms used to come back from the
 /// certified evaluation with `inexact` in the half modes and failed
 /// certification in the directed modes.
+// oracle: A
+// source: arithmetic: hypot(0.3, 0.4) = 0.5, hypot(-7.5, 0) = 7.5, hypot(5E+300, 1.2E+301) = 1.3E+301, rootn(0.008, 3) = 0.2, rootn(16E-8, 4) = 0.02, rootn(-0.008, -3) = -5, exact in nearest, toward-zero and toward-positive (IEEE 754-2019 7.6: no inexact for an exact result); hypot(1, 1) = 1.414213562373095 and rootn(2, 3) = 1.259921049894873 at 16 digits, inexact (CPython decimal)
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal rootn and hypot return exact results exactly" {
   let c64 = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -78,6 +87,9 @@ test "decimal rootn and hypot return exact results exactly" {
 ///|
 /// Large degrees must avoid unbounded exact-power probes and remain supported
 /// across the complete Int range (#171).
+// oracle: A
+// source: CPython decimal at 100 digits: 2^(1/1000000) = 1.000000693147421, (-2)^(1/2147483647) = -1.000000000322772 (odd degree) and 2^(-1/2147483648) = 0.9999999996772282 at 16 digits, inexact
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal rootn handles large degrees" {
   let c64 = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -101,6 +113,9 @@ test "decimal rootn handles large degrees" {
 /// enclosure straddles the exact value and never rounds uniquely (#53).
 /// 4^2048.5 is exactly 2^4097, so it also needs a context whose exponent
 /// range reaches it.
+// oracle: A
+// source: arithmetic: 4^1.5 = 8, 16^0.75 = 8, 16^-0.75 = 0.125, 0.25^1.5 = 0.125, 9^1.5 = 27 exactly (no inexact flag), 2^0.5 = 1.414214 at 7 digits inexact and 4^2048.5 = 2^4097 = 2.088777762826305013383505421433249E+1233 at 34 digits inexact (CPython decimal)
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal power returns exact non-integral powers" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
@@ -124,6 +139,9 @@ test "decimal power returns exact non-integral powers" {
 /// exponent range within 999_999: an `e_max` above it leaves the context
 /// restricted and a non-integral power signals Invalid context rather than
 /// computing.
+// oracle: A, S
+// source: arithmetic for the integral power 2^10 = 1024; the rejection of a non-integral power in a context beyond the 999,999 limits (NaN with not_computed and no invalid operation) is the library's documented design limit (level S)
+// shares: Decimal::from_string (the local d: builds the operands), to_string and power_case (print value and flags), pow_ctx, pown_ctx, rootn_ctx and hypot_ctx (the code under test)
 test "decimal power rejects contexts outside the math function range" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let default_e_min = DecimalContext::new(precision=34, e_max=1_000_000)

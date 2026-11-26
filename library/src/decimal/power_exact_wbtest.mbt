@@ -34,6 +34,9 @@ test "decimal power decides exact non-integral results" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 120 to 200 digits, rounded once to the context (the digits after the kept ones are not borderline): 2^1.5 = 2.828427124746190, 10^1.5 = 31.62277660168379, 2^0.1 = 1.071773462536293 and 9^-1.5 = 0.03703703703703704 at 16 digits, inexact
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx and try_pow_ctx (the code under test)
 test "decimal power keeps inexact non-integral results inexact" {
   let context = DecimalContext::decimal64()
   let cases = [
@@ -56,6 +59,9 @@ test "decimal power keeps inexact non-integral results inexact" {
 /// An exact power longer than the context precision is not a rounding
 /// boundary: it lies strictly inside its rounding cell, so the refinement loop
 /// rounds it like any other value.
+// oracle: A
+// source: arithmetic and IEEE 754-2019 4.3: 4096^1.5 = 262144 rounds half-even to 3E+5 at one digit; 4^106.5 = 2^213 = 1.316403645856965E+64 at 16 digits (CPython decimal); both inexact
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx and try_pow_ctx (the code under test)
 test "decimal power rounds exact non-integral results beyond the precision" {
   let coarse = DecimalContext::new(
     precision=1,
@@ -91,6 +97,9 @@ let all_decimal_roundings : Array[DecimalRound] = [
 /// Exact powers longer than the precision round correctly in the directed
 /// modes too, whether the value is a binary fraction (`4096^1.5 = 2^18`) or
 /// not (`0.25^1.5 = 0.125`).
+// oracle: A
+// source: arithmetic and IEEE 754-2019 4.3: 4096^1.5 = 262144 at one digit and 0.25^1.5 = 0.125 at two digits rounded in the eight directions (CPython decimal plus agrees): 3E+5 or 2E+5 (down, floor and 05up give 2E+5) and 0.12 or 0.13 (half-up, ceiling and up give 0.13), inexact each time
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx and try_pow_ctx (the code under test)
 test "decimal power rounds long exact non-integral results in every mode" {
   let cases = [
     (
@@ -158,6 +167,9 @@ test "decimal power decides exact non-integral results past base^p's size (#138)
 ///|
 /// `try_pow_ctx` reports the failure instead of returning a quiet NaN, so an
 /// uncertifiable power stays distinguishable from an invalid operand.
+// oracle: A
+// source: arithmetic: 4^1.5 = 8 exactly, no inexact flag; the block checks the Ok form of try_pow_ctx (the Err form is the library's API and is not reached by this input)
+// shares: Decimal::from_string (builds the operands), to_string (prints the result), pow_ctx and try_pow_ctx (the code under test)
 test "decimal try power reports a certification failure" {
   let context = DecimalContext::decimal64()
   match
@@ -176,6 +188,9 @@ test "decimal try power reports a certification failure" {
 /// The reduced exponent is bounded by the operands, not by fixed constants:
 /// `(5^1024)^(2^-10) = 5` has a denominator of 1024, and
 /// `0.25^4096.5 = 5^8193 * 10^-8193` a numerator of 8193.
+// oracle: A
+// source: arithmetic: (5^1024)^(2^-10) = 5, (5^1024)^(-2^-10) = 0.2 and 0.25^4096.5 = 2^-8193 = 5^8193 * 10^-8193, exact in each of the eight directions (the operands and expected values are built with pow5 and BigInt::to_string, the coefficients 5^k themselves are the arithmetic definition); no inexact flag
+// shares: pow5 and to_string (build the operands and expected texts), Decimal::from_string and total_order_compare (read them), pow_ctx (the code under test)
 test "decimal power decides exact powers with large reduced exponents" {
   let cases = [
     (pow5(1024).to_string(), "0.0009765625", 720, "5"),
