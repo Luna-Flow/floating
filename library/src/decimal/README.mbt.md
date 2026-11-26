@@ -13,12 +13,13 @@ quantize, total comparison, adjacent values,
 formatting, decimal32/64/128 interchange, and elementary functions. Prefer
 `*_ctx` for status-sensitive code; operators intentionally omit flags.
 
-IEEE 754-2019 minimum/maximum and magnitude variants are distinct from the
-legacy GDA-compatible `min`/`max` methods. `exponent10` and NaN payload accessors
+IEEE 754-2019 `minimum_ctx`/`maximum_ctx` and their magnitude and number
+variants are distinct from the minNum and maxNum of IEEE 754-2008
+(`min_num`, `max_num`). `exponent10` and NaN payload accessors
 keep cohort and diagnostic state observable without changing finite values.
 
 The pinned official and official0 GDA rows remain fully conformant through the
 compatibility profile. The coefficient kernel uses canonical little-endian
 base-1e9 limbs with inline arithmetic, Karatsuba, Toom-3, NTT, Knuth,
 Burnikel-Ziegler, and Newton dispatch. Its thresholds and rationale are
-documented in `doc/*/decimal/design.md`.
+documented in `doc/manual/design/decimal.md`.

@@ -52,7 +52,7 @@ test "floating quick start" {
   // An interval contains every exact result.
   let one = @interval.Interval::from_int(1, precision=53)
   let enclosure = one.div(@interval.Interval::from_int(3, precision=53))
-  inspect(enclosure.contains(third), content="true")
+  inspect(enclosure.is_member(third), content="true")
 }
 ```
 

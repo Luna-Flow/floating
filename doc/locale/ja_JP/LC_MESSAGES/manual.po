@@ -22325,122 +22325,122 @@ msgid "You need the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Ad
 msgstr "MoonBit ツールチェーン 0.10.20 以降（`moonc` ≥ 0.10.20）が必要です。モジュールを追加し、丸めモードやコンテキストを自分で名指しする場合は `Luna-Flow/arithmetic` も追加します。"
 
 #: manual/getting_started.md:43
-msgid "[!NOTE] The manual describes the current branch. Operations listed under \"Unreleased\" in the changelog (for example `Binary::fma_ctx`, `remainder_ctx`, `next_up_ctx` and decimal string formatting) are not in a published release yet."
-msgstr "[!NOTE] このマニュアルは現在のブランチを説明しています。変更履歴の \"Unreleased\" に記載されている演算（たとえば `Binary::fma_ctx`、`remainder_ctx`、`next_up_ctx`、十進文字列のフォーマット）は、まだ公開リリースには含まれていません。"
+msgid "[!NOTE] The manual describes the current branch. Operations listed under \"Unreleased\" in the changelog (for example decimal string formatting) are not in a published release yet."
+msgstr "[!NOTE] このマニュアルは現在のブランチを説明しています。変更履歴の \"Unreleased\" に記載されている演算（たとえば十進文字列のフォーマット）は、まだ公開リリースには含まれていません。"
 
-#: manual/getting_started.md:49
+#: manual/getting_started.md:48
 msgid "Import only the packages you use in your `moon.pkg`:"
 msgstr "`moon.pkg` では使用するパッケージだけをインポートします。"
 
-#: manual/getting_started.md:60
+#: manual/getting_started.md:59
 msgid "Imports name packages, not files: each directory with a `moon.pkg` is one package, and its files share one namespace. By convention the manual imports `Luna-Flow/arithmetic` as `@lf_arith` and `Luna-Flow/luna-generic` as `@lf_alg`."
 msgstr "インポートはファイルではなくパッケージを指定します。`moon.pkg` を持つ各ディレクトリが一つのパッケージであり、そのファイルは一つの名前空間を共有します。慣例として、このマニュアルでは `Luna-Flow/arithmetic` を `@lf_arith`、`Luna-Flow/luna-generic` を `@lf_alg` としてインポートします。"
 
-#: manual/getting_started.md:65
+#: manual/getting_started.md:64
 msgid "Build values"
 msgstr "値を構築する"
 
-#: manual/getting_started.md:67
+#: manual/getting_started.md:66
 msgid "A `Binary` is an exact dyadic number $c \\cdot 2^e$ with a precision; a `Decimal` is $c \\cdot 10^q$ and remembers the exponent $q$ of its literal; an `Interval` is an interval with binary endpoints."
 msgstr "`Binary` は精度を持つ厳密な二進有理数 $c \\cdot 2^e$ です。`Decimal` は $c \\cdot 10^q$ で、リテラルの指数 $q$ を記憶します。`Interval` は二進の端点を持つ区間です。"
 
-#: manual/getting_started.md:95
+#: manual/getting_started.md:94
 msgid "`Binary` prints in the exact form `<coefficient>p<exponent>`; use `to_shortest_string` or `to_decimal_string_ctx` for decimal text. Call `normalized()` on a decimal only when you want to drop its cohort."
 msgstr "`Binary` は厳密な形式 `<coefficient>p<exponent>` で出力されます。十進テキストには `to_shortest_string` または `to_decimal_string_ctx` を使用してください。十進数に対して `normalized()` を呼ぶのは、そのコホートを捨てたい場合だけにしてください。"
 
-#: manual/getting_started.md:99
+#: manual/getting_started.md:98
 msgid "Other constructors: `Binary::from_int`, `from_double`, `from_string` and `from_string_ctx` (correctly rounded decimal parsing), `from_hex`; `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`, `from_double`, `exact` and `from_bounds`. Constructors take an optional `precision`; `Interval::from_int` requires it."
 msgstr "その他のコンストラクタ: `Binary::from_int`、`from_double`、`from_string` と `from_string_ctx`（正しく丸められた十進パース）、`from_hex`。`Decimal::from_int`、`from_string`、`from_string_ctx`。`Interval::from_int`、`from_double`、`exact`、`from_bounds`。コンストラクタはオプションの `precision` を取ります。`Interval::from_int` では必須です。"
 
-#: manual/getting_started.md:105
+#: manual/getting_started.md:104
 msgid "Choose a context"
 msgstr "コンテキストを選ぶ"
 
-#: manual/getting_started.md:107
+#: manual/getting_started.md:106
 msgid "The plain operators (`+`, `-`, `*`, `/` and `add`, `mul`, …) work at the operands' precision with round-to-nearest-even and an effectively unbounded exponent range, and they discard status. When precision, exponent range, rounding direction, tininess or the status flags are part of your result, use the `*_ctx` form with an explicit context:"
 msgstr "通常の演算子（`+`、`-`、`*`、`/` および `add`、`mul`、…）は、オペランドの精度で最近接偶数丸めを行い、実質的に無制限の指数範囲で動作し、ステータスを破棄します。精度、指数範囲、丸め方向、極小性、ステータスフラグが結果の一部となる場合は、明示的なコンテキストとともに `*_ctx` 形式を使用してください。"
 
-#: manual/getting_started.md:140
+#: manual/getting_started.md:139
 msgid "Contexts are immutable values; nothing in the library reads a global rounding mode. IEEE contexts return the flags of one operation, which you `combine` yourself. A GDA context instead travels with the result: every `GdaOutcome` returns the next context, whose flags accumulate."
 msgstr "コンテキストは不変の値であり、ライブラリ内でグローバルな丸めモードを読むものはありません。IEEE のコンテキストは一つの演算のフラグを返し、それを自分で `combine` します。一方、GDA のコンテキストは結果とともに受け渡されます。すべての `GdaOutcome` は次のコンテキストを返し、そのフラグが蓄積されます。"
 
-#: manual/getting_started.md:145
+#: manual/getting_started.md:144
 msgid "Choose a failure model"
 msgstr "失敗モデルを選ぶ"
 
-#: manual/getting_started.md:147
+#: manual/getting_started.md:146
 msgid "The library exposes several failure channels on purpose. Pick the one that matches what your caller must observe:"
 msgstr "ライブラリは意図的に複数の失敗チャネルを公開しています。呼び出し側が観測すべき内容に合うものを選んでください。"
 
-#: manual/getting_started.md:150
+#: manual/getting_started.md:149
 msgid "`Option` from simple constructors such as `BinaryInterchange::from_hex`, when bad input needs no diagnostic."
 msgstr "`BinaryInterchange::from_hex` のような単純なコンストラクタからの `Option`。不正な入力に診断情報が不要な場合に使います。"
 
-#: manual/getting_started.md:152
+#: manual/getting_started.md:151
 msgid "`Result[T, ArithmeticError]` from checked operations (`div_checked`, `sqrt_checked`, `compare_checked`, `from_string`, the `try_*_ctx` elementary functions)."
 msgstr "checked 演算（`div_checked`、`sqrt_checked`、`compare_checked`、`from_string`、`try_*_ctx` 初等関数）からの `Result[T, ArithmeticError]`。"
 
-#: manual/getting_started.md:155
+#: manual/getting_started.md:154
 msgid "`BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result."
 msgstr "定義済みの結果に付随する `BinaryFlags`、`DecimalFlags`、`IntervalFlags`。"
 
-#: manual/getting_started.md:156
+#: manual/getting_started.md:155
 msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires."
 msgstr "トラップが発火しても GDA で定義された結果を保持する `GdaOutcome[T]`。"
 
-#: manual/getting_started.md:157
+#: manual/getting_started.md:156
 msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
 msgstr "パイプラインのラッパー: `BinaryChecked` と `IntervalChecked` は最初のエラーで停止します。`DecimalChecked` は定義済みの NaN と無限大の結果を保持し、フラグを蓄積します。`GdaDecimalChecked` はトラップで停止し、その結果を保持します。"
 
-#: manual/getting_started.md:161
+#: manual/getting_started.md:160
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr "Empty、Entire、NaI。これらはエラーではなく区間の値です。"
 
-#: manual/getting_started.md:180
+#: manual/getting_started.md:179
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr "これらのチャネルを一つの例外型や一つの `Result` にまとめないでください。標準が観測可能にしている意味論が失われます。"
 
-#: manual/getting_started.md:183
+#: manual/getting_started.md:182
 msgid "Read results correctly"
 msgstr "結果を正しく読む"
 
-#: manual/getting_started.md:185
+#: manual/getting_started.md:184
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr "符号付きゼロ、無限大、quiet NaN と signaling NaN、NaN のペイロードはスカラーで観測可能です。"
 
-#: manual/getting_started.md:187
+#: manual/getting_started.md:186
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `binary`, or the `total_order*` functions."
 msgstr "`compare`、`<`、ソートは全前順序を用います。そこではすべての NaN が互いに等しく、すべての数より上にあり、$-0 = +0$ です。IEEE の意味論が必要な場合は、`compare_checked`、`binary` の quiet / signaling 述語、または `total_order*` 関数を使用してください。"
 
-#: manual/getting_started.md:191
+#: manual/getting_started.md:190
 msgid "`==` agrees with `compare` in the number types: on `Binary` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `Binary`. See [numeric semantics](./numeric_semantics.md)."
 msgstr "`==` はどの数値型でも `compare` と一致します。`Binary` の `==` はゼロの符号と精度を無視し（`-0 == +0`）、二つの NaN を等しいとみなします。`Decimal` の `==` は値を比較します。`Interval` の `==` は端点を値で比較します（空の区間どうしは等しい）。`a.identical(b)` は `Binary` のすべてのフィールドを比較します。[数値意味論](./numeric_semantics.md)を参照してください。"
 
-#: manual/getting_started.md:196
+#: manual/getting_started.md:195
 msgid "An `Interval` has containment and set relations (`contains`, `subset`, `strict_less`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr "`Interval` にはスカラーの順序ではなく、包含関係と集合の関係（`contains`、`subset`、`strict_less`、…）があります。結果が正しいとは、それが厳密な結果を包含することです。区間の狭さは別の品質です。"
 
-#: manual/getting_started.md:199
+#: manual/getting_started.md:198
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, exponent, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` はパッケージをまたいで数学的な値を比較し、精度、指数、符号付きゼロ、ペイロード、装飾、フラグを捨てます。"
 
-#: manual/getting_started.md:202
+#: manual/getting_started.md:201
 msgid "Continue reading"
 msgstr "次に読むもの"
 
-#: manual/getting_started.md:204
+#: manual/getting_started.md:203
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, exponent, signed zero, NaN and enclosures with their derivations."
 msgstr "[数値意味論](./numeric_semantics.md)では、丸め、ulp、フラグ、指数、符号付きゼロ、NaN、包含区間を、その導出とともに定義しています。"
 
-#: manual/getting_started.md:206
+#: manual/getting_started.md:205
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[アーキテクチャ](./architecture.md)では、パッケージのレイヤーと認証付き初等関数を説明しています。"
 
-#: manual/getting_started.md:208
+#: manual/getting_started.md:207
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[検証](./verification.md)では、ゲートと各適合性の主張の正確な範囲を示しています。"
 
-#: manual/getting_started.md:210
+#: manual/getting_started.md:209
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`binary` tutorial](./tutorial/binary.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr "各パッケージにはチュートリアル、API リファレンス、設計ページがあります。まずは [`binary` チュートリアル](./tutorial/binary.md)、[`decimal` チュートリアル](./tutorial/decimal.md)、または [`interval` チュートリアル](./tutorial/interval.md)から始めてください。"
 

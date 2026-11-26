@@ -42,9 +42,8 @@ moon add Luna-Flow/arithmetic
 
 > [!NOTE]
 > The manual describes the current branch. Operations listed under
-> "Unreleased" in the changelog (for example `Binary::fma_ctx`,
-> `remainder_ctx`, `next_up_ctx` and decimal string formatting) are not in a
-> published release yet.
+> "Unreleased" in the changelog (for example decimal string formatting) are not
+> in a published release yet.
 
 Import only the packages you use in your `moon.pkg`:
 
