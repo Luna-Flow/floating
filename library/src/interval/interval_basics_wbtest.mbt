@@ -280,17 +280,28 @@ fn euclid_gcd(a : Int32, b : Int32) -> Int32 {
 }
 
 ///|
+// oracle: A
+// source: sin, cos and tan of 2^3000 at 24 bits from MPFR 4.2.2 (mpfr_sin, mpfr_cos, mpfr_tan, rounded toward negative and toward positive, argument set exactly): sin in [-0xe7036ep-24, -0xe7036dp-24], cos in [-0x6e4ff68p-28, -0x6e4ff6p-24], tan in [0x2181bd8p-24, 0x2181bdcp-24], each the two floats around the true value, so the enclosure is the exact hull; the argument 2^8100000 is beyond the documented limit of the forward trigonometric functions (an engineering limit), so the three functions return Err
+// shares: Binary::make, Binary::from_hex and Interval::from_bounds build the inputs and the expected ends; Binary::compare compares; try_sin, try_cos and try_tan are the code under test
 test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
   let precision = 24
   let power = fn(e : Int32) {
     let x = @binary.Binary::make(@binary.BinCoeff::one(), e, precision)
     Interval::from_bounds(x, x, precision~)
   }
-  let unit = unit_interval(precision)
+  let hex = fn(text : String) {
+    @binary.Binary::from_hex(text, precision).unwrap()
+  }
   let near = power(3000)
-  assert_true(near.try_sin().unwrap().subset(unit))
-  assert_true(near.try_cos().unwrap().subset(unit))
-  assert_true(near.try_tan() is Ok(_))
+  let s = near.try_sin().unwrap()
+  assert_true(s.lo_.compare(hex("-0xe7036ep-24")) == 0)
+  assert_true(s.hi_.compare(hex("-0xe7036dp-24")) == 0)
+  let c = near.try_cos().unwrap()
+  assert_true(c.lo_.compare(hex("-0x6e4ff68p-28")) == 0)
+  assert_true(c.hi_.compare(hex("-0x6e4ff6p-24")) == 0)
+  let t = near.try_tan().unwrap()
+  assert_true(t.lo_.compare(hex("0x2181bd8p-24")) == 0)
+  assert_true(t.hi_.compare(hex("0x2181bdcp-24")) == 0)
   let beyond = power(8_100_000)
   assert_true(beyond.try_sin() is Err(_))
   assert_true(beyond.try_cos() is Err(_))

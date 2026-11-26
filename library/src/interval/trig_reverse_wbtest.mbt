@@ -74,12 +74,25 @@ fn tr_tiny(precision : Int32) -> @binary.Binary {
 let tr_precisions : Array[Int32] = [8, 24, 53, 113]
 
 ///|
+// oracle: B
+// source: the set of sin x = 0 is { k pi } (IEEE 1788-2015 10.5.4, sinRev); the piece ends are RD and RU of pi and 2 pi from the Python Machin value of pi (ref_pi_interval, tools/interval_pi_oracle.py) times an exact integer, rounded to p bits; at 53 bits they are checked against literals worked out in Python integers (RD(pi) = 0x1921fb54442d18p-51, RU(pi) = 0x1921fb54442d19p-51); the expected answers (which prior ends hold a multiple of pi, Empty or the hull) are written out by hand from the position of the end relative to RD(pi), RU(pi) and 0
+// shares: ref_pi_interval (Binary::from_hex and with_precision on the Python bounds), Interval multiplication by an exact integer and 0.5 (tr_pi_multiple), with_precision, next_up_ctx and next_down_ctx (tr_up, tr_down) build the inputs; Interval == and the comparisons compare; sin_rev is the code under test
+// primitives: pi: pi_reference_wbtest.mbt (Python integers, level A); Interval multiplication by exact values: ITF1788 and the MPFR differential stage; with_precision, next_up_ctx, next_down_ctx: the binary gate (TestFloat and MPFR rows)
 test "sin_rev, the corner cases of the comparison of a prior end with a piece end" {
   for p in tr_precisions {
     let zero = tr_num(0.0, p)
     let c = tr_box(zero, zero, p)
     let (pi_lo, pi_hi) = tr_pi_multiple(2, p)
     let (two_pi_lo, two_pi_hi) = tr_pi_multiple(4, p)
+    if p == 53 {
+      let hex = fn(text : String) {
+        @binary.Binary::from_hex(text, 53).unwrap()
+      }
+      assert_true(pi_lo.compare(hex("0x1921fb54442d18p-51")) == 0)
+      assert_true(pi_hi.compare(hex("0x1921fb54442d19p-51")) == 0)
+      assert_true(two_pi_lo.compare(hex("0x1921fb54442d18p-50")) == 0)
+      assert_true(two_pi_hi.compare(hex("0x1921fb54442d19p-50")) == 0)
+    }
     let seven = tr_num(7.0, p)
     let six = tr_num(6.0, p)
     // the set is { k pi }: the prior [RU(pi), 7] holds 2 pi only
@@ -205,6 +218,10 @@ test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
 }
 
 ///|
+// oracle: B
+// source: the multiples of pi in [1, 20000] are pi .. 6366 pi (6366 pi = 19998.8..., 6367 pi = 20002.0...), so the result is [RD(pi), RU(6366 pi)] with RD(pi) = 0x1921fb54442d18p-51 and RU(6366 pi) = 0x1387d83ecbbaccp-38 at 53 bits (Python integers: Machin pi times 6366); for [1, 1e30] only the last multiple below 1e30 matters and the spacing of the floats there (2^47) is far above pi, so the upper end is the float 1e30 itself; the prior far from 0 is checked only for containment in the prior (S)
+// shares: ref_pi_interval, Interval multiplication by an exact integer and 0.5 (tr_pi_multiple), with_precision, tr_num (Binary::from_double) build the inputs; the comparisons compare; sin_rev is the code under test
+// primitives: pi: pi_reference_wbtest.mbt (Python integers, level A); Interval multiplication by exact values: ITF1788 and the MPFR differential stage; with_precision: the binary gate (TestFloat and MPFR rows)
 test "sin_rev: a prior spanning very many periods needs only the pieces at its two ends" {
   let p = 53
   let c = tr_box(tr_num(0.0, p), tr_num(0.0, p), p)
@@ -212,6 +229,9 @@ test "sin_rev: a prior spanning very many periods needs only the pieces at its t
   let r = c.sin_rev(x=tr_box(tr_num(1.0, p), tr_num(20000.0, p), p))
   let (lo_lo, _) = tr_pi_multiple(2, p)
   let (_, hi_hi) = tr_pi_multiple(2 * 6366, p)
+  let hex = fn(text : String) { @binary.Binary::from_hex(text, 53).unwrap() }
+  assert_true(lo_lo.compare(hex("0x1921fb54442d18p-51")) == 0)
+  assert_true(hi_hi.compare(hex("0x1387d83ecbbaccp-38")) == 0)
   assert_true(tr_same(r, lo_lo, hi_hi))
   // a huge prior: only the last multiple below 1e30 matters, and the spacing of
   // the floats there is far above pi, so the end is the float 1e30 itself
@@ -374,6 +394,9 @@ test "tan_rev: the corner cases, the poles and the default prior" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE 1788-2015 11.7.1: a reverse operation returns the decoration trv whatever the operands' decorations are, and NaI in any operand gives NaI; sin x = 0 on [0, 1] has the single solution 0, so the result is [0, 0]; sin x = [2, 3] has no solution, so Empty with the decoration trv
+// shares: tr_box, tr_num (Binary::from_double and Interval::from_bounds) and DecoratedInterval::new build the inputs; sin_rev, cos_rev and tan_rev are the code under test
 test "decorated trigonometric reverse functions are trivially decorated (11.7.1)" {
   let p = 53
   let d = fn(lo : Double, hi : Double, dec : Decoration) {
@@ -402,6 +425,9 @@ test "decorated trigonometric reverse functions are trivially decorated (11.7.1)
 /// Regression: a prior end with a huge negative exponent was written as a rational
 /// with a denominator of 2^1000000000, and the call did not return. These calls
 /// must return at once.
+// oracle: A
+// source: worked by hand from the definitions of sinRev, cosRev and tanRev (IEEE 1788-2015 10.5.4): sin x = 0, tan x = 0 and cos x = 1 hold at 0, and the next solutions are pi and 2 pi, so the prior [-2^-1e9, 2^-1e9] gives [0, 0], and the priors [2^-1e9, 1], [-1, -2^-1e9] and the point 2^-1e9 hold no solution and give Empty
+// shares: tr_box, tr_num, tr_tiny (Binary::make) build the inputs; tr_same compares; sin_rev, cos_rev and tan_rev are the code under test
 test "regression: a prior end of 2^-1000000000 returns at once" {
   for p in [8, 53] {
     let tiny = tr_tiny(p)
@@ -430,6 +456,10 @@ test "regression: a prior end of 2^-1000000000 returns at once" {
 /// Regression: a prior end beyond the limit of the forward trigonometric functions
 /// (2^1000000000) must not cost pi at an enormous precision: the limit is decided
 /// before any work, the end is kept, and the call returns at once.
+// oracle: B
+// source: worked by hand from the definitions of sinRev, cosRev and tanRev: a prior end beyond the limit of the forward functions (2^1e9) is kept as it is; the lower end 1 is searched, so the first solution above 1 is pi and its enclosure is [RD(pi), 2^1e9] with RD(pi) = 0x1921fb54442d18p-51 at 53 bits (Python Machin pi, ref_pi_interval); [-2^1e9, 1] gives [-2^1e9, 0] since 0 is the last solution below 1; the infinite end of a half line is kept
+// shares: ref_pi_interval, Interval multiplication by an exact integer and 0.5 (tr_pi_multiple), with_precision, tr_box, tr_num, Binary::make build the inputs; tr_same and Interval == compare; sin_rev, cos_rev and tan_rev are the code under test
+// primitives: pi: pi_reference_wbtest.mbt (Python integers, level A); Interval multiplication by exact values: ITF1788 and the MPFR differential stage; with_precision: the binary gate (TestFloat and MPFR rows)
 test "regression: a prior end of 2^1000000000 returns at once" {
   let p = 53
   let huge = @binary.Binary::make(
@@ -446,6 +476,10 @@ test "regression: a prior end of 2^1000000000 returns at once" {
   let one = tr_num(1.0, p)
   let c = tr_box(zero, zero, p)
   let (pi_lo, _) = tr_pi_multiple(2, p)
+  assert_true(
+    pi_lo.compare(@binary.Binary::from_hex("0x1921fb54442d18p-51", 53).unwrap()) ==
+    0,
+  )
   // both ends beyond the limit: the prior itself
   let both = tr_box(huge, huge_three_halves, p)
   assert_true(tr_same(c.sin_rev(x=both), huge, huge_three_halves))

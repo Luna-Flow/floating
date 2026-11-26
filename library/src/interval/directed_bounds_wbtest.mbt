@@ -205,6 +205,10 @@ test "directed endpoint sums, differences and products equal the exact reference
 ///|
 /// Exact results of 1 to 3 bits at leading-bit exponents `e_min - 1`, `e_min`,
 /// `e_max` and one above (overflow), in 24, 53 and 113 bits.
+// oracle: B
+// source: the exact sum, difference or product of the two operands formed by integer arithmetic (exact_sum_rounded, exact_product_rounded: aligned BinCoeff sums and products, no rounding) and then rounded once to the precision in the direction; the operands are exact results of 1 to 3 bits at the leading-bit exponents e_min - 3 to e_min + 1 and e_max - 1, e_max in 24, 53 and 113 bits, so the cases cover gradual underflow and overflow
+// shares: Binary::make builds the operands and rounds the reference once; BinCoeff arithmetic aligns and multiplies; directed_add, directed_sub and extended_mul are the code under test
+// primitives: BinCoeff arithmetic and Binary::make: the binary gate (TestFloat and MPFR rows, level A)
 test "directed bounds at the two ends of the exponent range" {
   let e_min = @binary.binary_value_e_min
   let e_max = @binary.binary_value_e_max
