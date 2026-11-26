@@ -302,7 +302,8 @@ pub fn Decimal::try_compound_ctx(
       if n < 0 {
         decimal_elementary_division_by_zero(Sign::Positive, ctx)
       } else {
-        decimal_elementary_zero(false, ctx)
+        // The exact zero has the preferred exponent of 9.2.2.
+        decimal_zero_at_preferred(false, preferred, ctx)
       },
     )
   }

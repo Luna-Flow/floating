@@ -488,8 +488,15 @@ fn Decimal::try_unary_elementary_ctx(
         )
       // rootn(+-0, n) is +-0 for odd n > 0 and +0 for even n > 0 (IEEE 754-2019
       // 9.2.1).
+      // The exact zero has the preferred exponent floor(Q(x) / n) (9.2.2).
       Rootn(degree) =>
-        Some(decimal_elementary_zero(self.negative && degree % 2 != 0, ctx))
+        Some(
+          decimal_zero_at_preferred(
+            self.negative && degree % 2 != 0,
+            decimal_floor_div64(self.exponent10.to_int64(), degree.to_int64()),
+            ctx,
+          ),
+        )
       Acos => None
     }
     match exact {
@@ -1128,8 +1135,17 @@ fn decimal_hypot_exact_result(
   }
   let target_precision = decimal_math_target_precision(ctx)
   if left.coefficient.is_zero() || right.coefficient.is_zero() {
+    // The exact result |other| has the preferred exponent min(Q(x), Q(y))
+    // (9.2.2).
     let other = if left.coefficient.is_zero() { right } else { left }
-    return Some(apply_finite_ctx({ ..other, negative: false, }, ctx))
+    let preferred = Int32::min(left.exponent10, right.exponent10).to_int64()
+    return Some(
+      decimal_power_adjust_exact_cohort(
+        apply_finite_ctx({ ..other, negative: false, }, ctx),
+        preferred,
+        ctx,
+      ),
+    )
   }
   // A representable root z = sqrt(x^2 + y^2) with y << x satisfies
   // z - x ~ y^2 / (2x); with more than p + 2 orders of magnitude between the
@@ -1190,7 +1206,14 @@ pub fn Decimal::try_hypot_ctx(
     None => ()
   }
   if self.coefficient.is_zero() && other.coefficient.is_zero() {
-    return Ok((Decimal::zero(precision~), DecimalFlags::new()))
+    // hypot(+-0, +-0) is +0 at the preferred exponent min(Q(x), Q(y)) (9.2.2).
+    return Ok(
+      decimal_zero_at_preferred(
+        false,
+        Int32::min(self.exponent10, other.exponent10).to_int64(),
+        ctx,
+      ),
+    )
   }
   if limited {
     return Err(decimal_context_limit("hypot", ctx))

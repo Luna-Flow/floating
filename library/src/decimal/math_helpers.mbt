@@ -354,10 +354,16 @@ fn decimal_power_finite_noninteger_domain_result(
     if exponent.negative && !exponent.coefficient.is_zero() {
       return Some(decimal_elementary_division_by_zero(Sign::Positive, ctx))
     }
+    // pow(+-0, y) for a non-integral y > 0 is +0 (9.2.1), at the preferred
+    // exponent floor(y * Q(x)) (9.2.2).
     return Some(
-      (
-        finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
-        DecimalFlags::new(),
+      decimal_zero_at_preferred(
+        false,
+        match decimal_power_preferred_exponent(base.exponent10, exponent) {
+          Some(preferred) => preferred
+          None => 0L
+        },
+        ctx,
       ),
     )
   }
@@ -2191,15 +2197,17 @@ fn decimal_power_ieee_special_result(
                 ),
               )
             }
+            // pow(+-0, y) for y > 0 is exactly zero (9.2.1), at the preferred
+            // exponent floor(y * Q(x)) (9.2.2).
             return Some(
-              (
-                finite_with_exponent_repr(
-                  base.negative && odd,
-                  dec_coeff_zero(),
-                  0,
-                  precision,
-                ),
-                DecimalFlags::new(),
+              decimal_zero_at_preferred(
+                base.negative && odd,
+                match
+                  decimal_power_preferred_exponent(base.exponent10, exponent) {
+                  Some(preferred) => preferred
+                  None => 0L
+                },
+                ctx,
               ),
             )
           }
@@ -2344,6 +2352,34 @@ fn decimal_power_preferred_exponent(
   }
   let value = magnitude.to_int64()
   Some(if negative { -value } else { value })
+}
+
+///|
+/// An exact zero result at the cohort member IEEE 754-2019 5.2 and 9.2.2
+/// select: a zero has a member for every exponent, so the member is the
+/// preferred exponent itself, held to the exponents the context can store
+/// (`Etiny` up to `Etop` under `clamp`, else `e_max`).
+fn decimal_zero_at_preferred(
+  negative : Bool,
+  preferred : Int64,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
+  let highest = if ctx.clamp && ctx.precision > 0 {
+    etop(ctx, precision).to_int64()
+  } else {
+    ctx.e_max.to_int64()
+  }
+  let chosen = Int64::min(Int64::max(preferred, etiny(ctx).to_int64()), highest)
+  (
+    finite_with_exponent_repr(
+      negative,
+      dec_coeff_zero(),
+      chosen.to_int(),
+      precision,
+    ),
+    DecimalFlags::new(),
+  )
 }
 
 ///|
