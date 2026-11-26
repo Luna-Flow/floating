@@ -22,6 +22,33 @@ test "certified dyadic division encloses positive and negative ratios" {
 
 ///|
 // oracle: A
+// source: hand derived and checked with CPython fractions (floor and ceil of numerator / denominator * 2^scale), rows listed as numerator (value, scale), denominator (value, scale), result scale: 1/-3 at 8 is -85.33 so -86 and -85; -1/-3 at 8 is 85 and 86; 5/-2 at 4 is exactly -40; -7/-4 at 2 is exactly 7; 2/-3 at 4 is -10.67 so -11 and -10; (3/2)/(-3/4) at 3 is exactly -16; (1/4)/(-3/2) at 4 is -2.67 so -3 and -2
+// shares: CertifiedDyadic::new and the numerator accessors
+test "certified dyadic division with negative denominators" {
+  let rows : Array[((Int32, Int32), (Int32, Int32), Int32, Int32, Int32)] = [
+    ((1, 0), (-3, 0), 8, -86, -85),
+    ((-1, 0), (-3, 0), 8, 85, 86),
+    ((5, 0), (-2, 0), 4, -40, -40),
+    ((-7, 0), (-4, 0), 2, 7, 7),
+    ((2, 0), (-3, 0), 4, -11, -10),
+    ((3, 1), (-3, 2), 3, -16, -16),
+    ((1, 2), (-3, 1), 4, -3, -2),
+  ]
+  for row in rows {
+    let (n, d, scale, lower, upper) = row
+    let result = certified_dyadic_div(
+      CertifiedDyadic::new(BigInt::from_int(n.0), n.1),
+      CertifiedDyadic::new(BigInt::from_int(d.0), d.1),
+      scale,
+    ).unwrap()
+    assert_eq(result.lower().numerator(), BigInt::from_int(lower))
+    assert_eq(result.upper().numerator(), BigInt::from_int(upper))
+    assert_eq(result.lower().scale(), scale)
+  }
+}
+
+///|
+// oracle: A
 // source: the contract of CertifiedInterval::new (lower bound above upper bound is an invalid enclosure, reported at the enclosure propagation stage), written as the two enum values
 // shares: the failure detail accessors
 test "certified interval rejects reversed bounds" {
