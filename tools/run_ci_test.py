@@ -51,12 +51,13 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 33)
+        self.assertEqual(len(stages), 34)
         self.assertEqual(
             [stage.name.split(": ")[0] for stage in stages],
             [
                 "DEPENDENCIES",
                 "IMPORTS",
+                "INSTALL",
                 "CONTEXTS",
                 "ORACLES",
                 "FORMAT",
@@ -130,6 +131,7 @@ class RunCiTests(unittest.TestCase):
                     "DEPENDENCIES",
                     "CHECK",
                     "IMPORTS",
+                    "INSTALL",
                     "CONTEXTS",
                     "ORACLES",
                     "FORMAT",
@@ -185,7 +187,7 @@ class RunCiTests(unittest.TestCase):
         )
         self.assertEqual(
             lanes["python"],
-            ["IMPORTS: package independence", "CONTEXTS: corpus", "ORACLES: test declarations", "DOCS: manual quality", "TEST: Python tooling"],
+            ["IMPORTS: package independence", "INSTALL: version lines", "CONTEXTS: corpus", "ORACLES: test declarations", "DOCS: manual quality", "TEST: Python tooling"],
         )
         self.assertEqual(lanes["conformance"][0], "SMOKE: DecimalGDA")
         ci_schedule.validate_plan(stages)

@@ -27,7 +27,7 @@ functions. Each example compiles and shows its output. The
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 ```
 
 Import the package in your `moon.pkg` (the examples also use

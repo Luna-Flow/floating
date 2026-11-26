@@ -23,7 +23,7 @@ method is listed in the [API reference](../api/binary_checked.md).
 Add the module:
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 ```
 
 Import the wrapper and `binary` in your `moon.pkg` (the examples also use

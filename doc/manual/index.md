@@ -27,7 +27,7 @@ The library is built around three contracts:
 ## Install
 
 ```bash
-moon add Luna-Flow/floating@0.11.0
+moon add Luna-Flow/floating@0.12.0
 ```
 
 Then import the packages you need in your `moon.pkg`:

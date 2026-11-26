@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.12.0-pre`** (a pre-release; the latest published stable release is `0.11.0`).
+documentation baseline: **`0.12.0`** (the latest stable release of this repository; the registry lists it once it is published).
 
 ## To Contributors
 
