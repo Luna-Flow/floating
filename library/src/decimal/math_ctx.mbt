@@ -56,12 +56,13 @@ pub fn Decimal::try_log10_ctx(
 }
 
 ///|
-/// Returns `e` raised to `self`, correctly rounded under `ctx`, with the flags it
+/// Returns `e` raised to `self`, rounded once under `ctx`, with the flags it
 /// raised. `exp(+0)` and `exp(-0)` are 1, `exp(+inf)` is `+inf` and `exp(-inf)`
 /// is `+0`. A result beyond the range of the context overflows or underflows as
-/// any result does. When the context or the operand is beyond the limits of the
-/// certified functions, the result is NaN with `not_computed`; `try_exp_ctx`
-/// returns `Err` instead.
+/// any result does. A result that is computed is correctly rounded. When the
+/// context or the operand is beyond the limits of the certified functions, or
+/// the rounding cannot be certified, the result is NaN with `not_computed`;
+/// `try_exp_ctx` returns `Err` instead.
 pub fn Decimal::exp_ctx(
   self : Decimal,
   ctx : DecimalContext,
@@ -104,14 +105,15 @@ pub fn Decimal::try_exp_ctx(
 }
 
 ///|
-/// Returns the natural logarithm of `self`, correctly rounded under `ctx`, with
+/// Returns the natural logarithm of `self`, rounded once under `ctx`, with
 /// the flags it raised.
 ///
 /// `ln(1)` is exactly 0 and `ln(+inf)` is `+inf`. `ln(+0)` and `ln(-0)` are
 /// `-inf` with `division_by_zero` (IEEE 754-2019 9.2.1). A negative value and
 /// `-inf` give NaN with `invalid_operation`. When the context or the operand is
-/// beyond the limits of the certified functions, the result is NaN with
-/// `not_computed`; `try_ln_ctx` returns `Err` instead.
+/// beyond the limits of the certified functions, or the rounding cannot be
+/// certified, the result is NaN with `not_computed`; `try_ln_ctx` returns `Err`
+/// instead. A result that is computed is correctly rounded.
 pub fn Decimal::ln_ctx(
   self : Decimal,
   ctx : DecimalContext,

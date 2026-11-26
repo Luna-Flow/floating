@@ -118,8 +118,8 @@ pub fn Decimal::quantum_ctx(
 /// The result is NaN with `invalid_operation` when the exponent of `quantum` is
 /// outside the range of the context, when the result would need more than
 /// `precision` digits, or when exactly one operand is infinite. Two infinities
-/// give the infinity of `self`. The operation never settles for a different
-/// exponent.
+/// give the infinity of `self`. A target exponent above `e_max - p + 1` that
+/// the format cannot hold is folded down to `e_max - p + 1`, as for any result.
 pub fn Decimal::quantize_ctx(
   self : Decimal,
   quantum : Decimal,
