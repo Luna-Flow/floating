@@ -248,7 +248,7 @@ A finite `Binary` is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
 `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero
 $c$ is odd (factors of two are moved into $e$), a zero
 has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()`
-bits. The precision of a value is the largest precision used by a plain operation at the
+bits. The precision is an attribute of the value: plain operations work at the
 larger precision of their operands, and contextual operations stamp the
 context precision on their result.
 
