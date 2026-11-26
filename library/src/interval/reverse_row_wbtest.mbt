@@ -78,7 +78,7 @@ fn ReverseRow::run(self : ReverseRow) -> Interval {
 ///|
 // oracle: A
 // source: every row of reverse_table_wbtest.mbt, computed with the Python decimal module at 400 and 450 digits by tools/interval_reverse_oracle.py from the definitions of Table 10.1 (c^(1/beta) and ln c / ln a), rounded outward to p bits on the grid of the format; the rows cover the top binade, the subnormal range, a rational below the normal range, a base one unit from 1, bases 2^1e9 and 2^-1e9, the largest and the smallest stored values, and 501 bits
-// shares: Binary::from_hex and Interval::from_bounds read the rows and build the operands; Binary::compare compares
+// shares: Binary::from_hex and Interval::from_bounds read the rows and build the operands; Binary::to_string (the printer) renders the ends for the comparison of the text
 test "pow_rev1 and pow_rev2 at a point base and a point result equal the independent table, on every row" {
   let mut count = 0
   for entry in reverse_rows() {
