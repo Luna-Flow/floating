@@ -135,9 +135,10 @@ fn binary_interchange_hex(
 }
 
 ///|
-/// Parses the bit pattern of `format` from hexadecimal text: exactly
-/// `storage_width / 4` digits, optionally prefixed with `0x` or `#`. Returns `None`
-/// for any other text.
+/// Parses the bit pattern of `format` from hexadecimal text. Surrounding
+/// whitespace is ignored; the text is `storage_width / 4` hexadecimal digits (either
+/// case), optionally prefixed with `0x`, `0X` or `#`. Returns `None` for text of
+/// another length or with another character.
 pub fn BinaryInterchange::from_hex(
   source : String,
   format : BinaryInterchangeFormat,

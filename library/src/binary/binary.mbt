@@ -2,7 +2,7 @@
 /// A binary floating-point datum: a finite number `(-1)^s * c * 2^e` with an
 /// arbitrary-precision integer coefficient `c`, a signed infinity, or a quiet or
 /// signaling NaN with a payload. Each value carries a precision in bits, which the
-/// plain operations use (the larger of their operands) and the contextual
+/// plain operations use (the largest of their operands) and the contextual
 /// operations replace by the precision of the context.
 /// `==` and `compare` test the numerical value, ignoring precision and the sign of
 /// zero, and every NaN equals every other NaN and sorts above every number (a total
@@ -677,10 +677,14 @@ fn Binary::from_coefficient_raw(
 }
 
 ///|
-/// Decodes a host `Double` exactly, with `precision` bits (53 by default). Signed
-/// zeros, infinities, the NaN sign, the quiet or signaling kind and the payload are
-/// kept. The result is the value the host already rounded, so `from_double(0.1)` is
-/// not one tenth; use `from_string` to round a decimal literal.
+/// Decodes a host `Double` with `precision` bits (53 by default). At a precision
+/// of 53 or more the finite value is exact; below that it is rounded to
+/// nearest-even, so `from_double(0.1, precision=24)` differs from
+/// `from_double(0.1)`. Signed zeros, infinities and the NaN sign are kept at every
+/// precision. A NaN keeps the low `precision - 2` bits of its payload (all 51 bits
+/// from precision 53 on), and a signaling NaN whose kept payload is zero becomes
+/// quiet. The result is the value the host already rounded, so `from_double(0.1)`
+/// is not one tenth; use `from_string` to round a decimal literal.
 pub fn Binary::from_double(x : Double, precision~ : Int32 = 53) -> Binary {
   binary_check_precision("Binary::from_double", precision)
   let bits = x.reinterpret_as_uint64()
