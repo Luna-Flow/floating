@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: arithmetic: 2^10 = 1024, 10^-2 = 0.01 and sqrt(3^2 + 4^2) = 5 are exact, so IEEE 754-2019 7.6 (inexact is signaled only when the rounded result differs from the exact one) leaves the inexact flag clear; the values are written out
+// shares: Decimal::from_int, from_string and compare (they build the operands and compare the results, not the code under test)
 test "Decimal elementary extensions preserve exact identities" {
   let context = DecimalContext::decimal64()
   let (power_two, power_two_flags) = Decimal::from_int(10).exp2_ctx(context)
@@ -16,6 +19,9 @@ test "Decimal elementary extensions preserve exact identities" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (read from the PDF text): sinPi(-n) is -0, cosPi(n + 1/2) is +0, tanPi(2n + 1/2) is +infinity with divideByZero; sinPi(1/2) = 1 exactly; the values and flags are written out from that text
+// shares: Decimal::from_int and from_string (they build the operands), is_negative_zero, is_zero and is_sign_minus (they read the result)
 test "Decimal pi-scaled functions follow IEEE exact special values" {
   let context = DecimalContext::decimal64()
   let (negative_integer_sine, sine_flags) = Decimal::from_int(-1).sinpi_ctx(
@@ -38,6 +44,9 @@ test "Decimal pi-scaled functions follow IEEE exact special values" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 (read from the PDF text) and Table 9.1: asin outside [-1, 1] is invalid operation and gives NaN; atan2(-0, +0) is -0 with no exception; written out from that text
+// shares: Decimal::from_int, negative_zero and zero (they build the operands), is_nan and is_negative_zero (they read the result)
 test "Decimal elementary domains and atan2 signed zeros are explicit" {
   let context = DecimalContext::decimal64()
   let (invalid, invalid_flags) = Decimal::from_int(2).asin_ctx(context)
@@ -52,6 +61,9 @@ test "Decimal elementary domains and atan2 signed zeros are explicit" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: 9^0.5 = 3 exactly (IEEE 754-2019 9.2 pow, exact result, inexact clear); the Ok shape of the Result is the documented API of try_pow_ctx
+// shares: Decimal::from_int and from_string (they build the operands), compare (reads the result)
 test "Decimal try power exposes certified evaluation as Result" {
   let context = DecimalContext::decimal64()
   match
@@ -68,6 +80,9 @@ test "Decimal try power exposes certified evaluation as Result" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 7000 digits: atan(x) = x - x^3/3 + ... for x = 1E-3000 is 9.99...9E-3001 (34 nines) after rounding toward zero at 34 digits, since the series tail is below one unit at that precision; the value is written out
+// shares: Decimal::from_string and to_string (they build the operand and print the result)
 test "Decimal atan certifies tiny decimal128 arguments" {
   let context = DecimalContext::decimal128().with_rounding(
     DecimalRoundingMode::RoundTowardZero,
@@ -82,6 +97,9 @@ test "Decimal atan certifies tiny decimal128 arguments" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 7000 digits: cos and cosh of 1E-3000 at 34 digits to nearest are 1.000...0, hypot(1, 1E-3000) rounded up is 1.000...001, atan2(1, 1E+3000) rounded toward zero is 9.99...9E-3001; the 14 families times five directions check only that the result is a number and inexact is raised (an exact result is impossible for a nonzero tiny argument, IEEE 754-2019 9.2); the values are written out
+// shares: Decimal::from_string and to_string (they build the operands and print the results), DecimalContext::with_round and DecimalRound::from_arithmetic (they select the direction)
 test "Decimal tiny elementary arguments certify all issue 170 families" {
   let positive = Decimal::from_string("1E-3000").unwrap()
   let negative = Decimal::from_string("-1E-3000").unwrap()
@@ -158,6 +176,9 @@ test "Decimal tiny elementary arguments certify all issue 170 families" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: 4^0.5 = 2 exactly, so no inexact (IEEE 754-2019 9.2, 7.6); the value is written out
+// shares: Decimal::from_int and from_string (they build the operands), to_string
 test "Decimal noninteger power preserves IEEE exact result semantics" {
   let ieee_context = DecimalContext::new(
     precision=9,
@@ -172,6 +193,9 @@ test "Decimal noninteger power preserves IEEE exact result semantics" {
 }
 
 ///|
+// oracle: A
+// source: mathematics: e is irrational, so exp(1) is inexact at nine digits and the floor result is below the ceiling result (IEEE 754-2019 4.3, 7.6); no digits are written out
+// shares: DecimalContext::new and Decimal::one (they build the operands), compare
 test "Decimal elementary extensions honor context rounding" {
   let floor_context = DecimalContext::new(
     precision=9,
@@ -193,6 +217,9 @@ test "Decimal elementary extensions honor context rounding" {
 ///|
 /// IEEE 754-2019 §9.2 requires correctly rounded finite `tanh` and `expm1`
 /// results, including when their exact values lie arbitrarily close to ±1.
+// oracle: A
+// source: CPython decimal: tanh(5000) = 1 - 2e^-10000 to 5000 digits, rounded at 16 digits in the eight directions: 1.000000000000000 or 0.9999999999999999 as the test lists, mirrored for -5000; expm1(-20000) is -(1 - 1E-8686) and rounds the same way; the flags are inexact only (IEEE 754-2019 9.2, 7.6)
+// shares: DecimalContext::new, with_round and Decimal::from_int (they build the operands), to_string
 test "Decimal tanh and expm1 certify saturated finite results" {
   let modes = [
     DecimalRound::HalfEven,
@@ -247,6 +274,9 @@ test "Decimal tanh and expm1 certify saturated finite results" {
 }
 
 ///|
+// oracle: A, S
+// source: the values at each threshold are written out from the rounding of 1 - tiny (CPython decimal plus on the exact value, flags inexact and, for e_max 1, underflow before rounding by 7.5); the threshold 6 * precision is the library's own choice of when to skip the evaluation (design, level S)
+// shares: DecimalContext::new and Decimal::from_int (they build the operands), compare and to_string
 test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   for precision in [1, 2, 7, 16, 34] {
     let context = DecimalContext::new(precision~, e_max=precision + 4)
@@ -330,6 +360,9 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal plus on exp(-1E8) = 6.4517E-43429449 (computed at 60 digits) in the eight directions at precision 7, e_max 384: 1E-389 for Ceiling, Up and ZeroFiveUp, zero for the other five, flags underflow and inexact; CPython's own exp does not apply the directed modes there, so the plus form is used
+// shares: DecimalContext::new, with_round and Decimal::from_int (they build the operands), to_string
 test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
   let input = Decimal::from_int(-100_000_000, precision=16)
   for
@@ -356,6 +389,9 @@ test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal plus on exp(-1000) (1E-435) at precision 1, Emin -2, rounding Up: 0.01 with Underflow, Inexact, Subnormal; IEEE 754-2019 7.5 detects tininess before rounding for decimal formats
+// shares: Decimal::from_int and DecimalContext::new (they build the operands), to_string
 test "Decimal extreme exp detects tininess before rounding" {
   let input = Decimal::from_int(-1000, precision=16)
   let before = DecimalContext::new(precision=1, e_max=3).with_round(

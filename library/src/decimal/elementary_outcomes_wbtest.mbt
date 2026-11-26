@@ -390,6 +390,9 @@ test "decimal elementary functions: domain, could-not-compute and ordinary outco
 /// its own `Err`: `invalid_operation` is the domain error, `not_computed` the
 /// certification failure, `division_by_zero` the division error; a clean result
 /// is `Ok`.
+// oracle: S
+// source: the documented mapping of flags to the error kinds of the checked tier (invalid_operation gives a domain error, not_computed a certification failure, division_by_zero the division error, a clean result Ok); no number is written out; the sqrt of -1 is a domain error by IEEE 754-2019 9.2 (invalid operation) and exp(-1) an ordinary case
+// shares: contextual_outcome, not_computed_flags, sqrt_contextual and exp_contextual (the code under test), Decimal::from_string and nan (they build the operands)
 test "decimal checked tier: the two kinds of Err stay apart" {
   let nan = Decimal::nan()
   match

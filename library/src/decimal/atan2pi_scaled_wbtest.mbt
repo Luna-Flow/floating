@@ -78,6 +78,9 @@ test "atan2pi with both operands of extreme exponent equals the moderate ratio" 
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 7.5, 9.2 and 9.2.1 (atan2Pi of a positive abscissa is atan(|y/x|)/pi with the sign of y): 1E-1999996/pi = 3.18E-1999997 is below half of the least subnormal 1E-101 (Etiny = -95 - 6) at 7 digits, so 0E-101 half-even with the sign of y and underflow and inexact, and 1E-101 for the Up direction; written out
+// shares: pii_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags), try_atan2pi_ctx (the code under test)
 test "atan2pi of a tiny ordinate and abscissa 1 underflows (#378)" {
   // 1E-1999996 / pi is below half of the smallest subnormal: 0 or the least
   // subnormal by direction (IEEE 754-2019 7.5, 9.2), with the sign of y.

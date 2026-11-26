@@ -90,6 +90,9 @@ fn pii_all_modes(op : String, x : String, y : String) -> String raise {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and Table 9.1 (read from the PDF text in this session): asinPi(+-0) is +-0 with no exception, asinPi(+-1) is +-1/2 exact (Niven), |x| > 1 and infinite x are invalid operation; the table is written out, one text for all eight directions; the NaN payload and sign of the result (nan12, -nan3) follow 6.2.3, which leaves the sign unspecified, so those two rows are the library's convention
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "asinPi special values (9.2.1, Table 9.1)" {
   // 9.2.1: "f(+0) is +0 and f(-0) is -0 with no exception" for asinPi.
   // Table 9.1: "|x| > 1: invalid operation". asinPi(+-1) = +-1/2 (Niven).
@@ -124,6 +127,9 @@ test "asinPi special values (9.2.1, Table 9.1)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and Table 9.1 (read from the PDF text in this session): acosPi(1) is +0, acosPi(-1) is 1 and acosPi(+-0) is 1/2 (acos of those is pi, pi/2 over pi), |x| > 1 and infinite x are invalid operation; written out
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "acosPi special values (9.2.1, Table 9.1)" {
   // 9.2.1: "acos(1), acosPi(1), and acosh(1) are +0." acosPi(-1) = 1 and
   // acosPi(+-0) = 1/2 are exact; |x| > 1 is invalid.
@@ -157,6 +163,9 @@ test "acosPi special values (9.2.1, Table 9.1)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and Table 9.1 (read from the PDF text in this session): atanPi(+-0) is +-0, atanPi(+-1) is +-1/4 (Niven), atanPi(+-infinity) is +-1/2 with no exception; written out
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "atanPi special values (9.2.1)" {
   // 9.2.1: "atanPi(+-inf) is +-1/2 with no exception"; f(+-0) = +-0;
   // atanPi(+-1) = +-1/4 (Niven).
@@ -188,6 +197,9 @@ test "atanPi special values (9.2.1)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and Table 9.1 (read from the PDF text in this session): the 26 operand pairs are the cases of the list for atan2Pi in 9.2.1 (zero, infinite and mixed operands, both signs), the expected text is that list; no exception is signaled
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "atan2Pi: the special cases of 9.2.1" {
   // "atan2Pi(+-0, -0) is +-1; atan2Pi(+-0, +0) is +-0; atan2Pi(+-0, x) is +-1
   // for x < 0; atan2Pi(+-0, x) is +-0 for x > 0; atan2Pi(y, +-0) is -1/2 for
@@ -265,6 +277,9 @@ test "atan2Pi: the special cases of 9.2.1" {
 }
 
 ///|
+// oracle: A, S
+// source: IEEE 754-2019 6.2.3 and 7.2: a NaN operand gives a NaN with the payload of an input NaN and a signaling NaN signals invalid operation; which operand's payload is taken when both are NaN (the first) and the sign carried are the library's convention (level S for those two details)
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "atan2Pi: quiet and signaling NaN operands" {
   let out = StringBuilder()
   for
@@ -298,6 +313,9 @@ test "atan2Pi: quiet and signaling NaN operands" {
 }
 
 ///|
+// oracle: A
+// source: mathematics: atan(1) = pi/4, so atan2Pi(y, x) is +-1/4 for x > 0 and +-3/4 for x < 0 when |y| = |x| (also for different cohorts of the same value); exact, so no flags; written out
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "atan2Pi: |y| = |x| is exactly +-1/4 or +-3/4 (Niven)" {
   let out = StringBuilder()
   for
@@ -333,6 +351,9 @@ test "atan2Pi: |y| = |x| is exactly +-1/4 or +-3/4 (Niven)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.2 (preferred exponent 0, from the PDF text) and arithmetic: 1/2, 1, 1/4 and 3/4 at exponent 0 are 0.5, 1, 0.25, 0.75; at precision 1 the value 0.75 rounds to 0.8 and 0.25 to 0.2 under ties-to-even (inexact); at precision 2 they are exact
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "exact results are at the preferred exponent 0 (9.2.2)" {
   // 9.2.2: "the preferred exponent for asinPi, ... is 0 (Q(f(x)) = 0)": 1/2 is
   // 5E-1, 1/4 is 25E-2, 3/4 is 75E-2 and 1 is 1, never a shorter or longer
@@ -459,6 +480,9 @@ test "anchored results agree with the certified loop in all modes and ranges" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 300 digits (pi by Machin's formula, atan series): atanPi(1E+40) = 1/2 - atan(1E-40)/pi = 0.5 - 3.18E-41, acosPi(1E-40) = 1/2 - asin(1E-40)/pi and the atan2Pi neighbours of 1/2 and 1, rounded in the eight directions at 16 digits with decimal plus: all 16 lines agree with the table written out; every result is inexact
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "anchors: both sides in all eight modes (precision 16)" {
   // atanPi(1E+40) = 1/2 - 3.18E-41: below 1/2, so the directed modes that
   // round down give 0.4999999999999999 and the ones that round up give 0.5;
@@ -498,6 +522,9 @@ test "anchors: both sides in all eight modes (precision 16)" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 300 digits (pi by Machin's formula): x/pi for 1E-30 and 7E-9999 at 34 digits, 1/2 - x/pi at 34 digits for acosPi (0.4999999999999999999999999999996817 for 1E-30), and for 3E-1000000 and 1E-1999996 the subnormal results at e_max 999999 (31 digits for the first, 0E-1000031 for the second, flags inexact and underflow): all agree with the table written out
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "tiny and huge operands: relative width of the enclosure" {
   // asinPi and atanPi of a tiny x are x/pi (1 - O(x^2)): the result must
   // carry its full precision for the least legal operands, which the digit
@@ -599,6 +626,9 @@ test "tiny operands: the scaled evaluation equals the plain certified loop" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal plus on x/pi at precision 7, Emin -95 (Etiny -101) in the eight directions: 3E-101/pi = 9.55E-102 rounds to 1E-101 or 0 by direction, 1E-300/(1E+300 pi) rounds to 0 or 1E-101 by direction; all 48 values agree with the table written out; flags inexact and underflow (IEEE 754-2019 7.5)
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "underflow of the Pi functions follows the context (Table 9.1)" {
   // asinPi, atanPi and atan2Pi may underflow: x/pi for a tiny x is rounded by
   // the context like any inexact result.
@@ -626,6 +656,9 @@ test "underflow of the Pi functions follows the context (Table 9.1)" {
 }
 
 ///|
+// oracle: A
+// source: arithmetic: asinPi(0.5) = 1/6 = 0.1666666666666667 and acosPi(0.5) = 1/3 = 0.3333333333333333 at 16 digits (asin(1/2) = pi/6, acos(1/2) = pi/3), atanPi(1) = 1/4, atan2Pi(-1, -1) = -3/4; the flag text for the first is inexact only
+// shares: pii_call, pii_all_modes, pm1_exact (Decimal::from_string), pm1_ctx and pm1_flags_text (they build the operands, the contexts and print value and flags: Decimal::to_string), try_*_ctx (the code under test)
 test "checked tier methods" {
   let ctx = DecimalContext::decimal64()
   let a = pm1_exact("0.5")

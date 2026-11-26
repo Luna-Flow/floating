@@ -77,6 +77,9 @@ test "rcp generated rows: exact and certified results, cohort and flags" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 and Table 9.1 (read from the PDF text): rSqrt(+inf) is +0, rSqrt(+-0) is +-inf with divideByZero, a negative operand (also -inf) is invalid operation; the same text in all eight directions; the NaN payload and sign (nan12, -nan3) follow 6.2.3 (sign unspecified, library convention)
+// shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "rsqrt special values (9.2.1, Table 9.1)" {
   // Table 9.1: rSqrt has domain [0, +inf]; "x < 0: invalid operation; x is
   // +-0: divideByZero". 9.2.1: "rSqrt(+inf) is +0 with no exception.
@@ -117,6 +120,9 @@ test "rsqrt special values (9.2.1, Table 9.1)" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.2 (Q(rSqrt(x)) is -floor(Q(x)/2), read from the PDF text) and arithmetic: 1/sqrt(4) = 0.5, 1/sqrt(0.04) = 5, 1/sqrt(100) = 0.1, 1/sqrt(6.25) = 0.4, 1/sqrt(0.0016) = 25, 1/sqrt(390625) = 0.0016, 1/sqrt(1E-400) = 1E+200, 1/sqrt(1E+380) = 1E-190, 1/sqrt(4E+384) = 5E-193 each at the cohort the preferred exponent gives for its operand's exponent; 1/sqrt(1000) = 0.0316227766016837933... rounds to 0.03162277660168379 at 16 digits (CPython decimal at 60 digits, rounded once), inexact
+// shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "rsqrt exact results take the preferred exponent -floor(Q(x)/2) (9.2.2)" {
   // 9.2.2: "Q(rSqrt(x)) is -floor(Q(x)/2)"; 5.2: an exact result takes the
   // member of its cohort with the exponent closest to the preferred one.
@@ -198,6 +204,9 @@ test "rsqrt by the scaled loop equals the plain certified loop" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1, Table 9.1 and 9.2.2 (the cases quoted in the block were compared with the PDF text in this session): the 22 operand pairs are the list of compound special values, with Q(compound(x, n)) = floor(n * min(0, Q(x))) for the zero operands (0.00 to the power 3 is 1.000000); a signaling NaN gives a quiet NaN and invalid operation
+// shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "compound special values (9.2.1)" {
   // 9.2.1: "compound(x, 0) is 1 for x >= -1 or quiet NaN";
   // "compound(-1, n) is +inf and signals the divideByZero exception for
@@ -270,6 +279,9 @@ test "compound special values (9.2.1)" {
 }
 
 ///|
+// oracle: A
+// source: CPython decimal at 100 digits: (1 + x)^(-2^31) for the five operands rounded at 16 digits in half_even, floor and ceiling: 1.000000000000000, 5.444711000534668E-94 (...667 toward floor), 1.000000000021475, overflow for -0.5 (2^(2^31) is about 10^646), 0E-398 (1E-398 toward ceiling) for 3 (4^(-2^31) is about 10^-1292); every row agrees with the table, except that CPython's own power underflows to zero first for x = 3, so that row is argued from the rounding direction (7.5) and the size
+// shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "compound at Int32.min_value" {
   // n = -2^31 has no Int32 magnitude; the values below are exp(n log1p(x))
   // computed with Python decimal at 80 digits (far from any rounding
@@ -336,6 +348,9 @@ test "compound of a tiny x is anchored and agrees with the certified loop" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 9.2.1 for powr (the quoted rows were compared with the PDF text in this session) and the definition exp(y log x) (9.2 NOTE) for the cases the list leaves open (infinite operands, 0.5 and 2 to the power +-inf); the 40 pairs are written out; 4^0.5 = 2, 4.00^1.5 = 8.000 (9.2.2 Q = floor(y Q(x)) = -3), 10^1.5 = 31.62277660168379 at 16 digits (CPython decimal at 60 digits, rounded once)
+// shares: rcp_call, pm1_ctx, pm1_exact (Decimal::from_string) and pm1_flags_text (they build the operands and contexts and print value and flags: Decimal::to_string), the _ctx functions (the code under test)
 test "powr special values (9.2.1) and the pow agreement" {
   // 9.2.1 for powr: "powr(x, +-0) is 1 for finite x > 0"; "powr(+-0, y) is
   // +inf and signals the divideByZero exception for finite y < 0";
