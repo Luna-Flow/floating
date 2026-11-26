@@ -170,6 +170,18 @@ def q(text: str) -> str:
     return '"' + text + '"'
 
 
+def decimal_text_in_range(literal: str) -> bool:
+    """False for a literal whose decimal exponent field does not fit an Int32.
+
+    The corpus holds such literals since the ten-digit exponent rows were added
+    (the binary reader accepts them); `Decimal::from_string` stores the exponent in an
+    Int32 and rejects them, so the rows of this table (read with `Decimal::from_string`)
+    leave them out. They are filtered before the stride is applied.
+    """
+    exponent = literal.lower().rsplit("e", 1)
+    return len(exponent) == 1 or abs(int(exponent[1])) <= 2**31 - 1
+
+
 def mpfr_rows() -> tuple[list[tuple], list[tuple]]:
     strtofr = []
     cell: dict[tuple, int] = {}
@@ -177,6 +189,8 @@ def mpfr_rows() -> tuple[list[tuple], list[tuple]]:
         if not line or line.startswith("#"):
             continue
         precision, rounding, literal, expected, inexact, overflow, underflow = line.split()
+        if not decimal_text_in_range(literal):
+            continue
         key = (precision, rounding)
         cell[key] = cell.get(key, 0) + 1
         if cell[key] % STRIDE == 1:

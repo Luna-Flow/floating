@@ -435,19 +435,29 @@ test "scaleb count extracts exponent-zero integers from coeff repr" {
 // source: arithmetic: 7/40 = 0.175 terminates (40 = 2^3 * 5) and 7/21 = 1/3 does not; written out
 // shares: dec_coeff_from_bigint_repr (builds the operands), has_finite_decimal_expansion_repr (the code under test)
 test "decimal coefficient finite-expansion predicate matches bigint predicate" {
-  // 7/40 = 0.175 terminates; 7/21 = 1/3 does not
-  assert_true(
-    has_finite_decimal_expansion_repr(
-      dec_coeff_from_bigint_repr(7N),
-      dec_coeff_from_bigint_repr(40N),
-    ),
-  )
-  assert_false(
-    has_finite_decimal_expansion_repr(
-      dec_coeff_from_bigint_repr(7N),
-      dec_coeff_from_bigint_repr(21N),
-    ),
-  )
+  // numerator, denominator, whether numerator / denominator terminates: the part of
+  // the denominator prime to 10 must divide the numerator
+  let rows : Array[(BigInt, BigInt, Bool)] = [
+    (7N, 40N, true), // 0.175
+    (7N, 21N, false), // 1/3
+    (22N, 21N, false), // 22 >= 21, remainder 1: 1.047619...
+    (42N, 21N, true), // 2
+    (21N, 35N, true), // 3/5 = 0.6
+    (22N, 35N, false), // 22/35 = 0.62857...
+    (3N, 12N, true), // 1/4 = 0.25
+    (1N, 6N, false), // 0.1666...
+  ]
+  for row in rows {
+    let (numerator, denominator, expected) = row
+    assert_eq(
+      has_finite_decimal_expansion_repr(
+        dec_coeff_from_bigint_repr(numerator),
+        dec_coeff_from_bigint_repr(denominator),
+      ),
+      expected,
+      msg="\{numerator} / \{denominator}",
+    )
+  }
 }
 
 ///|
