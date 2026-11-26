@@ -73,6 +73,9 @@ test "bit-burst sin and cos contain the series enclosure at higher precision" {
 }
 
 ///|
+// oracle: S
+// source: the width of the bit-burst enclosure of sin and cos against the width of the series enclosure of the same argument over the corpus, at the larger of the burst and the series work precisions; a width relation between two kernels of the library, no value stated
+// shares: burst_trig_test_corpus, burst_test_work and binary_top_bound build the arguments and the precisions; binary_trig_bounds_burst is the code under test and binary_trigonometric_bounds_series the reference; sub and compare
 test "bit-burst sin and cos are no wider than the series enclosure" {
   for value in burst_trig_test_corpus() {
     for cosine in [false, true] {

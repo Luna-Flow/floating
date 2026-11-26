@@ -3,51 +3,6 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM declines outside its range	A
-library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure at 8192 bits contains the series enclosure	B
-library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure contains the series enclosure at higher precision	B
-library/src/binary/elementary_agm_ln_wbtest.mbt::ln AGM enclosure is no wider than the Newton enclosure	S
-library/src/binary/elementary_agm_ln_wbtest.mbt::mutated ln AGM kernels are caught by the containment test	B
-library/src/binary/elementary_ball_fold_wbtest.mbt::exp fold by one full product equals the two separate products	B
-library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp declines outside its range	A
-library/src/binary/elementary_burst_exp_wbtest.mbt::bit-burst exp is no wider than the series enclosure	S
-library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step contains the series enclosure at higher precision	B
-library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step declines outside its range	A
-library/src/binary/elementary_burst_ln_wbtest.mbt::ln Newton step is no wider than the series enclosure	S
-library/src/binary/elementary_burst_ln_wbtest.mbt::ln entry step on the table kernel contains the series enclosure	B
-library/src/binary/elementary_burst_ln_wbtest.mbt::mutated ln Newton steps are caught by the containment test	B
-library/src/binary/elementary_burst_trig_wbtest.mbt::bit-burst sin and cos are no wider than the series enclosure	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary acos rejects inputs outside its domain instead of recursing	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary atan2 preserves axes and quadrants	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified atan preserves origin and odd symmetry	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified exp and ln round-trip small values	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified exp and ln special values	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified exp range reduction handles ordinary inputs	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified exp10 handles ordinary inputs	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified hyperbolic functions preserve identities	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary certified logarithm range reduction handles ordinary inputs	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary elementary functions honor every directed rounding mode	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary exact elementary identities preserve exact flags	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary expm1 and log1p preserve tiny nonzero inputs	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary hypot rounds the exact sum of squares	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary inverse hyperbolic functions preserve domains and identities	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary inverse trigonometric functions preserve domains	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary logarithms preserve IEEE zero and domain flags	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary pi-scaled functions preserve exact integer and half-integer identities	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary pi-scaled quarter honors every rounding mode	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary pow separates integer and positive non-integer domains	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary pown preserves the standard integer-power semantics	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary rootn uses certified logarithm and exponential bounds	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary tanpi at integers takes the sign of sinpi over cospi	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric functions preserve axis identities	A
-library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric reduction certifies arguments beyond linear reduction	S
-library/src/binary/elementary_certified_wbtest.mbt::Binary trigonometric resource failure retains proof details	A
-library/src/binary/elementary_certified_wbtest.mbt::certified target witness rejects equal values with unequal flags	A
-library/src/binary/elementary_fixed_exp_wbtest.mbt::fixed-point exp path declines arguments it does not cover	A
-library/src/binary/elementary_fixed_ln_wbtest.mbt::fixed-point ln path declines arguments it does not cover	S
-library/src/binary/elementary_fixed_trig_wbtest.mbt::sine and cosine agree with their identities after the fixed-point path	S
-library/src/binary/elementary_halve_bound_wbtest.mbt::halving the bounds of pi by the exponent equals the product by 1/2	B
-library/src/binary/elementary_unused_series_wbtest.mbt::sin, cos and tan results do not depend on the skipped series	S
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/elementary_pi_inverse_wbtest.mbt::pi inverse generated rows: exact and certified results, cohort and flags	A
 library/src/decimal/elementary_pm1_wbtest.mbt::pm1 generated rows: exact and MPFR-certified results, cohort and flags	A

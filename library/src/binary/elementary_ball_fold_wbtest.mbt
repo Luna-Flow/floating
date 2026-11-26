@@ -53,6 +53,10 @@ fn ball_fold_test_value(bits : Int32, seed : UInt64) -> Coeff {
 }
 
 ///|
+// oracle: B, S
+// source: B: the folded bounds of burst_exp_fold equal the two separate Coeff products (lower: floor(lower * stage_low / 2^f); upper: floor(upper * stage_high / 2^f) + 1) on 120 argument sets at f = 64, 256, 1088, 2160 and 4400; S: the operand coefficients come from ball_fold_test_value and the multiplication and the shift are not covered by a level A block of their own on these sizes
+// shares: ball_fold_test_value builds the operands; Coeff::add, mul and shift_right form the reference products; burst_exp_fold is the code under test; compare reads the result
+// primitives: Coeff::mul (level A through the kernel oracle of library/src/internal/binary_kernel for the products and squares on the sizes it covers; not on every size used here), Coeff::add and shift_right
 test "exp fold by one full product equals the two separate products" {
   let mut seed = 31UL
   for f in [64, 256, 1088, 2160, 4400] {

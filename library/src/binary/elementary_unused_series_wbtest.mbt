@@ -307,6 +307,9 @@ test "reduced trigonometric enclosures skip unused series and use one series per
 }
 
 ///|
+// oracle: S
+// source: the identities sin^2 + cos^2 = 1 to within 2^-50 and tan = sin / cos to a relative 2^-50 on sixteen binary64 arguments 0.37 + 0.9 k; no value of the functions is stated
+// shares: Binary::from_double builds the arguments; sin_ctx, cos_ctx and tan_ctx are the code under test; mul, add, sub, div and abs read the result
 test "sin, cos and tan results do not depend on the skipped series" {
   // End to end: the three functions on arguments in every quadrant, against
   // the identities that tie them together at binary64 and 200 bits.
