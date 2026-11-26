@@ -32,6 +32,10 @@ fn tiny_contexts(precision : Int32) -> Array[BinaryContext] {
 }
 
 ///|
+// oracle: B, S
+// source: B: the model of the file, written from the series (sin x = x - x^3/6, tan x = x + x^3/3, atan, asin, sinh, tanh, asinh, atanh, expm1 = x + x^2/2, log1p = x - x^2/2, atan2(x, 1), exp, exp2, exp10, cos, cosh near 1): for |x| = 2^-6000 and 2^-20000 the exact result lies just above or just below the anchor (x or 1), and the direction rule of tiny_expected: a result just above or just below a representable anchor is the anchor in nearest, toward the anchor otherwise as the direction decides, and the next neighbour of the anchor on the other side, with inexact; S: the neighbour is made with next_up_ctx and next_down_ctx, whose level A walk (next_wbtest.mbt) covers the binary64 grid and a binary32 operand, not the precision 113 of the closing binary128 sin(2^-8000) check
+// shares: Binary::make_coeff and one build the operands; tiny_expected builds the expected values with next_up_ctx and next_down_ctx; the try_*_ctx functions are the code under test
+// primitives: Binary::next_up_ctx and next_down_ctx (level A through next_wbtest.mbt for the binary64 grid; precision 113 is not covered), Binary::make_coeff
 test "Binary elementary functions certify tiny arguments" {
   let one = Binary::one()
   for exponent in [-6000, -20000] {
@@ -98,6 +102,10 @@ test "Binary elementary functions certify tiny arguments" {
 }
 
 ///|
+// oracle: B
+// source: the model of the file: hypot(L, s) with a negligible s is L (1 + s^2 / (2 L^2)), just above L, so the direction rule of tiny_expected: a result just above or just below a representable anchor is the anchor in nearest, toward the anchor otherwise as the direction decides, and the next neighbour of the anchor on the other side, with inexact; s = 2^-600000 and the thresholds 5 * 2^-70 and 2^-40 against L = 1 and 3 * 2^100, precision 53, four directions
+// shares: Binary::make_coeff, one and neg build the operands; tiny_expected builds the expected values with next_up_ctx; try_hypot_ctx and hypot_ctx are the code under test
+// primitives: Binary::next_up_ctx (level A through next_wbtest.mbt, the binary64 grid; the contexts here have precision 53), Binary::make_coeff
 test "Binary hypot ignores the exponent gap of a negligible operand" {
   let tiny = Binary::make_coeff(Coeff::one(), -600000, 53)
   let three_large = Binary::make_coeff(Coeff::from_uint64(3UL), 100, 53)
@@ -137,6 +145,9 @@ test "Binary hypot ignores the exponent gap of a negligible operand" {
 }
 
 ///|
+// oracle: S
+// source: the written identity 10^5000 = 5^5000 * 2^5000 and log10(10^5000) = 5000, exact with no flag at precision 12000; the coefficient 5^5000 is built with Coeff::pow_nat, which the code under test may use as well, so no independent value is stated and the level is S
+// shares: Coeff::pow_nat, Binary::make_coeff and from_int on the reference side; exp10_ctx and log10_ctx are the code under test
 test "Binary exp10 and log10 stay exact past 10^4096" {
   let context = BinaryContext::new(precision=12000)
   let (power, power_flags) = Binary::from_int(5000).exp10_ctx(context)
@@ -153,6 +164,10 @@ test "Binary exp10 and log10 stay exact past 10^4096" {
 }
 
 ///|
+// oracle: B, S
+// source: B: x^e for e = 2^-16000 and 3 * 2^-20000 (and the negatives) is 1 + e ln x, just above 1 for x > 1 and e > 0 and just below it for x = 1/2: the direction rule of tiny_expected: a result just above or just below a representable anchor is the anchor in nearest, toward the anchor otherwise as the direction decides, and the next neighbour of the anchor on the other side, with inexact; S: the neighbour is made with next_up_ctx and next_down_ctx, whose level A walk covers the binary64 grid, not the precision 113 of the binary128 contexts used here
+// shares: Binary::make_coeff, from_int and one build the operands; tiny_expected builds the expected values; try_pow_ctx is the code under test
+// primitives: Binary::next_up_ctx and next_down_ctx (level A through next_wbtest.mbt for the binary64 grid; precision 113 is not covered), Binary::make_coeff
 test "Binary pow certifies tiny exponents" {
   let tiny = Binary::make_coeff(Coeff::one(), -16000, 53)
   let three_tiny = Binary::make_coeff(Coeff::from_uint64(3UL), -20000, 53)

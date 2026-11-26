@@ -3,6 +3,9 @@
 // it used to panic when the operand was not representable in the context.
 
 ///|
+// oracle: A, S
+// source: A: the text of the double nearest to 1/3, 0.3333333333333333 (CPython repr(1/3), library-ran: no) and of the binary32 value nearest to 1/3, 0.33333334 (the shortest round-trip text, re-derived with Python fractions); S: the line comparing with from_double(1/3).to_shortest_string_ctx is a comparison of the library with itself
+// shares: Binary::from_int, div, neg and from_double build the operands; to_shortest_string_ctx is the code under test
 test "shortest string of an operand not representable in the context (#448)" {
   let third = Binary::from_int(1, precision=113).div(
     Binary::from_int(3, precision=113),
@@ -23,6 +26,9 @@ test "shortest string of an operand not representable in the context (#448)" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.4, 7.5 and 4.3: 2^2000 overflows binary64 to inf, 2^-2000 underflows to 0 with the sign of the operand, half of the smallest subnormal ties to even (0) and three quarters of it round up to the smallest subnormal, whose shortest text is 5e-324 (CPython repr(5e-324), library-ran: no)
+// shares: Binary::make builds the operands; to_shortest_string_ctx is the code under test
 test "shortest string rounds overflow and underflow into the context (#448)" {
   let b64 = BinaryContext::binary64()
   let big = Binary::make(BinCoeff::one(), 2000, 113)
@@ -39,6 +45,9 @@ test "shortest string rounds overflow and underflow into the context (#448)" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the shortest round-trip texts of the doubles 0.1, 5e-324 and 1e21 (CPython repr gives 0.1, 5e-324 and 1e+21, library-ran: no); S: the texts -0 and nan are the library's own output conventions
+// shares: Binary::from_double and nan build the operands; to_shortest_string_ctx is the code under test
 test "representable operands print as before (#448)" {
   let b64 = BinaryContext::binary64()
   assert_eq(Binary::from_double(0.1).to_shortest_string_ctx(b64).0, "0.1")
@@ -55,6 +64,9 @@ test "representable operands print as before (#448)" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1/3 lies between the doubles 0.3333333333333333 and 0.33333333333333337 (the successor, CPython math.nextafter, library-ran: no), so toward positive infinity gives the upper one and toward negative infinity the lower one, mirrored for -1/3; a directed overflow toward zero stops at the largest finite value 1.7976931348623157e+308 (CPython repr, IEEE Std 754-2019 7.4)
+// shares: Binary::from_int, div, neg and make build the operands; to_shortest_string_ctx is the code under test
 test "the operand is rounded in the rounding direction of the context (#448)" {
   let third = Binary::from_int(1, precision=113).div(
     Binary::from_int(3, precision=113),

@@ -4,6 +4,9 @@ fn remainder_show(result : (Binary, BinaryFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.1 (remainder(x, y) = x - y n with n the integer nearest to x / y, ties to even; the sign of a zero result is the sign of x): 5 rem 3 = -1 (n = 2), 7 rem 2 = -1 (3.5 gives 4), 5 rem 2 = 1 (2.5 gives 2), 6 rem 4 = -2 (1.5 gives 2), 10 rem 4 = 2, 1 rem 3 = 1, 0.75 rem 0.5 = -0.25, 3 rem -2 = -1, 4 rem 2 = +0 and -4 rem 2 = -0
+// shares: Binary::from_double builds the operands; remainder_ctx is the code under test; remainder_show prints value and flag bits
 test "remainder rounds the quotient to nearest, ties to even" {
   let context = BinaryContext::binary64()
   let lines = StringBuilder()
@@ -50,6 +53,9 @@ test "remainder rounds the quotient to nearest, ties to even" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 7.2 f) and 5.3.1: remainder(inf, 1) and remainder(1, 0) are invalid (flags 16), remainder(1, -inf) = 1 exactly, remainder(-0, 1) = -0 and a signaling NaN operand is invalid
+// shares: Binary::one, zero, inf, negative_zero and signaling_nan build the operands; remainder_ctx is the code under test; remainder_show prints value and flag bits
 test "remainder special cases" {
   let context = BinaryContext::binary64()
   let one = Binary::one()
@@ -86,6 +92,9 @@ test "remainder special cases" {
 }
 
 ///|
+// oracle: A
+// source: written out: 2^1000000000 = 1 (mod 3) because 2^2 = 1 (mod 3), so the remainder is 1; 2^1000000001 = 2 (mod 3), whose nearest representative is -1; remainder(2^-1000000000, 1) is the dividend itself, which is below the binary64 range and rounds to 0 with underflow and inexact (flags 3)
+// shares: Binary::make and from_int build the operands; remainder_ctx is the code under test; remainder_show prints value and flag bits
 test "remainder of huge exponent gaps uses modular reduction" {
   let context = BinaryContext::binary64()
   // 2^1000000000 mod 3: 2^even = 1 (mod 3), so the remainder is 1.
@@ -115,6 +124,9 @@ test "remainder of huge exponent gaps uses modular reduction" {
 }
 
 ///|
+// oracle: S
+// source: an integer model written in the test with Int64 arithmetic of the language (the nearest integer to x / y with ties to even, expected = x - n y, the sign of a zero result by the sign of x) on 3000 pairs of a fixed linear congruential sequence; the model is independent of the library, but the operands and the expected values are built with Binary::from_int and compared with Binary::compare, shared builders without a level A block of their own here, so the level is stated as S
+// shares: Binary::from_int and Binary::compare on both sides; remainder_ctx is the code under test
 test "remainder agrees with an exact quotient reference" {
   let context = BinaryContext::new(precision=53)
   let mut state = 0x2545F4914F6CDD1DUL
