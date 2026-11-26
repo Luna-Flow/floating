@@ -10696,7 +10696,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/binary_kernel.md:102
+#: manual/design/internal/binary_kernel.md:117
 msgid "Invariants"
 msgstr "不变量"
 
@@ -20092,34 +20092,38 @@ msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through 
 msgstr "汇编层：在 Apple arm64 上（clang 或 gcc），三个行原语以及基于它们的 `school` 和 `sqr_school` 有第三种实现，即 `luna_limbs.c` 中的内联汇编，依据 AArch64 指令定义编写。每次迭代处理四个肢，两条进位链依次执行：链 A 加上乘积的低字和前一个肢的高字（`adds`、`adcs`、`adc`），链 B 加上或减去目标肢，链 B 的进位作为初始标志进入下一个块（`cmp x, #1`）。不足四的倍数的长度先由 C 行处理。实测每肢指令数（arm64，128 肢的行）：汇编中 `mul_1` 为 4.9，`addmul_1` 为 6.9，`submul_1` 为 7.0；C 中分别为 9.2、12.1 和 13.1。循环的下限：每个肢需要一次 `mul`、一次 `umulh`、两次进位加法和约 1.5 次访存，`addmul_1` 为 5.5；每个块再加 1.25（结束链 A 的进位、重建标志、链 B 的进位、循环）。AArch64 只有一个进位标志，也没有带进位的乘加指令，所以两条链无法交错。在其他平台上，汇编入口就是 C 行。"
 
 #: manual/design/internal/binary_kernel.md:87
+msgid "Window row in assembly: the interior of the window pass of the wide sum (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a subtraction) with a loop counter that does not touch the flags, so the chain runs through every block boundary. There are twelve out-of-line loops, by add or subtract and by which operands are shifted (a shifted limb costs `lsr`, `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with both (12, 24 and 36 instructions per block in the disassembly). The carry enters a loop as the C flag (`cmp x, #1`) and leaves it as `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs stay the C code. A call costs about 55 instructions more than the C body, so the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`) and the C body from 14. `add` and `sub` take 0.98 to 0.99 of the C tier's instructions at 2,048 bits, 0.93 at 4,096 and 0.80 at 16,384; below 1,792 bits the difference is within the spread of the runs."
+msgstr "窗口行的汇编实现：宽加法窗口遍历的内部部分（`bin_limbs_window_combine`）在 Apple arm64 上有汇编实现：每次迭代处理四个肢，四个和之间只有一条进位链（加法用 `adcs`，减法用 `sbcs`），循环计数器不触碰标志位，因此进位链贯穿每个块的边界。共有十二个独立的外联循环，按加法或减法以及哪些操作数需要移位区分（移位一个肢需要 `lsr`、`lsl`、`orr`）。每肢指令数：无操作数移位为 3.0，一个为 6.0，两个都移位为 9.0（反汇编中每块 12、24 和 36 条指令）。进位以 C 标志的形式进入循环（`cmp x, #1`），再以 `adc x, xzr, xzr` 读回。头部、尾部以及最多三个肢的余数仍然是 C 代码。一次调用比 C 主体多花约 55 条指令，所以汇编内部部分从 24 个肢起使用（`bin_limbs_window_asm_min_count`），C 主体从 14 个肢起使用。`add` 和 `sub` 的指令数在 2,048 位时为 C 层的 0.98 至 0.99，4,096 位时为 0.93，16,384 位时为 0.80；1,792 位以下的差异在多次运行的波动范围之内。"
+
+#: manual/design/internal/binary_kernel.md:102
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr "`bin_limbs_product`（公开，供 `binary` 的肢数组循环使用）：一次调用完成 `r[ro ..< ro + an + bn] = a * b`，行遍历 `a` 的各个肢（把较短的操作数或乘数作为 `a`），两个长度至少为 1，`r` 不与操作数重叠，写满每一个结果肢。在使用 C 或汇编行的 native 层上，它是只经过一组范围检查的教科书乘法入口；在可移植层和其他目标上，它是可移植 `mul_1` 与 `addmul_1` 行的循环，因此任何目标都不会更慢。在 10 乘 9 个肢时，汇编层花费 868 条指令，C 层 1,145 条，而经过包装函数调用 `mul_1` 和八次 `addmul_1` 分别需要 1,028 和 1,292 条（包装函数及其检查占 C 层数字中的 134 条）。"
 
-#: manual/design/internal/binary_kernel.md:88
+#: manual/design/internal/binary_kernel.md:103
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr "选择方式：`LUNA_FLOATING_PORTABLE`（可移植循环）和 `LUNA_FLOATING_LIMBS=c`（C 行）在启动时读取一次；有汇编层的平台默认使用汇编，否则使用 C。差分测试在相同数组上比较三者，并记录实际运行的层。Linux arm64 尚未运行过；该层只对 Apple arm64 启用。"
 
-#: manual/design/internal/binary_kernel.md:94
+#: manual/design/internal/binary_kernel.md:109
 msgid "Thresholds"
 msgstr "阈值"
 
-#: manual/design/internal/binary_kernel.md:96
+#: manual/design/internal/binary_kernel.md:111
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr "分界点命名为 `*_min_words` 或 `*_words`（64 位肢），按目标在 `coeff_thresholds_<target>.mbt` 中选择。它们是策略而非语义：分派测试会恰好跨过每一个分界点，并与朴素乘法的结果比较。初等函数的分界点不是内核策略，仍留在 `binary`。"
 
-#: manual/design/internal/binary_kernel.md:104
+#: manual/design/internal/binary_kernel.md:119
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
 
-#: manual/design/internal/binary_kernel.md:106
+#: manual/design/internal/binary_kernel.md:121
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "生成新值的函数（对非零操作数的 `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_mul_short`、`bin_coeff_sqrt_scaled_rounded`）返回的 `Heap` 系数拥有一个数组，任何操作数和其他值都不引用它；内联结果和共享的 `Coeff::zero()` 不带数组，移位量为零时返回接收者本身。调用者可以保留或修改这样的数组。"
 
-#: manual/design/internal/binary_kernel.md:107
+#: manual/design/internal/binary_kernel.md:122
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
-#: manual/design/internal/binary_kernel.md:109
+#: manual/design/internal/binary_kernel.md:124
 msgid "No function aborts except on a violated precondition (a negative shift, a radix of `to_radix_string` outside `2..=36`)."
 msgstr "除违反前置条件（负移位、`to_radix_string` 的基数超出 `2..=36`）外，没有函数会中止。"
 

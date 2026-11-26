@@ -396,11 +396,11 @@ let bin_limbs_window_c_min_count : Int32 = 14
 /// 55 instructions more than the C body's (seven register arguments, the
 /// previous limbs of the shifted operands, the registers saved around the block,
 /// the flag set and read back, the remainder), so it pays from about 25 limbs.
-/// `BinFloat::add` (two-count method, median of five runs, differences of at
-/// least 73M instructions): from 14 limbs it costs 2 percent more at 1,024 bits
-/// (17 limbs) and the same from 24 limbs at 1,024 to 1,536 bits; at 1,792 bits
-/// (29 limbs) it costs 0.99, at 2,048 bits 0.99, at 2,560 0.97, at 3,072 0.96,
-/// at 4,096 bits 0.93 of the C body's instructions.
+/// `Binary::add` and `sub` on Apple M4, 2026-11-26 (two-count method, median of
+/// five runs, differences of at least 98M instructions, assembly tier over the C
+/// tier of one executable): 0.99 to 1.01 from 1,024 to 1,792 bits (within the
+/// spread of the runs), 0.98 to 0.99 at 2,048, 0.94 at 3,072,
+/// 0.93 at 4,096, 0.87 at 8,192 and 0.80 at 16,384 bits.
 let bin_limbs_window_asm_min_count : Int32 = 24
 
 ///|
