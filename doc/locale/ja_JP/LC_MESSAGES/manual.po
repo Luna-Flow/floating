@@ -558,7 +558,7 @@ msgstr "binary API"
 
 #: manual/api/binary.md:5
 msgid "`binary` is the binary floating-point core of `floating`. A `Binary` represents a signed dyadic number $(-1)^s \\cdot c \\cdot 2^{e}$ with an arbitrary-precision coefficient and an attached working precision. It also has the IEEE 754 special values: signed zeros, infinities, and quiet or signaling NaNs with payloads. Every arithmetic operation rounds the exact result once. `BinaryContext` sets an operation's precision, exponent range, rounding direction and tininess rule. The `*_ctx` methods return the value with the IEEE status flags. The [tutorial](../tutorial/binary.md) shows common workflows; the [design page](../design/binary.md) derives the rounding, range and certification rules used here. The verified IEEE 754 scope is listed in [conformance](../conformance/binary.md)."
-msgstr "`binary` は `floating` の二進浮動小数点のコアです。`Binary` は符号付きの二進有理数 $(-1)^s \\cdot c \\cdot 2^{e}$ であり、任意精度の係数、付随する作業精度、および IEEE 754 の特殊値（符号付きゼロ、無限大、ペイロード付きの quiet NaN と signaling NaN）を持ちます。すべての算術演算は厳密な結果を 1 回だけ丸めます。`BinaryContext` は 1 回の演算の精度、指数範囲、丸め方向、極小性（tininess）の規則を与え、`*_ctx` メソッドは値とともに IEEE のステータスフラグを返します。[チュートリアル](../tutorial/binary.md)では一般的なワークフローを示し、[設計ページ](../design/binary.md)では以下で用いる丸め・範囲・認証の規則を導出しています。検証済みの IEEE 754 の範囲は[適合性](../conformance/binary.md)に列挙されています。"
+msgstr "`binary` は `floating` の二進浮動小数点のコアです。`Binary` は符号付きの二進有理数 $(-1)^s \\cdot c \\cdot 2^{e}$ を表し、任意精度の係数と付随する作業精度を持ちます。IEEE 754 の特殊値（符号付きゼロ、無限大、ペイロード付きの quiet NaN と signaling NaN）も持ちます。すべての算術演算は厳密な結果を 1 回だけ丸めます。`BinaryContext` は 1 回の演算の精度、指数範囲、丸め方向、極小性（tininess）の規則を設定します。`*_ctx` メソッドは値とともに IEEE のステータスフラグを返します。[チュートリアル](../tutorial/binary.md)では一般的なワークフローを示し、[設計ページ](../design/binary.md)では以下で用いる丸め・範囲・認証の規則を導出しています。検証済みの IEEE 754 の範囲は[適合性](../conformance/binary.md)に列挙されています。"
 
 #: manual/api/binary.md:17
 msgid "Throughout this page, $p$ is a precision in bits, $\\circ(x)$ is the rounding of the real number $x$ under the active context, and \"the flags\" are the five IEEE exception flags of a `BinaryFlags` value."
@@ -570,15 +570,15 @@ msgstr "このパッケージを、そのシグネチャに型が現れる 2 つ
 
 #: manual/api/binary.md:34
 msgid "The examples call the package as `@binary.`. `@lf_arith` is `Luna-Flow/arithmetic`. Its `RoundingMode`, `ArithmeticContext` and `ArithmeticError` types appear in signatures; the interface file prints their package as `@arithmetic`. `@def` is `Luna-Flow/floating/def`, which provides `Sign`, `PartialOrder` and the `Floating` trait. No helper functions are shared between examples."
-msgstr "例ではパッケージを `@binary.` として呼び出します。`@lf_arith` は `Luna-Flow/arithmetic` であり、その `RoundingMode`、`ArithmeticContext`、`ArithmeticError` 型がいくつかのシグネチャに現れます。インターフェースファイルではそれらのシグネチャでパッケージを `@arithmetic` と表示します。`@def` は `Luna-Flow/floating/def` であり、`Sign`、`PartialOrder`、`Floating` トレイトを提供します。例の間で共有される補助関数はありません。"
+msgstr "例ではパッケージを `@binary.` として呼び出します。`@lf_arith` は `Luna-Flow/arithmetic` です。その `RoundingMode`、`ArithmeticContext`、`ArithmeticError` 型がシグネチャに現れ、インターフェースファイルはそれらのパッケージを `@arithmetic` と表示します。`@def` は `Luna-Flow/floating/def` であり、`Sign`、`PartialOrder`、`Floating` トレイトを提供します。例の間で共有される補助関数はありません。"
 
 #: manual/api/binary.md:40
 msgid "Three ways to call an operation"
 msgstr "演算を呼び出す 3 つの方法"
 
 #: manual/api/binary.md:42
-msgid "Where present, the plain, contextual and checked forms use one numerical algorithm."
-msgstr "これらの形式がある場合、通常形式、コンテキスト形式、checked形式は同じ数値アルゴリズムを使います。"
+msgid "Most operations come in up to three forms with one numerical algorithm behind them."
+msgstr "ほとんどの演算には、1 つの数値アルゴリズムを背後に持つ最大 3 つの形式があります。"
 
 #: manual/api/binary.md:45
 #: manual/api/interval.md:277
@@ -668,7 +668,7 @@ msgstr "`@lf_arith.ArithmeticError` を伴う `Result`"
 
 #: manual/api/binary.md:51
 msgid "A plain binary operation uses the larger precision of its two operands; `fma` uses the largest precision of its three operands. It uses the extendable precision format of IEEE 754-2019 3.7 specified by $p$ alone (see `BinaryContext`). Its exponent range is the implementation range below, so overflow produces infinity and underflow produces a signed zero or a tiny value only at about $2^{\\pm 2^{30}}$."
-msgstr "二項演算の plain 形式は、2 つのオペランドの精度のうち大きい方（`fma` では 3 つのうち最大のもの）で動作します。そのコンテキストは、$p$ だけで与えられる IEEE 754-2019 3.7 の拡張可能精度形式（`BinaryContext` を参照）で、指数範囲は後述の実装範囲なので、無限大へのオーバーフローや、符号付きゼロまたは極小値へのアンダーフローは、およそ $2^{\\pm 2^{30}}$ でしか起こりません。"
+msgstr "二項演算の plain 形式は、2 つのオペランドの精度のうち大きい方を使い、`fma` は 3 つのオペランドの精度のうち最大のものを使います。コンテキストは、$p$ だけで与えられる IEEE 754-2019 3.7 の拡張可能精度形式です（`BinaryContext` を参照）。指数範囲は後述の実装範囲なので、無限大へのオーバーフローや、符号付きゼロまたは極小値へのアンダーフローは、およそ $2^{\\pm 2^{30}}$ でしか起こりません。"
 
 #: manual/api/binary.md:58
 msgid "Values and limits"
@@ -707,191 +707,191 @@ msgid "`BinCoeff` is a non-negative arbitrary-precision integer used as a `Binar
 msgstr "`BinCoeff` は非負の任意精度整数です。`Binary` の係数および交換形式のエンコーディングのビットパターンとして使います。"
 
 #: manual/api/binary.md:110
-msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`; only code in `Luna-Flow/floating` can import that package. The inner type carries no compatibility promise. Outside the module, `BinCoeff` is abstract: its constructor and field are hidden, and callers cannot name, read, compare or construct the kernel value. Other packages in the library use the two functions to pass the kernel value to or from `BinCoeff`."
-msgstr "内部型 `@binary_kernel.Coeff` は内部パッケージ `internal/binary_kernel` に属します。このパッケージをインポートできるのは `Luna-Flow/floating` 内のコードだけです。内部型に互換性の保証はありません。モジュール外では `BinCoeff` は抽象型です。コンストラクターとフィールドは非公開であり、呼び出し側はカーネル値を名前で参照したり、読み取ったり、比較したり、構築したりできません。ライブラリ内の他のパッケージは、この 2 つの関数で `BinCoeff` とカーネル値の間のデータを渡します。"
+msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`; only code in `Luna-Flow/floating` can import that package. The inner type carries no compatibility promise. Outside the module, `BinCoeff` is abstract: a user cannot call a method on the kernel value, read it, compare it or build one. Neither its constructor nor its field is visible outside `binary`. Other packages in the library use the two functions to pass the kernel value to or from `BinCoeff`."
+msgstr "内部型 `@binary_kernel.Coeff` は内部パッケージ `internal/binary_kernel` に属します。このパッケージをインポートできるのは `Luna-Flow/floating` 内のコードだけです。内部型に互換性の保証はありません。モジュール外では `BinCoeff` は抽象型です。ユーザーはカーネル値に対してメソッドを呼び出したり、読み取ったり、比較したり、構築したりできません。コンストラクターもフィールドも `binary` の外からは見えません。ライブラリ内の他のパッケージは、この 2 つの関数で `BinCoeff` とカーネル値の間のデータを渡します。"
 
-#: manual/api/binary.md:117
+#: manual/api/binary.md:118
 msgid "The coefficient is exact. On native, LLVM and Wasm targets, it uses an inline 64-bit or 128-bit word or an array of 64-bit limbs; on JavaScript, it uses a host `bigint`. Callers cannot observe the representation. The [design page](../design/binary.md#the-coefficient-kernel) describes the algorithm selection: schoolbook, Karatsuba, Toom-3, number-theoretic transform and staged division. `Debug` prints the integer."
 msgstr "係数は厳密です。native、LLVM、Wasm ターゲットではインラインの 64 ビットまたは 128 ビットのワード、あるいは 64 ビット limb の配列を使います。JavaScript ではホストの `bigint` を使います。呼び出し側から表現は見えません。[設計ページ](../design/binary.md#the-coefficient-kernel)では schoolbook、Karatsuba、Toom-3、数論変換、段階的除算というアルゴリズム選択を説明します。`Debug` は整数を表示します。"
 
-#: manual/api/binary.md:123
+#: manual/api/binary.md:124
 msgid "`BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)"
 msgstr "`BinCoeff::to_kernel`、`BinCoeff::from_kernel`（内部の橋渡し）"
 
-#: manual/api/binary.md:125
+#: manual/api/binary.md:126
 msgid "`to_kernel` and `from_kernel` are bridge functions between `BinCoeff` and the kernel type for use by packages in this module. Code outside `Luna-Flow/floating` cannot name the kernel type. The functions carry no compatibility promise because the type they exchange may change in any release."
 msgstr "`to_kernel` と `from_kernel` は、`BinCoeff` とカーネル型の橋渡し関数で、このモジュールのパッケージ向けです。`Luna-Flow/floating` の外のコードはカーネル型を名前で参照できません。これらがやり取りする型はリリースごとに変わる可能性があるため、両関数に互換性の保証はありません。"
 
-#: manual/api/binary.md:135
+#: manual/api/binary.md:136
 msgid "`to_kernel` and `from_kernel` carry `#internal`, which changes neither the generated interface nor the documentation tool; the heading and doc comments mark them as internal. Both are free functions. `BinCoeff` is a one-field tuple structure over the kernel type, so the bridge reads or wraps that field."
 msgstr "`to_kernel` と `from_kernel` には `#internal` が付いています。この属性は生成インターフェースにもドキュメントツールにも影響しないため、見出しとドキュメントコメントで内部 API であることを示します。どちらも自由関数です。`BinCoeff` はカーネル型を包む 1 フィールドのタプル構造体なので、橋渡し関数はそのフィールドを読み出すか包みます。"
 
-#: manual/api/binary.md:142
+#: manual/api/binary.md:143
 msgid "Build a coefficient from a machine value."
 msgstr "機械値から係数を構築します。"
 
-#: manual/api/binary.md:152
+#: manual/api/binary.md:153
 msgid "Convert between a coefficient and digits."
 msgstr "係数と数字列の間で変換します。"
 
-#: manual/api/binary.md:160
+#: manual/api/binary.md:161
 msgid "`parse` reads digits in base `radix`, which defaults to 10. Letters represent digits above 9, and one leading `+` is optional. It returns `Err` for an empty string, a `-` sign, a digit outside the radix, or a radix outside $[2, 36]$."
 msgstr "`parse` は基数 `radix`（既定値は 10）で数字列を読み取ります。9 を超える数字には英字を使い、先頭の `+` は 1 つ省略できます。空文字列、`-` 符号、基数外の数字、または $[2, 36]$ の範囲外の基数では `Err` を返します。"
 
-#: manual/api/binary.md:164
+#: manual/api/binary.md:165
 msgid "`to_string` prints base 10. `to_radix_string` prints in any radix in $[2, 36]$, using lower-case letters and no prefix; it aborts for another radix."
 msgstr "`to_string` は 10 進数で出力します。`to_radix_string` は $[2, 36]$ の任意の基数で出力し、文字は小文字、接頭辞はなしです。それ以外の基数では中止します。"
 
-#: manual/api/binary.md:169
+#: manual/api/binary.md:170
 msgid "Convert between a coefficient and big-endian bytes."
 msgstr "係数とビッグエンディアンのバイト列の間で変換します。"
 
-#: manual/api/binary.md:176
+#: manual/api/binary.md:177
 msgid "`to_bytes_be` uses the fewest bytes needed to represent the coefficient. `from_bytes_be` ignores leading zero bytes."
 msgstr "`to_bytes_be` は係数を表すために必要な最小バイト数を使います。`from_bytes_be` は先頭のゼロバイトを無視します。"
 
-#: manual/api/binary.md:181
+#: manual/api/binary.md:182
 msgid "Return the value as a `UInt64`, or `None` if it needs more than 64 bits."
-msgstr "値を `UInt64` として返し、64 ビットを超える場合は `None` を返します。"
+msgstr "値を `UInt64` として返します。64 ビットを超える場合は `None` を返します。"
 
-#: manual/api/binary.md:189
+#: manual/api/binary.md:190
 msgid "Queries."
 msgstr "問い合わせ。"
 
-#: manual/api/binary.md:196
+#: manual/api/binary.md:197
 msgid "`bit_length` returns $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$, and $0$ for zero."
 msgstr "係数 $c > 0$ の場合、`bit_length` は $\\lfloor \\log_2 c \\rfloor + 1$ を返し、係数がゼロの場合は $0$ を返します。"
 
-#: manual/api/binary.md:201
+#: manual/api/binary.md:202
 msgid "Exact comparison."
 msgstr "厳密な比較。"
 
-#: manual/api/binary.md:208
+#: manual/api/binary.md:209
 msgid "Compare two coefficients and test whether they are equal. `compare` returns $-1$, $0$ or $1$. For natural numbers, `equal` compares values, which is the same as comparing their representations. The operators `<`, `<=`, `>`, `>=`, `==` and `!=` use these methods; see [Trait implementations](#trait-implementations)."
-msgstr "`compare` は $-1$、$0$、$1$ のいずれかを返します。`equal` は数値としての等しさであり、自然数では表現の等しさと同じです。演算子 `<`、`<=`、`>`、`>=`、`==`、`!=` はこれらを使います（[トレイト実装](#trait-implementations)を参照）。"
+msgstr "2 つの係数を比較し、等しいかどうかを判定します。`compare` は $-1$、$0$、$1$ のいずれかを返します。自然数では、`equal` は値を比較し、これは表現を比較することと同じです。演算子 `<`、`<=`、`>`、`>=`、`==`、`!=` はこれらのメソッドを使います。[トレイト実装](#trait-implementations)を参照してください。"
 
-#: manual/api/binary.md:213
-msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted trait methods are listed under [Trait implementations](#trait-implementations). Outside `binary`, the public type has no arithmetic, shift, bitwise or GCD operations; those operations are internal to `internal/binary_kernel`. Use `Binary` for arithmetic on values. To export a coefficient read with `coefficient()`, call `to_string` or `to_bytes_be`."
-msgstr "`BinCoeff` は `Eq`、`Compare`、`Show`、`Debug` も実装します。昇格したトレイトメソッドは [トレイト実装](#trait-implementations)に記載されています。`binary` の外では、この公開型に算術、シフト、ビット演算、GCD の操作はありません。これらの操作は `internal/binary_kernel` の内部実装です。値の算術には `Binary` を使います。`coefficient()` で読み出した係数を出力するには `to_string` または `to_bytes_be` を呼び出します。"
+#: manual/api/binary.md:214
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted trait methods are listed under [Trait implementations](#trait-implementations). `BinCoeff` has no arithmetic, shift, bitwise or GCD operations: they are internal to the library (the package `internal/binary_kernel`). Arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
+msgstr "`BinCoeff` は `Eq`、`Compare`、`Show`、`Debug` も実装します。昇格したトレイトメソッドは[トレイト実装](#trait-implementations)に記載されています。`BinCoeff` に算術、シフト、ビット演算、GCD の操作はありません。これらはライブラリの内部（パッケージ `internal/binary_kernel`）にあります。値の算術には `Binary` を使います。`coefficient()` で読み出した係数に対しては、`to_string` または `to_bytes_be` で変換した後に行います。"
 
-#: manual/api/binary.md:232
+#: manual/api/binary.md:233
 msgid "The value type"
 msgstr "値の型"
 
-#: manual/api/binary.md:236
+#: manual/api/binary.md:237
 msgid "`Binary` represents a finite dyadic number, a signed infinity or a NaN, and carries a working precision. Its representation, `@binary_kernel.BinRepr`, is internal, carries no compatibility promise and is read only inside the package. Like `BinCoeff`, the representation uses an internal kernel type. A value is one heap object."
 msgstr "`Binary` は有限の二進有理数、符号付き無限大、または NaN を表し、作業精度を持ちます。その表現 `@binary_kernel.BinRepr` は内部型であり、互換性の保証はなく、パッケージ内でのみ読み取られます。`BinCoeff` と同様に、表現には内部カーネル型を使います。値は 1 つのヒープオブジェクトです。"
 
-#: manual/api/binary.md:247
+#: manual/api/binary.md:248
 msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
-msgstr "有限の `Binary` 値は $(-1)^s \\cdot c \\cdot 2^{e}$ です。$s$ は符号ビット、$c$ は `BinCoeff`、$e$ = `exponent2()` です。この API で構築される値はすべて正準表現で、ゼロでない $c$ は奇数（因子 2 は $e$ に移す）です。ゼロでは $c = 0$、$e = 0$ となり、符号を保持します。$c$ のビット数は `precision()` 以下です。値の精度はその値の属性です。通常の演算はオペランドの大きい方の精度を使い、コンテキスト演算は結果にコンテキストの精度を付けます。"
+msgstr "有限の `Binary` 値は $(-1)^s \\cdot c \\cdot 2^{e}$ です。$s$ は符号ビット、$c$ は `BinCoeff`、$e$ = `exponent2()` です。この API で構築される値はすべて正準表現を持ちます。ゼロでない $c$ は奇数（因子 2 は $e$ に移す）です。ゼロでは $c = 0$、$e = 0$ となり、符号を保持します。$c$ のビット数は `precision()` 以下です。精度は値の属性です。通常の演算はオペランドの大きい方の精度を使い、コンテキスト演算は結果にコンテキストの精度を付けます。"
 
-#: manual/api/binary.md:255
+#: manual/api/binary.md:256
 msgid "`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`. This comparison tests whether the values are the same number, regardless of precision: for example, `one(precision=53) == one(precision=24)` and `-0 == +0`. Every NaN equals every other NaN."
 msgstr "`==` は `compare` と一致し、`a.compare(b) == 0` のとき、かつそのときに限り `a == b` です。この比較は精度にかかわらず、2 つの値が同じ数かどうかを判定します。例えば、`one(precision=53) == one(precision=24)` であり、`-0 == +0` です。すべての NaN は他のすべての NaN と等しくなります。"
 
-#: manual/api/binary.md:261
-msgid "The `<`, `<=` and sorting order is a total preorder: every NaN compares equal to every other NaN and above every number. `Decimal` uses the same rule. IEEE equality leaves a NaN unordered; use `compare_quiet_equal` (IEEE 754-2019 5.6.1, 5.11) when that is required. `Binary` has no `Hash`. Use `identical` to compare representations."
-msgstr "`<`、`<=` とソートに使う順序は全前順序です。各 NaN は他のすべての NaN と等しく、すべての数より大きくなります。`Decimal` も同じ規則を使います。IEEE の等値比較では NaN は順序付けられません。その動作が必要な場合は `compare_quiet_equal`（IEEE 754-2019 5.6.1、5.11）を使います。`Binary` に `Hash` はありません。表現の比較には `identical` を使います。"
+#: manual/api/binary.md:262
+msgid "The `<`, `<=` and sorting order is a total preorder: every NaN compares equal to every other NaN and above every number. `Decimal` uses the same rule. It is not IEEE equality: use `compare_quiet_equal` (IEEE 754-2019 5.6.1, 5.11) when a NaN must be unordered. `Binary` has no `Hash`. Use `identical` to compare representations."
+msgstr "`<`、`<=` とソートに使う順序は全前順序です。各 NaN は他のすべての NaN と等しく、すべての数より大きくなります。`Decimal` も同じ規則を使います。これは IEEE の等値比較ではありません。NaN を順序付けられないものとして扱う必要がある場合は `compare_quiet_equal`（IEEE 754-2019 5.6.1、5.11）を使います。`Binary` に `Hash` はありません。表現の比較には `identical` を使います。"
 
-#: manual/api/binary.md:273
+#: manual/api/binary.md:274
 msgid "`identical` compares the representation: class, sign (including the sign of a zero), coefficient, exponent and precision. For a NaN it also compares the signaling bit and payload. It distinguishes `-0` from `+0`, precision 53 from precision 24 for the same value, and NaNs with different kinds or payloads."
 msgstr "`identical` は表現を比較します。すなわち、クラス、符号（ゼロの符号も含む）、係数、指数、精度が一致する必要があります。NaN では信号ビットとペイロードも比較します。`-0` と `+0`、同じ値の精度 53 と精度 24、種類またはペイロードが異なる NaN を区別します。"
 
-#: manual/api/binary.md:278
-msgid "Use `identical` when a result is checked as a datum, such as when its zero sign or the precision stamped by a contextual operation matters. Use `==` when the number is what matters."
-msgstr "結果をデータとして検査する場合は `identical` を使います。例えばゼロの符号やコンテキスト演算が付けた精度が重要な場合です。数値が重要な場合は `==` を使います。"
+#: manual/api/binary.md:279
+msgid "Use `identical` when a result is checked as a datum, such as when its zero sign or the precision stamped by a contextual operation matters. `identical` is what `==` was before 0.12. Use `==` when the number is what matters."
+msgstr "結果をデータとして検査する場合は `identical` を使います。例えばゼロの符号やコンテキスト演算が付けた精度が重要な場合です。`identical` は 0.12 より前の `==` です。数値が重要な場合は `==` を使います。"
 
-#: manual/api/binary.md:284
+#: manual/api/binary.md:285
 msgid "Builds a finite number $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rounded to `precision` bits."
 msgstr "`precision` ビットに丸めた有限数 $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ を構築します。"
 
-#: manual/api/binary.md:291
+#: manual/api/binary.md:292
 msgid "The arguments are the coefficient, exponent $e$ and precision. If the coefficient has more significant bits than the precision, `make` rounds it with `mode`, which defaults to `RoundTiesToEven`. The result is in canonical form. A precision outside `1..=binary_precision_max` aborts."
 msgstr "引数は係数、指数 $e$、精度です。係数の有効ビット数が精度より多い場合、`make` は `mode` で丸めます。既定値は `RoundTiesToEven` です。結果は正準形式です。精度が `1..=binary_precision_max` の範囲外なら中止します。"
 
-#: manual/api/binary.md:296
+#: manual/api/binary.md:297
 msgid "If a value lies outside the implementation exponent range, `make` replaces it as an overflow or underflow would. Above the range, it returns $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$. Below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$, it returns $\\pm 0$ or, for a mode that rounds away from zero, that subnormal. With `RoundTiesToEven` and `RoundTiesToAway`, it returns the subnormal when the value exceeds half of it. `RoundTiesToAway` also returns the subnormal when the value equals half."
 msgstr "値が実装の指数範囲外の場合、`make` はオーバーフローまたはアンダーフローと同様に置き換えます。範囲を上回る場合は $\\pm\\infty$ を返します。ただし、ゼロ方向に丸める場合は最大有限絶対値 $(2^p - 1)\\,2^{e_{\\max} - p + 1}$ を返します。実装の最小次正規数 $2^{e_{\\min} - p + 1}$ を下回る場合は $\\pm 0$ を返します。ただし、ゼロから離れる方向に丸める場合はその次正規数を返します。`RoundTiesToEven` と `RoundTiesToAway` では、値がその半分を超えると次正規数を返します。`RoundTiesToAway` では、値が半分と等しい場合も次正規数を返します。"
 
-#: manual/api/binary.md:305
+#: manual/api/binary.md:306
 msgid "`make` rounds precision and range together in `mode`. For a value between the smallest subnormal and $2^{e_{\\min}}$, it keeps only bits on the subnormal grid $2^{e_{\\min} - p + 1}$, with at least one bit. The stored value therefore has no bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$. `apply_ctx` also reports the flags."
 msgstr "`make` は `mode` で精度と範囲を同時に丸めます。最小次正規数と $2^{e_{\\min}}$ の間の値では、次正規数のグリッド $2^{e_{\\min} - p + 1}$ 上のビットだけを残し、少なくとも 1 ビットを保持します。そのため、格納された値にこのグリッドより下のビットはありません。絶対値が $2^{-2^{30}}$ に近い場合だけ影響します。`apply_ctx` はフラグも報告します。"
 
-#: manual/api/binary.md:313
+#: manual/api/binary.md:314
 msgid "Build a value from an integer."
 msgstr "整数から値を構築します。"
 
-#: manual/api/binary.md:320
+#: manual/api/binary.md:321
 msgid "Both constructors default to precision 53. When the integer has more significant bits than the precision, the constructor rounds to nearest-even. `from_int(n)` is exact for every `Int` at the default precision."
-msgstr "既定の精度は 53 です。整数の有効ビット数が精度より多い場合は最近接偶数丸めされます。既定の精度では、`from_int(n)` はすべての `Int` に対して厳密です。"
+msgstr "どちらのコンストラクターも既定の精度は 53 です。整数の有効ビット数が精度より多い場合、コンストラクターは最近接偶数丸めを行います。既定の精度では、`from_int(n)` はすべての `Int` に対して厳密です。"
 
-#: manual/api/binary.md:326
+#: manual/api/binary.md:327
 msgid "Decode a host binary64 or binary32 value exactly."
 msgstr "ホストの binary64 または binary32 の値を厳密にデコードします。"
 
-#: manual/api/binary.md:333
+#: manual/api/binary.md:334
 msgid "The default precisions are 53 and 24 bits, so these conversions are exact. `from_double` preserves signed zeros, infinities, the NaN sign, the quiet and signaling distinction, and the NaN payload (the fraction field without the quiet bit)."
 msgstr "既定の精度はそれぞれ 53 ビットと 24 ビットなので、どちらの変換も厳密です。`from_double` は符号付きゼロ、無限大、NaN の符号、quietとsignalingの区別、NaN のペイロード（quietビットを除いた分数部）を保持します。"
 
-#: manual/api/binary.md:338
+#: manual/api/binary.md:339
 msgid "`from_float` first converts the `Float` to a host `Double`, then decodes it. Numbers, zeros and infinities are unaffected. For a NaN, it keeps the low $p - 2$ bits of the binary64 payload after conversion (the binary32 payload times $2^{29}$). At the default precision of 24, the payload is 0 and a signaling NaN becomes quiet. On the native target, a signaling `Float` NaN arrives as a quiet NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs bit-exactly."
 msgstr "`from_float` はまずホスト上で `Float` を `Double` に変換し、その後デコードします。数値、ゼロ、無限大は影響を受けません。NaN では、変換後の binary64 ペイロードの下位 $p - 2$ ビット（binary32 のペイロードの $2^{29}$ 倍）を保持します。既定の精度 24 ではペイロードは 0 となり、signaling NaN は quiet になります。native ターゲットでは signaling `Float` NaN はすでに quiet NaN として届きます。binary32 の NaN をビット単位で厳密にデコードするには、`BinaryInterchange::from_hex` を `Binary32` とともに使います。"
 
-#: manual/api/binary.md:346
+#: manual/api/binary.md:347
 msgid "The value of `from_double(0.1)` is the value that the host already rounded, $3602879701896397 \\cdot 2^{-55}$, not one tenth. Use `from_string` to round a decimal literal directly."
-msgstr "既定値は 53 ビットと 24 ビットなので、変換は厳密です。符号付きゼロ、無限大、NaN の符号、quiet/signaling の区別、NaN のペイロードは保存されます。値はホストがすでに丸めたものです。`from_double(0.1)` は 10 分の 1 ではなく $3602879701896397 \\cdot 2^{-55}$ です。十進リテラルを直接丸めるには `from_string` を使ってください。"
+msgstr "`from_double(0.1)` の値は、ホストがすでに丸めた値 $3602879701896397 \\cdot 2^{-55}$ であり、10 分の 1 ではありません。十進リテラルを直接丸めるには `from_string` を使ってください。"
 
-#: manual/api/binary.md:352
+#: manual/api/binary.md:353
 msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr "定数 $+0$、$-0$、$1$、$\\pm\\infty$ を構築します。"
 
-#: manual/api/binary.md:361
+#: manual/api/binary.md:362
 msgid "The default precision is 53 and must be in `1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` returns $-\\infty$; the default returns $+\\infty$, as `Decimal::inf` does."
-msgstr "既定の精度は 53 で、`1..=binary_precision_max` の範囲内でなければなりません（`binary_precision_max` を参照）。`inf(negative=true)` は $-\\infty$ であり、既定値は $+\\infty$ です（`Decimal::inf` と同じです）。"
+msgstr "既定の精度は 53 で、`1..=binary_precision_max` の範囲内でなければなりません（`binary_precision_max` を参照）。`inf(negative=true)` は $-\\infty$ を返し、既定では $+\\infty$ を返します。これは `Decimal::inf` と同じです。"
 
-#: manual/api/binary.md:367
+#: manual/api/binary.md:368
 msgid "Build NaNs."
 msgstr "NaN を構築します。"
 
-#: manual/api/binary.md:375
-msgid "`nan()` returns a positive quiet NaN with payload 0. A signaling NaN has a nonzero payload; the default and a requested payload of 0 both become 1."
-msgstr "`nan()` はペイロード 0 の正の quiet NaN です。signaling NaN は常に非ゼロのペイロードを持ちます（既定値も、要求された 0 も 1 になります）。"
+#: manual/api/binary.md:376
+msgid "`nan()` returns a positive quiet NaN with payload 0. A signaling NaN always has a nonzero payload; the default and a requested payload of 0 both become 1."
+msgstr "`nan()` はペイロード 0 の正の quiet NaN を返します。signaling NaN のペイロードは常に非ゼロです。既定値も、要求されたペイロード 0 も 1 になります。"
 
-#: manual/api/binary.md:378
+#: manual/api/binary.md:379
 msgid "A NaN of precision $p$ has $p - 2$ payload bits. IEEE 754-2019 6.2.1 gives the trailing significand field $p - 1$ bits, the first of which is the quiet bit; there are no payload bits when $p \\le 2$. `quiet_nan` and `signaling_nan` abort if the payload is too wide. `signaling_nan` also aborts when $p < 3$, because a signaling NaN needs a nonzero payload bit."
 msgstr "精度 $p$ の NaN のペイロードは $p - 2$ ビットです。IEEE 754-2019 6.2.1 では、trailing significand field は $p - 1$ ビットで、その先頭が quiet ビットです。したがって $p \\le 2$ ではペイロードビットがありません。ペイロードが広すぎると `quiet_nan` と `signaling_nan` は中止します。$p < 3$ の場合も、signaling NaN には非ゼロのペイロードビットが必要なため `signaling_nan` は中止します。"
 
-#: manual/api/binary.md:384
-msgid "Conversions do not abort when the payload is wider than the destination: they keep its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its payload does not survive. This rule applies to `with_precision`, `from_double`, `from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet NaN), operations that return a quiet NaN under a context (which cut the payload to the context precision), and interchange encodings."
-msgstr "変換先に収まらないペイロードでも変換は中止せず、下位ビットを保持します（IEEE 754-2019 6.2.3）。signaling NaN のペイロードが残らない場合、その NaN は quiet になります。この規則は `with_precision`、`from_double`、`from_float`、`from_hex`（精度 3 未満の `snan` リテラルは quiet NaN になる）、コンテキストで quiet NaN を返す演算（コンテキスト精度に合わせてペイロードを切り詰める）、交換形式のエンコーディングに適用されます。"
+#: manual/api/binary.md:385
+msgid "Conversions never abort: a payload that the destination cannot hold keeps its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its payload does not survive. This rule applies to `with_precision`, `from_double`, `from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet NaN), every operation that returns a quiet NaN under a context (which cuts the payload to the context precision), and interchange encodings."
+msgstr "変換は決して中止しません。変換先が保持できないペイロードは下位ビットが保持されます（IEEE 754-2019 6.2.3）。signaling NaN のペイロードが残らない場合、その NaN は quiet になります。この規則は `with_precision`、`from_double`、`from_float`、`from_hex`（精度 3 未満の `snan` リテラルは quiet NaN になる）、コンテキストで quiet NaN を返すすべての演算（コンテキスト精度に合わせてペイロードを切り詰める）、交換形式のエンコーディングに適用されます。"
 
-#: manual/api/binary.md:391
+#: manual/api/binary.md:392
 #: manual/api/decimal_gda.md:311
 msgid "Observing a value"
 msgstr "値の観測"
 
-#: manual/api/binary.md:395
+#: manual/api/binary.md:396
 msgid "Report the class and sign of a value."
 msgstr "値のクラスと符号を報告します。"
 
-#: manual/api/binary.md:403
+#: manual/api/binary.md:404
 msgid "`classify` returns `Finite`, `Infinity` or `NaN`; zero is `Finite`. `signum` returns `Zero` for every zero and NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit, which is set for $-0$, $-\\infty$ and negative NaNs."
 msgstr "`classify` は `Finite`、`Infinity`、`NaN` を返します。ゼロは `Finite` です。`signum` はすべてのゼロと NaN に対して `Zero` を返し、それ以外では `Positive` または `Negative` を返します。`is_sign_minus` は符号ビット自体を返します。このビットは $-0$、$-\\infty$、負の NaN でセットされます。"
 
-#: manual/api/binary.md:408
+#: manual/api/binary.md:409
 msgid "The `Floating` trait supplies `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` for `Binary`. The next section lists methods that return the same answers without the trait."
 msgstr "`Floating` trait は `Binary` に `@def.is_finite`、`@def.is_nan`、`@def.is_infinite`、`@def.is_zero` を提供します。次の節では、trait を介さずに同じ値を返すメソッドを列挙します。"
 
-#: manual/api/binary.md:414
+#: manual/api/binary.md:415
 msgid "Return the ten-valued class of IEEE 754-2019 5.7.2 and classify normal and subnormal values."
-msgstr "IEEE 754-2019 第 5.7.2 条の 10 値のクラスとその述語。"
+msgstr "IEEE 754-2019 5.7.2 の 10 値のクラスを返し、正規化数と非正規化数を分類します。"
 
-#: manual/api/binary.md:426
+#: manual/api/binary.md:427
 msgid "`class_of` returns a value of [`IeeeClass`](def.md#ieeeclass), as shown in the table."
 msgstr "`class_of` は表に示す [`IeeeClass`](def.md#ieeeclass) の値を返します。"
 
-#: manual/api/binary.md:428
+#: manual/api/binary.md:429
 #: manual/api/decimal.md:1144
 #: manual/api/decimal.md:1889
 #: manual/api/decimal.md:1986
@@ -900,116 +900,116 @@ msgstr "`class_of` は表に示す [`IeeeClass`](def.md#ieeeclass) の値を返�
 msgid "Input"
 msgstr "入力"
 
-#: manual/api/binary.md:428
+#: manual/api/binary.md:429
 #: manual/design/interval.md:702
 #: manual/performance_audit.md:25
 msgid "Class"
 msgstr "分類"
 
-#: manual/api/binary.md:430
+#: manual/api/binary.md:431
 msgid "signaling NaN"
 msgstr "signaling NaN"
 
-#: manual/api/binary.md:431
+#: manual/api/binary.md:432
 #: manual/api/binary.md:2035
 msgid "quiet NaN"
 msgstr "静かな NaN"
 
-#: manual/api/binary.md:432
+#: manual/api/binary.md:433
 msgid "negative infinity"
 msgstr "負の無限大"
 
-#: manual/api/binary.md:433
+#: manual/api/binary.md:434
 msgid "negative normal value"
 msgstr "負の正規化数"
 
-#: manual/api/binary.md:434
+#: manual/api/binary.md:435
 msgid "negative subnormal value"
 msgstr "負の非正規化数"
 
-#: manual/api/binary.md:435
+#: manual/api/binary.md:436
 msgid "negative zero"
 msgstr "負のゼロ"
 
-#: manual/api/binary.md:436
+#: manual/api/binary.md:437
 msgid "positive zero"
 msgstr "正のゼロ"
 
-#: manual/api/binary.md:437
+#: manual/api/binary.md:438
 msgid "positive subnormal value"
 msgstr "正の非正規化数"
 
-#: manual/api/binary.md:438
+#: manual/api/binary.md:439
 msgid "positive normal value"
 msgstr "正の正規化数"
 
-#: manual/api/binary.md:439
+#: manual/api/binary.md:440
 msgid "positive infinity"
 msgstr "正の無限大"
 
-#: manual/api/binary.md:441
+#: manual/api/binary.md:442
 msgid "A nonzero finite number is normal when the exponent of its leading bit is at least the context's $e_{\\min}$; below that exponent, it is subnormal. `Binary` carries no format, so the context determines the class. Use `BinaryInterchangeFormat::context` for the context of a binary interchange format. A context given by its precision alone has the implementation limit `binary_value_e_min` as `e_min`."
-msgstr "ゼロでない有限数は、先頭ビットの指数がコンテキストの $e_{\\min}$ 以上なら正規化数、それより小さければ非正規化数です。`Binary` は形式を持たないため、クラスはコンテキストによって決まります。二進 interchange format 用のコンテキストには `BinaryInterchangeFormat::context` を使います。精度だけで指定するコンテキストでは、実装限界 `binary_value_e_min` が `e_min` です。"
+msgstr "ゼロでない有限数は、先頭ビットの指数がコンテキストの $e_{\\min}$ 以上なら normal、それより小さければ subnormal です。`Binary` は形式を持たないため、クラスはコンテキストによって決まります。二進 interchange format 用のコンテキストには `BinaryInterchangeFormat::context` を使います。精度だけで指定するコンテキストでは、実装限界 `binary_value_e_min` が `e_min` です。"
 
-#: manual/api/binary.md:448
-msgid "`is_normal` and `is_subnormal` return true exactly for the normal and subnormal classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite` is true for either infinity, and `is_nan` for either NaN. These methods do not round or raise a flag. `classify` keeps its three-valued meaning."
-msgstr "`is_normal` と `is_subnormal` は、それぞれ正規化数と非正規化数のクラスに限り true を返します。ゼロ、非正規化数、正規化数では `is_finite` が true、いずれかの無限大では `is_infinite` が true、いずれかの NaN では `is_nan` が true です。これらのメソッドは丸めず、フラグも発生させません。`classify` は 3 値の意味を保ちます。"
+#: manual/api/binary.md:449
+msgid "`is_normal` and `is_subnormal` return true exactly for the normal and subnormal classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite` is true for either infinity, and `is_nan` for either NaN. None of `class_of` and these predicates rounds or raises a flag. `classify` keeps its three-valued meaning."
+msgstr "`is_normal` と `is_subnormal` は、それぞれ normal と subnormal のクラスに限り true を返します。ゼロ、subnormal、normal では `is_finite` が true、いずれかの無限大では `is_infinite` が true、いずれかの NaN では `is_nan` が true です。`class_of` とこれらの述語はいずれも丸めず、フラグも発生させません。`classify` は 3 値の意味を保ちます。"
 
-#: manual/api/binary.md:455
+#: manual/api/binary.md:456
 msgid "Special-value predicates."
 msgstr "特殊値の述語。"
 
-#: manual/api/binary.md:465
+#: manual/api/binary.md:466
 msgid "`nan_payload` is zero for any value other than a NaN."
 msgstr "NaN 以外の値に対し、`nan_payload` はゼロを返します。"
 
-#: manual/api/binary.md:469
+#: manual/api/binary.md:470
 msgid "Return the stored representation."
 msgstr "格納された表現を返します。"
 
-#: manual/api/binary.md:477
+#: manual/api/binary.md:478
 msgid "For a finite number, apply the sign to `coefficient()` $\\times 2^{\\texttt{exponent2()}}$. The coefficient and exponent returned for an infinity or NaN have no meaning."
 msgstr "有限数は、符号を `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ に適用した値です。無限大または NaN で返される係数と指数に意味はありません。"
 
-#: manual/api/binary.md:481
+#: manual/api/binary.md:482
 msgid "For a value with at most 128 coefficient bits, `coefficient()` builds a `BinCoeff` from the one or two machine words that store the coefficient, so the call allocates. A wider value returns its stored coefficient. A loop that reads coefficients from small values therefore allocates once per call."
 msgstr "係数が 128 ビット以下の値では、`coefficient()` は係数を格納する 1 個または 2 個のマシンワードから `BinCoeff` を構築するため、呼び出し時に割り当てが発生します。幅の広い値では格納済みの係数を返します。したがって、小さな値の係数を読むループでは、呼び出しごとに 1 回割り当てが発生します。"
 
-#: manual/api/binary.md:486
-msgid "`Binary` has no public word reader. Use `BinCoeff::to_uint64` when the coefficient fits in 64 bits. To read the exponent of the leading bit without building the coefficient, use `ilogb()`; it does not allocate."
-msgstr "`Binary` に公開されたワードリーダーはありません。係数が 64 ビットに収まる場合は `BinCoeff::to_uint64` を使います。係数を構築せずに最上位ビットの指数を読むには `ilogb()` を使います。これは割り当てを行いません。"
+#: manual/api/binary.md:487
+msgid "`Binary` has no public word reader. Use `BinCoeff::to_uint64` when the coefficient fits in 64 bits. The exponent of the leading bit, which is what most callers read the coefficient for, is `ilogb()`, which does not allocate."
+msgstr "`Binary` に公開されたワードリーダーはありません。係数が 64 ビットに収まる場合は `BinCoeff::to_uint64` を使います。最上位ビットの指数は、多くの呼び出し側が係数を読む目的であり、`ilogb()` が与えます。これは割り当てを行いません。"
 
-#: manual/api/binary.md:492
+#: manual/api/binary.md:493
 msgid "Return the canonical representation of a finite number at its own precision."
 msgstr "有限数の、自身の精度での正準表現を返します。"
 
-#: manual/api/binary.md:498
+#: manual/api/binary.md:499
 msgid "Public constructors already return canonical values, so `normalized` leaves them unchanged. It also returns infinities and NaNs unchanged."
 msgstr "公開コンストラクターが返す値はすでに正準表現なので、`normalized` は変更せずに返します。無限大と NaN も変更せずに返します。"
 
-#: manual/api/binary.md:503
+#: manual/api/binary.md:504
 msgid "Rounds a value to a new working precision."
 msgstr "値を新しい作業精度に丸めます。"
 
-#: manual/api/binary.md:509
+#: manual/api/binary.md:510
 msgid "A finite number with more significant bits than the new precision is rounded in the given direction, including ties to away, as specified by `BinaryRoundingMode`. A zero or infinity keeps its value and takes the new precision. A NaN keeps the low $p-2$ bits of its payload at precision $p$; a signaling NaN becomes quiet if its payload does not survive."
 msgstr "新しい精度より有効ビット数が多い有限数は、`BinaryRoundingMode` が指定する方向に丸めます。ties-to-away も含みます。ゼロまたは無限大は値を保ったまま新しい精度になります。NaN は精度 $p$ でペイロードの下位 $p-2$ ビットを保持します。ペイロードが残らない signaling NaN は quiet になります。"
 
-#: manual/api/binary.md:515
+#: manual/api/binary.md:516
 msgid "`with_precision` reports no flags. Use `apply_ctx` when flags matter."
 msgstr "`with_precision` はフラグを報告しません。フラグが必要な場合は `apply_ctx` を使います。"
 
-#: manual/api/binary.md:519
+#: manual/api/binary.md:520
 msgid "Returns the unit in the last place of a finite number at its own precision."
 msgstr "有限数の、その精度における最下位桁の単位を返します。"
 
-#: manual/api/binary.md:525
+#: manual/api/binary.md:526
 msgid ""
 "For $x \\n"
-"e 0$, let $t = \\lfloor \\log_2 |x| \\rfloor$ be the exponent of its leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an infinity or NaN it returns a quiet NaN. Its spacing uses the value's precision and does not depend on a context's exponent range, so it is not the subnormal spacing of an IEEE format."
+"e 0$, let $t = \\lfloor \\log_2 |x| \\rfloor$ be the exponent of its leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an infinity or NaN it returns a quiet NaN. The spacing ignores any context's exponent range, so it is not the subnormal spacing of an IEEE format."
 msgstr ""
 "$x \\n"
-"e 0$ について、先頭ビットの指数を $t = \\lfloor \\log_2 |x| \\rfloor$ とします。`ulp` は $2^{t-p+1}$ を返し、ゼロには $2^{1-p}$ を返します。無限大または NaN には quiet NaN を返します。この間隔は値の精度を使い、コンテキストの指数範囲には依存しないため、IEEE 形式の次正規数の間隔ではありません。"
+"e 0$ について、先頭ビットの指数を $t = \\lfloor \\log_2 |x| \\rfloor$ とします。`ulp` は $2^{t-p+1}$ を返し、ゼロには $2^{1-p}$ を返します。無限大または NaN には quiet NaN を返します。この間隔はコンテキストの指数範囲を無視するため、IEEE 形式の非正規化数の間隔ではありません。"
 
 #: manual/api/binary.md:554
 msgid "Plain arithmetic"
@@ -31637,8 +31637,8 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
 
-#~ msgid "Most operations come in up to three forms with one numerical algorithm behind them."
-#~ msgstr "ほとんどの演算には、1 つの数値アルゴリズムを背後に持つ最大 3 つの形式があります。"
+#~ msgid "Where present, the plain, contextual and checked forms use one numerical algorithm."
+#~ msgstr "これらの形式がある場合、通常形式、コンテキスト形式、checked形式は同じ数値アルゴリズムを使います。"
 
 #~ msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
 #~ msgstr "内部型 `@binary_kernel.Coeff` は内部パッケージ `internal/binary_kernel` に属し、`Luna-Flow/floating` の内部のコードだけがインポートできます。互換性の約束はなく、ユーザーはそれに対してメソッドを呼ぶことも、読み取ることも、比較することも、構築することもできません。モジュールの外から見ると `BinCoeff` は抽象型です。そのコンストラクタとフィールドは `binary` の外からは見えず、ライブラリの他のパッケージは橋渡しの `to_kernel` と `from_kernel`（下を参照）でカーネル型に触れます。値は厳密で、Native、LLVM、Wasm ターゲットではインラインの 64 または 128 ビットワードか 64 ビットリムの配列、JavaScript ではホストの `bigint` です。表現は観測できず、アルゴリズムの選択（教科書的乗算、Karatsuba、Toom-3、数論変換、段階的な除算）は[設計ページ](../design/binary.md#the-coefficient-kernel)に書かれています。`Debug` は整数値を出力します。"

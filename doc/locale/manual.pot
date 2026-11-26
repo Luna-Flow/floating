@@ -577,7 +577,7 @@ msgid "Three ways to call an operation"
 msgstr ""
 
 #: manual/api/binary.md:42
-msgid "Where present, the plain, contextual and checked forms use one numerical algorithm."
+msgid "Most operations come in up to three forms with one numerical algorithm behind them."
 msgstr ""
 
 #: manual/api/binary.md:45
@@ -707,191 +707,191 @@ msgid "`BinCoeff` is a non-negative arbitrary-precision integer used as a `Binar
 msgstr ""
 
 #: manual/api/binary.md:110
-msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`; only code in `Luna-Flow/floating` can import that package. The inner type carries no compatibility promise. Outside the module, `BinCoeff` is abstract: its constructor and field are hidden, and callers cannot name, read, compare or construct the kernel value. Other packages in the library use the two functions to pass the kernel value to or from `BinCoeff`."
+msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`; only code in `Luna-Flow/floating` can import that package. The inner type carries no compatibility promise. Outside the module, `BinCoeff` is abstract: a user cannot call a method on the kernel value, read it, compare it or build one. Neither its constructor nor its field is visible outside `binary`. Other packages in the library use the two functions to pass the kernel value to or from `BinCoeff`."
 msgstr ""
 
-#: manual/api/binary.md:117
+#: manual/api/binary.md:118
 msgid "The coefficient is exact. On native, LLVM and Wasm targets, it uses an inline 64-bit or 128-bit word or an array of 64-bit limbs; on JavaScript, it uses a host `bigint`. Callers cannot observe the representation. The [design page](../design/binary.md#the-coefficient-kernel) describes the algorithm selection: schoolbook, Karatsuba, Toom-3, number-theoretic transform and staged division. `Debug` prints the integer."
 msgstr ""
 
-#: manual/api/binary.md:123
+#: manual/api/binary.md:124
 msgid "`BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)"
 msgstr ""
 
-#: manual/api/binary.md:125
+#: manual/api/binary.md:126
 msgid "`to_kernel` and `from_kernel` are bridge functions between `BinCoeff` and the kernel type for use by packages in this module. Code outside `Luna-Flow/floating` cannot name the kernel type. The functions carry no compatibility promise because the type they exchange may change in any release."
 msgstr ""
 
-#: manual/api/binary.md:135
+#: manual/api/binary.md:136
 msgid "`to_kernel` and `from_kernel` carry `#internal`, which changes neither the generated interface nor the documentation tool; the heading and doc comments mark them as internal. Both are free functions. `BinCoeff` is a one-field tuple structure over the kernel type, so the bridge reads or wraps that field."
 msgstr ""
 
-#: manual/api/binary.md:142
+#: manual/api/binary.md:143
 msgid "Build a coefficient from a machine value."
 msgstr ""
 
-#: manual/api/binary.md:152
+#: manual/api/binary.md:153
 msgid "Convert between a coefficient and digits."
 msgstr ""
 
-#: manual/api/binary.md:160
+#: manual/api/binary.md:161
 msgid "`parse` reads digits in base `radix`, which defaults to 10. Letters represent digits above 9, and one leading `+` is optional. It returns `Err` for an empty string, a `-` sign, a digit outside the radix, or a radix outside $[2, 36]$."
 msgstr ""
 
-#: manual/api/binary.md:164
+#: manual/api/binary.md:165
 msgid "`to_string` prints base 10. `to_radix_string` prints in any radix in $[2, 36]$, using lower-case letters and no prefix; it aborts for another radix."
 msgstr ""
 
-#: manual/api/binary.md:169
+#: manual/api/binary.md:170
 msgid "Convert between a coefficient and big-endian bytes."
 msgstr ""
 
-#: manual/api/binary.md:176
+#: manual/api/binary.md:177
 msgid "`to_bytes_be` uses the fewest bytes needed to represent the coefficient. `from_bytes_be` ignores leading zero bytes."
 msgstr ""
 
-#: manual/api/binary.md:181
+#: manual/api/binary.md:182
 msgid "Return the value as a `UInt64`, or `None` if it needs more than 64 bits."
 msgstr ""
 
-#: manual/api/binary.md:189
+#: manual/api/binary.md:190
 msgid "Queries."
 msgstr ""
 
-#: manual/api/binary.md:196
+#: manual/api/binary.md:197
 msgid "`bit_length` returns $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$, and $0$ for zero."
 msgstr ""
 
-#: manual/api/binary.md:201
+#: manual/api/binary.md:202
 msgid "Exact comparison."
 msgstr ""
 
-#: manual/api/binary.md:208
+#: manual/api/binary.md:209
 msgid "Compare two coefficients and test whether they are equal. `compare` returns $-1$, $0$ or $1$. For natural numbers, `equal` compares values, which is the same as comparing their representations. The operators `<`, `<=`, `>`, `>=`, `==` and `!=` use these methods; see [Trait implementations](#trait-implementations)."
 msgstr ""
 
-#: manual/api/binary.md:213
-msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted trait methods are listed under [Trait implementations](#trait-implementations). Outside `binary`, the public type has no arithmetic, shift, bitwise or GCD operations; those operations are internal to `internal/binary_kernel`. Use `Binary` for arithmetic on values. To export a coefficient read with `coefficient()`, call `to_string` or `to_bytes_be`."
+#: manual/api/binary.md:214
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`. Its promoted trait methods are listed under [Trait implementations](#trait-implementations). `BinCoeff` has no arithmetic, shift, bitwise or GCD operations: they are internal to the library (the package `internal/binary_kernel`). Arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
 msgstr ""
 
-#: manual/api/binary.md:232
+#: manual/api/binary.md:233
 msgid "The value type"
 msgstr ""
 
-#: manual/api/binary.md:236
+#: manual/api/binary.md:237
 msgid "`Binary` represents a finite dyadic number, a signed infinity or a NaN, and carries a working precision. Its representation, `@binary_kernel.BinRepr`, is internal, carries no compatibility promise and is read only inside the package. Like `BinCoeff`, the representation uses an internal kernel type. A value is one heap object."
 msgstr ""
 
-#: manual/api/binary.md:247
+#: manual/api/binary.md:248
 msgid "A finite `Binary` is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API has a canonical representation: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr ""
 
-#: manual/api/binary.md:255
+#: manual/api/binary.md:256
 msgid "`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`. This comparison tests whether the values are the same number, regardless of precision: for example, `one(precision=53) == one(precision=24)` and `-0 == +0`. Every NaN equals every other NaN."
 msgstr ""
 
-#: manual/api/binary.md:261
-msgid "The `<`, `<=` and sorting order is a total preorder: every NaN compares equal to every other NaN and above every number. `Decimal` uses the same rule. IEEE equality leaves a NaN unordered; use `compare_quiet_equal` (IEEE 754-2019 5.6.1, 5.11) when that is required. `Binary` has no `Hash`. Use `identical` to compare representations."
+#: manual/api/binary.md:262
+msgid "The `<`, `<=` and sorting order is a total preorder: every NaN compares equal to every other NaN and above every number. `Decimal` uses the same rule. It is not IEEE equality: use `compare_quiet_equal` (IEEE 754-2019 5.6.1, 5.11) when a NaN must be unordered. `Binary` has no `Hash`. Use `identical` to compare representations."
 msgstr ""
 
-#: manual/api/binary.md:273
+#: manual/api/binary.md:274
 msgid "`identical` compares the representation: class, sign (including the sign of a zero), coefficient, exponent and precision. For a NaN it also compares the signaling bit and payload. It distinguishes `-0` from `+0`, precision 53 from precision 24 for the same value, and NaNs with different kinds or payloads."
 msgstr ""
 
-#: manual/api/binary.md:278
-msgid "Use `identical` when a result is checked as a datum, such as when its zero sign or the precision stamped by a contextual operation matters. Use `==` when the number is what matters."
+#: manual/api/binary.md:279
+msgid "Use `identical` when a result is checked as a datum, such as when its zero sign or the precision stamped by a contextual operation matters. `identical` is what `==` was before 0.12. Use `==` when the number is what matters."
 msgstr ""
 
-#: manual/api/binary.md:284
+#: manual/api/binary.md:285
 msgid "Builds a finite number $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rounded to `precision` bits."
 msgstr ""
 
-#: manual/api/binary.md:291
+#: manual/api/binary.md:292
 msgid "The arguments are the coefficient, exponent $e$ and precision. If the coefficient has more significant bits than the precision, `make` rounds it with `mode`, which defaults to `RoundTiesToEven`. The result is in canonical form. A precision outside `1..=binary_precision_max` aborts."
 msgstr ""
 
-#: manual/api/binary.md:296
+#: manual/api/binary.md:297
 msgid "If a value lies outside the implementation exponent range, `make` replaces it as an overflow or underflow would. Above the range, it returns $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$. Below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$, it returns $\\pm 0$ or, for a mode that rounds away from zero, that subnormal. With `RoundTiesToEven` and `RoundTiesToAway`, it returns the subnormal when the value exceeds half of it. `RoundTiesToAway` also returns the subnormal when the value equals half."
 msgstr ""
 
-#: manual/api/binary.md:305
+#: manual/api/binary.md:306
 msgid "`make` rounds precision and range together in `mode`. For a value between the smallest subnormal and $2^{e_{\\min}}$, it keeps only bits on the subnormal grid $2^{e_{\\min} - p + 1}$, with at least one bit. The stored value therefore has no bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$. `apply_ctx` also reports the flags."
 msgstr ""
 
-#: manual/api/binary.md:313
+#: manual/api/binary.md:314
 msgid "Build a value from an integer."
 msgstr ""
 
-#: manual/api/binary.md:320
+#: manual/api/binary.md:321
 msgid "Both constructors default to precision 53. When the integer has more significant bits than the precision, the constructor rounds to nearest-even. `from_int(n)` is exact for every `Int` at the default precision."
 msgstr ""
 
-#: manual/api/binary.md:326
+#: manual/api/binary.md:327
 msgid "Decode a host binary64 or binary32 value exactly."
 msgstr ""
 
-#: manual/api/binary.md:333
+#: manual/api/binary.md:334
 msgid "The default precisions are 53 and 24 bits, so these conversions are exact. `from_double` preserves signed zeros, infinities, the NaN sign, the quiet and signaling distinction, and the NaN payload (the fraction field without the quiet bit)."
 msgstr ""
 
-#: manual/api/binary.md:338
+#: manual/api/binary.md:339
 msgid "`from_float` first converts the `Float` to a host `Double`, then decodes it. Numbers, zeros and infinities are unaffected. For a NaN, it keeps the low $p - 2$ bits of the binary64 payload after conversion (the binary32 payload times $2^{29}$). At the default precision of 24, the payload is 0 and a signaling NaN becomes quiet. On the native target, a signaling `Float` NaN arrives as a quiet NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs bit-exactly."
 msgstr ""
 
-#: manual/api/binary.md:346
+#: manual/api/binary.md:347
 msgid "The value of `from_double(0.1)` is the value that the host already rounded, $3602879701896397 \\cdot 2^{-55}$, not one tenth. Use `from_string` to round a decimal literal directly."
 msgstr ""
 
-#: manual/api/binary.md:352
+#: manual/api/binary.md:353
 msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr ""
 
-#: manual/api/binary.md:361
+#: manual/api/binary.md:362
 msgid "The default precision is 53 and must be in `1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` returns $-\\infty$; the default returns $+\\infty$, as `Decimal::inf` does."
 msgstr ""
 
-#: manual/api/binary.md:367
+#: manual/api/binary.md:368
 msgid "Build NaNs."
 msgstr ""
 
-#: manual/api/binary.md:375
-msgid "`nan()` returns a positive quiet NaN with payload 0. A signaling NaN has a nonzero payload; the default and a requested payload of 0 both become 1."
+#: manual/api/binary.md:376
+msgid "`nan()` returns a positive quiet NaN with payload 0. A signaling NaN always has a nonzero payload; the default and a requested payload of 0 both become 1."
 msgstr ""
 
-#: manual/api/binary.md:378
+#: manual/api/binary.md:379
 msgid "A NaN of precision $p$ has $p - 2$ payload bits. IEEE 754-2019 6.2.1 gives the trailing significand field $p - 1$ bits, the first of which is the quiet bit; there are no payload bits when $p \\le 2$. `quiet_nan` and `signaling_nan` abort if the payload is too wide. `signaling_nan` also aborts when $p < 3$, because a signaling NaN needs a nonzero payload bit."
 msgstr ""
 
-#: manual/api/binary.md:384
-msgid "Conversions do not abort when the payload is wider than the destination: they keep its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its payload does not survive. This rule applies to `with_precision`, `from_double`, `from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet NaN), operations that return a quiet NaN under a context (which cut the payload to the context precision), and interchange encodings."
+#: manual/api/binary.md:385
+msgid "Conversions never abort: a payload that the destination cannot hold keeps its low bits (IEEE 754-2019 6.2.3). A signaling NaN becomes quiet if its payload does not survive. This rule applies to `with_precision`, `from_double`, `from_float`, `from_hex` (an `snan` literal below precision 3 becomes a quiet NaN), every operation that returns a quiet NaN under a context (which cuts the payload to the context precision), and interchange encodings."
 msgstr ""
 
-#: manual/api/binary.md:391
+#: manual/api/binary.md:392
 #: manual/api/decimal_gda.md:311
 msgid "Observing a value"
 msgstr ""
 
-#: manual/api/binary.md:395
+#: manual/api/binary.md:396
 msgid "Report the class and sign of a value."
 msgstr ""
 
-#: manual/api/binary.md:403
+#: manual/api/binary.md:404
 msgid "`classify` returns `Finite`, `Infinity` or `NaN`; zero is `Finite`. `signum` returns `Zero` for every zero and NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit, which is set for $-0$, $-\\infty$ and negative NaNs."
 msgstr ""
 
-#: manual/api/binary.md:408
+#: manual/api/binary.md:409
 msgid "The `Floating` trait supplies `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` for `Binary`. The next section lists methods that return the same answers without the trait."
 msgstr ""
 
-#: manual/api/binary.md:414
+#: manual/api/binary.md:415
 msgid "Return the ten-valued class of IEEE 754-2019 5.7.2 and classify normal and subnormal values."
 msgstr ""
 
-#: manual/api/binary.md:426
+#: manual/api/binary.md:427
 msgid "`class_of` returns a value of [`IeeeClass`](def.md#ieeeclass), as shown in the table."
 msgstr ""
 
-#: manual/api/binary.md:428
+#: manual/api/binary.md:429
 #: manual/api/decimal.md:1144
 #: manual/api/decimal.md:1889
 #: manual/api/decimal.md:1986
@@ -900,113 +900,113 @@ msgstr ""
 msgid "Input"
 msgstr ""
 
-#: manual/api/binary.md:428
+#: manual/api/binary.md:429
 #: manual/design/interval.md:702
 #: manual/performance_audit.md:25
 msgid "Class"
 msgstr ""
 
-#: manual/api/binary.md:430
+#: manual/api/binary.md:431
 msgid "signaling NaN"
 msgstr ""
 
-#: manual/api/binary.md:431
+#: manual/api/binary.md:432
 #: manual/api/binary.md:2035
 msgid "quiet NaN"
 msgstr ""
 
-#: manual/api/binary.md:432
+#: manual/api/binary.md:433
 msgid "negative infinity"
 msgstr ""
 
-#: manual/api/binary.md:433
+#: manual/api/binary.md:434
 msgid "negative normal value"
 msgstr ""
 
-#: manual/api/binary.md:434
+#: manual/api/binary.md:435
 msgid "negative subnormal value"
 msgstr ""
 
-#: manual/api/binary.md:435
+#: manual/api/binary.md:436
 msgid "negative zero"
 msgstr ""
 
-#: manual/api/binary.md:436
+#: manual/api/binary.md:437
 msgid "positive zero"
 msgstr ""
 
-#: manual/api/binary.md:437
+#: manual/api/binary.md:438
 msgid "positive subnormal value"
 msgstr ""
 
-#: manual/api/binary.md:438
+#: manual/api/binary.md:439
 msgid "positive normal value"
 msgstr ""
 
-#: manual/api/binary.md:439
+#: manual/api/binary.md:440
 msgid "positive infinity"
 msgstr ""
 
-#: manual/api/binary.md:441
+#: manual/api/binary.md:442
 msgid "A nonzero finite number is normal when the exponent of its leading bit is at least the context's $e_{\\min}$; below that exponent, it is subnormal. `Binary` carries no format, so the context determines the class. Use `BinaryInterchangeFormat::context` for the context of a binary interchange format. A context given by its precision alone has the implementation limit `binary_value_e_min` as `e_min`."
 msgstr ""
 
-#: manual/api/binary.md:448
-msgid "`is_normal` and `is_subnormal` return true exactly for the normal and subnormal classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite` is true for either infinity, and `is_nan` for either NaN. These methods do not round or raise a flag. `classify` keeps its three-valued meaning."
+#: manual/api/binary.md:449
+msgid "`is_normal` and `is_subnormal` return true exactly for the normal and subnormal classes. `is_finite` is true for zeros, subnormals and normals; `is_infinite` is true for either infinity, and `is_nan` for either NaN. None of `class_of` and these predicates rounds or raises a flag. `classify` keeps its three-valued meaning."
 msgstr ""
 
-#: manual/api/binary.md:455
+#: manual/api/binary.md:456
 msgid "Special-value predicates."
 msgstr ""
 
-#: manual/api/binary.md:465
+#: manual/api/binary.md:466
 msgid "`nan_payload` is zero for any value other than a NaN."
 msgstr ""
 
-#: manual/api/binary.md:469
+#: manual/api/binary.md:470
 msgid "Return the stored representation."
 msgstr ""
 
-#: manual/api/binary.md:477
+#: manual/api/binary.md:478
 msgid "For a finite number, apply the sign to `coefficient()` $\\times 2^{\\texttt{exponent2()}}$. The coefficient and exponent returned for an infinity or NaN have no meaning."
 msgstr ""
 
-#: manual/api/binary.md:481
+#: manual/api/binary.md:482
 msgid "For a value with at most 128 coefficient bits, `coefficient()` builds a `BinCoeff` from the one or two machine words that store the coefficient, so the call allocates. A wider value returns its stored coefficient. A loop that reads coefficients from small values therefore allocates once per call."
 msgstr ""
 
-#: manual/api/binary.md:486
-msgid "`Binary` has no public word reader. Use `BinCoeff::to_uint64` when the coefficient fits in 64 bits. To read the exponent of the leading bit without building the coefficient, use `ilogb()`; it does not allocate."
+#: manual/api/binary.md:487
+msgid "`Binary` has no public word reader. Use `BinCoeff::to_uint64` when the coefficient fits in 64 bits. The exponent of the leading bit, which is what most callers read the coefficient for, is `ilogb()`, which does not allocate."
 msgstr ""
 
-#: manual/api/binary.md:492
+#: manual/api/binary.md:493
 msgid "Return the canonical representation of a finite number at its own precision."
 msgstr ""
 
-#: manual/api/binary.md:498
+#: manual/api/binary.md:499
 msgid "Public constructors already return canonical values, so `normalized` leaves them unchanged. It also returns infinities and NaNs unchanged."
 msgstr ""
 
-#: manual/api/binary.md:503
+#: manual/api/binary.md:504
 msgid "Rounds a value to a new working precision."
 msgstr ""
 
-#: manual/api/binary.md:509
+#: manual/api/binary.md:510
 msgid "A finite number with more significant bits than the new precision is rounded in the given direction, including ties to away, as specified by `BinaryRoundingMode`. A zero or infinity keeps its value and takes the new precision. A NaN keeps the low $p-2$ bits of its payload at precision $p$; a signaling NaN becomes quiet if its payload does not survive."
 msgstr ""
 
-#: manual/api/binary.md:515
+#: manual/api/binary.md:516
 msgid "`with_precision` reports no flags. Use `apply_ctx` when flags matter."
 msgstr ""
 
-#: manual/api/binary.md:519
+#: manual/api/binary.md:520
 msgid "Returns the unit in the last place of a finite number at its own precision."
 msgstr ""
 
-#: manual/api/binary.md:525
+#: manual/api/binary.md:526
 msgid ""
 "For $x \\n"
-"e 0$, let $t = \\lfloor \\log_2 |x| \\rfloor$ be the exponent of its leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an infinity or NaN it returns a quiet NaN. Its spacing uses the value's precision and does not depend on a context's exponent range, so it is not the subnormal spacing of an IEEE format."
+"e 0$, let $t = \\lfloor \\log_2 |x| \\rfloor$ be the exponent of its leading bit. `ulp` returns $2^{t-p+1}$. For zero it returns $2^{1-p}$; for an infinity or NaN it returns a quiet NaN. The spacing ignores any context's exponent range, so it is not the subnormal spacing of an IEEE format."
 msgstr ""
 
 #: manual/api/binary.md:554
