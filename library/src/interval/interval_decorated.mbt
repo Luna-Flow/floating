@@ -1,8 +1,8 @@
 ///|
 /// The decoration of a decorated interval (IEEE 1788-2015), ordered
 /// `Ill < Trv < Def < Dac < Com`: `Com` is a bounded non-empty result of a
-/// function defined and continuous on the input, `Dac` the same without the
-/// bound, `Def` a non-empty result of a function defined on the input, `Trv`
+/// function defined and continuous on the input, `Dac` the same where the result may be
+/// unbounded, `Def` a non-empty result of a function defined on the input, `Trv`
 /// nothing is known, and `Ill` is the decoration of NaI only.
 #derive(Eq, Compare, Debug)
 pub(all) enum Decoration {
@@ -49,9 +49,9 @@ fn canonical_decoration(
 
 ///|
 /// An `Interval` paired with a `Decoration`, or NaI (not an interval). The decoration is canonical: an empty interval carries
-/// `Trv`, an unbounded one never `Com`, and only NaI carries `Ill`. An
-/// operation takes the lowest of the decorations of its operands and of its own,
-/// and NaI in gives NaI out.
+/// `Trv`, an unbounded one never `Com`, and only NaI carries `Ill`. `add`, `sub`,
+/// `mul` and `div` take the lowest of the decorations of their operands and of
+/// their own, and NaI in gives NaI out.
 pub struct DecoratedInterval {
   priv interval_ : Interval
   priv decoration_ : Decoration
