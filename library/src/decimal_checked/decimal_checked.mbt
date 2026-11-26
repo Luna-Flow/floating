@@ -190,7 +190,8 @@ pub fn DecimalChecked::context(
 
 ///|
 /// The flags of the latest step. For a binary operation they also include the
-/// `raised` flags of the right operand.
+/// `raised` flags of the right operand; after an error in the right operand see
+/// `add`. A unary step that fails leaves it unchanged.
 pub fn DecimalChecked::raised(self : DecimalChecked) -> @decimal.DecimalFlags {
   self.raised_
 }
@@ -273,11 +274,15 @@ pub fn DecimalChecked::abs(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
-/// The sum, rounded once in the context of `self`. An error of `self`
-/// stays; an error of `other` is taken before the operation runs and the value
-/// of `self` is kept; the flags of `other` join `raised` and `flags`. `other` is
-/// not rounded into the context of `self`: lift it in a context wide enough to
-/// hold it to have one rounding.
+/// The sum, rounded once in the context of `self`. When `self` holds an error
+/// the state is returned unchanged and the flags of `other` are not joined. When
+/// `other` holds an error it is taken before the operation runs: the value of
+/// `self` is kept, `raised` becomes the `raised` of `other` (the earlier `raised`
+/// of `self` is dropped, not joined) and the flags of `other` join `flags`.
+/// Otherwise `raised` is the flags of this step joined with the `raised` of
+/// `other`, and `flags` gains the flags of this step and the `flags` of `other`.
+/// `other` is not rounded into the context of `self`: lift it in a context wide
+/// enough to hold it to have one rounding.
 ///
 /// ```mbt check
 /// test {
@@ -325,7 +330,11 @@ pub fn DecimalChecked::div(
 
 ///|
 /// `self * multiplier + addend` with one rounding, in the context of `self`.
-/// Errors and flags of the two operands are taken as for `add`.
+/// When `self` holds an error the state is returned unchanged. When
+/// `multiplier` (else `addend`) holds an error it is taken before the operation
+/// runs: the value of `self` is kept, `raised` becomes the union of the `raised`
+/// of the two operands and `flags` gains their `flags`. Otherwise the flags are
+/// taken as for `add`.
 pub fn DecimalChecked::fma(
   self : DecimalChecked,
   multiplier : DecimalChecked,
@@ -384,8 +393,10 @@ pub fn DecimalChecked::log10(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
-/// `self` raised to `exponent` in the context of `self`; errors and flags of
-/// the operand are taken as for `add`. Zero to a negative power gives an
+/// `self` raised to `exponent` in the context of `self`; an error of either
+/// operand is taken as for `add`. When the step itself fails to certify, the
+/// value of `self` is kept, `raised` is its earlier `raised` joined with that of
+/// `exponent` and `flags` gains the `flags` of `exponent`. Zero to a negative power gives an
 /// infinity with `division_by_zero`. A failure to certify records an error.
 pub fn DecimalChecked::pow(
   self : DecimalChecked,
