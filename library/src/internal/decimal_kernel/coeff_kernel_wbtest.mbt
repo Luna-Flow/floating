@@ -48,6 +48,9 @@ fn reference_gcd_bigint(a : BigInt, b : BigInt) -> BigInt {
 }
 
 ///|
+// oracle: A
+// source: written out: 123, 999,999,999 and 10^9 read back as the same integers, and 987,654,321 divided by the unit 97 gives the quotient 10,182,003 and the remainder 30 (CPython divmod)
+// shares: dec_coeff_from_int, dec_coeff_from_nonnegative_int and to_bigint (the reading of the results); dec_coeff_div_rem_by_unit_repr is the code under test
 test "decimal small coefficient helpers preserve direct representations" {
   assert_eq(dec_coeff_from_int(123).to_bigint(), 123N)
   assert_eq(dec_coeff_from_nonnegative_int(999999999).to_bigint(), 999999999N)
@@ -63,6 +66,10 @@ test "decimal small coefficient helpers preserve direct representations" {
 }
 
 ///|
+// oracle: A, B
+// source: A: the magnitudes 0, 999 and 1,000 (of -1000) written out; B: the magnitude of the smallest Int, -2^31, from core BigInt::from_int and the test helper abs_bigint (library, internal/core.mbt)
+// shares: dec_coeff_from_int_magnitude is the code under test; to_bigint (the reading); abs_bigint and BigInt::from_int build the expected magnitude of the smallest Int
+// primitives: core BigInt (moonbitlang/core) negation and comparison are an implementation independent of the kernel; abs_bigint is a two-branch helper over them
 test "decimal signed Int magnitude layout matches GDA from-int32 decomposition" {
   let min_int = -2147483647 - 1
   assert_eq(dec_coeff_from_int_magnitude(0).to_bigint(), 0N)
@@ -75,6 +82,9 @@ test "decimal signed Int magnitude layout matches GDA from-int32 decomposition" 
 }
 
 ///|
+// oracle: A
+// source: written out: the decimal texts of 123456789012345678901 (three units of nine digits), 1000001 and zero
+// shares: dec_coeff_from_bigint_repr builds the operands from BigInt literals; dec_coeff_zero; to_string is the code under test
 test "decimal coefficient string lays out GDA units without BigInt" {
   let coeff = dec_coeff_from_bigint_repr(123456789012345678901N)
   assert_eq(coeff.to_string(), "123456789012345678901")
@@ -83,6 +93,9 @@ test "decimal coefficient string lays out GDA units without BigInt" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1000 - 1 = 999 (a borrow through the unit), 1 - 1 = 0, 5000 - 0 = 5000
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint reads the results; dec_coeff_magnitude_sub_unit is the code under test
 test "decimal coefficient unit subtraction handles borrow and zero exactly" {
   assert_eq(
     dec_coeff_magnitude_sub_unit(dec_coeff_from_bigint_repr(1000N), 1).to_bigint(),
@@ -99,6 +112,9 @@ test "decimal coefficient unit subtraction handles borrow and zero exactly" {
 }
 
 ///|
+// oracle: A
+// source: written out: -1 + 1 = +0 (sign cleared), +1 - 1 = +0, 0 - 1 = -1 and -2 + 1 = -1 with the sign kept (the four sign and magnitude results)
+// shares: dec_coeff_from_bigint_repr, dec_coeff_zero and to_bigint; dec_coeff_signed_step_unit_repr is the code under test
 test "decimal signed coefficient step crosses zero in both directions" {
   let one = dec_coeff_from_bigint_repr(1N)
   let two = dec_coeff_from_bigint_repr(2N)
@@ -126,6 +142,10 @@ test "decimal signed coefficient step crosses zero in both directions" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt product of 520-digit operands (10^520 - 159 - 123456789 times 10^513 + 987654321), of the sparse pair 10^450 + 7 and 10^440 + 11, of 10^1000 - 1 and 10^2500 + 10^1900 + 13, and of an all-nines short operand against a long one around the Karatsuba threshold, against each forced algorithm (schoolbook, Karatsuba, Toom-3, NTT, sparse, unbalanced) and the squares
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten) builds the operands; dec_coeff_karatsuba_threshold sizes one operand pair
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "advanced decimal multiplication algorithms cross-check" {
   let modulus = pow10(520) - 159N
   let left_bigint = modulus - 123456789N
@@ -218,6 +238,10 @@ test "decimal NTT transform identity and CRT reconstruction" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % of 10^620 - 123456789 by 10^310 + 987654321, against Burnikel-Ziegler and the Newton reciprocal division
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten) builds the operands
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "advanced decimal division algorithms cross-check" {
   let numerator_bigint = pow10(620) - 123456789N
   let denominator_bigint = pow10(310) + 987654321N
@@ -501,13 +525,19 @@ test "decimal square NTT profitability uses exact transform bands" {
 }
 
 ///|
+// oracle: A
+// source: written out: 10^0 = 1, 10^1 = 10 and 10^17 = 100000000000000000
+// shares: dec_coeff_power10_repr is the code under test; to_bigint reads the results
 test "decimal coefficient-native powers of ten match bigint powers" {
-  assert_eq(dec_coeff_power10_repr(0).to_bigint(), pow10(0))
-  assert_eq(dec_coeff_power10_repr(1).to_bigint(), pow10(1))
-  assert_eq(dec_coeff_power10_repr(17).to_bigint(), pow10(17))
+  assert_eq(dec_coeff_power10_repr(0).to_bigint(), 1N)
+  assert_eq(dec_coeff_power10_repr(1).to_bigint(), 10N)
+  assert_eq(dec_coeff_power10_repr(17).to_bigint(), 100000000000000000N)
 }
 
 ///|
+// oracle: A
+// source: written out: 12345678901234567890 is even and 12345678901234567891 is odd
+// shares: dec_coeff_from_bigint_repr builds the operands; dec_coeff_is_odd is the code under test
 test "decimal coefficient parity matches bigint parity" {
   let even = dec_coeff_from_bigint_repr(12345678901234567890N)
   let odd = dec_coeff_from_bigint_repr(12345678901234567891N)
@@ -516,6 +546,10 @@ test "decimal coefficient parity matches bigint parity" {
 }
 
 ///|
+// oracle: B
+// source: reference_count_factor, written in the test on core BigInt (divide while the remainder is zero), for 160000 = 2^8 * 5^4: the cofactor and the count after removing the factors 2 and then 5
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); reference_count_factor (the test helper, core BigInt % and /); dec_coeff_count_factor_unit_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "decimal coefficient factor counting matches bigint factor counting" {
   let coeff = dec_coeff_from_bigint_repr(160000N)
   let (without_twos_repr, twos_repr) = dec_coeff_count_factor_unit_repr(
@@ -536,6 +570,9 @@ test "decimal coefficient factor counting matches bigint factor counting" {
 }
 
 ///|
+// oracle: A
+// source: written out: 9 * 10^1,000,000,008 mod 469,135,780 = 188,902,320 (CPython pow(10, 1000000008, 469135780) * 9 % 469135780)
+// shares: dec_coeff_from_int builds the operands; to_bigint reads the result; dec_coeff_shift_power10_mod_repr is the code under test
 test "power-of-ten modular scaling handles huge exponent gaps" {
   let residue = dec_coeff_shift_power10_mod_repr(
     dec_coeff_from_int(9),
@@ -546,6 +583,10 @@ test "power-of-ten modular scaling handles huge exponent gaps" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % of the written numerator 81531386803002131355773364661909970000...0 (the literal of the test) by 8153138680300213135577336466220607, and the identity q d + r = n on core BigInt
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); dec_coeff_div_rem_knuth_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "Knuth quotient clamp preserves the full normalized remainder" {
   let numerator = 81531386803002131355773364661909970000000000000000000000000000000000000000000000000000000000000000000N
   let denominator = 8153138680300213135577336466220607N
@@ -562,6 +603,9 @@ test "Knuth quotient clamp preserves the full normalized remainder" {
 }
 
 ///|
+// oracle: A
+// source: written out: 12345000 / 10^3 = 12345, 5000 / 10^2 = 50 and 12345 is not divisible by 10
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint reads the results; exact_divide_by_power_of_ten_repr is the code under test
 test "decimal coefficient exact power-of-ten division uses unit shifts" {
   match
     exact_divide_by_power_of_ten_repr(dec_coeff_from_bigint_repr(12345000N), 3) {
@@ -580,6 +624,9 @@ test "decimal coefficient exact power-of-ten division uses unit shifts" {
 }
 
 ///|
+// oracle: A
+// source: written out in units of base 10^9: (10^9 - 1, 10^9 - 1) + 2 carries to the units 1, 0, 1; (0, 1) - 1 borrows to 10^9 - 1 and 0; 5 - 7 is negative with the unit 2
+// shares: Array literals build the operands; dec_coeff_base (the base); dec_coeff_unit_add_sub is the code under test
 test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
   let acc1 : Array[UInt32] = [0U, 0U, 0U, 0U]
   let lhs1 : Array[UInt32] = [
@@ -610,6 +657,9 @@ test "decimal decNumber-style unit add/sub matches carry and borrow cases" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1000000 - 999999 = +1, -1000000 + 999999 = -1, 999999 + 2 = 1000001, and x + (-x) = +0 with the sign cleared
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint and is_zero read the results; dec_coeff_signed_add_repr is the code under test
 test "decimal signed coefficient add matches remainder identity arithmetic" {
   let lhs = dec_coeff_from_bigint_repr(1000000N)
   let rhs = dec_coeff_from_bigint_repr(999999N)
@@ -636,6 +686,9 @@ test "decimal signed coefficient add matches remainder identity arithmetic" {
 }
 
 ///|
+// oracle: A
+// source: written out: 10^20 is above 999,999,999 (1), -10^20 is below -999,999,999 (-1), 384 against 384 is 0
+// shares: dec_coeff_from_bigint_repr and dec_coeff_from_nonnegative_int build the operands; dec_coeff_signed_compare_int_repr is the code under test
 test "decimal signed coefficient compare proves power exponent bounds" {
   let huge = dec_coeff_from_bigint_repr(100000000000000000000N)
   assert_eq(dec_coeff_signed_compare_int_repr(false, huge, 999_999_999), 1)
@@ -651,6 +704,9 @@ test "decimal signed coefficient compare proves power exponent bounds" {
 }
 
 ///|
+// oracle: A
+// source: written out: 0 * 12345 = 0, 999 * 999 = 998001, 1234567890123 * 987654321 = 1219326311247834171483 (CPython)
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint reads the results; dec_coeff_multiply_repr is the code under test
 test "decimal decNumber-style coefficient multiply matches long multiplication" {
   assert_eq(
     dec_coeff_multiply_repr(
@@ -676,6 +732,9 @@ test "decimal decNumber-style coefficient multiply matches long multiplication" 
 }
 
 ///|
+// oracle: A
+// source: written out (CPython divmod): 0 / 37 = 0 r 0, 1000 / 7 = 142 r 6, 1219326311247834171483 / 987654321 = 1234567890123 r 0, 1234567890123456789012345 / 999999937 = 1234567967901238 r 766790339
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint reads the results; dec_coeff_div_rem_repr is the code under test
 test "decimal decNumber-style coefficient divide returns quotient and residue" {
   let (q0, r0) = dec_coeff_div_rem_repr(
     dec_coeff_from_bigint_repr(0N),
@@ -704,6 +763,10 @@ test "decimal decNumber-style coefficient divide returns quotient and residue" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt % for six pairs: 12345 mod 7, 10^18 + 123456789 mod 10^9 + 7, 10^36 - 1 mod 10^18 - 987654321, 10^72 + 555555555555 mod 10^27 + 999999999, 123 mod 1000 and 1234567890123456789012345 mod 999999937
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten) builds the operands; dec_coeff_mod_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "decimal remainder-only division matches BigInt" {
   let cases : Array[(BigInt, BigInt)] = [
     (12345N, 7N),
@@ -778,6 +841,10 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
 }
 
 ///|
+// oracle: B, S
+// source: B: core BigInt + * / % on 96 pairs of 120-digit numbers from a fixed linear congruential sequence (modulus 10^120 - 159) with numerators shifted by up to 36 decimal places; S: each remainder is below its divisor by the kernel comparison
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten) builds the operands; dec_coeff_compare_repr (the remainder bound); dec_coeff_magnitude_add_repr, dec_coeff_multiply_repr and dec_coeff_div_rem_repr are the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "optimized decimal coefficient primitives match deterministic BigInt matrix" {
   let modulus = pow10(120) - 159N
   let mut left_state = 123456789N
@@ -809,6 +876,10 @@ test "optimized decimal coefficient primitives match deterministic BigInt matrix
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % of 10^180 - 123456789 by the units 1, 2, 3, 5, 7, 10, 97, 499, 998 and 999
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten); dec_coeff_from_int; dec_coeff_div_rem_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "optimized decimal coefficient single-unit division matches BigInt" {
   let numerator_bigint = pow10(180) - 123456789N
   let numerator = dec_coeff_from_bigint_repr(numerator_bigint)
@@ -824,6 +895,10 @@ test "optimized decimal coefficient single-unit division matches BigInt" {
 }
 
 ///|
+// oracle: A
+// source: by construction: the numerator is d q + r from written denominators (1000 to 100000000000000000000000000003), quotients (1 to 999999999999999999) and remainders (0, 1, d / 2, d - 1), so the expected quotient and remainder are the construction inputs; the numerator is formed with core BigInt multiplication and addition, which the code under test does not call
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); BigInt * and + (the construction); dec_coeff_div_rem_repr is the code under test
+// primitives: dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "optimized decimal coefficient quotient estimate matches constructed cases" {
   let denominators : Array[BigInt] = [
     1000N, 1001N, 1999N, 500999N, 999999N, 1000001N, 999999937N, 999999999N, 1000000000N,
@@ -852,6 +927,10 @@ test "optimized decimal coefficient quotient estimate matches constructed cases"
 }
 
 ///|
+// oracle: B
+// source: by construction: the numerator is d q + r with a dense-pattern denominator d of 17 to 65 limbs, a quotient q of 7 limbs more and a remainder r (the low half of d), formed with the kernel product and sum, so the expected quotient and remainder are q and r; the identity q d + r = n and r < d are also checked on core BigInt
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); dec_coeff_test_dense_pattern and dec_coeff_slice build the operands; dec_coeff_multiply_repr and dec_coeff_magnitude_add_repr form the numerator; dec_coeff_div_rem_burnikel_ziegler is the code under test
+// primitives: dec_coeff_multiply_repr and dec_coeff_magnitude_add_repr: level A rows in coeff_oracle_wbtest.mbt (decimal_kernel); dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
   for length in [17, 31, 32, 33, 47, 48, 49, 63, 64, 65] {
     let denominator = dec_coeff_test_dense_pattern(length, 3)
@@ -879,6 +958,10 @@ test "Burnikel-Ziegler recursive block boundaries match exact quotients" {
 }
 
 ///|
+// oracle: B
+// source: by construction: the numerator is d q + r with a dense-pattern denominator of 64 limbs, a quotient of 71 limbs and a remainder of 29 limbs, formed with the kernel product and sum, so the expected quotient and remainder are q and r; the identity on core BigInt, r < d, and the absence of the fallback (the result is Some)
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); dec_coeff_test_dense_pattern and dec_coeff_slice build the operands; dec_coeff_multiply_repr and dec_coeff_magnitude_add_repr form the numerator; dec_coeff_div_rem_newton_try is the code under test
+// primitives: dec_coeff_multiply_repr and dec_coeff_magnitude_add_repr: level A rows in coeff_oracle_wbtest.mbt (decimal_kernel); dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "Newton reciprocal division converges without fallback" {
   let denominator = dec_coeff_test_dense_pattern(64, 7)
   let expected_quotient = dec_coeff_test_dense_pattern(71, 11)
@@ -902,6 +985,10 @@ test "Newton reciprocal division converges without fallback" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % of 10^18 + 123456789 by 10^9 + 7, 10^36 - 1 by 10^18 - 987654321 and 10^72 + 555555555555 by 10^27 + 999999999, and the identity q d + r = n
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); pow10 (library helper, a cached core BigInt power of ten) builds the operands; dec_coeff_div_rem_knuth_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "normalized Knuth division matches BigInt at limb boundaries" {
   let cases : Array[(BigInt, BigInt)] = [
     (pow10(18) + 123456789N, pow10(9) + 7N),
@@ -927,6 +1014,9 @@ test "normalized Knuth division matches BigInt at limb boundaries" {
 }
 
 ///|
+// oracle: A
+// source: written out: 12345^3 = 1881365963625 (CPython), which has 13 digits, so it fits a cap of 13 and not a cap of 12
+// shares: dec_coeff_from_bigint_repr builds the base; to_bigint reads the result; dec_coeff_exact_power_repr and dec_coeff_exact_power_if_fits_repr are the code under test
 test "decimal coefficient exact powers stay native and honor precision caps" {
   let base = dec_coeff_from_bigint_repr(12345N)
   assert_eq(dec_coeff_exact_power_repr(base, 3).to_bigint(), 1881365963625N)
@@ -938,6 +1028,9 @@ test "decimal coefficient exact powers stay native and honor precision caps" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1234500 / 10^3 = 1234 remainder 500
+// shares: dec_coeff_from_bigint_repr and dec_coeff_power10_repr build the operands; to_bigint reads the results; dec_coeff_div_rem_repr is the code under test
 test "decimal coefficient repr div-rem by power of ten matches bigint path" {
   let coeff = dec_coeff_from_bigint_repr(1234500N)
   let divisor = dec_coeff_power10_repr(3)
@@ -947,6 +1040,10 @@ test "decimal coefficient repr div-rem by power of ten matches bigint path" {
 }
 
 ///|
+// oracle: A, B
+// source: A: gcd(0, x) = x, gcd(x, 0) = x and gcd(0, 0) = 0 written out; B: Euclid written in the test on core BigInt (reference_gcd_bigint) for 98765432123456789 and 123456789
+// shares: dec_coeff_from_bigint_repr and to_bigint (the operands are built and the results read through them); dec_coeff_zero; reference_gcd_bigint (the test helper, core BigInt % and abs_bigint); dec_coeff_gcd_repr is the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "decimal coefficient gcd matches bigint gcd" {
   let lhs = dec_coeff_from_bigint_repr(98765432123456789N)
   let rhs = dec_coeff_from_bigint_repr(123456789N)
@@ -969,6 +1066,9 @@ test "decimal coefficient gcd matches bigint gcd" {
 }
 
 ///|
+// oracle: A
+// source: written out: 10^21 with exponent -7 trims to 1 with exponent 14 and 21 digits dropped; 123450000000000000 (12345 followed by 13 zeros) with exponent 3 trims to 12345 with exponent 16 and 13 dropped
+// shares: dec_coeff_from_bigint_repr builds the operands; to_bigint reads the trimmed coefficient; trim_trailing_decimal_zeros_repr is the code under test
 test "decimal coefficient trailing-zero trim batches whole limbs" {
   let whole_limb_zeros = dec_coeff_from_bigint_repr(
     1_000_000_000_000_000_000_000N,
@@ -996,6 +1096,10 @@ test "decimal coefficient trailing-zero trim batches whole limbs" {
 // (at most 2^22 coefficients on the shorter side:
 // 2^22 * (10^5 - 1)^2 = 41942201143394304), so the reconstruction is exact.
 // All-nines operands reach that maximum in every coefficient.
+// oracle: B
+// source: core BigInt: the square of the all-nines value of 45, 4,501 and 45,000 digits (the carry bound of the transform) and its product by 7, against the forced NTT product; the size limit of the transform 2^22 is written out
+// shares: dec_coeff_from_decimal_digits_repr builds the operands from the digit text; to_bigint reads the operands and results (the expected product is formed from the same reading); dec_coeff_ntt_limits_fit and dec_coeff_multiply_forced are the code under test
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; dec_coeff_from_bigint_repr and to_bigint: level A on the literals of `decimal small coefficient helpers preserve direct representations` and `decimal coefficient string lays out GDA units without BigInt` (this file)
 test "NTT product of all-nines operands equals the BigInt product" {
   assert_true(
     dec_coeff_ntt_limits_fit(1 << 22, (1 << 22) + 2) == false &&
@@ -1065,6 +1169,9 @@ fn limbs_are_canonical(coeff : DecCoeff) -> Bool {
 }
 
 ///|
+// oracle: S
+// source: no value: the canonical form is checked by limbs_are_canonical, a predicate written in the test (every unit below 10^9, the top unit nonzero, at least three units for a Limbs value, the Small limit for a small one, and the stored digit count equal to dec_coeff_get_digits of the units)
+// shares: dec_coeff_from_decimal_digits_repr builds the operands; dec_coeff_get_digits and dec_coeff_small_limit (library values read by the predicate); the producers under test are dec_coeff_multiply_repr, dec_coeff_magnitude_add_repr, dec_coeff_shift_power10_repr, dec_coeff_div_rem_repr, dec_coeff_power10_repr and dec_coeff_multiply_by_unit_repr
 test "unit accumulator producers write limbs below the base" {
   let mut state = 0x5DEECE66DUL
   let next = fn() {
