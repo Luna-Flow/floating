@@ -81,6 +81,10 @@ test "64-bit-digit Knuth division equals the 32-bit one on random and adversaria
 }
 
 ///|
+// oracle: B
+// source: the defining identity of division: the numerator is built as d q + (d - 1) from a random denominator d and quotient q, so the quotient must be q and the remainder d - 1 (below d), for denominators of 95 to 2,100 words in four patterns and quotients of 1 word to twice the denominator; the Newton reciprocal division (another algorithm) must agree up to 400 words
+// shares: Coeff mul, add and sub_checked build the numerator; bin_coeff_from_words and words_test_array build the operands; Coeff::div_rem_checked and bin_coeff_div_rem_newton are the code under test
+// primitives: Coeff mul and add have level A rows in the product table coeff_product_oracle_wbtest.mbt; the division is level A in coeff_div_oracle_wbtest.mbt (CPython divmod)
 test "division of large operands inverts multiplication (Burnikel-Ziegler range)" {
   let random = { words_state: 0x600D_F00D_1234_5678UL, }
   for denominator_len in [95, 96, 97, 191, 192, 193, 400, 1100, 2100] {

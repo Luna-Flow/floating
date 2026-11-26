@@ -125,6 +125,10 @@ test "Coeff product through the word-range Karatsuba equals BigInt" {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_schoolbook, a different algorithm from the 32-bit-limb Karatsuba, on every pair of ten sizes around the cutoff (3 to 9 cutoffs plus 2 words) in five operand patterns
+// shares: bin_coeff_from_words and words_test_array build the operands; Coeff equality compares; bin_coeff_mul_limb32 is the code under test
+// primitives: bin_coeff_mul_schoolbook: level B against core BigInt in `schoolbook and word products and squares of edge limbs match BigInt` (coeff_basecase_loop_nonjs_wbtest.mbt)
 test "32-bit-limb Karatsuba (the Wasm route) equals the schoolbook product" {
   let random = { words_state: 0x0BAD_C0DE_1234_5678UL, }
   let cutoff = bin_coeff_limb32_karatsuba_cutoff / 2
@@ -161,6 +165,10 @@ test "32-bit-limb Karatsuba (the Wasm route) equals the schoolbook product" {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_square_schoolbook and bin_coeff_mul_schoolbook(value, value), different algorithms from the 32-bit-limb square, for 12 lengths from 3 to 257 words in five patterns
+// shares: bin_coeff_from_words and words_test_array build the operands; Coeff equality compares; bin_coeff_square_limb32 is the code under test
+// primitives: bin_coeff_square_schoolbook and bin_coeff_mul_schoolbook: level B against core BigInt in `schoolbook and word products and squares of edge limbs match BigInt` (coeff_basecase_loop_nonjs_wbtest.mbt)
 test "32-bit-limb squaring (the Wasm route) equals the schoolbook square" {
   let random = { words_state: 0x5151_5151_ABAB_ABABUL, }
   for len in [3, 4, 5, 8, 17, 31, 32, 33, 64, 100, 161, 257] {
@@ -182,6 +190,10 @@ test "32-bit-limb squaring (the Wasm route) equals the schoolbook square" {
 }
 
 ///|
+// oracle: B
+// source: the slice rebuilt word by word with bin_coeff_word and bin_coeff_from_words (another route to the same words), for starts and lengths around the word length (empty, one word, past the end), six lengths in five patterns
+// shares: bin_coeff_word, bin_coeff_word_len, bin_coeff_from_words, words_test_array and FixedArray::make build the expected slice and the operands; bin_coeff_word_slice is the code under test
+// primitives: bin_coeff_word and bin_coeff_word_len: level A in `Coeff 64-bit limbs: sizes, words and the 32-bit view agree` (coeff_words_nonjs_wbtest.mbt, the words as the halves written out)
 test "word slices of 64-bit storage equal the limb-by-limb view" {
   let random = { words_state: 0x7777_1111_3333_9999UL, }
   for len in [3, 4, 5, 9, 16, 33] {
@@ -261,6 +273,10 @@ test "scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the s
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_words_school (the product of the value by itself) and bin_coeff_words_sqr_school, different algorithms from the scratch-buffer Karatsuba square, on 14 sizes from 1 to 16 cutoffs in five patterns, with an offset result and source inside larger arrays and garbage limbs around that must stay unchanged
+// shares: words_test_array and FixedArray::make build the operands and the guard limbs; bin_coeff_words_scratch_len sizes the scratch; bin_coeff_words_sqr_scratch is the code under test
+// primitives: bin_coeff_words_school: level B against core BigInt and the allocating Karatsuba in `word-range Karatsuba equals the schoolbook product around and above the cutoff` (this file)
 test "word-range Karatsuba square equals the schoolbook square and product" {
   let random = { words_state: 0x7A7A_3C3C_9E9E_1B1BUL, }
   let cutoff = bin_coeff_words_square_cutoff
@@ -306,6 +322,10 @@ test "word-range Karatsuba square equals the schoolbook square and product" {
 }
 
 ///|
+// oracle: B
+// source: bin_coeff_mul_schoolbook(value, value), a different algorithm from the square routes, for 20 lengths from 16 to 520 words around the schoolbook, Karatsuba and NTT square cutoffs in four patterns; the square, bin_coeff_square_words and the product of the value by itself must all equal it
+// shares: bin_coeff_from_words and words_test_array build the operands; Coeff equality compares; Coeff::square, bin_coeff_square_words and Coeff::mul are the code under test
+// primitives: bin_coeff_mul_schoolbook: level B against core BigInt in `schoolbook and word products and squares of edge limbs match BigInt` (coeff_basecase_loop_nonjs_wbtest.mbt)
 test "Coeff square around the schoolbook, Karatsuba and NTT square cutoffs" {
   let random = { words_state: 0x0F0F_A5A5_3C3C_9696UL, }
   let sizes = [

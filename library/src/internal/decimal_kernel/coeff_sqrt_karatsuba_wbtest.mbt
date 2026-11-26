@@ -269,6 +269,10 @@ test "Karatsuba takes the correction step on a constructed class" {
 /// and checked by the identity `N = s^2 + r`, `r <= 2 s`. The radicand
 /// `10^(9 (n - 1)) + 12345` is sparse (cheap to build and to compare) but runs
 /// the whole recursion; the leaf depths are recorded in a growable store.
+// oracle: B, S
+// source: B: the definition of the floor root, n = s^2 + r with r <= 2 s, checked with the kernel square, sum and comparison on the radicand 10^(9 (n - 1)) + 12345 of 65,540 limbs, and the limb count of the root ceil(n / 2) written from the size of the radicand; S: the recursion depth is 16 or more and exactly one leaf is recorded (a statement of the routing, not of the value)
+// shares: dec_coeff_power10_repr, dec_coeff_magnitude_add_unit (the radicand), dec_coeff_square_repr, dec_coeff_magnitude_add_repr, dec_coeff_compare_repr and dec_coeff_multiply_by_unit_repr (the identity); dec_coeff_sqrt_rem_karatsuba is the code under test
+// primitives: square, sum, comparison and multiplication by a small unit have level A rows in coeff_oracle_wbtest.mbt (decimal_kernel)
 test "Karatsuba root above 65,538 limbs (the recursion is deeper than 15)" {
   let length = 65540
   assert_true(karatsuba_depth_of(length) >= 16)

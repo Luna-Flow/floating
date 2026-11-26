@@ -486,9 +486,9 @@ test "the window row at the limits of its contract: word shifts of magnitude 2^2
 }
 
 ///|
-// oracle: A
-// source: written out: a word shift one above bin_limbs_window_max violates the contract of the row and must panic
-// shares: nothing
+// oracle: S
+// source: the contract of the row, stated by the library itself: a word shift one above bin_limbs_window_max panics; no value is expected, only the panic
+// shares: bin_limbs_window_max (the library constant that defines the boundary) and FixedArray::make (the operands); bin_limbs_window_combine is the code under test
 test "panic the window row rejects a word shift beyond its contract" {
   let words = FixedArray::make(4, 0UL)
   let x = FixedArray::make(4, 1UL)

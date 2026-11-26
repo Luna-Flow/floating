@@ -73,6 +73,10 @@ fn bin_coeff_basecase_value(limbs : Int32, pattern : Int32) -> BigInt {
 }
 
 ///|
+// oracle: B
+// source: core BigInt product and square of limb patterns built from edge words (zero, one, 2^32 and its neighbours, 2^63, all ones, a fixed-seed generator) for 14 by 11 lengths from 1 to 70 limbs in five patterns: Coeff::mul, Coeff::square, bin_coeff_mul_schoolbook, bin_coeff_square_schoolbook and bin_coeff_square_words, compared through the decimal text
+// shares: bin_coeff_basecase_value builds the operands (the expected value is the BigInt product of the same integer); bin_coeff_test_from_bigint and bin_coeff_test_assert_matches (Coeff::parse and Coeff::to_string in radix 10)
+// primitives: core BigInt (moonbitlang/core) multiplication and shifts are an implementation independent of the kernel; Coeff::parse and Coeff::to_string: level A in the radix table (coeff_radix_oracle_wbtest.mbt, CPython int and divmod)
 test "schoolbook and word products and squares of edge limbs match BigInt" {
   for left_limbs in [1, 2, 3, 4, 5, 8, 9, 16, 17, 31, 32, 33, 40, 70] {
     for right_limbs in [1, 2, 3, 4, 7, 8, 16, 31, 32, 34, 41] {

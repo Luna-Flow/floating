@@ -260,7 +260,7 @@ test "Coeff divide-and-conquer radix conversion" {
 ///|
 // oracle: A
 // source: written out: 1 - 2 is an error, division by zero is an error, the empty text, "-1", the digit 2 in radix 2 and radix 1 are rejected
-// shares: nothing
+// shares: Coeff::one, Coeff::zero and Coeff::from_uint64 build the operands; sub_checked, div_rem_checked and Coeff::parse are the code under test and are read through `is Err(_)`
 test "Coeff checked failures" {
   assert_true(Coeff::one().sub_checked(Coeff::from_uint64(2UL)) is Err(_))
   assert_true(Coeff::one().div_rem_checked(Coeff::zero()) is Err(_))

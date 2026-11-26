@@ -124,7 +124,7 @@ test "unbalanced products through the limb array blocks equal the schoolbook pro
 // oracle: B
 // source: bin_coeff_mul_words (the word Karatsuba, a different algorithm) on operands of 40 to 400 limbs in three patterns, against bin_coeff_mul_ntt and bin_coeff_mul_ntt_overlap
 // shares: dispatch_test_value builds the operands; Coeff equality compares
-// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`); bin_coeff_mul_words: level B against the schoolbook product in `word-range Karatsuba square equals the schoolbook square and product` (coeff_words_mul_nonjs_wbtest.mbt)
+// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`); bin_coeff_mul_words: level B against core BigInt and the schoolbook product in `word-range Karatsuba equals the schoolbook product around and above the cutoff` (coeff_words_mul_nonjs_wbtest.mbt)
 test "NTT overlap-add and the NTT product equal the word Karatsuba product" {
   let random = { words_state: 0x6C6C_2D2D_F1F1_A0A0UL, }
   for short_len in [40, 100] {
@@ -141,9 +141,10 @@ test "NTT overlap-add and the NTT product equal the word Karatsuba product" {
 }
 
 ///|
-// oracle: A, S
-// source: A: test_bit as shift_right(index) is odd, the byte length (bits + 7) / 8, the hexadecimal text length (bits + 3) / 4 and the byte count minus the leading zero byte for ten byte counts around the limb size, written from the definitions; S: the round trips bytes out and in and radix text out and in for radixes 2 to 32
-// shares: Coeff::shift_right and is_odd (test_bit reference), Coeff::from_bytes_be, to_bytes_be, parse and to_radix_string (both sides of the round trips), dispatch_test_value
+// oracle: B, S
+// source: B: test_bit as shift_right(index) is odd, the byte length (bits + 7) / 8 and the hexadecimal text length (bits + 3) / 4 from the bit_length of the value, and the byte count minus the leading zero byte for ten byte counts around the limb size; S: the round trips bytes out and in and radix text out and in for radixes 2 to 32
+// shares: Coeff::shift_right, is_odd and bit_length (the references for test_bit and the lengths), Coeff::from_bytes_be, to_bytes_be, parse and to_radix_string (both sides of the round trips), dispatch_test_value
+// primitives: shift_right, is_odd and bit_length: level B against core BigInt in `Coeff shifts bits gcd powers and radices` (coeff_wbtest.mbt)
 test "bits, bytes and power-of-two radixes on 64-bit limbs" {
   let random = { words_state: 0x3F3F_C2C2_5959_0E0EUL, }
   for len in [1, 2, 3, 4, 5, 9, 17] {

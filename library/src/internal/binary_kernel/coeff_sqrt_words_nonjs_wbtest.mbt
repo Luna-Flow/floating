@@ -126,7 +126,7 @@ test "word square root of a word" {
 ///|
 // oracle: A
 // source: written out: the root and the remainder of zero are zero at the 64-bit and 256-bit widths
-// shares: nothing
+// shares: Coeff::zero builds the operand and is_zero reads the results; the fixed-width restoring roots are the code under test
 test "fixed-width restoring square roots return zero for zero at once" {
   let (root, remainder) = bin_coeff_sqrt_rem_u128(0UL, 0UL)
   assert_true(root.is_zero() && remainder.is_zero())
