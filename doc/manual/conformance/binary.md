@@ -1,10 +1,8 @@
 # binary conformance
 
-The `floating` programming environment conforms to IEEE 754-2019 in radix two, through its
-`binary` package: binary16, binary32, binary64, and binary128 are each a supported arithmetic
-format and a supported interchange format, the condition of IEEE 754-2019 3.1.2. This page
-records finite results for named corpora, inputs, and contexts, together with the cases they
-do not cover.
+This page records the binary floating-point semantic and test boundary of the current source
+(the `Unreleased` section of the changelog). It records finite results for named corpora,
+inputs, and contexts, together with the cases they do not cover.
 
 ## Normative and research sources
 
@@ -50,8 +48,8 @@ This order matters. For example, binary16 `0x0400 * 0x3BFF` produces `0x0400` wi
 After-rounding tininess is determined from the precision-rounded unbounded value, not only
 from the final normal interchange encoding.
 
-The corpus interpreter calls the public contextual operations. It does not branch on test
-identifiers, test values, or corpus format.
+No operation branches on test identifiers, test values, or corpus format. The corpus
+interpreter is an adapter around the public contextual operations.
 
 ## Interchange and context
 
@@ -71,10 +69,9 @@ preserves the selected input NaN's sign and payload and quiets signaling NaNs.
 This table maps IEEE 754-2019 clauses, cited by bare number, to the `binary` API and to the
 evidence that supports each status. A row is `conforming` when the operation exists and the
 cited evidence exercises it. It is `partial` when part of the clause is missing or the
-evidence is thin (the cell says which); `not implemented` and `not applicable` have their
-ordinary meanings. The `Level` column is `required` for clauses stated with “shall”,
+evidence is thin (the cell says which); `not implemented` and `not applicable` otherwise. The `Level` column is `required` for clauses stated with “shall”,
 `recommended` for those stated with “should” and for the optional parts, and `optional` for
-features a format may omit. Evidence without a corpus name is a unit test in the repository;
+features a flavor may leave out. Evidence without a corpus name is a unit test in the repository;
 “no external corpus” marks operations that no independent oracle checks.
 
 | Clause | Level | API | Evidence | Status |
@@ -228,12 +225,10 @@ range-boundary rows above.
 Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific
 sentinels where the API returns `None`. The page makes no TestFloat conformance claim for
 min/max (not implemented as the operations of IEEE 754-2019 9.6), total ordering,
-nextUp/nextDown, or scaleB/logB; package tests cover total ordering, nextUp/nextDown,
-and scaleB/logB. TestFloat has no
-decimal-character corpus, so `convertFromDecimalCharacter` and `convertToDecimalCharacter`
-are checked against the MPFR `mpfr_strtofr` and `mpfr_get_str` fixtures (3,699 and 2,688
-rows) and by package tests. The finite evidence does not cover every IEEE 754 operation or
-every real input.
+nextUp/nextDown, or scaleB/logB (covered by package tests), nor for decimal character
+conversion (TestFloat has none: `convertFromDecimalCharacter` and `convertToDecimalCharacter`
+are checked against the MPFR `mpfr_strtofr` and `mpfr_get_str` fixtures, 3,699 and 2,688
+rows, and by package tests), nor for every IEEE 754 operation or every real input.
 
 The elementary generator implements nearest-away through MPFR's required
 `mpfr_round_nearest_away_begin/end` protocol. It never passes the explicitly forbidden

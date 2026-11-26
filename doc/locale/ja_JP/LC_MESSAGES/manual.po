@@ -627,7 +627,7 @@ msgstr "コンテキスト"
 #: manual/api/def.md:46
 #: manual/api/def.md:120
 #: manual/api/interval.md:810
-#: manual/conformance/binary.md:180
+#: manual/conformance/binary.md:177
 #: manual/design/binary_checked.md:178
 #: manual/performance_audit.md:122
 msgid "Result"
@@ -4438,11 +4438,11 @@ msgstr "正確なケース"
 #: manual/api/decimal_gda.md:600
 #: manual/api/decimal_gda.md:1554
 #: manual/api/decimal_gda.md:1555
+#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:102
 #: manual/conformance/binary.md:103
+#: manual/conformance/binary.md:104
 #: manual/conformance/binary.md:105
-#: manual/conformance/binary.md:106
-#: manual/conformance/binary.md:107
-#: manual/conformance/binary.md:108
 #: manual/conformance/decimal.md:69
 #: manual/conformance/decimal.md:72
 #: manual/conformance/decimal.md:73
@@ -10399,7 +10399,7 @@ msgid "shared helpers, summaries, sharding, files, JSON and text output, exit st
 msgstr "共有ヘルパー、サマリー、シャーディング、ファイル、JSON およびテキスト出力、終了ステータス"
 
 #: manual/architecture.md:22
-#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:43
 #: manual/conformance/decimal_gda.md:15
 #: manual/conformance/interval.md:11
@@ -10726,89 +10726,89 @@ msgid "binary conformance"
 msgstr "binary 適合性"
 
 #: manual/conformance/binary.md:3
-msgid "The `floating` programming environment conforms to IEEE 754-2019 in radix two, through its `binary` package: binary16, binary32, binary64, and binary128 are each a supported arithmetic format and a supported interchange format, the condition of IEEE 754-2019 3.1.2. This page records finite results for named corpora, inputs, and contexts, together with the cases they do not cover."
-msgstr "`floating` プログラミング環境は、`binary` パッケージを通じて基数 2 で IEEE 754-2019 に適合します。binary16、binary32、binary64、binary128 はそれぞれ、サポートされる算術形式であり、かつサポートされる交換形式でもあります。これが IEEE 754-2019 3.1.2 の条件です。このページは、名前を挙げたコーパス、入力、コンテキストに対する有限の結果と、それらが対象としないケースを記録します。"
+msgid "This page records the binary floating-point semantic and test boundary of the current source (the `Unreleased` section of the changelog). It records finite results for named corpora, inputs, and contexts, together with the cases they do not cover."
+msgstr "このページは、現在のソース（変更履歴の `Unreleased` セクション）の二進浮動小数点の意味論とテストの境界を記録します。名前を挙げたコーパス、入力、コンテキストに対する有限の結果と、それらが対象としないケースを記録します。"
 
-#: manual/conformance/binary.md:9
+#: manual/conformance/binary.md:7
 msgid "Normative and research sources"
 msgstr "規範と研究の資料"
 
-#: manual/conformance/binary.md:11
+#: manual/conformance/binary.md:9
 msgid "IEEE, *IEEE Standard for Floating-Point Arithmetic*, IEEE 754-2019: interchange formats, rounding-direction attributes, NaNs, infinities, signed zeros, exceptions, and tininess detection."
 msgstr "IEEE, *IEEE Standard for Floating-Point Arithmetic*, IEEE 754-2019：交換形式、丸め方向属性、NaN、無限大、符号付きゼロ、例外、tininess の検出。"
 
-#: manual/conformance/binary.md:14
+#: manual/conformance/binary.md:12
 msgid "S. Fousse, G. Hanrot, V. Lefèvre, P. Pélissier, and P. Zimmermann, [MPFR: A Multiple-Precision Binary Floating-Point Library with Correct Rounding](https://doi.org/10.1145/1236463.1236468), ACM TOMS 33(2), 2007. MPFR supplies the exact-result-then-one-rounding model used for arbitrary precisions."
 msgstr "Fousse、Hanrot、Lefèvre、Pélissier、Zimmermann、 [MPFR: A Multiple-Precision Binary Floating-Point Library with Correct Rounding](https://doi.org/10.1145/1236463.1236468)、 ACM TOMS 33(2), 2007：厳密結果を一度だけ丸める任意精度モデル。"
 
-#: manual/conformance/binary.md:18
+#: manual/conformance/binary.md:16
 msgid "John Hauser's Berkeley [SoftFloat](https://www.jhauser.us/arithmetic/SoftFloat.html) and [TestFloat](https://www.jhauser.us/arithmetic/TestFloat.html), release 3e, provide independently generated IEEE result and flag vectors."
 msgstr "John Hauser の Berkeley [SoftFloat](https://www.jhauser.us/arithmetic/SoftFloat.html) と [TestFloat](https://www.jhauser.us/arithmetic/TestFloat.html)（release 3e）は、独立に生成された IEEE の結果とフラグのベクトルを提供します。"
 
-#: manual/conformance/binary.md:22
+#: manual/conformance/binary.md:20
 msgid "Mathematical model"
 msgstr "数学モデル"
 
-#: manual/conformance/binary.md:24
+#: manual/conformance/binary.md:22
 msgid "A finite, nonzero `Binary` denotes the dyadic real"
 msgstr "有限で非零の `Binary` は次の二進有理実数を表します"
 
-#: manual/conformance/binary.md:28
+#: manual/conformance/binary.md:26
 msgid "where $s$ is 1 for a negative value and 0 otherwise, $c$ is the non-negative `coefficient` represented by `BinCoeff`, and $q$ is its `exponent2`. The finite coefficient is normalized by removing factors of two. The sign of zero remains observable. Infinity, qNaN, sNaN, NaN payload, and NaN sign are explicit states rather than sentinel finite values."
 msgstr "ここで $s$ は負の値なら 1、そうでなければ 0 です。$c$ は `BinCoeff` で表される非負の `coefficient` で、$q$ はその `exponent2` です。有限の係数は 2 の因子を取り除いて正規化されます。ゼロの符号は観測可能なままです。無限大、qNaN、sNaN、NaN のペイロード、NaN の符号は、番兵となる有限値ではなく、明示的な状態です。"
 
-#: manual/conformance/binary.md:34
+#: manual/conformance/binary.md:32
 msgid "For `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, and `pown_ctx`, the contextual operations follow this sequence:"
 msgstr "`add_ctx`、`sub_ctx`、`mul_ctx`、`div_ctx`、`sqrt_ctx`、`pown_ctx` について、コンテキスト付き演算は次の順序で進みます。"
 
-#: manual/conformance/binary.md:37
+#: manual/conformance/binary.md:35
 msgid "Resolve IEEE special cases before finite arithmetic."
 msgstr "有限の算術に先立って IEEE の特殊ケースを解決します。"
 
-#: manual/conformance/binary.md:38
+#: manual/conformance/binary.md:36
 msgid "Compute the exact finite result. Addition, subtraction, and multiplication use exact dyadic arithmetic; division uses an exact integer quotient/remainder decision; square root uses an exact integer square root and an exact comparison with the rounding midpoint. Integer powers certify a directed enclosure with a Ziv loop and use the exact power if certification does not succeed."
 msgstr "有限の厳密な結果を計算します。加算、減算、乗算は厳密な二進有理数の算術を使い、除算は厳密な整数の商と剰余による判定を使い、平方根は厳密な整数平方根と丸めの中点との厳密な比較を使います。整数冪は Ziv ループで方向付きの包含区間を保証し、保証できない場合は厳密な冪を使います。"
 
-#: manual/conformance/binary.md:43
+#: manual/conformance/binary.md:41
 msgid "Round the exact result once, in the requested direction, directly to the coarser of the precision grid and the subnormal grid of the exponent range. This avoids double rounding; overflow is decided from the rounded value."
 msgstr "厳密な結果を、指定された方向に一度だけ、精度の格子と指数範囲の非正規化数の格子のうち粗い方へ直接丸めます。これにより二重丸めを避けます。オーバーフローは丸めた後の値から判定します。"
 
-#: manual/conformance/binary.md:46
+#: manual/conformance/binary.md:44
 msgid "Derive `BinaryFlags` from the mathematical result: inexact, underflow, overflow, division-by-zero, and invalid-operation."
 msgstr "その数学的な結果から `BinaryFlags` を導きます：inexact、underflow、overflow、division-by-zero、invalid-operation。"
 
-#: manual/conformance/binary.md:49
+#: manual/conformance/binary.md:47
 msgid "This order matters. For example, binary16 `0x0400 * 0x3BFF` produces `0x0400` with `inexact | underflow`. After-rounding tininess is determined from the precision-rounded unbounded value, not only from the final normal interchange encoding."
 msgstr "この順序は重要です。たとえば binary16 の `0x0400 * 0x3BFF` は `inexact | underflow` を伴って `0x0400` を返します。丸め後の tininess は、最終的な正規の交換形式の符号化だけからではなく、精度で丸めた指数無制限の値から判定します。"
 
-#: manual/conformance/binary.md:53
-msgid "The corpus interpreter calls the public contextual operations. It does not branch on test identifiers, test values, or corpus format."
-msgstr "コーパスのインタープリタは公開されているコンテキスト付き演算を呼び出します。テスト識別子、テスト値、コーパス形式によって分岐することはありません。"
+#: manual/conformance/binary.md:51
+msgid "No operation branches on test identifiers, test values, or corpus format. The corpus interpreter is an adapter around the public contextual operations."
+msgstr "どの演算も、テスト識別子、テスト値、コーパス形式によって分岐しません。コーパスのインタープリタは、公開されているコンテキスト付き演算を包むアダプタです。"
 
-#: manual/conformance/binary.md:56
+#: manual/conformance/binary.md:54
 msgid "Interchange and context"
 msgstr "交換形式とコンテキスト"
 
-#: manual/conformance/binary.md:58
+#: manual/conformance/binary.md:56
 msgid "`BinaryInterchange` decodes and encodes IEEE binary16, binary32, binary64, and binary128 bit patterns. `BinaryContext` carries precision, rounding direction, paired exponent limits, and before- or after-rounding tininess detection. Encoding and contextual arithmetic return status flags. Ordinary operators use a nearest-even context determined by their precision alone and intentionally do not expose those flags."
 msgstr "`BinaryInterchange` は IEEE の binary16、binary32、binary64、binary128 のビットパターンを復号・符号化します。`BinaryContext` は精度、丸め方向、対になった指数の限界、丸め前または丸め後の tininess 検出を持ちます。符号化とコンテキスト付き算術はステータスフラグを返します。通常の演算子は精度だけで決まる最近接偶数のコンテキストを使い、これらのフラグをあえて公開しません。"
 
-#: manual/conformance/binary.md:64
+#: manual/conformance/binary.md:62
 msgid "In the TestFloat adapter, results are compared by class only when the expected result is a NaN. Non-NaN encoded bits and all exception bits must match exactly. The class comparison reflects IEEE's permitted choice of a newly generated NaN payload. The implementation itself preserves the selected input NaN's sign and payload and quiets signaling NaNs."
 msgstr "TestFloat アダプタでは、期待される結果が NaN のときに限って種別で比較します。NaN 以外の符号化ビットとすべての例外ビットは厳密に一致しなければなりません。種別での比較は、新たに生成される NaN のペイロードを IEEE が許していることを反映したものです。実装自体は、選ばれた入力 NaN の符号とペイロードを保ち、シグナリング NaN をクワイエット化します。"
 
-#: manual/conformance/binary.md:69
+#: manual/conformance/binary.md:67
 #: manual/conformance/decimal.md:39
 #: manual/conformance/decimal_gda.md:11
 #: manual/conformance/interval.md:7
 msgid "Clause traceability"
 msgstr "条項のトレーサビリティ"
 
-#: manual/conformance/binary.md:71
-msgid "This table maps IEEE 754-2019 clauses, cited by bare number, to the `binary` API and to the evidence that supports each status. A row is `conforming` when the operation exists and the cited evidence exercises it. It is `partial` when part of the clause is missing or the evidence is thin (the cell says which); `not implemented` and `not applicable` have their ordinary meanings. The `Level` column is `required` for clauses stated with “shall”, `recommended` for those stated with “should” and for the optional parts, and `optional` for features a format may omit. Evidence without a corpus name is a unit test in the repository; “no external corpus” marks operations that no independent oracle checks."
-msgstr "この表は、IEEE 754-2019 の条項（条項番号で引用）を `binary` の API と、各ステータスを裏付けるエビデンスに対応付けます。演算が存在し、引用したエビデンスがそれを検証している行は `conforming`（準拠）です。条項の一部が欠けている、またはエビデンスが薄い場合は `partial`（部分準拠。セルがどちらかを示します）で、`not implemented`（未実装）と `not applicable`（適用外）は通常の意味です。`Level` 列は、標準が “shall” で述べる条項が `required`、“should” で述べる条項と任意の部分が `recommended`、形式が省略してよい機能が `optional` です。コーパス名のないエビデンスはリポジトリ内の単体テストです。“no external corpus”（外部コーパスなし）は、独立したオラクルが検査しない演算を示します。"
+#: manual/conformance/binary.md:69
+msgid "This table maps IEEE 754-2019 clauses, cited by bare number, to the `binary` API and to the evidence that supports each status. A row is `conforming` when the operation exists and the cited evidence exercises it. It is `partial` when part of the clause is missing or the evidence is thin (the cell says which); `not implemented` and `not applicable` otherwise. The `Level` column is `required` for clauses stated with “shall”, `recommended` for those stated with “should” and for the optional parts, and `optional` for features a flavor may leave out. Evidence without a corpus name is a unit test in the repository; “no external corpus” marks operations that no independent oracle checks."
+msgstr "この表は、IEEE 754-2019 の条項（条項番号で引用）を `binary` の API と、各ステータスを裏付けるエビデンスに対応付けます。演算が存在し、引用したエビデンスがそれを検証している行は `conforming`（準拠）です。条項の一部が欠けている、またはエビデンスが薄い場合は `partial`（部分準拠。セルがどちらかを示します）で、それ以外は `not implemented`（未実装）と `not applicable`（適用外）です。`Level` 列は、標準が “shall” で述べる条項が `required`、“should” で述べる条項と任意の部分が `recommended`、flavor が省略してよい機能が `optional` です。コーパス名のないエビデンスはリポジトリ内の単体テストです。“no external corpus”（外部コーパスなし）は、独立したオラクルが検査しない演算を示します。"
 
-#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:43
 #: manual/conformance/interval.md:11
 #: manual/design/binary_checked.md:178
@@ -10816,13 +10816,13 @@ msgstr "この表は、IEEE 754-2019 の条項（条項番号で引用）を `bi
 msgid "Clause"
 msgstr "条項"
 
-#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:43
 #: manual/conformance/interval.md:11
 msgid "Level"
 msgstr "レベル"
 
-#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:43
 #: manual/conformance/decimal_gda.md:15
 #: manual/conformance/interval.md:11
@@ -10836,7 +10836,7 @@ msgstr "レベル"
 msgid "API"
 msgstr "API"
 
-#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:77
 #: manual/conformance/decimal.md:43
 #: manual/conformance/decimal_gda.md:15
 #: manual/conformance/interval.md:11
@@ -10844,11 +10844,14 @@ msgstr "API"
 msgid "Status"
 msgstr "ステータス"
 
-#: manual/conformance/binary.md:82
+#: manual/conformance/binary.md:79
 msgid "3.3 to 3.6 binary16/32/64/128 interchange formats"
 msgstr "3.3 から 3.6 binary16/32/64/128 交換形式"
 
+#: manual/conformance/binary.md:79
+#: manual/conformance/binary.md:81
 #: manual/conformance/binary.md:82
+#: manual/conformance/binary.md:83
 #: manual/conformance/binary.md:84
 #: manual/conformance/binary.md:85
 #: manual/conformance/binary.md:86
@@ -10865,9 +10868,6 @@ msgstr "3.3 から 3.6 binary16/32/64/128 交換形式"
 #: manual/conformance/binary.md:97
 #: manual/conformance/binary.md:98
 #: manual/conformance/binary.md:99
-#: manual/conformance/binary.md:100
-#: manual/conformance/binary.md:101
-#: manual/conformance/binary.md:102
 #: manual/conformance/decimal.md:45
 #: manual/conformance/decimal.md:47
 #: manual/conformance/decimal.md:48
@@ -10906,12 +10906,15 @@ msgstr "3.3 から 3.6 binary16/32/64/128 交換形式"
 msgid "required"
 msgstr "必須"
 
-#: manual/conformance/binary.md:82
+#: manual/conformance/binary.md:79
 msgid "TestFloat gate; `library/src/binary/ieee754_wbtest.mbt`"
 msgstr "TestFloat ゲート; `library/src/binary/ieee754_wbtest.mbt`"
 
+#: manual/conformance/binary.md:79
+#: manual/conformance/binary.md:80
 #: manual/conformance/binary.md:82
 #: manual/conformance/binary.md:83
+#: manual/conformance/binary.md:84
 #: manual/conformance/binary.md:85
 #: manual/conformance/binary.md:86
 #: manual/conformance/binary.md:87
@@ -10924,12 +10927,9 @@ msgstr "TestFloat ゲート; `library/src/binary/ieee754_wbtest.mbt`"
 #: manual/conformance/binary.md:94
 #: manual/conformance/binary.md:95
 #: manual/conformance/binary.md:96
-#: manual/conformance/binary.md:97
 #: manual/conformance/binary.md:98
 #: manual/conformance/binary.md:99
 #: manual/conformance/binary.md:101
-#: manual/conformance/binary.md:102
-#: manual/conformance/binary.md:104
 #: manual/conformance/decimal.md:45
 #: manual/conformance/decimal.md:46
 #: manual/conformance/decimal.md:49
@@ -10977,17 +10977,17 @@ msgstr "TestFloat ゲート; `library/src/binary/ieee754_wbtest.mbt`"
 msgid "conforming"
 msgstr "準拠"
 
-#: manual/conformance/binary.md:83
+#: manual/conformance/binary.md:80
 msgid "3.7 extendable precisions"
 msgstr "3.7 拡張可能な精度"
 
-#: manual/conformance/binary.md:83
+#: manual/conformance/binary.md:80
+#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:101
 #: manual/conformance/binary.md:103
 #: manual/conformance/binary.md:104
+#: manual/conformance/binary.md:105
 #: manual/conformance/binary.md:106
-#: manual/conformance/binary.md:107
-#: manual/conformance/binary.md:108
-#: manual/conformance/binary.md:109
 #: manual/conformance/decimal.md:46
 #: manual/conformance/decimal.md:69
 #: manual/conformance/decimal.md:70
@@ -11001,231 +11001,231 @@ msgstr "3.7 拡張可能な精度"
 msgid "recommended"
 msgstr "推奨"
 
-#: manual/conformance/binary.md:83
+#: manual/conformance/binary.md:80
 msgid "`BinaryContext::new` (precision alone)"
 msgstr "`BinaryContext::new`（精度のみ）"
 
-#: manual/conformance/binary.md:83
+#: manual/conformance/binary.md:80
 msgid "MPFR elementary fixture; `library/src/binary/exponent_range_wbtest.mbt`"
 msgstr "MPFR 初等関数フィクスチャ; `library/src/binary/exponent_range_wbtest.mbt`"
 
-#: manual/conformance/binary.md:84
+#: manual/conformance/binary.md:81
 msgid "4.3 rounding-direction attributes"
 msgstr "4.3 丸め方向属性"
 
-#: manual/conformance/binary.md:84
+#: manual/conformance/binary.md:81
 msgid "TestFloat gate (five directions)"
 msgstr "TestFloat ゲート (5 方向)"
 
-#: manual/conformance/binary.md:84
+#: manual/conformance/binary.md:81
 msgid "conforming; no other mode exists"
 msgstr "準拠。他のモードは存在しません"
 
-#: manual/conformance/binary.md:85
+#: manual/conformance/binary.md:82
 msgid "5.3.1 addition, subtraction, multiplication, division, squareRoot"
 msgstr "5.3.1 加算、減算、乗算、除算、squareRoot"
 
-#: manual/conformance/binary.md:85
+#: manual/conformance/binary.md:82
 msgid "TestFloat gate (7,461,360 vectors); `library/src/binary/ieee754_wbtest.mbt`"
 msgstr "TestFloat ゲート (7,461,360 ベクトル); `library/src/binary/ieee754_wbtest.mbt`"
 
-#: manual/conformance/binary.md:86
+#: manual/conformance/binary.md:83
 msgid "5.3.1 fusedMultiplyAdd"
 msgstr "5.3.1 fusedMultiplyAdd"
 
-#: manual/conformance/binary.md:86
+#: manual/conformance/binary.md:83
 msgid "TestFloat gate (245,329,920 mulAdd vectors); `library/src/binary/fma_wbtest.mbt`"
 msgstr "TestFloat ゲート (245,329,920 mulAdd ベクトル); `library/src/binary/fma_wbtest.mbt`"
 
-#: manual/conformance/binary.md:87
+#: manual/conformance/binary.md:84
 msgid "5.3.1 remainder"
 msgstr "5.3.1 remainder"
 
-#: manual/conformance/binary.md:87
+#: manual/conformance/binary.md:84
 msgid "TestFloat gate (rem); `library/src/binary/remainder_wbtest.mbt`"
 msgstr "TestFloat ゲート (rem); `library/src/binary/remainder_wbtest.mbt`"
 
-#: manual/conformance/binary.md:88
+#: manual/conformance/binary.md:85
 msgid "5.3.1, 5.9 roundToIntegral (five directions, exact)"
 msgstr "5.3.1、5.9 roundToIntegral（5 方向、exact 版）"
 
-#: manual/conformance/binary.md:88
+#: manual/conformance/binary.md:85
 msgid "TestFloat gate (roundToInt, exact and inexact); `library/src/binary/integral_wbtest.mbt`"
 msgstr "TestFloat ゲート (roundToInt, exact と inexact); `library/src/binary/integral_wbtest.mbt`"
 
-#: manual/conformance/binary.md:89
+#: manual/conformance/binary.md:86
 msgid "5.3.1 nextUp, nextDown"
 msgstr "5.3.1 nextUp、nextDown"
 
-#: manual/conformance/binary.md:89
+#: manual/conformance/binary.md:86
 msgid "`library/src/binary/next_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/next_wbtest.mbt` (外部コーパスなし)"
 
-#: manual/conformance/binary.md:90
+#: manual/conformance/binary.md:87
 msgid "5.3.1 scaleB, logB"
 msgstr "5.3.1 scaleB、logB"
 
-#: manual/conformance/binary.md:90
+#: manual/conformance/binary.md:87
 msgid "`library/src/binary/scale_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/scale_wbtest.mbt` (外部コーパスなし)"
 
-#: manual/conformance/binary.md:91
+#: manual/conformance/binary.md:88
 msgid "5.4.1 convertFromInt"
 msgstr "5.4.1 convertFromInt"
 
-#: manual/conformance/binary.md:91
+#: manual/conformance/binary.md:88
 msgid "`Binary::from_int`, `Binary::from_coefficient` with `BinCoeff::from_uint64`"
 msgstr "`Binary::from_int`、`BinCoeff::from_uint64` を用いる `Binary::from_coefficient`"
 
-#: manual/conformance/binary.md:91
-#: manual/conformance/binary.md:97
+#: manual/conformance/binary.md:88
+#: manual/conformance/binary.md:94
 msgid "`library/src/binary/order_wbtest.mbt` (no external corpus)"
 msgstr "`library/src/binary/order_wbtest.mbt` (外部コーパスなし)"
 
-#: manual/conformance/binary.md:92
+#: manual/conformance/binary.md:89
 msgid "5.4.1, 5.8 convertToInteger (exact and inexact)"
 msgstr "5.4.1、5.8 convertToInteger（exact と inexact）"
 
-#: manual/conformance/binary.md:92
+#: manual/conformance/binary.md:89
 msgid "TestFloat gate (32- and 64-bit conversions); `library/src/binary/to_integer_wbtest.mbt`"
 msgstr "TestFloat ゲート (32 ビットと 64 ビットの変換); `library/src/binary/to_integer_wbtest.mbt`"
 
-#: manual/conformance/binary.md:93
+#: manual/conformance/binary.md:90
 msgid "5.4.2 convertFormat"
 msgstr "5.4.2 convertFormat"
 
-#: manual/conformance/binary.md:93
+#: manual/conformance/binary.md:90
 msgid "TestFloat conversion matrix and package tests; see [convertFormat evidence](#convertformat-evidence)"
 msgstr "TestFloat の変換マトリクスとパッケージテスト。[convertFormat のエビデンス](#convertformat-evidence)を参照"
 
-#: manual/conformance/binary.md:94
+#: manual/conformance/binary.md:91
 msgid "5.5 copy, negate, abs, copySign"
 msgstr "5.5 copy、negate、abs、copySign"
 
-#: manual/conformance/binary.md:95
+#: manual/conformance/binary.md:92
 msgid "5.6, 5.11 comparison predicates, quiet and signaling"
 msgstr "5.6、5.11 比較述語、quiet と signaling"
 
-#: manual/conformance/binary.md:95
+#: manual/conformance/binary.md:92
 msgid "Predicate set in Tables 5.1 and 5.2; see [comparison-predicate evidence](#comparison-predicate-evidence)"
 msgstr "表 5.1 と表 5.2 の述語の集合。[比較述語のエビデンス](#comparison-predicate-evidence)を参照"
 
-#: manual/conformance/binary.md:95
+#: manual/conformance/binary.md:92
 msgid "Predicate and TestFloat checks; see [comparison-predicate evidence](#comparison-predicate-evidence)"
 msgstr "述語のチェックと TestFloat のチェック。[比較述語のエビデンス](#comparison-predicate-evidence)を参照"
 
-#: manual/conformance/binary.md:96
+#: manual/conformance/binary.md:93
 msgid "5.7 class and sign predicates"
 msgstr "5.7 class と符号の述語"
 
-#: manual/conformance/binary.md:96
+#: manual/conformance/binary.md:93
 msgid "Class and contextual-trait tests; see [class-predicate evidence](#class-predicate-evidence)"
 msgstr "class とコンテキスト付き trait のテスト。[class 述語のエビデンス](#class-predicate-evidence)を参照"
 
-#: manual/conformance/binary.md:97
+#: manual/conformance/binary.md:94
 msgid "5.10 totalOrder, totalOrderMag"
 msgstr "5.10 totalOrder、totalOrderMag"
 
-#: manual/conformance/binary.md:98
+#: manual/conformance/binary.md:95
 msgid "5.12 decimal character conversion, both directions"
 msgstr "5.12 十進文字列の変換（双方向）"
 
-#: manual/conformance/binary.md:98
+#: manual/conformance/binary.md:95
 msgid "MPFR `mpfr_strtofr` corpus (3,699 rows) and `mpfr_get_str` corpus (2,688 rows); `library/src/binary/decimal_string_wbtest.mbt`"
 msgstr "MPFR `mpfr_strtofr` コーパス (3,699 行) と `mpfr_get_str` コーパス (2,688 行); `library/src/binary/decimal_string_wbtest.mbt`"
 
-#: manual/conformance/binary.md:99
+#: manual/conformance/binary.md:96
 msgid "5.12 hexadecimal character conversion"
 msgstr "5.12 十六進文字列の変換"
 
-#: manual/conformance/binary.md:99
+#: manual/conformance/binary.md:96
 msgid "Grammar, round-trip, and rational-arithmetic tests; see [hexadecimal-conversion evidence](#hexadecimal-conversion-evidence)"
 msgstr "文法、往復、有理数算術のテスト。[十六進変換のエビデンス](#hexadecimal-conversion-evidence)を参照"
 
-#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:97
 msgid "6.1 to 6.3 infinities, NaNs, sign bit"
 msgstr "6.1 から 6.3 無限大、NaN、符号ビット"
 
-#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:97
 #: manual/conformance/decimal.md:66
 msgid "every `*_ctx` operation"
 msgstr "すべての `*_ctx` 演算"
 
-#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:97
 msgid "TestFloat gate (a NaN result is compared by class only); `library/src/binary/compare_nan_wbtest.mbt`"
 msgstr "TestFloat ゲート (NaN の結果は種別だけを比較); `library/src/binary/compare_nan_wbtest.mbt`"
 
-#: manual/conformance/binary.md:100
+#: manual/conformance/binary.md:97
 #: manual/conformance/decimal.md:66
 msgid "conforming; payload choice in [Implementation-defined choices](../verification.md#implementation-defined-choices)"
 msgstr "準拠； ペイロードの選択は [実装定義の選択](../verification.md#implementation-defined-choices)"
 
-#: manual/conformance/binary.md:101
+#: manual/conformance/binary.md:98
 msgid "7.2 to 7.6 exceptions and default handling"
 msgstr "7.2 から 7.6 例外とデフォルト処理"
 
-#: manual/conformance/binary.md:101
+#: manual/conformance/binary.md:98
 msgid "`BinaryFlags` returned by every `*_ctx` operation"
 msgstr "`BinaryFlags` すべての `*_ctx` 演算が返す"
 
-#: manual/conformance/binary.md:101
+#: manual/conformance/binary.md:98
 msgid "TestFloat gate (exact flag bits, both tininess modes)"
 msgstr "TestFloat ゲート (フラグビットを厳密に、両方の tininess モード)"
 
-#: manual/conformance/binary.md:102
+#: manual/conformance/binary.md:99
 msgid "7.5 tininess detection"
 msgstr "7.5 tininess の検出"
 
-#: manual/conformance/binary.md:102
+#: manual/conformance/binary.md:99
 msgid "TestFloat gate (before and after rounding); the exact-subnormal and range-limit cases of `exp2`, `pow` and `pown` in [mathematical-function evidence](#mathematical-function-evidence)"
 msgstr "TestFloat ゲート (丸め前と丸め後)。`exp2`、`pow`、`pown` の厳密な非正規化数と範囲限界のケースは[数学関数のエビデンス](#mathematical-function-evidence)を参照"
 
-#: manual/conformance/binary.md:103
+#: manual/conformance/binary.md:100
 msgid "8 alternate exception handling"
 msgstr "8 代替の例外処理"
 
-#: manual/conformance/binary.md:103
+#: manual/conformance/binary.md:100
 msgid "not implemented (flags are values; no traps, no resumption)"
 msgstr "未実装 （フラグは値であり、トラップも再開もない）"
 
-#: manual/conformance/binary.md:104
+#: manual/conformance/binary.md:101
 msgid "9.2 recommended mathematical functions"
 msgstr "9.2 推奨される数学関数"
 
-#: manual/conformance/binary.md:104
+#: manual/conformance/binary.md:101
 msgid "The functions listed in [mathematical-function evidence](#mathematical-function-evidence), in contextual (`*_ctx`) and `try_*_ctx` forms"
 msgstr "[数学関数のエビデンス](#mathematical-function-evidence)に挙げた関数。コンテキスト付き（`*_ctx`）と `try_*_ctx` の形式"
 
-#: manual/conformance/binary.md:104
+#: manual/conformance/binary.md:101
 msgid "MPFR fixture and targeted tests; see [mathematical-function evidence](#mathematical-function-evidence)"
 msgstr "MPFR フィクスチャと的を絞ったテスト。[数学関数のエビデンス](#mathematical-function-evidence)を参照"
 
-#: manual/conformance/binary.md:105
+#: manual/conformance/binary.md:102
 msgid "9.3 dynamic mode operations"
 msgstr "9.3 動的モードの演算"
 
-#: manual/conformance/binary.md:105
+#: manual/conformance/binary.md:102
 #: manual/conformance/decimal.md:72
 msgid "recommended (required only where a language defines dynamic modes)"
 msgstr "推奨（言語が動的モードを定義する場合のみ必須）"
 
-#: manual/conformance/binary.md:105
+#: manual/conformance/binary.md:102
 #: manual/conformance/decimal.md:72
 msgid "none (contexts are explicit values)"
 msgstr "なし（コンテキストは明示的な値）"
 
-#: manual/conformance/binary.md:105
+#: manual/conformance/binary.md:102
 #: manual/conformance/decimal.md:72
 msgid "not implemented by design"
 msgstr "設計上実装しない"
 
-#: manual/conformance/binary.md:106
+#: manual/conformance/binary.md:103
 msgid "9.4 reduction operations"
 msgstr "9.4 縮約演算"
 
-#: manual/conformance/binary.md:106
-#: manual/conformance/binary.md:107
-#: manual/conformance/binary.md:108
+#: manual/conformance/binary.md:103
+#: manual/conformance/binary.md:104
+#: manual/conformance/binary.md:105
 #: manual/conformance/decimal.md:69
 #: manual/conformance/decimal.md:73
 #: manual/conformance/interval.md:14
@@ -11233,297 +11233,297 @@ msgstr "9.4 縮約演算"
 msgid "not implemented"
 msgstr "未実装"
 
-#: manual/conformance/binary.md:107
+#: manual/conformance/binary.md:104
 msgid "9.5 augmented arithmetic"
 msgstr "9.5 拡張算術"
 
-#: manual/conformance/binary.md:108
+#: manual/conformance/binary.md:105
 msgid "9.6 minimum, maximum and magnitude variants"
 msgstr "9.6 minimum、maximum と絶対値の変種"
 
-#: manual/conformance/binary.md:108
+#: manual/conformance/binary.md:105
 msgid "none (`Binary::min_num` and `Binary::max_num` are plain helpers)"
 msgstr "なし（`Binary::min_num` と `Binary::max_num` は単なる補助関数）"
 
-#: manual/conformance/binary.md:109
+#: manual/conformance/binary.md:106
 msgid "9.7 NaN payload operations"
 msgstr "9.7 NaN ペイロード演算"
 
-#: manual/conformance/binary.md:109
+#: manual/conformance/binary.md:106
 msgid "`library/src/binary/order_wbtest.mbt`; no getPayload/setPayload pair"
 msgstr "`library/src/binary/order_wbtest.mbt`; getPayload/setPayload の対はない"
 
-#: manual/conformance/binary.md:109
+#: manual/conformance/binary.md:106
 #: manual/conformance/interval.md:24
 msgid "partial"
 msgstr "部分準拠"
 
-#: manual/conformance/binary.md:111
+#: manual/conformance/binary.md:108
 msgid "convertFormat evidence"
 msgstr "convertFormat のエビデンス"
 
-#: manual/conformance/binary.md:113
+#: manual/conformance/binary.md:110
 msgid "TestFloat covers `f16`, `f32`, `f64`, and `f128` converted to every other format: 52,632 level-1 vectors with five rounding directions and both tininess rules for narrowing pairs. Package tests are `library/src/binary/convert_format_wbtest.mbt` and `library/src/binary/ieee754_wbtest.mbt`."
 msgstr "TestFloat は `f16`、`f32`、`f64`、`f128` から他のすべての形式への変換を扱います：level 1 の 52,632 ベクトルで、5 つの丸め方向と、狭める組に対する両方の tininess 規則を含みます。パッケージテストは `library/src/binary/convert_format_wbtest.mbt` と `library/src/binary/ieee754_wbtest.mbt` です。"
 
-#: manual/conformance/binary.md:118
+#: manual/conformance/binary.md:115
 msgid "Comparison-predicate evidence"
 msgstr "比較述語のエビデンス"
 
-#: manual/conformance/binary.md:120
+#: manual/conformance/binary.md:117
 msgid "The API comprises `compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered`, and the fifteen predicates in `order_predicates.mbt`, 22 in all, as listed in Tables 5.1 and 5.2. `library/src/binary/order_predicates_wbtest.mbt` tests every predicate against every relation, value, and flags. The TestFloat gate covers eq, le, lt, eq_signaling, le_quiet, and lt_quiet; `library/src/binary/order_wbtest.mbt` provides additional package tests."
 msgstr "API は `compare_quiet`、`compare_signaling`、`compare_quiet_equal`、`compare_signaling_equal`、`compare_quiet_less`、`compare_signaling_less`、`compare_quiet_less_equal`、`compare_signaling_less_equal`、`compare_quiet_unordered` と、`order_predicates.mbt` の 15 個の述語から成り、表 5.1 と表 5.2 に挙げられたとおり計 22 個です。`library/src/binary/order_predicates_wbtest.mbt` は、すべての述語をすべての関係、値、フラグに対してテストします。TestFloat ゲートは eq、le、lt、eq_signaling、le_quiet、lt_quiet を扱い、`library/src/binary/order_wbtest.mbt` は追加のパッケージテストを提供します。"
 
-#: manual/conformance/binary.md:128
+#: manual/conformance/binary.md:125
 msgid "Class-predicate evidence"
 msgstr "class 述語のエビデンス"
 
-#: manual/conformance/binary.md:130
+#: manual/conformance/binary.md:127
 msgid "`library/src/binary/class_of_wbtest.mbt` tests all ten classes in binary16, binary32, binary64, and binary128, including the smallest and largest subnormal and normal values in both signs. `library/src/binary/contextual_traits_wbtest.mbt` covers contextual traits."
 msgstr "`library/src/binary/class_of_wbtest.mbt` は、binary16、binary32、binary64、binary128 のすべての 10 個の class を、両方の符号の最小と最大の非正規化数と正規化数を含めてテストします。`library/src/binary/contextual_traits_wbtest.mbt` はコンテキスト付き trait を扱います。"
 
-#: manual/conformance/binary.md:134
+#: manual/conformance/binary.md:131
 msgid "Hexadecimal-conversion evidence"
 msgstr "十六進変換のエビデンス"
 
-#: manual/conformance/binary.md:136
+#: manual/conformance/binary.md:133
 msgid "`library/src/binary/hex_grammar_wbtest.mbt` tests every production of the IEEE 754-2019 5.12.3 grammar and the 5.12.1 words, accepted and rejected, through both entry points, and checks a 4,000-value round trip. The `from_hex_ctx` tests contain 5,095 rows across all five rounding directions, both tininess rules, binary16, binary32, binary64, binary128, two toy formats, and the implementation range. They cover midpoints, subnormals, and the overflow threshold against exact rational arithmetic in `library/src/binary/hex_ctx_wbtest.mbt` and `hex_ctx_rows_wbtest.mbt`; `tools/generate_hex_ctx_rows.py` generates the rows."
 msgstr "`library/src/binary/hex_grammar_wbtest.mbt` は、IEEE 754-2019 5.12.3 の文法のすべての生成規則と 5.12.1 の語を、受理と拒否の両方について、二つの入口の両方を通してテストし、4,000 値の往復も検査します。`from_hex_ctx` のテストは 5,095 行から成り、5 つの丸め方向すべて、両方の tininess 規則、binary16、binary32、binary64、binary128、二つの小さな形式、処理系の範囲にわたります。これらは `library/src/binary/hex_ctx_wbtest.mbt` と `hex_ctx_rows_wbtest.mbt` にある厳密な有理数算術に対して、中点、非正規化数、オーバーフローの閾値を扱います。行は `tools/generate_hex_ctx_rows.py` が生成します。"
 
-#: manual/conformance/binary.md:144
+#: manual/conformance/binary.md:141
 msgid "Mathematical-function evidence"
 msgstr "数学関数のエビデンス"
 
-#: manual/conformance/binary.md:146
+#: manual/conformance/binary.md:143
 msgid "IEEE 754-2019 9.2 functions covered are `exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `hypot`, `rsqrt`, `rootn`, `pown`, `compound`, `pow`, `powr`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, and `atanh`, through their `*_ctx` and `try_*_ctx` forms. The MPFR elementary fixture (1,740 rows) is the corpus evidence. The package tests include `library/src/binary/elementary_certified_wbtest.mbt` and `library/src/binary/tanh_saturation_issue185_wbtest.mbt`."
 msgstr "対象とする IEEE 754-2019 9.2 の関数は `exp`、`exp2`、`exp10`、`expm1`、`exp2m1`、`exp10m1`、`ln`、`log2`、`log10`、`log1p`、`log2p1`、`log10p1`、`hypot`、`rsqrt`、`rootn`、`pown`、`compound`、`pow`、`powr`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`asinpi`、`acospi`、`atanpi`、`atan2pi`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` で、`*_ctx` と `try_*_ctx` の形式を通じて扱います。MPFR の初等関数フィクスチャ（1,740 行）がコーパスによるエビデンスです。パッケージテストには `library/src/binary/elementary_certified_wbtest.mbt` と `library/src/binary/tanh_saturation_issue185_wbtest.mbt` が含まれます。"
 
-#: manual/conformance/binary.md:155
+#: manual/conformance/binary.md:152
 msgid "Tests of range-limit decisions cover exact subnormal powers of two for `exp2` and `pow`, `pown` tininess, the `expm1` overflow window, and all elementary exponentials against an independent reference. The tests are `library/src/binary/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, and `underflow_siblings_wbtest.mbt`."
 msgstr "範囲限界での判定のテストは、`exp2` と `pow` の厳密な非正規化の 2 の冪、`pown` の tininess、`expm1` のオーバーフロー窓、そしてすべての初等指数関数を独立した参照実装と突き合わせるものを扱います。テストは `library/src/binary/exp2_subnormal_wbtest.mbt`、`pow_exact_subnormal_wbtest.mbt`、`pown_subnormal_tininess_wbtest.mbt`、`expm1_overflow_window_wbtest.mbt`、`underflow_siblings_wbtest.mbt` です。"
 
-#: manual/conformance/binary.md:161
+#: manual/conformance/binary.md:158
 msgid "The `exp2m1`, `exp10m1`, `log2p1`, and `log10p1` tests cover special values of IEEE 754-2019 9.2.1, exact cases, and thresholds in `library/src/binary/pm1_functions_wbtest.mbt`. The `rsqrt`, `compound`, and `powr` tests cover special values of IEEE 754-2019 9.2.1, exact cases, the tiny-argument rule, and agreement with `pow` in `library/src/binary/rsqrt_compound_powr_wbtest.mbt`. The `asinpi`, `acospi`, `atanpi`, and `atan2pi` tests cover special values and exact constants of IEEE 754-2019 9.2.1; anchors at ±1/2 and ±1 for huge, tiny, and extreme-ratio arguments; tiny arguments at the implementation subnormal limit; and agreement with the result at p + 150. They are in `library/src/binary/pi_inverse_wbtest.mbt`. The corresponding range-boundary sweep uses six contexts. It covers underflow thresholds, the anchors ±1/2 and ±1 for huge and tiny arguments and extreme ratios, and inputs next to ±1. `atan2pi` rows whose operands differ by more than 100,000 binades are not oracle rows (MPFR is too slow). Seeded random and targeted boundary campaigns are listed in the corpus table."
 msgstr "`exp2m1`、`exp10m1`、`log2p1`、`log10p1` のテストは、IEEE 754-2019 9.2.1 の特殊値、厳密なケース、閾値を扱い、`library/src/binary/pm1_functions_wbtest.mbt` にあります。`rsqrt`、`compound`、`powr` のテストは、IEEE 754-2019 9.2.1 の特殊値、厳密なケース、微小引数の規則、`pow` との一致を扱い、`library/src/binary/rsqrt_compound_powr_wbtest.mbt` にあります。`asinpi`、`acospi`、`atanpi`、`atan2pi` のテストは、IEEE 754-2019 9.2.1 の特殊値と厳密な定数、巨大・微小・比が極端な引数での ±1/2 と ±1 のアンカー、処理系の非正規化の限界での微小引数、精度 p + 150 での結果との一致を扱います。これらは `library/src/binary/pi_inverse_wbtest.mbt` にあります。対応する範囲境界の掃引は 6 つのコンテキストを使い、アンダーフローの閾値、巨大・微小・比が極端な引数での ±1/2 と ±1 のアンカー、±1 の近くの入力を扱います。オペランドが 100,000 binade より大きく離れた `atan2pi` の行はオラクルの行ではありません（MPFR が遅すぎるため）。シード付きのランダムな試験と的を絞った境界の試験は、コーパスの表に挙げます。"
 
-#: manual/conformance/binary.md:174
+#: manual/conformance/binary.md:171
 msgid "Declared corpus and results"
 msgstr "宣言されたコーパスと結果"
 
-#: manual/conformance/binary.md:176
+#: manual/conformance/binary.md:173
 msgid "The full pinned gate is defined in [`testdata/binary/README.md`](../../../testdata/binary/README.md). The table records each source, its scope, and the passed rows."
 msgstr "固定された完全なゲートの定義は [`testdata/binary/README.md`](../../../testdata/binary/README.md) にあります。表は、各ソース、その範囲、通過した行数を記録します。"
 
-#: manual/conformance/binary.md:180
+#: manual/conformance/binary.md:177
 #: manual/design/interval_checked.md:71
 msgid "Source"
 msgstr "ソース"
 
-#: manual/conformance/binary.md:180
+#: manual/conformance/binary.md:177
 #: manual/performance_audit.md:15
 msgid "Scope"
 msgstr "範囲"
 
-#: manual/conformance/binary.md:182
-#: manual/conformance/binary.md:183
+#: manual/conformance/binary.md:179
+#: manual/conformance/binary.md:180
 msgid "TestFloat 3e level 1, seed 1"
 msgstr "TestFloat 3e level 1、seed 1"
 
-#: manual/conformance/binary.md:182
+#: manual/conformance/binary.md:179
 msgid "4 formats × 5 arithmetic operations × 5 rounding directions × 2 tininess modes"
 msgstr "4 format × 5 arithmetic operation × 5 rounding × 2 tininess"
 
-#: manual/conformance/binary.md:183
+#: manual/conformance/binary.md:180
 msgid "4 formats × mulAdd (5 directions × 2 tininess modes), rem, roundToInt and four integer conversions (5 directions × exact/inexact variants), six comparison predicates"
 msgstr "4 format × mulAdd（5 rounding × 2 tininess）、rem、roundToInt と四つの integer conversion（5 rounding × exact/非 exact）、六つの comparison predicate"
 
-#: manual/conformance/binary.md:184
+#: manual/conformance/binary.md:181
 msgid "MPFR 4.2.2 `tests/data/sqrt`"
 msgstr "MPFR 4.2.2 `tests/data/sqrt`"
 
-#: manual/conformance/binary.md:184
+#: manual/conformance/binary.md:181
 msgid "all executable hexadecimal sqrt rows"
 msgstr "実行可能な 16 進 sqrt 行すべて"
 
-#: manual/conformance/binary.md:185
+#: manual/conformance/binary.md:182
 msgid "MPFR 4.2.2 `pow_si` fixture"
 msgstr "MPFR 4.2.2 `pow_si` フィクスチャ"
 
-#: manual/conformance/binary.md:185
+#: manual/conformance/binary.md:182
 msgid "4 precisions × 4 supported roundings × 6 inputs"
 msgstr "4 precision × 4 supported rounding × 6 input"
 
-#: manual/conformance/binary.md:186
+#: manual/conformance/binary.md:183
 msgid "MPFR 4.2.2 elementary fixture"
 msgstr "MPFR 4.2.2 初等関数フィクスチャ"
 
-#: manual/conformance/binary.md:186
+#: manual/conformance/binary.md:183
 msgid "29 operations × 3 precisions × 5 roundings × 4 fixed-seed inputs"
 msgstr "29 operation × 3 precision × 5 rounding × 4 fixed-seed input"
 
-#: manual/conformance/binary.md:187
+#: manual/conformance/binary.md:184
 msgid "MPFR 4.2.2 `mpfr_strtofr` fixture"
 msgstr "MPFR 4.2.2 `mpfr_strtofr` フィクスチャ"
 
-#: manual/conformance/binary.md:187
+#: manual/conformance/binary.md:184
 msgid "decimal text to binary: 5 precisions (11 to 200 bits) × 5 roundings × random, long-mantissa, huge-exponent, exact-halfway and one-unit-off-halfway literals, plus range limits and signed zeros"
 msgstr "十進テキストから二進へ：5 種類の精度（11〜200 ビット）× 5 種類の丸め ×（ランダム、長い仮数、巨大な指数、ちょうど中点、中点から 1 単位ずれたリテラル）に加え、範囲の限界と符号付きゼロ"
 
-#: manual/conformance/binary.md:188
+#: manual/conformance/binary.md:185
 msgid "MPFR 4.2.2 `mpfr_get_str` fixture"
 msgstr "MPFR 4.2.2 `mpfr_get_str` フィクスチャ"
 
-#: manual/conformance/binary.md:188
+#: manual/conformance/binary.md:185
 msgid "binary to decimal: 2,448 fixed-digit rows (5 precisions × 5 roundings × 10 digit counts × up to 12 fixed-seed values per cell, exponents up to ±20,000) and 240 shortest round-trip digit-count rows"
 msgstr "二進から十進へ：2,448 行の固定桁（5 種類の精度 × 5 種類の丸め × 10 種類の桁数 × 1 セルあたり最大 12 個の固定シードの値、指数は ±20,000 まで）と、240 行の最短往復桁数"
 
-#: manual/conformance/binary.md:189
+#: manual/conformance/binary.md:186
 msgid "Optional MPFR elementary stress, seed 20260715"
 msgstr "optional MPFR elementary stress、seed 20260715"
 
-#: manual/conformance/binary.md:189
+#: manual/conformance/binary.md:186
 msgid "at least 100,000 cases per three-operation-or-larger family"
 msgstr "three-operation 以上の各 family で 100,000 case 以上"
 
-#: manual/conformance/binary.md:190
+#: manual/conformance/binary.md:187
 msgid "Seeded random elementary (`elem`), seeds 20261118 and 20261201"
 msgstr "シード付きランダム初等関数（`elem`）、シード 20261118 と 20261201"
 
-#: manual/conformance/binary.md:190
+#: manual/conformance/binary.md:187
 msgid "29 functions, contexts given by the precision alone, precisions 2 to 700, all rounding directions"
 msgstr "29 個の関数、精度だけで決まるコンテキスト、精度 2 から 700、すべての丸め方向"
 
-#: manual/conformance/binary.md:191
+#: manual/conformance/binary.md:188
 msgid "Range-boundary sweep (`tools/range_boundary_rows.py`)"
 msgstr "範囲境界の掃引（`tools/range_boundary_rows.py`）"
 
-#: manual/conformance/binary.md:191
+#: manual/conformance/binary.md:188
 msgid "`exp`, `exp2`, `exp10`, `expm1`, `pow`, `pown`, `rootn` on the underflow and overflow thresholds, precisions 2 to 300, six contexts, both tininess rules"
 msgstr "`exp`、`exp2`、`exp10`、`expm1`、`pow`、`pown`、`rootn` をアンダーフローとオーバーフローの閾値上で、精度 2 から 300、六つのコンテキスト、両方の tininess 規則"
 
-#: manual/conformance/binary.md:192
+#: manual/conformance/binary.md:189
 msgid "Seeded random elementary (`elem2`: `exp2m1`, `exp10m1`, `log2p1`, `log10p1`), seed 20261118"
 msgstr "シード付きランダム初等関数（`elem2`: `exp2m1`、`exp10m1`、`log2p1`、`log10p1`）、シード 20261118"
 
-#: manual/conformance/binary.md:192
-#: manual/conformance/binary.md:194
-#: manual/conformance/binary.md:196
+#: manual/conformance/binary.md:189
+#: manual/conformance/binary.md:191
+#: manual/conformance/binary.md:193
 msgid "contexts given by the precision alone, precisions 2 to 700, all rounding directions; 1,000,000 cases on native, 100,000 on Wasm, JavaScript and Wasm-GC"
 msgstr "精度だけで決まるコンテキスト、精度 2 から 700、すべての丸め方向。native で 1,000,000 件、Wasm、JavaScript、Wasm-GC でそれぞれ 100,000 件"
 
-#: manual/conformance/binary.md:193
+#: manual/conformance/binary.md:190
 msgid "Range-boundary sweep of `exp2m1`, `exp10m1`, `log2p1`, and `log10p1`"
 msgstr "`exp2m1`、`exp10m1`、`log2p1`、`log10p1` の範囲境界の掃引"
 
-#: manual/conformance/binary.md:193
+#: manual/conformance/binary.md:190
 msgid "precisions 2 to 300, six contexts, overflow, saturation and tiny-result thresholds"
 msgstr "精度 2 から 300、6 つのコンテキスト、オーバーフロー、飽和、微小な結果の閾値"
 
-#: manual/conformance/binary.md:194
+#: manual/conformance/binary.md:191
 msgid "Seeded random elementary (`elem3`: `rsqrt`, `compound`, `powr`), seed 20261118"
 msgstr "シード付きランダム初等関数（`elem3`: `rsqrt`、`compound`、`powr`）、シード 20261118"
 
-#: manual/conformance/binary.md:195
+#: manual/conformance/binary.md:192
 msgid "Range-boundary sweep of `rsqrt`, `compound`, and `powr`"
 msgstr "`rsqrt`、`compound`、`powr` の範囲境界の掃引"
 
-#: manual/conformance/binary.md:195
+#: manual/conformance/binary.md:192
 msgid "precisions 2 to 300, six contexts, overflow and tiny-result thresholds; the `compound` rows use the exact rational in place of `mpfr_compound_si` (see the oracle defect in `verification.md`)"
 msgstr "精度 2 から 300、六つのコンテキスト、オーバーフローと微小結果のしきい値。`compound` の行は `mpfr_compound_si` の代わりに厳密な有理数を使います（`verification.md` のオラクルの欠陥を参照）"
 
-#: manual/conformance/binary.md:196
+#: manual/conformance/binary.md:193
 msgid "Seeded random elementary (`elem4`: `asinpi`, `acospi`, `atanpi`, `atan2pi`), seed 20261118"
 msgstr "シード付きランダム初等関数（`elem4`: `asinpi`、`acospi`、`atanpi`、`atan2pi`）、シード 20261118"
 
-#: manual/conformance/binary.md:197
+#: manual/conformance/binary.md:194
 msgid "Range-boundary sweep of `asinpi`, `acospi`, `atanpi`, and `atan2pi`"
 msgstr "`asinpi`、`acospi`、`atanpi`、`atan2pi` の範囲境界の掃引"
 
-#: manual/conformance/binary.md:197
+#: manual/conformance/binary.md:194
 msgid "precisions 2 to 300, six contexts; see mathematical-function evidence"
 msgstr "精度 2 から 300、6 つのコンテキスト。数学関数のエビデンスを参照"
 
-#: manual/conformance/binary.md:198
+#: manual/conformance/binary.md:195
 msgid "Committed smoke"
 msgstr "コミット済み smoke"
 
-#: manual/conformance/binary.md:198
+#: manual/conformance/binary.md:195
 msgid "TestFloat, sqrt, `pow_si`, elementary, `strtofr` and decimal output witnesses"
 msgstr "TestFloat、sqrt、`pow_si`、elementary、`strtofr`、十進出力の証人"
 
-#: manual/conformance/binary.md:199
+#: manual/conformance/binary.md:196
 msgid "TestFloat 3e level 2"
 msgstr "TestFloat 3e レベル 2"
 
-#: manual/conformance/binary.md:199
+#: manual/conformance/binary.md:196
 msgid "binary16, all declared operations/directions/tininess modes"
 msgstr "binary16 の全 declared operation/direction/tininess"
 
-#: manual/conformance/binary.md:201
+#: manual/conformance/binary.md:198
 msgid "Two table rows are optional and are not included in the result claim of this page:"
 msgstr "表の 2 行は任意であり、このページの結果の主張には含まれません。"
 
-#: manual/conformance/binary.md:203
+#: manual/conformance/binary.md:200
 msgid "The TestFloat level-2 result is for binary16. It is additional streaming stress evidence, not a claim for the much larger binary32, binary64, and binary128 level-2 suites. The runner streams level 2 in verified bounded chunks, and level 2 is an optional stress suite."
 msgstr "TestFloat level 2 の結果は binary16 のものです。これは追加のストリーミング負荷のエビデンスであり、はるかに大きい binary32、binary64、binary128 の level 2 スイートに対する主張ではありません。ランナーは level 2 を検証済みの有界なチャンクでストリーミングし、level 2 は任意の負荷スイートです。"
 
-#: manual/conformance/binary.md:207
+#: manual/conformance/binary.md:204
 msgid "The 966,744-row MPFR run is optional generated stress evidence; the 1,740-row hash-pinned fixture remains the reproducible release boundary."
 msgstr "966,744 行の MPFR の実行は、任意の生成された負荷のエビデンスです。ハッシュで固定された 1,740 行のフィクスチャが、再現可能なリリースの境界であることに変わりはありません。"
 
-#: manual/conformance/binary.md:209
+#: manual/conformance/binary.md:206
 msgid "The archives, files, and digests are pinned in [`testdata/binary/corpora.json`](../../../testdata/binary/corpora.json)."
 msgstr "アーカイブ、ファイル、ダイジェストは [`testdata/binary/corpora.json`](../../../testdata/binary/corpora.json) に固定されています。"
 
-#: manual/conformance/binary.md:212
+#: manual/conformance/binary.md:209
 msgid "Scope of the claim"
 msgstr "主張の範囲"
 
-#: manual/conformance/binary.md:214
+#: manual/conformance/binary.md:211
 msgid "The finite claim covers these contextual operations and inputs:"
 msgstr "有限の主張は、次のコンテキスト付き演算と入力を対象とします。"
 
-#: manual/conformance/binary.md:216
+#: manual/conformance/binary.md:213
 msgid "add, subtract, multiply, divide, square root, fused multiply-add, remainder, and roundToIntegral (plain and exact);"
 msgstr "加算、減算、乗算、除算、平方根、融合積和、remainder、roundToIntegral（通常と exact）。"
 
-#: manual/conformance/binary.md:218
+#: manual/conformance/binary.md:215
 msgid "signed and unsigned 32- and 64-bit convertToInteger (plain and exact);"
 msgstr "符号付きと符号なしの 32 ビットと 64 ビットの convertToInteger（通常と exact）。"
 
-#: manual/conformance/binary.md:219
+#: manual/conformance/binary.md:216
 msgid "convertFormat among the four interchange formats, as specified by IEEE 754-2019 5.4.2;"
 msgstr "4 つの交換形式の間の convertFormat（IEEE 754-2019 5.4.2 に従う）。"
 
-#: manual/conformance/binary.md:221
+#: manual/conformance/binary.md:218
 msgid "quiet and signaling equal, less, and less-or-equal predicates for the four interchange formats and the stated rounding directions and tininess rules;"
 msgstr "4 つの交換形式での quiet と signaling の equal、less、less-or-equal の述語と、記載した丸め方向および tininess 規則。"
 
-#: manual/conformance/binary.md:223
+#: manual/conformance/binary.md:220
 msgid "the 29 operations in the MPFR elementary fixture (28 functions from IEEE 754-2019 9.2 and `sqrt`) at 24, 53, and 113 bits under all five rounding directions; and"
 msgstr "MPFR の初等関数フィクスチャにある 29 個の演算（IEEE 754-2019 9.2 の 28 個の関数と `sqrt`）を、24、53、113 ビットで 5 つの丸め方向すべてについて。"
 
-#: manual/conformance/binary.md:225
+#: manual/conformance/binary.md:222
 msgid "the other 11 functions in the 9.2 row, through the seeded random and range-boundary rows above."
 msgstr "9.2 の行の残り 11 個の関数。上の表のシード付きランダムの行と範囲境界の行で扱います。"
 
-#: manual/conformance/binary.md:228
-msgid "Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. The page makes no TestFloat conformance claim for min/max (not implemented as the operations of IEEE 754-2019 9.6), total ordering, nextUp/nextDown, or scaleB/logB; package tests cover total ordering, nextUp/nextDown, and scaleB/logB. TestFloat has no decimal-character corpus, so `convertFromDecimalCharacter` and `convertToDecimalCharacter` are checked against the MPFR `mpfr_strtofr` and `mpfr_get_str` fixtures (3,699 and 2,688 rows) and by package tests. The finite evidence does not cover every IEEE 754 operation or every real input."
-msgstr "無効な整数変換はフラグだけで比較します。SoftFloat はプラットフォーム依存の番兵値を返しますが、API は `None` を返すためです。このページは、min/max（IEEE 754-2019 9.6 の演算としては実装されていません）、全順序、nextUp/nextDown、scaleB/logB について TestFloat 適合の主張をしません。これらのうち全順序、nextUp/nextDown、scaleB/logB はパッケージテストが扱います。TestFloat には十進文字列のコーパスがないため、`convertFromDecimalCharacter` と `convertToDecimalCharacter` は MPFR の `mpfr_strtofr` と `mpfr_get_str` のフィクスチャ（3,699 行と 2,688 行）とパッケージテストで検査します。有限のエビデンスは、IEEE 754 のすべての演算も、すべての実数入力も対象としません。"
+#: manual/conformance/binary.md:225
+msgid "Invalid integer conversions are compared by flags only: SoftFloat returns platform-specific sentinels where the API returns `None`. The page makes no TestFloat conformance claim for min/max (not implemented as the operations of IEEE 754-2019 9.6), total ordering, nextUp/nextDown, or scaleB/logB (covered by package tests), nor for decimal character conversion (TestFloat has none: `convertFromDecimalCharacter` and `convertToDecimalCharacter` are checked against the MPFR `mpfr_strtofr` and `mpfr_get_str` fixtures, 3,699 and 2,688 rows, and by package tests), nor for every IEEE 754 operation or every real input."
+msgstr "無効な整数変換はフラグだけで比較します。SoftFloat はプラットフォーム依存の番兵値を返しますが、API は `None` を返すためです。このページは、min/max（IEEE 754-2019 9.6 の演算としては実装されていません）、全順序、nextUp/nextDown、scaleB/logB（パッケージテストが扱います）について、また十進文字列の変換（TestFloat にはコーパスがなく、`convertFromDecimalCharacter` と `convertToDecimalCharacter` は MPFR の `mpfr_strtofr` と `mpfr_get_str` のフィクスチャ、3,699 行と 2,688 行、およびパッケージテストで検査します）について、さらに IEEE 754 のすべての演算やすべての実数入力について、TestFloat 適合の主張をしません。"
 
-#: manual/conformance/binary.md:238
+#: manual/conformance/binary.md:233
 msgid "The elementary generator implements nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end` protocol. It never passes the explicitly forbidden `MPFR_RNDNA` value to a general elementary function."
 msgstr "初等関数のジェネレータは、MPFR が求める `mpfr_round_nearest_away_begin/end` のプロトコルによって最近接（ゼロから遠い方）の丸めを実装します。明示的に禁止された `MPFR_RNDNA` の値を一般の初等関数に渡すことはありません。"
 
-#: manual/conformance/binary.md:242
+#: manual/conformance/binary.md:237
 msgid "The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ with magnitude at most 16 and lie inside each function's domain. `pow` takes a positive base and an exponent in $[-3, 3]$; `rootn` takes an odd degree from 3 to 7; `atan2` never takes two zeros; and `tanpi` takes no integral or half-integral argument. A zero input is $+0$. The 1,740-row fixture therefore does not exercise tiny or huge arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees of `rootn`, or the poles and signed zeros of the IEEE special-case tables. Exact results such as $4^{3/2}$ occur only by chance. The package's unit tests cover those special-value cases against the special-value tables in the [API reference](../api/binary.md#elementary-functions); they are outside this finite claim. The seeded random and range-boundary rows above do exercise tiny and huge arguments and the overflow and underflow thresholds."
 msgstr "固定シードの初等関数の入力は、$2^{-8}$ の二進有理数倍で、絶対値は 16 以下であり、各関数の定義域の内側にあります。`pow` は正の底と $[-3, 3]$ の指数をとり、`rootn` は 3 から 7 の奇数の次数をとり、`atan2` は両方ゼロの入力をとらず、`tanpi` は整数や半整数の引数をとりません。ゼロの入力は $+0$ です。したがって 1,740 行のフィクスチャは、微小または巨大な引数、$-0$、無限大、NaN、`pow` の負の底、`rootn` の負の次数、IEEE の特殊ケース表の極と符号付きゼロを扱いません。$4^{3/2}$ のような厳密な結果は偶然にしか現れません。パッケージの単体テストは、[API リファレンス](../api/binary.md#elementary-functions)の特殊値の表に対してこれらの特殊値のケースを扱います。それらはこの有限の主張の外にあります。上の表のシード付きランダムの行と範囲境界の行は、微小および巨大な引数と、オーバーフローおよびアンダーフローの閾値を扱います。"
 
-#: manual/conformance/binary.md:254
+#: manual/conformance/binary.md:249
 msgid "Stability of the evidence"
 msgstr "エビデンスの安定性"
 
-#: manual/conformance/binary.md:256
+#: manual/conformance/binary.md:251
 msgid "The pinned matrix is the release evidence boundary. Adding a new operation requires a new corpus contract and an independent oracle. Run `just conformance smoke binary` for the checked-in gate and `just gate binary` for the full pinned gate."
 msgstr "固定されたマトリクスがリリースのエビデンスの境界です。新しい演算を加えるには、新しいコーパスの契約と独立したオラクルが必要です。`just conformance smoke binary` はチェックイン済みのゲートを、`just gate binary` は固定された完全なゲートを実行します。"
 
@@ -31837,8 +31837,8 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
 
-#~ msgid "This page records the binary floating-point semantic and test boundary of the current source (the `Unreleased` section of the changelog). It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
-#~ msgstr "このページは、現在のソース（変更履歴の `Unreleased` の節）に対する二進浮動小数点の意味論と検証の境界を記録します。有限のテストがすべて通ることは、宣言した範囲の証拠であり、すべての実数入力に対する形式的な証明ではありません。"
+#~ msgid "The `floating` programming environment conforms to IEEE 754-2019 in radix two, through its `binary` package: binary16, binary32, binary64, and binary128 are each a supported arithmetic format and a supported interchange format, the condition of IEEE 754-2019 3.1.2. This page records finite results for named corpora, inputs, and contexts, together with the cases they do not cover."
+#~ msgstr "`floating` プログラミング環境は、`binary` パッケージを通じて基数 2 で IEEE 754-2019 に適合します。binary16、binary32、binary64、binary128 はそれぞれ、サポートされる算術形式であり、かつサポートされる交換形式でもあります。これが IEEE 754-2019 3.1.2 の条件です。このページは、名前を挙げたコーパス、入力、コンテキストに対する有限の結果と、それらが対象としないケースを記録します。"
 
 #~ msgid "`(-1)^negative * coefficient * 2^exponent2`, where `coefficient` is a non-negative `BinCoeff`."
 #~ msgstr "`(-1)^negative * coefficient * 2^exponent2`（`coefficient` は非負の `BinCoeff`）"
