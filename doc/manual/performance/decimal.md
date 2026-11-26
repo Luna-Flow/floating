@@ -8,7 +8,7 @@ The command `just bench decimal --target native` runs the current Maremark suite
 in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its
 analysis file. This is a reproducible measurement artifact, not an immutable
 release gate. The current branch has no checked-in decimal performance manifest
-or threshold workflow; measurements use the Maremark suite.
+or threshold workflow; measurements use the Maremark suite below.
 
 ## Workload
 
@@ -29,12 +29,12 @@ The reference exponent and precision implementation limits admit contexts up to
 coefficient work: debug-native probes at the `999,999,999` limit took more
 than 25 seconds for some `plus`, `min`, and `quantize` cases (method not
 recorded). Choose a smaller precision for interactive work and treat the large
-limit as a compatibility limit.
+limit as a compatibility boundary.
 
 ## Reading results
 
-In the output, `MAREMARK_JSONL` is the raw versioned event stream and
-`MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this
+`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is
+the paired layer-overhead analysis. Results describe this
 tree, toolchain, and target. They are useful for finding a hotspot, but they do
 not establish a universal crossover or a release-wide latency bound.
 

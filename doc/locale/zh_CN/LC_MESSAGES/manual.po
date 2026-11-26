@@ -26049,8 +26049,8 @@ msgid "Method and scope"
 msgstr "方法与范围"
 
 #: manual/performance/decimal.md:7
-msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite."
-msgstr "命令 `just bench decimal --target native` 会运行 `tooling/src/bench/decimal` 中当前的 Maremark 套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门禁。当前分支没有签入的十进制性能清单或阈值工作流；测量使用该 Maremark 套件。"
+msgid "The command `just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
+msgstr "命令 `just bench decimal --target native` 会运行 `tooling/src/bench/decimal` 中当前的 Maremark 套件，并写入 `.tmp/bench/decimal.jsonl` 及其分析文件。这是一个可复现的测量产物，而不是不可变的发布门禁。当前分支没有签入的十进制性能清单或阈值工作流；测量使用下文的 Maremark 套件。"
 
 #: manual/performance/decimal.md:15
 msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
@@ -26077,8 +26077,8 @@ msgid "full `DecimalChecked` path"
 msgstr "完整的 `DecimalChecked` 路径"
 
 #: manual/performance/decimal.md:27
-msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility limit."
-msgstr "参考指数和精度的实现限制允许上下文达到 `999,999,999`。这些上下文有效，但可能需要非常大量的系数计算：在 `999,999,999` 限值下进行的 debug-native 探测中，某些 `plus`、`min` 和 `quantize` 用例耗时超过 25 秒（方法未记录）。交互式工作请选择较小的精度，并将该较大限值视为兼容性限制。"
+msgid "The reference exponent and precision implementation limits admit contexts up to `999,999,999`. Such contexts are valid, though they can require very large coefficient work: debug-native probes at the `999,999,999` limit took more than 25 seconds for some `plus`, `min`, and `quantize` cases (method not recorded). Choose a smaller precision for interactive work and treat the large limit as a compatibility boundary."
+msgstr "参考指数和精度的实现限制允许上下文达到 `999,999,999`。这些上下文有效，但可能需要非常大量的系数计算：在 `999,999,999` 限值下进行的 debug-native 探测中，某些 `plus`、`min` 和 `quantize` 用例耗时超过 25 秒（方法未记录）。交互式工作请选择较小的精度，并将该较大限值视为兼容性边界。"
 
 #: manual/performance/decimal.md:34
 #: manual/performance/decimal_gda.md:27
@@ -26087,8 +26087,8 @@ msgid "Reading results"
 msgstr "读取结果"
 
 #: manual/performance/decimal.md:36
-msgid "In the output, `MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
-msgstr "在输出中，`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。结果描述当前代码树、工具链和目标平台。它们可用于定位热点，但不能确立通用交叉点或适用于整个发布的延迟上界。"
+msgid "`MAREMARK_JSONL` is the raw versioned event stream and `MAREMARK_HOTSPOT` is the paired layer-overhead analysis. Results describe this tree, toolchain, and target. They are useful for finding a hotspot, but they do not establish a universal crossover or a release-wide latency bound."
+msgstr "`MAREMARK_JSONL` 是带版本的原始事件流，`MAREMARK_HOTSPOT` 是成对的分层开销分析。结果描述当前代码树、工具链和目标平台。它们可用于定位热点，但不能确立通用交叉点或适用于整个发布的延迟上界。"
 
 #: manual/performance/decimal.md:48
 msgid "The all-suite run also covers binary, GDA, and interval kernels. It is safe to compare artifacts only when the target, toolchain, workload, and benchmark protocol are held constant."
