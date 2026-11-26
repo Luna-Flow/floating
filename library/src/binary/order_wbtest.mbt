@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.5.1 (copySign(x, y) has the magnitude of x and the sign of y, also for a NaN x with its payload and for zeros): 3 with the sign of -1 is -3, -3 with the sign of +0 is 3, a NaN of payload 7 takes the sign and keeps the payload, +0 with the sign of -0 is -0
+// shares: Binary::from_int, quiet_nan, zero and negative_zero build the operands; copy_sign is the code under test; Display prints
 test "copySign keeps the magnitude and NaN payload" {
   let payload = BinCoeff::from_uint64(7UL)
   let nan = Binary::quiet_nan(payload~)
@@ -31,6 +34,9 @@ test "copySign keeps the magnitude and NaN payload" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.10 (totalOrder: -qNaN with larger payload, -qNaN with smaller payload, -sNaN, -inf, negative finite numbers, -0, +0, positive finite numbers, +inf, +sNaN, +qNaN with larger payload last), checked for all 14 x 14 pairs; total_order_mag of -3 and 2 is false
+// shares: Binary constructors build the operands; total_order_compare and total_order are the code under test
 test "totalOrder sorts every class, signed zeros, and NaN payloads" {
   let ordered = [
     Binary::quiet_nan(payload=BinCoeff::from_uint64(2UL), negative=true),
@@ -66,6 +72,9 @@ test "totalOrder sorts every class, signed zeros, and NaN payloads" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.11 and 7.2: compareQuietEqual of +0 and -0 is equal; a quiet comparison with a quiet NaN is unordered without flag, a signaling comparison with a quiet NaN raises invalid (flags 16), a quiet comparison with a signaling NaN raises invalid, and the predicates compareQuietLess, compareSignalingLess, compareQuietLessEqual, compareQuietUnordered and compareSignalingEqual give the listed truth values with those flags
+// shares: Binary::one, zero, negative_zero, nan and signaling_nan build the operands; the compare_quiet and compare_signaling functions are the code under test
 test "quiet and signaling comparisons differ only in NaN flags" {
   let one = Binary::one()
   let qnan = Binary::nan()

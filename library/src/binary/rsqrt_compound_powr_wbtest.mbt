@@ -57,6 +57,9 @@ fn rcp_show(
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from the clauses quoted in the header of the file (pdftotext of IEEE Std 754-2019, 9.2.1 and Table 9.1): rSqrt(+inf) = +0 with no exception, rSqrt(+-0) = +-inf with divideByZero, invalid for x < 0 and -inf, quiet NaN propagation, signaling NaN invalid; S: the S4 mapping of the library (invalid is a value in the try_ form, not an Err) is asserted as well
+// shares: rcp_inf, Binary::zero, from_int and make build the operands; rsqrt_ctx and try_rsqrt_ctx are the code under test
 test "rsqrt special values" {
   for ctx in rcp_contexts() {
     // rSqrt(+0) = +inf and rSqrt(-0) = -inf with divideByZero
@@ -122,6 +125,9 @@ test "rsqrt of a power of four is exact, other values are correctly rounded" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from the clauses quoted in the header of the file (pdftotext of IEEE Std 754-2019, 9.2.1 and Table 9.1): compound(x, 0) = 1 for x >= -1 and a quiet NaN, compound(-1, n) = +inf with divideByZero for n < 0 and +0 for n > 0, compound(+-0, n) = 1, compound(+inf, n) = +inf for n > 0 and +0 for n < 0, invalid for x < -1 and -inf, quiet NaN propagation for n != 0, signaling NaN invalid; S: the S4 mapping of the library (invalid is a value in the try_ form, not an Err) is asserted as well
+// shares: rcp_show prints value and flag letters; Binary constructors build the operands; try_compound_ctx and compound_ctx are the code under test
 test "compound special values" {
   for ctx in rcp_contexts() {
     let one = "1p0 ---"
@@ -184,6 +190,9 @@ test "compound is the correctly rounded (1 + x)^n" {
 }
 
 ///|
+// oracle: A
+// source: written out: (1 + x)^n = 1 + n x for x = +-2^-400 and n = 3 and 1000000, far below a quarter of the spacing at 1 (precision 24), so the correctly rounded result is 1 or its neighbour on the side of the sign of n x chosen by the direction: 1 + 2^-23 = 8388609p-23 above (toward positive infinity only, for a positive x) and 1 - 2^-24 = 16777215p-24 below (toward zero and toward negative infinity, for a negative x), with inexact and no underflow (IEEE Std 754-2019 4.3, 7.6)
+// shares: Binary::make and neg build the operands; compound_ctx is the code under test; to_string prints the result
 test "compound of a tiny x is the neighbour of 1 chosen by the direction" {
   // (1 + x)^n = 1 + n x with |n x| far below a quarter of the spacing at 1
   for mode in e2s_modes() {
@@ -214,6 +223,9 @@ test "compound of a tiny x is the neighbour of 1 chosen by the direction" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out from the clauses quoted in the header of the file (pdftotext of IEEE Std 754-2019, 9.2.1 and Table 9.1): powr(x, +-0) = 1 for finite x > 0, powr(+-0, y) = +inf with divideByZero for finite y < 0, +inf for y = -inf and +0 for y > 0, powr(+1, y) = 1 for finite y, invalid for powr(+1, +-inf), powr(+-0, +-0), powr(+inf, +-0) and x < 0, quiet NaN propagation and the signaling NaN; S: the S4 mapping of the library (invalid is a value in the try_ form, not an Err) is asserted as well
+// shares: rcp_show prints value and flag letters; Binary constructors build the operands; try_powr_ctx and powr_ctx are the code under test
 test "powr special values" {
   for ctx in rcp_contexts() {
     let render = fn(x : Binary, y : Binary) { rcp_show(x.try_powr_ctx(y, ctx)) }

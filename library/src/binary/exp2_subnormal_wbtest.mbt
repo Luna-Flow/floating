@@ -141,6 +141,9 @@ fn e2s_arg(n : Int32) -> Binary {
 }
 
 ///|
+// oracle: A, S
+// source: A: the closed-form model of the file (e2s_model), written from IEEE Std 754-2019 4.3, 7.4, 7.5 and 9.2 (quoted in the header) with integer comparisons only: 2^n is exact and without flags when q = e_min - (p - 1) <= n <= e_max, rounds between 0 and 2^q below q (tiny and inexact in both tininess rules) and between the largest finite value and infinity above e_max; the limits e_min and e_max of an unbounded context are the library's own constants; S: the limits are the library's own, taken from binary_value_e_min and binary_value_e_max for the unbounded contexts
+// shares: e2s_model builds the expected values with Binary::make_coeff, inf and zero; e2s_arg and Display print; exp2_ctx is the code under test
 test "exp2 of an integer matches the model at every range boundary" {
   let precisions = [1, 2, 3, 24, 53, 113, 300]
   let ranges : Array[(Int32?, Int32?)] = [
@@ -210,6 +213,9 @@ test "exp2 of an integer matches the model at every range boundary" {
 }
 
 ///|
+// oracle: A, S
+// source: A: written out: 2^-1073741823 at precision 2, 2^-1073741825 at precision 28 and 2^-1073741822 at precision 2 are exact values (powers of two) that the range rule keeps as subnormal numbers, no flag (IEEE Std 754-2019 7.5, 9.2); S: that these exponents are inside the subnormal range is a property of the library's own limit e_min = -1073741822
+// shares: e2s_arg and e2s_flags print; exp2_ctx is the code under test
 test "exp2 of exactly -2^30 is the exact subnormal 2^-2^30 (#271)" {
   // The regression rows: unbounded context, precision 2 and 28.
   let two = BinaryContext::new(precision=2)
@@ -240,6 +246,11 @@ fn e2s_shifted(n : Int32, numerator : Int32) -> Binary {
 /// by the rounding direction (the midpoints are 1/2 and 3/2), and [7.5.f]
 /// raises inexact and underflow because the result differs from the exact value
 /// and lies below 2^e_min (p >= 3 keeps both tininess modes equal).
+
+///|
+// oracle: A, S
+// source: A: written out from the same rules (header of the file): for x = q + r with r = numerator * 2^-20 the value 2^x = 2^r * 2^q lies between the multiples 0, 1, 2 of 2^q, the midpoints are 1/2 and 3/2 (2^r is below 1/2 for r < -1, between 1/2 and 1 just below 0, between 1 and 3/2 just above 0, 2^0.75 = 1.68 is above 3/2) and the direction picks the neighbour, with inexact and underflow; S: q = e_min - (p - 1) uses the library's own e_min
+// shares: e2s_shifted builds x with add_ctx and mul_ctx; e2s_pow2, e2s_mode_name and e2s_flags build and print; exp2_ctx is the code under test
 test "exp2 of non-integers around the smallest subnormal" {
   // numerator, then the multiplier m (result = m * 2^q) for
   // [even, away, zero, up, down]
@@ -295,6 +306,9 @@ test "exp2 of non-integers around the smallest subnormal" {
 }
 
 ///|
+// oracle: A, S
+// source: A: the closed-form model of the file (e2s_model), written from IEEE Std 754-2019 4.3, 7.4, 7.5 and 9.2 (quoted in the header) with integer comparisons only: 2^n is exact and without flags when q = e_min - (p - 1) <= n <= e_max, rounds between 0 and 2^q below q (tiny and inexact in both tininess rules) and between the largest finite value and infinity above e_max; the limits e_min and e_max of an unbounded context are the library's own constants; far below the smallest subnormal the exact value is below the midpoint, so the result is 0 or 2^q by the direction, with underflow and inexact; 2^-2^40 is beyond the 32-bit exponent field and rounds to 0; S: the library's own e_min
+// shares: e2s_round_up and e2s_pow2 build the expected values; exp2_ctx is the code under test
 test "exp2 true underflow to zero threshold carries inexact and underflow" {
   // [9.2]/[7.5.f]: far below the smallest subnormal the result is the
   // rounding of a positive value smaller than any midpoint.

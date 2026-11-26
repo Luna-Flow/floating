@@ -43,6 +43,9 @@ fn cls_formats() -> Array[BinaryInterchangeFormat] {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.7.2 (the ten classes) and the interchange encodings of 3.4: for each of binary16, 32, 64 and 128 the encodings with exponent field 0 and fraction 0, 1 and all ones (zero and subnormal), exponent field 1 and the largest finite one (normal), all ones with fraction 0 (infinity), with the quiet bit (quiet NaN) and with a nonzero fraction below it (signaling NaN), both signs; the predicates are projections of the class
+// shares: cls_bits builds the encodings with BinaryInterchange::from_bits and to_binary (the codec, with the bit fields written by hand); class_of and the predicates are the code under test
 test "class_of reaches all ten classes in every interchange format" {
   for format in cls_formats() {
     let ctx = format.context()
@@ -99,6 +102,9 @@ test "class_of reaches all ten classes in every interchange format" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 3.3 and 5.7.2: in binary32 (e_min = -126) 2^-126 is the smallest normal number and 2^-127 is subnormal, for both signs; in a context of precision 24 with e_max = 201 (e_min = 1 - e_max = -200) 2^-127 is normal and with e_max = 101 (e_min = -100) 2^-126 is subnormal
+// shares: Binary::make_coeff builds the operands; class_of is the code under test
 test "class_of boundary between subnormal and normal follows emin" {
   // binary32: emin = -126. 2^-126 is the smallest normal, 2^-127 is
   // subnormal, and the value just below 2^-126 is the largest subnormal.
@@ -117,6 +123,9 @@ test "class_of boundary between subnormal and normal follows emin" {
 }
 
 ///|
+// oracle: A
+// source: written out: 3 and -3 are normal, +0 is a positive zero and -inf a negative infinity in a context of precision 53 whose range is that of the implementation (IEEE Std 754-2019 5.7.2)
+// shares: Binary::from_int, zero and inf build the operands; class_of is the code under test
 test "class_of in an unbounded context treats ordinary values as normal" {
   let ctx = BinaryContext::new(precision=53)
   inspect(

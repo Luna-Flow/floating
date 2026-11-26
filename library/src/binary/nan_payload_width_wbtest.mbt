@@ -9,6 +9,9 @@ fn nan_payload_in(payload : BinCoeff, precision : Int32) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 3.4 and 6.2.1 (a NaN of a format of precision p has p - 1 trailing significand bits, of which the first is the quiet bit, so p - 2 payload bits): 51 bits in binary64, 9 in binary16 (precision 11), none below precision 3; a signaling NaN with payload 0 would encode an infinity, so its payload is 1
+// shares: Binary::quiet_nan and signaling_nan build and nan_payload reads the payload (the code under test)
 test "a NaN of precision p has p - 2 payload bits" {
   // binary64: 51 bits, binary16: 9 bits
   let wide = BinCoeff::from_uint64((1UL << 51) - 1UL)
@@ -29,6 +32,9 @@ test "a NaN of precision p has p - 2 payload bits" {
 }
 
 ///|
+// oracle: A, S
+// source: A: a signaling NaN whose kept payload would be 0 cannot stay signaling (it would encode an infinity), so it becomes quiet, and a payload that fits is kept (IEEE Std 754-2019 6.2.1); S: the choice to keep the low bits of a payload that does not fit is a convention of this library, 6.2.3 does not fix it
+// shares: Binary::signaling_nan, with_precision, from_double and from_hex are the code under test
 test "conversions keep the low payload bits and quiet a signaling NaN that cannot keep one" {
   let snan = Binary::signaling_nan(
     payload=BinCoeff::from_uint64(0b110UL),
@@ -68,6 +74,9 @@ test "conversions keep the low payload bits and quiet a signaling NaN that canno
 }
 
 ///|
+// oracle: S
+// source: the written contract of the constructors: the precisions 1 and binary_precision_max are accepted and 0, negative and max + 1 are refused (the limit is the constant of the implementation); remainder and shortest string of a value of precision 2^20 return a value of that precision and the text 3
+// shares: binary_precision_max and the constructors (the code under test)
 test "precision is checked where a value is made" {
   let max = binary_precision_max
   // the limits are accepted

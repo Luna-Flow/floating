@@ -5,6 +5,9 @@
 /// failure forced through the refinement limit (the hook of #15).
 
 ///|
+// oracle: S
+// source: the written rule S4 of the library: a certification failure is a NaN with not_computed and without invalid_operation, an ordinary result passes through unchanged; a rule of this library, not of the standard
+// shares: binary_not_computed_error and binary_defined_or_nan (the code under test)
 test "a certification failure is a NaN with not_computed and without invalid_operation" {
   let context = BinaryContext::binary64()
   let failure = binary_not_computed_error("exp")
@@ -51,6 +54,11 @@ test "exp: a forced failure, a domain-free ordinary case and an invalid operand"
 ///|
 /// The domain cases of the plain forms are values with invalid_operation and
 /// without not_computed (their try_ forms still return an `Err` for now).
+
+///|
+// oracle: A, S
+// source: A: IEEE Std 754-2019 9.2.1 and Table 9.1: ln, log2, log10 of -1, asin and acos of 2 and rSqrt of -1 are invalid operations with a quiet NaN; S: the absence of not_computed is the library's rule S4
+// shares: Binary::from_int builds the operands; the plain _ctx forms are the code under test
 test "plain elementary forms: a domain case is invalid_operation, not not_computed" {
   let base = BinaryContext::new(precision=53)
   let minus_one = Binary::from_int(-1)
@@ -72,6 +80,9 @@ test "plain elementary forms: a domain case is invalid_operation, not not_comput
 }
 
 ///|
+// oracle: S
+// source: the written rule S4 of the library: not_computed maps to a certification failure with an operation name, invalid_operation to a domain error, no flag to Ok; a rule of this library, not of the standard
+// shares: binary_contextual_outcome and binary_checked_result are the code under test; the error accessors read the result
 test "checked tier: not_computed is the certification failure, invalid_operation the domain error" {
   let nan = Binary::nan()
   match binary_contextual_outcome("exp", nan, binary_not_computed_flags()) {

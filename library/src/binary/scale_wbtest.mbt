@@ -4,6 +4,9 @@ fn scale_show(result : (Binary, BinaryFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.3 (scaleB(x, N) = x * 2^N rounded once, scaleB(+-0, N) = +-0), 7.4 and 7.5 in binary64: 3 * 2^10 exact, 3 * 2^1023 overflows (inf, flags 5), 3 * 2^-1074 is exact (3 units of the smallest subnormal), 3 * 2^-1076 rounds to 2^-1074 with underflow and inexact (flags 3), the counts +-2^31 overflow and underflow to -0 with flags 5 and 3
+// shares: scale_show prints value and flag bits; Binary::from_int and negative_zero build the operands; scaleb_ctx is the code under test
 test "scaleB rounds once with range handling" {
   let context = BinaryContext::binary64()
   let three = Binary::from_int(3)
@@ -54,6 +57,9 @@ test "scaleB rounds once with range handling" {
 }
 
 ///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 5.3.3 (logB(x) is the exponent of x, logB(1) = +0, logB(+-inf) = +inf, logB(0) = -inf with divideByZero when the result is a floating-point format): logB(10) = 3, logB(0.75) = -1, logB(-1) = 0, logB(2^-1074) = -1074 (printed -537p1), logB(0) = -inf with flags 8, logB(-inf) = +inf
+// shares: scale_show prints value and flag bits; Binary::from_double, make, zero and inf build the operands; logb_ctx is the code under test
 test "logB returns the leading-bit exponent" {
   let context = BinaryContext::binary64()
   inspect(
@@ -98,6 +104,11 @@ test "logB returns the leading-bit exponent" {
 /// The count is a floating-point integer: a NaN propagates, an infinite or
 /// non-integer count is an invalid operation, a huge integer count overflows or
 /// underflows like the largest count would.
+
+///|
+// oracle: A, S
+// source: A: written out from IEEE Std 754-2019 5.3.3 and 7.2: scaleB of a NaN count is a quiet NaN, a signaling NaN count is invalid, scaleB(+-inf, N) = +-inf, an overflowing or underflowing integer count gives inf (flags 5) and 0 (flags 3); S: the standard leaves the behaviour for a non-integral second operand language-defined (5.3.3), and the library makes an infinite or non-integer count an invalid operation, as asserted
+// shares: scale_show prints value and flag bits; Binary::from_int, inf, nan and signaling_nan build the operands; scaleb_ctx is the code under test
 test "scaleB takes its count as a floating-point integer" {
   let context = BinaryContext::binary64()
   let three = Binary::from_int(3)
