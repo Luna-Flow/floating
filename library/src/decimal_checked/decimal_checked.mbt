@@ -1,4 +1,12 @@
 ///|
+/// The state of an IEEE 754 decimal pipeline: the current value, one
+/// `DecimalContext`, the flags raised by the latest step (`raised`), the flags
+/// accumulated over the steps (`flags`) and an optional `ArithmeticError`. Each
+/// operation applies the `Decimal::*_ctx` operation of the same name in the
+/// context of the left operand and returns a new state; nothing is mutated.
+/// Exceptional results (NaN, infinity, a rounded value) are values that set
+/// flags; an error is recorded when an elementary function cannot be certified,
+/// and an operation on a state with an error returns it.
 pub struct DecimalChecked {
   priv value_ : @decimal.Decimal
   priv context_ : @decimal.DecimalContext
@@ -87,6 +95,8 @@ fn DecimalChecked::from_outcome(
 }
 
 ///|
+/// Rounds `value` into `context` (`Decimal::apply_ctx`) and starts a pipeline
+/// there; the flags of that rounding are both `raised` and `flags`.
 pub fn DecimalChecked::from_decimal(
   value : @decimal.Decimal,
   context : @decimal.DecimalContext,
@@ -97,6 +107,18 @@ pub fn DecimalChecked::from_decimal(
 }
 
 ///|
+/// Converts the string `source` under `context` (`Decimal::from_string_ctx`).
+/// Extra digits are rounded and raise `inexact`; an invalid string gives a NaN
+/// with `invalid_operation` raised, not an error.
+///
+/// ```mbt check
+/// test {
+///   let ctx = @decimal.DecimalContext::new(precision=5)
+///   let x = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
+///   inspect(x.value().to_string(), content="1.2346")
+///   inspect(x.raised().inexact(), content="true")
+/// }
+/// ```
 pub fn DecimalChecked::parse(
   source : String,
   context : @decimal.DecimalContext,
@@ -107,6 +129,8 @@ pub fn DecimalChecked::parse(
 }
 
 ///|
+/// The integer `value` under `context`: its decimal string is parsed, so an
+/// integer with more digits than the precision is rounded and raises `inexact`.
 pub fn DecimalChecked::from_int(
   value : Int32,
   context : @decimal.DecimalContext,
@@ -123,6 +147,11 @@ pub fn DecimalChecked::from_bigint(
 }
 
 ///|
+/// The `Double` `value` under `context`, in two roundings: first to a decimal
+/// of 17 significant digits, then into `context`. It is not the correctly
+/// rounded decimal of the binary number: `from_double(0.1, decimal128)` is
+/// `0.10000000000000001`. For the exact binary value build a `Decimal` with
+/// `Decimal::from_double` at a precision that holds it and use `from_decimal`.
 pub fn DecimalChecked::from_double(
   value : Double,
   context : @decimal.DecimalContext,
@@ -145,11 +174,14 @@ pub fn DecimalChecked::from_float(
 }
 
 ///|
+/// The current value. After an error it is the value reached before the failing
+/// step.
 pub fn DecimalChecked::value(self : DecimalChecked) -> @decimal.Decimal {
   self.value_
 }
 
 ///|
+/// The context the operations run in.
 pub fn DecimalChecked::context(
   self : DecimalChecked,
 ) -> @decimal.DecimalContext {
@@ -157,31 +189,41 @@ pub fn DecimalChecked::context(
 }
 
 ///|
+/// The flags of the latest step. For a binary operation they also include the
+/// `raised` flags of the right operand.
 pub fn DecimalChecked::raised(self : DecimalChecked) -> @decimal.DecimalFlags {
   self.raised_
 }
 
 ///|
+/// The flags accumulated over the steps since construction or the last
+/// `clear_flags`: the union of the flags of the steps, those of the right
+/// operands included.
 pub fn DecimalChecked::flags(self : DecimalChecked) -> @decimal.DecimalFlags {
   self.flags_
 }
 
 ///|
+/// Whether no error is recorded.
 pub fn DecimalChecked::is_ok(self : DecimalChecked) -> Bool {
   self.error_ is None
 }
 
 ///|
+/// Whether an error is recorded.
 pub fn DecimalChecked::is_err(self : DecimalChecked) -> Bool {
   self.error_ is Some(_)
 }
 
 ///|
+/// The recorded error, `None` when there is none.
 pub fn DecimalChecked::error(self : DecimalChecked) -> @def.ArithmeticError? {
   self.error_
 }
 
 ///|
+/// `Err` with the recorded error, otherwise `Ok` with the value and the
+/// accumulated flags.
 pub fn DecimalChecked::result(
   self : DecimalChecked,
 ) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @def.ArithmeticError] {
@@ -192,12 +234,17 @@ pub fn DecimalChecked::result(
 }
 
 ///|
+/// Resets `raised` and `flags` to the empty set; the value, the context and the
+/// error stay. It applies to a state with an error too.
 pub fn DecimalChecked::clear_flags(self : DecimalChecked) -> DecimalChecked {
   let empty = @decimal.DecimalFlags::new()
   { ..self, raised_: empty, flags_: empty, }
 }
 
 ///|
+/// Moves the pipeline to `context` and rounds the current value into it
+/// (`Decimal::apply_ctx`); the flags of that rounding become `raised` and join
+/// `flags`. A state with an error is returned unchanged.
 pub fn DecimalChecked::with_context(
   self : DecimalChecked,
   context : @decimal.DecimalContext,
@@ -215,6 +262,7 @@ pub fn DecimalChecked::with_context(
 }
 
 ///|
+/// Rounds the current value into the stored context and records the flags.
 pub fn DecimalChecked::apply(self : DecimalChecked) -> DecimalChecked {
   self.record(self.value_.apply_ctx(self.context_))
 }
@@ -225,6 +273,20 @@ pub fn DecimalChecked::abs(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+/// The sum, rounded once in the context of `self`. An error of `self`
+/// stays; an error of `other` is taken before the operation runs and the value
+/// of `self` is kept; the flags of `other` join `raised` and `flags`. `other` is
+/// not rounded into the context of `self`: lift it in a context wide enough to
+/// hold it to have one rounding.
+///
+/// ```mbt check
+/// test {
+///   let ctx = @decimal.DecimalContext::decimal64()
+///   let a = @decimal_checked.DecimalChecked::from_int(1, ctx)
+///   let b = @decimal_checked.DecimalChecked::from_int(2, ctx)
+///   inspect(a.add(b).value().to_string(), content="3")
+/// }
+/// ```
 pub fn DecimalChecked::add(
   self : DecimalChecked,
   other : DecimalChecked,
@@ -233,6 +295,7 @@ pub fn DecimalChecked::add(
 }
 
 ///|
+/// The difference, as `add` is the sum.
 pub fn DecimalChecked::sub(
   self : DecimalChecked,
   other : DecimalChecked,
@@ -241,6 +304,7 @@ pub fn DecimalChecked::sub(
 }
 
 ///|
+/// The product, as `add` is the sum.
 pub fn DecimalChecked::mul(
   self : DecimalChecked,
   other : DecimalChecked,
@@ -249,6 +313,9 @@ pub fn DecimalChecked::mul(
 }
 
 ///|
+/// The quotient, as `add` is the sum. An invalid division (`0 / 0`) is a NaN
+/// with `invalid_operation` and a division of a finite non-zero number by zero
+/// an infinity with `division_by_zero`; neither is an error.
 pub fn DecimalChecked::div(
   self : DecimalChecked,
   other : DecimalChecked,
@@ -257,6 +324,8 @@ pub fn DecimalChecked::div(
 }
 
 ///|
+/// `self * multiplier + addend` with one rounding, in the context of `self`.
+/// Errors and flags of the two operands are taken as for `add`.
 pub fn DecimalChecked::fma(
   self : DecimalChecked,
   multiplier : DecimalChecked,
@@ -288,16 +357,23 @@ pub fn DecimalChecked::fma(
 }
 
 ///|
+/// The square root, rounded once in the context. A negative operand gives
+/// a NaN with `invalid_operation`, not an error.
 pub fn DecimalChecked::sqrt(self : DecimalChecked) -> DecimalChecked {
   self.record(self.value_.sqrt_ctx(self.context_))
 }
 
 ///|
+/// The exponential in the context. A failure to certify the result records an
+/// error and stops the pipeline.
 pub fn DecimalChecked::exp(self : DecimalChecked) -> DecimalChecked {
   self.record_result(self.value_.try_exp_ctx(self.context_))
 }
 
 ///|
+/// The natural logarithm in the context. Zero gives `-inf` with
+/// `division_by_zero` and a negative operand a NaN with `invalid_operation`,
+/// both values; a failure to certify records an error.
 pub fn DecimalChecked::ln(self : DecimalChecked) -> DecimalChecked {
   self.record_result(self.value_.try_ln_ctx(self.context_))
 }
@@ -308,6 +384,9 @@ pub fn DecimalChecked::log10(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+/// `self` raised to `exponent` in the context of `self`; errors and flags of
+/// the operand are taken as for `add`. Zero to a negative power gives an
+/// infinity with `division_by_zero`. A failure to certify records an error.
 pub fn DecimalChecked::pow(
   self : DecimalChecked,
   exponent : DecimalChecked,
@@ -512,6 +591,8 @@ pub fn DecimalChecked::atanh(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
+/// The value rounded to the exponent of `other` (`Decimal::quantize_ctx`), in
+/// the context of `self`.
 pub fn DecimalChecked::quantize(
   self : DecimalChecked,
   quantum : DecimalChecked,
