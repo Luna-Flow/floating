@@ -897,6 +897,7 @@ msgstr "`class_of` は表に示す [`IeeeClass`](def.md#ieeeclass) の値を返�
 #: manual/api/decimal.md:1986
 #: manual/api/decimal_gda.md:261
 #: manual/api/def.md:46
+#: manual/performance/binary.md:139
 msgid "Input"
 msgstr "入力"
 
@@ -1348,6 +1349,7 @@ msgstr "真となる関係"
 #: manual/numeric_semantics.md:602
 #: manual/numeric_semantics.md:603
 #: manual/numeric_semantics.md:604
+#: manual/performance/binary.md:72
 msgid "equal"
 msgstr "等しい"
 
@@ -4341,6 +4343,15 @@ msgstr "IEEE 754-2019 9.2.1 がこれらの厳密な特殊ケースを定めま�
 #: manual/design/decimal_gda.md:129
 #: manual/design/interval.md:359
 #: manual/design/interval.md:804
+#: manual/performance/binary.md:77
+#: manual/performance/binary.md:95
+#: manual/performance/binary.md:110
+#: manual/performance/binary.md:139
+#: manual/performance/binary.md:216
+#: manual/performance/binary.md:260
+#: manual/performance/binary.md:284
+#: manual/performance/binary.md:296
+#: manual/performance/binary.md:310
 #: manual/verification.md:84
 #: manual/verification.md:260
 #: manual/verification.md:303
@@ -7097,6 +7108,13 @@ msgstr "例では別名 `@gda_expr` を通じて呼び出します。他のパ�
 #: manual/api/frontend/gda_expr.md:30
 #: manual/api/frontend/itl_expr.md:25
 #: manual/api/frontend/testfloat_expr.md:144
+#: manual/performance/binary.md:211
+#: manual/performance/binary.md:237
+#: manual/performance/binary.md:238
+#: manual/performance/binary.md:248
+#: manual/performance/binary.md:249
+#: manual/performance/binary.md:250
+#: manual/performance/binary.md:251
 msgid "Parsing"
 msgstr "解析"
 
@@ -7409,6 +7427,8 @@ msgstr "期待値"
 
 #: manual/api/frontend/itl_expr.md:119
 #: manual/numeric_semantics.md:593
+#: manual/performance/binary.md:132
+#: manual/performance/binary.md:216
 msgid "Comparison"
 msgstr "比較"
 
@@ -8988,6 +9008,17 @@ msgstr "区間が空でなく、2 つの端点がともに有限のとき `is_co
 
 #: manual/api/interval.md:539
 #: manual/design/decimal_gda.md:505
+#: manual/performance/binary.md:31
+#: manual/performance/binary.md:65
+#: manual/performance/binary.md:77
+#: manual/performance/binary.md:95
+#: manual/performance/binary.md:110
+#: manual/performance/binary.md:132
+#: manual/performance/binary.md:242
+#: manual/performance/binary.md:260
+#: manual/performance/binary.md:284
+#: manual/performance/binary.md:296
+#: manual/performance/binary.md:310
 msgid "Precision"
 msgstr "精度"
 
@@ -16465,6 +16496,7 @@ msgstr ""
 
 #: manual/design/decimal.md:385
 #: manual/design/decimal_gda.md:688
+#: manual/performance/binary.md:203
 msgid "Division"
 msgstr "除算"
 
@@ -16978,6 +17010,19 @@ msgstr "切り替え点はターゲットごとに計測され、ターゲット
 
 #: manual/design/decimal.md:1399
 #: manual/design/decimal_gda.md:1106
+#: manual/performance/binary.md:31
+#: manual/performance/binary.md:46
+#: manual/performance/binary.md:95
+#: manual/performance/binary.md:110
+#: manual/performance/binary.md:139
+#: manual/performance/binary.md:156
+#: manual/performance/binary.md:209
+#: manual/performance/binary.md:233
+#: manual/performance/binary.md:260
+#: manual/performance/binary.md:272
+#: manual/performance/binary.md:284
+#: manual/performance/binary.md:296
+#: manual/performance/binary.md:310
 msgid "Target"
 msgstr "ターゲット"
 
@@ -16993,6 +17038,7 @@ msgstr "first NTT mul/square"
 
 #: manual/design/decimal.md:1399
 #: manual/design/decimal_gda.md:1106
+#: manual/performance/binary.md:132
 msgid "Burnikel–Ziegler"
 msgstr "Burnikel–Ziegler"
 
@@ -19979,7 +20025,7 @@ msgid "A record wrapper allocates a second object per value: +49% retired instru
 msgstr "レコードのラッパーは値ごとに 2 つ目のオブジェクトを確保します。使い捨ての測定では、小さな `add` で退役命令数が 49% 増えました。newtype とパッケージ境界を越える呼び出しには測定できるコストがありません。"
 
 #: manual/design/internal/binary_kernel.md:40
-#: manual/performance/binary.md:10
+#: manual/performance/binary.md:25
 msgid "Representation"
 msgstr "Context、flag、interchange"
 
@@ -23873,18 +23919,44 @@ msgstr "op"
 #: manual/performance/bench/external.md:214
 #: manual/performance/bench/external.md:226
 #: manual/performance/bench/external.md:238
+#: manual/performance/binary.md:97
+#: manual/performance/binary.md:98
+#: manual/performance/binary.md:99
+#: manual/performance/binary.md:100
+#: manual/performance/binary.md:101
+#: manual/performance/binary.md:102
 msgid "53 bits"
 msgstr "53 bits"
 
 #: manual/performance/bench/external.md:214
 #: manual/performance/bench/external.md:226
 #: manual/performance/bench/external.md:238
+#: manual/performance/binary.md:112
+#: manual/performance/binary.md:113
+#: manual/performance/binary.md:114
+#: manual/performance/binary.md:115
+#: manual/performance/binary.md:116
+#: manual/performance/binary.md:117
+#: manual/performance/binary.md:121
+#: manual/performance/binary.md:122
+#: manual/performance/binary.md:159
 msgid "128 bits"
 msgstr "128 bits"
 
 #: manual/performance/bench/external.md:214
 #: manual/performance/bench/external.md:226
 #: manual/performance/bench/external.md:238
+#: manual/performance/binary.md:79
+#: manual/performance/binary.md:83
+#: manual/performance/binary.md:119
+#: manual/performance/binary.md:141
+#: manual/performance/binary.md:162
+#: manual/performance/binary.md:176
+#: manual/performance/binary.md:180
+#: manual/performance/binary.md:184
+#: manual/performance/binary.md:188
+#: manual/performance/binary.md:244
+#: manual/performance/binary.md:248
 msgid "512 bits"
 msgstr "512 bits"
 
@@ -24614,122 +24686,1226 @@ msgstr "binary 性能"
 msgid "Performance thresholds, limb layout, NTT primes, scratch storage, and fallback selection are implementation details. Public results, flags, and interchange bits must be identical across algorithms and targets."
 msgstr "performance threshold、limb layout、NTT prime、scratch storage、fallback selection は実装詳細です。algorithm/target が異なっても public result、flags、interchange bits は完全に同一でなければなりません。"
 
-#: manual/performance/binary.md:12
-msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT digit conversion work on 64-bit limbs as well (the Wasm routes on 32-bit limbs and the Wasm NTT conversion excepted, see below). A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products in the portable loops (Native uses a 128-bit product in its C and assembly rows); the schoolbook kernel is still 2.7 to 3.7 times faster on Native and 1.7 to 1.9 times on Wasm-GC because it runs a quarter of the limb steps. Paired Native runs of the whole stage: 2,048 to 8,192-bit multiplication 2.2 times faster, 8,192-bit addition 2.3 times, `exp` and `ln` at 2,048 bits 2.0 times. On Wasm and Wasm-GC multiplication below about 6,000 bits is 1.3 to 1.7 times faster."
-msgstr "非 JS ターゲットは 128 ビットまでの係数をインラインで持ち、それより大きい係数にはリトルエンディアンの 64 ビットリムを使います。JavaScript はホストの `bigint` アダプタを隠して使います。公開の `BinCoeff` 型は、このバックエンドの選択を外から見えないようにします。32 ビットリムから 64 ビットリムへの移行（課題 #19）は段階的です。加算、減算、比較、シフト、スクールブック乗算と二乗、Karatsuba と Toom-3 の各ステップは 64 ビットリムで動き、除算、平方根カーネル、NTT の桁変換も 64 ビットリムで動きます（32 ビットリム上の Wasm 経路と Wasm の NTT 変換は例外で、下記参照）。64 ビットリムの積には 64 ビット同士の乗算の上位半分が必要ですが、MoonBit にはその命令がないため、可搬ループでは 32 ビット同士の積 4 つから計算します（Native の C とアセンブリの行では 128 ビットの積を使います）。それでもスクールブックのカーネルは、リムのステップが 4 分の 1 で済むため Native で 2.7〜3.7 倍、Wasm-GC で 1.7〜1.9 倍速くなります。この段階全体の Native でのペア実行では、2,048〜8,192 ビットの乗算が 2.2 倍、8,192 ビットの加算が 2.3 倍、2,048 ビットの `exp` と `ln` が 2.0 倍速くなります。Wasm と Wasm-GC では、約 6,000 ビット未満の乗算が 1.3〜1.7 倍速くなります。"
-
-#: manual/performance/binary.md:14
-msgid "Fixed-point exponential"
-msgstr "固定小数点の指数関数"
-
-#: manual/performance/binary.md:16
-msgid "The certified `exp` enclosure bounds the Taylor series of the reduced argument (at most 1/8) in fixed point with 16 fractional bits beyond the working precision when the argument is exact at the working precision, instead of with one rounded floating-point operation per term. Each computed term rounds down, so their sum is a lower bound; each carries an error below 3 units of the last place, which gives an upper bound with a rigorous tail. The enclosure is about as wide as the floating-point one, the 12-attempt refinement loop and its working precisions are unchanged, and arguments that are not exact at the working precision still use the previous series. White-box tests check that the enclosure contains a much tighter one and that the final correctly rounded results and flags equal those of the previous series. Paired runs: `exp` is 9 to 10 times faster on Native at 53 to 2,048 bits, 7 to 11 times on Wasm and Wasm-GC, and decimal `exp` 1.7 to 2.2 times."
-msgstr "引数が作業精度で正確に表せる場合、認証済みの `exp` の包含区間は、簡約した引数（1/8 以下）のテイラー級数を、項ごとに丸めを伴う浮動小数点演算を 1 回行う代わりに、作業精度より 16 ビット多い小数部を持つ固定小数点で評価します。計算した各項は切り捨てなので、その和は下界になり、各項の誤差は最下位桁の 3 単位未満なので、厳密な剰余評価つきの上界が得られます。包含区間の幅は浮動小数点版とほぼ同じで、12 回の精密化ループとその作業精度は変わりません。作業精度で正確でない引数には従来の級数を使います。ホワイトボックステストは、この包含区間がより狭い包含区間を含むこと、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。ペア実行では、`exp` は Native で 53〜2,048 ビットにおいて 9〜10 倍、Wasm と Wasm-GC で 7〜11 倍、10 進の `exp` は 1.7〜2.2 倍速くなります。"
-
-#: manual/performance/binary.md:18
-msgid "Multiplication"
-msgstr "乗算"
-
-#: manual/performance/binary.md:20
-msgid "Balanced multiplication uses schoolbook below 32 64-bit limbs (2,048 bits on LLVM, Wasm and Wasm-GC and on Native with the portable and C rows; 48 limbs on Native with the assembly rows), then Karatsuba on limb arrays (a few small temporaries per step, no intermediate `BinCoeff`), Toom-3, and a two-prime Montgomery NTT with CRT when transform bounds fit. Unbalanced inputs use block multiplication or overlap-add. Native and LLVM select Toom-3 and NTT multiplication at 4,096 64-bit limbs and NTT square at 3,584; Wasm and Wasm-GC at 2,048 and 1,536 (the values of the version before the 64-bit limbs, 4,096 and 3,072 in 32-bit limbs, halved; not measured again on those targets). A 64-bit limb product costs four `i64.mul` on Wasm, so from 160 limbs (10,240 bits) Wasm and Wasm-GC split the operands into 32-bit limbs, multiply there with the same Karatsuba and pack the result back (the conversions are linear); squaring uses the 32-bit half-product schoolbook from 80 limbs. On Native and LLVM the square dispatch runs the word Karatsuba square from its cutoff (see Squaring below), never the recursive multiplication; on Wasm and Wasm-GC the schoolbook square runs below 384 64-bit limbs (768 of 32 bits) and Toom-3 from there. Cutoffs measured per target with paired runs of coefficient multiplication at 1,024 to 65,536 bits. Paired runs against the 32-bit implementation: coefficient multiplication is 2 to 3 times faster on Native from 1,024 to 32,768 bits, 1.1 to 2.2 times on Wasm-GC and 1.1 to 2.1 times on Wasm; `Binary` `mul` 1.6, 2.5 and 2.9 times faster at 512, 2,048 and 8,192 bits on Native, `add` 1.9 and 2.4 times at 2,048 and 8,192 bits, `sqrt` 1.5 and 2.0 times at 2,048 and 8,192 bits."
-msgstr "バランスのとれた乗算は、64 ビットリムが 32 個未満（LLVM、Wasm、Wasm-GC と、可搬ループおよび C の行を使う Native では 2,048 ビット、アセンブリの行を使う Native では 48 リム）ではスクールブック、それ以上ではリム配列上の Karatsuba（各ステップで小さな一時配列をいくつか使うだけで、中間の `BinCoeff` はありません）、Toom-3、変換の上限が許す場合は CRT つきの 2 素数 Montgomery NTT を使います。不均衡な入力にはブロック乗算か重ね加算を使います。Native と LLVM は 64 ビットリム 4,096 個で Toom-3 と NTT 乗算、3,584 個で NTT 二乗を選び、Wasm と Wasm-GC はそれぞれ 2,048 と 1,536 を使います（64 ビットリム以前の版の値、32 ビットリムでの 4,096 と 3,072 を半分にしたもので、これらのターゲットでは再測定していません）。Wasm では 64 ビットリムの積に `i64.mul` が 4 回必要なので、160 リム（10,240 ビット）からは、Wasm と Wasm-GC はオペランドを 32 ビットリムに分割し、そこで同じ Karatsuba で乗算して結果を詰め戻します（変換は線形です）。二乗は 80 リムから 32 ビットリムの半積スクールブックを使います。Native と LLVM では二乗の分岐はワード Karatsuba 二乗をそのカットオフから実行し（後述の「二乗」を参照）、再帰乗算は実行しません。Wasm と Wasm-GC では 64 ビットリム 384 個（32 ビットで 768 個）未満でスクールブック二乗、それ以降は Toom-3 です。切り替え点は、1,024〜65,536 ビットの係数乗算をターゲットごとにペア実行して測定しました。32 ビット実装とのペア実行では、係数乗算は Native で 1,024〜32,768 ビットにおいて 2〜3 倍、Wasm-GC で 1.1〜2.2 倍、Wasm で 1.1〜2.1 倍速く、Native の `Binary` の `mul` は 512、2,048、8,192 ビットで 1.6、2.5、2.9 倍、`add` は 2,048 と 8,192 ビットで 1.9 と 2.4 倍、`sqrt` は 2,048 と 8,192 ビットで 1.5 と 2.0 倍速くなります。"
-
-#: manual/performance/binary.md:22
-msgid "Single-word fast paths"
-msgstr "1 ワードの高速経路"
-
-#: manual/performance/binary.md:24
-msgid "`Binary::add`, `mul`, `div` and `sqrt` on operands whose coefficients fit one machine word (up to 64 bits) and whose precision is at most 62 bits (60 for `div` and `sqrt`) skip the general path, which builds several coefficient values, a context, a flags record and a result tuple for each operation. The fast path computes on `UInt64` pairs (128-bit sums and products, a 128 by 64 bit division, a double-precision estimate refined by a Newton step and settled by exact comparisons for the square root), rounds to nearest even with the round and sticky bits, and allocates only the result. It declines a NaN, an infinity, a zero, an exact zero sum, wider coefficients or precision, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare 40,000 random operand pairs per operation, ties, carries, cancellation and perfect squares with the general path. Paired native runs at 53 bits: `add` 2.9 times faster, `mul` 3.0, `div` 4.9, `sqrt` 2.8; on Wasm 3.1 to 5.1 times and on Wasm-GC 3.9 to 7.6 times. Operands of 128 bits and more are unchanged."
-msgstr "係数が 1 つのマシンワード（64 ビット以下）に収まり、精度が 62 ビット以下（`div` と `sqrt` は 60 ビット以下）のオペランドでは、`Binary::add`、`mul`、`div`、`sqrt` は一般経路を通りません。一般経路は演算のたびに複数の係数値、コンテキスト、フラグの記録、結果のタプルを作ります。高速経路は `UInt64` の組で計算し（128 ビットの和と積、128 ビットを 64 ビットで割る除算、平方根では倍精度の推定に Newton 法 1 回と厳密な比較による確定）、丸めビットとスティッキービットで最近接偶数に丸め、結果だけを確保します。NaN、無限大、ゼロ、ちょうどゼロになる和、より広い係数や精度、指数が大きく離れた、または実装の限界に近いオペランド、および JavaScript では見送り、一般経路が答えます。結果は同じ値で、精度と指数も同じです。ホワイトボックステストは、演算ごとに 40,000 組の乱数オペランド、同値の丸め、桁上がり、相殺、完全平方を一般経路と比較します。Native の 53 ビットでのペア実行では、`add` が 2.9 倍、`mul` が 3.0 倍、`div` が 4.9 倍、`sqrt` が 2.8 倍速くなり、Wasm では 3.1〜5.1 倍、Wasm-GC では 3.9〜7.6 倍速くなります。128 ビット以上のオペランドは変わりません。"
-
-#: manual/performance/binary.md:26
-msgid "Two-word and coefficient fast paths"
-msgstr "2 ワードと係数レベルの高速経路"
-
-#: manual/performance/binary.md:28
-msgid "Above the single-word range, `Binary::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, `div` above 128 bits (up to 128 bits it has a two-word path of its own in `binary_fast_pair_nonjs.mbt`) and `sqrt` at any size go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one window array of the width of the result plus three bits (the operand with the larger top bit placed, the other read through its shift, a sticky bit for what lies below it), the product is the short product of the high limbs when its rounding is certain (`bin_words_mul_short`), otherwise the limb-array product (`bin_words_mul`), the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path). Paired runs against the previous build: `add` 3.3 times and `mul` 3.5 times faster at 128 bits on Native (2.5 and 3.7 on Wasm-GC, 3.5 and 3.0 on Wasm), 1.9 to 2.2 times at 256 bits, 1.5 to 1.9 times at 512 bits and 1.2 times at 1,024 bits; `sqrt` 1.4 times at 128 bits (1.9 on Wasm-GC) and 1.1 at 512 and 2,048 bits; `div` 1.1 to 1.2 times at 128 to 512 bits, where the Knuth division dominates."
-msgstr "単一ワードの範囲を超えて、係数が 128 ビットまで・精度が 128 ビットまでの `Binary::add` と `mul` も `UInt64` のワードで実行します。整列した 192 ビットの和または差、256 ビットの積（4 つのワード積、上位半分は 32 ビット片で計算）を、丸めビットとスティッキービットで最近接偶数に丸め、確保するのは結果だけです。それより広いオペランド、128 ビットを超える `div`（128 ビットまでは `binary_fast_pair_nonjs.mbt` に専用の 2 ワード経路があります）、および任意の大きさの `sqrt` は係数レベルの経路を通ります。厳密な整数演算は一般経路と同じですが、コンテキスト、フラグ記録、結果のタプル、繰り返される丸めの判断を省きます。和は結果の幅に 3 ビットを加えた幅の 1 つのウィンドウ配列に作り（最上位ビットが大きい方のオペランドを置き、もう一方はそのシフトを通して読み、その下にあるものはスティッキービットにします）、積は丸めが確定する場合は上位リムの短い積（`bin_words_mul_short`）、そうでなければリム配列の積（`bin_words_mul`）とし、商は精度より 2 ビット以上多く、余りからのスティッキービットを持ち、平方根は整数の根とその余りから丸め（`remainder > root` が繰り上げを決め、同値はありません）、残すビットは係数になる配列へ 1 回だけコピーします。各経路は NaN、無限大、ゼロ、厳密にゼロになる和、2^20 ビットを超える係数や精度、指数が大きく離れた、または実装の限界に近いオペランド、そして JavaScript を扱わず、一般経路が答えます。結果は同じ値で、精度と指数も同じです。ホワイトボックステストは、演算ごとに数万組のランダム、全ビット 1、疎、同値、厳密な商、完全平方、相殺するオペランドを一般経路と Native、Wasm、Wasm-GC で比較します（JavaScript は一般経路のままです）。以前のビルドとのペア実行では、128 ビットで `add` は Native で 3.3 倍、`mul` は 3.5 倍（Wasm-GC で 2.5 と 3.7 倍、Wasm で 3.5 と 3.0 倍）、256 ビットで 1.9〜2.2 倍、512 ビットで 1.5〜1.9 倍、1,024 ビットで 1.2 倍速く、`sqrt` は 128 ビットで 1.4 倍（Wasm-GC で 1.9 倍）、512 と 2,048 ビットで 1.1 倍、`div` は 128〜512 ビットで 1.1〜1.2 倍で、そこでは Knuth の除算が支配的です。"
-
-#: manual/performance/binary.md:30
-msgid "Fixed-point sine and cosine"
-msgstr "固定小数点の正弦と余弦"
-
-#: manual/performance/binary.md:32
-msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 24)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that its leading zero bits would exceed four times the working precision plus 64, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities. Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series): `sin` is 4.3 to 5.7 times faster on Native at 53 to 2,048 bits and 4.6 times on Wasm-GC; on its own the change gives 1.3 to 1.4 times, because the series is about nine tenths of the time only once `pi` is cached."
-msgstr "引数が作業精度で正確に表せる場合、簡約した引数（絶対値 1 以下）の `sin` と `cos` のテイラー級数を、20 ビットのガードビット（正弦では引数の先頭のゼロビット数も加える）を持つ固定小数点で足し合わせます。これにより小さな引数でも `precision + 20` ビットの有効桁を保ちます。計算した各項は切り捨てで、誤差は最大 4 単位です。この級数は符号が交互で項が減少するため、`signed sum +- (4n + 24)` が値を囲み、負の正弦の引数では符号を反転します。引数が正確でない場合や、小さすぎてその先頭のゼロビット数が作業精度の 4 倍に 64 を加えた値を超える場合は、従来の浮動小数点の級数を使い、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、正弦と余弦の恒等式を確認します。記憶した定数の上でのペア実行（それがないと `pi` の再計算が級数の費用を隠します）では、`sin` は Native の 53〜2,048 ビットで 4.3〜5.7 倍、Wasm-GC で 4.6 倍速くなります。単独では 1.3〜1.4 倍で、これは `pi` がキャッシュされて初めて級数が時間の約 9 割を占めるからです。"
-
-#: manual/performance/binary.md:34
-msgid "Division, square root and GCD"
-msgstr "除算・平方根・GCD"
-
-#: manual/performance/binary.md:36
-msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) below the Burnikel–Ziegler cutoff (also as the leaf of its recursion, up to 64 limbs of 64 bits), and Burnikel–Ziegler from 96 limbs of 64 bits (192 of 32 bits) on Wasm, Wasm-GC and LLVM and from 208, 352 or 752 limbs of 64 bits on Native, with the portable, C or assembly rows. Newton reciprocal division is no longer selected: once multiplication was 2 to 3 times faster it was 3 to 12 times slower than Burnikel–Ziegler from 32,768 bits (4.4 ms against 0.37 ms at 32,768 bits), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Paired runs against the previous kernels: `div` is 1.5, 2.3 and 2.9 times faster on Native at 512, 2,048 and 8,192 bits, 1.9 and 3.3 times on Wasm-GC and 1.3 and 3.3 times on Wasm at 2,048 and 8,192 bits, and the `sqrt` of 8,192 bits 1.5 to 1.8 times faster on all three; native multiplication switched to the NTT at 8,192 limbs of 32 bits (4,096 limbs of 64 bits, see Multiplication) instead of 2,048 limbs of 32 bits now that the Karatsuba is faster. Square root uses fixed-width kernels through 256 bits (the word kernels on Native, LLVM and Wasm-GC, the restoring loops on linear Wasm) and Zimmermann's `SqrtRem` on word arrays above that on every target except JavaScript; the recursion stops at the same fixed-width kernels once a block is at most 256 bits (a restoring loop on heap integers at 128 bits before), which makes a 1,024-bit radicand (a 512-bit `sqrt`) about 3.4 times faster on Native and 3.1 to 3.3 times on Wasm in paired runs. The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
-msgstr "除算は、1 リムの経路、64 ビット桁の Knuth のアルゴリズム D（128 ビットを 64 ビットで割る商の推定と 128 ビットの補正判定。Burnikel–Ziegler のしきい値より下で使い、その再帰の葉でもあり、64 ビットリムで 64 個まで）、そして Burnikel–Ziegler（Wasm、Wasm-GC、LLVM では 64 ビットリムで 96 個、つまり 32 ビットリムで 192 個から。Native では行の実装が可搬ループ、C、アセンブリのとき、それぞれ 64 ビットリムで 208、352、752 個から）を使います。Newton 逆数除算はもう選ばれません。乗算が 2〜3 倍速くなった後では、32,768 ビットから Burnikel–Ziegler より 3〜12 倍遅く（32,768 ビットで 4.4 ミリ秒対 0.37 ミリ秒）、分岐はそこに到達しません。ルーチンはテストで保護したまま残し、しきい値の定数はターゲットごとです。従来のカーネルとのペア実行では、`div` は Native の 512、2,048、8,192 ビットで 1.5、2.3、2.9 倍、Wasm-GC の 2,048 と 8,192 ビットで 1.9 と 3.3 倍、Wasm で 1.3 と 3.3 倍速くなり、8,192 ビットの `sqrt` は 3 つとも 1.5〜1.8 倍速くなります。Native の乗算は、Karatsuba が速くなったため、NTT への切り替えが 32 ビットリムで 8,192 個（64 ビットリムで 4,096 個、乗算の節を参照。以前は 32 ビットリムで 2,048 個）になりました。平方根は 256 ビットまでは固定幅のカーネル（Native、LLVM、Wasm-GC ではワードカーネル、リニア Wasm では復元型ループ）、それを超えると JavaScript を除くすべてのターゲットでワード配列に対する Zimmermann の `SqrtRem` を使います。再帰は、ブロックが 256 ビット以下になった時点で同じ固定幅カーネルに入って終わります（以前は 128 ビットでヒープ整数に対する復元型ループを使っていました）。これにより 1,024 ビットの被開方数（512 ビットの `sqrt`）は、ペアで比較した実行で Native では約 3.4 倍、Wasm では 3.1〜3.3 倍速くなります。この切り替え点はターゲットごとに測定した方針です。LLVM の値は、使用中のツールチェーンにそのバックエンドがないため測定していません。大きな GCD は、両オペランドに共通する 63 ビットのウィンドウで Lehmer のバッチ処理を行い、短い方のオペランドがそのウィンドウにビットを持たない場合は除算を 1 ステップ行うので、長さが大きく異なるオペランドも一度に縮約されます。"
-
-#: manual/performance/binary.md:38
-msgid "The integer square root of a value of up to 256 bits (a 128-bit root, the base case of the divide-and-conquer root and the whole root at precisions up to 128 bits) no longer runs a bit-by-bit loop on Native, LLVM and Wasm-GC: up to 128 bits it is a double-precision estimate refined by one Newton step on 128-bit arithmetic and settled by exact comparisons, and up to 256 bits Zimmermann's word-level Karatsuba square root (the root of the upper two words, one 128 by 64 bit division for the low half, an exact settle on the 256-bit square) on a value normalized by an even shift. Linear Wasm keeps the loops (its 64-bit multiplication makes the word kernels no faster there). Paired runs against the previous kernels (with the coefficient-level paths above): `sqrt` at 100 and 128 bits 2.0 and 2.3 times faster on Native and on Wasm-GC, 1.4 and 1.5 times at 200 and 256 bits, 1.1 times at 512 bits and 1.05 at 2,048 bits on Native; Wasm-GC is unchanged at 256 and 512 bits and linear Wasm everywhere. The larger sizes are dominated by the division and squaring of the recursion, not by its base case. LLVM takes the Native settings, unmeasured because the toolchain used does not provide that backend. White-box tests compare the word kernels with the loops and with a BigInt oracle at every width from 1 to 256 bits (random, all ones, single bits, runs, the neighbours of exact squares near the extreme roots of each width). On Wasm (not on Wasm-GC) these roots still run the restoring loops: the word kernels are not enabled there and were not measured on that target."
-msgstr "256 ビットまでの値の整数平方根（128 ビットの根、分割統治平方根の基底ケース、精度 128 ビットまでの平方根全体）は、Native、LLVM、Wasm-GC ではビットごとのループを実行しなくなりました。128 ビットまでは倍精度の推定に 128 ビット演算で 1 回のニュートン反復を加え、厳密な比較で確定します。256 ビットまでは Zimmermann のワード単位の Karatsuba 平方根（上位 2 ワードの平方根、下位半分のための 128 を 64 ビットで割る除算 1 回、256 ビットの平方に対する厳密な確定）を、偶数シフトで正規化した値に対して使います。線形 Wasm はループを残します（64 ビット乗算のため、そこではワード単位のカーネルが速くならないため）。従来のカーネルとのペア実行（上記の係数レベルの経路を含む）では、`sqrt` は 100 と 128 ビットで Native と Wasm-GC において 2.0 倍と 2.3 倍、Native の 200 と 256 ビットで 1.4 倍と 1.5 倍、512 ビットで 1.1 倍、2,048 ビットで 1.05 倍速くなります。Wasm-GC の 256 と 512 ビット、および線形 Wasm のすべてのサイズは変わりません。さらに大きなサイズは再帰の除算と平方が支配的で、基底ケースではありません。LLVM は Native の設定を使い、使用中のツールチェーンがそのバックエンドを提供しないため未測定です。ホワイトボックステストは、1 から 256 ビットのすべての幅で、ワード単位のカーネルをループおよび BigInt の基準と比較します（ランダム、全ビット 1、単一ビット、連続ビット列、各幅の極端な根に近い完全平方数の近傍）。Wasm（Wasm-GC ではなく）では、これらの平方根は依然として復元ループで計算されます。語単位のカーネルはそこでは有効にされておらず、そのターゲットでは測定されていません。"
-
-#: manual/performance/binary.md:40
-msgid "The last stage of the 64-bit limb work moves the remaining coefficient kernels off the 32-bit view of the storage, so that only the 32-bit-limb routes of Wasm (multiplication, squaring and Knuth division on 32-bit limbs) use it, and every cutoff is named and documented in 64-bit limbs (`bin_coeff_ntt_mul_min_words`, `bin_coeff_ntt_square_min_words`, `bin_coeff_toom3_min_words`, `bin_coeff_bz_division_min_words`, `bin_coeff_bz_leaf_words`, `bin_coeff_radix_format_dc_words`, `bin_coeff_sparse_min_words` (in `coeff_nonjs.mbt`) and the others of the threshold files, the same values halved). Converted: the multiplication and squaring dispatch, the unbalanced product (the block multiplication of the word Karatsuba replaces the `BinCoeff`-level one), the Burnikel–Ziegler recursion, the NTT digit conversion and overlap-add (the transforms keep their 32-bit Montgomery primes), the one-limb division, the sparse product, the bit operations, the byte and power-of-two radix conversions, the Lehmer threshold and the 256-bit square root kernel. The old divide-and-conquer root, its 512-bit kernel and the restoring loop are test-only references now. Retired instructions per operation on Native against the previous build: a sparse product of 8,192-bit operands 3.3 times fewer (4 and 12 nonzero limbs), `bit_and` plus `bit_xor` at 8,192 bits 2.8 times, a division by a one-limb divisor below $2^{32}$ 2.2 times, `from_bytes_be` 1.2 times, and 1.00 to 1.09 times for the products, divisions, NTT products and gcd measured at 2,048 to 300,000 bits; nothing is slower. Results are unchanged: the regression digests recorded with the 32-bit implementation, the BigInt oracle tests, and new tests of the converted kernels against their 32-bit-limb definitions, the Knuth division, the schoolbook product and each other. The cutoffs keep their values (halved from limbs of 32 bits), except that LLVM now carries the cutoffs of the Native portable loops, not the values of the C and assembly rows of Native (its Burnikel–Ziegler cutoff is 96 limbs as on Wasm, against 208 on the Native portable loops), instead of an old copy of the Wasm ones; the elementary bit-burst precisions depend on multiplication cost, which this stage does not change. On Wasm and Wasm-GC the paired wall-clock runs of the radix conversion (in place against divide and conquer, 4,096 to 131,072 bits) put the parsing cutoff at 4,608 chunks as on Native (in place is 1.2 to 6.5 times faster up to 131,072 bits) and keep the formatting cutoff at 64 limbs (4,096 bits), above which divide and conquer is 1.2 to 3 times faster. The NTT digit conversion stays on the 32-bit view on Wasm and Wasm-GC (`bin_coeff_ntt_limb32_conversion`): with the 64-bit limb conversion a 300,000-bit product measured 0.88 times and a square 0.78 times as fast on Wasm-GC (seven paired runs each, outside the spread)."
-msgstr "64 ビット limb 作業の最終段階として、残りの係数カーネルを記憶域の 32 ビットビューから外し、Wasm の 32 ビット limb 経路（32 ビット limb 上の乗算、二乗、Knuth 除算）だけがそれを使うようにし、すべてのカットオフを 64 ビット limb 単位で命名・文書化しました（`bin_coeff_ntt_mul_min_words`、`bin_coeff_ntt_square_min_words`、`bin_coeff_toom3_min_words`、`bin_coeff_bz_division_min_words`、`bin_coeff_bz_leaf_words`、`bin_coeff_radix_format_dc_words`、`bin_coeff_sparse_min_words`（`coeff_nonjs.mbt` 内）としきい値ファイルのその他の定数で、値は元の半分です）。変換したもの：乗算と二乗のディスパッチ、不均衡な積（`BinCoeff` レベルのものに代えてワード Karatsuba のブロック乗算）、Burnikel–Ziegler 再帰、NTT の桁変換と重ね加算（変換自体は 32 ビットの Montgomery 素数のまま）、1 limb 除算、疎な積、ビット演算、バイトと 2 のべき基数の変換、Lehmer のしきい値、256 ビット平方根カーネルです。古い分割統治平方根、その 512 ビットカーネル、ビット単位ループは今ではテスト用の参照です。Native での 1 演算あたりの retired instructions（従来のビルドとの比較）：8,192 ビットのオペランドの疎な積（非ゼロ limb が 4 個と 12 個）は 3.3 分の 1、8,192 ビットの `bit_and` と `bit_xor` は 2.8 分の 1、$2^{32}$ 未満の 1 limb 除数による除算は 2.2 分の 1、`from_bytes_be` は 1.2 分の 1 で、2,048 から 300,000 ビットで測定した積、除算、NTT の積、gcd は 1.00 から 1.09 分の 1 で、遅くなったものはありません。結果は変わりません：32 ビット実装で記録した回帰ダイジェスト、BigInt の参照テスト、および変換後のカーネルを 32 ビット limb による定義、Knuth 除算、素朴な積、そして互いに比較する新しいテストです。カットオフの値は（32 ビット limb からの半分で）保たれますが、LLVM は Wasm のカットオフの古いコピーではなく、Native の可搬ループのカットオフを持つようになりました（Native の C とアセンブリの行の値ではありません。Burnikel–Ziegler のカットオフは Wasm と同じ 96 リムで、Native の可搬ループでは 208 です）。初等関数の bit-burst 精度は乗算コストに依存し、この段階はそれを変えません。Wasm と Wasm-GC では、基数変換（その場方式と分割統治方式、4,096 から 131,072 ビット）の対でのウォールクロック測定により、解析のカットオフは Native と同じ 4,608 チャンクとし（131,072 ビットまでその場方式が 1.2 から 6.5 倍速い）、整形のカットオフは 64 limb（4,096 ビット）のままにします（それを超えると分割統治が 1.2 から 3 倍速い）。Wasm と Wasm-GC では、NTT の桁変換は 32 ビットビューのままにします（`bin_coeff_ntt_limb32_conversion`）。64 ビット limb の変換では、Wasm-GC で 300,000 ビットの積は 0.88 倍、二乗は 0.78 倍の速さでした（各 7 回の対測定で、ばらつきの外です）。"
-
-#: manual/performance/binary.md:42
-msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. Before, every chunk went through the 32-bit limb accessors and allocated a coefficient (about 113 instructions per 32-bit limb step against about 10 now). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM, measured as the crossover with retired instructions (formatting 65,536 bits 14.5 million against 25.5 million instructions for divide and conquer, 262,144 bits 220 million against 181 million; parsing 131,072 bits 47.2 against 48.3 million, 262,144 bits 201 against 146 million); Wasm and Wasm-GC use 4,608 chunks for parsing as well and keep 128 limbs of 32 bits (64 of 64 bits) for formatting. Retired instructions per operation on Native, base 10, against the previous build: formatting 4.9, 5.7, 4.2 and 2.0 times fewer at 512, 2,048, 8,192 and 65,536 bits, parsing 6.1, 8.3, 4.7 and 1.5 times; base 16 (a power of two) is unchanged. White-box tests check, for the radixes 3, 10 and 36, the powers of the radix and their neighbours around chunk edges up to 130 chunks, and the in-place conversion against divide and conquer (formatting and parsing) at 1 to 1,025 limbs on both sides of the cutoffs; a CPython oracle checks both directions for further radixes."
-msgstr "基数が 2 のべきでない `BinCoeff::to_radix_string` と `BinCoeff::parse` は、それぞれの分割統治のカットオフより下で、1 つの limb 配列上でその場で変換します。整形は 64 ビット limb のコピーをチャンク（10 進 9 桁、$2^{32}$ 未満で最大の基数のべき）の冪で 1 チャンクにつき 1 パスずつその場で割り、解析は `value * chunk_power + chunk` をその場で累積します。各 limb は 2 つの 32 ビット半分として扱い、半分ごとに 64 ビット÷32 ビットの除算または乗算を 1 回行い、チャンクの各桁は 1 つのスクラッチ配列から 1 つの文字列ビルダーに書き込みます。従来はチャンクごとに 32 ビット limb アクセサを通して係数を確保していました（32 ビット limb の 1 ステップあたり約 113 命令に対し、現在は約 10 命令）。64 ビットのチャンク（10 進 19 桁）は使いません。128 ビット÷64 ビットの商の桁は 2 回のハードウェア除算を要し、64÷32 ビットの 2 ステップは各 1 回ずつなので、構成上 limb を 1 周するコストは桁あたりほぼ同じで、問題だったのはチャンクごとのオーバーヘッドであり、どちらの方式でも解消されています（別途測定はしていません）。分割統治変換は Native と LLVM で、整形が 6,144 個の 32 ビット limb（196,608 ビット）から、解析が 4,608 チャンク（約 41,000 桁）から始まり、retired instructions で実測した交差点です（整形は 65,536 ビットで 1,448 万命令に対し分割統治 2,549 万、262,144 ビットで 2.2 億に対し 1.81 億、解析は 131,072 ビットで 4,720 万に対し 4,830 万、262,144 ビットで 2.01 億に対し 1.46 億）。Wasm と Wasm-GC も解析には 4,608 チャンクを使い、整形には 32 ビットの 128 limb（64 ビットの 64 limb）を保ちます。Native での 10 進の 1 演算あたりの retired instructions（従来のビルドとの比較）：整形は 512、2,048、8,192、65,536 ビットでそれぞれ 4.9、5.7、4.2、2.0 分の 1、解析は 6.1、8.3、4.7、1.5 分の 1 で、16 進（2 のべき）は変わりません。ホワイトボックステストは、基数 3、10、36 について、チャンク境界周りで 130 チャンクまでの基数のべきとその隣の値を検査し、その場方式を分割統治方式と（整形と解析）カットオフの両側の 1 から 1,025 limb で比較します。CPython の参照は、さらに別の基数について両方向を検査します。"
-
-#: manual/performance/binary.md:44
-msgid "Above 256 bits the integer square root on every target except JavaScript runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. Retired instructions of one root on Native (release, radicand of twice the root width, paired with the previous build): 2.0 times fewer for a 512-bit root, 1.85 for 2,048 bits, 1.3 for 8,192 bits and 1.04 for 65,536 bits, where the division and the squaring of the recursion dominate; a root of 256 bits (a 512-bit radicand) 1.8 times. On Wasm-GC paired wall-clock runs of one root (radicand of twice the root width, medians of five) are 4.9 and 2.2 times faster at 512 and 2,048 bits and 1.3 and 1.07 times at 8,192 and 65,536 bits; on linear Wasm 2.2, 2.0, 1.4 and 1.05 times; on Native 2.0, 1.8, 1.3 and 1.05 times, in line with the instruction counts. No size is slower on any target, so the word recursion is selected on every target except JavaScript (there is no per-target switch: `bin_coeff_sqrt_words_enabled` only selects the word or the restoring kernels of the base case, and the previous recursion remains as the test reference). White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 257 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
-msgstr "JavaScript 以外のすべてのターゲットでは、256 ビットを超える整数平方根を `BinCoeff` の分割統治平方根ではなくワード配列上の Zimmermann の `SqrtRem` で実行します。前者は 1 レベルあたり約 25 個の一時値を作っていました（数 limb の `BinCoeff` 演算は 600 から 700 命令かかり、囲んでいる除算より高くつきます）。被開方数は 128 未満の偶数ビットだけ左シフトして、上位 2 ビットが両方 0 ではない偶数個 $n$ の 64 ビット limb にします。各レベルでは $n/4$ limb ずつのブロックに分け、上半分の平方根と剰余を再帰で求め、その根の 2 倍による除算 1 回と商の平方 1 回を係数ディスパッチ経由で行い、根の補正は高々 1 回です。商がブロック全体になるときは 1 つ小さい値で打ち切り、それが根になります。元の被開方数の剰余は、正規化後の剰余に 1 limb の積を加えて得られ、シフト $2t$ に対して $e = s' \\bmod 2^t$ として $(r' + e(2s' - e)) \\gg 2t$ です。再帰は 256 ビットで固定幅カーネルに到達して終わります。Native での 1 回の平方根の retired instructions（release、被開方数は根の 2 倍の幅、従来のビルドと対で比較）は、512 ビットの根で 2.0 分の 1、2,048 ビットで 1.85 分の 1、8,192 ビットで 1.3 分の 1、65,536 ビットで 1.04 分の 1 で、後者では再帰内の除算と平方が支配的です。256 ビットの根（512 ビットの被開方数）では 1.8 分の 1 です。Wasm-GC での対のウォールクロック測定（被開方数は根の 2 倍の幅、5 回の中央値）では、1 回の平方根が 512 と 2,048 ビットで 4.9 倍と 2.2 倍、8,192 と 65,536 ビットで 1.3 倍と 1.07 倍速く、線形 Wasm では 2.2、2.0、1.4、1.05 倍、Native では 2.0、1.8、1.3、1.05 倍で、命令数と一致します。どのターゲットでも遅くなるサイズはないため、JavaScript 以外のすべてのターゲットでワード再帰を選びます（ターゲットごとの切り替えはありません。`bin_coeff_sqrt_words_enabled` は基底ケースのワード単位カーネルとビット単位の復元カーネルのどちらかを選ぶだけで、従来の再帰はテストの参照として残します）。ホワイトボックステストは 257 から 4,097 ビットで、従来の再帰、ビット単位ループ、BigInt の参照と比較し（ランダム、全て 1、単一ビット、値の内部の 0 limb、完全平方数の近傍）、33,000 ビットまでは定義の不等式で検査します。"
-
-#: manual/performance/binary.md:46
-msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (and, from 16,384 bits, the general product) up to the NTT: from 36 64-bit limbs (2,304 bits; 36 with the portable loops and on LLVM, 64 with the C rows and 96 with the assembly rows of Native) a word-range Karatsuba square computes $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ on array ranges, with the middle term $a_0^2 + a_1^2 - (a_0 - a_1)^2$ added in place, and the NTT square starts at 7,168 32-bit limbs (229,376 bits) instead of 768, because the Karatsuba square is cheaper up to there (retired instructions of one square: 12,288 bits 1.64 times fewer, 32,768 bits 2.2, 98,304 bits 1.7, 131,072 bits 1.09, 196,608 bits 1.18, equal from 262,144 bits). The Karatsuba multiplication of the word ranges now takes one scratch array per product, carved into the temporaries of each node, instead of five arrays and two copies per node: 1.02 to 1.04 times fewer instructions for a product of 2,048 to 65,536 bits, the same results. The schoolbook square stays below 36 limbs (the paired runs put the crossover between 32 and 40 limbs). Retired instructions per operation on Native, against the previous build: `sqr` 1.00, 1.00, 1.39 and 1.52 times fewer at 512, 2,048, 8,192 and 65,536 bits, `mul` 1.00, 1.02, 1.04 and 1.04 times, and the integer square root of a 65,536-bit root 1.23 times (its recursion squares). Wasm and Wasm-GC keep their squaring (`bin_coeff_square_words_enabled` is false there until paired wall-clock runs decide), and LLVM takes the Native values, unmeasured. White-box tests compare the scratch-buffer product with the allocating Karatsuba of the previous build and the schoolbook product at and around the cutoff with unbalanced shapes, the Karatsuba square with the schoolbook square and the product, and the dispatch against the schoolbook around 36, 64, 128, 256, 384 and 512 limbs and against the NTT and Karatsuba squares at the NTT cutoff."
-msgstr "Native と LLVM では、二乗は NTT に達するまで半積の素朴な方法（および 16,384 ビットからは一般の積）を使わなくなりました。36 個の 64 ビット limb（2,304 ビット。可搬ループと LLVM では 36 個、Native の C の行では 64 個、アセンブリの行では 96 個）から、ワード範囲の Karatsuba 二乗が配列区間上で $a_0^2$、$a_1^2$、$(a_0 - a_1)^2$ を計算し、中間項 $a_0^2 + a_1^2 - (a_0 - a_1)^2$ をその場で加えます。NTT 二乗は 768 ではなく 7,168 個の 32 ビット limb（229,376 ビット）から始まります。それまでは Karatsuba 二乗のほうが安いためです（1 回の二乗の retired instructions：12,288 ビットで 1.64 分の 1、32,768 ビットで 2.2 分の 1、98,304 ビットで 1.7 分の 1、131,072 ビットで 1.09 分の 1、196,608 ビットで 1.18 分の 1、262,144 ビットからは同等）。ワード範囲の Karatsuba 乗算は、1 ノードあたり 5 個の配列と 2 回のコピーの代わりに、積ごとに 1 つの scratch 配列を使い、ノードごとの一時値をそこから切り出します。2,048 から 65,536 ビットの積で命令数は 1.02 から 1.04 分の 1 になり、結果は同じです。素朴な二乗は 36 limb 未満で残ります（対での測定では交差点は 32 から 40 limb の間です）。Native での 1 演算あたりの retired instructions（従来のビルドとの比較）：`sqr` は 512、2,048、8,192、65,536 ビットでそれぞれ 1.00、1.00、1.39、1.52 分の 1、`mul` は 1.00、1.02、1.04、1.04 分の 1、65,536 ビットの根の整数平方根は 1.23 分の 1（その再帰が二乗を行うため）です。Wasm と Wasm-GC は従来の二乗を保ちます（対でのウォールクロック測定が決めるまで、そこでは `bin_coeff_square_words_enabled` は false）。LLVM は Native の値を使い、未測定です。ホワイトボックステストは、scratch バッファ方式の積を従来ビルドのノードごとに割り当てる Karatsuba および素朴な積と、カットオフ付近で（不均衡な形も含めて）比較し、Karatsuba 二乗を素朴な二乗および積と比較し、ディスパッチを 36、64、128、256、384、512 limb 付近の素朴な積と比較し、NTT カットオフでは NTT 二乗および Karatsuba 二乗と比較します。"
-
-#: manual/performance/binary.md:48
-msgid "Certified constants"
-msgstr "認証済み定数"
-
-#: manual/performance/binary.md:50
-msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
-msgstr "認証済みの初等関数は、必要な定数の包含区間（`ln 2`、`ln 10`、`pi`）を作業精度ごとに記憶します。定数ごとに小さなキャッシュを持ち、6 つの精度、最大 65,536 ビットまで保持します。キャッシュ内の包含区間は再計算で得られる値そのものなので、結果がキャッシュの状態や呼び出し順序に依存することはありません。以前は `ln`、`log2`、`log10`、`sin`、`cos`、`tan`、`atan2` の呼び出しごとに `ln 2` の級数や `atan(1)` の評価をやり直しており、その費用は関数本体と同程度でした。Native でのペア実行では、53〜512 ビットの `ln` が 2.4〜2.6 倍、`sin` が 2.4〜3.7 倍、10 進の `ln` が 2.5 倍速くなり、Wasm と Wasm-GC では `ln` と `sin` が 1.7〜2.2 倍速くなります。`exp` にはこの種の定数がないため変わりません。"
-
-#: manual/performance/binary.md:52
+#: manual/performance/binary.md:10
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "測定"
 
-#: manual/performance/binary.md:54
+#: manual/performance/binary.md:12
 msgid "The unified Maremark harness under `tooling/src/bench/binary` compares coefficient kernels, numeric cores, and checked full paths with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "`tooling/src/bench/binary` の統一 Maremark harness は balanced block で係数 kernel、数値 core、checked 全経路を比較します。auto-tune は versioned per-scale policy を出力し、threshold は計測した target だけへ適用します。全 target correctness test は引き続き必須です。"
 
-#: manual/performance/binary.md:56
+#: manual/performance/binary.md:14
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions that `0.6.1` does not have run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary release gate は immutable `0.6.1` commit と dirty candidate tree を別々に archive し、同一 add/mul/div/sqrt workload を注入して、53/128/512 bit の alternating AB/BA native pair を十組収集します。candidate が 3% 以上遅く、かつ Maremark 95% bootstrap interval の下限が正の場合だけ release を阻止します。`0.6.1` にない function は candidate workload として測定し、この release を最初の正当な baseline とします。存在しなかった API の `0.6.1` の timing を捏造しません。"
 
+#: manual/performance/binary.md:23
+msgid "In the tables below, \"times faster\" is the time of the baseline divided by the time of the current implementation, and \"times fewer\" is the retired instructions of the baseline divided by those of the current implementation. The sentence before a table names its baseline or says that it is not recorded. Unless a table shows them, absolute times or counts, machine, operating system, toolchain, commit and command are not recorded. A cell that reads \"not stated\" marks a target, precision or condition that was not recorded with the number."
+msgstr "以下の表では、「X 倍高速」はベースラインの時間を現在の実装の時間で割った値、「X 倍少ない」はベースラインの retired instructions を現在の実装の retired instructions で割った値を表します。各表の前の文に、そのベースラインを示すか、記録されていないことを示します。表に示していない限り、絶対的な時間や数、マシン、オペレーティングシステム、ツールチェーン、コミット、コマンドは記録されていません。「記載なし」のセルは、その値にターゲット、精度、条件が記録されていないことを表します。"
+
+#: manual/performance/binary.md:27
+msgid "Non-JS targets use inline 64/128-bit coefficients and little-endian 64-bit limbs above 128 bits; JavaScript uses a hidden host `bigint` adapter. The public `BinCoeff` type keeps that backend choice unobservable. The move from 32-bit to 64-bit limbs (issue #19) is staged: addition, subtraction, comparison, shifts, the schoolbook multiplication and squaring, and the Karatsuba and Toom-3 steps work on 64-bit limbs; division, the square-root kernels and the NTT digit conversion work on 64-bit limbs as well (the Wasm routes on 32-bit limbs and the Wasm NTT conversion excepted, see below). A 64-bit limb product needs the high half of a 64 by 64 bit multiplication, which MoonBit has no instruction for, so it is computed from four 32 by 32 bit products in the portable loops (Native uses a 128-bit product in its C and assembly rows); the schoolbook kernel is faster than on 32-bit limbs (first table below) because it runs a quarter of the limb steps."
+msgstr "非 JS ターゲットはインラインの 64/128 ビット係数を使い、128 ビットを超える部分にはリトルエンディアンの 64 ビットリムを使います。JavaScript はホストの `bigint` アダプタを隠して使います。公開の `BinCoeff` 型は、このバックエンドの選択を外から見えないようにします。32 ビットリムから 64 ビットリムへの移行（課題 #19）は段階的です。加算、減算、比較、シフト、スクールブック乗算と二乗、Karatsuba と Toom-3 の各ステップは 64 ビットリムで動き、除算、平方根カーネル、NTT の桁変換も 64 ビットリムで動きます（32 ビットリム上の Wasm 経路と Wasm の NTT 変換は例外で、下記参照）。64 ビットリムの積には 64 ビット同士の乗算の上位半分が必要ですが、MoonBit にはその命令がないため、可搬ループでは 32 ビット同士の積 4 つから計算します（Native の C とアセンブリの行では 128 ビットの積を使います）。スクールブックのカーネルは、リムのステップが 4 分の 1 で済むため、32 ビットリムの場合より速くなります（下の最初の表を参照）。"
+
+#: manual/performance/binary.md:29
+msgid "Paired runs against the 32-bit implementation; the rows of the whole stage are paired Native runs."
+msgstr "32 ビット実装とのペア実行です。段階全体の行は Native でのペア実行です。"
+
+#: manual/performance/binary.md:31
+#: manual/performance/binary.md:46
 #: manual/performance/binary.md:65
-msgid "Certified series"
-msgstr "認証済み級数"
+#: manual/performance/binary.md:199
+#: manual/performance/binary.md:233
+#: manual/performance/binary.md:272
+#: manual/performance/decimal.md:13
+#: manual/performance/decimal_gda.md:14
+#: manual/performance/interval.md:12
+msgid "Workload"
+msgstr "ワークロード"
+
+#: manual/performance/binary.md:31
+#: manual/performance/binary.md:46
+#: manual/performance/binary.md:95
+#: manual/performance/binary.md:110
+#: manual/performance/binary.md:139
+#: manual/performance/binary.md:260
+#: manual/performance/binary.md:284
+#: manual/performance/binary.md:296
+#: manual/performance/binary.md:310
+msgid "Reported speedup"
+msgstr "報告された高速化率"
+
+#: manual/performance/binary.md:33
+#: manual/performance/binary.md:34
+msgid "64-bit limb schoolbook product"
+msgstr "64 ビットリムのスクールブック積"
+
+#: manual/performance/binary.md:33
+#: manual/performance/binary.md:35
+#: manual/performance/binary.md:36
+#: manual/performance/binary.md:37
+#: manual/performance/binary.md:48
+#: manual/performance/binary.md:51
+#: manual/performance/binary.md:52
+#: manual/performance/binary.md:53
+#: manual/performance/binary.md:54
+#: manual/performance/binary.md:55
+#: manual/performance/binary.md:56
+#: manual/performance/binary.md:57
+#: manual/performance/binary.md:97
+#: manual/performance/binary.md:98
+#: manual/performance/binary.md:99
+#: manual/performance/binary.md:100
+#: manual/performance/binary.md:112
+#: manual/performance/binary.md:113
+#: manual/performance/binary.md:121
+#: manual/performance/binary.md:141
+#: manual/performance/binary.md:142
+#: manual/performance/binary.md:143
+#: manual/performance/binary.md:149
+#: manual/performance/binary.md:162
+#: manual/performance/binary.md:163
+#: manual/performance/binary.md:262
+#: manual/performance/binary.md:274
+#: manual/performance/binary.md:286
+#: manual/performance/binary.md:298
+#: manual/performance/binary.md:299
+#: manual/performance/binary.md:300
+#: manual/performance/binary.md:312
+#: manual/performance/binary.md:313
+#: manual/performance/binary.md:314
+msgid "Native"
+msgstr "Native"
+
+#: manual/performance/binary.md:33
+#: manual/performance/binary.md:34
+#: manual/performance/binary.md:118
+#: manual/performance/binary.md:119
+#: manual/performance/binary.md:120
+#: manual/performance/binary.md:123
+#: manual/performance/binary.md:124
+#: manual/performance/binary.md:160
+#: manual/performance/binary.md:161
+#: manual/performance/binary.md:204
+#: manual/performance/binary.md:252
+#: manual/performance/binary.md:264
+#: manual/performance/binary.md:275
+#: manual/performance/binary.md:276
+#: manual/performance/binary.md:288
+#: manual/performance/binary.md:299
+#: manual/performance/binary.md:300
+#: manual/performance/binary.md:301
+#: manual/performance/binary.md:302
+#: manual/performance/binary.md:313
+#: manual/performance/binary.md:314
+#: manual/performance/binary.md:315
+msgid "not stated"
+msgstr "記載なし"
+
+#: manual/performance/binary.md:33
+msgid "2.7 to 3.7 times faster"
+msgstr "2.7〜3.7 倍高速"
+
+#: manual/performance/binary.md:34
+#: manual/performance/binary.md:49
+#: manual/performance/binary.md:102
+#: manual/performance/binary.md:114
+#: manual/performance/binary.md:115
+#: manual/performance/binary.md:122
+#: manual/performance/binary.md:144
+#: manual/performance/binary.md:145
+#: manual/performance/binary.md:164
+#: manual/performance/binary.md:275
+#: manual/verification.md:260
+#: manual/verification.md:303
+msgid "Wasm-GC"
+msgstr "Wasm-GC"
+
+#: manual/performance/binary.md:34
+#: manual/performance/binary.md:315
+msgid "1.7 to 1.9 times faster"
+msgstr "1.7〜1.9 倍高速"
+
+#: manual/performance/binary.md:35
+msgid "Whole-stage multiplication"
+msgstr "段階全体の乗算"
+
+#: manual/performance/binary.md:35
+msgid "2,048 to 8,192 bits"
+msgstr "2,048〜8,192 ビット"
+
+#: manual/performance/binary.md:35
+#: manual/performance/binary.md:181
+#: manual/performance/binary.md:184
+msgid "2.2 times faster"
+msgstr "2.2 倍高速"
+
+#: manual/performance/binary.md:36
+msgid "Whole-stage addition"
+msgstr "段階全体の加算"
+
+#: manual/performance/binary.md:36
+#: manual/performance/binary.md:81
+#: manual/performance/binary.md:85
+#: manual/performance/binary.md:143
+#: manual/performance/binary.md:145
+#: manual/performance/binary.md:147
+#: manual/performance/binary.md:148
+#: manual/performance/binary.md:178
+#: manual/performance/binary.md:182
+#: manual/performance/binary.md:186
+#: manual/performance/binary.md:190
+#: manual/performance/binary.md:202
+#: manual/performance/binary.md:246
+#: manual/performance/binary.md:250
+msgid "8,192 bits"
+msgstr "8,192 ビット"
+
+#: manual/performance/binary.md:36
+#: manual/performance/binary.md:142
+#: manual/performance/binary.md:159
+msgid "2.3 times faster"
+msgstr "2.3 倍高速"
+
+#: manual/performance/binary.md:37
+msgid "`exp` and `ln`"
+msgstr "`exp` と `ln`"
+
+#: manual/performance/binary.md:37
+#: manual/performance/binary.md:80
+#: manual/performance/binary.md:84
+#: manual/performance/binary.md:142
+#: manual/performance/binary.md:144
+#: manual/performance/binary.md:146
+#: manual/performance/binary.md:163
+#: manual/performance/binary.md:177
+#: manual/performance/binary.md:181
+#: manual/performance/binary.md:185
+#: manual/performance/binary.md:189
+#: manual/performance/binary.md:245
+#: manual/performance/binary.md:249
+msgid "2,048 bits"
+msgstr "2,048 ビット"
+
+#: manual/performance/binary.md:37
+#: manual/performance/binary.md:57
+#: manual/performance/binary.md:158
+#: manual/performance/binary.md:185
+#: manual/performance/binary.md:188
+msgid "2.0 times faster"
+msgstr "2.0 倍高速"
+
+#: manual/performance/binary.md:38
+#: manual/performance/binary.md:40
+msgid "Multiplication"
+msgstr "乗算"
+
+#: manual/performance/binary.md:38
+#: manual/performance/binary.md:211
+#: manual/performance/binary.md:212
+#: manual/performance/binary.md:263
+#: manual/performance/binary.md:287
+#: manual/performance/binary.md:301
+#: manual/performance/binary.md:315
+msgid "Wasm and Wasm-GC"
+msgstr "Wasm と Wasm-GC"
+
+#: manual/performance/binary.md:38
+msgid "below about 6,000 bits"
+msgstr "約 6,000 ビット未満"
+
+#: manual/performance/binary.md:38
+msgid "1.3 to 1.7 times faster"
+msgstr "1.3〜1.7 倍高速"
+
+#: manual/performance/binary.md:42
+msgid "Balanced multiplication uses schoolbook below 32 64-bit limbs (2,048 bits on LLVM, Wasm and Wasm-GC and on Native with the portable and C rows; 48 limbs on Native with the assembly rows), then Karatsuba on limb arrays (a few small temporaries per step, no intermediate `BinCoeff`), Toom-3, and a two-prime Montgomery NTT with CRT when transform bounds fit. Unbalanced inputs use block multiplication or overlap-add. Native and LLVM select Toom-3 and NTT multiplication at 4,096 64-bit limbs and NTT square at 3,584; Wasm and Wasm-GC at 2,048 and 1,536 (the values of the version before the 64-bit limbs, 4,096 and 3,072 in 32-bit limbs, halved; not measured again on those targets). A 64-bit limb product costs four `i64.mul` on Wasm, so from 160 limbs (10,240 bits) Wasm and Wasm-GC split the operands into 32-bit limbs, multiply there with the same Karatsuba and pack the result back (the conversions are linear); squaring uses the 32-bit half-product schoolbook from 80 limbs. On Native and LLVM the square dispatch runs the word Karatsuba square from its cutoff (see Squaring below), never the recursive multiplication; on Wasm and Wasm-GC the schoolbook square runs below 384 64-bit limbs (768 of 32 bits) and Toom-3 from there. Cutoffs measured per target with paired runs of coefficient multiplication at 1,024 to 65,536 bits."
+msgstr "バランスのとれた乗算は、64 ビットリムが 32 個未満（LLVM、Wasm、Wasm-GC と、可搬ループおよび C の行を使う Native では 2,048 ビット、アセンブリの行を使う Native では 48 リム）ではスクールブック、それ以上ではリム配列上の Karatsuba（各ステップで小さな一時配列をいくつか使うだけで、中間の `BinCoeff` はありません）、Toom-3、変換の上限が許す場合は CRT つきの 2 素数 Montgomery NTT を使います。不均衡な入力にはブロック乗算か重ね加算を使います。Native と LLVM は 64 ビットリム 4,096 個で Toom-3 と NTT 乗算、3,584 個で NTT 二乗を選び、Wasm と Wasm-GC はそれぞれ 2,048 と 1,536 を使います（64 ビットリム以前の版の値、32 ビットリムでの 4,096 と 3,072 を半分にしたもので、これらのターゲットでは再測定していません）。Wasm では 64 ビットリムの積に `i64.mul` が 4 回必要なので、160 リム（10,240 ビット）からは、Wasm と Wasm-GC はオペランドを 32 ビットリムに分割し、そこで同じ Karatsuba で乗算して結果を詰め戻します（変換は線形です）。二乗は 80 リムから 32 ビットリムの半積スクールブックを使います。Native と LLVM では二乗の分岐はワード Karatsuba 二乗をそのカットオフから実行し（後述の「二乗」を参照）、再帰乗算は実行しません。Wasm と Wasm-GC では 64 ビットリム 384 個（32 ビットで 768 個）未満でスクールブック二乗、それ以降は Toom-3 です。切り替え点は、1,024〜65,536 ビットの係数乗算をターゲットごとにペア実行して測定しました。"
+
+#: manual/performance/binary.md:44
+msgid "Paired runs against the 32-bit implementation."
+msgstr "32 ビット実装とのペア実行です。"
+
+#: manual/performance/binary.md:48
+msgid "Coefficient multiplication, 1,024 to 32,768 bits"
+msgstr "係数乗算、1,024〜32,768 ビット"
+
+#: manual/performance/binary.md:48
+msgid "2 to 3 times faster"
+msgstr "2〜3 倍高速"
+
+#: manual/performance/binary.md:49
+#: manual/performance/binary.md:50
+msgid "Coefficient multiplication"
+msgstr "係数乗算"
+
+#: manual/performance/binary.md:49
+msgid "1.1 to 2.2 times faster"
+msgstr "1.1〜2.2 倍高速"
+
+#: manual/performance/binary.md:50
+#: manual/performance/binary.md:101
+#: manual/performance/binary.md:116
+#: manual/performance/binary.md:117
+#: manual/performance/binary.md:146
+#: manual/performance/binary.md:147
+#: manual/performance/binary.md:150
+#: manual/verification.md:260
+#: manual/verification.md:303
+msgid "Wasm"
+msgstr "Wasm"
+
+#: manual/performance/binary.md:50
+msgid "1.1 to 2.1 times faster"
+msgstr "1.1〜2.1 倍高速"
+
+#: manual/performance/binary.md:51
+msgid "`Binary` `mul`, 512 bits"
+msgstr "`Binary` の `mul`、512 ビット"
+
+#: manual/performance/binary.md:51
+msgid "1.6 times faster"
+msgstr "1.6 倍高速"
+
+#: manual/performance/binary.md:52
+msgid "`Binary` `mul`, 2,048 bits"
+msgstr "`Binary` の `mul`、2,048 ビット"
+
+#: manual/performance/binary.md:52
+#: manual/performance/binary.md:114
+#: manual/performance/binary.md:300
+msgid "2.5 times faster"
+msgstr "2.5 倍高速"
+
+#: manual/performance/binary.md:53
+msgid "`Binary` `mul`, 8,192 bits"
+msgstr "`Binary` の `mul`、8,192 ビット"
+
+#: manual/performance/binary.md:53
+#: manual/performance/binary.md:97
+#: manual/performance/binary.md:143
+msgid "2.9 times faster"
+msgstr "2.9 倍高速"
+
+#: manual/performance/binary.md:54
+msgid "`Binary` `add`, 2,048 bits"
+msgstr "`Binary` の `add`、2,048 ビット"
+
+#: manual/performance/binary.md:54
+#: manual/performance/binary.md:122
+#: manual/performance/binary.md:144
+msgid "1.9 times faster"
+msgstr "1.9 倍高速"
+
+#: manual/performance/binary.md:55
+msgid "`Binary` `add`, 8,192 bits"
+msgstr "`Binary` の `add`、8,192 ビット"
+
+#: manual/performance/binary.md:55
+msgid "2.4 times faster"
+msgstr "2.4 倍高速"
+
+#: manual/performance/binary.md:56
+msgid "`Binary` `sqrt`, 2,048 bits"
+msgstr "`Binary` の `sqrt`、2,048 ビット"
+
+#: manual/performance/binary.md:56
+#: manual/performance/binary.md:141
+#: manual/performance/binary.md:161
+msgid "1.5 times faster"
+msgstr "1.5 倍高速"
+
+#: manual/performance/binary.md:57
+msgid "`Binary` `sqrt`, 8,192 bits"
+msgstr "`Binary` の `sqrt`、8,192 ビット"
+
+#: manual/performance/binary.md:59
+msgid "Squaring"
+msgstr "二乗"
+
+#: manual/performance/binary.md:61
+msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (and, from 16,384 bits, the general product) up to the NTT: from 36 64-bit limbs (2,304 bits; 36 with the portable loops and on LLVM, 64 with the C rows and 96 with the assembly rows of Native) a word-range Karatsuba square computes $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ on array ranges, with the middle term $a_0^2 + a_1^2 - (a_0 - a_1)^2$ added in place, and the NTT square starts at 7,168 32-bit limbs (229,376 bits) instead of 768, because the Karatsuba square is cheaper up to there. The Karatsuba multiplication of the word ranges now takes one scratch array per product, carved into the temporaries of each node, instead of five arrays and two copies per node, with the same results. The schoolbook square stays below 36 limbs (the paired runs put the crossover between 32 and 40 limbs). Wasm and Wasm-GC keep their squaring (`bin_coeff_square_words_enabled` is false there until paired wall-clock runs decide), and LLVM takes the Native values, unmeasured. White-box tests compare the scratch-buffer product with the allocating Karatsuba of the previous build and the schoolbook product at and around the cutoff with unbalanced shapes, the Karatsuba square with the schoolbook square and the product, and the dispatch against the schoolbook around 36, 64, 128, 256, 384 and 512 limbs and against the NTT and Karatsuba squares at the NTT cutoff."
+msgstr "Native と LLVM では、二乗は NTT に達するまで半積の素朴な方法（および 16,384 ビットからは一般の積）を使わなくなりました。36 個の 64 ビット limb（2,304 ビット。可搬ループと LLVM では 36 個、Native の C の行では 64 個、アセンブリの行では 96 個）から、ワード範囲の Karatsuba 二乗が配列区間上で $a_0^2$、$a_1^2$、$(a_0 - a_1)^2$ を計算し、中間項 $a_0^2 + a_1^2 - (a_0 - a_1)^2$ をその場で加えます。NTT 二乗は 768 ではなく 7,168 個の 32 ビット limb（229,376 ビット）から始まります。それまでは Karatsuba 二乗のほうが安いためです。ワード範囲の Karatsuba 乗算は、1 ノードあたり 5 個の配列と 2 回のコピーの代わりに、積ごとに 1 つの scratch 配列を使い、ノードごとの一時値をそこから切り出します。結果は同じです。素朴な二乗は 36 limb 未満で残ります（対での測定では交差点は 32 から 40 limb の間です）。Wasm と Wasm-GC は従来の二乗を保ちます（対でのウォールクロック測定が決めるまで、そこでは `bin_coeff_square_words_enabled` は false）。LLVM は Native の値を使い、未測定です。ホワイトボックステストは、scratch バッファ方式の積を従来ビルドのノードごとに割り当てる Karatsuba および素朴な積と、カットオフ付近で（不均衡な形も含めて）比較し、Karatsuba 二乗を素朴な二乗および積と比較し、ディスパッチを 36、64、128、256、384、512 limb 付近の素朴な積と比較し、NTT カットオフでは NTT 二乗および Karatsuba 二乗と比較します。"
+
+#: manual/performance/binary.md:63
+msgid "Retired instructions, against the previous build. The squares are measured on Native; the target of the product row is not stated."
+msgstr "retired instructions（従来のビルドとの比較）です。二乗は Native で測定しており、積の行のターゲットは記載されていません。"
+
+#: manual/performance/binary.md:65
+#: manual/performance/binary.md:77
+#: manual/performance/binary.md:132
+#: manual/performance/binary.md:156
+#: manual/performance/binary.md:173
+#: manual/performance/binary.md:199
+#: manual/performance/binary.md:209
+#: manual/performance/binary.md:216
+#: manual/performance/binary.md:242
+#: manual/performance/binary.md:272
+msgid "Reported result"
+msgstr "報告された結果"
 
 #: manual/performance/binary.md:67
-msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, one series instead of four for `sin` and `cos` (evaluated at the midpoint of the reduced interval and widened by its radius). The `exp` skip returns the exact enclosures of before, and the trigonometric one the same correctly rounded results, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
-msgstr "引数が作業精度で正確に表せる場合（通常はそうです）、`exp` の包含区間はテイラー級数を 2 回ではなく 1 回だけ評価します。このとき下端と上端は同じ値であり、各級数が読むのはその一方の界だけだからです。三角関数の包含区間は、要求された関数と象限が実際に読む正弦または余弦の級数だけを評価し、`sin` と `cos` では 4 つの級数が 1 つになります（簡約した区間の中点で評価し、その半径で広げます）。`exp` の省略は以前とまったく同じ包含区間を、三角関数の省略は同じ正しく丸められた結果を返し、ホワイトボックステストで以前のコードの複製と比較しています。Native でのペア実行では、53〜512 ビットの `exp` が 1.8〜2.0 倍、10 進の `exp` が 1.3〜1.4 倍、`sin` はこれ単独で 1.15〜1.2 倍速くなり、Wasm と Wasm-GC では `exp` が 1.7〜1.9 倍速くなります。"
+#: manual/performance/binary.md:68
+#: manual/performance/binary.md:69
+#: manual/performance/binary.md:70
+#: manual/performance/binary.md:71
+#: manual/performance/binary.md:72
+msgid "One square"
+msgstr "1 回の二乗"
+
+#: manual/performance/binary.md:67
+msgid "12,288 bits"
+msgstr "12,288 ビット"
+
+#: manual/performance/binary.md:67
+msgid "1.64 times fewer"
+msgstr "1.64 倍少ない"
+
+#: manual/performance/binary.md:68
+#: manual/performance/binary.md:135
+msgid "32,768 bits"
+msgstr "32,768 ビット"
+
+#: manual/performance/binary.md:68
+#: manual/performance/binary.md:203
+msgid "2.2 times fewer"
+msgstr "2.2 倍少ない"
 
 #: manual/performance/binary.md:69
-msgid "Trade-offs"
-msgstr "Trade-off"
+msgid "98,304 bits"
+msgstr "98,304 ビット"
+
+#: manual/performance/binary.md:69
+msgid "1.7 times fewer"
+msgstr "1.7 倍少ない"
+
+#: manual/performance/binary.md:70
+#: manual/performance/binary.md:237
+msgid "131,072 bits"
+msgstr "131,072 ビット"
+
+#: manual/performance/binary.md:70
+msgid "1.09 times fewer"
+msgstr "1.09 倍少ない"
 
 #: manual/performance/binary.md:71
-msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
-msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
+msgid "196,608 bits"
+msgstr "196,608 ビット"
+
+#: manual/performance/binary.md:71
+msgid "1.18 times fewer"
+msgstr "1.18 倍少ない"
+
+#: manual/performance/binary.md:72
+msgid "from 262,144 bits"
+msgstr "262,144 ビット以上"
 
 #: manual/performance/binary.md:73
+msgid "Word-range Karatsuba product"
+msgstr "ワード範囲の Karatsuba 積"
+
+#: manual/performance/binary.md:73
+msgid "2,048 to 65,536 bits"
+msgstr "2,048〜65,536 ビット"
+
+#: manual/performance/binary.md:73
+msgid "1.02 to 1.04 times fewer"
+msgstr "1.02〜1.04 倍少ない"
+
+#: manual/performance/binary.md:75
+msgid "The word-range Karatsuba multiplication uses one scratch array per product in place of five arrays and two copies per node. Retired instructions per operation on Native, against the previous build."
+msgstr "ワード範囲の Karatsuba 乗算は、ノードごとの 5 個の配列と 2 回のコピーの代わりに、積ごとに 1 つの scratch 配列を使います。Native での 1 演算あたりの retired instructions（従来のビルドとの比較）です。"
+
+#: manual/performance/binary.md:79
+#: manual/performance/binary.md:80
+#: manual/performance/binary.md:83
+msgid "1.00 times fewer"
+msgstr "1.00 倍少ない"
+
+#: manual/performance/binary.md:81
+msgid "1.39 times fewer"
+msgstr "1.39 倍少ない"
+
+#: manual/performance/binary.md:82
+#: manual/performance/binary.md:86
+#: manual/performance/binary.md:87
+#: manual/performance/binary.md:179
+#: manual/performance/binary.md:183
+#: manual/performance/binary.md:187
+#: manual/performance/binary.md:191
+#: manual/performance/binary.md:235
+#: manual/performance/binary.md:247
+#: manual/performance/binary.md:251
+msgid "65,536 bits"
+msgstr "65,536 ビット"
+
+#: manual/performance/binary.md:82
+msgid "1.52 times fewer"
+msgstr "1.52 倍少ない"
+
+#: manual/performance/binary.md:84
+msgid "1.02 times fewer"
+msgstr "1.02 倍少ない"
+
+#: manual/performance/binary.md:85
+#: manual/performance/binary.md:86
+#: manual/performance/binary.md:179
+msgid "1.04 times fewer"
+msgstr "1.04 倍少ない"
+
+#: manual/performance/binary.md:87
+msgid "Integer square root of a 65,536-bit root"
+msgstr "65,536 ビットの根の整数平方根"
+
+#: manual/performance/binary.md:87
+msgid "1.23 times fewer"
+msgstr "1.23 倍少ない"
+
+#: manual/performance/binary.md:89
+msgid "Single-word fast paths"
+msgstr "1 ワードの高速経路"
+
+#: manual/performance/binary.md:91
+msgid "`Binary::add`, `mul`, `div` and `sqrt` on operands whose coefficients fit one machine word (up to 64 bits) and whose precision is at most 62 bits (60 for `div` and `sqrt`) skip the general path, which builds several coefficient values, a context, a flags record and a result tuple for each operation. The fast path computes on `UInt64` pairs (128-bit sums and products, a 128 by 64 bit division, a double-precision estimate refined by a Newton step and settled by exact comparisons for the square root), rounds to nearest even with the round and sticky bits, and allocates only the result. It declines a NaN, an infinity, a zero, an exact zero sum, wider coefficients or precision, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare 40,000 random operand pairs per operation, ties, carries, cancellation and perfect squares with the general path. Operands of 128 bits and more are unchanged."
+msgstr "係数が 1 つのマシンワード（64 ビット以下）に収まり、精度が 62 ビット以下（`div` と `sqrt` は 60 ビット以下）のオペランドでは、`Binary::add`、`mul`、`div`、`sqrt` は一般経路を通りません。一般経路は演算のたびに複数の係数値、コンテキスト、フラグの記録、結果のタプルを作ります。高速経路は `UInt64` の組で計算し（128 ビットの和と積、128 ビットを 64 ビットで割る除算、平方根では倍精度の推定に Newton 法 1 回と厳密な比較による確定）、丸めビットとスティッキービットで最近接偶数に丸め、結果だけを確保します。NaN、無限大、ゼロ、ちょうどゼロになる和、より広い係数や精度、指数が大きく離れた、または実装の限界に近いオペランド、および JavaScript では見送り、一般経路が答えます。結果は同じ値で、精度と指数も同じです。ホワイトボックステストは、演算ごとに 40,000 組の乱数オペランド、同値の丸め、桁上がり、相殺、完全平方を一般経路と比較します。128 ビット以上のオペランドは変わりません。"
+
+#: manual/performance/binary.md:93
+msgid "Paired runs at 53 bits. The baseline is not recorded."
+msgstr "53 ビットでのペア実行です。ベースラインは記録されていません。"
+
+#: manual/performance/binary.md:98
+#: manual/performance/binary.md:117
+msgid "3.0 times faster"
+msgstr "3.0 倍高速"
+
+#: manual/performance/binary.md:99
+#: manual/performance/binary.md:180
+msgid "4.9 times faster"
+msgstr "4.9 倍高速"
+
+#: manual/performance/binary.md:100
+msgid "2.8 times faster"
+msgstr "2.8 倍高速"
+
+#: manual/performance/binary.md:101
+#: manual/performance/binary.md:102
+msgid "All four fast-path operations"
+msgstr "高速経路の 4 演算すべて"
+
+#: manual/performance/binary.md:101
+msgid "3.1 to 5.1 times faster"
+msgstr "3.1〜5.1 倍高速"
+
+#: manual/performance/binary.md:102
+msgid "3.9 to 7.6 times faster"
+msgstr "3.9〜7.6 倍高速"
+
+#: manual/performance/binary.md:104
+msgid "Two-word and coefficient fast paths"
+msgstr "2 ワードと係数レベルの高速経路"
+
+#: manual/performance/binary.md:106
+msgid "Above the single-word range, `Binary::add` and `mul` on coefficients of up to 128 bits at a precision of at most 128 bits run on `UInt64` words as well: a 192-bit aligned sum or difference and a 256-bit product (four word products, the high halves by 32-bit pieces), rounded to nearest even from the words with the round and sticky bits, and only the result is allocated. Wider operands, `div` above 128 bits (up to 128 bits it has a two-word path of its own in `binary_fast_pair_nonjs.mbt`) and `sqrt` at any size go through coefficient-level paths that do the same exact integer arithmetic as the general path but skip its context, flags record, result tuple and repeated rounding decisions: the sum is built in one window array of the width of the result plus three bits (the operand with the larger top bit placed, the other read through its shift, a sticky bit for what lies below it), the product is the short product of the high limbs when its rounding is certain (`bin_words_mul_short`), otherwise the limb-array product (`bin_words_mul`), the quotient carries at least two bits more than the precision plus a sticky bit from the remainder, the square root rounds from the integer root and its remainder (`remainder > root` decides, there are no ties), and the kept bits are copied once into the array that becomes the coefficient. Each path declines a NaN, an infinity, a zero, an exact zero sum, coefficients or precisions above 2^20 bits, operands whose exponents are far apart or near the implementation limits, and JavaScript, where the general path answers; the results are the same values with the same precision and exponent. White-box tests compare tens of thousands of random, all-ones, sparse, tie, exact-quotient, perfect-square and cancelling operand sets per operation with the general path on Native, Wasm and Wasm-GC (JavaScript keeps the general path)."
+msgstr "単一ワードの範囲を超えて、係数が 128 ビットまで・精度が 128 ビットまでの `Binary::add` と `mul` も `UInt64` のワードで実行します。整列した 192 ビットの和または差、256 ビットの積（4 つのワード積、上位半分は 32 ビット片で計算）を、丸めビットとスティッキービットで最近接偶数に丸め、確保するのは結果だけです。それより広いオペランド、128 ビットを超える `div`（128 ビットまでは `binary_fast_pair_nonjs.mbt` に専用の 2 ワード経路があります）、および任意の大きさの `sqrt` は係数レベルの経路を通ります。厳密な整数演算は一般経路と同じですが、コンテキスト、フラグ記録、結果のタプル、繰り返される丸めの判断を省きます。和は結果の幅に 3 ビットを加えた幅の 1 つのウィンドウ配列に作り（最上位ビットが大きい方のオペランドを置き、もう一方はそのシフトを通して読み、その下にあるものはスティッキービットにします）、積は丸めが確定する場合は上位リムの短い積（`bin_words_mul_short`）、そうでなければリム配列の積（`bin_words_mul`）とし、商は精度より 2 ビット以上多く、余りからのスティッキービットを持ち、平方根は整数の根とその余りから丸め（`remainder > root` が繰り上げを決め、同値はありません）、残すビットは係数になる配列へ 1 回だけコピーします。各経路は NaN、無限大、ゼロ、厳密にゼロになる和、2^20 ビットを超える係数や精度、指数が大きく離れた、または実装の限界に近いオペランド、そして JavaScript を扱わず、一般経路が答えます。結果は同じ値で、精度と指数も同じです。ホワイトボックステストは、演算ごとに数万組のランダム、全ビット 1、疎、同値、厳密な商、完全平方、相殺するオペランドを一般経路と Native、Wasm、Wasm-GC で比較します（JavaScript は一般経路のままです）。"
+
+#: manual/performance/binary.md:108
+msgid "Paired runs against the previous build. The target is not stated for some rows. For `div` at 128 to 512 bits the Knuth division dominates."
+msgstr "従来のビルドとのペア実行です。一部の行ではターゲットが記載されていません。128〜512 ビットの `div` では Knuth の除算が支配的です。"
+
+#: manual/performance/binary.md:112
+#: manual/performance/binary.md:145
+#: manual/performance/binary.md:147
+msgid "3.3 times faster"
+msgstr "3.3 倍高速"
+
+#: manual/performance/binary.md:113
+#: manual/performance/binary.md:116
+msgid "3.5 times faster"
+msgstr "3.5 倍高速"
+
+#: manual/performance/binary.md:115
+msgid "3.7 times faster"
+msgstr "3.7 倍高速"
+
+#: manual/performance/binary.md:118
+#: manual/performance/binary.md:119
+#: manual/performance/binary.md:120
+msgid "`add` and `mul`"
+msgstr "`add` と `mul`"
+
+#: manual/performance/binary.md:118
+#: manual/performance/binary.md:161
+#: manual/performance/binary.md:175
+msgid "256 bits"
+msgstr "256 ビット"
+
+#: manual/performance/binary.md:118
+msgid "1.9 to 2.2 times faster"
+msgstr "1.9〜2.2 倍高速"
+
+#: manual/performance/binary.md:119
+msgid "1.5 to 1.9 times faster"
+msgstr "1.5〜1.9 倍高速"
+
+#: manual/performance/binary.md:120
+msgid "1,024 bits"
+msgstr "1,024 ビット"
+
+#: manual/performance/binary.md:120
+msgid "1.2 times faster"
+msgstr "1.2 倍高速"
+
+#: manual/performance/binary.md:121
+#: manual/performance/binary.md:160
+#: manual/performance/binary.md:186
+msgid "1.4 times faster"
+msgstr "1.4 倍高速"
+
+#: manual/performance/binary.md:123
+msgid "512 and 2,048 bits"
+msgstr "512 と 2,048 ビット"
+
+#: manual/performance/binary.md:123
+#: manual/performance/binary.md:162
+msgid "1.1 times faster"
+msgstr "1.1 倍高速"
+
+#: manual/performance/binary.md:124
+msgid "128 to 512 bits"
+msgstr "128〜512 ビット"
+
+#: manual/performance/binary.md:124
+msgid "1.1 to 1.2 times faster"
+msgstr "1.1〜1.2 倍高速"
+
+#: manual/performance/binary.md:126
+msgid "Division, square root and GCD"
+msgstr "除算・平方根・GCD"
+
+#: manual/performance/binary.md:128
+msgid "Division uses a one-limb path, Knuth's algorithm D on 64-bit digits (a 128 by 64 bit quotient estimate and a 128-bit correction test) below the Burnikel–Ziegler cutoff (also as the leaf of its recursion, up to 64 limbs of 64 bits), and Burnikel–Ziegler from 96 limbs of 64 bits (192 of 32 bits) on Wasm, Wasm-GC and LLVM and from 208, 352 or 752 limbs of 64 bits on Native, with the portable, C or assembly rows. The dispatch does not select Newton reciprocal division, because it is slower than Burnikel–Ziegler from 32,768 bits (first table below), so the dispatch never reaches it; the routine stays, covered by tests, and the threshold constant is per target. Native multiplication switched to the NTT at 8,192 limbs of 32 bits (4,096 limbs of 64 bits, see Multiplication) instead of 2,048 limbs of 32 bits now that the Karatsuba is faster. Square root uses fixed-width kernels through 256 bits (the word kernels on Native, LLVM and Wasm-GC, the restoring loops on linear Wasm) and Zimmermann's `SqrtRem` on word arrays above that on every target except JavaScript; the recursion stops at the same fixed-width kernels once a block is at most 256 bits (a restoring loop on heap integers at 128 bits before). The cutoff is per-target policy measured with paired runs; the LLVM value is not measured because that backend is not available in the toolchain used. Large GCD uses Lehmer batching on a common 63-bit window of both operands and takes a single division step when the shorter operand has no bits in that window, so operands of very different lengths are reduced at once."
+msgstr "除算は、1 リムの経路、64 ビット桁の Knuth のアルゴリズム D（128 ビットを 64 ビットで割る商の推定と 128 ビットの補正判定。Burnikel–Ziegler のしきい値より下で使い、その再帰の葉でもあり、64 ビットリムで 64 個まで）、そして Burnikel–Ziegler（Wasm、Wasm-GC、LLVM では 64 ビットリムで 96 個、つまり 32 ビットリムで 192 個から。Native では行の実装が可搬ループ、C、アセンブリのとき、それぞれ 64 ビットリムで 208、352、752 個から）を使います。分岐は Newton 逆数除算を選びません。32,768 ビットから Burnikel–Ziegler より遅い（下の最初の表を参照）ため、分岐はそこに到達しません。ルーチンはテストで保護したまま残し、しきい値の定数はターゲットごとです。Native の乗算は、Karatsuba が速くなったため、NTT への切り替えが 32 ビットリムで 8,192 個（64 ビットリムで 4,096 個、乗算の節を参照。以前は 32 ビットリムで 2,048 個）になりました。平方根は 256 ビットまでは固定幅のカーネル（Native、LLVM、Wasm-GC ではワードカーネル、リニア Wasm では復元型ループ）、それを超えると JavaScript を除くすべてのターゲットでワード配列に対する Zimmermann の `SqrtRem` を使います。再帰は、ブロックが 256 ビット以下になった時点で同じ固定幅カーネルに入って終わります（以前は 128 ビットでヒープ整数に対する復元型ループを使っていました）。この切り替え点はターゲットごとに測定した方針です。LLVM の値は、使用中のツールチェーンにそのバックエンドがないため測定していません。大きな GCD は、両オペランドに共通する 63 ビットのウィンドウで Lehmer のバッチ処理を行い、短い方のオペランドがそのウィンドウにビットを持たない場合は除算を 1 ステップ行うので、長さが大きく異なるオペランドも一度に縮約されます。"
+
+#: manual/performance/binary.md:130
+msgid "Newton reciprocal division against Burnikel–Ziegler, measured once multiplication was 2 to 3 times faster than before."
+msgstr "ニュートン逆数除算と Burnikel–Ziegler の比較で、乗算が以前より 2〜3 倍速くなった後に測定したものです。"
+
+#: manual/performance/binary.md:132
+msgid "Newton reciprocal division"
+msgstr "ニュートン逆数除算"
+
+#: manual/performance/binary.md:134
+#: manual/performance/binary.md:135
+msgid "Newton reciprocal division against Burnikel–Ziegler"
+msgstr "ニュートン逆数除算と Burnikel–Ziegler の比較"
+
+#: manual/performance/binary.md:134
+msgid "from 32,768 bits"
+msgstr "32,768 ビット以上"
+
+#: manual/performance/binary.md:134
+msgid "3 to 12 times slower"
+msgstr "3〜12 倍低速"
+
+#: manual/performance/binary.md:134
+msgid "not recorded"
+msgstr "記録なし"
+
+#: manual/performance/binary.md:135
+msgid "4.4 ms against 0.37 ms"
+msgstr "4.4 ms 対 0.37 ms"
+
+#: manual/performance/binary.md:135
+msgid "4.4 ms"
+msgstr "4.4 ms"
+
+#: manual/performance/binary.md:135
+msgid "0.37 ms"
+msgstr "0.37 ms"
+
+#: manual/performance/binary.md:137
+msgid "Paired runs against the previous kernels."
+msgstr "従来のカーネルとのペア実行です。"
+
+#: manual/performance/binary.md:146
+#: manual/performance/binary.md:182
+#: manual/performance/binary.md:190
+msgid "1.3 times faster"
+msgstr "1.3 倍高速"
+
+#: manual/performance/binary.md:148
+msgid "Native, Wasm-GC and Wasm"
+msgstr "Native、Wasm-GC、Wasm"
+
+#: manual/performance/binary.md:148
+msgid "1.5 to 1.8 times faster"
+msgstr "1.5〜1.8 倍高速"
+
+#: manual/performance/binary.md:149
+#: manual/performance/binary.md:150
+msgid "512-bit root from a 1,024-bit radicand"
+msgstr "1,024 ビットの被開方数からの 512 ビットの根"
+
+#: manual/performance/binary.md:149
+msgid "about 3.4 times faster"
+msgstr "約 3.4 倍高速"
+
+#: manual/performance/binary.md:150
+msgid "3.1 to 3.3 times faster"
+msgstr "3.1〜3.3 倍高速"
+
+#: manual/performance/binary.md:152
+msgid "The integer square root of a value of up to 256 bits (a 128-bit root, the base case of the divide-and-conquer root and the whole root at precisions up to 128 bits) no longer runs a bit-by-bit loop on Native, LLVM and Wasm-GC: up to 128 bits it is a double-precision estimate refined by one Newton step on 128-bit arithmetic and settled by exact comparisons, and up to 256 bits Zimmermann's word-level Karatsuba square root (the root of the upper two words, one 128 by 64 bit division for the low half, an exact settle on the 256-bit square) on a value normalized by an even shift. Linear Wasm keeps the loops (its 64-bit multiplication makes the word kernels no faster there). LLVM takes the Native settings, unmeasured because the toolchain used does not provide that backend. White-box tests compare the word kernels with the loops and with a BigInt oracle at every width from 1 to 256 bits (random, all ones, single bits, runs, the neighbours of exact squares near the extreme roots of each width). On Wasm (not on Wasm-GC) these roots still run the restoring loops: the word kernels are not enabled there and were not measured on that target."
+msgstr "256 ビットまでの値の整数平方根（128 ビットの根、分割統治平方根の基底ケース、精度 128 ビットまでの平方根全体）は、Native、LLVM、Wasm-GC ではビットごとのループを実行しなくなりました。128 ビットまでは倍精度の推定に 128 ビット演算で 1 回のニュートン反復を加え、厳密な比較で確定します。256 ビットまでは Zimmermann のワード単位の Karatsuba 平方根（上位 2 ワードの平方根、下位半分のための 128 を 64 ビットで割る除算 1 回、256 ビットの平方に対する厳密な確定）を、偶数シフトで正規化した値に対して使います。線形 Wasm はループを残します（64 ビット乗算のため、そこではワード単位のカーネルが速くならないため）。LLVM は Native の設定を使い、使用中のツールチェーンがそのバックエンドを提供しないため未測定です。ホワイトボックステストは、1 から 256 ビットのすべての幅で、ワード単位のカーネルをループおよび BigInt の基準と比較します（ランダム、全ビット 1、単一ビット、連続ビット列、各幅の極端な根に近い完全平方数の近傍）。Wasm（Wasm-GC ではなく）では、これらの平方根は依然として復元ループで計算されます。語単位のカーネルはそこでは有効にされておらず、そのターゲットでは測定されていません。"
+
+#: manual/performance/binary.md:154
+msgid "Paired runs of the fixed-width square-root kernels against the previous kernels, with the coefficient-level paths above. The target of the 200-bit and 256-bit rows is not stated. The larger sizes are dominated by the division and squaring of the recursion, not by its base case."
+msgstr "固定幅の平方根カーネルの、従来のカーネルとのペア実行です（上記の係数レベルの経路を含む）。200 ビットと 256 ビットの行ではターゲットが記載されていません。さらに大きなサイズは再帰の除算と二乗が支配的で、基底ケースではありません。"
+
+#: manual/performance/binary.md:156
+msgid "Root precision"
+msgstr "根の精度"
+
+#: manual/performance/binary.md:158
+#: manual/performance/binary.md:159
+msgid "Native and Wasm-GC"
+msgstr "Native と Wasm-GC"
+
+#: manual/performance/binary.md:158
+msgid "100 bits"
+msgstr "100 ビット"
+
+#: manual/performance/binary.md:160
+msgid "200 bits"
+msgstr "200 ビット"
+
+#: manual/performance/binary.md:163
+#: manual/performance/binary.md:187
+#: manual/performance/binary.md:191
+msgid "1.05 times faster"
+msgstr "1.05 倍高速"
+
+#: manual/performance/binary.md:164
+msgid "256 and 512 bits"
+msgstr "256 と 512 ビット"
+
+#: manual/performance/binary.md:164
+#: manual/performance/binary.md:165
+#: manual/performance/binary.md:252
+msgid "unchanged"
+msgstr "変化なし"
+
+#: manual/performance/binary.md:165
+msgid "linear Wasm"
+msgstr "線形 Wasm"
+
+#: manual/performance/binary.md:165
+msgid "all tested widths"
+msgstr "テストしたすべての幅"
+
+#: manual/performance/binary.md:167
+msgid "Square root above 256 bits"
+msgstr "256 ビットを超える平方根"
+
+#: manual/performance/binary.md:169
+msgid "Above 256 bits the integer square root on every target except JavaScript runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. No size is slower on any target (see the table below), so the word recursion is selected on every target except JavaScript (there is no per-target switch: `bin_coeff_sqrt_words_enabled` only selects the word or the restoring kernels of the base case, and the previous recursion remains as the test reference). White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 257 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
+msgstr "JavaScript 以外のすべてのターゲットでは、256 ビットを超える整数平方根を `BinCoeff` の分割統治平方根ではなくワード配列上の Zimmermann の `SqrtRem` で実行します。前者は 1 レベルあたり約 25 個の一時値を作っていました（数 limb の `BinCoeff` 演算は 600 から 700 命令かかり、囲んでいる除算より高くつきます）。被開方数は 128 未満の偶数ビットだけ左シフトして、上位 2 ビットが両方 0 ではない偶数個 $n$ の 64 ビット limb にします。各レベルでは $n/4$ limb ずつのブロックに分け、上半分の平方根と剰余を再帰で求め、その根の 2 倍による除算 1 回と商の平方 1 回を係数ディスパッチ経由で行い、根の補正は高々 1 回です。商がブロック全体になるときは 1 つ小さい値で打ち切り、それが根になります。元の被開方数の剰余は、正規化後の剰余に 1 limb の積を加えて得られ、シフト $2t$ に対して $e = s' \\bmod 2^t$ として $(r' + e(2s' - e)) \\gg 2t$ です。再帰は 256 ビットで固定幅カーネルに到達して終わります。どのターゲットでも遅くなるサイズはない（下の表を参照）ため、JavaScript 以外のすべてのターゲットでワード再帰を選びます（ターゲットごとの切り替えはありません。`bin_coeff_sqrt_words_enabled` は基底ケースのワード単位カーネルとビット単位の復元カーネルのどちらかを選ぶだけで、従来の再帰はテストの参照として残します）。ホワイトボックステストは 257 から 4,097 ビットで、従来の再帰、ビット単位ループ、BigInt の参照と比較し（ランダム、全て 1、単一ビット、値の内部の 0 limb、完全平方数の近傍）、33,000 ビットまでは定義の不等式で検査します。"
+
+#: manual/performance/binary.md:171
+msgid "One root, radicand of twice the root width. The Native rows are retired instructions of a release build, paired with the previous build. The Wasm-GC and linear Wasm rows are paired wall-clock runs (medians of five, stated for the Wasm-GC runs), and the Native wall-clock rows are in line with the instruction counts; the baseline of the wall-clock rows is not stated. At the larger sizes the division and the squaring of the recursion dominate."
+msgstr "1 回の平方根で、被開方数は根の 2 倍の幅です。Native の行は release ビルドの retired instructions で、従来のビルドとペアで比較しています。Wasm-GC と線形 Wasm の行はペアのウォールクロック測定（5 回の中央値。この記述は Wasm-GC の測定に対するものです）で、Native のウォールクロックの行は命令数と一致します。ウォールクロックの行のベースラインは記載されていません。大きなサイズでは再帰の除算と二乗が支配的です。"
+
+#: manual/performance/binary.md:173
+msgid "Target and metric"
+msgstr "ターゲットと指標"
+
+#: manual/performance/binary.md:173
+msgid "Root width"
+msgstr "根の幅"
+
+#: manual/performance/binary.md:175
+#: manual/performance/binary.md:176
+#: manual/performance/binary.md:177
+#: manual/performance/binary.md:178
+#: manual/performance/binary.md:179
+msgid "Native, retired instructions"
+msgstr "Native、リタイアした命令数"
+
+#: manual/performance/binary.md:175
+msgid "1.8 times fewer"
+msgstr "1.8 倍少ない"
+
+#: manual/performance/binary.md:176
+#: manual/performance/binary.md:247
+msgid "2.0 times fewer"
+msgstr "2.0 倍少ない"
+
+#: manual/performance/binary.md:177
+msgid "1.85 times fewer"
+msgstr "1.85 倍少ない"
+
+#: manual/performance/binary.md:178
+msgid "1.3 times fewer"
+msgstr "1.3 倍少ない"
+
+#: manual/performance/binary.md:180
+#: manual/performance/binary.md:181
+#: manual/performance/binary.md:182
+#: manual/performance/binary.md:183
+msgid "Wasm-GC, wall-clock time"
+msgstr "Wasm-GC、実時間"
+
+#: manual/performance/binary.md:183
+msgid "1.07 times faster"
+msgstr "1.07 倍高速"
+
+#: manual/performance/binary.md:184
+#: manual/performance/binary.md:185
+#: manual/performance/binary.md:186
+#: manual/performance/binary.md:187
+msgid "linear Wasm, wall-clock time"
+msgstr "線形 Wasm、実時間"
+
+#: manual/performance/binary.md:188
+#: manual/performance/binary.md:189
+#: manual/performance/binary.md:190
+#: manual/performance/binary.md:191
+msgid "Native, wall-clock time"
+msgstr "Native、実時間"
+
+#: manual/performance/binary.md:189
+msgid "1.8 times faster"
+msgstr "1.8 倍高速"
+
+#: manual/performance/binary.md:193
+msgid "Kernels on 64-bit limbs"
+msgstr "64 ビットリム上のカーネル"
+
+#: manual/performance/binary.md:195
+msgid "The last stage of the 64-bit limb work moves the remaining coefficient kernels off the 32-bit view of the storage, so that only the 32-bit-limb routes of Wasm (multiplication, squaring and Knuth division on 32-bit limbs) use it, and every cutoff is named and documented in 64-bit limbs (`bin_coeff_ntt_mul_min_words`, `bin_coeff_ntt_square_min_words`, `bin_coeff_toom3_min_words`, `bin_coeff_bz_division_min_words`, `bin_coeff_bz_leaf_words`, `bin_coeff_radix_format_dc_words`, `bin_coeff_sparse_min_words` (in `coeff_nonjs.mbt`) and the others of the threshold files, the same values halved). Converted: the multiplication and squaring dispatch, the unbalanced product (the block multiplication of the word Karatsuba replaces the `BinCoeff`-level one), the Burnikel–Ziegler recursion, the NTT digit conversion and overlap-add (the transforms keep their 32-bit Montgomery primes), the one-limb division, the sparse product, the bit operations, the byte and power-of-two radix conversions, the Lehmer threshold and the 256-bit square root kernel. The old divide-and-conquer root, its 512-bit kernel and the restoring loop are test-only references now. Results are unchanged: the regression digests recorded with the 32-bit implementation, the BigInt oracle tests, and new tests of the converted kernels against their 32-bit-limb definitions, the Knuth division, the schoolbook product and each other. The cutoffs keep their values (halved from limbs of 32 bits), except that LLVM now carries the cutoffs of the Native portable loops, not the values of the C and assembly rows of Native (its Burnikel–Ziegler cutoff is 96 limbs as on Wasm, against 208 on the Native portable loops), instead of an old copy of the Wasm ones; the elementary bit-burst precisions depend on multiplication cost, which this stage does not change. The NTT digit conversion stays on the 32-bit view on Wasm and Wasm-GC (`bin_coeff_ntt_limb32_conversion`)."
+msgstr "64 ビット limb 作業の最終段階として、残りの係数カーネルを記憶域の 32 ビットビューから外し、Wasm の 32 ビット limb 経路（32 ビット limb 上の乗算、二乗、Knuth 除算）だけがそれを使うようにし、すべてのカットオフを 64 ビット limb 単位で命名・文書化しました（`bin_coeff_ntt_mul_min_words`、`bin_coeff_ntt_square_min_words`、`bin_coeff_toom3_min_words`、`bin_coeff_bz_division_min_words`、`bin_coeff_bz_leaf_words`、`bin_coeff_radix_format_dc_words`、`bin_coeff_sparse_min_words`（`coeff_nonjs.mbt` 内）としきい値ファイルのその他の定数で、値は元の半分です）。変換したもの：乗算と二乗のディスパッチ、不均衡な積（`BinCoeff` レベルのものに代えてワード Karatsuba のブロック乗算）、Burnikel–Ziegler 再帰、NTT の桁変換と重ね加算（変換自体は 32 ビットの Montgomery 素数のまま）、1 limb 除算、疎な積、ビット演算、バイトと 2 のべき基数の変換、Lehmer のしきい値、256 ビット平方根カーネルです。古い分割統治平方根、その 512 ビットカーネル、ビット単位ループは今ではテスト用の参照です。結果は変わりません：32 ビット実装で記録した回帰ダイジェスト、BigInt の参照テスト、および変換後のカーネルを 32 ビット limb による定義、Knuth 除算、素朴な積、そして互いに比較する新しいテストです。カットオフの値は（32 ビット limb からの半分で）保たれますが、LLVM は Wasm のカットオフの古いコピーではなく、Native の可搬ループのカットオフを持つようになりました（Native の C とアセンブリの行の値ではありません。Burnikel–Ziegler のカットオフは Wasm と同じ 96 リムで、Native の可搬ループでは 208 です）。初等関数の bit-burst 精度は乗算コストに依存し、この段階はそれを変えません。Wasm と Wasm-GC では、NTT の桁変換は 32 ビットビューのままにします（`bin_coeff_ntt_limb32_conversion`）。"
+
+#: manual/performance/binary.md:197
+msgid "Retired instructions per operation on Native, against the previous build."
+msgstr "Native での 1 演算あたりの retired instructions（従来のビルドとの比較）です。"
+
+#: manual/performance/binary.md:199
+msgid "Precision or operand condition"
+msgstr "精度またはオペランドの条件"
+
+#: manual/performance/binary.md:201
+msgid "Sparse product"
+msgstr "疎な積"
+
+#: manual/performance/binary.md:201
+msgid "8,192-bit operands; 4 and 12 nonzero limbs"
+msgstr "8,192 ビットのオペランド、非ゼロのリムは 4 個と 12 個"
+
+#: manual/performance/binary.md:201
+msgid "3.3 times fewer"
+msgstr "3.3 倍少ない"
+
+#: manual/performance/binary.md:202
+msgid "`bit_and` plus `bit_xor`"
+msgstr "`bit_and` と `bit_xor` の合計"
+
+#: manual/performance/binary.md:202
+msgid "2.8 times fewer"
+msgstr "2.8 倍少ない"
+
+#: manual/performance/binary.md:203
+msgid "one-limb divisor below $2^{32}$"
+msgstr "$2^{32}$ 未満の 1 リム除数"
+
+#: manual/performance/binary.md:204
+msgid "1.2 times fewer"
+msgstr "1.2 倍少ない"
+
+#: manual/performance/binary.md:205
+msgid "Products, divisions, NTT products and gcd"
+msgstr "積、除算、NTT 積、gcd"
+
+#: manual/performance/binary.md:205
+msgid "2,048 to 300,000 bits"
+msgstr "2,048〜300,000 ビット"
+
+#: manual/performance/binary.md:205
+msgid "1.00 to 1.09 times fewer; nothing is slower"
+msgstr "1.00〜1.09 倍少ない。遅くなるものはない"
+
+#: manual/performance/binary.md:207
+msgid "Paired wall-clock runs on Wasm and Wasm-GC of in-place radix conversion against divide and conquer, from 4,096 to 131,072 bits."
+msgstr "Wasm と Wasm-GC での、その場方式の基数変換と分割統治方式のペアのウォールクロック測定（4,096〜131,072 ビット）です。"
+
+#: manual/performance/binary.md:209
+#: manual/performance/binary.md:233
+#: manual/performance/binary.md:242
+msgid "Conversion"
+msgstr "変換"
+
+#: manual/performance/binary.md:209
+msgid "Input range"
+msgstr "入力範囲"
+
+#: manual/performance/binary.md:211
+msgid "4,096 to 131,072 bits"
+msgstr "4,096〜131,072 ビット"
+
+#: manual/performance/binary.md:211
+msgid "in place is 1.2 to 6.5 times faster up to 131,072 bits"
+msgstr "インプレースが 131,072 ビットまで 1.2〜6.5 倍高速"
+
+#: manual/performance/binary.md:212
+#: manual/performance/binary.md:235
+#: manual/performance/binary.md:236
+#: manual/performance/binary.md:244
+#: manual/performance/binary.md:245
+#: manual/performance/binary.md:246
+#: manual/performance/binary.md:247
+#: manual/verification.md:14
+msgid "Formatting"
+msgstr "フォーマット"
+
+#: manual/performance/binary.md:212
+msgid "above 4,096 bits"
+msgstr "4,096 ビットを超える範囲"
+
+#: manual/performance/binary.md:212
+msgid "divide and conquer is 1.2 to 3 times faster"
+msgstr "分割統治が 1.2〜3 倍高速"
+
+#: manual/performance/binary.md:214
+msgid "On Wasm-GC, seven paired runs per operation at 300,000 bits, each outside the spread. The values are the speed of the 64-bit limb conversion relative to the 32-bit limb conversion."
+msgstr "Wasm-GC で、300,000 ビットにおける演算ごとの 7 回のペア実行で、いずれもばらつきの外です。値は、64 ビット limb 変換の 32 ビット limb 変換に対する速さです。"
+
+#: manual/performance/binary.md:218
+msgid "Product"
+msgstr "積"
+
+#: manual/performance/binary.md:218
+#: manual/performance/binary.md:219
+msgid "64-bit limb conversion relative to 32-bit limb conversion"
+msgstr "64 ビットリム変換の 32 ビットリム変換に対する比"
+
+#: manual/performance/binary.md:218
+msgid "0.88 times as fast"
+msgstr "0.88 倍の速さ"
+
+#: manual/performance/binary.md:219
+msgid "Square"
+msgstr "二乗"
+
+#: manual/performance/binary.md:219
+msgid "0.78 times as fast"
+msgstr "0.78 倍の速さ"
+
+#: manual/performance/binary.md:221
+msgid "Radix conversion"
+msgstr "基数変換"
+
+#: manual/performance/binary.md:223
+msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. The earlier path sent every chunk through the 32-bit limb accessors and allocated a coefficient (the first table below gives its cost per limb step). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM. Wasm and Wasm-GC use 4,608 chunks for parsing as well and keep 128 limbs of 32 bits (64 of 64 bits) for formatting. White-box tests check, for the radixes 3, 10 and 36, the powers of the radix and their neighbours around chunk edges up to 130 chunks, and the in-place conversion against divide and conquer (formatting and parsing) at 1 to 1,025 limbs on both sides of the cutoffs; a CPython oracle checks both directions for further radixes."
+msgstr "基数が 2 のべきでない `BinCoeff::to_radix_string` と `BinCoeff::parse` は、それぞれの分割統治のカットオフより下で、1 つの limb 配列上でその場で変換します。整形は 64 ビット limb のコピーをチャンク（10 進 9 桁、$2^{32}$ 未満で最大の基数のべき）の冪で 1 チャンクにつき 1 パスずつその場で割り、解析は `value * chunk_power + chunk` をその場で累積します。各 limb は 2 つの 32 ビット半分として扱い、半分ごとに 64 ビット÷32 ビットの除算または乗算を 1 回行い、チャンクの各桁は 1 つのスクラッチ配列から 1 つの文字列ビルダーに書き込みます。以前の経路では、チャンクごとに 32 ビット limb アクセサを通して係数を確保していました（下の最初の表に limb 1 ステップあたりの費用を示します）。64 ビットのチャンク（10 進 19 桁）は使いません。128 ビット÷64 ビットの商の桁は 2 回のハードウェア除算を要し、64÷32 ビットの 2 ステップは各 1 回ずつなので、構成上 limb を 1 周するコストは桁あたりほぼ同じで、問題だったのはチャンクごとのオーバーヘッドであり、どちらの方式でも解消されています（別途測定はしていません）。分割統治変換は Native と LLVM で、整形が 6,144 個の 32 ビット limb（196,608 ビット）から、解析が 4,608 チャンク（約 41,000 桁）から始まります。Wasm と Wasm-GC も解析には 4,608 チャンクを使い、整形には 32 ビットの 128 limb（64 ビットの 64 limb）を保ちます。ホワイトボックステストは、基数 3、10、36 について、チャンク境界周りで 130 チャンクまでの基数のべきとその隣の値を検査し、その場方式を分割統治方式と（整形と解析）カットオフの両側の 1 から 1,025 limb で比較します。CPython の参照は、さらに別の基数について両方向を検査します。"
+
+#: manual/performance/binary.md:225
+msgid "Retired instructions per 32-bit limb step, before the in-place conversion and now."
+msgstr "その場方式の変換の前と現在の、32 ビット limb の 1 ステップあたりの retired instructions です。"
+
+#: manual/performance/binary.md:227
+msgid "Quantity"
+msgstr "量"
+
+#: manual/performance/binary.md:227
+msgid "Earlier accessor path"
+msgstr "以前のアクセサ経路"
+
+#: manual/performance/binary.md:227
+msgid "In-place path"
+msgstr "インプレース経路"
+
+#: manual/performance/binary.md:229
+msgid "Instructions per 32-bit limb step"
+msgstr "32 ビットリムの 1 ステップあたりの命令数"
+
+#: manual/performance/binary.md:229
+msgid "about 113"
+msgstr "約 113"
+
+#: manual/performance/binary.md:229
+msgid "about 10"
+msgstr "約 10"
+
+#: manual/performance/binary.md:231
+msgid "Crossovers of the divide-and-conquer cutoffs, measured with retired instructions on Native and LLVM."
+msgstr "分割統治のカットオフの交差点で、Native と LLVM で retired instructions を用いて測定しました。"
+
+#: manual/performance/binary.md:233
+msgid "Cutoff"
+msgstr "カットオフ"
+
+#: manual/performance/binary.md:233
+msgid "In-place instructions"
+msgstr "インプレースの命令数"
+
+#: manual/performance/binary.md:233
+msgid "Divide-and-conquer instructions"
+msgstr "分割統治の命令数"
+
+#: manual/performance/binary.md:235
+#: manual/performance/binary.md:236
+#: manual/performance/binary.md:237
+#: manual/performance/binary.md:238
+msgid "Native and LLVM"
+msgstr "Native と LLVM"
+
+#: manual/performance/binary.md:235
+#: manual/performance/binary.md:236
+msgid "6,144 32-bit limbs (196,608 bits)"
+msgstr "32 ビットリム 6,144 個（196,608 ビット）"
+
+#: manual/performance/binary.md:235
+msgid "14.5 million"
+msgstr "1,450 万"
+
+#: manual/performance/binary.md:235
+msgid "25.5 million"
+msgstr "2,550 万"
+
+#: manual/performance/binary.md:236
+#: manual/performance/binary.md:238
+msgid "262,144 bits"
+msgstr "262,144 ビット"
+
+#: manual/performance/binary.md:236
+msgid "220 million"
+msgstr "2.2 億"
+
+#: manual/performance/binary.md:236
+msgid "181 million"
+msgstr "1.81 億"
+
+#: manual/performance/binary.md:237
+#: manual/performance/binary.md:238
+msgid "4,608 chunks (about 41,000 digits)"
+msgstr "4,608 チャンク（約 41,000 桁）"
+
+#: manual/performance/binary.md:237
+msgid "47.2 million"
+msgstr "4,720 万"
+
+#: manual/performance/binary.md:237
+msgid "48.3 million"
+msgstr "4,830 万"
+
+#: manual/performance/binary.md:238
+msgid "201 million"
+msgstr "2.01 億"
+
+#: manual/performance/binary.md:238
+msgid "146 million"
+msgstr "1.46 億"
+
+#: manual/performance/binary.md:240
+msgid "Retired instructions per operation on Native, base 10, against the previous build."
+msgstr "Native での 10 進の 1 演算あたりの retired instructions（従来のビルドとの比較）です。"
+
+#: manual/performance/binary.md:242
+msgid "Radix"
+msgstr "基数"
+
+#: manual/performance/binary.md:244
+msgid "4.9 times fewer"
+msgstr "4.9 倍少ない"
+
+#: manual/performance/binary.md:245
+msgid "5.7 times fewer"
+msgstr "5.7 倍少ない"
+
+#: manual/performance/binary.md:246
+msgid "4.2 times fewer"
+msgstr "4.2 倍少ない"
+
+#: manual/performance/binary.md:248
+msgid "6.1 times fewer"
+msgstr "6.1 倍少ない"
+
+#: manual/performance/binary.md:249
+msgid "8.3 times fewer"
+msgstr "8.3 倍少ない"
+
+#: manual/performance/binary.md:250
+msgid "4.7 times fewer"
+msgstr "4.7 倍少ない"
+
+#: manual/performance/binary.md:251
+msgid "1.5 times fewer"
+msgstr "1.5 倍少ない"
+
+#: manual/performance/binary.md:252
+msgid "Formatting and parsing"
+msgstr "書式化と解析"
+
+#: manual/performance/binary.md:254
+msgid "Fixed-point exponential"
+msgstr "固定小数点の指数関数"
+
+#: manual/performance/binary.md:256
+msgid "The certified `exp` enclosure bounds the Taylor series of the reduced argument (at most 1/8) in fixed point with 16 fractional bits beyond the working precision when the argument is exact at the working precision, instead of with one rounded floating-point operation per term. Each computed term rounds down, so their sum is a lower bound; each carries an error below 3 units of the last place, which gives an upper bound with a rigorous tail. The enclosure is about as wide as the floating-point one, the 12-attempt refinement loop and its working precisions are unchanged, and arguments that are not exact at the working precision still use the previous series. White-box tests check that the enclosure contains a much tighter one and that the final correctly rounded results and flags equal those of the previous series."
+msgstr "引数が作業精度で正確に表せる場合、認証済みの `exp` の包含区間は、簡約した引数（1/8 以下）のテイラー級数を、項ごとに丸めを伴う浮動小数点演算を 1 回行う代わりに、作業精度より 16 ビット多い小数部を持つ固定小数点で評価します。計算した各項は切り捨てなので、その和は下界になり、各項の誤差は最下位桁の 3 単位未満なので、厳密な剰余評価つきの上界が得られます。包含区間の幅は浮動小数点版とほぼ同じで、12 回の精密化ループとその作業精度は変わりません。作業精度で正確でない引数には従来の級数を使います。ホワイトボックステストは、この包含区間がより狭い包含区間を含むこと、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。"
+
+#: manual/performance/binary.md:258
+#: manual/performance/binary.md:308
+msgid "Paired runs. The baseline is not recorded."
+msgstr "ペア実行です。ベースラインは記録されていません。"
+
+#: manual/performance/binary.md:262
+#: manual/performance/binary.md:263
+#: manual/performance/binary.md:274
+#: manual/performance/binary.md:286
+#: manual/performance/binary.md:287
+msgid "53 to 2,048 bits"
+msgstr "53〜2,048 ビット"
+
+#: manual/performance/binary.md:262
+msgid "9 to 10 times faster"
+msgstr "9〜10 倍高速"
+
+#: manual/performance/binary.md:263
+msgid "7 to 11 times faster"
+msgstr "7〜11 倍高速"
+
+#: manual/performance/binary.md:264
+#: manual/performance/binary.md:313
+msgid "decimal `exp`"
+msgstr "10 進の `exp`"
+
+#: manual/performance/binary.md:264
+#: manual/performance/binary.md:301
+msgid "1.7 to 2.2 times faster"
+msgstr "1.7〜2.2 倍高速"
+
+#: manual/performance/binary.md:266
+msgid "Fixed-point sine and cosine"
+msgstr "固定小数点の正弦と余弦"
+
+#: manual/performance/binary.md:268
+msgid "The Taylor series of `sin` and `cos` on the reduced argument (at most 1 in magnitude) is summed in fixed point when the argument is exact at the working precision, with 20 guard bits and, for the sine, the leading zero bits of the argument, so a small argument keeps `precision + 20` significant bits. Each computed term rounds down and is short by at most 4 units, the series alternates with decreasing terms, and so `signed sum +- (4n + 24)` encloses the value, with the sign flipped for a negative sine argument. Arguments that are not exact, or so small that its leading zero bits would exceed four times the working precision plus 64, use the previous floating-point series; the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and the sine and cosine identities."
+msgstr "引数が作業精度で正確に表せる場合、簡約した引数（絶対値 1 以下）の `sin` と `cos` のテイラー級数を、20 ビットのガードビット（正弦では引数の先頭のゼロビット数も加える）を持つ固定小数点で足し合わせます。これにより小さな引数でも `precision + 20` ビットの有効桁を保ちます。計算した各項は切り捨てで、誤差は最大 4 単位です。この級数は符号が交互で項が減少するため、`signed sum +- (4n + 24)` が値を囲み、負の正弦の引数では符号を反転します。引数が正確でない場合や、小さすぎてその先頭のゼロビット数が作業精度の 4 倍に 64 を加えた値を超える場合は、従来の浮動小数点の級数を使い、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、正弦と余弦の恒等式を確認します。"
+
+#: manual/performance/binary.md:270
+msgid "Paired runs on top of the memoized constants (without them the `pi` recomputation hides the series). The series is about nine tenths of the time only once `pi` is cached, which is why the change on its own gives the smaller ratio of the third row."
+msgstr "記憶した定数の上でのペア実行です（それがないと `pi` の再計算が級数の費用を隠します）。`pi` がキャッシュされて初めて級数が時間の約 9 割を占めるため、この変更だけの比は 3 行目の小さい値になります。"
+
+#: manual/performance/binary.md:272
+msgid "Precision or condition"
+msgstr "精度または条件"
+
+#: manual/performance/binary.md:274
+msgid "4.3 to 5.7 times faster"
+msgstr "4.3〜5.7 倍高速"
+
+#: manual/performance/binary.md:275
+msgid "4.6 times faster"
+msgstr "4.6 倍高速"
+
+#: manual/performance/binary.md:276
+msgid "Fixed-point change on its own"
+msgstr "定点方式の変更のみ"
+
+#: manual/performance/binary.md:276
+#: manual/performance/binary.md:313
+msgid "1.3 to 1.4 times faster"
+msgstr "1.3〜1.4 倍高速"
+
+#: manual/performance/binary.md:278
 msgid "Fixed-point logarithm"
 msgstr "固定小数点の対数関数"
 
-#: manual/performance/binary.md:75
-msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and, below a working precision of 64 bits, the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the leading zero bits of `z` would exceed four times the working precision plus 64, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
-msgstr "引数が作業精度で正確に表せる場合、認証済みの `ln` は、[1, 2] に正規化した引数の包含区間（および作業精度 64 ビット未満では、そこから作る `ln 2` と `ln 10` の定数）で、級数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）を固定小数点で足し合わせます。小数部は 16 ビットのガードビットに `z` の先頭のゼロビット数を加えたもので、引数が 1 に近くても包含区間は `precision + 16` ビットの有効桁を保ちます。各演算は切り捨てなので和は下界になり、各項の誤差が 2 単位未満であるという証明と剰余の上界から上界が得られます。引数が正確でない場合や、1 に近すぎて `z` の先頭のゼロビット数が作業精度の 4 倍に 64 を加えた値を超える場合は、従来の浮動小数点の級数を使うので、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。定数キャッシュなしのペア実行では、`ln` は Native で 53〜2,048 ビットにおいて 5〜7 倍、Wasm と Wasm-GC で 5.5〜7.5 倍、10 進の `ln` は 6 倍速くなります。"
+#: manual/performance/binary.md:280
+msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and, below a working precision of 64 bits, the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the leading zero bits of `z` would exceed four times the working precision plus 64, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series."
+msgstr "引数が作業精度で正確に表せる場合、認証済みの `ln` は、[1, 2] に正規化した引数の包含区間（および作業精度 64 ビット未満では、そこから作る `ln 2` と `ln 10` の定数）で、級数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）を固定小数点で足し合わせます。小数部は 16 ビットのガードビットに `z` の先頭のゼロビット数を加えたもので、引数が 1 に近くても包含区間は `precision + 16` ビットの有効桁を保ちます。各演算は切り捨てなので和は下界になり、各項の誤差が 2 単位未満であるという証明と剰余の上界から上界が得られます。引数が正確でない場合や、1 に近すぎて `z` の先頭のゼロビット数が作業精度の 4 倍に 64 を加えた値を超える場合は、従来の浮動小数点の級数を使うので、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。"
+
+#: manual/performance/binary.md:282
+msgid "Paired runs without the constant cache. The baseline is not recorded."
+msgstr "定数キャッシュなしのペア実行です。ベースラインは記録されていません。"
+
+#: manual/performance/binary.md:286
+msgid "5 to 7 times faster"
+msgstr "5〜7 倍高速"
+
+#: manual/performance/binary.md:287
+msgid "5.5 to 7.5 times faster"
+msgstr "5.5〜7.5 倍高速"
+
+#: manual/performance/binary.md:288
+#: manual/performance/binary.md:300
+msgid "decimal `ln`"
+msgstr "10 進の `ln`"
+
+#: manual/performance/binary.md:288
+msgid "6 times faster"
+msgstr "6 倍高速"
+
+#: manual/performance/binary.md:290
+msgid "Certified constants"
+msgstr "認証済み定数"
+
+#: manual/performance/binary.md:292
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself."
+msgstr "認証済みの初等関数は、必要な定数の包含区間（`ln 2`、`ln 10`、`pi`）を作業精度ごとに記憶します。定数ごとに小さなキャッシュを持ち、6 つの精度、最大 65,536 ビットまで保持します。キャッシュ内の包含区間は再計算で得られる値そのものなので、結果がキャッシュの状態や呼び出し順序に依存することはありません。以前は `ln`、`log2`、`log10`、`sin`、`cos`、`tan`、`atan2` の呼び出しごとに `ln 2` の級数や `atan(1)` の評価をやり直しており、その費用は関数本体と同程度でした。"
+
+#: manual/performance/binary.md:294
+msgid "Paired runs, compared with recomputing the constants."
+msgstr "ペア実行で、定数を再計算する場合との比較です。"
+
+#: manual/performance/binary.md:298
+#: manual/performance/binary.md:312
+msgid "53 to 512 bits"
+msgstr "53〜512 ビット"
+
+#: manual/performance/binary.md:298
+msgid "2.4 to 2.6 times faster"
+msgstr "2.4〜2.6 倍高速"
+
+#: manual/performance/binary.md:299
+msgid "2.4 to 3.7 times faster"
+msgstr "2.4〜3.7 倍高速"
+
+#: manual/performance/binary.md:301
+msgid "`ln` and `sin`"
+msgstr "`ln` と `sin`"
+
+#: manual/performance/binary.md:302
+msgid "all targets"
+msgstr "すべてのターゲット"
+
+#: manual/performance/binary.md:302
+msgid "unchanged; it has no such constant"
+msgstr "変化なし。このような定数を持たない"
+
+#: manual/performance/binary.md:304
+msgid "Certified series"
+msgstr "認証済み級数"
+
+#: manual/performance/binary.md:306
+msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper bounds are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, one series instead of four for `sin` and `cos` (evaluated at the midpoint of the reduced interval and widened by its radius). The `exp` skip returns the exact enclosures of before, and the trigonometric one the same correctly rounded results, which white-box tests check against copies of the previous code."
+msgstr "引数が作業精度で正確に表せる場合（通常はそうです）、`exp` の包含区間はテイラー級数を 2 回ではなく 1 回だけ評価します。このとき下端と上端は同じ値であり、各級数が読むのはその一方の界だけだからです。三角関数の包含区間は、要求された関数と象限が実際に読む正弦または余弦の級数だけを評価し、`sin` と `cos` では 4 つの級数が 1 つになります（簡約した区間の中点で評価し、その半径で広げます）。`exp` の省略は以前とまったく同じ包含区間を、三角関数の省略は同じ正しく丸められた結果を返し、ホワイトボックステストで以前のコードの複製と比較しています。"
+
+#: manual/performance/binary.md:312
+msgid "1.8 to 2.0 times faster"
+msgstr "1.8〜2.0 倍高速"
+
+#: manual/performance/binary.md:314
+msgid "1.15 to 1.2 times faster on its own"
+msgstr "単独で 1.15〜1.2 倍高速"
+
+#: manual/performance/binary.md:317
+msgid "Trade-offs"
+msgstr "Trade-off"
+
+#: manual/performance/binary.md:319
+msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
+msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 
 #: manual/performance/decimal.md:1
 msgid "decimal performance"
@@ -24744,12 +25920,6 @@ msgstr "測定の境界"
 #: manual/performance/decimal.md:7
 msgid "`just bench decimal --target native` runs the current Maremark suite in `tooling/src/bench/decimal` and writes `.tmp/bench/decimal.jsonl` plus its analysis file. This is a reproducible measurement artifact, not an immutable release gate. The current branch has no checked-in decimal performance manifest or threshold workflow; measurements use the Maremark suite below."
 msgstr "`just bench decimal --target native` は `tooling/src/bench/decimal` にある現行の Maremark スイートを実行し、`.tmp/bench/decimal.jsonl` とその分析ファイルを書き出します。これは再現可能な測定成果物であって、不変のリリースゲートではありません。現在のブランチにはチェックインされた十進性能マニフェストも閾値ワークフローもないため、測定には以下の Maremark スイートを使います。"
-
-#: manual/performance/decimal.md:13
-#: manual/performance/decimal_gda.md:14
-#: manual/performance/interval.md:12
-msgid "Workload"
-msgstr "ワークロード"
 
 #: manual/performance/decimal.md:15
 msgid "The suite measures add, multiply, and divide at 9, 34, 128, and 512 decimal digits. Each cell compares a `BigInt` coefficient baseline (`kernel/coefficient`), the contextual `Decimal` path (`core/decimal`, the `*_ctx` operations) and the full `DecimalChecked` path (`full/checked`), and validates every output against an exact `BigInt` reference. Input creation and expected-value construction stay outside the timed payload."
@@ -30484,10 +31654,6 @@ msgid "`tools/doc_quality.py` (page coverage, API snapshots, links and anchors, 
 msgstr "`tools/doc_quality.py`（ページの網羅、API スナップショット、リンクとアンカー、バージョンと GDA に関する主張、パッケージの `README.mbt.md` ファイル）、続いて `tools/check_doc_examples.py`（マニュアルのすべての実行可能な例）、最後に `tooling/src/doc_examples` のテスト"
 
 #: manual/verification.md:14
-msgid "Formatting"
-msgstr "フォーマット"
-
-#: manual/verification.md:14
 msgid "the MoonBit formatter"
 msgstr "MoonBit フォーマッタ"
 
@@ -30691,16 +31857,6 @@ msgstr "**演算とバックエンドごとの実行ケース数。** native：2
 #: manual/verification.md:258
 msgid "**MPFR (binary)**"
 msgstr "**MPFR（2 進）**"
-
-#: manual/verification.md:260
-#: manual/verification.md:303
-msgid "Wasm"
-msgstr "Wasm"
-
-#: manual/verification.md:260
-#: manual/verification.md:303
-msgid "Wasm-GC"
-msgstr "Wasm-GC"
 
 #: manual/verification.md:299
 #: manual/verification.md:318
@@ -33486,9 +34642,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "17.6 us"
 #~ msgstr "17.6 us"
 
-#~ msgid "4.98 ms"
-#~ msgstr "4.98 ms"
-
 #~ msgid "9.87 us"
 #~ msgstr "9.87 us"
 
@@ -35932,9 +37085,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "Every elementary `*_ctx` entry has an additive `try_*_ctx` mirror that returns `ArithmeticError::CertificationFailure` when the enclosure cannot prove a unique target value and flags. The GDA-standard surface remains limited to `exp`, `ln`, `log10`, `power`, and `sqrt`; the other families above are IEEE Decimal extensions and are not exported by `decimal_gda`."
 #~ msgstr "各 elementary `*_ctx` には additive な `try_*_ctx` mirror があります。包絡から一意な target value と flags を証明できない場合は `ArithmeticError::CertificationFailure` を返します。GDA standard surface は `exp`、`ln`、`log10`、`power`、`sqrt` に限定され、上記の他の family は IEEE Decimal extension なので `decimal_gda` からは export されません。"
-
-#~ msgid "Conversion notes:"
-#~ msgstr "変換の意味:"
 
 #~ msgid "Decimal-to-binary conversion may be approximate for non-dyadic values."
 #~ msgstr "非 dyadic な 10 進値を 2 進へ変換すると近似になることがあります。"
