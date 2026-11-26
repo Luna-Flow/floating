@@ -197,16 +197,18 @@ pub fn GdaDecimalChecked::sqrt(self : GdaDecimalChecked) -> GdaDecimalChecked {
 }
 
 ///|
-/// The exponential in the context (GDA `exp`). It needs a precision and
-/// exponent limits within plus or minus 999999; outside them the result is NaN
-/// with the `invalid_context` condition.
+/// The exponential in the context (GDA `exp`). In a context whose `e_max` is
+/// above 999999 or whose `e_min` is below -999999 the result is NaN, with
+/// `invalid_context` raised and `invalid_operation` set in the sticky flags
+/// too; `GdaContext::new(precision=5)` is such a context. Inside those limits the
+/// result is computed.
 pub fn GdaDecimalChecked::exp(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.exp)
 }
 
 ///|
 /// The natural logarithm in the context (GDA `ln`), with the limits of `exp`.
-/// `ln(0)` is `-inf`.
+/// Inside them `ln(0)` is `-inf`, with no flag.
 pub fn GdaDecimalChecked::ln(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.ln)
 }
@@ -265,8 +267,8 @@ pub fn GdaDecimalChecked::round_to_integral_value(
 ///|
 /// The sum, rounded in the context of `self` (GDA `add`). A trapped `self`
 /// stays as it is. Otherwise a trapped `other` stops the operation, its flags and
-/// trap joining the result, and the conditions of a completed `other` join the
-/// outcome.
+/// trap joining the result, and the value of `self` is kept; the conditions of a
+/// completed `other` join the outcome.
 ///
 /// ```mbt check
 /// test {
@@ -340,7 +342,13 @@ pub fn GdaDecimalChecked::remainder_near(
 
 ///|
 /// `self` raised to `other`, in the context of `self` (GDA `power`); operands
-/// are taken as for `add`. A non-integer exponent needs the limits of `exp`.
+/// are taken as for `add`. An integer exponent is computed in every context
+/// probed. In a context with the restricted limits of `exp` (`e_max` above 999999
+/// or `e_min` below -999999) most non-integer exponents give NaN with
+/// `invalid_context` raised and `invalid_operation` set in the sticky flags
+/// (`2` to `0.3`, `4` to `0.25`, `2` to `1.5`), but an exponent of `0.5` is
+/// computed (`2` to `0.5` is `1.4142` at precision 5, `-8` to `0.5` is NaN with
+/// `invalid_operation`). Inside the limits non-integer exponents are computed.
 pub fn GdaDecimalChecked::power(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
