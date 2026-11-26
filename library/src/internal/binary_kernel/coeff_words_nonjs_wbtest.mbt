@@ -23,6 +23,9 @@ fn bin_coeff_words_test_value(bits : Int32, fill : Int32) -> Coeff {
 }
 
 ///|
+// oracle: A, S
+// source: A: the word count (bits + 63) / 64, the limb count (bits + 31) / 32, bit_length, the 32-bit limbs as the low and high halves of the 64-bit words, and the representation class (inline up to 64 bits, two words up to 128, heap above) written from the layout; S: shift out and back, doubling and subtracting, the order of a value and its double
+// shares: bin_coeff_words_test_value builds the value (top bit set, the rest from a pattern); Coeff::shift_left, shift_right, add, sub_checked and compare in the identities
 test "Coeff 64-bit limbs: sizes, words and the 32-bit view agree" {
   for
     bits in [
@@ -83,6 +86,9 @@ test "Coeff 64-bit limbs: sizes, words and the 32-bit view agree" {
 }
 
 ///|
+// oracle: A, S
+// source: A: 2^(64 w) - 1 plus one is 1 shifted left by 64 w, bit_length 64 w + 1 and ctz 64 w, written from the definition; S: the identities (2^(64 w) - 1)^2 = 2^(128 w) - 2^(64 w + 1) + 1 and square = mul, with the kernel shift, sub and add
+// shares: bin_coeff_from_words builds the all-ones value; Coeff::add, sub_checked, shift_left, mul and square in the identities
 test "Coeff 64-bit limbs: carries across word boundaries" {
   for words in [2, 3, 4, 7, 8, 17] {
     // 2^(64 * words) - 1 plus one carries through every word
@@ -480,6 +486,9 @@ test "the window row at the limits of its contract: word shifts of magnitude 2^2
 }
 
 ///|
+// oracle: A
+// source: written out: a word shift one above bin_limbs_window_max violates the contract of the row and must panic
+// shares: nothing
 test "panic the window row rejects a word shift beyond its contract" {
   let words = FixedArray::make(4, 0UL)
   let x = FixedArray::make(4, 1UL)

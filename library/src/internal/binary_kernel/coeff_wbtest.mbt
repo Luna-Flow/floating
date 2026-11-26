@@ -24,6 +24,9 @@ fn bin_coeff_test_bigint_gcd(left : BigInt, right : BigInt) -> BigInt {
 }
 
 ///|
+// oracle: S
+// source: round trips of nine decimal literals written out (parse then print gives the text back; bytes out and in gives the value back); the only written values are b"" parsing to "0" and zero serialising to b"\x00"
+// shares: Coeff::parse, Coeff::to_string, Coeff::from_bytes_be and Coeff::to_bytes_be are both sides of each round trip
 test "Coeff canonical boundaries and serialization" {
   let sources = [
     "0", "1", "4294967295", "4294967296", "18446744073709551615", "18446744073709551616",
@@ -40,6 +43,10 @@ test "Coeff canonical boundaries and serialization" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt + * & | ^ - / % on every pair of 0 to 95, compared through the decimal text; subtraction below zero and division by zero must fail
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff exhaustive small arithmetic" {
   for left in 0..<96 {
     for right in 0..<96 {
@@ -87,6 +94,10 @@ test "Coeff exhaustive small arithmetic" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt + * & | ^ - / % on every pair of 11 edge values from 2^31 - 1 to 2^521 - 1 (bits at 31, 32, 63, 64, 96, 127, 128, 159, 257, 521), compared through the decimal text; the identity q d + r = n is also checked with the kernel product and sum
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); the kernel mul and add in the identity
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff large arithmetic differential" {
   let values = [
     (1N << 31) - 1N,
@@ -128,6 +139,10 @@ test "Coeff large arithmetic differential" {
 }
 
 ///|
+// oracle: B, S
+// source: B: core BigInt << >> and bit_length, bit k as (n >> k) & 1, Euclid written in the test on BigInt (bin_coeff_test_bigint_gcd), 37^19 from BigInt::pow, the trailing zero count 93 of a value shifted by 93; S: the radix text round trip for radixes 2 to 36
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); Coeff::parse and Coeff::to_radix_string are both sides of the round trip
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff shifts bits gcd powers and radices" {
   let source_big = (1N << 257) + (1N << 128) + (1N << 63) + 1N
   let source = bin_coeff_test_from_bigint(source_big)
@@ -158,6 +173,10 @@ test "Coeff shifts bits gcd powers and radices" {
 }
 
 ///|
+// oracle: B
+// source: Euclid written in the test on core BigInt (bin_coeff_test_bigint_gcd) for every pair of eight edge values from 0 to 2^128 - 1 (the 64-bit and 128-bit inline limits)
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff inline binary gcd boundaries" {
   let values = [
     0N,
@@ -185,6 +204,10 @@ test "Coeff inline binary gcd boundaries" {
 /// Operands of different lengths used to give the Lehmer loop leading digits
 /// of unrelated scales; this pair (from `ln(1 + 2^-243)` at 245 bits) needed
 /// about 2^220 rounds.
+// oracle: B
+// source: Euclid written in the test on core BigInt for six pairs of unrelated lengths (a pair from ln(1 + 2^-243) at 245 bits that needed about 2^220 Lehmer rounds), both orders of the operands
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff gcd of operands with different lengths" {
   let odd_big = bigint_from_text(
     "2037035976334486086268445688409378161051468393665936250636140449354381299691279112145469441",
@@ -208,6 +231,9 @@ test "Coeff gcd of operands with different lengths" {
 }
 
 ///|
+// oracle: S
+// source: round trip of a 2,200-digit decimal text and a 6,000-digit ternary text (parse then print gives the text back); no independent value
+// shares: Coeff::parse and Coeff::to_string / to_radix_string are both sides of the round trip
 test "Coeff divide-and-conquer radix conversion" {
   let decimal_builder = StringBuilder()
   decimal_builder.write_char('9')
@@ -232,6 +258,9 @@ test "Coeff divide-and-conquer radix conversion" {
 }
 
 ///|
+// oracle: A
+// source: written out: 1 - 2 is an error, division by zero is an error, the empty text, "-1", the digit 2 in radix 2 and radix 1 are rejected
+// shares: nothing
 test "Coeff checked failures" {
   assert_true(Coeff::one().sub_checked(Coeff::from_uint64(2UL)) is Err(_))
   assert_true(Coeff::one().div_rem_checked(Coeff::zero()) is Err(_))
@@ -254,6 +283,10 @@ fn bin_coeff_test_limb_pattern(limbs : Int32, phase : Int32) -> BigInt {
 }
 
 ///|
+// oracle: B
+// source: core BigInt product and square of bit patterns of 3 to 769 limbs on both sides of every multiplication cutoff (Comba, Karatsuba, Toom, NTT) and of one unbalanced pair, compared through the decimal text
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); bin_coeff_test_limb_pattern builds the operands (never the expected value)
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff multiplication algorithm thresholds" {
   for
     limbs in [
@@ -275,6 +308,10 @@ test "Coeff multiplication algorithm thresholds" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt product of a 96-limb and a 193-limb bit pattern, compared through the decimal text
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); bin_coeff_test_limb_pattern builds the operands
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff unbalanced multiplication accumulates exact limbs" {
   let short_big = bin_coeff_test_limb_pattern(96, 2)
   let long_big = bin_coeff_test_limb_pattern(193, 11)
@@ -284,6 +321,10 @@ test "Coeff unbalanced multiplication accumulates exact limbs" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt product (and square when the operands are equal) of every pair of nine values around 2^63, 2^64, 2^95, 2^127 and 2^128, the inline limits
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block)
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff inline Comba multiplication boundaries" {
   let values = [
     (1N << 63) - 1N,
@@ -309,6 +350,10 @@ test "Coeff inline Comba multiplication boundaries" {
 }
 
 ///|
+// oracle: B
+// source: core BigInt / and % of limb patterns around the division cutoffs (divisors of 46 to 50 limbs, dividends of three times the length plus 5), the remainder below the divisor, and q d + r = n with the kernel product and sum
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); bin_coeff_test_limb_pattern builds the operands; the kernel mul and add in the identity
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff division algorithm thresholds" {
   for divisor_limbs in [46, 47, 48, 49, 50] {
     let denominator_big = bin_coeff_test_limb_pattern(divisor_limbs, 9)
@@ -324,6 +369,10 @@ test "Coeff division algorithm thresholds" {
 }
 
 ///|
+// oracle: B, S
+// source: B: floor square root by Newton iteration written in the test on core BigInt (bin_coeff_test_integer_sqrt_floor) for limb patterns of 3 to 257 limbs around the cutoffs, and the remainder n - root^2; S: the identity root^2 + rem = n with rem <= 2 root for every value below 4,096, with the kernel square and add
+// shares: Coeff::parse, Coeff::to_string (the comparison goes through the decimal text, so a fault that is the same in both would pass; the text of powers of the radix is written out in the radix block); the kernel square, add, shift_left in the identity
+// primitives: core BigInt (moonbitlang/core) arithmetic is an implementation independent of the kernel; the decimal text path (Coeff::parse, Coeff::to_string): the powers of the radix and their neighbours are written out as text in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "Coeff sqrtrem identity and thresholds" {
   for integer in 0..<4096 {
     let value = Coeff::from_uint64(integer.to_uint64())
@@ -358,6 +407,10 @@ fn bin_coeff_test_integer_sqrt_floor(value : BigInt) -> BigInt {
 }
 
 ///|
+// oracle: E
+// source: equivalence of add_shifted_left with the two-step route shift_left then add, on random limbs, all-ones runs (carry chains), small and zero operands, 11 shifts from 0 to 1,031
+// shares: Coeff::shift_left, Coeff::add and Coeff::compare (the two-step route is the reference)
+// underneath: shift_left and add: level B against core BigInt in `Coeff shifts bits gcd powers and radices` and `Coeff large arithmetic differential` (this file)
 test "add_shifted_left equals shift_left then add" {
   // Pseudo-random limbs, all-ones runs (carry chains), small and zero operands.
   let mut state = 88172645463325252UL

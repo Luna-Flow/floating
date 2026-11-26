@@ -89,6 +89,10 @@ fn short_div_check(
 }
 
 ///|
+// oracle: B, S
+// source: B: the exact quotient and remainder from core BigInt / and %, rounded to nearest even to the precision by short_div_reference_round (written in the test: kept bits, round bit, a tie only when the division is exact), the truncation and the inexact flag of the directed modes; S: the counts (the fallback is rare, the exact quotients all decline, the neighbours return)
+// shares: bin_coeff_test_from_bigint and bin_coeff_sqrt_test_value (the operands), Coeff::to_string read back with parse_bigint (the approximate quotient is read through the decimal text)
+// primitives: core BigInt (moonbitlang/core) division and shifts are an implementation independent of the kernel; Coeff::to_string: see the text path in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "short quotient rounds like the exact quotient on random operands" {
   let mut returned = 0
   let mut total = 0
@@ -145,6 +149,10 @@ test "short quotient rounds like the exact quotient on random operands" {
 /// halfway when `T` has `precision` or `precision + 1` bits) and their
 /// neighbours (`A = T * B +- delta`), for divisors that are hard for the digit
 /// estimates (all ones, `2^k + 1`, a top limb just above half).
+// oracle: B, S
+// source: B: the exact quotient and remainder from core BigInt / and %, rounded to nearest even to the precision by short_div_reference_round (written in the test: kept bits, round bit, a tie only when the division is exact), the truncation and the inexact flag of the directed modes; S: the counts (the fallback is rare, the exact quotients all decline, the neighbours return)
+// shares: bin_coeff_test_from_bigint and bin_coeff_sqrt_test_value (the operands), Coeff::to_string read back with parse_bigint (the approximate quotient is read through the decimal text)
+// primitives: core BigInt (moonbitlang/core) division and shifts are an implementation independent of the kernel; Coeff::to_string: see the text path in `radix conversion of powers of the radix and their neighbours at chunk edges` (coeff_radix_nonjs_wbtest.mbt)
 test "short quotient on exact quotients and their neighbours" {
   let mut exact_returned = 0
   let mut neighbours_returned = 0

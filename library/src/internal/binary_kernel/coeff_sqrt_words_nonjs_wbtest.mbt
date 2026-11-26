@@ -52,6 +52,10 @@ fn bin_coeff_sqrt_words_check(value_big : BigInt) -> Unit raise {
 }
 
 ///|
+// oracle: B
+// source: the definition of the integer square root, root^2 <= n < (root + 1)^2 and root^2 + remainder = n with remainder <= 2 root, checked on core BigInt products and comparisons; the restoring reference must give the same root, for every width up to 256 bits
+// shares: bin_coeff_sqrt_big reads the roots (limb by limb into BigInt)
+// primitives: core BigInt (moonbitlang/core) multiplication and comparison are an implementation independent of the kernel
 test "word square roots at every width up to 256 bits" {
   for bits in 1..<=256 {
     for seed in 1..<6 {
@@ -82,6 +86,10 @@ test "word square roots at every width up to 256 bits" {
 }
 
 ///|
+// oracle: B
+// source: the definition of the integer square root, root^2 <= n < (root + 1)^2 and root^2 + remainder = n with remainder <= 2 root, checked on core BigInt products and comparisons; the restoring reference must give the same root, for random words and long runs of ones and zeros
+// shares: bin_coeff_sqrt_big reads the roots
+// primitives: core BigInt (moonbitlang/core) multiplication and comparison are an implementation independent of the kernel
 test "word square roots of random data and long runs of bits" {
   for index in 0..<4000 {
     let bits = 1 + index * 53 % 256
@@ -96,6 +104,10 @@ test "word square roots of random data and long runs of bits" {
 }
 
 ///|
+// oracle: B
+// source: the definition of the integer square root, root^2 <= n < (root + 1)^2 and root^2 + remainder = n with remainder <= 2 root, checked on core BigInt products and comparisons; the restoring reference must give the same root, for single words
+// shares: bin_coeff_sqrt_big reads the roots
+// primitives: core BigInt (moonbitlang/core) multiplication and comparison are an implementation independent of the kernel
 test "word square root of a word" {
   for
     value in [
@@ -112,6 +124,9 @@ test "word square root of a word" {
 }
 
 ///|
+// oracle: A
+// source: written out: the root and the remainder of zero are zero at the 64-bit and 256-bit widths
+// shares: nothing
 test "fixed-width restoring square roots return zero for zero at once" {
   let (root, remainder) = bin_coeff_sqrt_rem_u128(0UL, 0UL)
   assert_true(root.is_zero() && remainder.is_zero())

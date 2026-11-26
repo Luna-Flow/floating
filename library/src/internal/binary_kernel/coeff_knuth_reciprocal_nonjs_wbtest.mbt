@@ -71,6 +71,10 @@ fn knuth_edge_words() -> Array[UInt64] {
 }
 
 ///|
+// oracle: B
+// source: the defining formula of the reciprocal, floor((B^3 - 1) / D) - B with B = 2^64, from core BigInt division, for every normalised divisor made of edge words (zero, one, the sign bit and its neighbours, all ones and its neighbours) and 20,000 random divisors with d0 near the carry thresholds
+// shares: knuth_edge_words, WordsTestRandom and knuth_two_words build the divisors
+// primitives: core BigInt (moonbitlang/core) division and shifts are an implementation independent of the kernel
 test "the 3 by 2 reciprocal of Algorithm 6 is floor((B^3 - 1) / D) - B at the edges and at random" {
   let words = knuth_edge_words()
   for d1 in words {
@@ -196,6 +200,9 @@ fn knuth_model_reciprocal8(
 }
 
 ///|
+// oracle: A
+// source: exhaustive over all 32,768 normalised two-digit divisors of base 256: the reciprocal plus 256 equals 16,777,215 / divisor in Int arithmetic (the definition); the branch counters (the carry of line 4 and line 12 with p equal to d1 reached, the tie of line 14 not reached) are written out
+// shares: nothing: the code under test is knuth_model_reciprocal8, the transliteration of the algorithm in the test file, not the kernel
 test "Algorithm 6 on 8-bit words is exact for every divisor, and reaches its equality cases" {
   let hits = [0, 0, 0]
   for d1 in 128..<256 {
@@ -214,6 +221,10 @@ test "Algorithm 6 on 8-bit words is exact for every divisor, and reaches its equ
 }
 
 ///|
+// oracle: B
+// source: the defining formula floor((B^3 - 1) / D) - B from core BigInt division (as in `the 3 by 2 reciprocal of Algorithm 6 ...`), on 20,000 divisors built so that the carry of line 4 leaves p equal to d1 (d0 = d1 + k)
+// shares: binary_fast_div_wide builds the inputs only (k = B^2 - (B + v1) d1; the count of cases is asserted positive), WordsTestRandom
+// primitives: core BigInt (moonbitlang/core) division and shifts are an implementation independent of the kernel
 test "the 3 by 2 reciprocal handles the carry with p equal to d1 on 64-bit words" {
   // `k = B^2 - (B + v1) d1` for the single-word reciprocal `v1` of `d1`; with
   // `d0 = d1 + k` the carry of line 4 leaves `p = d1`

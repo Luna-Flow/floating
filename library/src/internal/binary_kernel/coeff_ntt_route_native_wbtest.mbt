@@ -117,6 +117,10 @@ test "the default product equals the NTT product on every shape and pattern" {
 
 ///|
 #skip("full list: the binary gate runs it with --include-skipped, in the three states")
+// oracle: B
+// source: bin_coeff_mul_ntt, the two-prime number-theoretic transform, a different algorithm from Toom-3 and the Karatsuba blocks, on the shapes of the route tests
+// shares: bin_coeff_from_words and the Coeff limb layout (the products are read through Coeff::equal)
+// primitives: bin_coeff_mul_ntt: level A in the product table (coeff_product_oracle_wbtest.mbt, CPython product, route `ntt`)
 test "Toom-3 and the Karatsuba blocks, called directly, equal the NTT product" {
   for
     shape in [
