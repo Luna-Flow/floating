@@ -83,39 +83,6 @@ library/src/binary/rootn_integer_wbtest.mbt::rootn by an integer root: perfect p
 library/src/binary/tanh_saturation_issue185_wbtest.mbt::tanh saturates to the correctly rounded value for large arguments (#185)	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi generated rows: both sides of the scaled condition, all signs and directions	A
 library/src/decimal/atan2pi_scaled_wbtest.mbt::atan2pi of a tiny ordinate and abscissa 1 underflows (#378)	?
-library/src/decimal/coeff_kernel_wbtest.mbt::BigInt-free ln constants preserve the old scaled integers	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient finite-expansion predicate matches bigint predicate	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient repr power-of-ten rounding matches BigInt path	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient repr rounded division is isomorphic to BigInt path	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal coefficient-native precision helper matches bigint precision helper	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal div_ctx repr pipeline matches bigint divide normalization	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal exact aligned sum keeps GDA unit accumulator representation	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal exact integer helpers match normalized finite values	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal exact integer power and reciprocal keep coefficient units	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal exact square root uses GDA Newton unit operations	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal exp range reduction keeps runtime coefficient units	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal integer parity helper rejects fractional values and tracks signless oddness	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal integer sqrt_rem preserves exact decomposition	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal math finite division repr pipeline matches bigint divide normalization	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal math small-int division repr pipeline matches bigint divide normalization	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal plain add keeps the preferred exponent of an exact sum	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal plain division keeps GDA quotient units through normalization	?
-library/src/decimal/coeff_kernel_wbtest.mbt::decimal unary finalize and zero compare stay coefficient-native	?
-library/src/decimal/coeff_kernel_wbtest.mbt::repr gda normalization rounds to the precision and reduces, as libmpdec	?
-library/src/decimal/coeff_kernel_wbtest.mbt::repr normalization gives the libmpdec result and flags on finite values	?
-library/src/decimal/coeff_kernel_wbtest.mbt::scaleb count extracts exponent-zero integers from coeff repr	?
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: 2^5000000 in a wide context, and the work bound of an unlimited precision	?
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: an exact conversion returns the cohort member closest to the preferred exponent 0 (IEEE 754-2019 5.4.2, 5.2)	A
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: every format pair and rounding direction, preferred exponent (IEEE 754-2019 5.4.2)	A
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: the MPFR mpfr_get_str rows	A
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: the surrogate path equals the exact expansion on every row, cohort and flags included	?
-library/src/decimal/convert_format_wbtest.mbt::binary to decimal: values beyond a binary exponent of 2^22 are correctly rounded (issue 423)	A
-library/src/decimal/convert_format_wbtest.mbt::convertFormat of NaNs: payload, sign and the signaling exception (IEEE 754-2019 6.2.3)	?
-library/src/decimal/convert_format_wbtest.mbt::convertFormat of infinities and zeros keeps the sign	?
-library/src/decimal/convert_format_wbtest.mbt::decimal to binary: every format pair and rounding direction (IEEE 754-2019 5.4.2)	A
-library/src/decimal/convert_format_wbtest.mbt::decimal to binary: the MPFR mpfr_strtofr rows	A
-library/src/decimal/convert_format_wbtest.mbt::decimal to decimal: convertFormat keeps the quantum of the source (IEEE 754-2019 5.4.2)	A
-library/src/decimal/convert_format_wbtest.mbt::from_binary and to_binary keep their results	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal atan certifies tiny decimal128 arguments	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary domains and atan2 signed zeros are explicit	?
 library/src/decimal/elementary_extensions_wbtest.mbt::Decimal elementary extensions honor context rounding	?
