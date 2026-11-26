@@ -34,8 +34,8 @@ test "copySign keeps the magnitude and NaN payload" {
 }
 
 ///|
-// oracle: A
-// source: written out from IEEE Std 754-2019 5.10 (totalOrder: -qNaN with larger payload, -qNaN with smaller payload, -sNaN, -inf, negative finite numbers, -0, +0, positive finite numbers, +inf, +sNaN, +qNaN with larger payload last), checked for all 14 x 14 pairs; total_order_mag of -3 and 2 is false
+// oracle: A, S
+// source: A: written out from IEEE Std 754-2019 5.10 (negative sign below positive, signaling below quiet for +NaN and the reverse for -NaN, -inf, negative finite numbers, -0 below +0, positive finite numbers, +inf), checked for all 14 x 14 pairs; total_order_mag of -3 and 2 is false; S: 5.10 d) 5) iii) leaves the order of NaNs of the same sign and kind by payload implementation-defined, and the block states the order of this library (a larger payload sorts later for a positive NaN and earlier for a negative one) as a convention, not as an external value
 // shares: Binary constructors build the operands; total_order_compare and total_order are the code under test
 test "totalOrder sorts every class, signed zeros, and NaN payloads" {
   let ordered = [
