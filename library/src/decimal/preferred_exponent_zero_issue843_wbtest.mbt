@@ -37,7 +37,7 @@ fn issue843_context(name : String) -> DecimalContext {
 ///|
 // oracle: A
 // source: expected strings written out by hand from IEEE 754-2019 9.2.2, which gives Q(compound(x, n)) = floor(n * min(0, Q(x))), Q(pow(x, y)) = Q(powr(x, y)) = floor(y * Q(x)), Q(pown(x, n)) = floor(n * Q(x)), Q(rootn(x, n)) = floor(Q(x) / n), Q(hypot(x, y)) = min(Q(x), Q(y)); each row's exponent is that formula evaluated with Q(x) read from the operand text, then held to the exponents of the format (Etiny, and Etop when the context clamps, else e_max) as 5.2 selects the member closest to the preferred exponent. The values are zero or the other operand, exact in every row, so no flag is raised.
-// shares: nothing
+// shares: Decimal::from_string (builds the operands from their text, so the cohort of each operand is the one its text gives), issue843_int and issue843_flags (convert the count and print the flags) and Decimal::to_string (prints the result, whose exponent is what is compared); compound_ctx, pown_ctx, rootn_ctx, pow_ctx, powr_ctx and hypot_ctx are the code under test
 test "an exact zero result takes the preferred exponent of 9.2.2 (#843)" {
   // (operation, context, x, y or n, expected); no flag in any row.
   let rows : Array[(String, String, String, String, String)] = [
