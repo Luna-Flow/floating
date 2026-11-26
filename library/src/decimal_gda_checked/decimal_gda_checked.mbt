@@ -198,10 +198,11 @@ pub fn GdaDecimalChecked::sqrt(self : GdaDecimalChecked) -> GdaDecimalChecked {
 
 ///|
 /// The exponential in the context (GDA `exp`). In a context whose `e_max` is
-/// above 999999 or whose `e_min` is below -999999 the result is NaN, with
-/// `invalid_context` raised and `invalid_operation` set in the sticky flags
-/// too; `GdaContext::new(precision=5)` is such a context. Inside those limits the
-/// result is computed.
+/// above 999999, whose `e_min` is below -999999 or whose precision is above
+/// 999999 the result is NaN, with `invalid_context` raised and
+/// `invalid_operation` set in the sticky flags too; `GdaContext::new(precision=5)`
+/// is such a context. In a context inside all three limits the result is
+/// computed.
 pub fn GdaDecimalChecked::exp(self : GdaDecimalChecked) -> GdaDecimalChecked {
   self.unary(@decimal_gda.exp)
 }
@@ -346,12 +347,13 @@ pub fn GdaDecimalChecked::remainder_near(
 ///|
 /// `self` raised to `other`, in the context of `self` (GDA `power`); operands
 /// are taken as for `add`. An integer exponent is computed in every context
-/// probed. In a context with the restricted limits of `exp` (`e_max` above 999999
-/// or `e_min` below -999999) most non-integer exponents give NaN with
+/// probed. In a context with the restricted limits of `exp` (`e_max` above 999999,
+/// `e_min` below -999999 or precision above 999999) most non-integer exponents
+/// give NaN with
 /// `invalid_context` raised and `invalid_operation` set in the sticky flags
 /// (`2` to `0.3`, `4` to `0.25`, `2` to `1.5`), but an exponent of `0.5` is
 /// computed (`2` to `0.5` is `1.4142` at precision 5, `-8` to `0.5` is NaN with
-/// `invalid_operation`). Inside the limits non-integer exponents are computed.
+/// `invalid_operation`). Inside all three limits non-integer exponents are computed.
 pub fn GdaDecimalChecked::power(
   self : GdaDecimalChecked,
   other : GdaDecimalChecked,
