@@ -28,6 +28,11 @@ fn issue194_int(text : String) -> Int32 {
 /// `Q(pown(x, n)) = floor(n * Q(x))`; §5.2: an exact result takes the cohort
 /// member closest to the preferred exponent that represents it. Rows are
 /// (operation, x, y or n, expected, flags), decimal64 unless noted.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.2 (Q(pow(x, y)) = floor(y * Q(x)) and Q(pown(x, n)) = floor(n * Q(x))) and 5.2 (an exact result takes the cohort member closest to the preferred exponent that represents it): pown(1.00, 2) = 1.0000, pown(0.50, 3) = 0.125000, pown(1E+2, -2) = 0.0001, power(4.00, 1.5) = 8.000, power(32.0, 0.2) = 2.0, power(1E+2, 0.5) = 1E+1 and the other 31 rows, with no inexact, overflow or underflow; the values agree with Python decimal, the exponent is written from the clause
+// shares: Decimal::from_string reads the operands; issue194_int reads the integer exponent; pown_ctx and pow_ctx are the code under test; DecimalContext::decimal64 and issue194_flags build the context and print the flags
 test "pow and pown results take the preferred exponent (#194)" {
   let ctx = DecimalContext::decimal64()
   let rows : Array[(String, String, String, String, String)] = [

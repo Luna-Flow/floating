@@ -115,6 +115,11 @@ fn issue265_check(
 /// rule as GDA 1.70 *power*). An overflowing reciprocal must not carry the base's
 /// sign into the result. Expected values: Python `decimal` (libmpdec 4.0.0) as
 /// oracle, checked against the clauses by hand; the oracle is not the standard.
+
+///|
+// oracle: A
+// source: 35 rows: 32 re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no and 3 (-0^-2, -0^-3 and 0^-3 at precision 5) that agree with Python in value and differ only in the divideByZero flag, which is written from IEEE Std 754-2019 9.2.1 (pow(+-0, y) is infinite and signals divideByZero for y < 0; GDA does not signal it); the overflow carries the sign of the power (7.4, GDA 1.70 power): a negative base with an even negative exponent overflows to +infinity or the largest finite number, with an odd one to -infinity or its negative; the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow)
+// shares: issue265_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; issue265_run and the text helpers run and print; pow_ctx is the code under test
 test "power overflows with the sign of the power, not of the reciprocal (#265)" {
   let rows : Array[
     (

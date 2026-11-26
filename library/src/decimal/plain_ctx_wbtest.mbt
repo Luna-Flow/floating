@@ -161,6 +161,9 @@ fn plain_wide() -> DecimalContext {
 }
 
 ///|
+// oracle: S
+// source: the written contract of the plain fast paths (they return None for a zero or NaN or infinite operand, a cancelling sum, an operand outside the range, an exact quotient such as 1/8 and an unrounded product above the exponent of a clamped format, and Some for 1/3); no decimal value is stated
+// shares: DecimalContext::raw and new and Decimal::from_string_ctx, nan, inf and neg build the operands; decimal_add_plain, decimal_mul_plain and decimal_div_plain are the code under test
 test "plain paths decline what they do not cover" {
   let ctx = DecimalContext::raw(7, -30, 40)
   let wide = DecimalContext::new(precision=400)

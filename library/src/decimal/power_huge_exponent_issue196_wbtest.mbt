@@ -14,6 +14,11 @@ fn issue196_flags(flags : DecimalFlags) -> String {
 /// `|n ln|x||` without exponent-sized work. Expected values: Python `decimal`
 /// with Emax/Emin of decimal64 and traps off (cross-check only), in every
 /// directed rounding mode that distinguishes the results.
+
+///|
+// oracle: A
+// source: 280 rows written out from IEEE Std 754-2019 9.2, 7.4 and 7.5 and re-checked by a closed-form rule (library-ran: no): for an even integral exponent of more than 4096 digits and |x| != 1 the power grows without bound when |x| > 1 and exponent > 0 or |x| < 1 and exponent < 0 (overflow: infinity in nearest, ceiling and up, 9.999999999999999E+384 in floor and down, flags x..o.) and vanishes otherwise (underflow: 0E-398 in nearest, floor and down, 1E-398 in ceiling and up, flags x...u), for bases 2, -2, 0.5, -0.5, 10, 1.0000000000000001, 0.9999999999999999 and 7.5; decimal64 parameters
+// shares: Decimal::from_string reads the operands; pow_ctx is the code under test; DecimalContext::decimal64 and issue196_flags build the context and print the flags; String.repeat builds the long exponents
 test "integral exponents beyond 4096 digits overflow or underflow (#196)" {
   let context = DecimalContext::decimal64()
   let rows : Array[(String, String, DecimalRound, String, String)] = [

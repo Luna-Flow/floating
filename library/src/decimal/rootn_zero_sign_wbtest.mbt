@@ -1,6 +1,11 @@
 ///|
 /// IEEE 754-2019 9.2.1: rootn(+-0, n) is +-0 for odd n > 0 and +0 for even
 /// n > 0; for n < 0 it is an infinity with divideByZero, signed only for odd n.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2.1 (pdftotext of the PDF): rootn(+-0, n) is +-0 for odd n > 0 and +0 for even n > 0 with no exception, and for n < 0 an infinity with divideByZero, signed only for odd n
+// shares: Decimal::from_string reads the zeros; rootn_ctx is the code under test; DecimalContext::decimal64 builds the context; is_zero, is_infinite, is_sign_minus and the flags read the result
 test "rootn of a zero follows the parity of the degree" {
   let ctx = DecimalContext::decimal64()
   let negative_zero = Decimal::from_string("-0").unwrap()

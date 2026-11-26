@@ -46,6 +46,11 @@ fn issue348_text(value : Decimal) -> String {
 /// not an `Int`) keep the base's deviation from 1. Expected values: Python
 /// `decimal` at 120 digits, rounded once to decimal64 in each mode (the exact
 /// power is at least 10^-80 away from every decimal64 rounding boundary).
+
+///|
+// oracle: A
+// source: 48 rows re-derived with Python decimal at 140 digits (library-ran: no): the exact power of x = 1 +- 10^-30 to the exponents -2^31, 3000000000, -1E+12, 2^31 - 1 and 3000000001, rounded once to decimal64 in each of the eight modes; the exact power is more than 10^-80 from every decimal64 rounding boundary, and all 48 expected values agree (IEEE Std 754-2019 9.2: correctly rounded)
+// shares: Decimal::from_string reads the operands; pow_ctx is the code under test; issue348_mode, issue348_decimal64, issue348_text and issue348_flags_text build the context and print the result
 test "issue 348: large integer exponents are correctly rounded" {
   let rows : Array[(String, String, String, String)] = [
     (
@@ -237,6 +242,11 @@ test "issue 348: pown at the Int32 minimum" {
 /// is at most `e_max - p + 1`, so it is never clamped. Before the fix the
 /// directed upper bound `1 / 1` (exact, exponent 0) was folded down and its
 /// `clamped` flag returned with the result.
+
+///|
+// oracle: A
+// source: the eight rows re-derived with Python decimal at 140 digits (library-ran: no): (1 + 6.354 * 10^-18)^-40 rounded once to 4 digits in each of the eight modes, with an inexact result and no other flag; the clamped condition of the issue does not exist in the library's flags, so the rows observe the delivered value
+// shares: Decimal::from_string reads the operand and the exponent; pown_ctx and pow_ctx are the code under test; DecimalContext::new, issue348_mode, issue348_text and issue348_flags_text build the context and print the result
 test "issue 350: no clamped for an inexact pown result near 1" {
   let rows : Array[(String, String)] = [
     ("half_even", "1.000"),
@@ -271,6 +281,11 @@ test "issue 350: no clamped for an inexact pown result near 1" {
 /// Issue 349, IEEE 754-2019 §9.2 and §9.2.2: `pow(10^k, y)` with `k*y` an
 /// integer is the exact `10^(k*y)` in every mode, with no inexact and the
 /// cohort of `floor(y * Q(x))`; beyond the range it overflows or underflows.
+
+///|
+// oracle: A
+// source: written out from IEEE Std 754-2019 9.2 and 9.2.2: pow(10^k, y) with k * y an integer is exactly 10^(k * y) in every mode with no flag and with the cohort member of the preferred exponent floor(y * Q(x)) (1E-5 to 1.2 is 0.000001, 1E+10 to 0.5 is 1E+5, 100 to 2.5 is 100000, and the overflow beyond the range is infinity or the largest finite number by direction); the values agree with Python decimal, whose cohort is the full precision one, so the exponent of the result is written from the clause, not from Python
+// shares: Decimal::from_string reads the operands; pow_ctx is the code under test; issue348_mode, issue348_decimal64, issue348_text and issue348_flags_text build the context and print the result
 test "issue 349: exact powers of ten with a non-integral exponent" {
   let rows : Array[(String, String, String, String)] = [
     ("1E-5", "1.2", "0.000001", "....."),
@@ -311,6 +326,11 @@ test "issue 349: exact powers of ten with a non-integral exponent" {
 ///|
 /// Issue 349 controls: `k*y` not an integer is irrational and stays inexact,
 /// and a negative power of ten keeps the domain error.
+
+///|
+// oracle: A
+// source: written out: (10^-5)^1.3 = 10^-6.5 = 3.16227766016837933...E-7, which rounds to 3.162277660168379E-7 (half even, 16 digits) and is inexact, and a negative base with a non-integral exponent is an invalid operation (IEEE Std 754-2019 9.2.1)
+// shares: Decimal::from_string reads the operands; pow_ctx is the code under test; issue348_decimal64, issue348_text and issue348_flags_text build the context and print the result
 test "issue 349: non-exact powers of ten are unchanged" {
   let (value, flags) = Decimal::from_string("1E-5")
     .unwrap()

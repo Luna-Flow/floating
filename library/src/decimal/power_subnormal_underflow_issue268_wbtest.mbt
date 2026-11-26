@@ -115,6 +115,11 @@ fn issue268_check(
 /// directed roundings; when the enclosure straddles 10^Emin the side has to be decided by
 /// refining it. Expected values: the sides from exact rational arithmetic, the rest from
 /// Python `decimal` (libmpdec 4.0.0); the oracle is not the standard.
+
+///|
+// oracle: A
+// source: 26 rows: 25 re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no and one (99999999999999999993E-22 to the power 4 at precision 3, Emin -8) that agrees in value and differs in the underflow flag, which follows IEEE Std 754-2019 7.5 (for decimal formats tininess is detected before rounding on the exact result: (9.9999999999999999993E-3)^4 = 9.9999999999999999972E-9 is below 10^e_min = 10^-8, so the rounded result 1.00E-8 is tiny and inexact: underflow); the sides of the straddling cases are from exact rational arithmetic; the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow)
+// shares: issue268_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; the text helpers print; pow_ctx is the code under test
 test "an integer power just below 10^Emin is subnormal although it rounds to 10^Emin (#268)" {
   let rows : Array[
     (

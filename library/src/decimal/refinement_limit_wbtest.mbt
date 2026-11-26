@@ -102,6 +102,9 @@ test "refinement limit: 0, 1 and negative limits are one step" {
 }
 
 ///|
+// oracle: S
+// source: the written contract of DecimalContext equality (two contexts are equal only if the refinement limit is equal too, the default being Some(12)); the library's own contract, not an external value
+// shares: DecimalContext::decimal64, with_refinement_limit, refinement_limit, precision and rounding are the code under test
 test "refinement limit: contexts that differ only in the limit are different" {
   let a = DecimalContext::decimal64()
   let b = a.with_refinement_limit(Some(3))

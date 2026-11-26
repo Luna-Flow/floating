@@ -114,6 +114,11 @@ fn issue284_check(
 /// floor(y * Q(x)), so 0.05^-3 is 8E+3, not 8.0E+3. The `rounded` condition of the package is raised
 /// only when digits were discarded. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle,
 /// checked against the clauses by hand; the oracle is not the standard.
+
+///|
+// oracle: A
+// source: 50 rows re-derived with Python decimal (libmpdec) re-run on 2026-11-26 with the context of each row (precision, Emin, Emax, clamp, rounding), library-ran: no: all 50 agree (IEEE Std 754-2019 5.2 and 9.2.2: an exact result has the cohort member closest to the preferred exponent floor(n * Q(x)), so 0.05^-3 is 8E+3 and not 8.0E+3, and rounded is raised only when digits were discarded); the flags text is written from the five condition letters x (inexact), i (invalid), z (divideByZero), o (overflow), u (underflow)
+// shares: issue284_check builds the context with DecimalContext::new and with_round and reads the operands with Decimal::from_string; the text helpers print; pow_ctx is the code under test
 test "an exact negative integer power keeps the cohort of its reciprocal (#284)" {
   let rows : Array[
     (

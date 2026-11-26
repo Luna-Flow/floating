@@ -1,6 +1,11 @@
 ///|
 /// rootn(x, 1) = x and rootn(x, -1) = 1 / x are exact here in every rounding
 /// mode; the certified loop cannot decide an exactly representable value.
+
+///|
+// oracle: A
+// source: written out: rootn(x, 1) = x and rootn(x, -1) = 1 / x are exact in every direction (1/5 = 0.2, 1/8 = 0.125, 1/-0.04 = -25, 0.1 and -7.5 unchanged), no inexact and no invalid operation
+// shares: Decimal::from_string reads the operands; rootn_ctx is the code under test; DecimalContext::decimal64, with_round and DecimalRound::from_arithmetic build the contexts; to_string and the flags read the result
 test "rootn of degree 1 and -1 is exact" {
   let modes = [
     RoundingMode::ToNearestEven,

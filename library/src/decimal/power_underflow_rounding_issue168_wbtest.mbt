@@ -48,6 +48,11 @@ fn issue168_context(format : String, mode : DecimalRound) -> DecimalContext {
 /// Expected values: Python `fractions` (exact power) rounded by
 /// `decimal.Context.divide` with the format's parameters; the oracle only
 /// cross-checks the standard.
+
+///|
+// oracle: A
+// source: 116 rows of which 108 were re-derived with Python fractions (the exact power) rounded by decimal.Context.divide with the parameters of decimal32, decimal64 and decimal128 and each of the eight modes (library-ran: no): all 108 agree; the 8 rows with exponents beyond 10^7 were not re-run; IEEE Std 754-2019 4.3 and 7.5: a value below the smallest subnormal rounds on the subnormal grid in the direction, never to zero in every direction
+// shares: issue168_context builds the context with DecimalContext::new and with_round and issue168_int reads the exponent; Decimal::from_string reads the operands; pown_ctx, pow_ctx and exp10_ctx are the code under test; issue168_flags_text prints
 test "decimal integer powers below Etiny round in the rounding direction (#168)" {
   let rows : Array[
     (String, String, String, DecimalRound, String, String, String),
