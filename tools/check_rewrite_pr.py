@@ -65,28 +65,28 @@ QUANTIFIER_CJK: dict[str, dict[str, tuple[str, ...]]] = {
         "never": ("从不", "绝不", "永不", "决不", "从未"),
         "every": ("每个", "每一", "每次", "每种", "每"),
         "each": ("每个", "每一", "每次", "每种", "每", "各"),
-        "only": ("只", "仅", "唯一", "才"),
+        "only": ("只", "仅", "唯一"),
         "none": ("都不", "没有任何", "无一", "均不"),
-        "all": ("所有", "全部", "都", "均", "一切"),
+        "all": ("所有", "全部", "均", "一切"),
         "any": ("任何", "任意", "任一"),
         "at most": ("至多", "最多", "不超过"),
         "at least": ("至少", "最少", "不少于"),
-        "exactly": ("恰好", "恰", "精确", "正好"),
-        "must": ("必须", "须", "一定"),
+        "exactly": ("恰好", "精确", "正好"),
+        "must": ("必须", "须"),
     },
     "ja_JP": {
         "always": ("常に", "いつも", "必ず"),
-        "never": ("決して", "一切", "ない"),
+        "never": ("決して", "一切"),
         "every": ("すべて", "全て", "各", "毎"),
         "each": ("すべて", "全て", "各", "毎", "それぞれ"),
-        "only": ("のみ", "だけ", "限り", "限って"),
-        "none": ("どれも", "いずれも", "ない"),
+        "only": ("のみ", "だけ"),
+        "none": ("どれも", "いずれも", "一つも"),
         "all": ("すべて", "全て", "全部", "いずれも"),
-        "any": ("任意", "どの", "いずれ"),
-        "at most": ("高々", "以下", "最大"),
-        "at least": ("少なくとも", "以上", "最小"),
+        "any": ("任意", "いずれ"),
+        "at most": ("高々", "多くとも", "を超えない"),
+        "at least": ("少なくとも", "を下回らない"),
         "exactly": ("ちょうど", "正確"),
-        "must": ("必ず", "なければ", "必要"),
+        "must": ("必ず", "なければ"),
     },
 }
 
@@ -134,9 +134,19 @@ def mask_fences(text: str) -> list[str]:
     return out
 
 
+def quantifier_counts(text: str) -> Counter[str]:
+    """Occurrences of each quantifier word outside code spans (`None` is a value, not a word)."""
+    low = re.sub(r"`[^`\n]*`", " ", text).lower()
+    counts: Counter[str] = Counter()
+    for q in QUANTIFIERS:
+        n = len(re.findall(r"(?<![\w-])" + q.replace(" ", r"\s+") + r"(?![\w-])", low))
+        if n:
+            counts[q] = n
+    return counts
+
+
 def quantifiers_in(text: str) -> set[str]:
-    low = text.lower()
-    return {q for q in QUANTIFIERS if re.search(r"(?<![\w-])" + q.replace(" ", r"\s+") + r"(?![\w-])", low)}
+    return set(quantifier_counts(text))
 
 
 def quantifier_drift(old_text: str, new_text: str) -> list[tuple[int, str, str]]:
@@ -150,7 +160,8 @@ def quantifier_drift(old_text: str, new_text: str) -> list[tuple[int, str, str]]
             continue
         removed = "\n".join(old[i1:i2])
         added = "\n".join(new[j1:j2])
-        lost = sorted(quantifiers_in(removed) - quantifiers_in(added))
+        was, now = quantifier_counts(removed), quantifier_counts(added)
+        lost = sorted(q for q in was if was[q] > now[q])
         if not lost:
             continue
         line = min(j1 + 1, max(len(new), 1))
@@ -291,11 +302,25 @@ def span_problems(msgid: str, msgstr: str) -> list[str]:
 
 
 def backslash_problem(msgid: str, msgstr: str) -> str | None:
-    if re.search(r"\\\n", msgstr) and re.search(r"\\[A-Za-z]", msgid):
+    # a `\\` line break of a formula is a pair; only a lone backslash before white space is damage
+    lf = r"(?<!\\)\\\n"
+    ws = r"(?<!\\)\\[ \t\r]"
+    if len(re.findall(lf, msgstr)) > len(re.findall(lf, msgid)) and re.search(r"\\[A-Za-z]", msgid):
         return "backslash followed by a line feed in msgstr, msgid has a backslash command"
-    if re.search(r"\\[ \t\r\n]", msgstr) and not re.search(r"\\[ \t\r\n]", msgid):
+    if len(re.findall(ws, msgstr)) > len(re.findall(ws, msgid)):
         return "backslash followed by white space in msgstr, msgid has none"
     return None
+
+
+# Han-only strings are valid Japanese (headings, table cells, names), so a ja_JP msgstr
+# without kana is reported only when it reads as Chinese: the full-width comma, or two
+# characters of simplified Chinese that Japanese writes differently.
+SIMPLIFIED_ONLY = set("这个们与对将该时还会说无种样应进过从单并为后个关页")
+
+
+def reads_as_chinese(text: str) -> bool:
+    text = re.sub(r"`[^`\n]*`|\$[^$\n]*\$|\]\([^)\s]*\)", " ", text)
+    return "\uff0c" in text or sum(c in SIMPLIFIED_ONLY for c in text) >= 2
 
 
 def language_problems(locale: str, msg: Message) -> list[str]:
@@ -310,8 +335,8 @@ def language_problems(locale: str, msg: Message) -> list[str]:
     kana = KANA_RE.search(msg.msgstr)
     if locale == "zh_CN" and kana:
         out.append(f"kana in zh_CN msgstr ({kana.group(0)})")
-    if locale == "ja_JP" and HAN_RE.search(msg.msgstr) and not kana:
-        out.append("ja_JP msgstr has Han characters and no kana (Chinese?)")
+    if locale == "ja_JP" and not kana and msg.msgstr != msg.msgid and reads_as_chinese(msg.msgstr):
+        out.append("ja_JP msgstr has no kana and reads as Chinese")
     return out
 
 

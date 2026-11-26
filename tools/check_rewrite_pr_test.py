@@ -51,6 +51,17 @@ class QuantifierTest(unittest.TestCase):
     def test_substring_is_not_a_word(self) -> None:
         self.assertEqual(self.drift("The mustard stays.\n", "The relish stays.\n"), [])
 
+    def test_none_in_code_span_is_a_value(self) -> None:
+        self.assertEqual(self.drift("Returns `None` when empty.\n", "Returns nothing when empty.\n"), [])
+
+    def test_count_not_presence_807_f1(self) -> None:
+        old = "It never aborts. The call never rounds.\n"
+        new = "It does not abort. The call never rounds.\n"
+        self.assertEqual(self.drift(old, new), ["never"])
+
+    def test_equal_counts_are_not_reported(self) -> None:
+        self.assertEqual(self.drift("It never aborts.\n", "It never aborts, and never rounds, in other words.\n"), [])
+
     def test_real_case_825_exactly_one(self) -> None:
         old = "`sinpi(0.5)` is exactly one, and the function knows it: exact results raise no flag.\n"
         new = "`sinpi(0.5)` is one, so exact results raise no flag.\n"
@@ -111,7 +122,14 @@ class LanguageTest(unittest.TestCase):
         self.assertEqual(self.problems("zh_CN", "有限值为 1"), [])
 
     def test_chinese_in_ja_jp(self) -> None:
-        self.assertTrue(self.problems("ja_JP", "有限值为 1"))
+        self.assertTrue(self.problems("ja_JP", "有限值为，1"))
+
+    def test_kanji_only_headings_in_ja_jp_are_fine(self) -> None:
+        for text in ("初等関数：単調性、臨界点、極", "§8 代替例外処理 [推奨] （未実装）", "`binary`：二進浮動小数点"):
+            self.assertEqual(self.problems("ja_JP", text), [])
+
+    def test_chinese_sentence_without_kana_in_ja_jp(self) -> None:
+        self.assertTrue(self.problems("ja_JP", "这个函数返回有限值，不会中止"))
 
     def test_japanese_and_english_only_in_ja_jp(self) -> None:
         self.assertEqual(self.problems("ja_JP", "有限の値は 1 です"), [])
@@ -122,6 +140,13 @@ class LanguageTest(unittest.TestCase):
         self.assertIn("fuzzy message", self.problems("zh_CN", "好|#, fuzzy"[:1], "a:1|#, fuzzy"))
         (msg,) = check.parse_po('#| msgid "o"\nmsgid "n"\nmsgstr "好"\n')
         self.assertEqual(check.language_problems("zh_CN", msg), ["`#|` previous-msgid line"])
+
+
+class StaleWordsTest(unittest.TestCase):
+    def test_ordinary_cjk_words_are_not_quantifiers(self) -> None:
+        notes = check.stale_mismatch("ja_JP", "It never fails.", "失敗しない")
+        self.assertEqual(len(notes), 1)
+        self.assertEqual(check.stale_mismatch("zh_CN", "All are done.", "都做完了"), ["English has 'all', translation has none of 所有/全部/均"])
 
 
 class StaleTest(unittest.TestCase):
@@ -178,6 +203,10 @@ class BackslashTest(unittest.TestCase):
 
     def test_backslash_space(self) -> None:
         self.assertIsNotNone(check.backslash_problem("The $\\nabla$ operator", "算子 $\\ abla$"))
+
+    def test_formula_line_break_pair_is_fine(self) -> None:
+        text = "$a \\\\\n b$"
+        self.assertIsNone(check.backslash_problem(text + " \\max", text + " \\max"))
 
     def test_clean_formula(self) -> None:
         self.assertIsNone(check.backslash_problem("The $\\nabla$ operator", "算子 $\\nabla$"))
