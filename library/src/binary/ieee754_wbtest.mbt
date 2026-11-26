@@ -372,3 +372,73 @@ test "fractional sqrt splitting retains exact midpoint information" {
   assert_false(exact)
   assert_eq(midpoint_comparison, -1)
 }
+
+///|
+// oracle: A
+// source: written out from the definition of the correctly rounded square root (IEEE Std 754-2019 4.3, 5.4.1) with integer inequalities, no library value: at precision p = bit length of r the representable numbers around sqrt(N) are r and r + 1 (spacing 1 in [2^(p - 1), 2^p)); (r + 1/2)^2 = r^2 + r + 1/4, so N = r^2 + r gives sqrt(N) < r + 1/2 (below the midpoint: r in nearest, toward zero and toward negative infinity, r + 1 toward positive infinity) and N = r^2 + r + 1 gives sqrt(N) > r + 1/2 (above the midpoint: r + 1 in nearest and toward positive infinity, r toward zero and toward negative infinity); there is no tie because r^2 + r + 1/4 is not an integer; e.g. sqrt(6) = 2.449 to 2 bits is 2, sqrt(7) = 2.646 is 3. Precisions up to 60 bits take the word path of sqrt_ctx (binary_sqrt_ctx_words); the values r from 2^60 are above it and reach binary_round_sqrt and binary_sqrt_split
+// shares: Coeff::from_uint64, shift_left, mul and add build r, N and the expected values (level A through the kernel oracle of library/src/internal/binary_kernel), Binary::make_coeff builds the operand exactly, Binary::compare and the flag accessor read the result; sqrt_ctx (the word path and binary_sqrt_split, the code under test)
+test "sqrt next to the midpoint r^2 + r + 1/4 rounds to the side of the definition" {
+  let modes = [
+    BinaryRoundingMode::RoundTiesToEven,
+    BinaryRoundingMode::RoundTiesToAway,
+    BinaryRoundingMode::RoundTowardZero,
+    BinaryRoundingMode::RoundTowardPositive,
+    BinaryRoundingMode::RoundTowardNegative,
+  ]
+  let roots : Array[Coeff] = []
+  for
+    r in [
+      1UL, 2UL, 3UL, 4UL, 5UL, 6UL, 7UL, 8UL, 15UL, 16UL, 17UL, 31UL, 100UL, 1000UL,
+      65535UL, 65536UL,
+    ] {
+    roots.push(Coeff::from_uint64(r))
+  }
+  // From 2^60 the precision no longer fits the word path.
+  let two_60 = Coeff::one().shift_left(60)
+  roots.push(two_60)
+  roots.push(two_60.add(Coeff::one()))
+  roots.push(Coeff::one().shift_left(61).sub_checked(Coeff::one()).unwrap())
+  roots.push(Coeff::one().shift_left(62))
+  roots.push(Coeff::from_uint64(18446744073709551615UL))
+  roots.push(Coeff::one().shift_left(100).add(Coeff::from_uint64(12345UL)))
+  roots.push(
+    Coeff::from_uint64(3UL).shift_left(70).add(Coeff::from_uint64(5UL)),
+  )
+  let exact = fn(value : Coeff) { Binary::make_coeff(value, 0, 300) }
+  let mut checked = 0
+  for r in roots {
+    let p = r.bit_length()
+    let below_n = r.mul(r).add(r)
+    let above_n = below_n.add(Coeff::one())
+    let up = r.add(Coeff::one())
+    for mode in modes {
+      let context = BinaryContext::new(precision=p, rounding=mode)
+      // N = r^2 + r: below the midpoint.
+      let below_expected = if mode == BinaryRoundingMode::RoundTowardPositive {
+        up
+      } else {
+        r
+      }
+      let (value, flags) = exact(below_n).sqrt_ctx(context)
+      assert_true(
+        value.compare(exact(below_expected)) == 0,
+        msg="sqrt(r^2 + r) at \{p} bits, r = \{r}",
+      )
+      assert_true(flags.inexact())
+      // N = r^2 + r + 1: above the midpoint.
+      let above_expected = match mode {
+        BinaryRoundingMode::RoundTowardZero
+        | BinaryRoundingMode::RoundTowardNegative => r
+        _ => up
+      }
+      let (value, flags) = exact(above_n).sqrt_ctx(context)
+      assert_true(
+        value.compare(exact(above_expected)) == 0,
+        msg="sqrt(r^2 + r + 1) at \{p} bits, r = \{r}",
+      )
+      assert_true(flags.inexact())
+      checked += 2
+    }
+  }
+  assert_eq(checked, 23 * 5 * 2)
+}
