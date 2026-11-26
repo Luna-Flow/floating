@@ -19,7 +19,7 @@ fn r445_pow2_mod(n : Int64, c : Int64, order : Int64) -> Int64 {
 
 ///|
 // oracle: A
-// source: number theory with the language's Int64 only: the residue 2^gap mod c is computed by r445_pow2_mod from the multiplicative order of 2 modulo c (3, 5, 7, 9, 11, 13; the loop never forms 2^gap), the residue above half the modulus rounds to the multiple above (the sign flips and c - residue is left), as IEEE Std 754-2019 5.3.1 defines remainder (the nearest integer quotient); exponent gaps 2^31 - 2 to 2^31 + 49 at the exponent of the smallest quantum e_min - 52
+// source: number theory with the language's Int64 only: the residue 2^gap mod c is computed by r445_pow2_mod from the multiplicative order of 2 modulo c (3, 5, 7, 9, 11, 13; the loop never forms 2^gap), the residue above half the modulus rounds to the multiple above (the sign flips and c - residue is left), as IEEE Std 754-2019 5.3.1 defines remainder (the nearest integer quotient); exponent gaps 2^31 - 2 to 2^31 + 49 at the exponent of the smallest quantum e_min - 52; all six moduli are odd, so the exact quotient is never a half integer and the tie rule of remainder (nearest integer, ties to even) is not exercised here (it is covered by the block `remainder rounds the quotient to nearest, ties to even` of remainder_wbtest.mbt)
 // shares: Binary::make and BinCoeff::from_uint64 build x = 2^ex and d = c * 2^ey and the expected value; remainder is the code under test; coefficient, exponent2, is_sign_minus and is_zero read the result
 test "remainder with an exponent gap above 2^31 - 1 (#445)" {
   let ey = binary_value_e_min - 52
