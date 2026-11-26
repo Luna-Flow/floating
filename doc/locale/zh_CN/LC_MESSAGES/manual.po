@@ -27020,7 +27020,7 @@ msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset
 #: manual/tutorial/cli/mpfr_expr_cli.md:91
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:76
-#: manual/tutorial/decimal.md:448
+#: manual/tutorial/decimal.md:449
 #: manual/tutorial/decimal_checked.md:270
 #: manual/tutorial/decimal_gda.md:409
 #: manual/tutorial/decimal_gda_checked.md:268
@@ -28844,8 +28844,8 @@ msgid "`Decimal` implements `Ring` from [luna-generic](https://lunaflow.cn/en/lu
 msgstr "`Decimal` 通过其普通运算符实现了 [luna-generic](https://lunaflow.cn/en/luna-generic/) 的 `Ring`，因此泛型代码无需修改即可在其上运行："
 
 #: manual/tutorial/decimal.md:359
-msgid "The plain operators have no context argument. Each runs the matching `*_ctx` operation in a private context of the larger operand precision, which defaults to 34 digits, with half-even rounding and the storage range of a value, and returns the cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`). Code that needs a precision, an exponent range or flags should take a `DecimalContext` and call the `*_ctx` operations."
-msgstr "普通运算符没有上下文参数。每个运算符都在一个私有上下文中运行对应的 `*_ctx` 运算，该上下文取较大的操作数精度（默认 34 位）、采用半值取偶舍入和值的存储范围，并返回 IEEE 754-2019 所要求的同值类成员（`1.20 + 3.40` 是 `4.60`）。需要精度、指数范围或标志的代码应接收一个 `DecimalContext` 并调用 `*_ctx` 运算。"
+msgid "The plain operators have no context argument. Each is the matching `*_ctx` operation in a private context of the larger operand precision, which defaults to 34 digits, with half-even rounding and the storage range of a value, and returns the cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`). Code that needs a precision, an exponent range or flags should take a `DecimalContext` and call the `*_ctx` operations."
+msgstr "普通运算符没有上下文参数。每个运算符就是在一个私有上下文中执行的对应 `*_ctx` 运算，该上下文取较大的操作数精度（默认 34 位）、采用半值取偶舍入和值的存储范围，并返回 IEEE 754-2019 所要求的同值类成员（`1.20 + 3.40` 是 `4.60`）。需要精度、指数范围或标志的代码应接收一个 `DecimalContext` 并调用 `*_ctx` 运算。"
 
 #: manual/tutorial/decimal.md:366
 msgid "The shared contextual traits"
@@ -28884,48 +28884,48 @@ msgid "`total_order_compare` orders every representation, including cohorts, sig
 msgstr "`total_order_compare` 对每种表示（包括同值类、带符号零和 NaN）都给出顺序，因此它是对存储值排序或对逐位相同的记录去重的合适键："
 
 #: manual/tutorial/decimal.md:420
-msgid "**Elementary functions need an exponent range within 999,999.** A context with `e_max` above 999,999, or `DecimalContext::new()` with a precision of 1000 digits or more, returns NaN with `not_computed` for ordinary operands; special operands and exact points remain values in every context (see [Call an elementary function](#call-an-elementary-function))."
-msgstr "**初等函数需要不超过 999,999 的指数范围。** `e_max` 超过 999,999 的上下文，或精度为 1000 位及以上的 `DecimalContext::new()`，对普通操作数返回带 `not_computed` 的 NaN；特殊操作数和精确点在每个上下文中仍然是值（见[调用初等函数](#call-an-elementary-function)）。"
+msgid "**Elementary functions need an exponent range within 999,999.** A context with `e_max` above 999,999, or a precision of 1000 digits or more with the default range, returns NaN with `not_computed` for ordinary operands; special operands and exact points remain values in every context (see [Call an elementary function](#call-an-elementary-function)). Use `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999."
+msgstr "**初等函数需要不超过 999,999 的指数范围。** `e_max` 超过 999,999 的上下文，或在默认范围下精度为 1000 位及以上的上下文，对普通操作数返回带 `not_computed` 的 NaN；特殊操作数和精确点在每个上下文中仍然是值（见[调用初等函数](#call-an-elementary-function)）。请使用 `decimal32()`/`decimal64()`/`decimal128()`，或将 `e_max` 设为不超过 999,999。"
 
-#: manual/tutorial/decimal.md:425
+#: manual/tutorial/decimal.md:426
 msgid "**Operators are not context operations.** They round half-even to the larger operand precision and apply only the storage range of a value, so a result beyond it is an infinity or a zero. Use `mul_ctx` and `div_ctx` when the result must be bounded by a format, rounded in another direction, or reported through flags."
 msgstr "**运算符不是上下文运算。** 它们按半值取偶舍入到较大的操作数精度，且只应用值的存储范围，因此超出该范围的结果是无穷或零。当结果必须受某个格式约束、按其他方向舍入或通过标志报告时，请使用 `mul_ctx` 和 `div_ctx`。"
 
-#: manual/tutorial/decimal.md:430
+#: manual/tutorial/decimal.md:431
 msgid "**`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal to every NaN and greater than every number, so sorting works. Use `compare_checked` or `is_nan` when a NaN must be unordered."
 msgstr "**`==` 不是 IEEE 相等。** `Eq` 和 `compare` 把每个 NaN 视为与每个 NaN 相等且大于每个数，这样排序才能正常工作。当 NaN 必须无序时，请使用 `compare_checked` 或 `is_nan`。"
 
-#: manual/tutorial/decimal.md:433
+#: manual/tutorial/decimal.md:434
 msgid "**`has_error()` is narrow.** It ignores `inexact`, `overflow` and `underflow`. Check those flags yourself when they matter, for example `overflow` after a long product."
 msgstr "**`has_error()` 的范围很窄。** 它忽略 `inexact`、`overflow` 和 `underflow`。当这些标志重要时，请自行检查，例如在长乘积之后检查 `overflow`。"
 
-#: manual/tutorial/decimal.md:436
+#: manual/tutorial/decimal.md:437
 msgid "**The checked powers convert the exponent at context precision.** `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a `Decimal` with the context precision, so an exponent with more digits than the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or call `pown_ctx`, which converts the exponent exactly."
 msgstr "**checked 幂运算按上下文精度转换指数。** `pow_int_checked` 和 `pow_nat_checked` 会把整数指数转换为具有上下文精度的 `Decimal`，因此位数超过精度的指数会在求幂之前被舍入。请保持 $|n| < 10^{p}$，或调用会精确转换指数的 `pown_ctx`。"
 
-#: manual/tutorial/decimal.md:441
+#: manual/tutorial/decimal.md:442
 msgid "**A context has the five rounding-direction attributes of IEEE 754-2019 4.3 and no more.** `HalfDown`, `Up` and `ZeroFiveUp` of GDA are in `decimal_gda` only; commercial rounding is `RoundTiesToAway`."
 msgstr "**上下文拥有 IEEE 754-2019 4.3 的五种舍入方向属性，仅此而已。** GDA 的 `HalfDown`、`Up` 和 `ZeroFiveUp` 只在 `decimal_gda` 中；商业舍入是 `RoundTiesToAway`。"
 
-#: manual/tutorial/decimal.md:444
+#: manual/tutorial/decimal.md:445
 msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead."
 msgstr "**二进制转换会丢失十进制含义。** `from_double(0.1)` 是精确的二进制值 `0.1000000000000000055511151231257827`（舍入到 34 位），而不是 `0.1`；请改为解析文本。"
 
-#: manual/tutorial/decimal.md:450
+#: manual/tutorial/decimal.md:451
 msgid "[decimal API](../api/decimal.md): every type and function with its exact semantics."
 msgstr "[decimal API](../api/decimal.md)：每个类型和函数及其精确语义。"
 
-#: manual/tutorial/decimal.md:452
+#: manual/tutorial/decimal.md:453
 msgid "[decimal design](../design/decimal.md): formats, cohorts, encodings, rounding, error bounds and certification."
 msgstr "[decimal 设计](../design/decimal.md)：格式、同值类、编码、舍入、误差界与认证。"
 
-#: manual/tutorial/decimal.md:454
+#: manual/tutorial/decimal.md:455
 msgid "[decimal conformance](../conformance/decimal.md) and [decimal performance](../performance/decimal.md): the finite evidence and the measurement method."
 msgstr "[decimal 符合性](../conformance/decimal.md)和 [decimal 性能](../performance/decimal.md)：有限的证据与测量方法。"
 
-#: manual/tutorial/decimal.md:457
-msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA flags and traps."
-msgstr "关于流水线与 GDA 标志和陷阱，见 [`decimal_checked` 教程](decimal_checked.md)和 [`decimal_gda` 教程](decimal_gda.md)。"
+#: manual/tutorial/decimal.md:458
+msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA flags."
+msgstr "关于流水线与 GDA 标志，见 [`decimal_checked` 教程](decimal_checked.md)和 [`decimal_gda` 教程](decimal_gda.md)。"
 
 #: manual/tutorial/decimal_checked.md:1
 msgid "decimal_checked tutorial"
