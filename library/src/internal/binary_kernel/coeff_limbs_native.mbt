@@ -391,11 +391,14 @@ let bin_limbs_window_c_min_count : Int32 = 14
 ///|
 /// Shortest window, in limbs, that goes to the assembly interior on the
 /// assembly tier; windows from `bin_limbs_window_c_min_count` up to it run the C
-/// body. The assembly interior saves 3 to 4 instructions per limb with one
-/// operand shifted (6.3 against 9.4) and 6 to 9 with two, and a call costs about
-/// 55 instructions more than the C body's (seven register arguments, the
-/// previous limbs of the shifted operands, the registers saved around the block,
-/// the flag set and read back, the remainder), so it pays from about 25 limbs.
+/// body. The assembly interior costs 3.0, 6.0 and 9.0 instructions per limb with
+/// no, one or two operands shifted (12, 24 and 36 per block of four, from the
+/// disassembly) and saves 2.8 per limb at 16,384 bits (`add` and `sub`, one
+/// operand shifted: 3,601 against 2,894 instructions over 256 limbs). A call
+/// costs about 55 instructions more than the C body's (seven register
+/// arguments, the previous limbs of the shifted operands, the registers saved
+/// around the block, the flag set and read back, the remainder), so the break-even
+/// is near 20 limbs (55 / 2.8) and 24 keeps a margin above it.
 /// `Binary::add` and `sub` on Apple M4, 2026-11-26 (two-count method, median of
 /// five runs, differences of at least 98M instructions, assembly tier over the C
 /// tier of one executable): 0.99 to 1.01 from 1,024 to 1,792 bits (within the
