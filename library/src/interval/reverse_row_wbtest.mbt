@@ -89,5 +89,5 @@ test "pow_rev1 and pow_rev2 at a point base and a point result equal the indepen
     assert_eq(r.hi_.to_string(), row.hi.to_string(), msg=name)
     count += 1
   }
-  assert_eq(count, 23)
+  assert_eq(count, 24)
 }
